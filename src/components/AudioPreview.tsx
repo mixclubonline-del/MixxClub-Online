@@ -9,9 +9,39 @@ interface Track {
 }
 
 const tracks: Track[] = [
-  { title: "Hip-Hop Track" },
-  { title: "Pop Ballad" },
-  { title: "Rock Anthem" },
+  { 
+    title: "Rap Vocal Enhancement",
+    beforeUrl: undefined,
+    afterUrl: undefined
+  },
+  { 
+    title: "R&B Bedroom Mix",
+    beforeUrl: undefined,
+    afterUrl: undefined
+  },
+  { 
+    title: "BandLab to Radio",
+    beforeUrl: undefined,
+    afterUrl: undefined
+  },
+];
+
+const trackDetails = [
+  {
+    genre: "Hip-Hop",
+    artist: "Independent Artist",
+    improvement: "Vocal clarity +40%, Mix balance +35%"
+  },
+  {
+    genre: "R&B",
+    artist: "Emerging Artist",
+    improvement: "Studio quality +60%, Dynamics +45%"
+  },
+  {
+    genre: "Hip-Hop",
+    artist: "Bedroom Producer",
+    improvement: "Commercial ready +80%, AI stem separation"
+  }
 ];
 
 const AudioPreview = () => {
@@ -67,12 +97,15 @@ const AudioPreview = () => {
   }, []);
 
   return (
-    <section id="preview" className="py-24 bg-background">
+    <section id="preview" className="py-24 bg-card">
       <div className="container px-6">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold mb-4">Before & After</h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Hear the difference our professional mixing and AI enhancement makes
+            Hear the Transformation
+          </p>
+          <p className="text-muted-foreground mt-4">
+            Listen to real examples of tracks we've transformed from bedroom recordings to professional, radio-ready quality using our AI-enhanced mixing process.
           </p>
         </div>
 
@@ -80,13 +113,20 @@ const AudioPreview = () => {
           {tracks.map((track, index) => (
             <Card key={index} className="border-border bg-card overflow-hidden">
               <CardHeader>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full">
+                    {trackDetails[index].genre}
+                  </span>
+                  <span className="text-xs text-muted-foreground">{trackDetails[index].artist}</span>
+                </div>
                 <CardTitle className="text-lg">{track.title}</CardTitle>
+                <p className="text-xs text-muted-foreground mt-2">{trackDetails[index].improvement}</p>
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Before */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Before</span>
+                    <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Before</span>
                     <button
                       onClick={() => togglePlay(index, 'before')}
                       className="w-8 h-8 rounded-full bg-muted hover:bg-primary/20 flex items-center justify-center transition-colors"
@@ -119,7 +159,7 @@ const AudioPreview = () => {
                 {/* After */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-primary font-medium">After</span>
+                    <span className="text-sm font-semibold text-primary uppercase tracking-wider">After</span>
                     <button
                       onClick={() => togglePlay(index, 'after')}
                       className="w-8 h-8 rounded-full bg-primary/20 hover:bg-primary/30 flex items-center justify-center transition-colors"
