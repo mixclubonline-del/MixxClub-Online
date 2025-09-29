@@ -1,7 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 interface AuthContextType {
@@ -19,7 +18,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     // Set up auth state listener
@@ -60,7 +58,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (error) throw error;
       
       toast.success('Account created! Please check your email to verify.');
-      navigate(role === 'artist' ? '/artist-dashboard' : '/engineer-dashboard');
+      
+      // Navigate using window.location to avoid router dependency
+      window.location.href = role === 'artist' ? '/artist-dashboard' : '/engineer-dashboard';
     } catch (error: any) {
       toast.error(error.message || 'Failed to sign up');
       throw error;
@@ -81,10 +81,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         .from('profiles')
         .select('role')
         .eq('id', data.user.id)
-        .single();
+        .maybeSingle();
 
       toast.success('Welcome back!');
-      navigate(profile?.role === 'engineer' ? '/engineer-dashboard' : '/artist-dashboard');
+      
+      // Navigate using window.location to avoid router dependency
+      window.location.href = profile?.role === 'engineer' ? '/engineer-dashboard' : '/artist-dashboard';
     } catch (error: any) {
       toast.error(error.message || 'Failed to sign in');
       throw error;
@@ -97,7 +99,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (error) throw error;
       
       toast.success('Signed out successfully');
-      navigate('/');
+      
+      // Navigate using window.location to avoid router dependency
+      window.location.href = '/';
     } catch (error: any) {
       toast.error(error.message || 'Failed to sign out');
     }
