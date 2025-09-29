@@ -8,6 +8,8 @@ import Home from "./pages/Home";
 import Auth from "./pages/Auth";
 import ArtistDashboard from "./pages/ArtistDashboard";
 import EngineerDashboard from "./pages/EngineerDashboard";
+import ArtistCRM from "./pages/ArtistCRM";
+import EngineerCRM from "./pages/EngineerCRM";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +26,8 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/artist-dashboard" element={<ArtistDashboard />} />
             <Route path="/engineer-dashboard" element={<EngineerDashboard />} />
+            <Route path="/artist-crm" element={<ArtistCRM />} />
+            <Route path="/engineer-crm" element={<EngineerCRM />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

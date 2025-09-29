@@ -34,6 +34,16 @@ const Navigation = () => {
                 <a href="/mastering" className="text-foreground hover:text-primary transition-colors">
                   Mastering
                 </a>
+                {user && (
+                  <>
+                    <Link to="/artist-crm" className="text-foreground hover:text-primary transition-colors">
+                      Artist CRM
+                    </Link>
+                    <Link to="/engineer-crm" className="text-foreground hover:text-primary transition-colors">
+                      Engineer CRM
+                    </Link>
+                  </>
+                )}
                 {user ? (
                   <Button onClick={signOut} variant="ghost" size="sm">
                     Sign Out
@@ -83,6 +93,16 @@ const Navigation = () => {
             <a href="/mastering" className="block text-foreground hover:text-primary transition-colors">
               Mastering
             </a>
+            {user && (
+              <>
+                <Link to="/artist-crm" className="block text-foreground hover:text-primary transition-colors">
+                  Artist CRM
+                </Link>
+                <Link to="/engineer-crm" className="block text-foreground hover:text-primary transition-colors">
+                  Engineer CRM
+                </Link>
+              </>
+            )}
             {user ? (
               <Button onClick={signOut} variant="ghost" size="sm" className="w-full">
                 Sign Out
