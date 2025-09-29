@@ -3,9 +3,11 @@ import { Menu, Sparkles } from "lucide-react";
 import { useState } from "react";
 import robotLogo from "@/assets/mixclub-robot-logo.png";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, signOut } = useAuth();
   const location = useLocation();
   const isHome = location.pathname === "/";
 
@@ -32,17 +34,25 @@ const Navigation = () => {
                 <a href="/mastering" className="text-foreground hover:text-primary transition-colors">
                   Mastering
                 </a>
-                <a href="/auth">
-                  <Button variant="ghost" size="sm">
-                    Login
+                {user ? (
+                  <Button onClick={signOut} variant="ghost" size="sm">
+                    Sign Out
                   </Button>
-                </a>
-                <a href="/auth?mode=signup">
-                  <Button size="sm" className="gap-2">
-                    <Sparkles className="w-4 h-4" />
-                    Start Free
-                  </Button>
-                </a>
+                ) : (
+                  <>
+                    <Link to="/auth">
+                      <Button variant="ghost" size="sm">
+                        Login
+                      </Button>
+                    </Link>
+                    <Link to="/auth?mode=signup">
+                      <Button size="sm" className="gap-2">
+                        <Sparkles className="w-4 h-4" />
+                        Start Free
+                      </Button>
+                    </Link>
+                  </>
+                )}
               </div>
 
               <button
@@ -73,17 +83,25 @@ const Navigation = () => {
             <a href="/mastering" className="block text-foreground hover:text-primary transition-colors">
               Mastering
             </a>
-            <a href="/auth">
-              <Button variant="ghost" size="sm" className="w-full">
-                Login
+            {user ? (
+              <Button onClick={signOut} variant="ghost" size="sm" className="w-full">
+                Sign Out
               </Button>
-            </a>
-            <a href="/auth?mode=signup">
-              <Button size="sm" className="w-full gap-2">
-                <Sparkles className="w-4 h-4" />
-                Start Free
-              </Button>
-            </a>
+            ) : (
+              <>
+                <Link to="/auth">
+                  <Button variant="ghost" size="sm" className="w-full">
+                    Login
+                  </Button>
+                </Link>
+                <Link to="/auth?mode=signup">
+                  <Button size="sm" className="w-full gap-2">
+                    <Sparkles className="w-4 h-4" />
+                    Start Free
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
         )}
       </div>

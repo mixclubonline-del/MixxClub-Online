@@ -1,8 +1,9 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { Mail, Phone, MessageCircle } from "lucide-react";
 import {
   Select,
@@ -11,16 +12,64 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
+import { z } from "zod";
+
+const contactSchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(100),
+  email: z.string().trim().email("Invalid email address").max(255),
+  phone: z.string().trim().max(20).optional(),
+  message: z.string().trim().min(1, "Message is required").max(1000),
+  budget: z.string().trim().max(50).optional(),
+});
 
 const Contact = () => {
-  const { toast } = useToast();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [message, setMessage] = useState("");
+  const [budget, setBudget] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Message sent!",
-      description: "We'll get back to you within 24 hours.",
-    });
+    
+    try {
+      // Validate form data
+      const validated = contactSchema.parse({ name, email, phone, message, budget });
+      
+      setLoading(true);
+
+      // Insert into Supabase
+      const { error } = await supabase
+        .from('contact_submissions')
+        .insert([{
+          name: validated.name,
+          email: validated.email,
+          phone: validated.phone || null,
+          message: validated.message,
+          budget: validated.budget || null,
+        }]);
+
+      if (error) throw error;
+
+      toast.success("Message sent! We'll get back to you within 24 hours.");
+      
+      // Clear form
+      setName("");
+      setEmail("");
+      setPhone("");
+      setMessage("");
+      setBudget("");
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        toast.error(error.errors[0].message);
+      } else {
+        toast.error("Failed to send message. Please try again.");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -45,27 +94,34 @@ const Contact = () => {
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <Input placeholder="Name *" required />
+                  <Input 
+                    placeholder="Name *" 
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required 
+                  />
                 </div>
                 <div>
-                  <Input type="email" placeholder="Email *" required />
+                  <Input 
+                    type="email" 
+                    placeholder="Email *" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required 
+                  />
                 </div>
                 <div>
-                  <Select>
+                  <Input 
+                    type="tel" 
+                    placeholder="Phone (optional)" 
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Select value={budget} onValueChange={setBudget}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select a service" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="basic">Basic Mixing ($49)</SelectItem>
-                      <SelectItem value="pro">Pro Package ($99)</SelectItem>
-                      <SelectItem value="custom">Custom Quote</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select budget" />
+                      <SelectValue placeholder="Select budget (optional)" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="49-99">$49-99</SelectItem>
@@ -76,13 +132,21 @@ const Contact = () => {
                   </Select>
                 </div>
                 <div>
-                  <Textarea placeholder="Project Details *" required className="min-h-[120px]" />
+                  <Textarea 
+                    placeholder="Project Details *" 
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    required 
+                    className="min-h-[120px]" 
+                  />
                 </div>
                 <p className="text-xs text-muted-foreground">
                   Upload your demo tracks (optional)<br />
                   Supported: MP3, WAV, FLAC (Max 100MB each)
                 </p>
-                <Button type="submit" className="w-full">Send Message</Button>
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? "Sending..." : "Send Message"}
+                </Button>
               </form>
             </CardContent>
           </Card>
