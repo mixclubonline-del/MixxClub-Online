@@ -1,173 +1,270 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Music, User, Headphones } from "lucide-react";
-import Navigation from "@/components/Navigation";
-import { useAuth } from "@/hooks/useAuth";
+import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ArrowLeft, Music, Sparkles, Users, Zap } from "lucide-react";
 import { toast } from "sonner";
+import { z } from "zod";
+import robotLogo from "@/assets/mixclub-robot-logo.png";
+
+const authSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  fullName: z.string().min(2, "Full name must be at least 2 characters").optional(),
+});
 
 const Auth = () => {
-  const [isSignUp, setIsSignUp] = useState(false);
-  const [userType, setUserType] = useState<"artist" | "engineer">("artist");
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const mode = searchParams.get("mode") || "login";
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
-  
-  const navigate = useNavigate();
-  const { user, signIn, signUp } = useAuth();
-
-  useEffect(() => {
-    if (user) {
-      navigate('/');
-    }
-  }, [user, navigate]);
+  const [error, setError] = useState("");
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!email || !password) {
-      toast.error('Please fill in all fields');
-      return;
-    }
-
-    if (isSignUp && !fullName) {
-      toast.error('Please enter your full name');
-      return;
-    }
-
-    if (password.length < 6) {
-      toast.error('Password must be at least 6 characters');
-      return;
-    }
-
+    setError("");
     setLoading(true);
+
     try {
-      if (isSignUp) {
-        await signUp(email, password, fullName, userType);
+      // Validate input
+      const validationData = {
+        email,
+        password,
+        ...(mode === "signup" && { fullName })
+      };
+      
+      authSchema.parse(validationData);
+
+      if (mode === "signup") {
+        const redirectUrl = `${window.location.origin}/`;
+        
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: redirectUrl,
+            data: {
+              full_name: fullName,
+            }
+          }
+        });
+
+        if (error) {
+          if (error.message.includes("already registered")) {
+            setError("This email is already registered. Please sign in instead.");
+          } else {
+            setError(error.message);
+          }
+          return;
+        }
+
+        toast.success("Account created! Please check your email for verification.");
+        navigate("/");
       } else {
-        await signIn(email, password);
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (error) {
+          if (error.message.includes("Invalid login credentials")) {
+            setError("Invalid email or password. Please try again.");
+          } else {
+            setError(error.message);
+          }
+          return;
+        }
+
+        toast.success("Welcome back!");
+        navigate("/");
       }
-    } catch (error) {
-      // Error is handled in useAuth
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        setError(err.errors[0].message);
+      } else {
+        setError("An unexpected error occurred. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-card">
-      <Navigation />
-      <div className="container px-6 py-32 flex items-center justify-center min-h-screen">
-        <Card className="w-full max-w-md border-border">
-          <CardHeader className="text-center">
-            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center mx-auto mb-4">
-              <Music className="w-8 h-8 text-primary-foreground" />
+    <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5 flex items-center justify-center p-6">
+      {/* Background Effects */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-20 left-10 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-20 right-10 w-[32rem] h-[32rem] bg-primary/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
+      </div>
+
+      <div className="relative z-10 w-full max-w-md">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-6">
+            <div className="relative group">
+              <div className="absolute inset-0 bg-primary/30 rounded-full blur-2xl animate-pulse-glow"></div>
+              <img 
+                src={robotLogo} 
+                alt="MixClub Online" 
+                className="w-16 h-16 relative z-10" 
+              />
             </div>
-            <CardTitle className="text-2xl">
-              {isSignUp ? "Create your account" : "Welcome back"}
-            </CardTitle>
-            <CardDescription>
-              {isSignUp
-                ? "Join MixClubOnline and transform your music"
-                : "Sign in to continue to your dashboard"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleAuth} className="space-y-6">
-              {isSignUp && (
-                <>
-                  <div className="space-y-2">
-                    <Label htmlFor="fullName">Full Name</Label>
-                    <Input
-                      id="fullName"
-                      type="text"
-                      placeholder="Your Name"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      required
-                      className="bg-background"
-                    />
-                  </div>
-                  <div className="space-y-4">
-                    <Label>I am a</Label>
-                    <div className="grid grid-cols-2 gap-4">
-                      <button
-                        type="button"
-                        onClick={() => setUserType("artist")}
-                        className={`p-4 rounded-lg border-2 transition-all ${
-                          userType === "artist"
-                            ? "border-primary bg-primary/10"
-                            : "border-border hover:border-primary/50"
-                        }`}
-                      >
-                        <User className="w-6 h-6 mx-auto mb-2 text-primary" />
-                        <div className="text-sm font-medium">Artist</div>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setUserType("engineer")}
-                        className={`p-4 rounded-lg border-2 transition-all ${
-                          userType === "engineer"
-                            ? "border-primary bg-primary/10"
-                            : "border-border hover:border-primary/50"
-                        }`}
-                      >
-                        <Headphones className="w-6 h-6 mx-auto mb-2 text-primary" />
-                        <div className="text-sm font-medium">Engineer</div>
-                      </button>
-                    </div>
-                  </div>
-                </>
+          </div>
+          <h1 className="text-3xl font-bold mb-2">
+            <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+              MixClub
+            </span>{" "}
+            <span className="text-foreground">Online</span>
+          </h1>
+          <p className="text-muted-foreground">
+            {mode === "signup" 
+              ? "Join the future of music collaboration" 
+              : "Welcome back to the studio"
+            }
+          </p>
+        </div>
+
+        <Card className="p-8 bg-card/80 backdrop-blur-sm border-primary/20 shadow-xl">
+          <form onSubmit={handleAuth} className="space-y-6">
+            {mode === "signup" && (
+              <div className="space-y-2">
+                <Label htmlFor="fullName">Full Name</Label>
+                <Input
+                  id="fullName"
+                  type="text"
+                  placeholder="Enter your full name"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  className="bg-background/50 border-primary/20 focus:border-primary/50"
+                  required
+                />
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="bg-background/50 border-primary/20 focus:border-primary/50"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="bg-background/50 border-primary/20 focus:border-primary/50"
+                required
+              />
+              {mode === "signup" && (
+                <p className="text-xs text-muted-foreground">
+                  Password must be at least 6 characters
+                </p>
               )}
+            </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="your@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="bg-background"
-                />
+            {error && (
+              <Alert className="border-destructive/20 bg-destructive/10">
+                <AlertDescription className="text-destructive">
+                  {error}
+                </AlertDescription>
+              </Alert>
+            )}
+
+            <Button 
+              type="submit" 
+              className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary"
+              disabled={loading}
+            >
+              {loading ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                  {mode === "signup" ? "Creating Account..." : "Signing In..."}
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4" />
+                  {mode === "signup" ? "Create Account" : "Sign In"}
+                </div>
+              )}
+            </Button>
+          </form>
+
+          <Separator className="my-6" />
+
+          <div className="text-center space-y-4">
+            <p className="text-sm text-muted-foreground">
+              {mode === "signup" 
+                ? "Already have an account?" 
+                : "Don't have an account?"
+              }
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => navigate(mode === "signup" ? "/auth" : "/auth?mode=signup")}
+              className="w-full border-primary/20 hover:border-primary/40 hover:bg-primary/5"
+            >
+              {mode === "signup" ? "Sign In Instead" : "Create Account"}
+            </Button>
+          </div>
+
+          {mode === "signup" && (
+            <div className="mt-8 pt-6 border-t border-border">
+              <div className="text-center mb-4">
+                <p className="text-sm font-medium text-muted-foreground">Join thousands of creators</p>
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="bg-background"
-                />
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div className="space-y-2">
+                  <div className="w-8 h-8 mx-auto rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Users className="w-4 h-4 text-primary" />
+                  </div>
+                  <p className="text-xs text-muted-foreground">2.5K+ Engineers</p>
+                </div>
+                <div className="space-y-2">
+                  <div className="w-8 h-8 mx-auto rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Music className="w-4 h-4 text-primary" />
+                  </div>
+                  <p className="text-xs text-muted-foreground">500K+ Tracks</p>
+                </div>
+                <div className="space-y-2">
+                  <div className="w-8 h-8 mx-auto rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Zap className="w-4 h-4 text-primary" />
+                  </div>
+                  <p className="text-xs text-muted-foreground">Real-time</p>
+                </div>
               </div>
-
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? (isSignUp ? "Creating Account..." : "Signing In...") : (isSignUp ? "Create Account" : "Sign In")}
-              </Button>
-
-              <div className="text-center text-sm">
-                <button
-                  type="button"
-                  onClick={() => setIsSignUp(!isSignUp)}
-                  className="text-primary hover:underline"
-                >
-                  {isSignUp
-                    ? "Already have an account? Sign in"
-                    : "Don't have an account? Sign up"}
-                </button>
-              </div>
-            </form>
-          </CardContent>
+            </div>
+          )}
         </Card>
+
+        <div className="text-center mt-6">
+          <Button
+            variant="ghost"
+            onClick={() => navigate("/")}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Home
+          </Button>
+        </div>
       </div>
     </div>
   );
