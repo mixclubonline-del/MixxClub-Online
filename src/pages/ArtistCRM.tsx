@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Upload, Music, TrendingUp, Award, MessageSquare, DollarSign } from 'lucide-react';
+import { Upload, Music, TrendingUp, Award, MessageSquare, DollarSign, Zap, Users } from 'lucide-react';
+import { RealTimeCollaboration } from '@/components/RealTimeCollaboration';
 import { toast } from 'sonner';
 
 const ArtistCRM = () => {
@@ -190,8 +191,12 @@ const ArtistCRM = () => {
 
         {/* Main Content */}
         <Tabs defaultValue="projects" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:w-auto">
+          <TabsList className="grid w-full grid-cols-4 lg:w-auto">
             <TabsTrigger value="projects">Projects</TabsTrigger>
+            <TabsTrigger value="collaboration" className="gap-2">
+              <Zap className="w-4 h-4" />
+              Live Studio
+            </TabsTrigger>
             <TabsTrigger value="achievements">Achievements</TabsTrigger>
             <TabsTrigger value="activity">Activity</TabsTrigger>
           </TabsList>
@@ -277,6 +282,20 @@ const ArtistCRM = () => {
                 ))}
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="collaboration" className="space-y-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold">Live Studio Collaboration</h2>
+                <p className="text-muted-foreground">Connect with engineers and other artists in real-time</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <span className="text-sm text-muted-foreground">Live</span>
+              </div>
+            </div>
+            <RealTimeCollaboration />
           </TabsContent>
 
           <TabsContent value="activity">
