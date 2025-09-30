@@ -12,9 +12,11 @@ const Services = () => {
             <Sparkles className="w-4 h-4 text-primary" />
             <span className="text-sm text-primary font-medium">AI-Powered Innovation</span>
           </div>
-          <h2 className="text-4xl font-bold mb-4">The Future of Music Production</h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Experience revolutionary AI technology that transforms how music is created, mixed, and mastered. Our platform combines decades of expertise with cutting-edge artificial intelligence.
+          <h2 className="text-4xl font-bold mb-4">Why We Outperform Every Competitor</h2>
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            While others offer either AI-only automation or expensive human-only services, we combine both for unbeatable results. 
+            Compare us to LANDR, eMastered, BandLab, or traditional studios - we deliver better quality, faster turnaround, 
+            and more features at a fraction of the cost.
           </p>
         </div>
 
@@ -24,28 +26,28 @@ const Services = () => {
               <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mb-4">
                 <Bot className="w-6 h-6 text-primary" />
               </div>
-              <CardTitle className="text-xl">PRIME 4.0 AI</CardTitle>
+              <CardTitle className="text-xl">Grammy Engineers + AI</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground mb-4">
-                Advanced AI assistant with music production expertise
+                Real Grammy-winning engineers enhanced by cutting-edge AI technology
               </p>
               <ul className="space-y-2 mb-6">
                 <li className="flex items-start gap-2 text-sm text-muted-foreground">
                   <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Neural Audio Analysis</span>
+                  <span>Human expertise verified by Grammys</span>
                 </li>
                 <li className="flex items-start gap-2 text-sm text-muted-foreground">
                   <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Smart Mix Suggestions</span>
+                  <span>AI analyzes 1000+ audio parameters</span>
                 </li>
                 <li className="flex items-start gap-2 text-sm text-muted-foreground">
                   <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Real-time Feedback</span>
+                  <span>10x faster than traditional studios</span>
                 </li>
                 <li className="flex items-start gap-2 text-sm text-muted-foreground">
                   <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Learning Algorithms</span>
+                  <span>Learns from every track processed</span>
                 </li>
               </ul>
               <Button variant="outline" className="w-full" asChild>
