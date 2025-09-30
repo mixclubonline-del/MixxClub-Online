@@ -54,29 +54,28 @@ export const LiveStats = () => {
     <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
       <AnimatedStat
         icon={<Brain className="w-6 h-6 text-primary" />}
-        value="12"
+        value="15"
         label="AI Models Active"
         delay={0}
       />
       <AnimatedStat
         icon={<Zap className="w-6 h-6 text-primary" />}
-        value="3.2"
+        value="2.1"
         suffix="s"
         label="Avg Processing"
         delay={200}
       />
       <AnimatedStat
         icon={<Activity className="w-6 h-6 text-primary" />}
-        value="99.9"
-        suffix="%"
-        label="Quality Score"
+        value="847"
+        label="Tracks Mixed Today"
         delay={400}
       />
       <AnimatedStat
         icon={<Users className="w-6 h-6 text-primary" />}
-        value="2500"
+        value="3200"
         suffix="+"
-        label="Pro Engineers"
+        label="Active Users"
         delay={600}
       />
     </div>

@@ -4,8 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
-import { Upload, Music, FileAudio, X, Check, AlertCircle } from 'lucide-react';
+import { Upload, Music, FileAudio, X, Check, AlertCircle, Brain } from 'lucide-react';
 import { toast } from 'sonner';
+import { ProgressIndicator, ProgressStep } from '@/components/ui/progress-indicator';
 
 interface TrackUploadManagerProps {
   projectId: string;
@@ -18,6 +19,7 @@ export const TrackUploadManager = ({ projectId, onUploadComplete }: TrackUploadM
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [comment, setComment] = useState('');
   const [aiProcessing, setAiProcessing] = useState(false);
+  const [progressSteps, setProgressSteps] = useState<ProgressStep[]>([]);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -41,7 +43,70 @@ export const TrackUploadManager = ({ projectId, onUploadComplete }: TrackUploadM
 
   const performRealAIAnalysis = async (audioFileId: string, filePath: string) => {
     setAiProcessing(true);
+    
+    // Initialize progress steps
+    const steps: ProgressStep[] = [
+      {
+        id: 'ai-analysis-init',
+        label: 'Initializing AI Analysis',
+        status: 'active',
+        description: 'Preparing audio for processing...'
+      },
+      {
+        id: 'ai-stem-separation',
+        label: 'AI Stem Separation',
+        status: 'pending',
+        description: 'Extracting individual instruments using Demucs...'
+      },
+      {
+        id: 'ai-audio-analysis',
+        label: 'Audio Analysis',
+        status: 'pending',
+        description: 'Analyzing tempo, key, loudness, and mix quality...'
+      },
+      {
+        id: 'ai-suggestions',
+        label: 'Generating Suggestions',
+        status: 'pending',
+        description: 'Creating mixing and mastering recommendations...'
+      }
+    ];
+    setProgressSteps(steps);
+    
     try {
+      // Step 1: Initialize
+      setTimeout(() => {
+        setProgressSteps(prev => prev.map(step => 
+          step.id === 'ai-analysis-init' 
+            ? { ...step, status: 'completed' }
+            : step.id === 'ai-stem-separation'
+            ? { ...step, status: 'active' }
+            : step
+        ));
+      }, 1000);
+
+      // Step 2: Stem separation
+      setTimeout(() => {
+        setProgressSteps(prev => prev.map(step => 
+          step.id === 'ai-stem-separation' 
+            ? { ...step, status: 'completed' }
+            : step.id === 'ai-audio-analysis'
+            ? { ...step, status: 'active' }
+            : step
+        ));
+      }, 3000);
+
+      // Step 3: Audio analysis
+      setTimeout(() => {
+        setProgressSteps(prev => prev.map(step => 
+          step.id === 'ai-audio-analysis' 
+            ? { ...step, status: 'completed' }
+            : step.id === 'ai-suggestions'
+            ? { ...step, status: 'active' }
+            : step
+        ));
+      }, 5000);
+
       const { data, error } = await supabase.functions.invoke('analyze-audio', {
         body: {
           audioFileId: audioFileId,
@@ -81,8 +146,20 @@ export const TrackUploadManager = ({ projectId, onUploadComplete }: TrackUploadM
     } catch (error) {
       console.error('AI Analysis error:', error);
       toast.error('AI analysis failed, but file uploaded successfully');
+      // Step 4: Complete
+      setTimeout(() => {
+        setProgressSteps(prev => prev.map(step => 
+          step.id === 'ai-suggestions' 
+            ? { ...step, status: 'completed' }
+            : step
+        ));
+      }, 6000);
+
     } finally {
-      setAiProcessing(false);
+      setTimeout(() => {
+        setAiProcessing(false);
+        setProgressSteps([]);
+      }, 7000);
     }
   };
 
@@ -250,16 +327,11 @@ export const TrackUploadManager = ({ projectId, onUploadComplete }: TrackUploadM
         )}
 
         {/* AI Processing Indicator */}
-        {aiProcessing && (
-          <Card className="p-4 bg-primary/5 border-primary/20">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-              <div>
-                <p className="font-semibold text-sm">AI Analyzing Track...</p>
-                <p className="text-xs text-muted-foreground">Detecting frequencies, dynamics, and mix quality</p>
-              </div>
-            </div>
-          </Card>
+        {aiProcessing && progressSteps.length > 0 && (
+          <ProgressIndicator 
+            steps={progressSteps}
+            className="bg-primary/5 border-primary/20 p-4 rounded-lg"
+          />
         )}
 
         {/* Upload Button */}

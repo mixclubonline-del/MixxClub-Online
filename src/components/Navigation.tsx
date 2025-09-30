@@ -4,6 +4,7 @@ import { useState } from "react";
 import robotLogo from "@/assets/mixclub-robot-logo.png";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { RealTimeNotifications } from "./RealTimeNotifications";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -74,22 +75,23 @@ const Navigation = () => {
             </>
           ) : (
             <div className="flex items-center gap-4">
-              {user ? (
-                <>
-                  <Link to="/dashboard">
-                    <Button variant="ghost" size="sm">Dashboard</Button>
-                  </Link>
-                  <Link to="/jobs">
-                    <Button variant="ghost" size="sm">Job Board</Button>
-                  </Link>
-                  <Link to="/mixing">
-                    <Button variant="ghost" size="sm">Studio</Button>
-                  </Link>
-                  <Button onClick={signOut} variant="outline" size="sm">
-                    Sign Out
-                  </Button>
-                </>
-              ) : (
+                {user ? (
+                  <>
+                    <RealTimeNotifications userId={user.id} />
+                    <Link to="/dashboard">
+                      <Button variant="ghost" size="sm">Dashboard</Button>
+                    </Link>
+                    <Link to="/jobs">
+                      <Button variant="ghost" size="sm">Job Board</Button>
+                    </Link>
+                    <Link to="/mixing">
+                      <Button variant="ghost" size="sm">Studio</Button>
+                    </Link>
+                    <Button onClick={signOut} variant="outline" size="sm">
+                      Sign Out
+                    </Button>
+                  </>
+                ) : (
                 <>
                   <Link to="/">
                     <Button variant="ghost" size="sm">Home</Button>

@@ -2,6 +2,7 @@ import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
 import Services from "@/components/Services";
 import AudioPreview from "@/components/AudioPreview";
+import { SuccessStories } from "@/components/SuccessStories";
 import Pricing from "@/components/Pricing";
 import Contact from "@/components/Contact";
 
@@ -12,6 +13,7 @@ const Home = () => {
       <Hero />
       <Services />
       <AudioPreview />
+      <SuccessStories />
       <Pricing />
       <Contact />
       <footer className="border-t border-border py-8 bg-card">
