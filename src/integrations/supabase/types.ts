@@ -1161,6 +1161,8 @@ export type Database = {
       }
       onboarding_profiles: {
         Row: {
+          artist_engineer_agreement_accepted: boolean | null
+          artist_engineer_agreement_accepted_at: string | null
           availability: Json | null
           bio: string | null
           created_at: string
@@ -1168,18 +1170,26 @@ export type Database = {
           daw_preference: string | null
           equipment: Json | null
           experience_level: string | null
+          financial_agreement_accepted: boolean | null
+          financial_agreement_accepted_at: string | null
           genre: string | null
           hourly_rate: number | null
           id: string
           onboarding_completed: boolean
+          payout_preference: string | null
           portfolio_links: Json | null
+          revenue_split_percentage: number | null
           services_offered: Json | null
           stage_name: string | null
+          terms_accepted: boolean | null
+          terms_accepted_at: string | null
           updated_at: string
           user_id: string
           user_type: string
         }
         Insert: {
+          artist_engineer_agreement_accepted?: boolean | null
+          artist_engineer_agreement_accepted_at?: string | null
           availability?: Json | null
           bio?: string | null
           created_at?: string
@@ -1187,18 +1197,26 @@ export type Database = {
           daw_preference?: string | null
           equipment?: Json | null
           experience_level?: string | null
+          financial_agreement_accepted?: boolean | null
+          financial_agreement_accepted_at?: string | null
           genre?: string | null
           hourly_rate?: number | null
           id?: string
           onboarding_completed?: boolean
+          payout_preference?: string | null
           portfolio_links?: Json | null
+          revenue_split_percentage?: number | null
           services_offered?: Json | null
           stage_name?: string | null
+          terms_accepted?: boolean | null
+          terms_accepted_at?: string | null
           updated_at?: string
           user_id: string
           user_type: string
         }
         Update: {
+          artist_engineer_agreement_accepted?: boolean | null
+          artist_engineer_agreement_accepted_at?: string | null
           availability?: Json | null
           bio?: string | null
           created_at?: string
@@ -1206,13 +1224,19 @@ export type Database = {
           daw_preference?: string | null
           equipment?: Json | null
           experience_level?: string | null
+          financial_agreement_accepted?: boolean | null
+          financial_agreement_accepted_at?: string | null
           genre?: string | null
           hourly_rate?: number | null
           id?: string
           onboarding_completed?: boolean
+          payout_preference?: string | null
           portfolio_links?: Json | null
+          revenue_split_percentage?: number | null
           services_offered?: Json | null
           stage_name?: string | null
+          terms_accepted?: boolean | null
+          terms_accepted_at?: string | null
           updated_at?: string
           user_id?: string
           user_type?: string

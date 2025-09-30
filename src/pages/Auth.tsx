@@ -7,7 +7,8 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ArrowLeft, Music, Sparkles, Users, Zap } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { ArrowLeft, Music, Sparkles, Users, Zap, Headphones, Mic2 } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import mixclub3DLogo from "@/assets/mixclub-3d-logo.png";
@@ -16,6 +17,7 @@ const authSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
   fullName: z.string().min(2, "Full name must be at least 2 characters").optional(),
+  role: z.enum(["client", "engineer"]).optional(),
 });
 
 const Auth = () => {
@@ -26,6 +28,7 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [role, setRole] = useState<"client" | "engineer">("client");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -39,7 +42,7 @@ const Auth = () => {
       const validationData = {
         email,
         password,
-        ...(mode === "signup" && { fullName })
+        ...(mode === "signup" && { fullName, role })
       };
       
       authSchema.parse(validationData);
@@ -47,7 +50,7 @@ const Auth = () => {
       if (mode === "signup") {
         const redirectUrl = `${window.location.origin}/`;
         
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -67,8 +70,17 @@ const Auth = () => {
           return;
         }
 
-        toast.success("Account created! Please check your email for verification.");
-        navigate("/");
+        // Update the profile with the selected role
+        if (data.user) {
+          await supabase
+            .from('profiles')
+            .update({ role })
+            .eq('id', data.user.id);
+        }
+
+        toast.success("Account created! Redirecting to onboarding...");
+        // Redirect to role-specific onboarding
+        navigate(role === "engineer" ? "/onboarding/engineer" : "/onboarding/artist");
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
@@ -136,18 +148,50 @@ const Auth = () => {
         <Card className="p-8 bg-card/80 backdrop-blur-sm border-primary/20 shadow-xl">
           <form onSubmit={handleAuth} className="space-y-6">
             {mode === "signup" && (
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name</Label>
-                <Input
-                  id="fullName"
-                  type="text"
-                  placeholder="Enter your full name"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="bg-background/50 border-primary/20 focus:border-primary/50"
-                  required
-                />
-              </div>
+              <>
+                <div className="space-y-4">
+                  <Label>I am a...</Label>
+                  <RadioGroup value={role} onValueChange={(value: "client" | "engineer") => setRole(value)}>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="relative">
+                        <RadioGroupItem value="client" id="client" className="peer sr-only" />
+                        <Label
+                          htmlFor="client"
+                          className="flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-muted bg-card/50 p-6 hover:bg-accent/10 peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 cursor-pointer transition-all"
+                        >
+                          <Mic2 className="w-8 h-8 text-primary" />
+                          <span className="font-semibold">Artist</span>
+                          <span className="text-xs text-muted-foreground text-center">Get professional mixing & mastering</span>
+                        </Label>
+                      </div>
+                      <div className="relative">
+                        <RadioGroupItem value="engineer" id="engineer" className="peer sr-only" />
+                        <Label
+                          htmlFor="engineer"
+                          className="flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-muted bg-card/50 p-6 hover:bg-accent/10 peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 cursor-pointer transition-all"
+                        >
+                          <Headphones className="w-8 h-8 text-primary" />
+                          <span className="font-semibold">Engineer</span>
+                          <span className="text-xs text-muted-foreground text-center">Offer mixing & mastering services</span>
+                        </Label>
+                      </div>
+                    </div>
+                  </RadioGroup>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">Full Name</Label>
+                  <Input
+                    id="fullName"
+                    type="text"
+                    placeholder="Enter your full name"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    className="bg-background/50 border-primary/20 focus:border-primary/50"
+                    required
+                  />
+                </div>
+              </>
             )}
 
             <div className="space-y-2">

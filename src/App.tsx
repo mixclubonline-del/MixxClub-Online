@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
+import ArtistOnboarding from "./pages/ArtistOnboarding";
+import EngineerOnboarding from "./pages/EngineerOnboarding";
 import Dashboard from "./pages/Dashboard";
 import ArtistDashboard from "./pages/ArtistDashboard";
 import EngineerDashboard from "./pages/EngineerDashboard";
@@ -35,8 +37,10 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/auth" element={<Auth />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/auth" element={<Auth />} />
+        <Route path="/onboarding/artist" element={<ArtistOnboarding />} />
+        <Route path="/onboarding/engineer" element={<EngineerOnboarding />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/artist-dashboard" element={<ArtistDashboard />} />
             <Route path="/engineer-dashboard" element={<EngineerDashboard />} />
