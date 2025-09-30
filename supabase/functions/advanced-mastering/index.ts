@@ -160,6 +160,10 @@ Always provide detailed technical analysis with specific recommendations for imp
 
       const processingTime = Date.now() - startTime;
       console.log(`Mastering completed in ${processingTime}ms`);
+      // Ensure original URL is set for local mastering fallback
+      if (masteringResult && !masteringResult.originalUrl) {
+        masteringResult.originalUrl = originalUrlData.signedUrl;
+      }
     }
 
     // Enhanced AI Analysis with Lovable AI
@@ -394,10 +398,52 @@ async function performAdvancedLocalMastering(
     }
 
     // Upload mastered file
-    const masteredFileName = `mastered_${Date.now()}_${fileName}`;
+    // Build a valid WAV file (PCM 16-bit, mono, 44.1kHz)
+    const toWavFile = (pcmBytes: Uint8Array, sampleRate = 44100, numChannels = 1): Uint8Array => {
+      const headerSize = 44;
+      const dataLength = pcmBytes.length;
+      const totalSize = headerSize + dataLength;
+      const buffer = new ArrayBuffer(totalSize);
+      const view = new DataView(buffer);
+      const u8 = new Uint8Array(buffer);
+
+      const writeString = (offset: number, str: string) => {
+        for (let i = 0; i < str.length; i++) {
+          u8[offset + i] = str.charCodeAt(i);
+        }
+      };
+
+      // RIFF header
+      writeString(0, 'RIFF');
+      view.setUint32(4, 36 + dataLength, true);
+      writeString(8, 'WAVE');
+
+      // fmt  chunk
+      writeString(12, 'fmt ');
+      view.setUint32(16, 16, true); // Subchunk1Size (16 for PCM)
+      view.setUint16(20, 1, true);  // AudioFormat (1 = PCM)
+      view.setUint16(22, numChannels, true); // NumChannels
+      view.setUint32(24, sampleRate, true);  // SampleRate
+      view.setUint32(28, sampleRate * numChannels * 2, true); // ByteRate
+      view.setUint16(32, numChannels * 2, true); // BlockAlign
+      view.setUint16(34, 16, true); // BitsPerSample
+
+      // data chunk
+      writeString(36, 'data');
+      view.setUint32(40, dataLength, true);
+
+      // PCM data
+      u8.set(pcmBytes, headerSize);
+      return u8;
+    };
+
+    const safeBase = fileName.replace(/\.[^\.]+$/, '');
+    const masteredFileName = `mastered_${Date.now()}_${safeBase}.wav`;
+    const wavBytes = toWavFile(outputBuffer);
+
     const { error: uploadError } = await supabase.storage
       .from('audio-files')
-      .upload(masteredFileName, outputBuffer, {
+      .upload(masteredFileName, wavBytes, {
         contentType: 'audio/wav',
         upsert: false
       });
