@@ -366,23 +366,48 @@ const HybridDAW = () => {
       <Navigation />
       
       <div className="pt-24 h-screen flex flex-col">
-        {/* Header */}
+        {/* Top Toolbar - Studio One/BandLab Inspired */}
         <div className="border-b border-border bg-card/50 backdrop-blur">
-          <div className="container px-6 py-4">
+          <div className="container px-6 py-3">
             <div className="flex items-center justify-between">
+              {/* Left - Logo & Project Name */}
               <div className="flex items-center gap-4">
-            <h1 className="text-2xl font-bold flex items-center gap-2">
-              <AudioWaveform className="w-6 h-6 text-primary" />
-              Hybrid AI DAW
-            </h1>
-                <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
+                <h1 className="text-xl font-bold flex items-center gap-2">
+                  <AudioWaveform className="w-5 h-5 text-primary" />
+                  MixClub Studio
+                </h1>
+                <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 text-xs">
                   Beta
                 </Badge>
               </div>
 
+              {/* Center - Menu Bar */}
+              <div className="flex items-center gap-1 bg-card/80 rounded-lg p-1">
+                <Button variant="ghost" size="sm" className="text-xs">File</Button>
+                <Button variant="ghost" size="sm" className="text-xs">Edit</Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-xs gap-1"
+                  onClick={() => setShowImportDialog(true)}
+                >
+                  <Upload className="w-3 h-3" />
+                  Add Track
+                </Button>
+                <Button variant="ghost" size="sm" className="text-xs gap-1">
+                  <Sparkles className="w-3 h-3" />
+                  AI Tools
+                </Button>
+                <Button variant="ghost" size="sm" className="text-xs gap-1">
+                  <Users className="w-3 h-3" />
+                  Share
+                </Button>
+              </div>
+
+              {/* Right - Transport & Actions */}
               <div className="flex items-center gap-2">
                 {/* Transport Controls */}
-                <div className="flex items-center gap-1 bg-card/50 rounded-lg p-1">
+                <div className="flex items-center gap-1 bg-card/80 rounded-lg p-1">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -410,7 +435,7 @@ const HybridDAW = () => {
                 </div>
 
                 {/* View Toggle */}
-                <div className="flex items-center gap-1 bg-card/50 rounded-lg p-1">
+                <div className="flex items-center gap-1 bg-card/80 rounded-lg p-1">
                   <Button
                     variant={view === '2d' ? 'default' : 'ghost'}
                     size="sm"
@@ -429,7 +454,6 @@ const HybridDAW = () => {
                   </Button>
                 </div>
 
-                {/* Actions */}
                 <Button
                   variant={hasAudioAccess ? "default" : "outline"}
                   size="sm"
@@ -438,185 +462,86 @@ const HybridDAW = () => {
                   className="gap-2"
                 >
                   <Mic className="w-4 h-4" />
-                  {isRequesting ? "Requesting..." : hasAudioAccess ? "Mic Ready" : "Enable Mic"}
-                </Button>
-                
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={exportProject}
-                  className="gap-2"
-                >
-                  <Download className="w-4 h-4" />
-                  Export
+                  {isRequesting ? "..." : hasAudioAccess ? "Ready" : "Mic"}
                 </Button>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Main Content */}
-        <div className="flex-1 flex">
-          {/* Left Sidebar - Tools */}
-          <div className="w-64 border-r border-border bg-card/30 flex flex-col">
-            <div className="p-4 border-b border-border">
-              <h3 className="font-semibold mb-3">Quick Actions</h3>
-              <div className="space-y-2">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full justify-start gap-2"
-                  onClick={() => addTrack('vocal')}
-                >
-                  <Mic className="w-4 h-4" />
-                  Add Vocal Track
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full justify-start gap-2"
-                  onClick={() => addTrack('instrument')}
-                >
-                  <FileAudio className="w-4 h-4" />
-                  Add Instrument
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full justify-start gap-2"
-                  onClick={() => setShowImportDialog(true)}
-                >
-                  <Upload className="w-4 h-4" />
-                  Import Beat
-                </Button>
-              </div>
-            </div>
+        {/* Main Studio Layout */}
+        <div className="flex-1 flex flex-col">
+          {/* Timeline Area */}
+          <div className="flex-1 bg-background">
+            {view === '2d' ? (
+              <EnhancedDAWTimeline 
+                tracks={tracks}
+                onTracksChange={setTracks}
+                currentTime={currentTime}
+                onTimeChange={setCurrentTime}
+                isPlaying={isPlaying}
+                bpm={bpm}
+                onStartRecording={startRecording}
+                onStopRecording={stopRecording}
+                isRecording={isRecording}
+              />
+            ) : (
+              <DAW3DView 
+                tracks={tracks}
+                isPlaying={isPlaying}
+                currentTime={currentTime}
+              />
+            )}
+          </div>
 
-            <div className="p-4 border-b border-border">
-              <h3 className="font-semibold mb-3">Master Controls</h3>
-              <div className="space-y-3">
-                <div>
-                  <label className="text-sm text-muted-foreground">BPM</label>
-                  <div className="flex items-center gap-2 mt-1">
+          {/* Mixer Window */}
+          <div className="h-80 border-t border-border bg-card/30">
+            <div className="flex items-center justify-between p-3 border-b border-border">
+              <h3 className="font-semibold text-sm">Mixer Console</h3>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => addTrack('vocal')}
+                  className="gap-1 text-xs"
+                >
+                  <Mic className="w-3 h-3" />
+                  Vocal
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => addTrack('instrument')}
+                  className="gap-1 text-xs"
+                >
+                  <FileAudio className="w-3 h-3" />
+                  Beat
+                </Button>
+                <div className="flex items-center gap-2 ml-4">
+                  <span className="text-xs text-muted-foreground">BPM:</span>
+                  <div className="flex items-center gap-1">
                     <Slider
                       value={[bpm]}
                       onValueChange={(value) => setBpm(value[0])}
                       min={60}
                       max={200}
                       step={1}
-                      className="flex-1"
+                      className="w-20"
                     />
-                    <span className="text-sm font-mono w-8">{bpm}</span>
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="text-sm text-muted-foreground">Master Volume</label>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Volume2 className="w-4 h-4 text-muted-foreground" />
-                    <Slider
-                      value={[masterVolume * 100]}
-                      onValueChange={(value) => setMasterVolume(value[0] / 100)}
-                      min={0}
-                      max={100}
-                      step={1}
-                      className="flex-1"
-                    />
+                    <span className="text-xs font-mono w-8">{bpm}</span>
                   </div>
                 </div>
               </div>
             </div>
-
-            <div className="flex-1 p-4">
-              <Tabs value={activePanel} onValueChange={(value) => setActivePanel(value as any)} className="h-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="effects" className="text-xs">
-                    <Settings className="w-3 h-3 mr-1" />
-                    Effects
-                  </TabsTrigger>
-                  <TabsTrigger value="achievements" className="text-xs">
-                    <Trophy className="w-3 h-3 mr-1" />
-                    Goals
-                  </TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="effects" className="mt-4 space-y-0">
-                  <DAWEffectsPanel tracks={tracks} onTracksChange={setTracks} />
-                </TabsContent>
-                
-                <TabsContent value="achievements" className="mt-4 space-y-0">
-                  <DAWGamification achievements={achievements} />
-                </TabsContent>
-              </Tabs>
+            
+            <div className="flex-1 overflow-x-auto">
+              <DAWMixerPanel 
+                tracks={tracks}
+                onTracksChange={setTracks}
+                masterVolume={masterVolume}
+                onMasterVolumeChange={setMasterVolume}
+              />
             </div>
-          </div>
-
-          {/* Main Workspace */}
-          <div className="flex-1 flex flex-col">
-            {view === '2d' ? (
-              <div className="flex-1 flex flex-col">
-                <EnhancedDAWTimeline 
-                  tracks={tracks}
-                  onTracksChange={setTracks}
-                  currentTime={currentTime}
-                  onTimeChange={setCurrentTime}
-                  isPlaying={isPlaying}
-                  bpm={bpm}
-                  onStartRecording={startRecording}
-                  onStopRecording={stopRecording}
-                  isRecording={isRecording}
-                />
-              </div>
-            ) : (
-              <div className="flex-1">
-                <DAW3DView 
-                  tracks={tracks}
-                  isPlaying={isPlaying}
-                  currentTime={currentTime}
-                />
-              </div>
-            )}
-          </div>
-
-          {/* Right Sidebar - Mixer & Collaboration */}
-          <div className="w-80 border-l border-border bg-card/30">
-            <Tabs defaultValue="mixer" className="h-full">
-              <TabsList className="grid w-full grid-cols-2 m-2">
-                <TabsTrigger value="mixer" className="text-xs">
-                  <Volume2 className="w-3 h-3 mr-1" />
-                  Mixer
-                </TabsTrigger>
-                <TabsTrigger value="collab" className="text-xs">
-                  <Users className="w-3 h-3 mr-1" />
-                  Live
-                </TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="mixer" className="mt-0 h-full">
-                <DAWMixerPanel 
-                  tracks={tracks}
-                  onTracksChange={setTracks}
-                  masterVolume={masterVolume}
-                  onMasterVolumeChange={setMasterVolume}
-                />
-              </TabsContent>
-              
-              <TabsContent value="collab" className="mt-0 h-full">
-                <DAWCollaboration 
-                  sessionId={`session-${user?.id || 'anonymous'}`}
-                  userId={user?.id || 'anonymous'}
-                  userName={user?.user_metadata?.full_name || user?.email || 'Anonymous'}
-                  onTrackUpdate={(trackData) => {
-                    // Handle real-time track updates from collaborators
-                    console.log('Received track update:', trackData);
-                  }}
-                  onEffectChange={(trackId, effectData) => {
-                    // Handle real-time effect changes from collaborators
-                    console.log('Received effect change:', trackId, effectData);
-                  }}
-                />
-              </TabsContent>
-            </Tabs>
           </div>
         </div>
       </div>
