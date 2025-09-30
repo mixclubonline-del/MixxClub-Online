@@ -128,7 +128,7 @@ const ArtistCRM = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
       
-      <div className="container px-6 py-8">
+      <div className="container px-4 md:px-6 pt-24 pb-8">
         {/* Header with Gamification */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
@@ -216,24 +216,26 @@ const ArtistCRM = () => {
 
         {/* Main Content */}
         <Tabs defaultValue="sessions" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6 lg:w-auto">
-            <TabsTrigger value="sessions">My Sessions</TabsTrigger>
-            <TabsTrigger value="book-session">Book a Session</TabsTrigger>
-            <TabsTrigger value="applications" className="relative">
-              Pro Responses
-              {pendingApplications > 0 && (
-                <Badge className="ml-2 h-5 w-5 p-0 flex items-center justify-center bg-primary text-primary-foreground">
-                  {pendingApplications}
-                </Badge>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="collaboration" className="gap-2">
-              <Zap className="w-4 h-4" />
-              Live Studio
-            </TabsTrigger>
-            <TabsTrigger value="achievements">Studio Badges</TabsTrigger>
-            <TabsTrigger value="activity">Activity</TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto pb-2">
+            <TabsList className="inline-flex w-auto min-w-full">
+              <TabsTrigger value="sessions" className="whitespace-nowrap">My Sessions</TabsTrigger>
+              <TabsTrigger value="book-session" className="whitespace-nowrap">Book Session</TabsTrigger>
+              <TabsTrigger value="applications" className="relative whitespace-nowrap">
+                Pro Responses
+                {pendingApplications > 0 && (
+                  <Badge className="ml-2 h-5 w-5 p-0 flex items-center justify-center bg-primary text-primary-foreground">
+                    {pendingApplications}
+                  </Badge>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="collaboration" className="gap-2 whitespace-nowrap">
+                <Zap className="w-4 h-4" />
+                Live Studio
+              </TabsTrigger>
+              <TabsTrigger value="achievements" className="whitespace-nowrap">Badges</TabsTrigger>
+              <TabsTrigger value="activity" className="whitespace-nowrap">Activity</TabsTrigger>
+            </TabsList>
+          </div>
 
             <TabsContent value="sessions" className="space-y-4">
               <EngineerCRMDashboard />
