@@ -22,7 +22,7 @@ import {
   Download,
   Upload
 } from "lucide-react";
-import DAWTimeline from "@/components/daw/DAWTimeline";
+import EnhancedDAWTimeline from "@/components/daw/EnhancedDAWTimeline";
 import DAWMixerPanel from "@/components/daw/DAWMixerPanel";
 import DAWCollaboration from "@/components/daw/DAWCollaboration";
 import DAW3DView from "@/components/daw/DAW3DView";
@@ -30,7 +30,8 @@ import DAWEffectsPanel from "@/components/daw/DAWEffectsPanel";
 import DAWGamification from "@/components/daw/DAWGamification";
 import AudioImportDialog from "@/components/AudioImportDialog";
 import { useAuth } from "@/hooks/useAuth";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
+import { useAudioPermissions } from "@/hooks/useAudioPermissions";
 import Navigation from "@/components/Navigation";
 
 export interface Track {
@@ -74,6 +75,7 @@ export interface CollaborationUser {
 const HybridDAW = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { permissions, requestAudioPermissions, hasAudioAccess, isRequesting } = useAudioPermissions();
   
   // Core DAW State
   const [tracks, setTracks] = useState<Track[]>([]);
@@ -130,29 +132,11 @@ const HybridDAW = () => {
     };
   }, [toast]);
 
-  // Request Microphone Access
+  // Enhanced microphone access with permissions hook
   const requestMicrophone = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-          sampleRate: 44100
-        } 
-      });
-      streamRef.current = stream;
-      toast({
-        title: "Microphone Access Granted",
-        description: "You can now record audio directly into the DAW.",
-      });
-    } catch (error) {
-      console.error('Microphone access denied:', error);
-      toast({
-        title: "Microphone Access Required",
-        description: "Please allow microphone access to record audio.",
-        variant: "destructive"
-      });
+    const granted = await requestAudioPermissions();
+    if (granted && permissions.stream) {
+      streamRef.current = permissions.stream;
     }
   };
 
@@ -196,13 +180,15 @@ const HybridDAW = () => {
 
   // Start Recording
   const startRecording = async (trackId: string) => {
-    if (!streamRef.current) {
+    if (!hasAudioAccess || !permissions.stream) {
       await requestMicrophone();
       return;
     }
+    
+    const stream = permissions.stream;
 
     try {
-      const mediaRecorder = new MediaRecorder(streamRef.current);
+      const mediaRecorder = new MediaRecorder(stream);
       const chunks: Blob[] = [];
 
       mediaRecorder.ondataavailable = (event) => {
@@ -424,13 +410,14 @@ const HybridDAW = () => {
 
                 {/* Actions */}
                 <Button
-                  variant="outline"
+                  variant={hasAudioAccess ? "default" : "outline"}
                   size="sm"
                   onClick={requestMicrophone}
+                  disabled={isRequesting}
                   className="gap-2"
                 >
                   <Mic className="w-4 h-4" />
-                  Mic
+                  {isRequesting ? "Requesting..." : hasAudioAccess ? "Mic Ready" : "Enable Mic"}
                 </Button>
                 
                 <Button
@@ -547,7 +534,7 @@ const HybridDAW = () => {
           <div className="flex-1 flex flex-col">
             {view === '2d' ? (
               <div className="flex-1 flex flex-col">
-                <DAWTimeline 
+                <EnhancedDAWTimeline 
                   tracks={tracks}
                   onTracksChange={setTracks}
                   currentTime={currentTime}
