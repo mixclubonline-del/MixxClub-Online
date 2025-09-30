@@ -20,13 +20,15 @@ import {
   UserPlus,
   Settings
 } from "lucide-react";
+import { useCollaboration } from "@/hooks/useCollaboration";
 import type { CollaborationUser } from "@/pages/HybridDAW";
 
 interface DAWCollaborationProps {
-  collaborators: CollaborationUser[];
-  isConnected: boolean;
-  onConnect: () => void;
-  onDisconnect: () => void;
+  sessionId: string;
+  userId: string;
+  userName: string;
+  onTrackUpdate?: (trackData: any) => void;
+  onEffectChange?: (trackId: string, effectData: any) => void;
 }
 
 interface ChatMessage {
@@ -39,10 +41,11 @@ interface ChatMessage {
 }
 
 const DAWCollaboration: React.FC<DAWCollaborationProps> = ({
-  collaborators,
-  isConnected,
-  onConnect,
-  onDisconnect
+  sessionId,
+  userId,
+  userName,
+  onTrackUpdate,
+  onEffectChange
 }) => {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     {
@@ -58,53 +61,44 @@ const DAWCollaboration: React.FC<DAWCollaborationProps> = ({
   const [audioEnabled, setAudioEnabled] = useState(false);
   const [videoEnabled, setVideoEnabled] = useState(false);
 
-  // Mock collaborators if none provided
-  const mockCollaborators: CollaborationUser[] = [
-    {
-      id: '1',
-      name: 'Alex Producer',
-      avatar: undefined,
-      status: 'online',
-      cursor: { x: 150, y: 200 }
-    },
-    {
-      id: '2',
-      name: 'Sam Engineer',
-      avatar: undefined,
-      status: 'online',
-      cursor: { x: 300, y: 150 }
+  // Use collaboration hook
+  const {
+    isConnected,
+    connectionStatus,
+    participants,
+    connect,
+    disconnect,
+    sendChatMessage,
+    sendTrackUpdate,
+    sendEffectChange
+  } = useCollaboration({
+    sessionId,
+    userId,
+    userName,
+    onMessage: (message) => {
+      if (message.type === 'chat_message' && message.data?.message) {
+        const chatMessage: ChatMessage = {
+          id: Date.now().toString(),
+          userId: message.userId,
+          userName: message.userName || 'Unknown',
+          message: message.data.message,
+          timestamp: new Date(message.timestamp),
+          type: 'text'
+        };
+        setChatMessages(prev => [...prev, chatMessage]);
+      } else if (message.type === 'track_update' && onTrackUpdate) {
+        onTrackUpdate(message.data);
+      } else if (message.type === 'effect_change' && onEffectChange) {
+        onEffectChange(message.data.trackId, message.data);
+      }
     }
-  ];
-
-  const displayCollaborators = collaborators.length > 0 ? collaborators : (isConnected ? mockCollaborators : []);
+  });
 
   const sendMessage = () => {
     if (!newMessage.trim()) return;
 
-    const message: ChatMessage = {
-      id: Date.now().toString(),
-      userId: 'current-user',
-      userName: 'You',
-      message: newMessage,
-      timestamp: new Date(),
-      type: 'text'
-    };
-
-    setChatMessages(prev => [...prev, message]);
+    sendChatMessage(newMessage);
     setNewMessage('');
-
-    // Simulate AI response
-    setTimeout(() => {
-      const aiResponse: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        userId: 'ai-assistant',
-        userName: 'AI Assistant',
-        message: `I can help you with that! ${newMessage.toLowerCase().includes('mix') ? 'For mixing, try adjusting the EQ around 2-5kHz for vocal clarity.' : newMessage.toLowerCase().includes('beat') ? 'Consider adding some swing to the rhythm for a more natural feel.' : 'Let me know if you need any suggestions!'}`,
-        timestamp: new Date(),
-        type: 'text'
-      };
-      setChatMessages(prev => [...prev, aiResponse]);
-    }, 1500);
   };
 
   const handleInviteUser = () => {
@@ -135,7 +129,7 @@ const DAWCollaboration: React.FC<DAWCollaborationProps> = ({
         </div>
 
         {!isConnected ? (
-          <Button onClick={onConnect} className="w-full gap-2">
+          <Button onClick={connect} className="w-full gap-2">
             <Wifi className="w-4 h-4" />
             Join Live Session
           </Button>
@@ -145,7 +139,7 @@ const DAWCollaboration: React.FC<DAWCollaborationProps> = ({
               <UserPlus className="w-3 h-3" />
               Invite
             </Button>
-            <Button variant="outline" size="sm" onClick={onDisconnect} className="flex-1 gap-1">
+            <Button variant="outline" size="sm" onClick={disconnect} className="flex-1 gap-1">
               <WifiOff className="w-3 h-3" />
               Leave
             </Button>
@@ -158,7 +152,7 @@ const DAWCollaboration: React.FC<DAWCollaborationProps> = ({
           {/* Participants */}
           <div className="p-4 border-b border-border">
             <h4 className="text-sm font-medium mb-3">
-              Participants ({displayCollaborators.length + 1})
+              Participants ({participants.length + 1})
             </h4>
             
             <div className="space-y-2">
@@ -197,7 +191,7 @@ const DAWCollaboration: React.FC<DAWCollaborationProps> = ({
               </div>
 
               {/* Other Participants */}
-              {displayCollaborators.map((collaborator) => (
+              {participants.map((collaborator) => (
                 <div key={collaborator.id} className="flex items-center gap-3 p-2 rounded-lg">
                   <Avatar className="w-8 h-8">
                     <AvatarImage src={collaborator.avatar} />

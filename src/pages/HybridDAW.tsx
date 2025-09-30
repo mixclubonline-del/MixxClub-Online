@@ -560,10 +560,17 @@ const HybridDAW = () => {
               
               <TabsContent value="collab" className="mt-0 h-full">
                 <DAWCollaboration 
-                  collaborators={collaborators}
-                  isConnected={isCollabConnected}
-                  onConnect={() => setIsCollabConnected(true)}
-                  onDisconnect={() => setIsCollabConnected(false)}
+                  sessionId={`session-${user?.id || 'anonymous'}`}
+                  userId={user?.id || 'anonymous'}
+                  userName={user?.user_metadata?.full_name || user?.email || 'Anonymous'}
+                  onTrackUpdate={(trackData) => {
+                    // Handle real-time track updates from collaborators
+                    console.log('Received track update:', trackData);
+                  }}
+                  onEffectChange={(trackId, effectData) => {
+                    // Handle real-time effect changes from collaborators
+                    console.log('Received effect change:', trackId, effectData);
+                  }}
                 />
               </TabsContent>
             </Tabs>
