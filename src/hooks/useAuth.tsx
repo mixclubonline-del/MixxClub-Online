@@ -6,6 +6,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  userRole: 'client' | 'engineer' | 'admin' | null;
   signOut: () => Promise<void>;
 }
 
@@ -15,6 +16,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [userRole, setUserRole] = useState<'client' | 'engineer' | 'admin' | null>(null);
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -25,11 +27,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(session?.user ?? null);
         setLoading(false);
         
-        // Defer any additional data fetching
-        if (session?.user && event === 'SIGNED_IN') {
-          setTimeout(() => {
-            console.log('User signed in successfully');
+        // Defer profile fetching
+        if (session?.user) {
+          setTimeout(async () => {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('role')
+              .eq('id', session.user.id)
+              .single();
+            setUserRole(profile?.role || 'client');
           }, 0);
+        } else {
+          setUserRole(null);
         }
       }
     );
@@ -55,6 +64,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     user,
     session,
     loading,
+    userRole,
     signOut,
   };
 

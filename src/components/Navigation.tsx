@@ -10,7 +10,7 @@ import { isFeatureEnabled } from "@/config/featureFlags";
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const { user, signOut } = useAuth();
+  const { user, userRole, signOut } = useAuth();
   const location = useLocation();
   const isHome = location.pathname === "/";
 
@@ -28,17 +28,33 @@ const Navigation = () => {
     setIsOpen(false);
   }, [location.pathname]);
 
-  const navLinks = [
-    { to: "/dashboard", label: "Dashboard" },
-    { to: "/mixing", label: "Mixing Magic" },
-    { to: "/mastering", label: "Mastering Polish" },
-    ...(isFeatureEnabled('THE_LAB_ENABLED') ? [{ to: "/hybrid-daw", label: "The Lab" }] : []),
-  ];
+  // Role-specific navigation
+  const getNavLinks = () => {
+    if (!user) {
+      return [
+        { to: "/mixing", label: "Mixing Magic" },
+        { to: "/mastering", label: "Mastering Polish" },
+      ];
+    }
 
-  const authLinks = user ? [
-    { to: "/artist-crm", label: "My Studio" },
-    { to: "/engineer-crm", label: "Pro Studio" },
-  ] : [];
+    if (userRole === 'engineer') {
+      return [
+        { to: "/engineer-dashboard", label: "Dashboard" },
+        { to: "/artist-crm", label: "My Studio" },
+        { to: "/engineer-crm", label: "Pro Studio" },
+      ];
+    }
+
+    // Artists and clients
+    return [
+      { to: "/artist-dashboard", label: "Dashboard" },
+      { to: "/mixing", label: "Mixing Magic" },
+      { to: "/mastering", label: "Mastering Polish" },
+      ...(isFeatureEnabled('THE_LAB_ENABLED') ? [{ to: "/hybrid-daw", label: "The Lab" }] : []),
+    ];
+  };
+
+  const navLinks = getNavLinks();
 
   const isActiveRoute = (path: string) => location.pathname === path;
 
@@ -73,21 +89,6 @@ const Navigation = () => {
               {/* Desktop Navigation */}
               <div className="hidden md:flex items-center gap-8">
                 {navLinks.map((link) => (
-                  <Link
-                    key={link.to}
-                    to={link.to}
-                    className={`relative text-foreground hover:text-primary transition-all duration-300 font-medium ${
-                      isActiveRoute(link.to) ? 'text-primary' : ''
-                    }`}
-                  >
-                    {link.label}
-                    <span className={`absolute bottom-0 left-0 w-full h-0.5 bg-primary transform transition-transform duration-300 ${
-                      isActiveRoute(link.to) ? 'scale-x-100' : 'scale-x-0 hover:scale-x-100'
-                    }`}></span>
-                  </Link>
-                ))}
-                
-                {authLinks.map((link) => (
                   <Link
                     key={link.to}
                     to={link.to}
@@ -232,23 +233,10 @@ const Navigation = () => {
                 {link.label}
               </Link>
             ))}
-            
-            {authLinks.map((link, index) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                className={`block px-4 py-3 rounded-lg text-foreground hover:text-primary hover:bg-primary/5 transition-all duration-300 transform ${
-                  isOpen ? 'translate-x-0 opacity-100' : 'translate-x-4 opacity-0'
-                } ${isActiveRoute(link.to) ? 'text-primary bg-primary/5' : ''}`}
-                style={{ transitionDelay: `${(navLinks.length + index) * 50}ms` }}
-              >
-                {link.label}
-              </Link>
-            ))}
 
             <div className={`pt-2 space-y-2 transform transition-all duration-300 ${
               isOpen ? 'translate-x-0 opacity-100' : 'translate-x-4 opacity-0'
-            }`} style={{ transitionDelay: `${(navLinks.length + authLinks.length) * 50}ms` }}>
+            }`} style={{ transitionDelay: `${navLinks.length * 50}ms` }}>
               {user ? (
                 <Button 
                   onClick={signOut} 
