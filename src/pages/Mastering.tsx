@@ -21,6 +21,8 @@ import {
   Award
 } from "lucide-react";
 import Navigation from "@/components/Navigation";
+import { Link } from "react-router-dom";
+import { toast } from "sonner";
 
 const Mastering = () => {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -122,10 +124,12 @@ const Mastering = () => {
                   <Zap className="w-5 h-5" />
                   Start Mastering
                 </Button>
-                <Button variant="outline" size="lg" className="gap-2">
-                  <Upload className="w-5 h-5" />
-                  Upload Track
-                </Button>
+                <Link to="/artist-crm">
+                  <Button variant="outline" size="lg" className="gap-2">
+                    <Upload className="w-5 h-5" />
+                    Upload Track
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>
@@ -322,11 +326,15 @@ const Mastering = () => {
                   not hours. Trusted by top artists and labels worldwide.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button size="lg" className="gap-2">
-                    <Sparkles className="w-5 h-5" />
-                    Try Free Master
-                  </Button>
-                  <Button variant="outline" size="lg" className="gap-2">
+                  <Link to="/auth?mode=signup">
+                    <Button size="lg" className="gap-2">
+                      <Sparkles className="w-5 h-5" />
+                      Try Free Master
+                    </Button>
+                  </Link>
+                  <Button variant="outline" size="lg" className="gap-2" onClick={() => {
+                    toast.info("Sample download will be available soon!");
+                  }}>
                     <Download className="w-5 h-5" />
                     Download Sample
                   </Button>

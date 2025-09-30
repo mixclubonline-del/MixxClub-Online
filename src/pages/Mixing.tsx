@@ -21,6 +21,8 @@ import {
 import Navigation from "@/components/Navigation";
 import { AdvancedMixingStudio } from "@/components/mixing/AdvancedMixingStudio";
 import { AIAudioProcessor } from "@/components/mixing/AIAudioProcessor";
+import { Link } from "react-router-dom";
+import { toast } from "sonner";
 
 const Mixing = () => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -83,14 +85,18 @@ const Mixing = () => {
                 Collaborate in real-time and access industry-standard tools.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" className="gap-2">
-                  <Play className="w-5 h-5" />
-                  Start Mixing
-                </Button>
-                <Button variant="outline" size="lg" className="gap-2">
-                  <Upload className="w-5 h-5" />
-                  Upload Tracks
-                </Button>
+                <Link to="/artist-crm">
+                  <Button size="lg" className="gap-2">
+                    <Play className="w-5 h-5" />
+                    Start Mixing
+                  </Button>
+                </Link>
+                <Link to="/artist-crm">
+                  <Button variant="outline" size="lg" className="gap-2">
+                    <Upload className="w-5 h-5" />
+                    Upload Tracks
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>
@@ -186,11 +192,15 @@ const Mixing = () => {
                   Join thousands of producers and engineers who trust our platform for professional mixing.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button size="lg" className="gap-2">
-                    <Headphones className="w-5 h-5" />
-                    Start Free Trial
-                  </Button>
-                  <Button variant="outline" size="lg" className="gap-2">
+                  <Link to="/auth?mode=signup">
+                    <Button size="lg" className="gap-2">
+                      <Headphones className="w-5 h-5" />
+                      Start Free Trial
+                    </Button>
+                  </Link>
+                  <Button variant="outline" size="lg" className="gap-2" onClick={() => {
+                    toast.info("Demo download will be available soon!");
+                  }}>
                     <Download className="w-5 h-5" />
                     Download Demo
                   </Button>

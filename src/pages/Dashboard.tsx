@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import Navigation from '@/components/Navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -104,10 +104,12 @@ const Dashboard = () => {
               <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
               Online
             </Badge>
-            <Button className="gap-2">
-              <Plus className="w-4 h-4" />
-              New Project
-            </Button>
+            <Link to="/artist-crm">
+              <Button className="gap-2">
+                <Plus className="w-4 h-4" />
+                New Project
+              </Button>
+            </Link>
           </div>
         </div>
 
@@ -206,22 +208,30 @@ const Dashboard = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-2 gap-4">
-                      <Button variant="outline" className="h-20 flex-col gap-2">
-                        <Upload className="w-6 h-6" />
-                        Upload Track
-                      </Button>
-                      <Button variant="outline" className="h-20 flex-col gap-2">
-                        <Mic className="w-6 h-6" />
-                        Start Recording
-                      </Button>
-                      <Button variant="outline" className="h-20 flex-col gap-2">
-                        <Users className="w-6 h-6" />
-                        Find Engineer
-                      </Button>
-                      <Button variant="outline" className="h-20 flex-col gap-2">
-                        <Radio className="w-6 h-6" />
-                        Join Session
-                      </Button>
+                      <Link to="/artist-crm">
+                        <Button variant="outline" className="h-20 flex-col gap-2 w-full">
+                          <Upload className="w-6 h-6" />
+                          Upload Track
+                        </Button>
+                      </Link>
+                      <Link to="/mixing">
+                        <Button variant="outline" className="h-20 flex-col gap-2 w-full">
+                          <Mic className="w-6 h-6" />
+                          Start Mixing
+                        </Button>
+                      </Link>
+                      <Link to="/engineer-dashboard">
+                        <Button variant="outline" className="h-20 flex-col gap-2 w-full">
+                          <Users className="w-6 h-6" />
+                          Find Engineer
+                        </Button>
+                      </Link>
+                      <Link to="/jobs">
+                        <Button variant="outline" className="h-20 flex-col gap-2 w-full">
+                          <Radio className="w-6 h-6" />
+                          Join Session
+                        </Button>
+                      </Link>
                     </div>
                   </CardContent>
                 </Card>
@@ -293,18 +303,24 @@ const Dashboard = () => {
                 <CardTitle>Explore More</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button variant="outline" className="w-full justify-between">
-                  Browse Engineers
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
-                <Button variant="outline" className="w-full justify-between">
-                  Learning Hub
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
-                <Button variant="outline" className="w-full justify-between">
-                  Community Forum
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
+                <Link to="/engineer-dashboard">
+                  <Button variant="outline" className="w-full justify-between">
+                    Browse Engineers
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </Link>
+                <Link to="/mixing">
+                  <Button variant="outline" className="w-full justify-between">
+                    Learning Hub
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </Link>
+                <Link to="/jobs">
+                  <Button variant="outline" className="w-full justify-between">
+                    Community Forum
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
           </div>

@@ -55,9 +55,9 @@ const Pricing = () => {
               </ul>
             </CardContent>
             <CardFooter>
-              <a href="#contact" className="w-full">
-                <Button variant="outline" className="w-full">Order Basic</Button>
-              </a>
+              <Button variant="outline" className="w-full" onClick={() => {
+                document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+              }}>Order Basic</Button>
             </CardFooter>
           </Card>
 
@@ -110,9 +110,9 @@ const Pricing = () => {
               </ul>
             </CardContent>
             <CardFooter>
-              <a href="#contact" className="w-full">
-                <Button className="w-full">Order Pro</Button>
-              </a>
+              <Button className="w-full" onClick={() => {
+                document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+              }}>Order Pro</Button>
             </CardFooter>
           </Card>
         </div>

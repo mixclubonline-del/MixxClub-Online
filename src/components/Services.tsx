@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bot, Radio, Sparkles, CheckCircle } from "lucide-react";
 import { Button } from "./ui/button";
+import { Link } from "react-router-dom";
 
 const Services = () => {
   return (
@@ -48,7 +49,7 @@ const Services = () => {
                 </li>
               </ul>
               <Button variant="outline" className="w-full" asChild>
-                <a href="/ai-collaborations">Explore</a>
+                <Link to="/dashboard">Explore</Link>
               </Button>
             </CardContent>
           </Card>
@@ -83,7 +84,7 @@ const Services = () => {
                 </li>
               </ul>
               <Button variant="outline" className="w-full" asChild>
-                <a href="/crm">Explore</a>
+                <Link to="/mixing">Explore</Link>
               </Button>
             </CardContent>
           </Card>
@@ -118,7 +119,7 @@ const Services = () => {
                 </li>
               </ul>
               <Button variant="outline" className="w-full" asChild>
-                <a href="/mastering">Explore</a>
+                <Link to="/mastering">Explore</Link>
               </Button>
             </CardContent>
           </Card>

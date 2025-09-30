@@ -6,6 +6,7 @@ import { AudioDemoPlayer } from "./AudioDemoPlayer";
 import { EngineerShowcase } from "./EngineerShowcase";
 import { CollaborationShowcase } from "./CollaborationShowcase";
 import { DynamicLogo } from "./hero/DynamicLogo";
+import { Link } from "react-router-dom";
 
 const Hero = () => {
   return (
@@ -88,18 +89,18 @@ const Hero = () => {
 
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16">
-          <a href="/auth?mode=signup">
+          <Link to="/auth?mode=signup">
             <Button size="lg" className="gap-3 group text-lg px-10 py-6 shadow-xl hover:shadow-2xl transition-all duration-300 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary">
               Join the Collaboration
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Button>
-          </a>
-          <a href="#demo">
-            <Button size="lg" variant="outline" className="gap-3 text-lg px-10 py-6 border-primary/30 hover:border-primary/50 hover:bg-primary/5">
-              <Mic className="w-5 h-5" />
-              Watch Demo
-            </Button>
-          </a>
+          </Link>
+          <Button size="lg" variant="outline" className="gap-3 text-lg px-10 py-6 border-primary/30 hover:border-primary/50 hover:bg-primary/5" onClick={() => {
+            document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' });
+          }}>
+            <Mic className="w-5 h-5" />
+            Watch Demo
+          </Button>
         </div>
 
         {/* Live Stats */}

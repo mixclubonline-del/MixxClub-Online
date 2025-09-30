@@ -25,15 +25,15 @@ const Navigation = () => {
           {isHome ? (
             <>
               <div className="hidden md:flex items-center gap-8">
-                <a href="/ai-studio" className="text-foreground hover:text-primary transition-colors">
-                  AI Studio
-                </a>
-                <a href="/mixing" className="text-foreground hover:text-primary transition-colors">
+                <Link to="/dashboard" className="text-foreground hover:text-primary transition-colors">
+                  Dashboard
+                </Link>
+                <Link to="/mixing" className="text-foreground hover:text-primary transition-colors">
                   Mixing
-                </a>
-                <a href="/mastering" className="text-foreground hover:text-primary transition-colors">
+                </Link>
+                <Link to="/mastering" className="text-foreground hover:text-primary transition-colors">
                   Mastering
-                </a>
+                </Link>
                 {user && (
                   <>
                     <Link to="/artist-crm" className="text-foreground hover:text-primary transition-colors">
@@ -112,15 +112,15 @@ const Navigation = () => {
         {/* Mobile menu */}
         {isOpen && isHome && (
           <div className="md:hidden mt-4 space-y-4">
-            <a href="/ai-studio" className="block text-foreground hover:text-primary transition-colors">
-              AI Studio
-            </a>
-            <a href="/mixing" className="block text-foreground hover:text-primary transition-colors">
+            <Link to="/dashboard" className="block text-foreground hover:text-primary transition-colors">
+              Dashboard
+            </Link>
+            <Link to="/mixing" className="block text-foreground hover:text-primary transition-colors">
               Mixing
-            </a>
-            <a href="/mastering" className="block text-foreground hover:text-primary transition-colors">
+            </Link>
+            <Link to="/mastering" className="block text-foreground hover:text-primary transition-colors">
               Mastering
-            </a>
+            </Link>
             {user && (
               <>
                 <Link to="/artist-crm" className="block text-foreground hover:text-primary transition-colors">
