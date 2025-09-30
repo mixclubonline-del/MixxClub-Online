@@ -18,6 +18,9 @@ import Mixing from "./pages/Mixing";
 import Mastering from "./pages/Mastering";
 import MixingShowcase from "./pages/MixingShowcase";
 import MasteringShowcase from "./pages/MasteringShowcase";
+import ForEngineers from "./pages/ForEngineers";
+import EngineerDirectory from "./pages/EngineerDirectory";
+import EngineerProfile from "./pages/EngineerProfile";
 import Admin from "./pages/Admin";
 import AdminUsers from "./pages/AdminUsers";
 import AdminAudio from './pages/AdminAudio';
@@ -58,6 +61,9 @@ const App = () => (
             <Route path="/admin/audio" element={<AdminAudio />} />
             <Route path="/admin/media" element={<AdminMedia />} />
             <Route path="/admin/payouts" element={<AdminPayouts />} />
+            <Route path="/for-engineers" element={<ForEngineers />} />
+            <Route path="/engineers" element={<EngineerDirectory />} />
+            <Route path="/engineer/:userId" element={<EngineerProfile />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

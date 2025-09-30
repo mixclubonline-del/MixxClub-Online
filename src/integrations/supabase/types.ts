@@ -716,6 +716,7 @@ export type Database = {
       engineer_profiles: {
         Row: {
           certifications: string[] | null
+          collaboration_sessions_count: number | null
           created_at: string
           equipment_list: string[] | null
           featured_engineer: boolean | null
@@ -724,10 +725,13 @@ export type Database = {
           mastering_rate_per_song: number | null
           mixing_rate_per_song: number | null
           onboarding_profile_id: string | null
+          platform_usage_score: number | null
           portfolio_links: string[] | null
           rating_average: number | null
+          remote_work_percentage: number | null
           rush_fee_percentage: number | null
           specialties: string[] | null
+          tools_mastered: Json | null
           total_projects_completed: number | null
           total_reviews: number | null
           turnaround_days: number | null
@@ -737,6 +741,7 @@ export type Database = {
         }
         Insert: {
           certifications?: string[] | null
+          collaboration_sessions_count?: number | null
           created_at?: string
           equipment_list?: string[] | null
           featured_engineer?: boolean | null
@@ -745,10 +750,13 @@ export type Database = {
           mastering_rate_per_song?: number | null
           mixing_rate_per_song?: number | null
           onboarding_profile_id?: string | null
+          platform_usage_score?: number | null
           portfolio_links?: string[] | null
           rating_average?: number | null
+          remote_work_percentage?: number | null
           rush_fee_percentage?: number | null
           specialties?: string[] | null
+          tools_mastered?: Json | null
           total_projects_completed?: number | null
           total_reviews?: number | null
           turnaround_days?: number | null
@@ -758,6 +766,7 @@ export type Database = {
         }
         Update: {
           certifications?: string[] | null
+          collaboration_sessions_count?: number | null
           created_at?: string
           equipment_list?: string[] | null
           featured_engineer?: boolean | null
@@ -766,10 +775,13 @@ export type Database = {
           mastering_rate_per_song?: number | null
           mixing_rate_per_song?: number | null
           onboarding_profile_id?: string | null
+          platform_usage_score?: number | null
           portfolio_links?: string[] | null
           rating_average?: number | null
+          remote_work_percentage?: number | null
           rush_fee_percentage?: number | null
           specialties?: string[] | null
+          tools_mastered?: Json | null
           total_projects_completed?: number | null
           total_reviews?: number | null
           turnaround_days?: number | null
@@ -827,6 +839,54 @@ export type Database = {
             foreignKeyName: "engineer_streaks_engineer_id_fkey"
             columns: ["engineer_id"]
             isOneToOne: true
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      engineer_tiers: {
+        Row: {
+          achieved_at: string | null
+          created_at: string | null
+          engineer_id: string
+          id: string
+          platform_bonus_percentage: number | null
+          requirements: Json | null
+          revenue_split_percentage: number
+          tier_name: string
+        }
+        Insert: {
+          achieved_at?: string | null
+          created_at?: string | null
+          engineer_id: string
+          id?: string
+          platform_bonus_percentage?: number | null
+          requirements?: Json | null
+          revenue_split_percentage: number
+          tier_name: string
+        }
+        Update: {
+          achieved_at?: string | null
+          created_at?: string | null
+          engineer_id?: string
+          id?: string
+          platform_bonus_percentage?: number | null
+          requirements?: Json | null
+          revenue_split_percentage?: number
+          tier_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "engineer_tiers_engineer_id_fkey"
+            columns: ["engineer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "engineer_tiers_engineer_id_fkey"
+            columns: ["engineer_id"]
+            isOneToOne: false
             referencedRelation: "public_profiles"
             referencedColumns: ["id"]
           },
@@ -1372,6 +1432,122 @@ export type Database = {
           },
         ]
       }
+      performance_bonuses: {
+        Row: {
+          awarded_at: string | null
+          bonus_amount: number
+          bonus_type: string
+          description: string | null
+          engineer_id: string
+          id: string
+          project_id: string | null
+          status: string | null
+        }
+        Insert: {
+          awarded_at?: string | null
+          bonus_amount: number
+          bonus_type: string
+          description?: string | null
+          engineer_id: string
+          id?: string
+          project_id?: string | null
+          status?: string | null
+        }
+        Update: {
+          awarded_at?: string | null
+          bonus_amount?: number
+          bonus_type?: string
+          description?: string | null
+          engineer_id?: string
+          id?: string
+          project_id?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "performance_bonuses_engineer_id_fkey"
+            columns: ["engineer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "performance_bonuses_engineer_id_fkey"
+            columns: ["engineer_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "performance_bonuses_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      platform_usage_tracking: {
+        Row: {
+          ai_tools_used: boolean | null
+          created_at: string | null
+          engineer_id: string
+          id: string
+          integration_bonus_earned: number | null
+          platform_completion_percentage: number | null
+          project_id: string | null
+          remote_session_used: boolean | null
+          tools_used: Json
+          updated_at: string | null
+        }
+        Insert: {
+          ai_tools_used?: boolean | null
+          created_at?: string | null
+          engineer_id: string
+          id?: string
+          integration_bonus_earned?: number | null
+          platform_completion_percentage?: number | null
+          project_id?: string | null
+          remote_session_used?: boolean | null
+          tools_used?: Json
+          updated_at?: string | null
+        }
+        Update: {
+          ai_tools_used?: boolean | null
+          created_at?: string | null
+          engineer_id?: string
+          id?: string
+          integration_bonus_earned?: number | null
+          platform_completion_percentage?: number | null
+          project_id?: string | null
+          remote_session_used?: boolean | null
+          tools_used?: Json
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_usage_tracking_engineer_id_fkey"
+            columns: ["engineer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "platform_usage_tracking_engineer_id_fkey"
+            columns: ["engineer_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "platform_usage_tracking_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1673,6 +1849,61 @@ export type Database = {
             columns: ["engineer_id"]
             isOneToOne: false
             referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      remote_session_analytics: {
+        Row: {
+          client_satisfaction: number | null
+          created_at: string | null
+          duration_minutes: number | null
+          engineer_id: string
+          id: string
+          session_id: string
+          success_rating: number | null
+          tools_used: Json | null
+        }
+        Insert: {
+          client_satisfaction?: number | null
+          created_at?: string | null
+          duration_minutes?: number | null
+          engineer_id: string
+          id?: string
+          session_id: string
+          success_rating?: number | null
+          tools_used?: Json | null
+        }
+        Update: {
+          client_satisfaction?: number | null
+          created_at?: string | null
+          duration_minutes?: number | null
+          engineer_id?: string
+          id?: string
+          session_id?: string
+          success_rating?: number | null
+          tools_used?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "remote_session_analytics_engineer_id_fkey"
+            columns: ["engineer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "remote_session_analytics_engineer_id_fkey"
+            columns: ["engineer_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "remote_session_analytics_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "collaboration_sessions"
             referencedColumns: ["id"]
           },
         ]

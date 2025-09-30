@@ -34,6 +34,7 @@ const Navigation = () => {
       return [
         { to: "/mixing", label: "Mixing Magic" },
         { to: "/mastering", label: "Mastering Polish" },
+        { to: "/for-engineers", label: "For Engineers", featured: true },
       ];
     }
 
@@ -93,7 +94,9 @@ const Navigation = () => {
                   <Link
                     key={link.to}
                     to={link.to}
-                    className={`relative text-foreground hover:text-primary transition-all duration-300 font-medium ${
+                    className={`relative text-foreground hover:text-primary transition-all duration-300 ${
+                      (link as any).featured ? 'font-bold' : 'font-medium'
+                    } ${
                       isActiveRoute(link.to) ? 'text-primary' : ''
                     }`}
                   >
