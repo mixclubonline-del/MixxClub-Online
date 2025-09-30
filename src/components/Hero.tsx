@@ -1,184 +1,95 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles, Users, Music, Zap, Award, Clock, HeartHandshake, Mic, Headphones } from "lucide-react";
-import { AudioVisualizer } from "./AudioVisualizer";
-import { LiveStats } from "./LiveStats";
-import { AudioDemoPlayer } from "./AudioDemoPlayer";
-import { EngineerShowcase } from "./EngineerShowcase";
-import { CollaborationShowcase } from "./CollaborationShowcase";
-import { DynamicLogo } from "./hero/DynamicLogo";
+import { ArrowRight, Music, Award, HeartHandshake, Mic } from "lucide-react";
 import { Link } from "react-router-dom";
+import mixclub3DLogo from "@/assets/mixclub-3d-logo.png";
 
 const Hero = () => {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Dynamic animated background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-primary/5"></div>
-      
-      {/* Canvas Audio Visualizer */}
-      <AudioVisualizer />
-      
-      {/* Animated elements */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-20 left-10 w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-20 right-10 w-[32rem] h-[32rem] bg-primary/30 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-primary/15 rounded-full blur-2xl animate-pulse-glow" style={{ animationDelay: '1s' }}></div>
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background">
+      {/* Animated gradient orbs */}
+      <div className="absolute inset-0">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-br from-cyan-500/20 to-purple-500/20 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40rem] h-[40rem] bg-gradient-to-br from-primary/10 to-secondary/10 rounded-full blur-3xl animate-pulse-glow" style={{ animationDelay: '1s' }}></div>
       </div>
 
       {/* Content */}
-      <div className="container relative z-10 px-6 py-20 text-center space-y-16">
-        {/* Brand Logo & Badge */}
-        <div className="space-y-6">
-          <div className="flex justify-center mb-8">
-            <DynamicLogo />
+      <div className="container relative z-10 px-6 py-20 text-center">
+        {/* 3D Logo */}
+        <div className="flex justify-center mb-12">
+          <img 
+            src={mixclub3DLogo} 
+            alt="MixClub 3D Logo" 
+            className="w-80 h-60 object-contain animate-float"
+          />
+        </div>
+
+        {/* Introducing Badge */}
+        <div className="mb-8">
+          <div className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/30 backdrop-blur-sm">
+            <span className="text-sm font-medium text-primary">INTRODUCING MIXCLUB</span>
           </div>
         </div>
 
-        {/* Main Brand Headline */}
-        <div className="space-y-8">
-          <div className="space-y-4">
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <div className="px-4 py-1.5 rounded-full bg-gradient-to-r from-primary/20 to-primary/30 border border-primary/30">
-                <span className="text-sm font-medium text-primary">⚡ 50% Faster Than Traditional Studios</span>
-              </div>
-            </div>
-            <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold leading-tight max-w-7xl mx-auto">
-              <span className="bg-gradient-to-r from-primary via-primary to-primary/80 bg-clip-text text-transparent">
-                MixClub
-              </span>
-              <br />
-              <span className="text-foreground">Online</span>
-            </h1>
-          </div>
+        {/* Main Headline with Gradient */}
+        <div className="space-y-8 mb-16">
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold leading-tight max-w-6xl mx-auto">
+            <span className="bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+              Transform your tracks into 
+              professional hits, or create 
+              something entirely new.
+            </span>
+          </h1>
           
-          <div className="space-y-6">
-            <p className="text-2xl md:text-3xl font-semibold text-muted-foreground max-w-5xl mx-auto">
-              The Only Platform Where Grammy Engineers &amp; AI Work Together{" "}
-              <span className="text-primary">To Perfect Your Sound</span>
-            </p>
-            
-            <div className="flex flex-wrap items-center justify-center gap-6 text-sm font-medium">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span>847 tracks mixed today</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-                <span>15 AI models active</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
-                <span>2.1s avg processing time</span>
-              </div>
-            </div>
-          </div>
+          <p className="text-xl md:text-2xl text-muted-foreground max-w-4xl mx-auto leading-relaxed">
+            We've combined Grammy-winning engineers with cutting-edge AI across all genres: 
+            hip-hop, pop, rock, electronic, and beyond. Want to turn your demo into a 
+            chart-topper? Now you can.
+          </p>
         </div>
 
-        {/* Real-time Collaboration Preview */}
-        <div className="py-8">
-          <CollaborationShowcase />
-        </div>
-
-        {/* Collaboration Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto mb-12">
-          <div className="group p-6 rounded-2xl bg-card/50 border border-primary/20 backdrop-blur-sm hover:border-primary/40 transition-all duration-300">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <Music className="w-5 h-5 text-primary" />
-              </div>
-              <h3 className="font-semibold text-lg">Instant Uploads</h3>
-            </div>
-            <p className="text-muted-foreground text-sm">Upload tracks and watch engineers collaborate in real-time with AI-powered stem separation</p>
-          </div>
-          
-          <div className="group p-6 rounded-2xl bg-card/50 border border-primary/20 backdrop-blur-sm hover:border-primary/40 transition-all duration-300">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <HeartHandshake className="w-5 h-5 text-primary" />
-              </div>
-              <h3 className="font-semibold text-lg">Live Collaboration</h3>
-            </div>
-            <p className="text-muted-foreground text-sm">Artists and engineers work together with real-time comments, tasks, and progress updates</p>
-          </div>
-          
-          <div className="group p-6 rounded-2xl bg-card/50 border border-primary/20 backdrop-blur-sm hover:border-primary/40 transition-all duration-300">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <Award className="w-5 h-5 text-primary animate-pulse" />
-              </div>
-              <h3 className="font-semibold text-lg">Gamified Workflow</h3>
-            </div>
-            <p className="text-muted-foreground text-sm">Earn points, unlock badges, and level up through successful collaborations and quality work</p>
-          </div>
-        </div>
-
-        {/* CTA Buttons */}
-        <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row gap-6 justify-center">
-            <Link to="/auth?mode=signup">
-              <Button size="lg" className="gap-3 group text-lg px-12 py-6 shadow-xl hover:shadow-2xl transition-all duration-300 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-lg font-semibold">
-                Start Free Trial - No Credit Card
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </Link>
-            <Button size="lg" variant="outline" className="gap-3 text-lg px-10 py-6 border-primary/30 hover:border-primary/50 hover:bg-primary/5" onClick={() => {
-              document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' });
-            }}>
-              <Mic className="w-5 h-5" />
-              Watch Live Demo
+        {/* CTA Button */}
+        <div className="mb-16">
+          <Link to="/auth?mode=signup">
+            <Button 
+              size="lg" 
+              className="px-8 py-4 text-lg font-semibold bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white border-0 shadow-2xl hover:shadow-primary/25 transition-all duration-300"
+            >
+              GET MIXCLUB
             </Button>
-          </div>
-          
-          {/* Value Props */}
-          <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
-            <span>✅ 3-day money-back guarantee</span>
-            <span>✅ Used by 250+ Grammy artists</span>
-            <span>✅ 99.9% uptime SLA</span>
-            <span>✅ 24/7 expert support</span>
-          </div>
+          </Link>
         </div>
 
-        {/* Live Stats */}
-        <div className="py-12">
-          <LiveStats />
-        </div>
-
-        {/* Audio Demo Player */}
-        <div id="demo" className="py-12">
-          <AudioDemoPlayer />
-        </div>
-
-        {/* Engineer Showcase */}
-        <div className="py-12">
-          <EngineerShowcase />
-        </div>
-
-        {/* Trust Indicators */}
-        <div className="pt-12 space-y-6">
-          <div className="text-sm text-muted-foreground">Trusted by artists at</div>
-          <div className="flex flex-wrap items-center justify-center gap-8 opacity-60">
-            <div className="text-xl font-bold">Universal Music</div>
-            <div className="text-xl font-bold">Sony Music</div>
-            <div className="text-xl font-bold">Warner Music</div>
-            <div className="text-xl font-bold">Atlantic Records</div>
-            <div className="text-xl font-bold">Def Jam</div>
-          </div>
-          
-          {/* Competitive Advantage */}
-          <div className="mt-8 p-6 rounded-2xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-              <div>
-                <div className="text-2xl font-bold text-primary">70% Less</div>
-                <div className="text-sm text-muted-foreground">Cost vs traditional studios</div>
+        {/* Feature Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="p-6 rounded-2xl bg-card/30 backdrop-blur-sm border border-border/50 hover:border-primary/40 transition-all duration-300">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Music className="w-6 h-6 text-primary" />
               </div>
-              <div>
-                <div className="text-2xl font-bold text-primary">10x Faster</div>
-                <div className="text-sm text-muted-foreground">AI-powered workflow</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-primary">24/7</div>
-                <div className="text-sm text-muted-foreground">Real-time collaboration</div>
-              </div>
+              <h3 className="font-semibold text-lg">AI-Powered Mastering</h3>
             </div>
+            <p className="text-muted-foreground">Advanced neural networks analyze and enhance every aspect of your track for professional-grade results.</p>
+          </div>
+          
+          <div className="p-6 rounded-2xl bg-card/30 backdrop-blur-sm border border-border/50 hover:border-primary/40 transition-all duration-300">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <HeartHandshake className="w-6 h-6 text-primary" />
+              </div>
+              <h3 className="font-semibold text-lg">Grammy Engineers</h3>
+            </div>
+            <p className="text-muted-foreground">Work directly with award-winning engineers who've shaped the sound of today's biggest hits.</p>
+          </div>
+          
+          <div className="p-6 rounded-2xl bg-card/30 backdrop-blur-sm border border-border/50 hover:border-primary/40 transition-all duration-300">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Award className="w-6 h-6 text-primary" />
+              </div>
+              <h3 className="font-semibold text-lg">Real-Time Collaboration</h3>
+            </div>
+            <p className="text-muted-foreground">Instant feedback, live editing sessions, and seamless communication throughout the entire process.</p>
           </div>
         </div>
       </div>
