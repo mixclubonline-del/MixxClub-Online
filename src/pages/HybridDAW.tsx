@@ -526,227 +526,290 @@ const HybridDAW = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white flex flex-col">
+    <div className="min-h-screen bg-background text-foreground flex flex-col overflow-hidden">
       <Navigation />
       
-      {/* Top Toolbar - Bitwig Style */}
-      <div className="pt-24 bg-slate-800 border-b border-slate-700">
-        <div className="px-4 py-2 flex items-center justify-between">
-          {/* Left - File Menu & Tools */}
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" className="text-xs text-slate-300 hover:text-white hover:bg-slate-700">
+      {/* Modern Glassmorphic Top Toolbar */}
+      <div className="pt-24 glass border-b border-border/50 shadow-glass animate-slide-up">
+        <div className="px-6 py-3 flex items-center justify-between">
+          {/* Left - Transport Controls */}
+          <div className="flex items-center gap-3">
+            <Button variant="glass" size="sm" className="text-xs font-semibold">
               FILE
             </Button>
-            <Button variant="ghost" size="sm" className="text-xs text-slate-300 hover:text-white hover:bg-slate-700">
-              PLAY
-            </Button>
-            <div className="w-px h-6 bg-slate-600 mx-2" />
+            <div className="w-px h-8 bg-border/50" />
+            
+            <div className="flex items-center gap-2 glass-hover p-1 rounded-lg">
+              <Button
+                variant="glow"
+                size="icon"
+                onClick={togglePlayback}
+                className="relative overflow-hidden group"
+              >
+                {isPlaying ? 
+                  <Pause className="w-5 h-5 relative z-10" /> : 
+                  <Play className="w-5 h-5 relative z-10 ml-0.5" />
+                }
+                {isPlaying && (
+                  <div className="absolute inset-0 animate-glow-pulse bg-gradient-to-r from-primary to-accent opacity-20" />
+                )}
+              </Button>
+              
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={stopPlayback}
+                className="hover:scale-110"
+              >
+                <Square className="w-4 h-4" />
+              </Button>
+              
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => seekToTime(0)}
+                className="hover:scale-110"
+              >
+                <RotateCcw className="w-4 h-4" />
+              </Button>
+            </div>
+
+            <div className="w-px h-8 bg-border/50" />
+            
             <Button
-              variant="ghost"
+              variant={hasAudioAccess ? "destructive" : "outline"}
               size="sm"
-              onClick={togglePlayback}
-              className="hover:bg-slate-700 p-2"
+              onClick={requestMicrophone}
+              disabled={isRequesting}
+              className="gap-2 group"
             >
-              {isPlaying ? <Pause className="w-5 h-5 text-orange-500" /> : <Play className="w-5 h-5 text-orange-500" />}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={stopPlayback}
-              className="hover:bg-slate-700 p-2"
-            >
-              <Square className="w-4 h-4 text-slate-300" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => seekToTime(0)}
-              className="hover:bg-slate-700 p-2"
-            >
-              <RotateCcw className="w-4 h-4 text-slate-300" />
+              <Mic className="w-4 h-4 group-hover:scale-110 transition-transform" />
+              <span className="text-xs font-semibold">
+                {isRequesting ? "..." : hasAudioAccess ? "REC READY" : "ENABLE MIC"}
+              </span>
             </Button>
           </div>
 
           {/* Center - Time & BPM Display */}
-          <div className="flex items-center gap-6">
-            <div className="bg-slate-700 px-3 py-1 rounded text-sm font-mono">
-              <span className="text-cyan-400">{bpm}.00</span>
-              <span className="text-slate-400 ml-2">4/4</span>
-            </div>
-            <div className="bg-slate-700 px-3 py-1 rounded text-sm font-mono">
-              <span className="text-orange-400">
-                {Math.floor(currentTime / 60)}:{(currentTime % 60).toFixed(2).padStart(5, '0')}
-              </span>
-            </div>
-          </div>
-
-          {/* Right - Tools & Actions */}
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" className="text-xs text-slate-300 hover:text-white hover:bg-slate-700">
-              ADD
-            </Button>
-            <Button variant="ghost" size="sm" className="text-xs text-slate-300 hover:text-white hover:bg-slate-700">
-              EDIT
-            </Button>
-            <Button
-              variant={hasAudioAccess ? "default" : "ghost"}
-              size="sm"
-              onClick={requestMicrophone}
-              disabled={isRequesting}
-              className="text-xs bg-orange-600 hover:bg-orange-700"
-            >
-              <Mic className="w-4 h-4 mr-1" />
-              {isRequesting ? "..." : hasAudioAccess ? "REC" : "MIC"}
-            </Button>
-            <Button variant="ghost" size="sm" className="text-xs text-slate-300 hover:text-white hover:bg-slate-700">
-              TRACK
-            </Button>
-          </div>
-        </div>
-
-        {/* Timeline Header */}
-        <div className="px-4 py-1 bg-slate-750 border-t border-slate-700 flex items-center text-xs text-slate-400">
-          <div className="w-64 flex items-center gap-2">
-            <span>TRACKS</span>
-          </div>
-          <div className="flex-1 flex">
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(bar => (
-              <div key={bar} className="flex-1 text-center border-r border-slate-700 py-1">
-                {bar}
+          <div className="flex items-center gap-4">
+            <div className="glass-hover px-6 py-2 rounded-xl border border-primary/30 backdrop-blur-xl">
+              <div className="flex items-center gap-3">
+                <div className="text-center">
+                  <div className="text-xs text-muted-foreground mb-0.5">BPM</div>
+                  <div className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                    {bpm}
+                  </div>
+                </div>
+                <div className="w-px h-10 bg-border/50" />
+                <div className="text-center">
+                  <div className="text-xs text-muted-foreground mb-0.5">TIME</div>
+                  <div className="text-xl font-mono text-primary">
+                    {Math.floor(currentTime / 60).toString().padStart(2, '0')}:
+                    {Math.floor(currentTime % 60).toString().padStart(2, '0')}.
+                    {Math.floor((currentTime % 1) * 100).toString().padStart(2, '0')}
+                  </div>
+                </div>
               </div>
-            ))}
+            </div>
+          </div>
+
+          {/* Right - View & Actions */}
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => addTrack('vocal')}
+              className="gap-2"
+            >
+              <FileAudio className="w-4 h-4" />
+              <span className="text-xs font-semibold">ADD TRACK</span>
+            </Button>
+            
+            <Button 
+              variant="glass" 
+              size="sm"
+              onClick={() => setShowImportDialog(true)}
+              className="gap-2"
+            >
+              <Upload className="w-4 h-4" />
+              <span className="text-xs font-semibold">IMPORT</span>
+            </Button>
+            
+            <div className="w-px h-8 bg-border/50" />
+            
+            <Button 
+              variant={view === '2d' ? 'default' : 'ghost'} 
+              size="sm"
+              onClick={() => setView('2d')}
+              className="text-xs"
+            >
+              2D
+            </Button>
+            <Button 
+              variant={view === '3d' ? 'default' : 'ghost'} 
+              size="sm"
+              onClick={() => setView('3d')}
+              className="text-xs"
+            >
+              3D
+            </Button>
           </div>
         </div>
       </div>
 
-      {/* Main DAW Layout */}
-      <div className="flex-1 flex">
-        {/* Track List Sidebar */}
-        <div className="w-64 bg-slate-800 border-r border-slate-700 flex flex-col">
-          {/* Track Controls */}
-          <div className="p-2 border-b border-slate-700">
-            <div className="flex gap-1">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => addTrack('vocal')}
-                className="flex-1 text-xs text-slate-300 hover:text-white hover:bg-slate-700"
-              >
-                + Audio
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => setShowImportDialog(true)}
-                className="flex-1 text-xs text-slate-300 hover:text-white hover:bg-slate-700"
-              >
-                Import
-              </Button>
+      {/* Main DAW Layout with Modern Glassmorphism */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Modern Track Sidebar */}
+        <div className="w-72 glass border-r border-border/50 flex flex-col shadow-glass-lg animate-slide-up" style={{ animationDelay: '100ms' }}>
+          {/* Track Controls Header */}
+          <div className="p-4 border-b border-border/30 glass-hover">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-primary animate-pulse-glow" />
+                <h3 className="text-sm font-bold">TRACKS</h3>
+                <Badge variant="outline" className="text-xs">{tracks.length}</Badge>
+              </div>
+              <Settings className="w-4 h-4 text-muted-foreground hover:text-primary cursor-pointer transition-colors" />
             </div>
           </div>
 
-          {/* Track List */}
-          <div className="flex-1 overflow-y-auto">
+          {/* Track List with Smooth Animations */}
+          <div className="flex-1 overflow-y-auto p-2 space-y-2">
             {tracks.map((track, index) => (
-              <div key={track.id} className="border-b border-slate-700/50 hover:bg-slate-750">
-                <div className="p-3">
-                  {/* Track Header */}
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2 flex-1 min-w-0">
-                      <div 
-                        className="w-2 h-8 rounded-sm flex-shrink-0"
-                        style={{ backgroundColor: track.color }}
-                      />
-                      <span className="text-sm font-medium text-white truncate">
+              <div 
+                key={track.id} 
+                className="glass-hover p-3 rounded-xl border border-border/30 transition-all duration-300 hover:border-primary/50 hover:shadow-glass animate-scale-in"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                {/* Track Header */}
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div 
+                      className="w-1 h-12 rounded-full animate-pulse-glow"
+                      style={{ 
+                        backgroundColor: track.color,
+                        boxShadow: `0 0 10px ${track.color}40`
+                      }}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-semibold text-foreground truncate">
                         {track.name}
-                      </span>
-                    </div>
-                    {track.isRecording && (
-                      <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                    )}
-                  </div>
-                  
-                  {/* Track Controls Row */}
-                  <div className="flex items-center gap-1 mb-2">
-                    <Button
-                      variant={track.solo ? "default" : "ghost"}
-                      size="sm"
-                      className={`text-xs px-2 py-1 h-6 min-w-6 ${
-                        track.solo 
-                          ? 'bg-yellow-600 hover:bg-yellow-700 text-white' 
-                          : 'text-slate-400 hover:text-white hover:bg-slate-700'
-                      }`}
-                      onClick={() => setTracks(prev => 
-                        prev.map(t => t.id === track.id ? { ...t, solo: !t.solo } : t)
-                      )}
-                    >
-                      S
-                    </Button>
-                    <Button
-                      variant={track.mute ? "default" : "ghost"}
-                      size="sm"
-                      className={`text-xs px-2 py-1 h-6 min-w-6 ${
-                        track.mute 
-                          ? 'bg-red-600 hover:bg-red-700 text-white' 
-                          : 'text-slate-400 hover:text-white hover:bg-slate-700'
-                      }`}
-                      onClick={() => setTracks(prev => 
-                        prev.map(t => t.id === track.id ? { ...t, mute: !t.mute } : t)
-                      )}
-                    >
-                      M
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-xs px-2 py-1 h-6 min-w-6 text-slate-400 hover:text-white hover:bg-slate-700"
-                      onClick={() => !track.isRecording ? startRecording(track.id) : stopRecording()}
-                    >
-                      <Mic className="w-3 h-3" />
-                    </Button>
-                  </div>
-                  
-                  {/* Volume Level */}
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2">
-                        {track.mute ? 
-                          <VolumeX className="w-2 h-2 text-red-500" /> : 
-                          <Volume2 className="w-2 h-2 text-slate-400" />
-                        }
                       </div>
-                      <Slider
-                        value={[track.volume * 100]}
-                        onValueChange={(value) => setTracks(prev => 
-                          prev.map(t => t.id === track.id ? { ...t, volume: value[0] / 100 } : t)
-                        )}
-                        max={100}
-                        step={1}
-                        className="flex-1 h-1"
-                      />
-                      <span className="text-xs text-slate-400 w-6 text-right">
-                        {Math.round(track.volume * 100)}
-                      </span>
+                      <div className="text-xs text-muted-foreground">
+                        {track.regions.length} region{track.regions.length !== 1 ? 's' : ''}
+                      </div>
                     </div>
+                  </div>
+                  {track.isRecording && (
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-destructive rounded-full animate-pulse-glow" />
+                      <span className="text-xs text-destructive font-bold">REC</span>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Track Controls */}
+                <div className="flex items-center gap-2 mb-3">
+                  <Button
+                    variant={track.solo ? "glow" : "ghost"}
+                    size="sm"
+                    onClick={() => setTracks(prev => 
+                      prev.map(t => ({ ...t, solo: t.id === track.id ? !t.solo : false }))
+                    )}
+                    className="flex-1 text-xs font-bold"
+                  >
+                    S
+                  </Button>
+                  <Button
+                    variant={track.mute ? "destructive" : "ghost"}
+                    size="sm"
+                    onClick={() => setTracks(prev => 
+                      prev.map(t => t.id === track.id ? { ...t, mute: !t.mute } : t)
+                    )}
+                    className="flex-1 text-xs font-bold"
+                  >
+                    M
+                  </Button>
+                  <Button
+                    variant={track.isRecording ? "destructive" : "ghost"}
+                    size="sm"
+                    onClick={() => !track.isRecording ? startRecording(track.id) : stopRecording()}
+                    className="flex-1 text-xs font-bold"
+                  >
+                    <Mic className="w-3 h-3" />
+                  </Button>
+                </div>
+                
+                {/* Volume Control with Modern Styling */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground">Volume</span>
+                    <span className="font-mono text-primary font-bold">
+                      {Math.round(track.volume * 100)}%
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {track.mute ? 
+                      <VolumeX className="w-3 h-3 text-destructive" /> : 
+                      <Volume2 className="w-3 h-3 text-primary" />
+                    }
+                    <Slider
+                      value={[track.volume * 100]}
+                      onValueChange={(value) => setTracks(prev => 
+                        prev.map(t => t.id === track.id ? { ...t, volume: value[0] / 100 } : t)
+                      )}
+                      max={100}
+                      step={1}
+                      className="flex-1"
+                    />
+                  </div>
+                  
+                  {/* Visual Level Meter */}
+                  <div className="flex gap-1 h-1.5">
+                    {Array.from({ length: 12 }, (_, i) => (
+                      <div
+                        key={i}
+                        className={`flex-1 rounded-full transition-all duration-150 ${
+                          i < Math.floor(track.volume * 12)
+                            ? i < 8 
+                              ? 'bg-gradient-to-r from-green-500 to-green-400 shadow-[0_0_4px_rgba(34,197,94,0.5)]' 
+                              : i < 10 
+                              ? 'bg-gradient-to-r from-yellow-500 to-yellow-400 shadow-[0_0_4px_rgba(234,179,8,0.5)]' 
+                              : 'bg-gradient-to-r from-red-500 to-red-400 shadow-[0_0_4px_rgba(239,68,68,0.5)] animate-pulse-glow'
+                            : 'bg-muted/30'
+                        }`}
+                      />
+                    ))}
                   </div>
                 </div>
               </div>
             ))}
             
             {tracks.length === 0 && (
-              <div className="p-6 text-center text-slate-500">
-                <AudioWaveform className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">No tracks</p>
-                <p className="text-xs">Add a track to start</p>
+              <div className="text-center py-12 px-6 animate-fade-in">
+                <div className="glass-hover rounded-2xl p-8 border border-border/30">
+                  <AudioWaveform className="w-12 h-12 mx-auto mb-4 text-primary/50 animate-pulse" />
+                  <p className="text-sm font-semibold text-foreground mb-1">No tracks yet</p>
+                  <p className="text-xs text-muted-foreground">Add a track or import audio to start</p>
+                  <Button 
+                    variant="glow" 
+                    size="sm" 
+                    onClick={() => addTrack('vocal')}
+                    className="mt-4"
+                  >
+                    <FileAudio className="w-4 h-4 mr-2" />
+                    Create Track
+                  </Button>
+                </div>
               </div>
             )}
           </div>
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 flex flex-col">
-          {/* Timeline Area */}
-          <div className="flex-1 bg-slate-900">
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Timeline Area with Modern Styling */}
+          <div className="flex-1 bg-gradient-to-br from-background to-background/50 animate-fade-in">
             {view === '2d' ? (
               <EnhancedDAWTimeline 
                 tracks={tracks}
@@ -768,44 +831,67 @@ const HybridDAW = () => {
             )}
           </div>
 
-          {/* Bottom Device/Plugin Panel */}
-          <div className="h-56 bg-slate-800 border-t border-slate-700">
-            <div className="flex items-center justify-between p-2 border-b border-slate-700">
+          {/* Modern Bottom Panel */}
+          <div className="h-64 glass border-t border-border/50 shadow-glass-lg animate-slide-up" style={{ animationDelay: '200ms' }}>
+            <div className="flex items-center justify-between p-4 border-b border-border/30">
               <div className="flex items-center gap-4">
-                <h3 className="text-sm font-medium text-white">Device Panel</h3>
+                <h3 className="text-sm font-bold flex items-center gap-2">
+                  <Volume2 className="w-4 h-4 text-primary" />
+                  MIXER CONSOLE
+                </h3>
                 <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="sm" className="text-xs text-slate-400 hover:text-white">
-                    ARRANGE
-                  </Button>
-                  <Button variant="ghost" size="sm" className="text-xs text-slate-400 hover:text-white">
+                  <Button variant={activePanel === 'mixer' ? 'default' : 'ghost'} size="sm" onClick={() => setActivePanel('mixer')}>
                     MIX
                   </Button>
-                  <Button variant="ghost" size="sm" className="text-xs text-slate-400 hover:text-white">
-                    EDIT
+                  <Button variant={activePanel === 'effects' ? 'default' : 'ghost'} size="sm" onClick={() => setActivePanel('effects')}>
+                    FX
+                  </Button>
+                  <Button variant={activePanel === 'collab' ? 'default' : 'ghost'} size="sm" onClick={() => setActivePanel('collab')}>
+                    <Users className="w-4 h-4 mr-1" />
+                    COLLAB
                   </Button>
                 </div>
               </div>
               
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-400">Master:</span>
+              <div className="flex items-center gap-3 glass-hover px-4 py-2 rounded-lg">
+                <span className="text-xs font-semibold text-muted-foreground">MASTER</span>
+                <Volume2 className="w-4 h-4 text-primary" />
                 <Slider
                   value={[masterVolume * 100]}
                   onValueChange={(value) => setMasterVolume(value[0] / 100)}
                   max={100}
                   step={1}
-                  className="w-20"
+                  className="w-32"
                 />
-                <span className="text-xs text-slate-400 w-8">{Math.round(masterVolume * 100)}</span>
+                <span className="text-sm font-mono font-bold text-primary w-12 text-right">
+                  {Math.round(masterVolume * 100)}%
+                </span>
               </div>
             </div>
             
-            <div className="flex-1 p-4 overflow-x-auto">
-              <DAWMixerPanel 
-                tracks={tracks}
-                onTracksChange={setTracks}
-                masterVolume={masterVolume}
-                onMasterVolumeChange={setMasterVolume}
-              />
+            <div className="flex-1 overflow-hidden">
+              {activePanel === 'mixer' && (
+                <div className="h-full overflow-x-auto p-2">
+                  <DAWMixerPanel 
+                    tracks={tracks}
+                    onTracksChange={setTracks}
+                    masterVolume={masterVolume}
+                    onMasterVolumeChange={setMasterVolume}
+                  />
+                </div>
+              )}
+              {activePanel === 'effects' && (
+                <DAWEffectsPanel tracks={tracks} onTracksChange={setTracks} />
+              )}
+              {activePanel === 'collab' && user && (
+                <DAWCollaboration 
+                  sessionId={`daw-session-${user.id}`}
+                  userId={user.id}
+                  userName={user.email || 'User'}
+                  onTrackUpdate={(trackData) => console.log('Track updated:', trackData)}
+                  onEffectChange={(trackId, effectData) => console.log('Effect changed:', trackId, effectData)}
+                />
+              )}
             </div>
           </div>
         </div>
