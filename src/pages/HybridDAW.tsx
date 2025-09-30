@@ -98,6 +98,10 @@ const HybridDAW = () => {
   const audioContextRef = useRef<AudioContext | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const playbackSourcesRef = useRef<Map<string, AudioBufferSourceNode>>(new Map());
+  const animationFrameRef = useRef<number | null>(null);
+  const startTimeRef = useRef<number>(0);
+  const pauseTimeRef = useRef<number>(0);
   
   // Gamification State
   const [achievements, setAchievements] = useState<Array<{ id: string; title: string; description: string; unlocked: boolean }>>([
@@ -126,6 +130,20 @@ const HybridDAW = () => {
     initAudio();
     
     return () => {
+      // Cleanup on unmount
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      
+      playbackSourcesRef.current.forEach(source => {
+        try {
+          source.stop();
+        } catch (e) {
+          // Source might already be stopped
+        }
+      });
+      playbackSourcesRef.current.clear();
+      
       if (audioContextRef.current) {
         audioContextRef.current.close();
       }
@@ -266,16 +284,141 @@ const HybridDAW = () => {
     }
   };
 
+  // Update playback time
+  const updatePlaybackTime = () => {
+    if (isPlaying && audioContextRef.current) {
+      const elapsed = audioContextRef.current.currentTime - startTimeRef.current + pauseTimeRef.current;
+      setCurrentTime(elapsed);
+      animationFrameRef.current = requestAnimationFrame(updatePlaybackTime);
+    }
+  };
+
+  // Play audio from blob or URL
+  const playAudioRegion = async (region: AudioRegion, trackVolume: number = 0.8, trackMute: boolean = false) => {
+    if (!audioContextRef.current || trackMute) return;
+
+    try {
+      let audioBuffer: AudioBuffer;
+      
+      if (region.blob) {
+        const arrayBuffer = await region.blob.arrayBuffer();
+        audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
+      } else if (region.url) {
+        const response = await fetch(region.url);
+        const arrayBuffer = await response.arrayBuffer();
+        audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
+      } else {
+        return;
+      }
+
+      const source = audioContextRef.current.createBufferSource();
+      const gainNode = audioContextRef.current.createGain();
+      
+      source.buffer = audioBuffer;
+      gainNode.gain.value = (region.gain || 1) * trackVolume * masterVolume;
+      
+      source.connect(gainNode);
+      gainNode.connect(audioContextRef.current.destination);
+      
+      // Start playback from current time position
+      const startOffset = Math.max(0, currentTime - region.start);
+      const duration = Math.max(0, region.end - region.start - startOffset);
+      
+      if (startOffset < audioBuffer.duration && duration > 0) {
+        source.start(0, startOffset, duration);
+        playbackSourcesRef.current.set(region.id, source);
+        
+        source.onended = () => {
+          playbackSourcesRef.current.delete(region.id);
+        };
+      }
+    } catch (error) {
+      console.error('Error playing audio region:', error);
+    }
+  };
+
   // Play/Pause Transport
-  const togglePlayback = () => {
-    setIsPlaying(!isPlaying);
-    // TODO: Implement actual audio playback logic
+  const togglePlayback = async () => {
+    if (!audioContextRef.current) {
+      toast({
+        title: "Audio Error",
+        description: "Audio system not initialized",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (isPlaying) {
+      // Pause playback
+      setIsPlaying(false);
+      pauseTimeRef.current = currentTime;
+      
+      // Stop all current audio sources
+      playbackSourcesRef.current.forEach(source => {
+        try {
+          source.stop();
+        } catch (e) {
+          // Source might already be stopped
+        }
+      });
+      playbackSourcesRef.current.clear();
+      
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    } else {
+      // Resume/start playback
+      if (audioContextRef.current.state === 'suspended') {
+        await audioContextRef.current.resume();
+      }
+      
+      setIsPlaying(true);
+      startTimeRef.current = audioContextRef.current.currentTime;
+      
+      // Play all audio regions that should be playing at current time
+      tracks.forEach(track => {
+        if (!track.mute && !track.solo) {
+          track.regions.forEach(region => {
+            if (currentTime >= region.start && currentTime < region.end) {
+              playAudioRegion(region, track.volume, track.mute);
+            }
+          });
+        }
+      });
+      
+      // Play solo tracks if any
+      const soloTracks = tracks.filter(track => track.solo);
+      soloTracks.forEach(track => {
+        track.regions.forEach(region => {
+          if (currentTime >= region.start && currentTime < region.end) {
+            playAudioRegion(region, track.volume, false);
+          }
+        });
+      });
+      
+      updatePlaybackTime();
+    }
   };
 
   // Stop Transport
   const stopPlayback = () => {
     setIsPlaying(false);
     setCurrentTime(0);
+    pauseTimeRef.current = 0;
+    
+    // Stop all audio sources
+    playbackSourcesRef.current.forEach(source => {
+      try {
+        source.stop();
+      } catch (e) {
+        // Source might already be stopped
+      }
+    });
+    playbackSourcesRef.current.clear();
+    
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+    }
   };
 
   // Handle imported audio file with automatic BPM detection
@@ -327,6 +470,27 @@ const HybridDAW = () => {
         title: "Track Added!",
         description: `${importedFile.fileName} has been added to your session`,
       });
+    }
+  };
+
+  // Seek to time position
+  const seekToTime = (time: number) => {
+    setCurrentTime(time);
+    pauseTimeRef.current = time;
+    
+    if (isPlaying) {
+      // Stop current playback and restart from new position
+      playbackSourcesRef.current.forEach(source => {
+        try {
+          source.stop();
+        } catch (e) {
+          // Source might already be stopped
+        }
+      });
+      playbackSourcesRef.current.clear();
+      
+      // Restart playback from new position
+      setTimeout(() => togglePlayback().then(() => togglePlayback()), 50);
     }
   };
 
@@ -400,7 +564,7 @@ const HybridDAW = () => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setCurrentTime(0)}
+              onClick={() => seekToTime(0)}
               className="hover:bg-primary/10"
             >
               <RotateCcw className="w-4 h-4" />
@@ -583,7 +747,7 @@ const HybridDAW = () => {
                 tracks={tracks}
                 onTracksChange={setTracks}
                 currentTime={currentTime}
-                onTimeChange={setCurrentTime}
+                onTimeChange={seekToTime}
                 isPlaying={isPlaying}
                 bpm={bpm}
                 onStartRecording={startRecording}
