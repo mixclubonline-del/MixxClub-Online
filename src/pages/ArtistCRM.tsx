@@ -13,6 +13,7 @@ import { RealTimeCollaboration } from '@/components/RealTimeCollaboration';
 import EnhancedCRM from '@/components/crm/EnhancedCRM';
 import SessionManager from '@/components/collaboration/SessionManager';
 import { EngineerCRMDashboard } from '@/components/crm/EngineerCRMDashboard';
+import { AdvancedMixingStudio } from '@/components/mixing/AdvancedMixingStudio';
 import { toast } from 'sonner';
 
 const ArtistCRM = () => {
@@ -234,37 +235,7 @@ const ArtistCRM = () => {
           </TabsContent>
 
           <TabsContent value="collaboration" className="space-y-6">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="text-2xl font-bold">Live Studio Collaboration</h2>
-                <p className="text-muted-foreground">Connect with engineers and other artists in real-time</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <span className="text-sm text-muted-foreground">Live</span>
-              </div>
-            </div>
-            
-            {/* Session Manager */}
-            <SessionManager projectId={projects[0]?.id} />
-            
-            {/* Enhanced CRM for active projects */}
-            {projects.length > 0 && (
-              <div className="grid gap-6 mt-8">
-                <h3 className="text-lg font-semibold">Active Project Collaboration</h3>
-                {projects.filter(p => p.status !== 'completed').slice(0, 2).map((project) => (
-                  <div key={project.id} className="space-y-4">
-                    <h4 className="text-md font-medium flex items-center gap-2">
-                      <Music className="w-4 h-4" />
-                      {project.title}
-                    </h4>
-                    <EnhancedCRM projectId={project.id} />
-                  </div>
-                ))}
-              </div>
-            )}
-            
-            <RealTimeCollaboration />
+            <AdvancedMixingStudio />
           </TabsContent>
 
           <TabsContent value="activity">
