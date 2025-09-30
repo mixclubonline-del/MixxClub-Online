@@ -526,166 +526,156 @@ const HybridDAW = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-slate-900 text-white flex flex-col">
       <Navigation />
       
-      {/* Top Toolbar - Clean and Minimal */}
-      <div className="pt-24 border-b border-border bg-card/50 backdrop-blur">
+      {/* Top Toolbar - Bitwig Style */}
+      <div className="pt-24 bg-slate-800 border-b border-slate-700">
         <div className="px-4 py-2 flex items-center justify-between">
-          {/* Left - Project Info */}
-          <div className="flex items-center gap-4">
-            <h1 className="text-lg font-semibold flex items-center gap-2">
-              <AudioWaveform className="w-5 h-5 text-primary" />
-              Untitled Project
-            </h1>
-            <Badge variant="secondary" className="text-xs">
-              {bpm} BPM • 4/4
-            </Badge>
-          </div>
-
-          {/* Center - Transport Controls */}
+          {/* Left - File Menu & Tools */}
           <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" className="text-xs text-slate-300 hover:text-white hover:bg-slate-700">
+              FILE
+            </Button>
+            <Button variant="ghost" size="sm" className="text-xs text-slate-300 hover:text-white hover:bg-slate-700">
+              PLAY
+            </Button>
+            <div className="w-px h-6 bg-slate-600 mx-2" />
             <Button
               variant="ghost"
               size="sm"
               onClick={togglePlayback}
-              className="hover:bg-primary/10"
+              className="hover:bg-slate-700 p-2"
             >
-              {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+              {isPlaying ? <Pause className="w-5 h-5 text-orange-500" /> : <Play className="w-5 h-5 text-orange-500" />}
             </Button>
             <Button
               variant="ghost"
               size="sm"
               onClick={stopPlayback}
-              className="hover:bg-primary/10"
+              className="hover:bg-slate-700 p-2"
             >
-              <Square className="w-4 h-4" />
+              <Square className="w-4 h-4 text-slate-300" />
             </Button>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => seekToTime(0)}
-              className="hover:bg-primary/10"
+              className="hover:bg-slate-700 p-2"
             >
-              <RotateCcw className="w-4 h-4" />
+              <RotateCcw className="w-4 h-4 text-slate-300" />
             </Button>
-            
-            <div className="mx-4 text-sm font-mono bg-card/80 px-2 py-1 rounded">
-              {Math.floor(currentTime / 60)}:{(currentTime % 60).toFixed(2).padStart(5, '0')}
+          </div>
+
+          {/* Center - Time & BPM Display */}
+          <div className="flex items-center gap-6">
+            <div className="bg-slate-700 px-3 py-1 rounded text-sm font-mono">
+              <span className="text-cyan-400">{bpm}.00</span>
+              <span className="text-slate-400 ml-2">4/4</span>
+            </div>
+            <div className="bg-slate-700 px-3 py-1 rounded text-sm font-mono">
+              <span className="text-orange-400">
+                {Math.floor(currentTime / 60)}:{(currentTime % 60).toFixed(2).padStart(5, '0')}
+              </span>
             </div>
           </div>
 
           {/* Right - Tools & Actions */}
           <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowImportDialog(true)}
-              className="gap-1"
-            >
-              <Upload className="w-4 h-4" />
-              Import
+            <Button variant="ghost" size="sm" className="text-xs text-slate-300 hover:text-white hover:bg-slate-700">
+              ADD
             </Button>
-            
+            <Button variant="ghost" size="sm" className="text-xs text-slate-300 hover:text-white hover:bg-slate-700">
+              EDIT
+            </Button>
             <Button
-              variant={hasAudioAccess ? "default" : "outline"}
+              variant={hasAudioAccess ? "default" : "ghost"}
               size="sm"
               onClick={requestMicrophone}
               disabled={isRequesting}
-              className="gap-1"
+              className="text-xs bg-orange-600 hover:bg-orange-700"
             >
-              <Mic className="w-4 h-4" />
-              {isRequesting ? "..." : hasAudioAccess ? "Ready" : "Mic"}
+              <Mic className="w-4 h-4 mr-1" />
+              {isRequesting ? "..." : hasAudioAccess ? "REC" : "MIC"}
             </Button>
+            <Button variant="ghost" size="sm" className="text-xs text-slate-300 hover:text-white hover:bg-slate-700">
+              TRACK
+            </Button>
+          </div>
+        </div>
 
-            <div className="flex items-center gap-1 bg-card/80 rounded-lg p-1">
-              <Button
-                variant={view === '2d' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setView('2d')}
-                className="text-xs px-2"
-              >
-                2D
-              </Button>
-              <Button
-                variant={view === '3d' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setView('3d')}
-                className="text-xs px-2"
-              >
-                3D
-              </Button>
-            </div>
+        {/* Timeline Header */}
+        <div className="px-4 py-1 bg-slate-750 border-t border-slate-700 flex items-center text-xs text-slate-400">
+          <div className="w-64 flex items-center gap-2">
+            <span>TRACKS</span>
+          </div>
+          <div className="flex-1 flex">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(bar => (
+              <div key={bar} className="flex-1 text-center border-r border-slate-700 py-1">
+                {bar}
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Main DAW Interface */}
-      <div className="flex-1 flex flex-col">
-        {/* Track Area + Timeline */}
-        <div className="flex-1 flex">
-          {/* Track List Sidebar */}
-          <div className="w-64 border-r border-border bg-card/30 flex flex-col">
-            {/* Track Controls Header */}
-            <div className="p-3 border-b border-border">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-medium text-sm">Tracks</h3>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => addTrack('audio')}
-                  className="text-xs gap-1"
-                >
-                  <FileAudio className="w-3 h-3" />
-                  Add
-                </Button>
-              </div>
-              
-              {/* Quick Add Buttons */}
-              <div className="grid grid-cols-2 gap-1">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="text-xs justify-start gap-1"
-                  onClick={() => addTrack('vocal')}
-                >
-                  <Mic className="w-3 h-3" />
-                  Vocal
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="text-xs justify-start gap-1"
-                  onClick={() => addTrack('instrument')}
-                >
-                  <FileAudio className="w-3 h-3" />
-                  Beat
-                </Button>
-              </div>
+      {/* Main DAW Layout */}
+      <div className="flex-1 flex">
+        {/* Track List Sidebar */}
+        <div className="w-64 bg-slate-800 border-r border-slate-700 flex flex-col">
+          {/* Track Controls */}
+          <div className="p-2 border-b border-slate-700">
+            <div className="flex gap-1">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => addTrack('vocal')}
+                className="flex-1 text-xs text-slate-300 hover:text-white hover:bg-slate-700"
+              >
+                + Audio
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setShowImportDialog(true)}
+                className="flex-1 text-xs text-slate-300 hover:text-white hover:bg-slate-700"
+              >
+                Import
+              </Button>
             </div>
+          </div>
 
-            {/* Track List */}
-            <div className="flex-1 overflow-y-auto">
-              {tracks.map((track) => (
-                <div key={track.id} className="p-3 border-b border-border/50 hover:bg-card/50">
+          {/* Track List */}
+          <div className="flex-1 overflow-y-auto">
+            {tracks.map((track, index) => (
+              <div key={track.id} className="border-b border-slate-700/50 hover:bg-slate-750">
+                <div className="p-3">
+                  {/* Track Header */}
                   <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
                       <div 
-                        className="w-3 h-3 rounded-full"
+                        className="w-2 h-8 rounded-sm flex-shrink-0"
                         style={{ backgroundColor: track.color }}
                       />
-                      <span className="text-sm font-medium truncate">{track.name}</span>
+                      <span className="text-sm font-medium text-white truncate">
+                        {track.name}
+                      </span>
                     </div>
                     {track.isRecording && (
                       <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
                     )}
                   </div>
                   
+                  {/* Track Controls Row */}
                   <div className="flex items-center gap-1 mb-2">
                     <Button
                       variant={track.solo ? "default" : "ghost"}
                       size="sm"
-                      className="text-xs px-2 h-6"
+                      className={`text-xs px-2 py-1 h-6 min-w-6 ${
+                        track.solo 
+                          ? 'bg-yellow-600 hover:bg-yellow-700 text-white' 
+                          : 'text-slate-400 hover:text-white hover:bg-slate-700'
+                      }`}
                       onClick={() => setTracks(prev => 
                         prev.map(t => t.id === track.id ? { ...t, solo: !t.solo } : t)
                       )}
@@ -695,7 +685,11 @@ const HybridDAW = () => {
                     <Button
                       variant={track.mute ? "default" : "ghost"}
                       size="sm"
-                      className="text-xs px-2 h-6"
+                      className={`text-xs px-2 py-1 h-6 min-w-6 ${
+                        track.mute 
+                          ? 'bg-red-600 hover:bg-red-700 text-white' 
+                          : 'text-slate-400 hover:text-white hover:bg-slate-700'
+                      }`}
                       onClick={() => setTracks(prev => 
                         prev.map(t => t.id === track.id ? { ...t, mute: !t.mute } : t)
                       )}
@@ -705,16 +699,22 @@ const HybridDAW = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-xs px-2 h-6"
+                      className="text-xs px-2 py-1 h-6 min-w-6 text-slate-400 hover:text-white hover:bg-slate-700"
                       onClick={() => !track.isRecording ? startRecording(track.id) : stopRecording()}
                     >
                       <Mic className="w-3 h-3" />
                     </Button>
                   </div>
                   
+                  {/* Volume Level */}
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <VolumeX className="w-3 h-3 text-muted-foreground" />
+                      <div className="w-2 h-2">
+                        {track.mute ? 
+                          <VolumeX className="w-2 h-2 text-red-500" /> : 
+                          <Volume2 className="w-2 h-2 text-slate-400" />
+                        }
+                      </div>
                       <Slider
                         value={[track.volume * 100]}
                         onValueChange={(value) => setTracks(prev => 
@@ -722,26 +722,31 @@ const HybridDAW = () => {
                         )}
                         max={100}
                         step={1}
-                        className="flex-1"
+                        className="flex-1 h-1"
                       />
-                      <span className="text-xs w-8">{Math.round(track.volume * 100)}</span>
+                      <span className="text-xs text-slate-400 w-6 text-right">
+                        {Math.round(track.volume * 100)}
+                      </span>
                     </div>
                   </div>
                 </div>
-              ))}
-              
-              {tracks.length === 0 && (
-                <div className="p-6 text-center text-muted-foreground">
-                  <AudioWaveform className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">No tracks yet</p>
-                  <p className="text-xs">Add a track to get started</p>
-                </div>
-              )}
-            </div>
+              </div>
+            ))}
+            
+            {tracks.length === 0 && (
+              <div className="p-6 text-center text-slate-500">
+                <AudioWaveform className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">No tracks</p>
+                <p className="text-xs">Add a track to start</p>
+              </div>
+            )}
           </div>
+        </div>
 
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col">
           {/* Timeline Area */}
-          <div className="flex-1 bg-background">
+          <div className="flex-1 bg-slate-900">
             {view === '2d' ? (
               <EnhancedDAWTimeline 
                 tracks={tracks}
@@ -762,32 +767,46 @@ const HybridDAW = () => {
               />
             )}
           </div>
-        </div>
 
-        {/* Bottom Mixer Panel */}
-        <div className="h-64 border-t border-border bg-card/30">
-          <div className="flex items-center justify-between p-2 border-b border-border">
-            <h3 className="font-medium text-sm">Mix Console</h3>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">Master:</span>
-              <Slider
-                value={[masterVolume * 100]}
-                onValueChange={(value) => setMasterVolume(value[0] / 100)}
-                max={100}
-                step={1}
-                className="w-20"
-              />
-              <span className="text-xs font-mono w-8">{Math.round(masterVolume * 100)}</span>
+          {/* Bottom Device/Plugin Panel */}
+          <div className="h-56 bg-slate-800 border-t border-slate-700">
+            <div className="flex items-center justify-between p-2 border-b border-slate-700">
+              <div className="flex items-center gap-4">
+                <h3 className="text-sm font-medium text-white">Device Panel</h3>
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" size="sm" className="text-xs text-slate-400 hover:text-white">
+                    ARRANGE
+                  </Button>
+                  <Button variant="ghost" size="sm" className="text-xs text-slate-400 hover:text-white">
+                    MIX
+                  </Button>
+                  <Button variant="ghost" size="sm" className="text-xs text-slate-400 hover:text-white">
+                    EDIT
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-slate-400">Master:</span>
+                <Slider
+                  value={[masterVolume * 100]}
+                  onValueChange={(value) => setMasterVolume(value[0] / 100)}
+                  max={100}
+                  step={1}
+                  className="w-20"
+                />
+                <span className="text-xs text-slate-400 w-8">{Math.round(masterVolume * 100)}</span>
+              </div>
             </div>
-          </div>
-          
-          <div className="flex-1 p-2 overflow-x-auto">
-            <DAWMixerPanel 
-              tracks={tracks}
-              onTracksChange={setTracks}
-              masterVolume={masterVolume}
-              onMasterVolumeChange={setMasterVolume}
-            />
+            
+            <div className="flex-1 p-4 overflow-x-auto">
+              <DAWMixerPanel 
+                tracks={tracks}
+                onTracksChange={setTracks}
+                masterVolume={masterVolume}
+                onMasterVolumeChange={setMasterVolume}
+              />
+            </div>
           </div>
         </div>
       </div>
