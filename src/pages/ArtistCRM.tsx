@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Upload, Music, TrendingUp, Award, MessageSquare, DollarSign, Zap, Users } from 'lucide-react';
 import { RealTimeCollaboration } from '@/components/RealTimeCollaboration';
+import EnhancedCRM from '@/components/crm/EnhancedCRM';
 import { toast } from 'sonner';
 
 const ArtistCRM = () => {
@@ -295,6 +296,22 @@ const ArtistCRM = () => {
                 <span className="text-sm text-muted-foreground">Live</span>
               </div>
             </div>
+            
+            {/* Enhanced CRM for active projects */}
+            {projects.length > 0 && (
+              <div className="grid gap-6">
+                {projects.filter(p => p.status !== 'completed').slice(0, 2).map((project) => (
+                  <div key={project.id} className="space-y-4">
+                    <h3 className="text-lg font-semibold flex items-center gap-2">
+                      <Music className="w-5 h-5" />
+                      {project.title}
+                    </h3>
+                    <EnhancedCRM projectId={project.id} />
+                  </div>
+                ))}
+              </div>
+            )}
+            
             <RealTimeCollaboration />
           </TabsContent>
 

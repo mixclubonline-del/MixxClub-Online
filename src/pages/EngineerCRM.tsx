@@ -9,7 +9,8 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
-import { CheckCircle, Clock, AlertCircle, Award, Music, TrendingUp, DollarSign } from 'lucide-react';
+import { CheckCircle, Clock, AlertCircle, Award, Music, TrendingUp, DollarSign, Zap } from 'lucide-react';
+import EnhancedCRM from '@/components/crm/EnhancedCRM';
 import { toast } from 'sonner';
 
 const EngineerCRM = () => {
@@ -233,9 +234,13 @@ const EngineerCRM = () => {
 
         {/* Main Content */}
         <Tabs defaultValue="tasks" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:w-auto">
+          <TabsList className="grid w-full grid-cols-4 lg:w-auto">
             <TabsTrigger value="tasks">Tasks</TabsTrigger>
             <TabsTrigger value="projects">Projects</TabsTrigger>
+            <TabsTrigger value="collaboration" className="gap-2">
+              <Zap className="w-4 h-4" />
+              Live Studio
+            </TabsTrigger>
             <TabsTrigger value="achievements">Achievements</TabsTrigger>
           </TabsList>
 
@@ -361,6 +366,34 @@ const EngineerCRM = () => {
                       <Button variant="outline" size="sm">View Project</Button>
                     </div>
                   </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="collaboration" className="space-y-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold">Live Studio Collaboration</h2>
+                <p className="text-muted-foreground">Work directly with artists in real-time</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <span className="text-sm text-muted-foreground">Live</span>
+              </div>
+            </div>
+            
+            {/* Enhanced CRM for active projects */}
+            {projects.length > 0 && (
+              <div className="grid gap-6">
+                {projects.filter(p => p.status !== 'completed').slice(0, 2).map((project) => (
+                  <div key={project.id} className="space-y-4">
+                    <h3 className="text-lg font-semibold flex items-center gap-2">
+                      <Music className="w-5 h-5" />
+                      {project.title}
+                    </h3>
+                    <EnhancedCRM projectId={project.id} />
+                  </div>
                 ))}
               </div>
             )}
