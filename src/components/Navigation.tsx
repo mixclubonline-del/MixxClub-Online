@@ -168,15 +168,15 @@ const Navigation = () => {
                       Job Board
                     </Button>
                   </Link>
-                  <Link to="/mixing">
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      className="hover:bg-primary/10 hover:text-primary transition-all duration-300"
-                    >
-                      Studio
-                    </Button>
-                  </Link>
+                   <Link to="/hybrid-daw">
+                     <Button 
+                       variant="ghost" 
+                       size="sm"
+                       className="hover:bg-primary/10 hover:text-primary transition-all duration-300"
+                     >
+                       AI Studio
+                     </Button>
+                   </Link>
                   <Button 
                     onClick={signOut} 
                     variant="outline" 

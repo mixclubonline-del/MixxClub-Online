@@ -301,20 +301,22 @@ const HybridDAW = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-background">
         <Navigation />
-        <Card className="p-8 max-w-md w-full mx-4">
-          <div className="text-center space-y-4">
-            <Sparkles className="w-12 h-12 mx-auto text-primary" />
-            <h2 className="text-2xl font-bold">Access Required</h2>
-            <p className="text-muted-foreground">
-              Please sign in to access the Hybrid AI DAW.
-            </p>
-            <Button className="w-full" onClick={() => window.location.href = '/auth'}>
-              Sign In
-            </Button>
-          </div>
-        </Card>
+        <div className="flex items-center justify-center min-h-screen">
+          <Card className="p-8 max-w-md w-full mx-4">
+            <div className="text-center space-y-4">
+              <Sparkles className="w-12 h-12 mx-auto text-primary" />
+              <h2 className="text-2xl font-bold">Access Required</h2>
+              <p className="text-muted-foreground">
+                Please sign in to access the Hybrid AI DAW.
+              </p>
+              <Button className="w-full" onClick={() => window.location.href = '/auth'}>
+                Sign In
+              </Button>
+            </div>
+          </Card>
+        </div>
       </div>
     );
   }
