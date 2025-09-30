@@ -73,11 +73,36 @@ const Navigation = () => {
               </button>
             </>
           ) : (
-            <Link to="/">
-              <Button variant="ghost" size="sm">
-                Back to Home
-              </Button>
-            </Link>
+            <div className="flex items-center gap-4">
+              {user ? (
+                <>
+                  <Link to="/dashboard">
+                    <Button variant="ghost" size="sm">Dashboard</Button>
+                  </Link>
+                  <Link to="/artist-crm">
+                    <Button variant="ghost" size="sm">Studio</Button>
+                  </Link>
+                  <Button onClick={signOut} variant="outline" size="sm">
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link to="/">
+                    <Button variant="ghost" size="sm">Home</Button>
+                  </Link>
+                  <Link to="/auth">
+                    <Button variant="ghost" size="sm">Sign In</Button>
+                  </Link>
+                  <Link to="/auth?mode=signup">
+                    <Button size="sm" className="gap-2">
+                      <Sparkles className="w-4 h-4" />
+                      Get Started
+                    </Button>
+                  </Link>
+                </>
+              )}
+            </div>
           )}
         </div>
 

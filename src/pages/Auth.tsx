@@ -85,7 +85,7 @@ const Auth = () => {
         }
 
         toast.success("Welcome back!");
-        navigate("/");
+        navigate("/dashboard");
       }
     } catch (err) {
       if (err instanceof z.ZodError) {
