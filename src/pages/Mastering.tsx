@@ -21,6 +21,8 @@ import {
   Award
 } from "lucide-react";
 import Navigation from "@/components/Navigation";
+import { MasteringPaywall } from "@/components/MasteringPaywall";
+import { useMasteringAccess } from "@/hooks/useMasteringAccess";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -28,6 +30,7 @@ const Mastering = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState("spotify");
   const [masteringProgress, setMasteringProgress] = useState(0);
+  const { hasAccess, loading, checkAccess, incrementTrackUsage } = useMasteringAccess();
 
   const platforms = [
     { id: "spotify", name: "Spotify", lufs: "-14 LUFS", description: "Optimized for streaming" },
@@ -83,7 +86,12 @@ const Mastering = () => {
     }
   };
 
-  const handleStartMastering = () => {
+  const handleStartMastering = async () => {
+    if (!hasAccess) {
+      toast.error('Please purchase a mastering package to access AI mastering');
+      return;
+    }
+
     setIsProcessing(true);
     setMasteringProgress(0);
     
@@ -92,12 +100,37 @@ const Mastering = () => {
         if (prev >= 100) {
           clearInterval(interval);
           setIsProcessing(false);
+          // Increment track usage when mastering is complete
+          incrementTrackUsage();
+          toast.success('Track mastered successfully!');
           return 100;
         }
         return prev + 2;
       });
     }, 100);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!hasAccess) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="pt-20">
+          <MasteringPaywall onPurchaseComplete={checkAccess} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -110,7 +143,7 @@ const Mastering = () => {
             <div className="max-w-4xl mx-auto text-center">
               <Badge variant="secondary" className="mb-4">
                 <TrendingUp className="w-4 h-4 mr-2" />
-                AI Neural Mastering
+                AI Neural Mastering - Active
               </Badge>
               <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
                 Master with AI Precision

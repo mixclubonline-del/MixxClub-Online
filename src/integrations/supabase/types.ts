@@ -769,6 +769,45 @@ export type Database = {
         }
         Relationships: []
       }
+      mastering_packages: {
+        Row: {
+          created_at: string
+          currency: string
+          description: string | null
+          features: Json | null
+          id: string
+          is_active: boolean | null
+          name: string
+          price: number
+          track_limit: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          description?: string | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          price: number
+          track_limit?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          description?: string | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          price?: number
+          track_limit?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       onboarding_profiles: {
         Row: {
           availability: Json | null
@@ -1512,6 +1551,53 @@ export type Database = {
           },
         ]
       }
+      user_mastering_subscriptions: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          package_id: string
+          status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          tracks_used: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          package_id: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          tracks_used?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          package_id?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          tracks_used?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_mastering_subscriptions_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "mastering_packages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -1538,6 +1624,10 @@ export type Database = {
           versetracker_rank: number
         }
         Returns: number
+      }
+      has_mastering_access: {
+        Args: { user_id: string }
+        Returns: boolean
       }
     }
     Enums: {
