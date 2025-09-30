@@ -6,6 +6,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Upload, Send, Bot, User, Music, Settings, MessageCircle, X, Minimize2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import mixclub3DLogo from '@/assets/mixclub-3d-logo.png';
 
 interface Message {
   id: string;
@@ -124,10 +125,27 @@ export const PersistentChatbot = () => {
       <div className="fixed bottom-6 right-6 z-50">
         <Button
           onClick={() => setIsOpen(true)}
-          className="h-14 w-14 rounded-full bg-primary hover:bg-primary/90 shadow-lg"
+          className="h-16 w-16 rounded-full bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 shadow-xl hover:shadow-2xl transition-all duration-300 group relative overflow-hidden"
           size="sm"
         >
-          <MessageCircle className="w-6 h-6" />
+          {/* Pulsating background rings */}
+          <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-400/20 via-purple-500/20 to-pink-500/20 animate-ping"></div>
+          <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary/30 to-secondary/30 animate-pulse"></div>
+          
+          {/* Logo */}
+          <div className="relative z-10 flex items-center justify-center">
+            <img 
+              src={mixclub3DLogo} 
+              alt="MixClub AI Assistant" 
+              className="w-8 h-6 object-contain transition-transform duration-300 group-hover:scale-110 filter drop-shadow-lg"
+              style={{
+                filter: 'drop-shadow(0 0 8px hsl(var(--primary))) brightness(1.2) saturate(1.5)'
+              }}
+            />
+          </div>
+          
+          {/* Animated glow */}
+          <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-400/0 via-purple-500/40 to-pink-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-pulse"></div>
         </Button>
       </div>
     );
@@ -141,8 +159,21 @@ export const PersistentChatbot = () => {
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-border">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-primary/10">
-              <Settings className="w-5 h-5 text-primary" />
+            <div className="relative p-2 rounded-lg bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20">
+              {/* Pulsating glow effect */}
+              <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-cyan-400/20 via-purple-500/20 to-pink-500/20 animate-pulse"></div>
+              
+              {/* Logo */}
+              <div className="relative z-10">
+                <img 
+                  src={mixclub3DLogo} 
+                  alt="MixClub AI" 
+                  className="w-6 h-4 object-contain"
+                  style={{
+                    filter: 'drop-shadow(0 0 4px hsl(var(--primary))) brightness(1.1) saturate(1.3)'
+                  }}
+                />
+              </div>
             </div>
             <div>
               <h3 className="font-semibold text-sm">AI Mastering Assistant</h3>
@@ -183,15 +214,26 @@ export const PersistentChatbot = () => {
                       message.role === 'user' ? 'flex-row-reverse' : ''
                     }`}
                   >
-                    <div className={`p-2 rounded-full ${
+                    <div className={`flex items-center justify-center rounded-full transition-all duration-300 ${
                       message.role === 'user' 
-                        ? 'bg-primary text-primary-foreground' 
-                        : 'bg-muted'
+                        ? 'bg-primary text-primary-foreground w-8 h-8' 
+                        : 'bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20 w-8 h-8 relative'
                     }`}>
                       {message.role === 'user' ? (
-                        <User className="w-3 h-3" />
+                        <User className="w-4 h-4" />
                       ) : (
-                        <Bot className="w-3 h-3" />
+                        <>
+                          {/* Pulsating background for assistant */}
+                          <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-400/20 via-purple-500/20 to-pink-500/20 animate-pulse"></div>
+                          <img 
+                            src={mixclub3DLogo} 
+                            alt="AI Assistant" 
+                            className="w-4 h-3 object-contain relative z-10"
+                            style={{
+                              filter: 'drop-shadow(0 0 2px hsl(var(--primary))) brightness(1.1)'
+                            }}
+                          />
+                        </>
                       )}
                     </div>
                     
@@ -211,8 +253,17 @@ export const PersistentChatbot = () => {
                 
                 {isLoading && (
                   <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-full bg-muted">
-                      <Bot className="w-3 h-3 animate-pulse" />
+                    <div className="flex items-center justify-center rounded-full bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20 w-8 h-8 relative">
+                      {/* Pulsating background */}
+                      <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-400/30 via-purple-500/30 to-pink-500/30 animate-pulse"></div>
+                      <img 
+                        src={mixclub3DLogo} 
+                        alt="AI Thinking" 
+                        className="w-4 h-3 object-contain relative z-10 animate-pulse"
+                        style={{
+                          filter: 'drop-shadow(0 0 4px hsl(var(--primary))) brightness(1.2)'
+                        }}
+                      />
                     </div>
                     <div className="bg-muted rounded-lg p-3">
                       <div className="flex items-center gap-2">
