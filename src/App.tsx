@@ -13,6 +13,8 @@ import ArtistCRM from "./pages/ArtistCRM";
 import EngineerCRM from "./pages/EngineerCRM";
 import Mixing from "./pages/Mixing";
 import Mastering from "./pages/Mastering";
+import MixingShowcase from "./pages/MixingShowcase";
+import MasteringShowcase from "./pages/MasteringShowcase";
 import { JobBoard } from "./pages/JobBoard";
 import NotFound from "./pages/NotFound";
 import { PersistentChatbot } from "@/components/PersistentChatbot";
@@ -34,8 +36,10 @@ const App = () => (
             <Route path="/engineer-dashboard" element={<EngineerDashboard />} />
             <Route path="/artist-crm" element={<ArtistCRM />} />
             <Route path="/engineer-crm" element={<EngineerCRM />} />
-            <Route path="/mixing" element={<Mixing />} />
-            <Route path="/mastering" element={<Mastering />} />
+            <Route path="/mixing" element={<MixingShowcase />} />
+            <Route path="/mastering" element={<MasteringShowcase />} />
+            <Route path="/mixing-studio" element={<Mixing />} />
+            <Route path="/mastering-studio" element={<Mastering />} />
             <Route path="/jobs" element={<JobBoard />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
