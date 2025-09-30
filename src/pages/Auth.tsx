@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ArrowLeft, Music, Sparkles, Users, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
-import robotLogo from "@/assets/mixclub-robot-logo.png";
+import mixclub3DLogo from "@/assets/mixclub-3d-logo.png";
 
 const authSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -113,9 +113,9 @@ const Auth = () => {
             <div className="relative group">
               <div className="absolute inset-0 bg-primary/30 rounded-full blur-2xl animate-pulse-glow"></div>
               <img 
-                src={robotLogo} 
-                alt="MixClub Online" 
-                className="w-16 h-16 relative z-10" 
+                src={mixclub3DLogo} 
+                alt="MixClub 3D Logo" 
+                className="w-20 h-15 object-contain relative z-10"
               />
             </div>
           </div>

@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Menu, Sparkles } from "lucide-react";
 import { useState } from "react";
-import robotLogo from "@/assets/mixclub-robot-logo.png";
+import mixclub3DLogo from "@/assets/mixclub-3d-logo.png";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { RealTimeNotifications } from "./RealTimeNotifications";
@@ -17,7 +17,7 @@ const Navigation = () => {
       <div className="container px-6 py-4">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
-            <img src={robotLogo} alt="MixClub AI" className="w-10 h-10" />
+            <img src={mixclub3DLogo} alt="MixClub 3D Logo" className="w-12 h-9 object-contain" />
             <span className="text-xl font-bold">
               MixClub <span className="text-primary">Online</span>
             </span>
