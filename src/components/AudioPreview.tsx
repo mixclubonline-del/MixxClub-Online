@@ -48,6 +48,15 @@ const AudioPreview = () => {
   const [playingTrack, setPlayingTrack] = useState<{ index: number; type: 'before' | 'after' } | null>(null);
   const audioRefs = useRef<{ [key: string]: HTMLAudioElement }>({});
   const canvasRefs = useRef<{ [key: string]: HTMLCanvasElement }>({});
+  const bgCanvasRef = useRef<HTMLCanvasElement>(null);
+  const animationFrameRef = useRef<number>();
+  const particlesRef = useRef<Array<{
+    x: number;
+    y: number;
+    radius: number;
+    speedX: number;
+    speedY: number;
+  }>>([]);
 
   const togglePlay = (index: number, type: 'before' | 'after') => {
     const key = `${index}-${type}`;
@@ -66,8 +75,62 @@ const AudioPreview = () => {
     }
   };
 
+  // Initialize background animation
   useEffect(() => {
-    // Simple waveform visualization
+    const bgCanvas = bgCanvasRef.current;
+    if (!bgCanvas) return;
+
+    const bgCtx = bgCanvas.getContext('2d');
+    if (!bgCtx) return;
+
+    // Set canvas size
+    const resizeCanvas = () => {
+      bgCanvas.width = bgCanvas.offsetWidth;
+      bgCanvas.height = bgCanvas.offsetHeight;
+    };
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    // Initialize particles
+    const numParticles = 80;
+    particlesRef.current = [];
+    for (let i = 0; i < numParticles; i++) {
+      particlesRef.current.push({
+        x: Math.random() * bgCanvas.width,
+        y: Math.random() * bgCanvas.height,
+        radius: Math.random() * 2 + 1,
+        speedX: (Math.random() - 0.5) * 0.5,
+        speedY: (Math.random() - 0.5) * 0.5,
+      });
+    }
+
+    // Animation function
+    const animateBackground = () => {
+      bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+
+      particlesRef.current.forEach(p => {
+        p.x += p.speedX;
+        p.y += p.speedY;
+
+        // Wrap around edges
+        if (p.x > bgCanvas.width) p.x = 0;
+        if (p.x < 0) p.x = bgCanvas.width;
+        if (p.y > bgCanvas.height) p.y = 0;
+        if (p.y < 0) p.y = bgCanvas.height;
+
+        // Draw particle
+        bgCtx.beginPath();
+        bgCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        bgCtx.fillStyle = 'hsl(var(--primary) / 0.3)';
+        bgCtx.fill();
+      });
+
+      animationFrameRef.current = requestAnimationFrame(animateBackground);
+    };
+
+    animateBackground();
+
+    // Simple waveform visualization for track canvases
     Object.entries(canvasRefs.current).forEach(([key, canvas]) => {
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
@@ -76,10 +139,10 @@ const AudioPreview = () => {
       const width = canvas.width;
       const height = canvas.height;
       
-      ctx.fillStyle = 'hsl(263 70% 63% / 0.1)';
+      ctx.fillStyle = 'hsl(var(--primary) / 0.1)';
       ctx.fillRect(0, 0, width, height);
 
-      ctx.strokeStyle = 'hsl(263 70% 63%)';
+      ctx.strokeStyle = 'hsl(var(--primary))';
       ctx.lineWidth = 2;
       ctx.beginPath();
 
@@ -94,20 +157,34 @@ const AudioPreview = () => {
       }
       ctx.stroke();
     });
+
+    return () => {
+      window.removeEventListener('resize', resizeCanvas);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
   }, []);
 
   return (
-    <section id="preview" className="py-24 bg-card">
-      <div className="container px-6">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold mb-4">Before & After</h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Hear the Transformation
-          </p>
-          <p className="text-muted-foreground mt-4">
-            Listen to real examples of tracks we've transformed from bedroom recordings to professional, radio-ready quality using our AI-enhanced mixing process.
-          </p>
-        </div>
+    <div className="relative overflow-hidden py-24 bg-card">
+      <canvas
+        ref={bgCanvasRef}
+        className="absolute top-0 left-0 w-full h-full z-0"
+      />
+      <section id="preview" className="relative z-10">
+        <div className="container px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
+              Before & After: Track Transformations
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Hear the Transformation
+            </p>
+            <p className="text-muted-foreground mt-4">
+              Listen to real examples of tracks we've transformed from bedroom recordings to professional, radio-ready quality using our AI-enhanced mixing process.
+            </p>
+          </div>
 
         <div className="grid md:grid-cols-3 gap-6">
           {tracks.map((track, index) => (
@@ -192,8 +269,9 @@ const AudioPreview = () => {
             </Card>
           ))}
         </div>
-      </div>
-    </section>
+        </div>
+      </section>
+    </div>
   );
 };
 
