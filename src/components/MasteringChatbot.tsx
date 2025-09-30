@@ -65,7 +65,7 @@ export const MasteringChatbot = () => {
       setUploadedFile(file);
       toast({
         title: "File uploaded",
-        description: `${file.name} is ready for analysis`,
+        description: `${file.name} is ready for mastering`,
       });
     }
   };
@@ -76,7 +76,7 @@ export const MasteringChatbot = () => {
     const userMessage: Message = {
       id: Date.now().toString(),
       type: 'user',
-      content: inputMessage || (uploadedFile ? `Uploaded: ${uploadedFile.name}` : ''),
+      content: inputMessage || (uploadedFile ? `Master my track: ${uploadedFile.name}` : ''),
       timestamp: new Date(),
       audioFile: uploadedFile ? {
         name: uploadedFile.name,
@@ -89,15 +89,23 @@ export const MasteringChatbot = () => {
     setInputMessage('');
 
     try {
+      let audioData = null;
+      
+      // Read audio file as array buffer if uploaded
+      if (uploadedFile) {
+        const arrayBuffer = await uploadedFile.arrayBuffer();
+        audioData = Array.from(new Uint8Array(arrayBuffer));
+      }
+
       const { data, error } = await supabase.functions.invoke('mastering-chat', {
         body: {
-          message: inputMessage,
+          message: inputMessage || "Please master this track with your AI mastering chain",
           audioFile: uploadedFile ? {
             name: uploadedFile.name,
-            url: URL.createObjectURL(uploadedFile),
             size: uploadedFile.size,
             type: uploadedFile.type,
           } : null,
+          audioData: audioData
         },
       });
 
@@ -115,8 +123,13 @@ export const MasteringChatbot = () => {
       
       if (data.masteringResult) {
         toast({
-          title: "Analysis complete!",
-          description: "Your track has been analyzed and mastered. Check the A/B comparison below.",
+          title: "Mastering Complete!",
+          description: "Your track has been mastered with AI. Compare before/after below.",
+        });
+      } else {
+        toast({
+          title: "Analysis Complete",
+          description: "Check out the AI recommendations above.",
         });
       }
     } catch (error: any) {
@@ -126,7 +139,7 @@ export const MasteringChatbot = () => {
         ? "Too many requests. Please wait a moment and try again."
         : error.status === 402
         ? "AI service temporarily unavailable. Please try again later."
-        : "Sorry, I couldn't analyze your track right now. Please try again.";
+        : "Sorry, I couldn't process your track right now. Please try again.";
 
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -138,7 +151,7 @@ export const MasteringChatbot = () => {
       setMessages(prev => [...prev, botMessage]);
       
       toast({
-        title: "Analysis failed",
+        title: "Processing failed",
         description: errorMessage,
         variant: "destructive",
       });
@@ -248,7 +261,7 @@ export const MasteringChatbot = () => {
                     <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />
                     <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
                     <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
-                    <span className="text-sm text-muted-foreground ml-2">Analyzing your track...</span>
+                    <span className="text-sm text-muted-foreground ml-2">Mastering your track with AI...</span>
                   </div>
                 </div>
               </div>
