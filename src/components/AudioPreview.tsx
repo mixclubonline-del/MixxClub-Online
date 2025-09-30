@@ -61,7 +61,7 @@ const AudioPreview = () => {
     speedX: number;
     speedY: number;
   }>>([]);
-  const [waveformPhase, setWaveformPhase] = useState(0);
+  const waveformPhaseRef = useRef(0);
 
   const togglePlay = (index: number, type: 'before' | 'after') => {
     const key = `${index}-${type}`;
@@ -146,7 +146,7 @@ const AudioPreview = () => {
   // Animated waveform visualization
   useEffect(() => {
     const animateWaveforms = () => {
-      setWaveformPhase(prev => (prev + 0.05) % (Math.PI * 2));
+      waveformPhaseRef.current = (waveformPhaseRef.current + 0.05) % (Math.PI * 2);
       
       Object.entries(canvasRefs.current).forEach(([key, canvas]) => {
         if (!canvas) return;
@@ -181,8 +181,8 @@ const AudioPreview = () => {
         for (let i = 0; i < bars; i++) {
           const x = i * barWidth;
           const normalizedHeight = Math.abs(
-            Math.sin(waveformPhase + (i / bars) * Math.PI * 4) * 
-            Math.cos(waveformPhase * 0.5 + (i / bars) * Math.PI * 2)
+            Math.sin(waveformPhaseRef.current + (i / bars) * Math.PI * 4) * 
+            Math.cos(waveformPhaseRef.current * 0.5 + (i / bars) * Math.PI * 2)
           );
           const barHeight = (normalizedHeight * height * 0.6 + height * 0.1) * intensity;
           const y = (height - barHeight) / 2;
@@ -220,7 +220,7 @@ const AudioPreview = () => {
         cancelAnimationFrame(waveformAnimationRef.current);
       }
     };
-  }, [waveformPhase, playingTrack]);
+  }, [playingTrack]);
 
   return (
     <div className="relative overflow-hidden py-24 bg-card">

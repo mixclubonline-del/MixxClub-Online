@@ -39,7 +39,7 @@ export const MasteringChatbot = () => {
     {
       id: '1',
       type: 'bot',
-      content: "Hi! I'm your elite AI mastering engineer powered by multi-API technology. Upload a track (up to 50MB) and I'll provide professional-grade mastering with detailed analysis. I support all genres and can match specific loudness targets (Spotify, Apple Music, YouTube, CD). What can I help you master today?",
+      content: "Hi! I'm your elite AI mastering engineer powered by multi-API technology. Upload a track (up to 10MB) and I'll provide professional-grade mastering with detailed analysis. I support all genres and can match specific loudness targets (Spotify, Apple Music, YouTube, CD). What can I help you master today?",
       timestamp: new Date(),
     }
   ]);
@@ -62,12 +62,12 @@ export const MasteringChatbot = () => {
         return;
       }
       
-      // Check file size (max 50MB for professional processing)
-      const maxSize = 50 * 1024 * 1024; // 50MB
+      // Check file size (temporarily 10MB for stability)
+      const maxSize = 10 * 1024 * 1024; // 10MB
       if (file.size > maxSize) {
         toast({
           title: "File too large",
-          description: "Please upload a file smaller than 50MB for optimal processing.",
+          description: "Please upload a file smaller than 10MB for now.",
           variant: "destructive",
         });
         return;
@@ -158,7 +158,7 @@ export const MasteringChatbot = () => {
         : error.status === 402
         ? "AI service credits low. Please try again later or contact support."
         : error.status === 400
-        ? "File too large or invalid format. Please use a file under 50MB in MP3 or WAV format."
+        ? "File too large or invalid format. Please use a file under 10MB in MP3 or WAV format."
         : error.message?.includes('API key')
         ? "Mastering service configuration needed. Please contact support."
         : "Sorry, couldn't process your track. Please try again or use a different file.";
