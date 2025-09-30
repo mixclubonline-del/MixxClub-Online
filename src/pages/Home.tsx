@@ -6,6 +6,9 @@ import { SuccessStories } from "@/components/SuccessStories";
 import { MasteringChatbot } from "@/components/MasteringChatbot";
 import Pricing from "@/components/Pricing";
 import Contact from "@/components/Contact";
+import { StickyUploadButton } from "@/components/StickyUploadButton";
+import { PluginShowcase } from "@/components/PluginShowcase";
+import { Testimonials } from "@/components/Testimonials";
 import { Button } from "@/components/ui/button";
 import { Users, Zap, Music, Sparkles } from "lucide-react";
 
@@ -16,7 +19,8 @@ const Home = () => {
       <Hero />
       <Services />
       <AudioPreview />
-      <section className="py-20 bg-gradient-to-b from-muted/30 to-primary/5 relative overflow-hidden">
+      <PluginShowcase />
+      <section id="instant-demo" className="py-20 bg-gradient-to-b from-muted/30 to-primary/5 relative overflow-hidden scroll-mt-20">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,hsl(var(--primary)/0.1),transparent_70%)]" />
         <div className="container px-6 relative z-10">
           <div className="text-center mb-12 animate-fade-in">
@@ -31,6 +35,7 @@ const Home = () => {
           <MasteringChatbot />
         </div>
       </section>
+      <Testimonials />
       <SuccessStories />
       <section className="py-20 bg-gradient-to-b from-background to-card relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,hsl(var(--primary)/0.1),transparent_70%)]" />
@@ -91,6 +96,7 @@ const Home = () => {
           <p>© 2025 MixClubOnline. Make your music sound as good as the pros.</p>
         </div>
       </footer>
+      <StickyUploadButton />
     </div>
   );
 };

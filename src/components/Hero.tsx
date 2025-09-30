@@ -46,8 +46,8 @@ const Hero = () => {
           </p>
         </div>
 
-        {/* CTA Button */}
-        <div className="mb-16">
+        {/* CTA Buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
           <Link to="/auth?mode=signup">
             <Button 
               size="lg" 
@@ -56,6 +56,15 @@ const Hero = () => {
               GET MIXCLUB
             </Button>
           </Link>
+          <a href="#instant-demo">
+            <Button 
+              size="lg" 
+              variant="outline"
+              className="px-8 py-4 text-lg font-semibold border-2 hover:bg-primary/10"
+            >
+              Try Free Demo
+            </Button>
+          </a>
         </div>
 
         {/* Feature Cards */}
