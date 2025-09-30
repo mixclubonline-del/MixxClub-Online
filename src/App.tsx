@@ -15,6 +15,8 @@ import Mixing from "./pages/Mixing";
 import Mastering from "./pages/Mastering";
 import MixingShowcase from "./pages/MixingShowcase";
 import MasteringShowcase from "./pages/MasteringShowcase";
+import Admin from "./pages/Admin";
+import AdminUsers from "./pages/AdminUsers";
 import { JobBoard } from "./pages/JobBoard";
 import HybridDAW from "./pages/HybridDAW";
 import NotFound from "./pages/NotFound";
@@ -43,6 +45,8 @@ const App = () => (
             <Route path="/mastering-studio" element={<Mastering />} />
             <Route path="/hybrid-daw" element={<HybridDAW />} />
             <Route path="/jobs" element={<JobBoard />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/admin/users" element={<AdminUsers />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
