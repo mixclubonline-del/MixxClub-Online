@@ -52,11 +52,12 @@ export const MasteringChatbot = () => {
         return;
       }
       
-      // Check file size (max 50MB)
-      if (file.size > 50 * 1024 * 1024) {
+      // Check file size (max 5MB for optimal processing)
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSize) {
         toast({
           title: "File too large",
-          description: "Please upload a file smaller than 50MB",
+          description: "Please upload a file smaller than 5MB. For larger files, compress your audio or use a shorter clip.",
           variant: "destructive",
         });
         return;
@@ -139,7 +140,11 @@ export const MasteringChatbot = () => {
         ? "Too many requests. Please wait a moment and try again."
         : error.status === 402
         ? "AI service temporarily unavailable. Please try again later."
-        : "Sorry, I couldn't process your track right now. Please try again.";
+        : error.status === 546
+        ? "Memory limit exceeded. Please use a smaller file (under 5MB) or a shorter audio clip."
+        : error.message?.includes('Memory') || error.message?.includes('memory')
+        ? "File too complex to process. Try a shorter clip or lower quality audio file."
+        : "Sorry, I couldn't process your track right now. Please try again with a smaller file.";
 
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
