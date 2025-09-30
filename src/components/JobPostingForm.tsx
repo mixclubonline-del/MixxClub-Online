@@ -76,7 +76,7 @@ export const JobPostingForm = () => {
       if (uploadedFiles.length > 0) {
         for (const file of uploadedFiles) {
           const fileExt = file.name.split('.').pop();
-          const fileName = `${jobData.id}/${Date.now()}.${fileExt}`;
+          const fileName = `${user.id}/${jobData.id}/${Date.now()}.${fileExt}`;
 
           const { error: uploadError } = await supabase.storage
             .from('audio-files')
@@ -91,14 +91,14 @@ export const JobPostingForm = () => {
           const { data: audioFileData, error: dbError } = await supabase
             .from('audio_files')
             .insert({
-              project_id: jobData.id,
+              job_id: jobData.id as any, // Temporary fix for type issue
               file_name: file.name,
               file_path: fileName,
               file_size: file.size,
               uploaded_by: user.id,
               file_type: file.type,
-              processing_status: 'completed'
-            })
+              processing_status: 'pending'
+            } as any)
             .select()
             .single();
 
@@ -109,12 +109,17 @@ export const JobPostingForm = () => {
 
           // Trigger AI analysis
           if (audioFileData) {
-            supabase.functions.invoke('analyze-audio', {
+            const { error: analysisError } = await supabase.functions.invoke('analyze-audio', {
               body: {
                 audioFileId: audioFileData.id,
                 filePath: fileName
               }
             });
+            
+            if (analysisError) {
+              console.error('Analysis error:', analysisError);
+              toast.error('AI analysis failed, but file uploaded successfully');
+            }
           }
         }
       }

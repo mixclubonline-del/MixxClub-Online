@@ -64,6 +64,7 @@ export type Database = {
           file_type: string | null
           id: string
           is_stem: boolean | null
+          job_id: string | null
           processing_status: string | null
           project_id: string
           sample_rate: number | null
@@ -83,6 +84,7 @@ export type Database = {
           file_type?: string | null
           id?: string
           is_stem?: boolean | null
+          job_id?: string | null
           processing_status?: string | null
           project_id: string
           sample_rate?: number | null
@@ -102,6 +104,7 @@ export type Database = {
           file_type?: string | null
           id?: string
           is_stem?: boolean | null
+          job_id?: string | null
           processing_status?: string | null
           project_id?: string
           sample_rate?: number | null
@@ -116,6 +119,13 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_audio_files_job_id"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_postings"
             referencedColumns: ["id"]
           },
         ]
