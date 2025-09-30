@@ -14,8 +14,8 @@ import EnhancedCRM from '@/components/crm/EnhancedCRM';
 import SessionManager from '@/components/collaboration/SessionManager';
 import { EngineerCRMDashboard } from '@/components/crm/EngineerCRMDashboard';
 import { AdvancedMixingStudio } from '@/components/mixing/AdvancedMixingStudio';
-import { JobApplicationManager } from '@/components/crm/JobApplicationManager';
 import { toast } from 'sonner';
+import { JobApplicationManager } from '@/components/crm/JobApplicationManager';
 
 const ArtistCRM = () => {
   const { user } = useAuth();
