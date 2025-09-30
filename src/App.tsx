@@ -17,9 +17,10 @@ import MixingShowcase from "./pages/MixingShowcase";
 import MasteringShowcase from "./pages/MasteringShowcase";
 import Admin from "./pages/Admin";
 import AdminUsers from "./pages/AdminUsers";
-import AdminAudio from "./pages/AdminAudio";
-import AdminMedia from "./pages/AdminMedia";
-import { JobBoard } from "./pages/JobBoard";
+import AdminAudio from './pages/AdminAudio';
+import AdminMedia from './pages/AdminMedia';
+import AdminPayouts from './pages/AdminPayouts';
+import { JobBoard } from './pages/JobBoard';
 import HybridDAW from "./pages/HybridDAW";
 import NotFound from "./pages/NotFound";
 import { PersistentChatbot } from "@/components/PersistentChatbot";
@@ -51,6 +52,7 @@ const App = () => (
             <Route path="/admin/users" element={<AdminUsers />} />
             <Route path="/admin/audio" element={<AdminAudio />} />
             <Route path="/admin/media" element={<AdminMedia />} />
+            <Route path="/admin/payouts" element={<AdminPayouts />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

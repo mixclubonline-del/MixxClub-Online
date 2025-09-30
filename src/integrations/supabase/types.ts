@@ -547,6 +547,172 @@ export type Database = {
         }
         Relationships: []
       }
+      engineer_badges: {
+        Row: {
+          badge_description: string | null
+          badge_name: string
+          badge_type: string
+          earned_at: string | null
+          engineer_id: string
+          icon_name: string | null
+          id: string
+        }
+        Insert: {
+          badge_description?: string | null
+          badge_name: string
+          badge_type: string
+          earned_at?: string | null
+          engineer_id: string
+          icon_name?: string | null
+          id?: string
+        }
+        Update: {
+          badge_description?: string | null
+          badge_name?: string
+          badge_type?: string
+          earned_at?: string | null
+          engineer_id?: string
+          icon_name?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "engineer_badges_engineer_id_fkey"
+            columns: ["engineer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "engineer_badges_engineer_id_fkey"
+            columns: ["engineer_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      engineer_earnings: {
+        Row: {
+          base_amount: number
+          bonus_amount: number | null
+          created_at: string | null
+          engineer_id: string
+          id: string
+          notes: string | null
+          payment_method: string | null
+          payout_date: string | null
+          project_id: string | null
+          status: string
+          stripe_transfer_id: string | null
+          total_amount: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          base_amount?: number
+          bonus_amount?: number | null
+          created_at?: string | null
+          engineer_id: string
+          id?: string
+          notes?: string | null
+          payment_method?: string | null
+          payout_date?: string | null
+          project_id?: string | null
+          status?: string
+          stripe_transfer_id?: string | null
+          total_amount?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          base_amount?: number
+          bonus_amount?: number | null
+          created_at?: string | null
+          engineer_id?: string
+          id?: string
+          notes?: string | null
+          payment_method?: string | null
+          payout_date?: string | null
+          project_id?: string | null
+          status?: string
+          stripe_transfer_id?: string | null
+          total_amount?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "engineer_earnings_engineer_id_fkey"
+            columns: ["engineer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "engineer_earnings_engineer_id_fkey"
+            columns: ["engineer_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "engineer_earnings_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      engineer_leaderboard: {
+        Row: {
+          average_rating: number | null
+          completed_projects: number | null
+          engineer_id: string
+          id: string
+          period: string | null
+          rank: number | null
+          total_bonuses: number | null
+          total_earnings: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          average_rating?: number | null
+          completed_projects?: number | null
+          engineer_id: string
+          id?: string
+          period?: string | null
+          rank?: number | null
+          total_bonuses?: number | null
+          total_earnings?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          average_rating?: number | null
+          completed_projects?: number | null
+          engineer_id?: string
+          id?: string
+          period?: string | null
+          rank?: number | null
+          total_bonuses?: number | null
+          total_earnings?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "engineer_leaderboard_engineer_id_fkey"
+            columns: ["engineer_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "engineer_leaderboard_engineer_id_fkey"
+            columns: ["engineer_id"]
+            isOneToOne: true
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       engineer_profiles: {
         Row: {
           certifications: string[] | null
@@ -617,6 +783,51 @@ export type Database = {
             columns: ["onboarding_profile_id"]
             isOneToOne: false
             referencedRelation: "onboarding_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      engineer_streaks: {
+        Row: {
+          current_streak: number | null
+          engineer_id: string
+          id: string
+          last_activity_date: string | null
+          longest_streak: number | null
+          streak_start_date: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          current_streak?: number | null
+          engineer_id: string
+          id?: string
+          last_activity_date?: string | null
+          longest_streak?: number | null
+          streak_start_date?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          current_streak?: number | null
+          engineer_id?: string
+          id?: string
+          last_activity_date?: string | null
+          longest_streak?: number | null
+          streak_start_date?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "engineer_streaks_engineer_id_fkey"
+            columns: ["engineer_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "engineer_streaks_engineer_id_fkey"
+            columns: ["engineer_id"]
+            isOneToOne: true
+            referencedRelation: "public_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1065,6 +1276,74 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payout_requests: {
+        Row: {
+          amount: number
+          engineer_id: string
+          id: string
+          notes: string | null
+          payment_method: string | null
+          processed_at: string | null
+          processed_by: string | null
+          requested_at: string | null
+          status: string
+          stripe_transfer_id: string | null
+        }
+        Insert: {
+          amount: number
+          engineer_id: string
+          id?: string
+          notes?: string | null
+          payment_method?: string | null
+          processed_at?: string | null
+          processed_by?: string | null
+          requested_at?: string | null
+          status?: string
+          stripe_transfer_id?: string | null
+        }
+        Update: {
+          amount?: number
+          engineer_id?: string
+          id?: string
+          notes?: string | null
+          payment_method?: string | null
+          processed_at?: string | null
+          processed_by?: string | null
+          requested_at?: string | null
+          status?: string
+          stripe_transfer_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payout_requests_engineer_id_fkey"
+            columns: ["engineer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payout_requests_engineer_id_fkey"
+            columns: ["engineer_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payout_requests_processed_by_fkey"
+            columns: ["processed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payout_requests_processed_by_fkey"
+            columns: ["processed_by"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1940,6 +2219,10 @@ export type Database = {
         }
         Returns: number
       }
+      calculate_bonus_from_rating: {
+        Args: { p_base_amount: number; p_project_id: string }
+        Returns: number
+      }
       has_mastering_access: {
         Args: { user_id: string }
         Returns: boolean
@@ -1951,6 +2234,14 @@ export type Database = {
       is_admin: {
         Args: { user_uuid: string }
         Returns: boolean
+      }
+      update_engineer_leaderboard: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      update_engineer_streak: {
+        Args: { p_engineer_id: string }
+        Returns: undefined
       }
       user_has_session_access: {
         Args: { session_uuid: string; user_uuid: string }
