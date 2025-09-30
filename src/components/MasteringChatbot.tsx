@@ -159,7 +159,7 @@ export const MasteringChatbot = () => {
   };
 
   return (
-    <Card className="w-full max-w-4xl mx-auto bg-gradient-to-br from-background via-background to-primary/5 border-primary/20">
+    <Card className="w-full max-w-4xl mx-auto bg-gradient-to-br from-background via-background to-primary/5 border-primary/20 animate-glow-pulse">
       <div className="p-6">
         <div className="flex items-center gap-3 mb-6">
           <div className="p-2 rounded-lg bg-primary/10">
@@ -293,9 +293,11 @@ export const MasteringChatbot = () => {
               size="sm"
               onClick={() => fileInputRef.current?.click()}
               disabled={isLoading}
+              className="relative overflow-hidden group animate-pulse-glow"
             >
-              <Upload className="w-4 h-4 mr-2" />
-              Upload Track
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/30 to-primary/0 animate-shimmer" />
+              <Upload className="w-4 h-4 mr-2 relative z-10" />
+              <span className="relative z-10">Upload Track</span>
             </Button>
             
             <div className="flex-1 flex gap-2">

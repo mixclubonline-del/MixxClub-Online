@@ -10,19 +10,19 @@ interface Track {
 
 const tracks: Track[] = [
   { 
-    title: "Rap Vocal Enhancement",
-    beforeUrl: undefined,
-    afterUrl: undefined
+    title: "Hip-Hop Vocal Transform",
+    beforeUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+    afterUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"
   },
   { 
-    title: "R&B Bedroom Mix",
-    beforeUrl: undefined,
-    afterUrl: undefined
+    title: "R&B Studio Polish",
+    beforeUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+    afterUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"
   },
   { 
-    title: "BandLab to Radio",
-    beforeUrl: undefined,
-    afterUrl: undefined
+    title: "Electronic Mix Magic",
+    beforeUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3",
+    afterUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3"
   },
 ];
 
@@ -30,17 +30,20 @@ const trackDetails = [
   {
     genre: "Hip-Hop",
     artist: "Independent Artist",
-    improvement: "Vocal clarity +40%, Mix balance +35%"
+    improvement: "Vocal clarity +40%, Mix balance +35%",
+    color: "hsl(262 90% 60%)"
   },
   {
     genre: "R&B",
     artist: "Emerging Artist",
-    improvement: "Studio quality +60%, Dynamics +45%"
+    improvement: "Studio quality +60%, Dynamics +45%",
+    color: "hsl(280 80% 70%)"
   },
   {
-    genre: "Hip-Hop",
+    genre: "Electronic",
     artist: "Bedroom Producer",
-    improvement: "Commercial ready +80%, AI stem separation"
+    improvement: "Commercial ready +80%, AI stem separation",
+    color: "hsl(210 90% 60%)"
   }
 ];
 
@@ -50,6 +53,7 @@ const AudioPreview = () => {
   const canvasRefs = useRef<{ [key: string]: HTMLCanvasElement }>({});
   const bgCanvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameRef = useRef<number>();
+  const waveformAnimationRef = useRef<number>();
   const particlesRef = useRef<Array<{
     x: number;
     y: number;
@@ -57,6 +61,7 @@ const AudioPreview = () => {
     speedX: number;
     speedY: number;
   }>>([]);
+  const [waveformPhase, setWaveformPhase] = useState(0);
 
   const togglePlay = (index: number, type: 'before' | 'after') => {
     const key = `${index}-${type}`;
@@ -130,34 +135,6 @@ const AudioPreview = () => {
 
     animateBackground();
 
-    // Simple waveform visualization for track canvases
-    Object.entries(canvasRefs.current).forEach(([key, canvas]) => {
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-
-      const width = canvas.width;
-      const height = canvas.height;
-      
-      ctx.fillStyle = 'hsl(var(--primary) / 0.1)';
-      ctx.fillRect(0, 0, width, height);
-
-      ctx.strokeStyle = 'hsl(var(--primary))';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-
-      // Generate a simple waveform
-      for (let x = 0; x < width; x++) {
-        const y = height / 2 + Math.sin((x / width) * Math.PI * 8) * (height / 4) * Math.random();
-        if (x === 0) {
-          ctx.moveTo(x, y);
-        } else {
-          ctx.lineTo(x, y);
-        }
-      }
-      ctx.stroke();
-    });
-
     return () => {
       window.removeEventListener('resize', resizeCanvas);
       if (animationFrameRef.current) {
@@ -165,6 +142,76 @@ const AudioPreview = () => {
       }
     };
   }, []);
+
+  // Animated waveform visualization
+  useEffect(() => {
+    const animateWaveforms = () => {
+      setWaveformPhase(prev => (prev + 0.05) % (Math.PI * 2));
+      
+      Object.entries(canvasRefs.current).forEach(([key, canvas]) => {
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        const [indexStr, type] = key.split('-');
+        const index = parseInt(indexStr);
+        const isPlaying = playingTrack?.index === index && playingTrack?.type === type;
+        const width = canvas.width;
+        const height = canvas.height;
+        const trackColor = trackDetails[index]?.color || 'hsl(var(--primary))';
+        
+        ctx.clearRect(0, 0, width, height);
+        
+        // Background gradient
+        const bgGradient = ctx.createLinearGradient(0, 0, 0, height);
+        bgGradient.addColorStop(0, `${trackColor.replace(')', ' / 0.1)')}`);
+        bgGradient.addColorStop(1, `${trackColor.replace(')', ' / 0.05)')}`);
+        ctx.fillStyle = bgGradient;
+        ctx.fillRect(0, 0, width, height);
+
+        // Draw waveform bars
+        const bars = 60;
+        const barWidth = width / bars;
+        const intensity = isPlaying ? 1 : 0.4;
+        
+        for (let i = 0; i < bars; i++) {
+          const x = i * barWidth;
+          const normalizedHeight = Math.abs(
+            Math.sin(waveformPhase + (i / bars) * Math.PI * 4) * 
+            Math.cos(waveformPhase * 0.5 + (i / bars) * Math.PI * 2)
+          );
+          const barHeight = (normalizedHeight * height * 0.6 + height * 0.1) * intensity;
+          const y = (height - barHeight) / 2;
+          
+          // Create gradient for each bar
+          const gradient = ctx.createLinearGradient(x, y, x, y + barHeight);
+          gradient.addColorStop(0, trackColor);
+          gradient.addColorStop(1, `${trackColor.replace(')', ` / ${intensity * 0.3})`)}`);
+          
+          ctx.fillStyle = gradient;
+          ctx.fillRect(x, y, barWidth - 2, barHeight);
+          
+          // Add glow effect when playing
+          if (isPlaying) {
+            ctx.shadowColor = trackColor;
+            ctx.shadowBlur = 15;
+            ctx.fillRect(x, y, barWidth - 2, barHeight);
+            ctx.shadowBlur = 0;
+          }
+        }
+      });
+
+      waveformAnimationRef.current = requestAnimationFrame(animateWaveforms);
+    };
+
+    animateWaveforms();
+
+    return () => {
+      if (waveformAnimationRef.current) {
+        cancelAnimationFrame(waveformAnimationRef.current);
+      }
+    };
+  }, [waveformPhase, playingTrack]);
 
   return (
     <div className="relative overflow-hidden py-24 bg-card">
@@ -188,10 +235,22 @@ const AudioPreview = () => {
 
         <div className="grid md:grid-cols-3 gap-6">
           {tracks.map((track, index) => (
-            <Card key={index} className="border-border bg-card overflow-hidden">
+            <Card 
+              key={index} 
+              className="border-border bg-card overflow-hidden transition-all duration-300 hover:shadow-glass hover:border-primary/30 hover:scale-105"
+              style={{
+                animation: playingTrack?.index === index ? 'glow-pulse 2s ease-in-out infinite' : 'none'
+              }}
+            >
               <CardHeader>
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full">
+                  <span 
+                    className="px-2 py-1 text-xs rounded-full font-medium"
+                    style={{
+                      backgroundColor: `${trackDetails[index].color.replace(')', ' / 0.2)')}`,
+                      color: trackDetails[index].color
+                    }}
+                  >
                     {trackDetails[index].genre}
                   </span>
                   <span className="text-xs text-muted-foreground">{trackDetails[index].artist}</span>
@@ -206,7 +265,12 @@ const AudioPreview = () => {
                     <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Before</span>
                     <button
                       onClick={() => togglePlay(index, 'before')}
-                      className="w-8 h-8 rounded-full bg-muted hover:bg-primary/20 flex items-center justify-center transition-colors"
+                      className="w-8 h-8 rounded-full bg-muted hover:bg-primary/20 flex items-center justify-center transition-all duration-300 hover:scale-110"
+                      style={{
+                        boxShadow: playingTrack?.index === index && playingTrack?.type === 'before' 
+                          ? `0 0 20px ${trackDetails[index].color}` 
+                          : 'none'
+                      }}
                     >
                       {playingTrack?.index === index && playingTrack?.type === 'before' ? (
                         <Pause className="w-4 h-4" />
@@ -239,7 +303,12 @@ const AudioPreview = () => {
                     <span className="text-sm font-semibold text-primary uppercase tracking-wider">After</span>
                     <button
                       onClick={() => togglePlay(index, 'after')}
-                      className="w-8 h-8 rounded-full bg-primary/20 hover:bg-primary/30 flex items-center justify-center transition-colors"
+                      className="w-8 h-8 rounded-full bg-primary/20 hover:bg-primary/30 flex items-center justify-center transition-all duration-300 hover:scale-110"
+                      style={{
+                        boxShadow: playingTrack?.index === index && playingTrack?.type === 'after' 
+                          ? `0 0 20px ${trackDetails[index].color}` 
+                          : 'none'
+                      }}
                     >
                       {playingTrack?.index === index && playingTrack?.type === 'after' ? (
                         <Pause className="w-4 h-4 text-primary" />
