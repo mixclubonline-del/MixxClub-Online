@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,17 +16,41 @@ import {
   Users,
   Download,
   Upload,
-  Settings
+  Settings,
+  LogIn
 } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import { AdvancedMixingStudio } from "@/components/mixing/AdvancedMixingStudio";
 import { AIAudioProcessor } from "@/components/mixing/AIAudioProcessor";
+import { MixingPaywall } from "@/components/mixing/MixingPaywall";
+import { useMixingAccess } from "@/hooks/useMixingAccess";
+import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 const Mixing = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState("studio-standard");
+  const { user } = useAuth();
+  const { hasAccess, loading, refreshAccess } = useMixingAccess();
+
+  useEffect(() => {
+    // Check for Stripe success/cancel parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const success = urlParams.get('success');
+    const canceled = urlParams.get('canceled');
+
+    if (success === 'true') {
+      toast.success('Payment successful! Your mixing package is now active.');
+      refreshAccess();
+      // Clean up URL
+      window.history.replaceState({}, document.title, '/mixing');
+    } else if (canceled === 'true') {
+      toast.error('Payment was canceled.');
+      // Clean up URL
+      window.history.replaceState({}, document.title, '/mixing');
+    }
+  }, [refreshAccess]);
 
   const mixingPresets = [
     { id: "studio-standard", name: "Studio Standard", description: "Balanced mix for all genres" },
@@ -63,6 +87,48 @@ const Mixing = () => {
       color: "bg-purple-500/10 text-purple-500"
     }
   ];
+
+  // Show sign-in prompt if not authenticated
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card className="max-w-md w-full mx-4">
+          <CardHeader className="text-center">
+            <LogIn className="h-12 w-12 text-primary mx-auto mb-4" />
+            <CardTitle>Sign In Required</CardTitle>
+            <CardDescription>
+              Please sign in to access our professional mixing services.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button className="w-full" onClick={() => window.location.href = '/auth'}>
+              Sign In
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  // Show paywall if user doesn't have access
+  if (!hasAccess) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-4 py-8">
+          <MixingPaywall onPurchaseComplete={refreshAccess} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">

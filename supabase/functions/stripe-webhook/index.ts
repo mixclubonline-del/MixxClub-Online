@@ -42,11 +42,15 @@ serve(async (req) => {
       const session = event.data.object;
       const userId = session.client_reference_id;
       const packageId = session.metadata?.packageId;
+      const packageType = session.metadata?.packageType || 'mastering';
 
       if (userId && packageId) {
+        // Determine which table to insert into based on package type
+        const tableName = packageType === 'mixing' ? 'user_mixing_subscriptions' : 'user_mastering_subscriptions';
+        
         // Create user subscription record
         const { error } = await supabaseClient
-          .from('user_mastering_subscriptions')
+          .from(tableName)
           .insert({
             user_id: userId,
             package_id: packageId,
@@ -56,7 +60,9 @@ serve(async (req) => {
           });
 
         if (error) {
-          console.error('Error creating subscription:', error);
+          console.error(`Error creating ${packageType} subscription:`, error);
+        } else {
+          console.log(`Successfully created ${packageType} subscription for user ${userId}`);
         }
       }
     }

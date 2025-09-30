@@ -808,6 +808,45 @@ export type Database = {
         }
         Relationships: []
       }
+      mixing_packages: {
+        Row: {
+          created_at: string
+          currency: string
+          description: string | null
+          features: Json | null
+          id: string
+          is_active: boolean | null
+          name: string
+          price: number
+          track_limit: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          description?: string | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          price: number
+          track_limit?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          description?: string | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          price?: number
+          track_limit?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       onboarding_profiles: {
         Row: {
           availability: Json | null
@@ -1598,6 +1637,50 @@ export type Database = {
           },
         ]
       }
+      user_mixing_subscriptions: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          package_id: string
+          status: string
+          stripe_customer_id: string | null
+          tracks_used: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          package_id: string
+          status?: string
+          stripe_customer_id?: string | null
+          tracks_used?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          package_id?: string
+          status?: string
+          stripe_customer_id?: string | null
+          tracks_used?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_mixing_subscriptions_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "mixing_packages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -1626,6 +1709,10 @@ export type Database = {
         Returns: number
       }
       has_mastering_access: {
+        Args: { user_id: string }
+        Returns: boolean
+      }
+      has_mixing_access: {
         Args: { user_id: string }
         Returns: boolean
       }
