@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
+import AuthCallback from "./pages/AuthCallback";
 import ArtistOnboarding from "./pages/ArtistOnboarding";
 import EngineerOnboarding from "./pages/EngineerOnboarding";
 import Dashboard from "./pages/Dashboard";
@@ -41,8 +42,9 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
-        <Route path="/" element={<Home />} />
+            <Route path="/" element={<Home />} />
         <Route path="/auth" element={<Auth />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/onboarding/artist" element={<ArtistOnboarding />} />
         <Route path="/onboarding/engineer" element={<EngineerOnboarding />} />
             <Route path="/dashboard" element={<Dashboard />} />
