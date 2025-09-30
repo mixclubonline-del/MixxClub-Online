@@ -277,23 +277,25 @@ export const MasteringChatbot = () => {
                         </div>
                       )}
                       
-                      <div className="mt-2 p-3 bg-accent/50 rounded-lg">
-                        <h4 className="text-sm font-medium mb-2">Processing Applied:</h4>
-                        <ul className="text-xs space-y-1">
-                          {message.masteringResult.improvements.map((improvement, index) => (
-                            <li key={index} className="flex items-center gap-2">
-                              <div className="w-1 h-1 bg-primary rounded-full" />
-                              {improvement}
-                            </li>
-                          ))}
-                        </ul>
-                        {message.masteringResult.processing && (
-                          <div className="mt-2 pt-2 border-t border-border/50">
-                            <span className="text-muted-foreground">Powered by: </span>
-                            <span className="font-medium">{message.masteringResult.processing.service}</span>
-                          </div>
-                        )}
-                      </div>
+                      {message.masteringResult.improvements && message.masteringResult.improvements.length > 0 && (
+                        <div className="mt-2 p-3 bg-accent/50 rounded-lg">
+                          <h4 className="text-sm font-medium mb-2">Processing Applied:</h4>
+                          <ul className="text-xs space-y-1">
+                            {message.masteringResult.improvements.map((improvement, index) => (
+                              <li key={index} className="flex items-center gap-2">
+                                <div className="w-1 h-1 bg-primary rounded-full" />
+                                {improvement}
+                              </li>
+                            ))}
+                          </ul>
+                          {message.masteringResult.processing && (
+                            <div className="mt-2 pt-2 border-t border-border/50">
+                              <span className="text-muted-foreground">Powered by: </span>
+                              <span className="font-medium">{message.masteringResult.processing.service}</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )}
                   
