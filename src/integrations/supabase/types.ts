@@ -488,6 +488,51 @@ export type Database = {
         }
         Relationships: []
       }
+      daw_imported_files: {
+        Row: {
+          bit_depth: number | null
+          channels: number | null
+          created_at: string
+          duration_seconds: number | null
+          file_name: string
+          file_path: string
+          file_size: number | null
+          id: string
+          sample_rate: number | null
+          session_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bit_depth?: number | null
+          channels?: number | null
+          created_at?: string
+          duration_seconds?: number | null
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          id?: string
+          sample_rate?: number | null
+          session_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bit_depth?: number | null
+          channels?: number | null
+          created_at?: string
+          duration_seconds?: number | null
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          sample_rate?: number | null
+          session_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       engineer_profiles: {
         Row: {
           certifications: string[] | null

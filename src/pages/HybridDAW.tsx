@@ -28,6 +28,7 @@ import DAWCollaboration from "@/components/daw/DAWCollaboration";
 import DAW3DView from "@/components/daw/DAW3DView";
 import DAWEffectsPanel from "@/components/daw/DAWEffectsPanel";
 import DAWGamification from "@/components/daw/DAWGamification";
+import AudioImportDialog from "@/components/AudioImportDialog";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/components/ui/use-toast";
 import Navigation from "@/components/Navigation";
@@ -85,6 +86,7 @@ const HybridDAW = () => {
   // View State
   const [view, setView] = useState<'2d' | '3d'>('2d');
   const [activePanel, setActivePanel] = useState<'timeline' | 'mixer' | 'effects' | 'collab' | 'achievements'>('timeline');
+  const [showImportDialog, setShowImportDialog] = useState(false);
   
   // Collaboration State
   const [collaborators, setCollaborators] = useState<CollaborationUser[]>([]);
@@ -290,6 +292,37 @@ const HybridDAW = () => {
     setCurrentTime(0);
   };
 
+  // Handle imported audio file
+  const handleImportedAudio = (importedFile: any) => {
+    const newTrack: Track = {
+      id: `track-${Date.now()}`,
+      name: importedFile.fileName,
+      color: 'hsl(42, 100%, 70%)', // Orange color for imported audio
+      regions: [{
+        id: `region-${Date.now()}`,
+        start: 0,
+        end: importedFile.duration || 10,
+        url: importedFile.url,
+        gain: 1,
+        fadeIn: 0,
+        fadeOut: 0
+      }],
+      solo: false,
+      mute: false,
+      volume: 0.8,
+      effects: {},
+      automation: []
+    };
+
+    setTracks(prev => [...prev, newTrack]);
+    setShowImportDialog(false);
+    
+    toast({
+      title: "Track Added!",
+      description: `${importedFile.fileName} has been added to your session`,
+    });
+  };
+
   // Export Project
   const exportProject = () => {
     // TODO: Implement project export
@@ -443,7 +476,7 @@ const HybridDAW = () => {
                   variant="outline" 
                   size="sm" 
                   className="w-full justify-start gap-2"
-                  onClick={() => {/* TODO: Import beat */}}
+                  onClick={() => setShowImportDialog(true)}
                 >
                   <Upload className="w-4 h-4" />
                   Import Beat
@@ -579,6 +612,15 @@ const HybridDAW = () => {
           </div>
         </div>
       </div>
+
+      {/* Audio Import Dialog */}
+      {showImportDialog && (
+        <AudioImportDialog
+          sessionId={`session-${user?.id || 'anonymous'}`}
+          onImportComplete={handleImportedAudio}
+          onClose={() => setShowImportDialog(false)}
+        />
+      )}
     </div>
   );
 };
