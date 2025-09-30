@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Pricing = () => {
   return (
@@ -69,9 +70,9 @@ const Pricing = () => {
               </ul>
             </CardContent>
             <CardFooter>
-              <Button variant="outline" className="w-full" onClick={() => {
-                document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
-              }}>Start with Starter</Button>
+              <Button variant="outline" className="w-full" asChild>
+                <Link to="/mixing#packages">Start with Starter</Link>
+              </Button>
             </CardFooter>
           </Card>
 
@@ -129,9 +130,9 @@ const Pricing = () => {
               </ul>
             </CardContent>
             <CardFooter>
-              <Button className="w-full text-lg" onClick={() => {
-                document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
-              }}>Choose Professional</Button>
+              <Button className="w-full text-lg" asChild>
+                <Link to="/mixing#packages">Choose Professional</Link>
+              </Button>
             </CardFooter>
           </Card>
 
@@ -186,9 +187,9 @@ const Pricing = () => {
               </ul>
             </CardContent>
             <CardFooter>
-              <Button variant="outline" className="w-full" onClick={() => {
-                document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
-              }}>Go Premium</Button>
+              <Button variant="outline" className="w-full" asChild>
+                <Link to="/mixing#packages">Go Premium</Link>
+              </Button>
             </CardFooter>
           </Card>
         </div>

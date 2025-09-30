@@ -51,7 +51,7 @@ const Services = () => {
                 </li>
               </ul>
               <Button variant="outline" className="w-full" asChild>
-                <Link to="/dashboard">Explore</Link>
+                <Link to="/mixing">Explore</Link>
               </Button>
             </CardContent>
           </Card>

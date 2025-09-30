@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import Navigation from '@/components/Navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -36,6 +37,25 @@ const Dashboard = () => {
       navigate('/auth');
       return;
     }
+
+    // Redirect to role-specific CRM
+    const checkUserRole = async () => {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+      if (profile) {
+        if (profile.role === 'engineer') {
+          navigate('/engineer-crm');
+        } else if (profile.role === 'client') {
+          navigate('/artist-crm');
+        }
+      }
+    };
+
+    checkUserRole();
   }, [user, navigate]);
 
   const quickStats = [

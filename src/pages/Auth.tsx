@@ -96,8 +96,26 @@ const Auth = () => {
           return;
         }
 
-        toast.success("Welcome back!");
-        navigate("/dashboard");
+        // Get user profile to determine role-based redirect
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        if (authUser) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', authUser.id)
+            .single();
+
+          toast.success("Welcome back!");
+          
+          // Redirect based on user role
+          if (profile?.role === 'engineer') {
+            navigate("/engineer-crm");
+          } else {
+            navigate("/artist-crm");
+          }
+        } else {
+          navigate("/dashboard");
+        }
       }
     } catch (err) {
       if (err instanceof z.ZodError) {
