@@ -40,13 +40,11 @@ export const AudioFileUpload = ({ projectId, onFilesUploaded }: AudioFileUploadP
           .from('audio_files')
           .insert({
             project_id: projectId,
-            filename: file.name,
+            file_name: file.name,
             file_path: fileName,
             file_size: file.size,
-            metadata: {
-              originalName: file.name,
-              mimeType: file.type
-            }
+            uploaded_by: (await supabase.auth.getUser()).data.user?.id,
+            file_type: file.type
           });
 
         if (dbError) {

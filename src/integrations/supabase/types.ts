@@ -982,6 +982,7 @@ export type Database = {
           description: string | null
           engineer_id: string | null
           id: string
+          metadata: Json | null
           status: Database["public"]["Enums"]["project_status"]
           title: string
           updated_at: string
@@ -994,6 +995,7 @@ export type Database = {
           description?: string | null
           engineer_id?: string | null
           id?: string
+          metadata?: Json | null
           status?: Database["public"]["Enums"]["project_status"]
           title: string
           updated_at?: string
@@ -1006,6 +1008,7 @@ export type Database = {
           description?: string | null
           engineer_id?: string | null
           id?: string
+          metadata?: Json | null
           status?: Database["public"]["Enums"]["project_status"]
           title?: string
           updated_at?: string

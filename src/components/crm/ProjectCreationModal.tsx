@@ -53,15 +53,16 @@ export const ProjectCreationModal = ({ isOpen, onClose, onProjectCreated }: Proj
       // Simulate Forte AI preparation if enabled
       if (formData.useFortePrep) {
         setTimeout(async () => {
+          const updatedMetadata = {
+            artist: formData.artist,
+            fortePrep: formData.useFortePrep,
+            aiPrep: 'Forte Session Prep:\n- Tracks renamed & colored\n- Buses/auxes routed\n- Silence stripped\n- Ready for Pro Tools / Logic / Studio One',
+            fortePrepared: true
+          };
+          
           await supabase
             .from('projects')
-            .update({
-              metadata: {
-                ...project.metadata,
-                aiPrep: 'Forte Session Prep:\n- Tracks renamed & colored\n- Buses/auxes routed\n- Silence stripped\n- Ready for Pro Tools / Logic / Studio One',
-                fortePrepared: true
-              }
-            })
+            .update({ metadata: updatedMetadata })
             .eq('id', project.id);
           
           onProjectCreated();
