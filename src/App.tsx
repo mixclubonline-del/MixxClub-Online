@@ -15,6 +15,7 @@ import Mixing from "./pages/Mixing";
 import Mastering from "./pages/Mastering";
 import { JobBoard } from "./pages/JobBoard";
 import NotFound from "./pages/NotFound";
+import { PersistentChatbot } from "@/components/PersistentChatbot";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,7 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <PersistentChatbot />
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

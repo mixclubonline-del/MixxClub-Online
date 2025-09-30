@@ -44,3 +44,9 @@ verify_jwt = false
 
 [functions.mastering-chat]
 verify_jwt = false
+
+[functions.chat-vercel-ai]
+verify_jwt = false
+
+[functions.chat-simple]
+verify_jwt = false
