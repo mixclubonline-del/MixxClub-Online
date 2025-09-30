@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,19 +18,38 @@ import {
   BarChart3,
   Waves,
   Music,
-  Award
+  Award,
+  Lock
 } from "lucide-react";
 import Navigation from "@/components/Navigation";
-import { MasteringPaywall } from "@/components/MasteringPaywall";
-import { useMasteringAccess } from "@/hooks/useMasteringAccess";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
+import { MasteringPaywall } from "@/components/mastering/MasteringPaywall";
+import { useMasteringAccess } from "@/hooks/useMasteringAccess";
+import { useAuth } from "@/hooks/useAuth";
 
 const Mastering = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState("spotify");
   const [masteringProgress, setMasteringProgress] = useState(0);
-  const { hasAccess, loading, checkAccess, incrementTrackUsage } = useMasteringAccess();
+  const [searchParams] = useSearchParams();
+  const { user } = useAuth();
+  const { hasAccess, loading, subscription, refreshAccess } = useMasteringAccess();
+
+  useEffect(() => {
+    // Handle successful payment
+    const success = searchParams.get('success');
+    if (success === 'true') {
+      toast.success('Payment successful! Welcome to MixClub Mastering!');
+      refreshAccess();
+    }
+    
+    // Handle cancelled payment
+    const cancelled = searchParams.get('canceled');
+    if (cancelled === 'true') {
+      toast.info('Payment was cancelled. You can try again anytime.');
+    }
+  }, [searchParams, refreshAccess]);
 
   const platforms = [
     { id: "spotify", name: "Spotify", lufs: "-14 LUFS", description: "Optimized for streaming" },
@@ -86,9 +105,9 @@ const Mastering = () => {
     }
   };
 
-  const handleStartMastering = async () => {
+  const handleStartMastering = () => {
     if (!hasAccess) {
-      toast.error('Please purchase a mastering package to access AI mastering');
+      toast.error('Please purchase a mastering package to start mastering');
       return;
     }
 
@@ -100,9 +119,7 @@ const Mastering = () => {
         if (prev >= 100) {
           clearInterval(interval);
           setIsProcessing(false);
-          // Increment track usage when mastering is complete
-          incrementTrackUsage();
-          toast.success('Track mastered successfully!');
+          toast.success('Mastering complete! Track processed successfully.');
           return 100;
         }
         return prev + 2;
@@ -110,12 +127,39 @@ const Mastering = () => {
     }, 100);
   };
 
+  // Show loading state
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
         <Navigation />
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <div className="pt-20 flex items-center justify-center min-h-[50vh]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading mastering access...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show paywall if user doesn't have access
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="pt-20">
+          <div className="container px-6 text-center py-20">
+            <Lock className="w-16 h-16 mx-auto mb-6 text-muted-foreground" />
+            <h1 className="text-3xl font-bold mb-4">Sign In Required</h1>
+            <p className="text-muted-foreground mb-8 max-w-md mx-auto">
+              Please sign in to access our professional mastering suite.
+            </p>
+            <Link to="/auth">
+              <Button size="lg">
+                Sign In to Continue
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -126,7 +170,7 @@ const Mastering = () => {
       <div className="min-h-screen bg-background">
         <Navigation />
         <div className="pt-20">
-          <MasteringPaywall onPurchaseComplete={checkAccess} />
+          <MasteringPaywall onAccessGranted={refreshAccess} />
         </div>
       </div>
     );
@@ -143,7 +187,7 @@ const Mastering = () => {
             <div className="max-w-4xl mx-auto text-center">
               <Badge variant="secondary" className="mb-4">
                 <TrendingUp className="w-4 h-4 mr-2" />
-                AI Neural Mastering - Active
+                AI Neural Mastering
               </Badge>
               <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
                 Master with AI Precision
@@ -152,6 +196,24 @@ const Mastering = () => {
                 Get Grammy-quality masters instantly with our AI engine trained on thousands 
                 of reference tracks across all genres and platforms.
               </p>
+              
+              {/* Subscription Status */}
+              {subscription && (
+                <Card className="max-w-md mx-auto mb-8 bg-primary/5 border-primary/20">
+                  <CardContent className="pt-4">
+                    <div className="text-center">
+                      <Badge className="mb-2">{subscription.mastering_packages.name} Plan</Badge>
+                      <p className="text-sm text-muted-foreground">
+                        {subscription.mastering_packages.track_limit === -1 
+                          ? 'Unlimited tracks' 
+                          : `${subscription.tracks_used}/${subscription.mastering_packages.track_limit} tracks used`
+                        }
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+              
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button size="lg" className="gap-2" onClick={handleStartMastering}>
                   <Zap className="w-5 h-5" />
