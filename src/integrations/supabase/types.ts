@@ -2178,6 +2178,27 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       public_profiles: {
@@ -2255,8 +2276,23 @@ export type Database = {
         Args: { user_id: string }
         Returns: boolean
       }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["user_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       is_admin: {
         Args: { user_uuid: string }
+        Returns: boolean
+      }
+      is_session_host: {
+        Args: { session_uuid: string; user_uuid: string }
+        Returns: boolean
+      }
+      is_session_participant: {
+        Args: { session_uuid: string; user_uuid: string }
         Returns: boolean
       }
       update_engineer_leaderboard: {
@@ -2266,10 +2302,6 @@ export type Database = {
       update_engineer_streak: {
         Args: { p_engineer_id: string }
         Returns: undefined
-      }
-      user_has_session_access: {
-        Args: { session_uuid: string; user_uuid: string }
-        Returns: boolean
       }
     }
     Enums: {
