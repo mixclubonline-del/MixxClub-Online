@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Play, Pause, SkipBack, SkipForward } from 'lucide-react';
+import { Play, Pause, AlertCircle, Loader2 } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface BeforeAfterPlayerProps {
   title: string;
@@ -14,12 +15,29 @@ export const BeforeAfterPlayer = ({ title, beforeSrc, afterSrc }: BeforeAfterPla
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [waveformData, setWaveformData] = useState<number[]>([]);
+  const [loadingState, setLoadingState] = useState<{
+    before: 'loading' | 'ready' | 'error';
+    after: 'loading' | 'ready' | 'error';
+  }>({ before: 'loading', after: 'loading' });
+  const [error, setError] = useState<string | null>(null);
   
   const beforeRef = useRef<HTMLAudioElement>(null);
   const afterRef = useRef<HTMLAudioElement>(null);
   const beforeCanvasRef = useRef<HTMLCanvasElement>(null);
   const afterCanvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameRef = useRef<number>();
+
+  // Audio loading handlers
+  const handleAudioLoaded = (player: 'before' | 'after') => {
+    setLoadingState(prev => ({ ...prev, [player]: 'ready' }));
+    setError(null);
+  };
+
+  const handleAudioError = (player: 'before' | 'after', event: React.SyntheticEvent<HTMLAudioElement>) => {
+    console.error(`Audio loading error for ${player}:`, event);
+    setLoadingState(prev => ({ ...prev, [player]: 'error' }));
+    setError(`Failed to load ${player === 'before' ? 'original' : 'processed'} audio. Please try refreshing.`);
+  };
 
   // Generate waveform visualization
   useEffect(() => {
@@ -135,6 +153,13 @@ export const BeforeAfterPlayer = ({ title, beforeSrc, afterSrc }: BeforeAfterPla
       <div className="space-y-3">
         <h4 className="font-medium text-sm">{title}</h4>
         
+        {error && (
+          <Alert variant="destructive" className="py-2">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription className="text-xs">{error}</AlertDescription>
+          </Alert>
+        )}
+        
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-2">
             <span className="text-xs font-medium text-muted-foreground">Original</span>
@@ -148,9 +173,17 @@ export const BeforeAfterPlayer = ({ title, beforeSrc, afterSrc }: BeforeAfterPla
                 size="sm"
                 className="w-full gap-2 mb-2"
                 onClick={() => togglePlay('before')}
+                disabled={loadingState.before !== 'ready'}
               >
-                {activePlayer === 'before' ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
-                Before
+                {loadingState.before === 'loading' ? (
+                  <><Loader2 className="w-3 h-3 animate-spin" /> Loading</>
+                ) : loadingState.before === 'error' ? (
+                  <><AlertCircle className="w-3 h-3" /> Error</>
+                ) : activePlayer === 'before' ? (
+                  <><Pause className="w-3 h-3" /> Before</>
+                ) : (
+                  <><Play className="w-3 h-3" /> Before</>
+                )}
               </Button>
               <canvas 
                 ref={beforeCanvasRef}
@@ -173,9 +206,17 @@ export const BeforeAfterPlayer = ({ title, beforeSrc, afterSrc }: BeforeAfterPla
                 size="sm"
                 className="w-full gap-2 mb-2"
                 onClick={() => togglePlay('after')}
+                disabled={loadingState.after !== 'ready'}
               >
-                {activePlayer === 'after' ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
-                After
+                {loadingState.after === 'loading' ? (
+                  <><Loader2 className="w-3 h-3 animate-spin" /> Loading</>
+                ) : loadingState.after === 'error' ? (
+                  <><AlertCircle className="w-3 h-3" /> Error</>
+                ) : activePlayer === 'after' ? (
+                  <><Pause className="w-3 h-3" /> After</>
+                ) : (
+                  <><Play className="w-3 h-3" /> After</>
+                )}
               </Button>
               <canvas 
                 ref={afterCanvasRef}
@@ -208,6 +249,11 @@ export const BeforeAfterPlayer = ({ title, beforeSrc, afterSrc }: BeforeAfterPla
       <audio
         ref={beforeRef}
         src={beforeSrc}
+        crossOrigin="anonymous"
+        preload="metadata"
+        onLoadedData={() => handleAudioLoaded('before')}
+        onCanPlay={() => handleAudioLoaded('before')}
+        onError={(e) => handleAudioError('before', e)}
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleTimeUpdate}
         onEnded={() => setActivePlayer(null)}
@@ -215,6 +261,11 @@ export const BeforeAfterPlayer = ({ title, beforeSrc, afterSrc }: BeforeAfterPla
       <audio
         ref={afterRef}
         src={afterSrc}
+        crossOrigin="anonymous"
+        preload="metadata"
+        onLoadedData={() => handleAudioLoaded('after')}
+        onCanPlay={() => handleAudioLoaded('after')}
+        onError={(e) => handleAudioError('after', e)}
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleTimeUpdate}
         onEnded={() => setActivePlayer(null)}
