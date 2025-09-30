@@ -56,11 +56,11 @@ export const BeforeAfterPlayer = ({ title, beforeSrc, afterSrc }: BeforeAfterPla
         // Create gradient based on player type
         const gradient = ctx.createLinearGradient(0, 0, 0, height);
         if (isAfter) {
-          gradient.addColorStop(0, `hsl(var(--secondary) / ${intensity})`);
-          gradient.addColorStop(1, `hsl(var(--accent) / ${intensity * 0.5})`);
+          gradient.addColorStop(0, `hsla(280, 80%, 70%, ${intensity})`);
+          gradient.addColorStop(1, `hsla(280, 80%, 70%, ${intensity * 0.5})`);
         } else {
-          gradient.addColorStop(0, `hsl(var(--primary) / ${intensity})`);
-          gradient.addColorStop(1, `hsl(var(--primary) / ${intensity * 0.5})`);
+          gradient.addColorStop(0, `hsla(262, 90%, 60%, ${intensity})`);
+          gradient.addColorStop(1, `hsla(262, 90%, 60%, ${intensity * 0.5})`);
         }
         
         ctx.fillStyle = gradient;
@@ -68,7 +68,7 @@ export const BeforeAfterPlayer = ({ title, beforeSrc, afterSrc }: BeforeAfterPla
         
         // Add glow effect when active
         if (isActive) {
-          ctx.shadowColor = isAfter ? 'hsl(var(--secondary))' : 'hsl(var(--primary))';
+          ctx.shadowColor = isAfter ? 'hsl(280, 80%, 70%)' : 'hsl(262, 90%, 60%)';
           ctx.shadowBlur = 10;
           ctx.fillRect(x, y, barWidth - 1, barHeight);
           ctx.shadowBlur = 0;

@@ -126,7 +126,7 @@ const AudioPreview = () => {
         // Draw particle
         bgCtx.beginPath();
         bgCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        bgCtx.fillStyle = 'hsl(var(--primary) / 0.3)';
+        bgCtx.fillStyle = 'hsla(262, 90%, 60%, 0.3)';
         bgCtx.fill();
       });
 
@@ -164,8 +164,12 @@ const AudioPreview = () => {
         
         // Background gradient
         const bgGradient = ctx.createLinearGradient(0, 0, 0, height);
-        bgGradient.addColorStop(0, `${trackColor.replace(')', ' / 0.1)')}`);
-        bgGradient.addColorStop(1, `${trackColor.replace(')', ' / 0.05)')}`);
+        const colorMatch = trackColor.match(/hsl\((\d+)\s+(\d+)%\s+(\d+)%\)/);
+        if (colorMatch) {
+          const [, h, s, l] = colorMatch;
+          bgGradient.addColorStop(0, `hsla(${h}, ${s}%, ${l}%, 0.1)`);
+          bgGradient.addColorStop(1, `hsla(${h}, ${s}%, ${l}%, 0.05)`);
+        }
         ctx.fillStyle = bgGradient;
         ctx.fillRect(0, 0, width, height);
 
@@ -185,15 +189,20 @@ const AudioPreview = () => {
           
           // Create gradient for each bar
           const gradient = ctx.createLinearGradient(x, y, x, y + barHeight);
-          gradient.addColorStop(0, trackColor);
-          gradient.addColorStop(1, `${trackColor.replace(')', ` / ${intensity * 0.3})`)}`);
+          const colorMatch = trackColor.match(/hsl\((\d+)\s+(\d+)%\s+(\d+)%\)/);
+          if (colorMatch) {
+            const [, h, s, l] = colorMatch;
+            gradient.addColorStop(0, `hsl(${h}, ${s}%, ${l}%)`);
+            gradient.addColorStop(1, `hsla(${h}, ${s}%, ${l}%, ${intensity * 0.3})`);
+          }
           
           ctx.fillStyle = gradient;
           ctx.fillRect(x, y, barWidth - 2, barHeight);
           
           // Add glow effect when playing
-          if (isPlaying) {
-            ctx.shadowColor = trackColor;
+          if (isPlaying && colorMatch) {
+            const [, h, s, l] = colorMatch;
+            ctx.shadowColor = `hsl(${h}, ${s}%, ${l}%)`;
             ctx.shadowBlur = 15;
             ctx.fillRect(x, y, barWidth - 2, barHeight);
             ctx.shadowBlur = 0;
