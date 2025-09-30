@@ -11,6 +11,8 @@ import ArtistDashboard from "./pages/ArtistDashboard";
 import EngineerDashboard from "./pages/EngineerDashboard";
 import ArtistCRM from "./pages/ArtistCRM";
 import EngineerCRM from "./pages/EngineerCRM";
+import Mixing from "./pages/Mixing";
+import Mastering from "./pages/Mastering";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +32,8 @@ const App = () => (
             <Route path="/engineer-dashboard" element={<EngineerDashboard />} />
             <Route path="/artist-crm" element={<ArtistCRM />} />
             <Route path="/engineer-crm" element={<EngineerCRM />} />
+            <Route path="/mixing" element={<Mixing />} />
+            <Route path="/mastering" element={<Mastering />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
