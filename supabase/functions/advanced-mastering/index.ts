@@ -203,10 +203,66 @@ Always provide detailed technical analysis with specific recommendations for imp
     const aiData = await aiResponse.json();
     const analysis = aiData.choices[0]?.message?.content || 'Analysis unavailable';
 
+    // Fetch mastering packages and create sales proposal
+    let salesProposal = null;
+    if (masteringResult) {
+      try {
+        const { data: packages, error: packagesError } = await supabase
+          .from('mastering_packages')
+          .select('*')
+          .eq('is_active', true)
+          .order('price', { ascending: true });
+
+        if (!packagesError && packages && packages.length > 0) {
+          // Determine recommended package based on quality needs
+          const qualityScore = masteringResult.analysis.masteredLUFS + masteringResult.analysis.dynamicRange;
+          let recommendedPackage = packages[0]; // Default to cheapest
+          
+          if (qualityScore > -10) {
+            // High quality result - recommend premium package
+            recommendedPackage = packages[packages.length - 1];
+          } else if (qualityScore > -15) {
+            // Good quality - recommend mid-tier
+            recommendedPackage = packages[Math.floor(packages.length / 2)];
+          }
+
+          // Generate contextual sales message
+          const improvements = masteringResult.analysis.improvements.length;
+          const salesMessages = [
+            `Your track improved by ${Math.abs(masteringResult.analysis.masteredLUFS - masteringResult.analysis.originalLUFS).toFixed(1)} LUFS! Imagine what our full mastering suite could do with unlimited revisions.`,
+            `This preview shows ${improvements} professional enhancements. Unlock our complete mastering chain for studio-quality results.`,
+            `You just experienced AI mastering magic ✨ Get unlimited tracks and priority processing with our premium service.`,
+            `500+ artists upgraded today for full access. Join them and master unlimited tracks with zero compromise.`
+          ];
+
+          salesProposal = {
+            recommendedPackage: {
+              ...recommendedPackage,
+              features: typeof recommendedPackage.features === 'string' 
+                ? JSON.parse(recommendedPackage.features)
+                : recommendedPackage.features
+            },
+            allPackages: packages.map(pkg => ({
+              ...pkg,
+              features: typeof pkg.features === 'string' 
+                ? JSON.parse(pkg.features)
+                : pkg.features,
+              popular: pkg.name.toLowerCase().includes('pro')
+            })),
+            salesMessage: salesMessages[Math.floor(Math.random() * salesMessages.length)]
+          };
+        }
+      } catch (error) {
+        console.error('Failed to fetch packages:', error);
+        // Don't fail the request if package fetching fails
+      }
+    }
+
     return new Response(
       JSON.stringify({
         analysis,
         masteringResult,
+        salesProposal,
         timestamp: new Date().toISOString(),
         service: 'Advanced AI Mastering Suite'
       }),

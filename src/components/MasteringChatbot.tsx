@@ -6,7 +6,18 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Upload, Send, Bot, User, Music, Settings } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { BeforeAfterPlayer } from '@/components/crm/BeforeAfterPlayer';
+import { PackageRecommendation } from '@/components/mastering/PackageRecommendation';
 import { supabase } from '@/integrations/supabase/client';
+
+interface Package {
+  id: string;
+  name: string;
+  price: number;
+  currency: string;
+  features: string[];
+  track_limit: number;
+  popular?: boolean;
+}
 
 interface Message {
   id: string;
@@ -31,6 +42,11 @@ interface Message {
       service: string;
       processingTime: number;
     };
+  };
+  salesProposal?: {
+    recommendedPackage: Package;
+    allPackages: Package[];
+    salesMessage: string;
   };
 }
 
@@ -134,6 +150,7 @@ export const MasteringChatbot = () => {
         content: data.analysis,
         timestamp: new Date(),
         masteringResult: data.masteringResult,
+        salesProposal: data.salesProposal,
       };
 
       setMessages(prev => [...prev, botMessage]);
@@ -297,6 +314,14 @@ export const MasteringChatbot = () => {
                         </div>
                       )}
                     </div>
+                  )}
+
+                  {message.salesProposal && (
+                    <PackageRecommendation
+                      recommendedPackage={message.salesProposal.recommendedPackage}
+                      allPackages={message.salesProposal.allPackages}
+                      salesMessage={message.salesProposal.salesMessage}
+                    />
                   )}
                   
                   <p className="text-xs text-muted-foreground mt-1">
