@@ -2,18 +2,21 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useServiceAccess } from '@/hooks/useServiceAccess';
 import Navigation from '@/components/Navigation';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Upload, Music, TrendingUp, Award, MessageSquare, DollarSign, Zap, Users } from 'lucide-react';
+import { Upload, Music, TrendingUp, Award, MessageSquare, DollarSign, Zap, Users, Lock, Sparkles } from 'lucide-react';
 import { RealTimeCollaboration } from '@/components/RealTimeCollaboration';
 import EnhancedCRM from '@/components/crm/EnhancedCRM';
 import SessionManager from '@/components/collaboration/SessionManager';
 import { EngineerCRMDashboard } from '@/components/crm/EngineerCRMDashboard';
 import { AdvancedMixingStudio } from '@/components/mixing/AdvancedMixingStudio';
+import { AIMasteringService } from '@/components/mastering/AIMasteringService';
+import { LockedServiceTab } from '@/components/crm/LockedServiceTab';
 import { toast } from 'sonner';
 import { JobApplicationManager } from '@/components/crm/JobApplicationManager';
 import { JobPostingForm } from '@/components/JobPostingForm';
@@ -26,6 +29,15 @@ const ArtistCRM = () => {
   const [achievements, setAchievements] = useState<any[]>([]);
   const [pendingApplications, setPendingApplications] = useState(0);
   const [loading, setLoading] = useState(true);
+  
+  const { 
+    mixingAccess, 
+    masteringAccess, 
+    collaborationAccess, 
+    mixingSubscription,
+    masteringSubscription,
+    loading: servicesLoading 
+  } = useServiceAccess();
 
   useEffect(() => {
     if (!user) {
@@ -113,7 +125,7 @@ const ArtistCRM = () => {
     return colors[status as keyof typeof colors] || 'bg-gray-500';
   };
 
-  if (loading) {
+  if (loading || servicesLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -219,7 +231,30 @@ const ArtistCRM = () => {
           <div className="overflow-x-auto pb-2">
             <TabsList className="inline-flex w-auto min-w-full">
               <TabsTrigger value="sessions" className="whitespace-nowrap">My Sessions</TabsTrigger>
-              <TabsTrigger value="book-session" className="whitespace-nowrap">Book Session</TabsTrigger>
+              
+              {mixingAccess ? (
+                <TabsTrigger value="book-session" className="whitespace-nowrap">
+                  Book Session
+                </TabsTrigger>
+              ) : (
+                <TabsTrigger value="book-session" className="whitespace-nowrap gap-2">
+                  <Lock className="w-3 h-3" />
+                  Book Session
+                </TabsTrigger>
+              )}
+              
+              {masteringAccess ? (
+                <TabsTrigger value="ai-mastering" className="whitespace-nowrap gap-2">
+                  <Sparkles className="w-4 h-4" />
+                  AI Mastering
+                </TabsTrigger>
+              ) : (
+                <TabsTrigger value="ai-mastering" className="whitespace-nowrap gap-2">
+                  <Lock className="w-3 h-3" />
+                  AI Mastering
+                </TabsTrigger>
+              )}
+              
               <TabsTrigger value="applications" className="relative whitespace-nowrap">
                 Pro Responses
                 {pendingApplications > 0 && (
@@ -228,38 +263,110 @@ const ArtistCRM = () => {
                   </Badge>
                 )}
               </TabsTrigger>
-              <TabsTrigger value="collaboration" className="gap-2 whitespace-nowrap">
-                <Zap className="w-4 h-4" />
-                Live Studio
-              </TabsTrigger>
+              
+              {collaborationAccess ? (
+                <TabsTrigger value="collaboration" className="gap-2 whitespace-nowrap">
+                  <Zap className="w-4 h-4" />
+                  Live Studio
+                </TabsTrigger>
+              ) : (
+                <TabsTrigger value="collaboration" className="gap-2 whitespace-nowrap">
+                  <Lock className="w-3 h-3" />
+                  Live Studio
+                </TabsTrigger>
+              )}
+              
               <TabsTrigger value="achievements" className="whitespace-nowrap">Badges</TabsTrigger>
               <TabsTrigger value="activity" className="whitespace-nowrap">Activity</TabsTrigger>
             </TabsList>
           </div>
 
-            <TabsContent value="sessions" className="space-y-4">
-              <EngineerCRMDashboard />
-            </TabsContent>
+          <TabsContent value="sessions" className="space-y-4">
+            <EngineerCRMDashboard />
+          </TabsContent>
 
-            <TabsContent value="book-session" className="space-y-4">
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold mb-2">Book a New Session</h2>
-                <p className="text-muted-foreground">
-                  Tell us about your track and we'll connect you with the perfect pro engineer
-                </p>
-              </div>
-              <JobPostingForm />
-            </TabsContent>
+          <TabsContent value="book-session" className="space-y-4">
+            {mixingAccess ? (
+              <>
+                <div className="mb-6">
+                  <h2 className="text-2xl font-bold mb-2">Book a New Session</h2>
+                  <p className="text-muted-foreground">
+                    Tell us about your track and we'll connect you with the perfect pro engineer
+                  </p>
+                </div>
+                <JobPostingForm />
+              </>
+            ) : (
+              <LockedServiceTab 
+                serviceName="Professional Mixing"
+                serviceType="mixing"
+                description="Upgrade to access our professional mixing services and connect with top engineers"
+                features={[
+                  "Post unlimited mixing jobs",
+                  "Connect with verified professional engineers",
+                  "Access live collaboration studio",
+                  "Get quick turnaround times",
+                  "Revision requests included"
+                ]}
+              />
+            )}
+          </TabsContent>
 
-            <TabsContent value="applications" className="space-y-4">
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold mb-2">Pro Engineer Responses</h2>
-                <p className="text-muted-foreground">
-                  Review applications from pros who want to work on your music
-                </p>
-              </div>
-              <JobApplicationManager />
-            </TabsContent>
+          <TabsContent value="ai-mastering" className="space-y-4">
+            {masteringAccess ? (
+              <>
+                <div className="mb-6">
+                  <h2 className="text-2xl font-bold mb-2">AI Mastering Studio</h2>
+                  <p className="text-muted-foreground">
+                    Professional mastering powered by AI, optimized for all platforms
+                  </p>
+                </div>
+                <AIMasteringService subscription={masteringSubscription} />
+              </>
+            ) : (
+              <LockedServiceTab 
+                serviceName="AI Mastering"
+                serviceType="mastering"
+                description="Upgrade to access our AI-powered mastering suite with instant professional results"
+                features={[
+                  "AI neural mastering engine",
+                  "Platform-specific optimization (Spotify, Apple Music, etc.)",
+                  "Real-time audio analysis",
+                  "Instant preview and download",
+                  "Unlimited revisions"
+                ]}
+              />
+            )}
+          </TabsContent>
+
+          <TabsContent value="applications" className="space-y-4">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold mb-2">Pro Engineer Responses</h2>
+              <p className="text-muted-foreground">
+                Review applications from pros who want to work on your music
+              </p>
+            </div>
+            <JobApplicationManager />
+          </TabsContent>
+
+          <TabsContent value="collaboration" className="space-y-4">
+            {collaborationAccess ? (
+              <AdvancedMixingStudio />
+            ) : (
+              <LockedServiceTab 
+                serviceName="Live Collaboration Studio"
+                serviceType="mixing"
+                description="Upgrade to any service to access our real-time collaboration studio"
+                features={[
+                  "Real-time audio collaboration",
+                  "Multi-user mixing sessions",
+                  "Live audio streaming",
+                  "Integrated chat and comments",
+                  "Session recording and playback"
+                ]}
+              />
+            )}
+          </TabsContent>
 
           <TabsContent value="achievements" className="space-y-4">
             <h2 className="text-2xl font-bold mb-4">Your Studio Badges</h2>
@@ -284,10 +391,6 @@ const ArtistCRM = () => {
                 ))}
               </div>
             )}
-          </TabsContent>
-
-          <TabsContent value="collaboration" className="space-y-6">
-            <AdvancedMixingStudio />
           </TabsContent>
 
           <TabsContent value="activity">
