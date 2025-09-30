@@ -12,6 +12,7 @@ import { Upload, Music, TrendingUp, Award, MessageSquare, DollarSign, Zap, Users
 import { RealTimeCollaboration } from '@/components/RealTimeCollaboration';
 import EnhancedCRM from '@/components/crm/EnhancedCRM';
 import SessionManager from '@/components/collaboration/SessionManager';
+import { EngineerCRMDashboard } from '@/components/crm/EngineerCRMDashboard';
 import { toast } from 'sonner';
 
 const ArtistCRM = () => {
@@ -204,61 +205,7 @@ const ArtistCRM = () => {
           </TabsList>
 
           <TabsContent value="projects" className="space-y-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold">Your Projects</h2>
-              <Button onClick={() => navigate('/artist-dashboard')} className="gap-2">
-                <Upload className="w-4 h-4" />
-                New Project
-              </Button>
-            </div>
-
-            {projects.length === 0 ? (
-              <Card className="p-12 text-center">
-                <Music className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-xl font-semibold mb-2">No projects yet</h3>
-                <p className="text-muted-foreground mb-6">Start your first project and let AI help you create amazing music</p>
-                <Button onClick={() => navigate('/artist-dashboard')}>Create Project</Button>
-              </Card>
-            ) : (
-              <div className="grid gap-4">
-                {projects.map((project) => (
-                  <Card key={project.id} className="p-6 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(`/project/${project.id}`)}>
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-xl font-semibold">{project.title}</h3>
-                          <Badge className={`${getStatusColor(project.status)} text-white`}>
-                            {project.status.replace('_', ' ')}
-                          </Badge>
-                        </div>
-                        <p className="text-muted-foreground mb-4">{project.description}</p>
-                        
-                        <div className="flex items-center gap-6 text-sm">
-                          {project.engineer && (
-                            <div className="flex items-center gap-2">
-                              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                                {project.engineer.avatar_url ? (
-                                  <img src={project.engineer.avatar_url} alt="" className="w-full h-full rounded-full" />
-                                ) : (
-                                  <span className="text-xs">{project.engineer.full_name?.charAt(0)}</span>
-                                )}
-                              </div>
-                              <span>Engineer: {project.engineer.full_name}</span>
-                            </div>
-                          )}
-                          <div className="flex items-center gap-1">
-                            <Music className="w-4 h-4" />
-                            <span>{project.audio_files?.[0]?.count || 0} files</span>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <Button variant="outline" size="sm">View Details</Button>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            )}
+            <EngineerCRMDashboard />
           </TabsContent>
 
           <TabsContent value="achievements" className="space-y-4">
