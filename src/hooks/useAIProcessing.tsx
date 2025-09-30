@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "./useAuth";
 
 interface AIProcessingParams {
   [key: string]: number;
@@ -29,6 +30,7 @@ export const useAIProcessing = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingProgress, setProcessingProgress] = useState(0);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const processAudio = useCallback(async (
     audioData: Float32Array,
@@ -51,7 +53,7 @@ export const useAIProcessing = () => {
           effectType,
           parameters,
           trackId,
-          userId: 'current-user' // TODO: Get actual user ID
+          userId: user?.id || 'anonymous'
         }
       });
 

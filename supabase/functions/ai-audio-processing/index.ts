@@ -7,7 +7,7 @@ const corsHeaders = {
 };
 
 interface AIProcessingRequest {
-  audioData: Float32Array;
+  audioData: number[]; // Changed from Float32Array to number[] for JSON compatibility
   effectType: 'pitch' | 'harmony' | 'reverb' | 'filter' | 'enhance' | 'spatial';
   parameters: { [key: string]: number };
   trackId: string;
@@ -27,8 +27,8 @@ serve(async (req) => {
     // Simulate AI processing based on effect type
     const processedAudio = await processAudioWithAI(audioData, effectType, parameters);
     
-    // Generate analysis data
-    const analysis = generateAudioAnalysis(audioData, effectType);
+    // Generate analysis data (convert to Float32Array for analysis)
+    const analysis = generateAudioAnalysis(new Float32Array(audioData), effectType);
     
     // Create response
     const response = {
@@ -60,34 +60,36 @@ serve(async (req) => {
 });
 
 async function processAudioWithAI(
-  audioData: Float32Array, 
+  audioData: number[], 
   effectType: string, 
   parameters: { [key: string]: number }
 ): Promise<Float32Array> {
+  // Convert back to Float32Array for processing
+  const audioFloat32 = new Float32Array(audioData);
   // Simulate AI processing with realistic audio manipulation
-  const processed = new Float32Array(audioData.length);
+  const processed = new Float32Array(audioFloat32.length);
   
   switch (effectType) {
     case 'pitch':
       // Simulate pitch correction
-      for (let i = 0; i < audioData.length; i++) {
+      for (let i = 0; i < audioFloat32.length; i++) {
         const correction = parameters.correction / 100;
         const speed = Math.max(0.1, parameters.speed / 100);
-        processed[i] = audioData[i] * (1 + correction * 0.1 * Math.sin(i * speed));
+        processed[i] = audioFloat32[i] * (1 + correction * 0.1 * Math.sin(i * speed));
       }
       break;
 
     case 'harmony':
       // Simulate harmony generation
-      for (let i = 0; i < audioData.length; i++) {
+      for (let i = 0; i < audioFloat32.length; i++) {
         const voiceCount = parameters.voices || 2;
         const spread = parameters.spread / 100;
-        let harmonized = audioData[i];
+        let harmonized = audioFloat32[i];
         
         for (let v = 1; v <= voiceCount; v++) {
           const offset = v * spread * 0.1;
-          const harmonicIndex = Math.min(audioData.length - 1, Math.floor(i + offset * 100));
-          harmonized += audioData[harmonicIndex] * (0.5 / v);
+          const harmonicIndex = Math.min(audioFloat32.length - 1, Math.floor(i + offset * 100));
+          harmonized += audioFloat32[harmonicIndex] * (0.5 / v);
         }
         
         processed[i] = harmonized / (1 + voiceCount * 0.3);
@@ -99,14 +101,14 @@ async function processAudioWithAI(
       const roomSize = parameters.room / 100;
       const decay = parameters.decay / 100;
       
-      for (let i = 0; i < audioData.length; i++) {
-        let reverbed = audioData[i];
+      for (let i = 0; i < audioFloat32.length; i++) {
+        let reverbed = audioFloat32[i];
         
         // Add early reflections
         for (let delay = 1; delay <= 10; delay++) {
           const delayIndex = i - Math.floor(delay * roomSize * 20);
           if (delayIndex >= 0) {
-            reverbed += audioData[delayIndex] * (decay * 0.1 / delay);
+            reverbed += audioFloat32[delayIndex] * (decay * 0.1 / delay);
           }
         }
         
@@ -119,20 +121,20 @@ async function processAudioWithAI(
       const cutoff = parameters.cutoff / 20000; // Normalize to 0-1
       const resonance = parameters.resonance / 100;
       
-      for (let i = 1; i < audioData.length; i++) {
-        const filtered = audioData[i] * cutoff + processed[i-1] * (1 - cutoff);
+      for (let i = 1; i < audioFloat32.length; i++) {
+        const filtered = audioFloat32[i] * cutoff + processed[i-1] * (1 - cutoff);
         processed[i] = filtered + (filtered - processed[i-1]) * resonance;
       }
       break;
 
     case 'enhance':
       // Simulate AI enhancement
-      for (let i = 0; i < audioData.length; i++) {
+      for (let i = 0; i < audioFloat32.length; i++) {
         const clarity = parameters.clarity / 100;
         const warmth = parameters.warmth / 100;
         const presence = parameters.presence / 100;
         
-        let enhanced = audioData[i];
+        let enhanced = audioFloat32[i];
         enhanced *= (1 + clarity * 0.2); // Clarity boost
         enhanced = Math.tanh(enhanced * (1 + warmth * 0.3)); // Warmth (soft saturation)
         enhanced *= (1 + presence * 0.15); // Presence boost
@@ -146,8 +148,8 @@ async function processAudioWithAI(
       const width = parameters.width / 100;
       const depth = parameters.depth / 100;
       
-      for (let i = 0; i < audioData.length; i++) {
-        const spatial = audioData[i];
+      for (let i = 0; i < audioFloat32.length; i++) {
+        const spatial = audioFloat32[i];
         const panorama = Math.sin(i * 0.001) * width;
         const depthEffect = Math.cos(i * 0.0005) * depth * 0.3;
         
@@ -157,7 +159,7 @@ async function processAudioWithAI(
 
     default:
       // Pass through unprocessed
-      processed.set(audioData);
+      processed.set(audioFloat32);
   }
 
   return processed;
@@ -196,35 +198,34 @@ function generateAudioAnalysis(audioData: Float32Array, effectType: string) {
   frequencyBins.low /= binSize;
   frequencyBins.mid /= binSize;
   frequencyBins.high /= binSize;
-
+  
+  // Normalize frequency content
+  const totalEnergy = frequencyBins.low + frequencyBins.mid + frequencyBins.high;
+  if (totalEnergy > 0) {
+    frequencyBins.low /= totalEnergy;
+    frequencyBins.mid /= totalEnergy;
+    frequencyBins.high /= totalEnergy;
+  }
+  
+  // Calculate quality score
+  const quality = Math.min(100, Math.max(0, 
+    (dynamicRange * 2) + 
+    (rms * 100) + 
+    ((1 - Math.abs(frequencyBins.mid - 0.4)) * 50)
+  ));
+  
   return {
-    rms: Math.round(rms * 100) / 100,
-    peak: Math.round(peak * 100) / 100,
-    dynamicRange: Math.round(dynamicRange * 10) / 10,
-    frequencyBalance: frequencyBins,
-    quality: calculateQualityScore(rms, peak, dynamicRange),
-    effectType,
-    timestamp: Date.now()
+    rms: Math.round(rms * 1000) / 1000,
+    peak: Math.round(peak * 1000) / 1000,
+    dynamicRange: Math.round(dynamicRange * 100) / 100,
+    frequencyBalance: {
+      low: Math.round(frequencyBins.low * 1000) / 1000,
+      mid: Math.round(frequencyBins.mid * 1000) / 1000,
+      high: Math.round(frequencyBins.high * 1000) / 1000
+    },
+    quality: Math.round(quality),
+    effectType
   };
-}
-
-function calculateQualityScore(rms: number, peak: number, dynamicRange: number): number {
-  // Simple quality scoring algorithm
-  let score = 50; // Base score
-  
-  // Good RMS level (not too quiet, not too loud)
-  if (rms > 0.1 && rms < 0.7) score += 20;
-  else score -= Math.abs(0.4 - rms) * 50;
-  
-  // Good peak management (avoid clipping)
-  if (peak < 0.95) score += 15;
-  else score -= (peak - 0.95) * 100;
-  
-  // Good dynamic range
-  if (dynamicRange > 10 && dynamicRange < 30) score += 15;
-  else score -= Math.abs(20 - dynamicRange);
-  
-  return Math.max(0, Math.min(100, Math.round(score)));
 }
 
 function generateAISuggestions(effectType: string, parameters: any, analysis: any): string[] {
@@ -232,53 +233,61 @@ function generateAISuggestions(effectType: string, parameters: any, analysis: an
   
   switch (effectType) {
     case 'pitch':
-      if (parameters.correction > 80) {
-        suggestions.push("Consider reducing pitch correction for a more natural sound");
+      if (parameters.correction > 50) {
+        suggestions.push("Consider reducing pitch correction for more natural sound");
       }
       if (analysis.quality < 70) {
-        suggestions.push("Try adjusting the speed parameter for better pitch tracking");
+        suggestions.push("Try adjusting the correction speed for better results");
       }
       break;
       
     case 'harmony':
       if (parameters.voices > 3) {
-        suggestions.push("Many voices can muddy the mix - try fewer harmonies");
+        suggestions.push("Too many harmony voices might muddy the mix");
       }
       if (analysis.frequencyBalance.mid < 0.3) {
-        suggestions.push("Consider EQing the mid frequencies for clarity");
+        suggestions.push("Consider boosting mid frequencies for clearer harmonies");
       }
       break;
       
     case 'reverb':
-      if (parameters.room > 70 && parameters.decay > 60) {
-        suggestions.push("Large room with long decay may overwhelm the mix");
+      if (parameters.room > 80) {
+        suggestions.push("Large room sizes can create excessive reverb tail");
       }
       if (analysis.dynamicRange < 10) {
-        suggestions.push("Consider using less reverb to preserve dynamics");
+        suggestions.push("Try reducing reverb intensity to preserve dynamics");
+      }
+      break;
+      
+    case 'filter':
+      if (parameters.resonance > 75) {
+        suggestions.push("High resonance might cause unwanted ringing");
       }
       break;
       
     case 'enhance':
       if (parameters.clarity > 80) {
-        suggestions.push("High clarity settings may introduce harshness");
+        suggestions.push("Excessive clarity enhancement can introduce harshness");
       }
-      if (analysis.quality > 85) {
-        suggestions.push("Great enhancement! Consider subtle adjustments for polish");
+      if (analysis.peak > 0.9) {
+        suggestions.push("Consider reducing enhancement to prevent clipping");
+      }
+      break;
+      
+    case 'spatial':
+      if (parameters.width > 90) {
+        suggestions.push("Extreme width settings might cause phase issues");
       }
       break;
   }
   
   // General suggestions based on analysis
-  if (analysis.peak > 0.9) {
-    suggestions.push("Audio is close to clipping - consider reducing gain");
-  }
-  
-  if (analysis.dynamicRange < 5) {
-    suggestions.push("Low dynamic range detected - consider using less compression");
-  }
-  
   if (analysis.rms < 0.1) {
-    suggestions.push("Audio level is quite low - consider boosting the signal");
+    suggestions.push("Audio level is quite low, consider normalizing");
+  }
+  
+  if (analysis.dynamicRange > 30) {
+    suggestions.push("High dynamic range detected - consider gentle compression");
   }
   
   return suggestions;
