@@ -23,7 +23,6 @@ const navigation = [
   { name: 'Users', href: '/admin/users', icon: Users },
   { name: 'Audio Samples', href: '/admin/audio', icon: FileAudio },
   { name: 'Media Library', href: '/admin/media', icon: Image },
-  { name: 'Settings', href: '/admin/settings', icon: Settings },
 ];
 
 export function AdminLayout({ children }: AdminLayoutProps) {
