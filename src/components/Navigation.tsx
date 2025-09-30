@@ -5,6 +5,7 @@ import mixclub3DLogo from "@/assets/mixclub-3d-logo.png";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { RealTimeNotifications } from "./RealTimeNotifications";
+import { isFeatureEnabled } from "@/config/featureFlags";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -31,7 +32,7 @@ const Navigation = () => {
     { to: "/dashboard", label: "Dashboard" },
     { to: "/mixing", label: "Mixing Magic" },
     { to: "/mastering", label: "Mastering Polish" },
-    { to: "/hybrid-daw", label: "The Lab" },
+    ...(isFeatureEnabled('THE_LAB_ENABLED') ? [{ to: "/hybrid-daw", label: "The Lab" }] : []),
   ];
 
   const authLinks = user ? [
@@ -159,15 +160,17 @@ const Navigation = () => {
                       Dashboard
                     </Button>
                   </Link>
-                   <Link to="/hybrid-daw">
-                     <Button 
-                       variant="ghost" 
-                       size="sm"
-                       className="hover:bg-primary/10 hover:text-primary transition-all duration-300"
-                     >
-                       The Lab
-                     </Button>
-                   </Link>
+                   {isFeatureEnabled('THE_LAB_ENABLED') && (
+                     <Link to="/hybrid-daw">
+                       <Button 
+                         variant="ghost" 
+                         size="sm"
+                         className="hover:bg-primary/10 hover:text-primary transition-all duration-300"
+                       >
+                         The Lab
+                       </Button>
+                     </Link>
+                   )}
                   <Button 
                     onClick={signOut} 
                     variant="outline" 
