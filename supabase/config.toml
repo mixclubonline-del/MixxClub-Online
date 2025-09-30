@@ -59,3 +59,6 @@ verify_jwt = false
 
 [functions.export-audio]
 verify_jwt = false
+
+[functions.advanced-mastering]
+verify_jwt = false

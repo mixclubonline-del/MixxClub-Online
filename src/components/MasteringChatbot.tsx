@@ -21,6 +21,16 @@ interface Message {
     originalUrl: string;
     masteredUrl: string;
     improvements: string[];
+    analysis?: {
+      originalLUFS: number;
+      masteredLUFS: number;
+      dynamicRange: number;
+      peakReduction: number;
+    };
+    processing?: {
+      service: string;
+      processingTime: number;
+    };
   };
 }
 
@@ -29,7 +39,7 @@ export const MasteringChatbot = () => {
     {
       id: '1',
       type: 'bot',
-      content: "Hi! I'm your AI mixing & mastering engineer. Upload a track and I'll give you instant professional feedback plus an A/B comparison of our mastering technology. What can I help you with today?",
+      content: "Hi! I'm your elite AI mastering engineer powered by multi-API technology. Upload a track (up to 50MB) and I'll provide professional-grade mastering with detailed analysis. I support all genres and can match specific loudness targets (Spotify, Apple Music, YouTube, CD). What can I help you master today?",
       timestamp: new Date(),
     }
   ]);
@@ -52,12 +62,12 @@ export const MasteringChatbot = () => {
         return;
       }
       
-      // Check file size (max 5MB for optimal processing)
-      const maxSize = 5 * 1024 * 1024; // 5MB
+      // Check file size (max 50MB for professional processing)
+      const maxSize = 50 * 1024 * 1024; // 50MB
       if (file.size > maxSize) {
         toast({
           title: "File too large",
-          description: "Please upload a file smaller than 5MB. For larger files, compress your audio or use a shorter clip.",
+          description: "Please upload a file smaller than 50MB for optimal processing.",
           variant: "destructive",
         });
         return;
@@ -90,23 +100,29 @@ export const MasteringChatbot = () => {
     setInputMessage('');
 
     try {
-      let audioData = null;
-      
-      // Read audio file as array buffer if uploaded
+      // Prepare audio file data if uploaded
+      let audioFileData = null;
       if (uploadedFile) {
         const arrayBuffer = await uploadedFile.arrayBuffer();
-        audioData = Array.from(new Uint8Array(arrayBuffer));
+        const base64 = btoa(
+          new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
+        );
+        audioFileData = {
+          data: base64,
+          name: uploadedFile.name,
+          size: uploadedFile.size
+        };
       }
 
-      const { data, error } = await supabase.functions.invoke('mastering-chat', {
+      const { data, error } = await supabase.functions.invoke('advanced-mastering', {
         body: {
-          message: inputMessage || "Please master this track with your AI mastering chain",
-          audioFile: uploadedFile ? {
-            name: uploadedFile.name,
-            size: uploadedFile.size,
-            type: uploadedFile.type,
-          } : null,
-          audioData: audioData
+          message: inputMessage || "Please master this track with professional AI mastering",
+          audioFile: audioFileData,
+          preferences: {
+            genre: 'pop', // Can be enhanced to ask user
+            loudnessTarget: -14, // Spotify standard
+            style: 'modern'
+          }
         },
       });
 
@@ -123,28 +139,29 @@ export const MasteringChatbot = () => {
       setMessages(prev => [...prev, botMessage]);
       
       if (data.masteringResult) {
+        const service = data.masteringResult.processing?.service || 'AI Mastering';
         toast({
-          title: "Mastering Complete!",
-          description: "Your track has been mastered with AI. Compare before/after below.",
+          title: "Professional Mastering Complete!",
+          description: `${service} processed your track. Compare before/after below.`,
         });
       } else {
         toast({
-          title: "Analysis Complete",
-          description: "Check out the AI recommendations above.",
+          title: "Professional Analysis Complete",
+          description: "Check out the expert recommendations above.",
         });
       }
     } catch (error: any) {
       console.error('Chat error:', error);
       
       const errorMessage = error.status === 429 
-        ? "Too many requests. Please wait a moment and try again."
+        ? "Rate limit exceeded. Our AI is processing many tracks. Please wait a moment."
         : error.status === 402
-        ? "AI service temporarily unavailable. Please try again later."
-        : error.status === 546
-        ? "Memory limit exceeded. Please use a smaller file (under 5MB) or a shorter audio clip."
-        : error.message?.includes('Memory') || error.message?.includes('memory')
-        ? "File too complex to process. Try a shorter clip or lower quality audio file."
-        : "Sorry, I couldn't process your track right now. Please try again with a smaller file.";
+        ? "AI service credits low. Please try again later or contact support."
+        : error.status === 400
+        ? "File too large or invalid format. Please use a file under 50MB in MP3 or WAV format."
+        : error.message?.includes('API key')
+        ? "Mastering service configuration needed. Please contact support."
+        : "Sorry, couldn't process your track. Please try again or use a different file.";
 
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -184,8 +201,8 @@ export const MasteringChatbot = () => {
             <Settings className="w-6 h-6 text-primary" />
           </div>
           <div>
-            <h3 className="text-xl font-semibold">AI Mastering Assistant</h3>
-            <p className="text-sm text-muted-foreground">Get instant professional feedback on your tracks</p>
+            <h3 className="text-xl font-semibold">Elite AI Mastering Suite</h3>
+            <p className="text-sm text-muted-foreground">Multi-API professional mastering powered by cutting-edge AI</p>
           </div>
         </div>
 
@@ -231,12 +248,37 @@ export const MasteringChatbot = () => {
                   {message.masteringResult && (
                     <div className="mt-3">
                       <BeforeAfterPlayer
-                        title="A/B Comparison: Original vs Mastered"
+                        title="Professional A/B Comparison"
                         beforeSrc={message.masteringResult.originalUrl}
                         afterSrc={message.masteringResult.masteredUrl}
                       />
+                      
+                      {message.masteringResult.analysis && (
+                        <div className="mt-2 p-3 bg-accent/50 rounded-lg">
+                          <h4 className="text-sm font-medium mb-2">Technical Analysis:</h4>
+                          <div className="grid grid-cols-2 gap-2 text-xs">
+                            <div>
+                              <span className="text-muted-foreground">Original LUFS:</span>
+                              <span className="ml-2 font-mono">{message.masteringResult.analysis.originalLUFS.toFixed(1)}</span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Mastered LUFS:</span>
+                              <span className="ml-2 font-mono">{message.masteringResult.analysis.masteredLUFS.toFixed(1)}</span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Dynamic Range:</span>
+                              <span className="ml-2 font-mono">{message.masteringResult.analysis.dynamicRange.toFixed(1)} dB</span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Peak Reduction:</span>
+                              <span className="ml-2 font-mono">{message.masteringResult.analysis.peakReduction.toFixed(1)} dB</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      
                       <div className="mt-2 p-3 bg-accent/50 rounded-lg">
-                        <h4 className="text-sm font-medium mb-2">Improvements Applied:</h4>
+                        <h4 className="text-sm font-medium mb-2">Processing Applied:</h4>
                         <ul className="text-xs space-y-1">
                           {message.masteringResult.improvements.map((improvement, index) => (
                             <li key={index} className="flex items-center gap-2">
@@ -245,6 +287,12 @@ export const MasteringChatbot = () => {
                             </li>
                           ))}
                         </ul>
+                        {message.masteringResult.processing && (
+                          <div className="mt-2 pt-2 border-t border-border/50">
+                            <span className="text-muted-foreground">Powered by: </span>
+                            <span className="font-medium">{message.masteringResult.processing.service}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
@@ -266,7 +314,7 @@ export const MasteringChatbot = () => {
                     <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />
                     <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
                     <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
-                    <span className="text-sm text-muted-foreground ml-2">Mastering your track with AI...</span>
+                    <span className="text-sm text-muted-foreground ml-2">Processing with professional AI mastering...</span>
                   </div>
                 </div>
               </div>
