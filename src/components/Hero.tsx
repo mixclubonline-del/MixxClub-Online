@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, Users, Music, Zap, Award, Clock, HeartHandshake, Mic, Headphones } from "lucide-react";
-import robotLogo from "@/assets/mixclub-robot-logo.png";
 import { AudioVisualizer } from "./AudioVisualizer";
 import { LiveStats } from "./LiveStats";
 import { AudioDemoPlayer } from "./AudioDemoPlayer";
 import { EngineerShowcase } from "./EngineerShowcase";
 import { CollaborationShowcase } from "./CollaborationShowcase";
+import { DynamicLogo } from "./hero/DynamicLogo";
 
 const Hero = () => {
   return (
@@ -27,27 +27,8 @@ const Hero = () => {
       <div className="container relative z-10 px-6 py-20 text-center space-y-16">
         {/* Brand Logo & Badge */}
         <div className="space-y-6">
-          <div className="flex justify-center mb-6">
-            <div className="relative group">
-              <div className="absolute inset-0 bg-primary/30 rounded-full blur-3xl animate-pulse-glow group-hover:bg-primary/50 transition-all duration-300"></div>
-              <img 
-                src={robotLogo} 
-                alt="MixClub Online AI" 
-                className="w-24 h-24 relative z-10 group-hover:scale-110 transition-transform duration-300" 
-              />
-            </div>
-          </div>
-
-          <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border border-primary/30 backdrop-blur-sm">
-            <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium text-primary">2,500+ Engineers</span>
-            </div>
-            <div className="w-1 h-1 bg-primary/50 rounded-full"></div>
-            <div className="flex items-center gap-2">
-              <Zap className="w-4 h-4 text-primary animate-pulse" />
-              <span className="text-sm font-medium text-primary">Real-Time Collaboration</span>
-            </div>
+          <div className="flex justify-center mb-8">
+            <DynamicLogo />
           </div>
         </div>
 
