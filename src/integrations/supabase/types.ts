@@ -50,6 +50,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "achievements_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       audio_files: {
@@ -401,6 +408,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collaboration_comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -998,6 +1012,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "payments_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "payments_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
@@ -1082,6 +1103,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "progress_updates_engineer_id_fkey"
+            columns: ["engineer_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "progress_updates_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
@@ -1137,6 +1165,13 @@ export type Database = {
             columns: ["uploaded_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_files_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1275,10 +1310,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "projects_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "projects_engineer_id_fkey"
             columns: ["engineer_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "projects_engineer_id_fkey"
+            columns: ["engineer_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1598,6 +1647,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "tasks_engineer_id_fkey"
+            columns: ["engineer_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "tasks_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
@@ -1728,7 +1784,45 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_profiles: {
+        Row: {
+          avatar_url: string | null
+          badges: Json | null
+          bio: string | null
+          created_at: string | null
+          full_name: string | null
+          id: string | null
+          level: number | null
+          points: number | null
+          role: Database["public"]["Enums"]["user_role"] | null
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          badges?: Json | null
+          bio?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          id?: string | null
+          level?: number | null
+          points?: number | null
+          role?: Database["public"]["Enums"]["user_role"] | null
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          badges?: Json | null
+          bio?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          id?: string | null
+          level?: number | null
+          points?: number | null
+          role?: Database["public"]["Enums"]["user_role"] | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       add_achievement: {
@@ -1759,6 +1853,14 @@ export type Database = {
       }
       has_mixing_access: {
         Args: { user_id: string }
+        Returns: boolean
+      }
+      is_admin: {
+        Args: { user_uuid: string }
+        Returns: boolean
+      }
+      user_has_session_access: {
+        Args: { session_uuid: string; user_uuid: string }
         Returns: boolean
       }
     }
