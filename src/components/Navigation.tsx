@@ -31,6 +31,7 @@ const Navigation = () => {
     { to: "/dashboard", label: "Dashboard" },
     { to: "/mixing", label: "Mixing" },
     { to: "/mastering", label: "Mastering" },
+    { to: "/hybrid-daw", label: "AI Studio" },
   ];
 
   const authLinks = user ? [

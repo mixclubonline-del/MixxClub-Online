@@ -16,6 +16,7 @@ import Mastering from "./pages/Mastering";
 import MixingShowcase from "./pages/MixingShowcase";
 import MasteringShowcase from "./pages/MasteringShowcase";
 import { JobBoard } from "./pages/JobBoard";
+import HybridDAW from "./pages/HybridDAW";
 import NotFound from "./pages/NotFound";
 import { PersistentChatbot } from "@/components/PersistentChatbot";
 
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/mastering" element={<MasteringShowcase />} />
             <Route path="/mixing-studio" element={<Mixing />} />
             <Route path="/mastering-studio" element={<Mastering />} />
+            <Route path="/hybrid-daw" element={<HybridDAW />} />
             <Route path="/jobs" element={<JobBoard />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
