@@ -84,7 +84,7 @@ const ArtistOnboarding = () => {
       if (error) throw error;
 
       toast.success("Welcome to MixClub! Your profile is complete.");
-      navigate("/dashboard");
+      navigate("/artist-crm");
     } catch (error) {
       console.error("Error completing onboarding:", error);
       toast.error("Failed to complete onboarding");

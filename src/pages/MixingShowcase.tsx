@@ -209,12 +209,23 @@ const MixingShowcase = () => {
                   </p>
                   
                   <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                    <Link to={hasAccess ? "/mixing-studio" : "#packages"}>
-                      <Button size="lg" className="gap-2 bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-500/90 hover:to-green-500/90">
+                    {hasAccess ? (
+                      <Link to="/artist-crm">
+                        <Button size="lg" className="gap-2 bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-500/90 hover:to-green-500/90">
+                          <Play className="w-5 h-5" />
+                          Go to My CRM
+                        </Button>
+                      </Link>
+                    ) : (
+                      <Button 
+                        size="lg" 
+                        className="gap-2 bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-500/90 hover:to-green-500/90"
+                        onClick={() => document.getElementById('packages')?.scrollIntoView({ behavior: 'smooth' })}
+                      >
                         <Play className="w-5 h-5" />
-                        {hasAccess ? "Go to Studio" : "Start Mixing Project"}
+                        View Packages
                       </Button>
-                    </Link>
+                    )}
                     <Button variant="outline" size="lg" className="gap-2">
                       <Volume2 className="w-5 h-5" />
                       Hear Examples

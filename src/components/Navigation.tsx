@@ -39,15 +39,16 @@ const Navigation = () => {
 
     if (userRole === 'engineer') {
       return [
-        { to: "/engineer-dashboard", label: "Dashboard" },
-        { to: "/artist-crm", label: "My Studio" },
-        { to: "/engineer-crm", label: "Pro Studio" },
+        { to: "/engineer-crm", label: "Dashboard" },
+        { to: "/jobs", label: "Job Board" },
+        { to: "/mixing", label: "Mixing Studio" },
+        { to: "/mastering", label: "Mastering Studio" },
       ];
     }
 
     // Artists and clients
     return [
-      { to: "/artist-dashboard", label: "Dashboard" },
+      { to: "/artist-crm", label: "Dashboard" },
       { to: "/mixing", label: "Mixing Magic" },
       { to: "/mastering", label: "Mastering Polish" },
       ...(isFeatureEnabled('THE_LAB_ENABLED') ? [{ to: "/hybrid-daw", label: "The Lab" }] : []),
@@ -152,7 +153,7 @@ const Navigation = () => {
               {user ? (
                 <>
                   <RealTimeNotifications userId={user.id} />
-                  <Link to="/dashboard">
+                  <Link to={userRole === 'engineer' ? "/engineer-crm" : "/artist-crm"}>
                     <Button 
                       variant="ghost" 
                       size="sm"

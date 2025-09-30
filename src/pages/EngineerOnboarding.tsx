@@ -116,7 +116,7 @@ const EngineerOnboarding = () => {
       if (profileError) throw profileError;
 
       toast.success("Welcome to MixClub! Your engineer profile is complete.");
-      navigate("/dashboard");
+      navigate("/engineer-crm");
     } catch (error) {
       console.error("Error completing onboarding:", error);
       toast.error("Failed to complete onboarding");
