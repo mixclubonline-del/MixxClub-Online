@@ -39,21 +39,51 @@ export const TrackUploadManager = ({ projectId, onUploadComplete }: TrackUploadM
     }
   };
 
-  const simulateAIAnalysis = () => {
+  const performRealAIAnalysis = async (audioFileId: string, filePath: string) => {
     setAiProcessing(true);
-    const suggestions = [
-      "🎵 AI Suggestion: Consider adding compression to vocals",
-      "🎛️ AI Suggestion: Low-end frequency detected - recommend high-pass filter at 80Hz",
-      "✨ AI Suggestion: Stereo width could be enhanced in the chorus",
-      "🎸 AI Suggestion: Guitar levels are balanced well",
-      "🥁 AI Suggestion: Drums could benefit from parallel compression"
-    ];
-    
-    const randomSuggestion = suggestions[Math.floor(Math.random() * suggestions.length)];
-    setTimeout(() => {
-      toast.success(randomSuggestion, { duration: 5000 });
+    try {
+      const { data, error } = await supabase.functions.invoke('analyze-audio', {
+        body: {
+          audioFileId: audioFileId,
+          filePath: filePath
+        }
+      });
+
+      if (error) {
+        console.error('AI Analysis error:', error);
+        toast.error('AI analysis failed, but file uploaded successfully');
+        return;
+      }
+
+      if (data?.analysis) {
+        const analysis = data.analysis;
+        const suggestions = [
+          `🎵 Detected tempo: ${analysis.tempo} BPM in ${analysis.key} ${analysis.mode}`,
+          `🎛️ Loudness: ${analysis.loudness.toFixed(1)} LUFS - ${analysis.loudness > -14 ? 'Consider reducing volume' : 'Good loudness levels'}`,
+          `✨ Dynamic range: ${analysis.dynamics.toFixed(1)} LU - ${analysis.dynamics < 10 ? 'Could benefit from more dynamics' : 'Good dynamic range'}`,
+          `🎸 Spectral centroid: ${Math.round(analysis.spectralCentroid)}Hz - ${analysis.spectralCentroid > 2000 ? 'Bright mix' : 'Warm mix'}`,
+          `🥁 Mix suggestions: ${analysis.mix_notes.join('. ')}`
+        ];
+        
+        // Show multiple analysis results
+        suggestions.forEach((suggestion, index) => {
+          setTimeout(() => {
+            toast.success(suggestion, { duration: 4000 });
+          }, index * 1000);
+        });
+
+        if (data.stems && data.stems.length > 0) {
+          setTimeout(() => {
+            toast.success(`🎼 Successfully generated ${data.stems.length} stems for mixing!`, { duration: 4000 });
+          }, suggestions.length * 1000);
+        }
+      }
+    } catch (error) {
+      console.error('AI Analysis error:', error);
+      toast.error('AI analysis failed, but file uploaded successfully');
+    } finally {
       setAiProcessing(false);
-    }, 2000);
+    }
   };
 
   const handleUpload = async () => {
@@ -83,7 +113,7 @@ export const TrackUploadManager = ({ projectId, onUploadComplete }: TrackUploadM
       if (uploadError) throw uploadError;
 
       // Create database record
-      const { error: dbError } = await supabase
+      const { data: audioFileData, error: dbError } = await supabase
         .from('audio_files')
         .insert({
           project_id: projectId,
@@ -92,13 +122,17 @@ export const TrackUploadManager = ({ projectId, onUploadComplete }: TrackUploadM
           file_path: filePath,
           file_type: selectedFile.type,
           file_size: selectedFile.size,
-          processing_status: 'completed'
-        });
+          processing_status: 'pending'
+        })
+        .select()
+        .single();
 
       if (dbError) throw dbError;
 
-      // Run AI analysis simulation
-      simulateAIAnalysis();
+      // Run real AI analysis
+      if (audioFileData) {
+        await performRealAIAnalysis(audioFileData.id, filePath);
+      }
 
       // Award points for upload
       const userId = (await supabase.auth.getUser()).data.user?.id;
@@ -254,7 +288,7 @@ export const TrackUploadManager = ({ projectId, onUploadComplete }: TrackUploadM
       {/* AI Features Info */}
       <div className="mt-6 pt-6 border-t border-border">
         <p className="text-xs text-muted-foreground text-center">
-          ✨ Our AI will automatically analyze your track for mix quality, frequency balance, and provide intelligent suggestions
+          ✨ Our AI analyzes tempo, key, loudness, dynamics, frequency spectrum and generates stems using advanced Demucs technology
         </p>
       </div>
     </Card>
