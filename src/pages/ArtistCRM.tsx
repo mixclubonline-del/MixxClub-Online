@@ -14,6 +14,7 @@ import EnhancedCRM from '@/components/crm/EnhancedCRM';
 import SessionManager from '@/components/collaboration/SessionManager';
 import { EngineerCRMDashboard } from '@/components/crm/EngineerCRMDashboard';
 import { AdvancedMixingStudio } from '@/components/mixing/AdvancedMixingStudio';
+import { JobApplicationManager } from '@/components/crm/JobApplicationManager';
 import { toast } from 'sonner';
 
 const ArtistCRM = () => {
@@ -22,6 +23,7 @@ const ArtistCRM = () => {
   const [profile, setProfile] = useState<any>(null);
   const [projects, setProjects] = useState<any[]>([]);
   const [achievements, setAchievements] = useState<any[]>([]);
+  const [pendingApplications, setPendingApplications] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -67,6 +69,24 @@ const ArtistCRM = () => {
 
       if (achievementsError) throw achievementsError;
       setAchievements(achievementsData || []);
+
+      // Fetch pending applications count
+      const { data: jobs } = await supabase
+        .from('job_postings')
+        .select('id')
+        .eq('artist_id', user?.id);
+
+      const jobIds = jobs?.map(j => j.id) || [];
+
+      if (jobIds.length > 0) {
+        const { data: applicationsData } = await supabase
+          .from('job_applications')
+          .select('id')
+          .eq('status', 'pending')
+          .in('job_id', jobIds);
+
+        setPendingApplications(applicationsData?.length || 0);
+      }
     } catch (error: any) {
       console.error('Error fetching data:', error);
       toast.error('Failed to load dashboard');
@@ -195,8 +215,16 @@ const ArtistCRM = () => {
 
         {/* Main Content */}
         <Tabs defaultValue="projects" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:w-auto">
+          <TabsList className="grid w-full grid-cols-5 lg:w-auto">
             <TabsTrigger value="projects">Projects</TabsTrigger>
+            <TabsTrigger value="applications" className="relative">
+              Applications
+              {pendingApplications > 0 && (
+                <Badge className="ml-2 h-5 w-5 p-0 flex items-center justify-center bg-primary text-primary-foreground">
+                  {pendingApplications}
+                </Badge>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="collaboration" className="gap-2">
               <Zap className="w-4 h-4" />
               Live Studio
@@ -205,9 +233,13 @@ const ArtistCRM = () => {
             <TabsTrigger value="activity">Activity</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="projects" className="space-y-4">
-            <EngineerCRMDashboard />
-          </TabsContent>
+            <TabsContent value="projects" className="space-y-4">
+              <EngineerCRMDashboard />
+            </TabsContent>
+
+            <TabsContent value="applications" className="space-y-4">
+              <JobApplicationManager />
+            </TabsContent>
 
           <TabsContent value="achievements" className="space-y-4">
             <h2 className="text-2xl font-bold mb-4">Your Achievements</h2>
