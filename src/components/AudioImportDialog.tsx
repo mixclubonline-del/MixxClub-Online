@@ -49,6 +49,7 @@ const AudioImportDialog: React.FC<AudioImportDialogProps> = ({
     importAudioFile,
     getImportedFiles,
     deleteImportedFile,
+    analyzeBPM,
     isUploading,
     uploadProgress
   } = useAudioImport(sessionId);

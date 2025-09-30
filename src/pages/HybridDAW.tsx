@@ -278,8 +278,9 @@ const HybridDAW = () => {
     setCurrentTime(0);
   };
 
-  // Handle imported audio file
-  const handleImportedAudio = (importedFile: any) => {
+  // Handle imported audio file with automatic BPM detection
+  const handleImportedAudio = async (importedFile: any) => {
+    // Create track with imported audio
     const newTrack: Track = {
       id: `track-${Date.now()}`,
       name: importedFile.fileName,
@@ -302,11 +303,31 @@ const HybridDAW = () => {
 
     setTracks(prev => [...prev, newTrack]);
     setShowImportDialog(false);
-    
-    toast({
-      title: "Track Added!",
-      description: `${importedFile.fileName} has been added to your session`,
-    });
+
+    // If analysis is available, update session BPM and time signature
+    if (importedFile.analysis) {
+      const { recommendations, bpm: detectedBpm, timeSignature, confidence } = importedFile.analysis;
+      
+      if (confidence > 0.6 && recommendations.sessionBpm) {
+        setBpm(recommendations.sessionBpm);
+        
+        toast({
+          title: "Session Updated!",
+          description: `Auto-detected BPM: ${recommendations.sessionBpm} | Time: ${recommendations.sessionTimeSignature} | Genre: ${importedFile.analysis.genre}`,
+          duration: 5000
+        });
+      } else {
+        toast({
+          title: "Track Added!",
+          description: `${importedFile.fileName} added. BPM detection confidence low - consider manual adjustment.`,
+        });
+      }
+    } else {
+      toast({
+        title: "Track Added!",
+        description: `${importedFile.fileName} has been added to your session`,
+      });
+    }
   };
 
   // Export Project

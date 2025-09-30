@@ -3,6 +3,23 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { useToast } from "@/components/ui/use-toast";
 
+interface AudioAnalysisResult {
+  bpm: number;
+  timeSignature: string;
+  keySignature: string;
+  genre: string;
+  confidence: number;
+  audioQuality: string;
+  duration: number;
+  instruments: string[];
+  rhythmPattern: string;
+  recommendations: {
+    sessionBpm: number;
+    sessionTimeSignature: string;
+    suggestedEffects: string[];
+  };
+}
+
 interface ImportedAudioFile {
   id: string;
   fileName: string;
@@ -12,6 +29,7 @@ interface ImportedAudioFile {
   sampleRate?: number;
   channels?: number;
   url?: string;
+  analysis?: AudioAnalysisResult;
 }
 
 interface AudioAnalysis {
@@ -142,6 +160,9 @@ export const useAudioImport = (sessionId: string) => {
         .from('audio-files')
         .createSignedUrl(filePath, 3600); // 1 hour expiry
 
+      // Start BPM analysis in background
+      const analysisPromise = analyzeBPM(dbData.id, filePath, file.name);
+
       const importedFile: ImportedAudioFile = {
         id: dbData.id,
         fileName: file.name,
@@ -152,6 +173,20 @@ export const useAudioImport = (sessionId: string) => {
         channels: analysis.channels,
         url: urlData?.signedUrl
       };
+
+      // Try to get BPM analysis quickly
+      try {
+        const bpmAnalysis = await Promise.race([
+          analysisPromise,
+          new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000)) // 3 second timeout
+        ]);
+        
+        if (bpmAnalysis) {
+          importedFile.analysis = bpmAnalysis;
+        }
+      } catch (error) {
+        console.warn('BPM analysis failed or timed out:', error);
+      }
 
       toast({
         title: "Import successful!",
@@ -257,10 +292,33 @@ export const useAudioImport = (sessionId: string) => {
     }
   }, [user, toast]);
 
+  const analyzeBPM = useCallback(async (fileId: string, filePath: string, fileName: string): Promise<AudioAnalysisResult | null> => {
+    try {
+      const { data, error } = await supabase.functions.invoke('analyze-audio', {
+        body: {
+          fileId,
+          filePath,
+          fileName
+        }
+      });
+
+      if (error) {
+        console.error('Error analyzing BPM:', error);
+        return null;
+      }
+
+      return data?.analysis || null;
+    } catch (error) {
+      console.error('Error in BPM analysis:', error);
+      return null;
+    }
+  }, []);
+
   return {
     importAudioFile,
     getImportedFiles,
     deleteImportedFile,
+    analyzeBPM,
     isUploading,
     uploadProgress
   };
