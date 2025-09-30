@@ -122,20 +122,20 @@ export const JobPool = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold">Available Jobs</h2>
-          <p className="text-muted-foreground">Find your next mixing or mastering project</p>
+          <h2 className="text-2xl font-bold">Open Sessions</h2>
+          <p className="text-muted-foreground">Find artists looking for your mixing or mastering skills</p>
         </div>
         <Badge variant="outline" className="px-3 py-1">
-          {jobs.length} Open Positions
+          {jobs.length} Artists Looking
         </Badge>
       </div>
 
       <Tabs defaultValue="all" className="w-full">
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="all">All Jobs</TabsTrigger>
+          <TabsTrigger value="all">All Sessions</TabsTrigger>
           <TabsTrigger value="mixing">Mixing</TabsTrigger>
           <TabsTrigger value="mastering">Mastering</TabsTrigger>
-          <TabsTrigger value="both">Both</TabsTrigger>
+          <TabsTrigger value="both">Full Treatment</TabsTrigger>
         </TabsList>
 
         <TabsContent value="all" className="space-y-4">
@@ -170,7 +170,7 @@ export const JobPool = () => {
       <Dialog open={!!selectedJob} onOpenChange={() => setSelectedJob(null)}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Apply for Position</DialogTitle>
+            <DialogTitle>Apply for This Session</DialogTitle>
           </DialogHeader>
           
           {selectedJob && (

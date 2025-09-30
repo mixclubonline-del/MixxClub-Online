@@ -27,7 +27,7 @@ const Hero = () => {
         {/* Introducing Badge */}
         <div className="mb-8">
           <div className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/30 backdrop-blur-sm">
-            <span className="text-sm font-medium text-primary">INTRODUCING MIXCLUB</span>
+            <span className="text-sm font-medium text-primary">YOUR SOUND, PERFECTED</span>
           </div>
         </div>
 
@@ -35,16 +35,14 @@ const Hero = () => {
         <div className="space-y-8 mb-16">
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold leading-tight max-w-6xl mx-auto">
             <span className="bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-              Transform your tracks into 
-              professional hits, or create 
-              something entirely new.
+              Turn Your Tracks Into
+              Radio-Ready Hits
             </span>
           </h1>
           
           <p className="text-xl md:text-2xl text-muted-foreground max-w-4xl mx-auto leading-relaxed">
-            We've combined Grammy-winning engineers with cutting-edge AI across all genres: 
-            hip-hop, pop, rock, electronic, and beyond. Want to turn your demo into a 
-            chart-topper? Now you can.
+            Connect with pro engineers who've worked on your favorite songs across hip-hop, pop, rock, and beyond. 
+            Get studio-quality mixing and mastering in days, not weeks. Your music deserves to sound as good as the pros.
           </p>
         </div>
 
@@ -67,9 +65,9 @@ const Hero = () => {
               <div className="p-2 rounded-lg bg-primary/10">
                 <Music className="w-6 h-6 text-primary" />
               </div>
-              <h3 className="font-semibold text-lg">AI-Powered Mastering</h3>
+              <h3 className="font-semibold text-lg">Instant Mastering Polish</h3>
             </div>
-            <p className="text-muted-foreground">Advanced neural networks analyze and enhance every aspect of your track for professional-grade results.</p>
+            <p className="text-muted-foreground">AI trained on chart-topping hits makes your tracks streaming-ready with that radio polish.</p>
           </div>
           
           <div className="p-6 rounded-2xl bg-card/30 backdrop-blur-sm border border-border/50 hover:border-primary/40 transition-all duration-300">
@@ -77,9 +75,9 @@ const Hero = () => {
               <div className="p-2 rounded-lg bg-primary/10">
                 <HeartHandshake className="w-6 h-6 text-primary" />
               </div>
-              <h3 className="font-semibold text-lg">Grammy Engineers</h3>
+              <h3 className="font-semibold text-lg">Pro Mixing Engineers</h3>
             </div>
-            <p className="text-muted-foreground">Work directly with award-winning engineers who've shaped the sound of today's biggest hits.</p>
+            <p className="text-muted-foreground">Real musicians who've mixed hits you know and love - ready to work on your tracks.</p>
           </div>
           
           <div className="p-6 rounded-2xl bg-card/30 backdrop-blur-sm border border-border/50 hover:border-primary/40 transition-all duration-300">
@@ -87,9 +85,9 @@ const Hero = () => {
               <div className="p-2 rounded-lg bg-primary/10">
                 <Award className="w-6 h-6 text-primary" />
               </div>
-              <h3 className="font-semibold text-lg">Real-Time Collaboration</h3>
+              <h3 className="font-semibold text-lg">Live Studio Sessions</h3>
             </div>
-            <p className="text-muted-foreground">Instant feedback, live editing sessions, and seamless communication throughout the entire process.</p>
+            <p className="text-muted-foreground">Collaborate in real-time like you're in the studio together - instant feedback and live edits.</p>
           </div>
         </div>
       </div>

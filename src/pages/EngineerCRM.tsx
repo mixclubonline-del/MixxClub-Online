@@ -13,6 +13,7 @@ import { CheckCircle, Clock, AlertCircle, Award, Music, TrendingUp, DollarSign, 
 import EnhancedCRM from '@/components/crm/EnhancedCRM';
 import SessionManager from '@/components/collaboration/SessionManager';
 import { toast } from 'sonner';
+import { JobPool } from '@/components/JobPool';
 
 const EngineerCRM = () => {
   const { user } = useAuth();
@@ -156,20 +157,20 @@ const EngineerCRM = () => {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-4xl font-bold mb-2">Engineer Dashboard</h1>
-              <p className="text-muted-foreground">Manage your projects and tasks</p>
+              <h1 className="text-4xl font-bold mb-2">Welcome to Your Pro Studio</h1>
+              <p className="text-muted-foreground">Let's create some magic today 🎚️</p>
             </div>
             
             <Card className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 border-primary/20">
               <div className="flex items-center gap-4">
                 <div className="text-center">
                   <div className="text-3xl font-bold text-primary mb-1">Level {profile?.level || 1}</div>
-                  <div className="text-sm text-muted-foreground">Engineer Level</div>
+                  <div className="text-sm text-muted-foreground">Pro Rank</div>
                 </div>
                 <div className="w-px h-12 bg-border"></div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-primary mb-1">{profile?.points || 0}</div>
-                  <div className="text-sm text-muted-foreground">Total Points</div>
+                  <div className="text-sm text-muted-foreground">Session Points</div>
                 </div>
               </div>
               <div className="mt-4">
@@ -190,7 +191,7 @@ const EngineerCRM = () => {
                 </div>
                 <div>
                   <div className="text-2xl font-bold">{pendingTasks}</div>
-                  <div className="text-sm text-muted-foreground">Pending Tasks</div>
+                  <div className="text-sm text-muted-foreground">Tracks Queued</div>
                 </div>
               </div>
             </Card>
@@ -226,7 +227,7 @@ const EngineerCRM = () => {
                 </div>
                 <div>
                   <div className="text-2xl font-bold">{projects.length}</div>
-                  <div className="text-sm text-muted-foreground">Active Projects</div>
+                  <div className="text-sm text-muted-foreground">Active Sessions</div>
                 </div>
               </div>
             </Card>
@@ -234,25 +235,36 @@ const EngineerCRM = () => {
         </div>
 
         {/* Main Content */}
-        <Tabs defaultValue="tasks" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:w-auto">
-            <TabsTrigger value="tasks">Tasks</TabsTrigger>
-            <TabsTrigger value="projects">Projects</TabsTrigger>
+        <Tabs defaultValue="open-sessions" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5 lg:w-auto">
+            <TabsTrigger value="open-sessions">Open Sessions</TabsTrigger>
+            <TabsTrigger value="tasks">My Tasks</TabsTrigger>
+            <TabsTrigger value="projects">My Sessions</TabsTrigger>
             <TabsTrigger value="collaboration" className="gap-2">
               <Zap className="w-4 h-4" />
               Live Studio
             </TabsTrigger>
-            <TabsTrigger value="achievements">Achievements</TabsTrigger>
+            <TabsTrigger value="achievements">Studio Badges</TabsTrigger>
           </TabsList>
 
+          <TabsContent value="open-sessions" className="space-y-4">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold mb-2">Open Session Opportunities</h2>
+              <p className="text-muted-foreground">
+                Browse artists looking for pros to work on their tracks - apply to the ones that match your vibe
+              </p>
+            </div>
+            <JobPool />
+          </TabsContent>
+
           <TabsContent value="tasks" className="space-y-4">
-            <h2 className="text-2xl font-bold mb-4">Your Tasks</h2>
+            <h2 className="text-2xl font-bold mb-4">Your Task List</h2>
             
             {tasks.length === 0 ? (
               <Card className="p-12 text-center">
                 <CheckCircle className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-xl font-semibold mb-2">No tasks assigned</h3>
-                <p className="text-muted-foreground">New tasks will appear here when assigned</p>
+                <h3 className="text-xl font-semibold mb-2">All caught up!</h3>
+                <p className="text-muted-foreground">No pending tasks - check "Open Sessions" to find new work</p>
               </Card>
             ) : (
               <div className="space-y-3">
@@ -327,13 +339,13 @@ const EngineerCRM = () => {
           </TabsContent>
 
           <TabsContent value="projects" className="space-y-4">
-            <h2 className="text-2xl font-bold mb-4">Your Projects</h2>
+            <h2 className="text-2xl font-bold mb-4">Your Active Sessions</h2>
             
             {projects.length === 0 ? (
               <Card className="p-12 text-center">
                 <Music className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-xl font-semibold mb-2">No projects assigned</h3>
-                <p className="text-muted-foreground">New projects will appear here when assigned</p>
+                <h3 className="text-xl font-semibold mb-2">No active sessions</h3>
+                <p className="text-muted-foreground">Apply to jobs in "Open Sessions" to start working with artists</p>
               </Card>
             ) : (
               <div className="grid gap-4">
@@ -405,13 +417,13 @@ const EngineerCRM = () => {
           </TabsContent>
 
           <TabsContent value="achievements" className="space-y-4">
-            <h2 className="text-2xl font-bold mb-4">Your Achievements</h2>
+            <h2 className="text-2xl font-bold mb-4">Your Studio Badges</h2>
             
             {achievements.length === 0 ? (
               <Card className="p-12 text-center">
                 <Award className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-xl font-semibold mb-2">No achievements yet</h3>
-                <p className="text-muted-foreground">Complete tasks to earn badges and achievements</p>
+                <h3 className="text-xl font-semibold mb-2">No badges yet</h3>
+                <p className="text-muted-foreground">Complete sessions to unlock achievements and level up your pro status</p>
               </Card>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

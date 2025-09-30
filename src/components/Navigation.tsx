@@ -29,14 +29,14 @@ const Navigation = () => {
 
   const navLinks = [
     { to: "/dashboard", label: "Dashboard" },
-    { to: "/mixing", label: "Mixing" },
-    { to: "/mastering", label: "Mastering" },
-    { to: "/hybrid-daw", label: "AI Studio" },
+    { to: "/mixing", label: "Mixing Magic" },
+    { to: "/mastering", label: "Mastering Polish" },
+    { to: "/hybrid-daw", label: "The Lab" },
   ];
 
   const authLinks = user ? [
-    { to: "/artist-crm", label: "Artist CRM" },
-    { to: "/engineer-crm", label: "Engineer CRM" },
+    { to: "/artist-crm", label: "My Studio" },
+    { to: "/engineer-crm", label: "Pro Studio" },
   ] : [];
 
   const isActiveRoute = (path: string) => location.pathname === path;
@@ -159,22 +159,13 @@ const Navigation = () => {
                       Dashboard
                     </Button>
                   </Link>
-                  <Link to="/jobs">
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      className="hover:bg-primary/10 hover:text-primary transition-all duration-300"
-                    >
-                      Job Board
-                    </Button>
-                  </Link>
                    <Link to="/hybrid-daw">
                      <Button 
                        variant="ghost" 
                        size="sm"
                        className="hover:bg-primary/10 hover:text-primary transition-all duration-300"
                      >
-                       AI Studio
+                       The Lab
                      </Button>
                    </Link>
                   <Button 

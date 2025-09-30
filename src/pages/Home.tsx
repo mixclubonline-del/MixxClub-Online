@@ -17,10 +17,10 @@ const Home = () => {
       <section className="py-20 bg-muted/30">
         <div className="container px-6">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Try Our AI Mastering Assistant</h2>
+            <h2 className="text-3xl font-bold mb-4">Try Our Instant Mastering Polish</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Upload any track and get instant professional feedback plus an A/B comparison 
-              of our Grammy-winning mastering technology - completely free!
+              Upload any track and hear what pro mastering can do - get instant feedback and an A/B comparison 
+              with that radio-ready polish. Totally free!
             </p>
           </div>
           <MasteringChatbot />
@@ -31,7 +31,7 @@ const Home = () => {
       <Contact />
       <footer className="border-t border-border py-8 bg-card">
         <div className="container px-6 text-center text-sm text-muted-foreground">
-          <p>© 2025 MixClubOnline. Transform your tracks into modern hits.</p>
+          <p>© 2025 MixClubOnline. Make your music sound as good as the pros.</p>
         </div>
       </footer>
     </div>

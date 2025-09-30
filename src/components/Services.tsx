@@ -12,11 +12,11 @@ const Services = () => {
             <Sparkles className="w-4 h-4 text-primary" />
             <span className="text-sm text-primary font-medium">AI-Powered Innovation</span>
           </div>
-          <h2 className="text-4xl font-bold mb-4">Why We Outperform Every Competitor</h2>
+          <h2 className="text-4xl font-bold mb-4">Your Music, Studio-Quality Sound</h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            While others offer either AI-only automation or expensive human-only services, we combine both for unbeatable results. 
-            Compare us to LANDR, eMastered, BandLab, or traditional studios - we deliver better quality, faster turnaround, 
-            and more features at a fraction of the cost.
+            We combine real pro engineers with smart AI tools to give your tracks that radio-ready polish. 
+            Whether you need mixing magic, mastering shine, or full production - we've got you covered at prices 
+            that won't break the bank.
           </p>
         </div>
 
@@ -26,28 +26,28 @@ const Services = () => {
               <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mb-4">
                 <Bot className="w-6 h-6 text-primary" />
               </div>
-              <CardTitle className="text-xl">Grammy Engineers + AI</CardTitle>
+              <CardTitle className="text-xl">Pro Engineers + Smart AI</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground mb-4">
-                Real Grammy-winning engineers enhanced by cutting-edge AI technology
+                Real musicians with Grammy credits, powered by intelligent tools
               </p>
               <ul className="space-y-2 mb-6">
                 <li className="flex items-start gap-2 text-sm text-muted-foreground">
                   <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Human expertise verified by Grammys</span>
+                  <span>Engineers who've worked on chart hits</span>
                 </li>
                 <li className="flex items-start gap-2 text-sm text-muted-foreground">
                   <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>AI analyzes 1000+ audio parameters</span>
+                  <span>AI helps dial in your perfect sound</span>
                 </li>
                 <li className="flex items-start gap-2 text-sm text-muted-foreground">
                   <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>10x faster than traditional studios</span>
+                  <span>Get your tracks back in days, not weeks</span>
                 </li>
                 <li className="flex items-start gap-2 text-sm text-muted-foreground">
                   <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Learns from every track processed</span>
+                  <span>Every mix gets better with time</span>
                 </li>
               </ul>
               <Button variant="outline" className="w-full" asChild>
@@ -61,28 +61,28 @@ const Services = () => {
               <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mb-4">
                 <Radio className="w-6 h-6 text-primary" />
               </div>
-              <CardTitle className="text-xl">Live Collaboration</CardTitle>
+              <CardTitle className="text-xl">Live Studio Sessions</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground mb-4">
-                Real-time audio streaming and remote engineering
+                Work together like you're both in the studio
               </p>
               <ul className="space-y-2 mb-6">
                 <li className="flex items-start gap-2 text-sm text-muted-foreground">
                   <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Real-time Audio Streaming</span>
+                  <span>Hear changes as they happen</span>
                 </li>
                 <li className="flex items-start gap-2 text-sm text-muted-foreground">
                   <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Screen Sharing</span>
+                  <span>Watch the engineer work their magic</span>
                 </li>
                 <li className="flex items-start gap-2 text-sm text-muted-foreground">
                   <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Voice Notes</span>
+                  <span>Leave voice notes for revision ideas</span>
                 </li>
                 <li className="flex items-start gap-2 text-sm text-muted-foreground">
                   <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Session Recording</span>
+                  <span>Save every session for later</span>
                 </li>
               </ul>
               <Button variant="outline" className="w-full" asChild>
@@ -96,28 +96,28 @@ const Services = () => {
               <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mb-4">
                 <Sparkles className="w-6 h-6 text-primary" />
               </div>
-              <CardTitle className="text-xl">Neural Mastering</CardTitle>
+              <CardTitle className="text-xl">Instant Mastering Polish</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground mb-4">
-                AI-powered mastering trained on Grammy-winning tracks
+                AI trained on hits to make your tracks streaming-ready
               </p>
               <ul className="space-y-2 mb-6">
                 <li className="flex items-start gap-2 text-sm text-muted-foreground">
                   <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Platform Optimization</span>
+                  <span>Perfect for Spotify, Apple Music, YouTube</span>
                 </li>
                 <li className="flex items-start gap-2 text-sm text-muted-foreground">
                   <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Loudness Standards</span>
+                  <span>Radio-ready loudness automatically</span>
                 </li>
                 <li className="flex items-start gap-2 text-sm text-muted-foreground">
                   <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Frequency Analysis</span>
+                  <span>EQ balanced like the pros do it</span>
                 </li>
                 <li className="flex items-start gap-2 text-sm text-muted-foreground">
                   <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Dynamic Processing</span>
+                  <span>Punch and clarity that pops</span>
                 </li>
               </ul>
               <Button variant="outline" className="w-full" asChild>

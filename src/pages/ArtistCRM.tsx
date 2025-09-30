@@ -16,6 +16,7 @@ import { EngineerCRMDashboard } from '@/components/crm/EngineerCRMDashboard';
 import { AdvancedMixingStudio } from '@/components/mixing/AdvancedMixingStudio';
 import { toast } from 'sonner';
 import { JobApplicationManager } from '@/components/crm/JobApplicationManager';
+import { JobPostingForm } from '@/components/JobPostingForm';
 
 const ArtistCRM = () => {
   const { user } = useAuth();
@@ -132,8 +133,8 @@ const ArtistCRM = () => {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-4xl font-bold mb-2">Welcome back, {profile?.full_name || 'Artist'}!</h1>
-              <p className="text-muted-foreground">Transform your tracks into masterpieces</p>
+              <h1 className="text-4xl font-bold mb-2">Welcome to Your Studio, {profile?.full_name || 'Artist'}!</h1>
+              <p className="text-muted-foreground">Let's make some hits today 🎵</p>
             </div>
             
             <Card className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 border-primary/20">
@@ -166,7 +167,7 @@ const ArtistCRM = () => {
                 </div>
                 <div>
                   <div className="text-2xl font-bold">{projects.length}</div>
-                  <div className="text-sm text-muted-foreground">Total Projects</div>
+                  <div className="text-sm text-muted-foreground">Total Sessions</div>
                 </div>
               </div>
             </Card>
@@ -180,7 +181,7 @@ const ArtistCRM = () => {
                   <div className="text-2xl font-bold">
                     {projects.filter(p => p.status === 'completed').length}
                   </div>
-                  <div className="text-sm text-muted-foreground">Completed</div>
+                  <div className="text-sm text-muted-foreground">Tracks Released</div>
                 </div>
               </div>
             </Card>
@@ -192,7 +193,7 @@ const ArtistCRM = () => {
                 </div>
                 <div>
                   <div className="text-2xl font-bold">{achievements.length}</div>
-                  <div className="text-sm text-muted-foreground">Achievements</div>
+                  <div className="text-sm text-muted-foreground">Studio Badges</div>
                 </div>
               </div>
             </Card>
@@ -214,11 +215,12 @@ const ArtistCRM = () => {
         </div>
 
         {/* Main Content */}
-        <Tabs defaultValue="projects" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 lg:w-auto">
-            <TabsTrigger value="projects">Projects</TabsTrigger>
+        <Tabs defaultValue="sessions" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-6 lg:w-auto">
+            <TabsTrigger value="sessions">My Sessions</TabsTrigger>
+            <TabsTrigger value="book-session">Book a Session</TabsTrigger>
             <TabsTrigger value="applications" className="relative">
-              Applications
+              Pro Responses
               {pendingApplications > 0 && (
                 <Badge className="ml-2 h-5 w-5 p-0 flex items-center justify-center bg-primary text-primary-foreground">
                   {pendingApplications}
@@ -229,26 +231,42 @@ const ArtistCRM = () => {
               <Zap className="w-4 h-4" />
               Live Studio
             </TabsTrigger>
-            <TabsTrigger value="achievements">Achievements</TabsTrigger>
+            <TabsTrigger value="achievements">Studio Badges</TabsTrigger>
             <TabsTrigger value="activity">Activity</TabsTrigger>
           </TabsList>
 
-            <TabsContent value="projects" className="space-y-4">
+            <TabsContent value="sessions" className="space-y-4">
               <EngineerCRMDashboard />
             </TabsContent>
 
+            <TabsContent value="book-session" className="space-y-4">
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold mb-2">Book a New Session</h2>
+                <p className="text-muted-foreground">
+                  Tell us about your track and we'll connect you with the perfect pro engineer
+                </p>
+              </div>
+              <JobPostingForm />
+            </TabsContent>
+
             <TabsContent value="applications" className="space-y-4">
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold mb-2">Pro Engineer Responses</h2>
+                <p className="text-muted-foreground">
+                  Review applications from pros who want to work on your music
+                </p>
+              </div>
               <JobApplicationManager />
             </TabsContent>
 
           <TabsContent value="achievements" className="space-y-4">
-            <h2 className="text-2xl font-bold mb-4">Your Achievements</h2>
+            <h2 className="text-2xl font-bold mb-4">Your Studio Badges</h2>
             
             {achievements.length === 0 ? (
               <Card className="p-12 text-center">
                 <Award className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-xl font-semibold mb-2">No achievements yet</h3>
-                <p className="text-muted-foreground">Complete projects to earn badges and achievements</p>
+                <h3 className="text-xl font-semibold mb-2">No badges yet</h3>
+                <p className="text-muted-foreground">Complete sessions to unlock achievements and level up your studio</p>
               </Card>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -273,8 +291,8 @@ const ArtistCRM = () => {
           <TabsContent value="activity">
             <Card className="p-12 text-center">
               <MessageSquare className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-              <h3 className="text-xl font-semibold mb-2">Activity Feed Coming Soon</h3>
-              <p className="text-muted-foreground">Track your project updates and collaboration in real-time</p>
+              <h3 className="text-xl font-semibold mb-2">Studio Activity Feed Coming Soon</h3>
+              <p className="text-muted-foreground">Track all your session updates and messages in one place</p>
             </Card>
           </TabsContent>
         </Tabs>

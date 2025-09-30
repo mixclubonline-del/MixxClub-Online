@@ -149,30 +149,30 @@ export const JobPostingForm = () => {
   return (
     <Card className="max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle>Post a New Job</CardTitle>
+        <CardTitle>Tell Us About Your Track</CardTitle>
       </CardHeader>
       
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <Label htmlFor="title">Project Title</Label>
+            <Label htmlFor="title">What's Your Track Called?</Label>
             <Input
               id="title"
               value={formData.title}
               onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-              placeholder="e.g., Mix my indie rock album"
+              placeholder="e.g., My Summer Anthem - needs that radio polish"
               required
               className="mt-1"
             />
           </div>
 
           <div>
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">Tell Us Your Vision</Label>
             <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-              placeholder="Describe your project, vision, and any specific requirements..."
+              placeholder="What vibe are you going for? Any reference tracks you love? What makes this song special to you?"
               required
               className="mt-1"
             />
@@ -201,15 +201,15 @@ export const JobPostingForm = () => {
             </div>
 
             <div>
-              <Label htmlFor="service">Service Needed</Label>
+              <Label htmlFor="service">What Do You Need?</Label>
               <Select value={formData.serviceType} onValueChange={(value) => setFormData(prev => ({ ...prev, serviceType: value }))}>
                 <SelectTrigger className="mt-1">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="mixing">Mixing Only</SelectItem>
-                  <SelectItem value="mastering">Mastering Only</SelectItem>
-                  <SelectItem value="both">Mixing & Mastering</SelectItem>
+                  <SelectItem value="mixing">Mixing Magic</SelectItem>
+                  <SelectItem value="mastering">Mastering Polish</SelectItem>
+                  <SelectItem value="both">Full Treatment (Mix + Master)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -217,7 +217,7 @@ export const JobPostingForm = () => {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="budget">Budget ($)</Label>
+              <Label htmlFor="budget">Your Budget ($)</Label>
               <Input
                 id="budget"
                 type="number"
@@ -230,7 +230,7 @@ export const JobPostingForm = () => {
             </div>
 
             <div>
-              <Label htmlFor="deadline">Deadline</Label>
+              <Label htmlFor="deadline">When Do You Need It?</Label>
               <Input
                 id="deadline"
                 type="date"
@@ -243,7 +243,7 @@ export const JobPostingForm = () => {
           </div>
 
           <div>
-            <Label>Upload Audio Files</Label>
+            <Label>Share Your Tracks</Label>
             <div className="mt-1 border-2 border-dashed border-border rounded-lg p-6 text-center">
               <input
                 type="file"
