@@ -145,6 +145,8 @@ Always provide detailed technical analysis with specific recommendations for imp
         throw new Error('Failed to create signed URL for original file');
       }
 
+      console.log('Original file uploaded, signed URL created (length:', originalUrlData.signedUrl.length, ')');
+
       try {
         // Use Auphonic API for professional mastering
         console.log('Processing with Auphonic API...');
@@ -304,8 +306,8 @@ async function processWithAuphonic(
   
   console.log('Creating Auphonic production with audio URL');
 
-  // Step 1: Create a production
-  const createResponse = await fetch('https://auphonic.com/api/simple/productions.json', {
+  // Step 1: Create a production using the regular JSON API
+  const createResponse = await fetch('https://auphonic.com/api/productions.json', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${apiKey}`,
@@ -313,7 +315,6 @@ async function processWithAuphonic(
     },
     body: JSON.stringify({
       input_file: audioUrl,
-      preset: 'default',
       output_basename: `mastered-${Date.now()}`,
       algorithms: {
         loudness_target: preferences.loudnessTarget || -16,
@@ -333,7 +334,7 @@ async function processWithAuphonic(
   if (!createResponse.ok) {
     const errorText = await createResponse.text();
     console.error('Auphonic create production failed:', createResponse.status, errorText);
-    throw new Error(`Auphonic API error: ${createResponse.status}`);
+    throw new Error(`Auphonic API error: ${createResponse.status} - ${errorText}`);
   }
 
   const production: AuphonicProduction = await createResponse.json();
@@ -345,11 +346,14 @@ async function processWithAuphonic(
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
     },
   });
 
   if (!startResponse.ok) {
-    throw new Error(`Failed to start Auphonic production: ${startResponse.status}`);
+    const startErrorText = await startResponse.text();
+    console.error('Auphonic start production failed:', startResponse.status, startErrorText);
+    throw new Error(`Failed to start Auphonic production: ${startResponse.status} - ${startErrorText}`);
   }
 
   console.log('Production started, polling for completion...');
