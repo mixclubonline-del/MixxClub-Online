@@ -639,6 +639,126 @@ export type Database = {
         }
         Relationships: []
       }
+      file_analysis: {
+        Row: {
+          analysis_data: Json
+          audio_file_id: string
+          created_at: string
+          id: string
+          job_id: string | null
+          processing_status: string | null
+          stems_generated: boolean | null
+          stems_paths: Json | null
+          updated_at: string
+        }
+        Insert: {
+          analysis_data?: Json
+          audio_file_id: string
+          created_at?: string
+          id?: string
+          job_id?: string | null
+          processing_status?: string | null
+          stems_generated?: boolean | null
+          stems_paths?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          analysis_data?: Json
+          audio_file_id?: string
+          created_at?: string
+          id?: string
+          job_id?: string | null
+          processing_status?: string | null
+          stems_generated?: boolean | null
+          stems_paths?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      job_applications: {
+        Row: {
+          created_at: string
+          engineer_id: string
+          estimated_delivery: string | null
+          id: string
+          job_id: string
+          message: string | null
+          proposed_rate: number | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          engineer_id: string
+          estimated_delivery?: string | null
+          id?: string
+          job_id: string
+          message?: string | null
+          proposed_rate?: number | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          engineer_id?: string
+          estimated_delivery?: string | null
+          id?: string
+          job_id?: string
+          message?: string | null
+          proposed_rate?: number | null
+          status?: string
+        }
+        Relationships: []
+      }
+      job_postings: {
+        Row: {
+          ai_analysis: Json | null
+          artist_id: string
+          assigned_engineer_id: string | null
+          budget: number | null
+          created_at: string
+          deadline: string | null
+          description: string | null
+          genre: string | null
+          id: string
+          service_type: string
+          status: string
+          stems_prepared: boolean | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          ai_analysis?: Json | null
+          artist_id: string
+          assigned_engineer_id?: string | null
+          budget?: number | null
+          created_at?: string
+          deadline?: string | null
+          description?: string | null
+          genre?: string | null
+          id?: string
+          service_type?: string
+          status?: string
+          stems_prepared?: boolean | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          ai_analysis?: Json | null
+          artist_id?: string
+          assigned_engineer_id?: string | null
+          budget?: number | null
+          created_at?: string
+          deadline?: string | null
+          description?: string | null
+          genre?: string | null
+          id?: string
+          service_type?: string
+          status?: string
+          stems_prepared?: boolean | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       onboarding_profiles: {
         Row: {
           availability: Json | null

@@ -13,6 +13,7 @@ import ArtistCRM from "./pages/ArtistCRM";
 import EngineerCRM from "./pages/EngineerCRM";
 import Mixing from "./pages/Mixing";
 import Mastering from "./pages/Mastering";
+import { JobBoard } from "./pages/JobBoard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/engineer-crm" element={<EngineerCRM />} />
             <Route path="/mixing" element={<Mixing />} />
             <Route path="/mastering" element={<Mastering />} />
+            <Route path="/jobs" element={<JobBoard />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

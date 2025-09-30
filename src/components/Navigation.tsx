@@ -79,7 +79,10 @@ const Navigation = () => {
                   <Link to="/dashboard">
                     <Button variant="ghost" size="sm">Dashboard</Button>
                   </Link>
-                  <Link to="/artist-crm">
+                  <Link to="/jobs">
+                    <Button variant="ghost" size="sm">Job Board</Button>
+                  </Link>
+                  <Link to="/mixing">
                     <Button variant="ghost" size="sm">Studio</Button>
                   </Link>
                   <Button onClick={signOut} variant="outline" size="sm">
