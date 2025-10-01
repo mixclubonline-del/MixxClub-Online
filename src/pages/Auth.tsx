@@ -41,6 +41,8 @@ const Auth = () => {
   const [role, setRole] = useState<"client" | "engineer">("client");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [resetMode, setResetMode] = useState(false);
+  const [resetEmailSent, setResetEmailSent] = useState(false);
 
   const handleDemoLogin = async (role: 'client' | 'engineer' | 'admin') => {
     setLoading(true);
@@ -265,6 +267,65 @@ const Auth = () => {
     }
   };
 
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    
+    try {
+      if (!email) {
+        setError("Please enter your email address");
+        setLoading(false);
+        return;
+      }
+
+      const redirectUrl = `${window.location.origin}/auth`;
+      
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: redirectUrl,
+      });
+
+      if (error) {
+        setError(error.message);
+      } else {
+        setResetEmailSent(true);
+        toast.success("Password reset email sent! Check your inbox.");
+      }
+    } catch (err) {
+      setError("Failed to send password reset email");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendConfirmation = async () => {
+    setError("");
+    setLoading(true);
+    
+    try {
+      if (!email) {
+        setError("Please enter your email address");
+        setLoading(false);
+        return;
+      }
+
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
+      });
+
+      if (error) {
+        setError(error.message);
+      } else {
+        toast.success("Confirmation email sent! Check your inbox.");
+      }
+    } catch (err) {
+      setError("Failed to resend confirmation email");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5 flex items-center justify-center p-6">
       {/* Background Effects */}
@@ -375,7 +436,79 @@ const Auth = () => {
             </span>
           </div>
 
-          <form onSubmit={handleAuth} className="space-y-6">
+          {resetMode ? (
+            // Password Reset Form
+            <>
+              <div className="mb-6 text-center">
+                <h2 className="text-xl font-semibold mb-2">Reset Password</h2>
+                <p className="text-sm text-muted-foreground">
+                  {resetEmailSent 
+                    ? "Check your email for a password reset link"
+                    : "Enter your email to receive a password reset link"
+                  }
+                </p>
+              </div>
+
+              {!resetEmailSent && (
+                <form onSubmit={handlePasswordReset} className="space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="Enter your email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="bg-background/50 border-primary/20 focus:border-primary/50"
+                      required
+                    />
+                  </div>
+
+                  {error && (
+                    <Alert className="border-destructive/20 bg-destructive/10">
+                      <AlertDescription className="text-destructive">
+                        {error}
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary"
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                        Sending Reset Link...
+                      </div>
+                    ) : (
+                      "Send Reset Link"
+                    )}
+                  </Button>
+                </form>
+              )}
+
+              <Separator className="my-6" />
+
+              <div className="text-center">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setResetMode(false);
+                    setResetEmailSent(false);
+                    setError("");
+                  }}
+                  className="w-full border-primary/20 hover:border-primary/40 hover:bg-primary/5"
+                >
+                  Back to Sign In
+                </Button>
+              </div>
+            </>
+          ) : (
+            // Regular Auth Form
+            <>
+              <form onSubmit={handleAuth} className="space-y-6">
             {mode === "signup" && (
               <>
                 <div className="space-y-4">
@@ -452,14 +585,39 @@ const Auth = () => {
                   Password must be at least 6 characters
                 </p>
               )}
+              {mode === "login" && (
+                <div className="flex justify-end">
+                  <Button
+                    type="button"
+                    variant="link"
+                    onClick={() => setResetMode(true)}
+                    className="text-xs text-primary hover:text-primary/80 p-0 h-auto"
+                  >
+                    Forgot Password?
+                  </Button>
+                </div>
+              )}
             </div>
 
             {error && (
-              <Alert className="border-destructive/20 bg-destructive/10">
-                <AlertDescription className="text-destructive">
-                  {error}
-                </AlertDescription>
-              </Alert>
+              <div className="space-y-3">
+                <Alert className="border-destructive/20 bg-destructive/10">
+                  <AlertDescription className="text-destructive">
+                    {error}
+                  </AlertDescription>
+                </Alert>
+                {error.toLowerCase().includes("email not confirmed") && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleResendConfirmation}
+                    disabled={loading}
+                    className="w-full border-primary/20 hover:border-primary/40 hover:bg-primary/5"
+                  >
+                    Resend Confirmation Email
+                  </Button>
+                )}
+              </div>
             )}
 
             <Button 
@@ -525,6 +683,8 @@ const Auth = () => {
                 </div>
               </div>
             </div>
+          )}
+            </>
           )}
         </Card>
 
