@@ -1,18 +1,13 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useServiceAccess } from '@/hooks/useServiceAccess';
-import Navigation from '@/components/Navigation';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Upload, Music, TrendingUp, Award, MessageSquare, DollarSign, Zap, Users, Lock, Sparkles, ShoppingBag } from 'lucide-react';
-import { RealTimeCollaboration } from '@/components/RealTimeCollaboration';
-import EnhancedCRM from '@/components/crm/EnhancedCRM';
-import SessionManager from '@/components/collaboration/SessionManager';
+import { Music, Plus, TrendingUp, Award, Upload, Sparkles, Lock, DollarSign } from 'lucide-react';
+import { CRMLayout } from '@/components/crm/CRMLayout';
 import { EngineerCRMDashboard } from '@/components/crm/EngineerCRMDashboard';
 import { AdvancedMixingStudio } from '@/components/mixing/AdvancedMixingStudio';
 import { AIMasteringService } from '@/components/mastering/AIMasteringService';
@@ -27,6 +22,9 @@ import { MusicalProfile } from '@/components/crm/MusicalProfile';
 const ArtistCRM = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const currentTab = searchParams.get('tab') || 'dashboard';
+  
   const [profile, setProfile] = useState<any>(null);
   const [projects, setProjects] = useState<any[]>([]);
   const [achievements, setAchievements] = useState<any[]>([]);
@@ -52,7 +50,6 @@ const ArtistCRM = () => {
 
   const fetchData = async () => {
     try {
-      // Fetch profile with gamification data
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
@@ -62,7 +59,6 @@ const ArtistCRM = () => {
       if (profileError) throw profileError;
       setProfile(profileData);
 
-      // Fetch projects
       const { data: projectsData, error: projectsError } = await supabase
         .from('projects')
         .select(`
@@ -76,7 +72,6 @@ const ArtistCRM = () => {
       if (projectsError) throw projectsError;
       setProjects(projectsData || []);
 
-      // Fetch achievements
       const { data: achievementsData, error: achievementsError } = await supabase
         .from('achievements')
         .select('*')
@@ -86,7 +81,6 @@ const ArtistCRM = () => {
       if (achievementsError) throw achievementsError;
       setAchievements(achievementsData || []);
 
-      // Fetch pending applications count
       const { data: jobs } = await supabase
         .from('job_postings')
         .select('id')
@@ -111,23 +105,6 @@ const ArtistCRM = () => {
     }
   };
 
-  const getLevelProgress = () => {
-    if (!profile) return 0;
-    const currentLevelPoints = (profile.level - 1) * 1000;
-    const progressInLevel = profile.points - currentLevelPoints;
-    return (progressInLevel / 1000) * 100;
-  };
-
-  const getStatusColor = (status: string) => {
-    const colors = {
-      pending: 'bg-yellow-500',
-      in_progress: 'bg-blue-500',
-      review: 'bg-purple-500',
-      completed: 'bg-green-500'
-    };
-    return colors[status as keyof typeof colors] || 'bg-gray-500';
-  };
-
   if (loading || servicesLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -139,288 +116,249 @@ const ArtistCRM = () => {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      
-      <div className="container px-4 md:px-6 pt-24 pb-8">
-        {/* Header with Gamification */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-4xl font-bold mb-2">Welcome to Your Studio, {profile?.full_name || 'Artist'}!</h1>
-              <p className="text-muted-foreground">Let's make some hits today 🎵</p>
-            </div>
-            
-            <Card className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 border-primary/20">
-              <div className="flex items-center gap-4">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-primary mb-1">Level {profile?.level || 1}</div>
-                  <div className="text-sm text-muted-foreground">Artist Level</div>
-                </div>
-                <div className="w-px h-12 bg-border"></div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-primary mb-1">{profile?.points || 0}</div>
-                  <div className="text-sm text-muted-foreground">Total Points</div>
-                </div>
-              </div>
-              <div className="mt-4">
-                <Progress value={getLevelProgress()} className="h-2" />
-                <p className="text-xs text-muted-foreground mt-2 text-center">
-                  {1000 - (profile?.points % 1000)} points to Level {(profile?.level || 1) + 1}
-                </p>
-              </div>
-            </Card>
-          </div>
+  const stats = [
+    {
+      icon: <Music className="w-4 h-4 text-primary" />,
+      label: 'Sessions',
+      value: projects.length,
+      color: 'bg-primary/10'
+    },
+    {
+      icon: <TrendingUp className="w-4 h-4 text-green-500" />,
+      label: 'Released',
+      value: projects.filter(p => p.status === 'completed').length,
+      color: 'bg-green-500/10'
+    },
+    {
+      icon: <Award className="w-4 h-4 text-yellow-500" />,
+      label: 'Badges',
+      value: achievements.length,
+      color: 'bg-yellow-500/10'
+    },
+    {
+      icon: <DollarSign className="w-4 h-4 text-blue-500" />,
+      label: 'In Progress',
+      value: projects.filter(p => p.status === 'in_progress').length,
+      color: 'bg-blue-500/10'
+    },
+  ];
 
-          {/* Quick Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Card className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-3 rounded-lg bg-primary/10">
-                  <Music className="w-6 h-6 text-primary" />
-                </div>
-                <div>
-                  <div className="text-2xl font-bold">{projects.length}</div>
-                  <div className="text-sm text-muted-foreground">Total Sessions</div>
-                </div>
-              </div>
-            </Card>
-            
-            <Card className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-3 rounded-lg bg-green-500/10">
-                  <TrendingUp className="w-6 h-6 text-green-500" />
-                </div>
-                <div>
-                  <div className="text-2xl font-bold">
-                    {projects.filter(p => p.status === 'completed').length}
-                  </div>
-                  <div className="text-sm text-muted-foreground">Tracks Released</div>
-                </div>
-              </div>
-            </Card>
-            
-            <Card className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-3 rounded-lg bg-yellow-500/10">
-                  <Award className="w-6 h-6 text-yellow-500" />
-                </div>
-                <div>
-                  <div className="text-2xl font-bold">{achievements.length}</div>
-                  <div className="text-sm text-muted-foreground">Studio Badges</div>
-                </div>
-              </div>
-            </Card>
-            
-            <Card className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-3 rounded-lg bg-blue-500/10">
-                  <DollarSign className="w-6 h-6 text-blue-500" />
-                </div>
-                <div>
-                  <div className="text-2xl font-bold">
-                    {projects.filter(p => p.status === 'in_progress').length}
-                  </div>
-                  <div className="text-sm text-muted-foreground">In Progress</div>
-                </div>
-              </div>
-            </Card>
-          </div>
-        </div>
+  const quickActions = [
+    {
+      label: 'New Project',
+      icon: <Plus className="w-4 h-4" />,
+      onClick: () => navigate('/artist-crm?tab=active-work'),
+      variant: 'default' as const,
+    },
+    {
+      label: 'Book Session',
+      icon: mixingAccess ? <Upload className="w-4 h-4" /> : <Lock className="w-4 h-4" />,
+      onClick: () => navigate('/artist-crm?tab=opportunities'),
+    },
+    {
+      label: 'AI Master',
+      icon: masteringAccess ? <Sparkles className="w-4 h-4" /> : <Lock className="w-4 h-4" />,
+      onClick: () => navigate('/mixing-showcase'),
+    },
+  ];
 
-        {/* Musical Profile */}
-        <MusicalProfile userType="artist" />
-
-        {/* Recommended Engineers */}
-        <RecommendedEngineers />
-
-        {/* Main Content */}
-        <Tabs defaultValue="sessions" className="space-y-6">
-          <div className="overflow-x-auto pb-2">
-            <TabsList className="inline-flex w-auto min-w-full">
-              <TabsTrigger value="sessions" className="whitespace-nowrap">My Sessions</TabsTrigger>
-              
-              {mixingAccess ? (
-                <TabsTrigger value="book-session" className="whitespace-nowrap">
-                  Book Session
-                </TabsTrigger>
-              ) : (
-                <TabsTrigger value="book-session" className="whitespace-nowrap gap-2">
-                  <Lock className="w-3 h-3" />
-                  Book Session
-                </TabsTrigger>
-              )}
-              
-              {masteringAccess ? (
-                <TabsTrigger value="ai-mastering" className="whitespace-nowrap gap-2">
-                  <Sparkles className="w-4 h-4" />
-                  AI Mastering
-                </TabsTrigger>
-              ) : (
-                <TabsTrigger value="ai-mastering" className="whitespace-nowrap gap-2">
-                  <Lock className="w-3 h-3" />
-                  AI Mastering
-                </TabsTrigger>
-              )}
-              
-              <TabsTrigger value="applications" className="relative whitespace-nowrap">
-                Pro Responses
-                {pendingApplications > 0 && (
-                  <Badge className="ml-2 h-5 w-5 p-0 flex items-center justify-center bg-primary text-primary-foreground">
-                    {pendingApplications}
-                  </Badge>
-                )}
-              </TabsTrigger>
-              
-              {collaborationAccess ? (
-                <TabsTrigger value="collaboration" className="gap-2 whitespace-nowrap">
-                  <Zap className="w-4 h-4" />
-                  Live Studio
-                </TabsTrigger>
-              ) : (
-                <TabsTrigger value="collaboration" className="gap-2 whitespace-nowrap">
-                  <Lock className="w-3 h-3" />
-                  Live Studio
-                </TabsTrigger>
-              )}
-              
-              <TabsTrigger value="packages" className="gap-2 whitespace-nowrap">
-                <ShoppingBag className="w-4 h-4" />
-                Packages
-              </TabsTrigger>
-              
-              <TabsTrigger value="achievements" className="whitespace-nowrap">Badges</TabsTrigger>
-              <TabsTrigger value="activity" className="whitespace-nowrap">Activity</TabsTrigger>
-            </TabsList>
-          </div>
-
-          <TabsContent value="sessions" className="space-y-4">
-            <EngineerCRMDashboard />
-          </TabsContent>
-
-          <TabsContent value="book-session" className="space-y-4">
-            {mixingAccess ? (
-              <>
-                <div className="mb-6">
-                  <h2 className="text-2xl font-bold mb-2">Book a New Session</h2>
-                  <p className="text-muted-foreground">
-                    Tell us about your track and we'll connect you with the perfect pro engineer
-                  </p>
-                </div>
-                <JobPostingForm />
-              </>
-            ) : (
-              <LockedServiceTab 
-                serviceName="Professional Mixing"
-                serviceType="mixing"
-                description="Upgrade to access our professional mixing services and connect with top engineers"
-                features={[
-                  "Post unlimited mixing jobs",
-                  "Connect with verified professional engineers",
-                  "Access live collaboration studio",
-                  "Get quick turnaround times",
-                  "Revision requests included"
-                ]}
-              />
-            )}
-          </TabsContent>
-
-          <TabsContent value="ai-mastering" className="space-y-4">
-            {masteringAccess ? (
-              <>
-                <div className="mb-6">
-                  <h2 className="text-2xl font-bold mb-2">AI Mastering Studio</h2>
-                  <p className="text-muted-foreground">
-                    Professional mastering powered by AI, optimized for all platforms
-                  </p>
-                </div>
-                <AIMasteringService subscription={masteringSubscription} />
-              </>
-            ) : (
-              <LockedServiceTab 
-                serviceName="AI Mastering"
-                serviceType="mastering"
-                description="Upgrade to access our AI-powered mastering suite with instant professional results"
-                features={[
-                  "AI neural mastering engine",
-                  "Platform-specific optimization (Spotify, Apple Music, etc.)",
-                  "Real-time audio analysis",
-                  "Instant preview and download",
-                  "Unlimited revisions"
-                ]}
-              />
-            )}
-          </TabsContent>
-
-          <TabsContent value="applications" className="space-y-4">
+  const renderContent = () => {
+    switch (currentTab) {
+      case 'active-work':
+        return (
+          <div>
             <div className="mb-6">
-              <h2 className="text-2xl font-bold mb-2">Pro Engineer Responses</h2>
-              <p className="text-muted-foreground">
-                Review applications from pros who want to work on your music
-              </p>
+              <h2 className="text-2xl font-bold mb-2">Your Sessions</h2>
+              <p className="text-muted-foreground">Manage your active music projects</p>
             </div>
-            <JobApplicationManager />
-          </TabsContent>
+            <EngineerCRMDashboard />
+          </div>
+        );
 
-          <TabsContent value="collaboration" className="space-y-4">
-            {collaborationAccess ? (
-              <AdvancedMixingStudio />
-            ) : (
-              <LockedServiceTab 
-                serviceName="Live Collaboration Studio"
-                serviceType="mixing"
-                description="Upgrade to any service to access our real-time collaboration studio"
-                features={[
-                  "Real-time audio collaboration",
-                  "Multi-user mixing sessions",
-                  "Live audio streaming",
-                  "Integrated chat and comments",
-                  "Session recording and playback"
-                ]}
-              />
-            )}
-          </TabsContent>
-
-          <TabsContent value="packages" className="space-y-4">
-            <PackagesShop />
-          </TabsContent>
-
-          <TabsContent value="achievements" className="space-y-4">
-            <h2 className="text-2xl font-bold mb-4">Your Studio Badges</h2>
+      case 'opportunities':
+        return (
+          <div className="space-y-6">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold mb-2">Find Your Perfect Engineer</h2>
+              <p className="text-muted-foreground">Connect with pros who match your vibe</p>
+            </div>
+            <RecommendedEngineers />
             
-            {achievements.length === 0 ? (
-              <Card className="p-12 text-center">
-                <Award className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-xl font-semibold mb-2">No badges yet</h3>
-                <p className="text-muted-foreground">Complete sessions to unlock achievements and level up your studio</p>
-              </Card>
+            {mixingAccess ? (
+              <div className="mt-8">
+                <h3 className="text-xl font-bold mb-4">Book a New Session</h3>
+                <JobPostingForm />
+              </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {achievements.map((achievement) => (
-                  <Card key={achievement.id} className="p-6 text-center hover:shadow-lg transition-shadow">
-                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
-                      <Award className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="font-semibold mb-2">{achievement.badge_name}</h3>
-                    <p className="text-sm text-muted-foreground mb-2">{achievement.badge_description}</p>
-                    <Badge variant="outline">{achievement.badge_type}</Badge>
-                  </Card>
-                ))}
+              <div className="mt-8">
+                <LockedServiceTab 
+                  serviceName="Professional Mixing"
+                  serviceType="mixing"
+                  description="Upgrade to access our professional mixing services"
+                  features={[
+                    "Post unlimited mixing jobs",
+                    "Connect with verified engineers",
+                    "Live collaboration studio",
+                    "Quick turnaround times"
+                  ]}
+                />
               </div>
             )}
-          </TabsContent>
 
-          <TabsContent value="activity">
-            <Card className="p-12 text-center">
-              <MessageSquare className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-              <h3 className="text-xl font-semibold mb-2">Studio Activity Feed Coming Soon</h3>
-              <p className="text-muted-foreground">Track all your session updates and messages in one place</p>
+            <div className="mt-8">
+              <h3 className="text-xl font-bold mb-4">Pro Responses</h3>
+              <JobApplicationManager />
+            </div>
+          </div>
+        );
+
+      case 'business':
+        return (
+          <div className="space-y-6">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold mb-2">Packages & Services</h2>
+              <p className="text-muted-foreground">Upgrade your studio capabilities</p>
+            </div>
+            <PackagesShop />
+            
+            {masteringAccess ? (
+              <div className="mt-8">
+                <h3 className="text-xl font-bold mb-4">AI Mastering Studio</h3>
+                <AIMasteringService subscription={masteringSubscription} />
+              </div>
+            ) : (
+              <div className="mt-8">
+                <LockedServiceTab 
+                  serviceName="AI Mastering"
+                  serviceType="mastering"
+                  description="Upgrade to access AI-powered mastering"
+                  features={[
+                    "AI neural mastering engine",
+                    "Platform optimization",
+                    "Real-time analysis",
+                    "Instant preview"
+                  ]}
+                />
+              </div>
+            )}
+          </div>
+        );
+
+      case 'profile':
+        return (
+          <div className="space-y-6">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold mb-2">Your Profile</h2>
+              <p className="text-muted-foreground">Manage your musical identity</p>
+            </div>
+            <MusicalProfile userType="artist" />
+            
+            <div className="mt-8">
+              <h3 className="text-xl font-bold mb-4">Your Badges</h3>
+              {achievements.length === 0 ? (
+                <Card className="p-12 text-center">
+                  <Award className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                  <h3 className="text-xl font-semibold mb-2">No badges yet</h3>
+                  <p className="text-muted-foreground">Complete sessions to unlock achievements</p>
+                </Card>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {achievements.map((achievement) => (
+                    <Card key={achievement.id} className="p-6 text-center">
+                      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
+                        <Award className="w-8 h-8 text-white" />
+                      </div>
+                      <h3 className="font-semibold mb-2">{achievement.badge_name}</h3>
+                      <p className="text-sm text-muted-foreground mb-2">{achievement.badge_description}</p>
+                      <Badge variant="outline">{achievement.badge_type}</Badge>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+
+      default:
+        return (
+          <div className="space-y-6">
+            {/* Overview Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {stats.map((stat, index) => (
+                <Card key={index} className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className={`p-3 rounded-lg ${stat.color}`}>
+                      {stat.icon}
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold">{stat.value}</div>
+                      <div className="text-sm text-muted-foreground">{stat.label}</div>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+
+            {/* Recent Projects */}
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Recent Sessions</h3>
+              {projects.slice(0, 5).length > 0 ? (
+                <div className="space-y-3">
+                  {projects.slice(0, 5).map((project) => (
+                    <div 
+                      key={project.id} 
+                      className="flex items-center justify-between pb-3 border-b last:border-0 cursor-pointer hover:bg-muted/50 -mx-2 px-2 py-2 rounded"
+                      onClick={() => navigate(`/project/${project.id}`)}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium truncate">{project.title}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {project.engineer?.full_name || 'No engineer assigned'}
+                        </p>
+                      </div>
+                      <Badge variant="outline">{project.status}</Badge>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <Music className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
+                  <p className="text-muted-foreground">No projects yet. Start your first session!</p>
+                  <Button className="mt-4" onClick={() => navigate('/artist-crm?tab=active-work')}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Project
+                  </Button>
+                </div>
+              )}
             </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
-    </div>
+
+            {pendingApplications > 0 && (
+              <Card className="p-6 bg-primary/5 border-primary/20">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-1">You have {pendingApplications} new response{pendingApplications !== 1 ? 's' : ''}!</h3>
+                    <p className="text-sm text-muted-foreground">Engineers are waiting to work with you</p>
+                  </div>
+                  <Button onClick={() => navigate('/artist-crm?tab=opportunities')}>
+                    View Responses
+                  </Button>
+                </div>
+              </Card>
+            )}
+          </div>
+        );
+    }
+  };
+
+  return (
+    <CRMLayout
+      userType="artist"
+      profile={profile}
+      stats={stats}
+      quickActions={quickActions}
+    >
+      {renderContent()}
+    </CRMLayout>
   );
 };
 
