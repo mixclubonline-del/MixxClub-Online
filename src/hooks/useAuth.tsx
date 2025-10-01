@@ -54,8 +54,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
+    // Clear local session first to ensure UI updates immediately
+    setSession(null);
+    setUser(null);
+    setUserRole(null);
+    
+    // Attempt to sign out from server, but ignore session errors
+    const { error } = await supabase.auth.signOut({ scope: 'local' });
+    if (error && error.message !== 'Auth session missing!') {
       console.error('Error signing out:', error);
     }
   };
