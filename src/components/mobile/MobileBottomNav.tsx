@@ -1,4 +1,4 @@
-import { Home, Briefcase, DollarSign, User, Plus } from 'lucide-react';
+import { Home, Briefcase, DollarSign, User, Plus, Shield } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
@@ -11,6 +11,7 @@ export const MobileBottomNav = () => {
   // Determine user role from current path
   const isEngineer = location.pathname.includes('engineer');
   const isArtist = location.pathname.includes('artist');
+  const isAdmin = location.pathname.includes('mobile-admin');
 
   const engineerTabs = [
     { icon: Home, label: 'Home', path: '/engineer-crm' },
@@ -26,7 +27,14 @@ export const MobileBottomNav = () => {
     { icon: User, label: 'Profile', path: '/artist-crm' },
   ];
 
-  const tabs = isEngineer ? engineerTabs : artistTabs;
+  const adminTabs = [
+    { icon: Home, label: 'Dashboard', path: '/mobile-admin' },
+    { icon: User, label: 'Users', path: '/mobile-admin/users' },
+    { icon: DollarSign, label: 'Payouts', path: '/mobile-admin/payouts' },
+    { icon: Shield, label: 'Admin', path: '/admin' },
+  ];
+
+  const tabs = isAdmin ? adminTabs : isEngineer ? engineerTabs : artistTabs;
 
   if (!user) return null;
 
