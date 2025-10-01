@@ -29,6 +29,11 @@ import AdminUsers from "./pages/AdminUsers";
 import AdminAudio from './pages/AdminAudio';
 import AdminMedia from './pages/AdminMedia';
 import AdminPayouts from './pages/AdminPayouts';
+import AdminPackages from './pages/AdminPackages';
+import AdminFeatures from './pages/AdminFeatures';
+import AdminFinancial from './pages/AdminFinancial';
+import AdminAnalytics from './pages/AdminAnalytics';
+import AdminContent from './pages/AdminContent';
 import { JobBoard } from './pages/JobBoard';
 import HybridDAW from "./pages/HybridDAW";
 import ProjectDetail from "./pages/ProjectDetail";
@@ -65,6 +70,11 @@ const App = () => (
             <Route path="/jobs" element={<JobBoard />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/packages" element={<AdminPackages />} />
+            <Route path="/admin/features" element={<AdminFeatures />} />
+            <Route path="/admin/financial" element={<AdminFinancial />} />
+            <Route path="/admin/analytics" element={<AdminAnalytics />} />
+            <Route path="/admin/content" element={<AdminContent />} />
             <Route path="/admin/audio" element={<AdminAudio />} />
             <Route path="/admin/media" element={<AdminMedia />} />
             <Route path="/admin/payouts" element={<AdminPayouts />} />
