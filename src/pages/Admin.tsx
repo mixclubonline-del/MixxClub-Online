@@ -24,7 +24,8 @@ export default function Admin() {
         return;
       }
 
-      const { data, error } = await supabase.rpc('is_admin', { user_uuid: user.id });
+      const { data, error } = await supabase.rpc('is_admin');
+      console.log('Admin check:', { data, error });
       
       if (error || !data) {
         navigate('/');
