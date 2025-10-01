@@ -42,11 +42,27 @@ const EngineerCRM = () => {
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user) {
-      navigate('/auth');
-      return;
-    }
-    fetchData();
+    const checkAccess = async () => {
+      if (!user) {
+        navigate('/auth');
+        return;
+      }
+
+      // Check if user is admin - admins should use admin panel
+      const { data: isAdmin } = await supabase.rpc('is_admin', { 
+        user_uuid: user.id 
+      });
+
+      if (isAdmin) {
+        toast.error('Please use the Admin Panel');
+        navigate('/admin');
+        return;
+      }
+
+      fetchData();
+    };
+
+    checkAccess();
   }, [user, navigate]);
 
   const fetchData = async () => {
