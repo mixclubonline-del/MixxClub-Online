@@ -65,3 +65,6 @@ verify_jwt = false
 
 [functions.check-rate-limit]
 verify_jwt = false
+
+[functions.cleanup-rate-limits]
+verify_jwt = false
