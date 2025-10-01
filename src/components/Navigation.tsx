@@ -28,6 +28,14 @@ const Navigation = () => {
     setIsOpen(false);
   }, [location.pathname]);
 
+  // Dynamic logo destination based on user role
+  const getLogoDestination = () => {
+    if (!user) return "/";
+    if (userRole === 'admin') return "/admin";
+    if (userRole === 'engineer') return "/engineer-crm";
+    return "/artist-crm";
+  };
+
   // Role-specific navigation
   const getNavLinks = () => {
     if (!user) {
@@ -70,7 +78,7 @@ const Navigation = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link 
-            to="/" 
+            to={getLogoDestination()} 
             className="flex items-center gap-3 group transition-all duration-300 hover:scale-105"
           >
             <div className="relative">
