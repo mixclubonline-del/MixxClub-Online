@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Upload, Music, TrendingUp, Award, MessageSquare, DollarSign, Zap, Users, Lock, Sparkles } from 'lucide-react';
+import { Upload, Music, TrendingUp, Award, MessageSquare, DollarSign, Zap, Users, Lock, Sparkles, ShoppingBag } from 'lucide-react';
 import { RealTimeCollaboration } from '@/components/RealTimeCollaboration';
 import EnhancedCRM from '@/components/crm/EnhancedCRM';
 import SessionManager from '@/components/collaboration/SessionManager';
@@ -20,6 +20,7 @@ import { LockedServiceTab } from '@/components/crm/LockedServiceTab';
 import { toast } from 'sonner';
 import { JobApplicationManager } from '@/components/crm/JobApplicationManager';
 import { JobPostingForm } from '@/components/JobPostingForm';
+import { PackagesShop } from '@/components/crm/PackagesShop';
 
 const ArtistCRM = () => {
   const { user } = useAuth();
@@ -276,6 +277,11 @@ const ArtistCRM = () => {
                 </TabsTrigger>
               )}
               
+              <TabsTrigger value="packages" className="gap-2 whitespace-nowrap">
+                <ShoppingBag className="w-4 h-4" />
+                Packages
+              </TabsTrigger>
+              
               <TabsTrigger value="achievements" className="whitespace-nowrap">Badges</TabsTrigger>
               <TabsTrigger value="activity" className="whitespace-nowrap">Activity</TabsTrigger>
             </TabsList>
@@ -366,6 +372,10 @@ const ArtistCRM = () => {
                 ]}
               />
             )}
+          </TabsContent>
+
+          <TabsContent value="packages" className="space-y-4">
+            <PackagesShop />
           </TabsContent>
 
           <TabsContent value="achievements" className="space-y-4">
