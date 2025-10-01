@@ -38,6 +38,7 @@ import { JobBoard } from './pages/JobBoard';
 import HybridDAW from "./pages/HybridDAW";
 import ProjectDetail from "./pages/ProjectDetail";
 import NotFound from "./pages/NotFound";
+import MobileHome from "./pages/MobileHome";
 import { PersistentChatbot } from "@/components/PersistentChatbot";
 
 const queryClient = new QueryClient();
@@ -82,6 +83,7 @@ const App = () => (
             <Route path="/engineers" element={<EngineerDirectory />} />
             <Route path="/engineer/:userId" element={<EngineerProfile />} />
             <Route path="/project/:projectId" element={<ProjectDetail />} />
+            <Route path="/mobile-home" element={<MobileHome />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -5,9 +5,12 @@ import { JobPostingForm } from '@/components/JobPostingForm';
 import Navigation from '@/components/Navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { Navigate } from 'react-router-dom';
+import { MobileBottomNav } from '@/components/mobile/MobileBottomNav';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export const JobBoard = () => {
   const { user, loading } = useAuth();
+  const isMobile = useIsMobile();
 
   if (loading) {
     return (
@@ -22,7 +25,7 @@ export const JobBoard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+    <div className={`min-h-screen bg-gradient-to-br from-background via-background to-muted/20 ${isMobile ? 'pb-20' : ''}`}>
       <Navigation />
       
       <main className="container mx-auto px-4 py-8">
@@ -50,6 +53,8 @@ export const JobBoard = () => {
           </Tabs>
         </div>
       </main>
+
+      {isMobile && <MobileBottomNav />}
     </div>
   );
 };
