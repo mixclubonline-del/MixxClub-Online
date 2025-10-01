@@ -77,7 +77,7 @@ export const EngineerShowcaseSlideshow = () => {
   };
 
   return (
-    <section className="relative w-full py-32 overflow-hidden bg-gradient-to-b from-background via-background/95 to-background">
+    <section className="relative w-full py-32 pt-40 overflow-hidden bg-gradient-to-b from-background via-background/95 to-background">
       {/* Background Image with Parallax */}
       <motion.div 
         className="absolute inset-0 z-0"
