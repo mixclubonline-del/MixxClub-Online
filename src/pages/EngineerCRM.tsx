@@ -21,6 +21,7 @@ import { MusicalProfile } from '@/components/crm/MusicalProfile';
 import { EngineerReviews } from '@/components/review/EngineerReviews';
 import ProfileEditor from '@/components/crm/ProfileEditor';
 import ProfileInsights from '@/components/crm/ProfileInsights';
+import { EngineerCRMChatbot } from '@/components/crm/EngineerCRMChatbot';
 
 const EngineerCRM = () => {
   const { user } = useAuth();
@@ -506,14 +507,17 @@ const EngineerCRM = () => {
   };
 
   return (
-    <CRMLayout
-      userType="engineer"
-      profile={profile}
-      stats={stats}
-      quickActions={quickActions}
-    >
-      {renderContent()}
-    </CRMLayout>
+    <>
+      <CRMLayout
+        userType="engineer"
+        profile={profile}
+        stats={stats}
+        quickActions={quickActions}
+      >
+        {renderContent()}
+      </CRMLayout>
+      <EngineerCRMChatbot />
+    </>
   );
 };
 

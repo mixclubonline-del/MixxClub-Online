@@ -24,6 +24,7 @@ import ProfileInsights from '@/components/crm/ProfileInsights';
 import SessionManager from '@/components/collaboration/SessionManager';
 import CollaborationWorkspace from '@/components/collaboration/CollaborationWorkspace';
 import { RealTimeCollaboration } from '@/components/RealTimeCollaboration';
+import { ArtistCRMChatbot } from '@/components/crm/ArtistCRMChatbot';
 
 const ArtistCRM = () => {
   const { user } = useAuth();
@@ -437,14 +438,17 @@ const ArtistCRM = () => {
   };
 
   return (
-    <CRMLayout
-      userType="artist"
-      profile={profile}
-      stats={stats}
-      quickActions={quickActions}
-    >
-      {renderContent()}
-    </CRMLayout>
+    <>
+      <CRMLayout
+        userType="artist"
+        profile={profile}
+        stats={stats}
+        quickActions={quickActions}
+      >
+        {renderContent()}
+      </CRMLayout>
+      <ArtistCRMChatbot />
+    </>
   );
 };
 

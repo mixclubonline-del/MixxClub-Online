@@ -9,7 +9,6 @@ import { SuccessStories } from "@/components/SuccessStories";
 import { MasteringChatbot } from "@/components/MasteringChatbot";
 import Pricing from "@/components/Pricing";
 import Contact from "@/components/Contact";
-import { StickyUploadButton } from "@/components/StickyUploadButton";
 import { PluginShowcase } from "@/components/PluginShowcase";
 import { Testimonials } from "@/components/Testimonials";
 import { LiveStats } from "@/components/LiveStats";
@@ -191,7 +190,6 @@ const Home = () => {
           <p>© 2025 MixClubOnline. Make your music sound as good as the pros.</p>
         </div>
       </footer>
-      <StickyUploadButton />
     </div>
   );
 };
