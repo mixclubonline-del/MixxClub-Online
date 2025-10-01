@@ -41,6 +41,36 @@ const Home = () => {
         </div>
       </section>
       <AudioPreview />
+      <section id="upload" className="py-20 bg-gradient-to-b from-muted/30 to-background relative overflow-hidden scroll-mt-20">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,hsl(var(--primary)/0.1),transparent_70%)]" />
+        <div className="container px-6 relative z-10">
+          <div className="max-w-4xl mx-auto text-center mb-12 animate-fade-in">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary via-[hsl(220_90%_60%)] to-[hsl(180_100%_50%)] bg-clip-text text-transparent">
+              Upload Your Track
+            </h2>
+            <p className="text-xl text-muted-foreground">
+              Get started by uploading your vocals or stems. Our AI will analyze your track and match you with the perfect engineer.
+            </p>
+          </div>
+          <div className="max-w-2xl mx-auto">
+            <div className="glass-studio rounded-2xl p-8 border-2 border-primary/30 hover:border-primary/50 transition-all duration-300">
+              <div className="border-2 border-dashed border-muted-foreground/30 rounded-xl p-12 text-center hover:border-primary/50 transition-colors duration-300 cursor-pointer">
+                <Music className="w-16 h-16 mx-auto mb-4 text-primary" />
+                <p className="text-lg font-semibold mb-2">Drop your audio files here</p>
+                <p className="text-sm text-muted-foreground mb-4">or click to browse</p>
+                <Button size="lg" className="shadow-glow-sm">
+                  Choose Files
+                </Button>
+              </div>
+              <div className="mt-6 flex justify-center gap-4 text-sm text-muted-foreground">
+                <span>✓ WAV, MP3, FLAC</span>
+                <span>✓ Up to 500MB</span>
+                <span>✓ Instant AI Analysis</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
       <SuccessStories />
       <Testimonials />
       <LiveStats />

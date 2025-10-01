@@ -1,10 +1,27 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Music, Users, Zap, Sparkles, Play } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import mixclub3DLogo from "@/assets/mixclub-3d-logo.png";
+import { useAuth } from "@/hooks/useAuth";
+import { GetStartedWizard } from "./GetStartedWizard";
+import { useState } from "react";
 
 const Hero = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [wizardOpen, setWizardOpen] = useState(false);
+
+  const handleGetStarted = () => {
+    if (!user) {
+      navigate('/auth?signup=true');
+    } else {
+      setWizardOpen(true);
+    }
+  };
+
   return (
+    <>
+      <GetStartedWizard open={wizardOpen} onOpenChange={setWizardOpen} />
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Dynamic gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-background via-[hsl(262_30%_8%)] to-[hsl(220_40%_10%)]" />
@@ -74,11 +91,13 @@ const Hero = () => {
 
           {/* CTA Buttons with enhanced styling */}
           <div className="flex flex-col sm:flex-row gap-4 pt-4">
-            <Button size="lg" className="text-lg px-10 py-7 shadow-glow-raven hover:shadow-glow-lg transition-all duration-300 font-bold" asChild>
-              <Link to="/auth?signup=true">
-                GET MIXCLUB
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Link>
+            <Button 
+              size="lg" 
+              className="text-lg px-10 py-7 shadow-glow-raven hover:shadow-glow-lg transition-all duration-300 font-bold"
+              onClick={handleGetStarted}
+            >
+              GET STARTED
+              <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
             <Button 
               size="lg" 
@@ -135,6 +154,7 @@ const Hero = () => {
         </div>
       </div>
     </section>
+    </>
   );
 };
 
