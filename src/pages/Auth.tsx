@@ -106,28 +106,19 @@ const Auth = () => {
       } else if (error) {
         setError(error.message);
       } else if (data.user) {
-        // Existing user - check if admin first
+        // Existing user - route directly based on demo role clicked
         console.log('Checking admin status for demo login, role:', role, 'user:', data.user.id);
         
-        // If logging in as admin demo, ensure they have admin role
+        // Route based on which demo button was clicked
         if (role === 'admin') {
-          const { error: roleError } = await supabase
-            .from('user_roles')
-            .upsert({ user_id: data.user.id, role: 'admin' }, { onConflict: 'user_id,role', ignoreDuplicates: true });
-          
-          console.log('Admin role upsert result:', roleError);
           toast.success('Logged in as Admin!');
           navigate('/admin');
-        } else {
-          // Check regular profile role
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', data.user.id)
-            .single();
-          
+        } else if (role === 'engineer') {
           toast.success('Logged in as demo user!');
-          navigate(profile?.role === 'engineer' ? '/engineer-crm' : '/artist-crm');
+          navigate('/engineer-crm');
+        } else {
+          toast.success('Logged in as demo user!');
+          navigate('/artist-crm');
         }
       }
     } catch (err) {
