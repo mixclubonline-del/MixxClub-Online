@@ -7,6 +7,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import { CreditCard, Loader2, Smartphone, Wallet } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import jsPDF from 'jspdf';
 
 declare global {
   interface Window {
@@ -123,12 +124,16 @@ export function MultiPaymentModal({
             if (error) {
               toast({ title: 'Payment failed', description: error.message, variant: 'destructive' });
             } else {
-              toast({ title: 'Success', description: 'Payment completed!' });
+              generatePDFReceipt(paymentIntent.id, 'Apple Pay / Google Pay');
+              await sendReceiptEmail(paymentIntent.id, 'Apple Pay / Google Pay');
+              toast({ title: 'Success', description: 'Payment completed! Receipt downloaded and emailed.' });
               onOpenChange(false);
               window.location.href = `/project/${projectId}`;
             }
           } else {
-            toast({ title: 'Success', description: 'Payment completed!' });
+            generatePDFReceipt(paymentIntent.id, 'Apple Pay / Google Pay');
+            await sendReceiptEmail(paymentIntent.id, 'Apple Pay / Google Pay');
+            toast({ title: 'Success', description: 'Payment completed! Receipt downloaded and emailed.' });
             onOpenChange(false);
             window.location.href = `/project/${projectId}`;
           }
@@ -165,11 +170,15 @@ export function MultiPaymentModal({
       onApprove: async (data: any) => {
         setLoading(true);
         try {
-          const { error } = await supabase.functions.invoke('capture-paypal-order', {
+          const { data: captureData, error } = await supabase.functions.invoke('capture-paypal-order', {
             body: { orderId: data.orderID, projectId }
           });
           if (error) throw error;
-          toast({ title: 'Success', description: 'Payment completed!' });
+          
+          generatePDFReceipt(data.orderID, 'PayPal / Venmo');
+          await sendReceiptEmail(data.orderID, 'PayPal / Venmo');
+          
+          toast({ title: 'Success', description: 'Payment completed! Receipt downloaded and emailed.' });
           onOpenChange(false);
           window.location.href = `/project/${projectId}`;
         } catch (error) {
@@ -184,6 +193,60 @@ export function MultiPaymentModal({
         toast({ title: 'Error', description: 'PayPal payment failed', variant: 'destructive' });
       }
     }).render(paypalButtonRef.current);
+  };
+
+  const generatePDFReceipt = (transactionId: string, paymentMethodName: string) => {
+    const doc = new jsPDF();
+    
+    // Header
+    doc.setFontSize(20);
+    doc.setTextColor(91, 60, 255);
+    doc.text('MixClub Payment Receipt', 20, 20);
+    
+    // Details
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Project ID: ${projectId}`, 20, 40);
+    doc.text(`Payment Method: ${paymentMethodName}`, 20, 50);
+    doc.text(`Transaction ID: ${transactionId}`, 20, 60);
+    doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 70);
+    
+    // Payment breakdown
+    doc.setFontSize(14);
+    doc.text('Payment Breakdown', 20, 90);
+    doc.setFontSize(12);
+    doc.text(`Total Amount: $${totalAmount.toFixed(2)}`, 20, 105);
+    doc.text(`Engineer Share (${engineerSplitPercent}%): $${engineerAmount.toFixed(2)}`, 20, 115);
+    doc.text(`Platform Fee: $${platformFee.toFixed(2)}`, 20, 125);
+    
+    // Footer
+    doc.setFontSize(10);
+    doc.setTextColor(128, 128, 128);
+    doc.text('Thank you for using MixClub!', 20, 150);
+    doc.text('For support, contact: support@mixclubonline.com', 20, 160);
+    
+    // Save PDF
+    doc.save(`MixClub_Receipt_${projectId}.pdf`);
+  };
+
+  const sendReceiptEmail = async (transactionId: string, paymentMethodName: string) => {
+    try {
+      await supabase.functions.invoke('send-payment-receipt', {
+        body: {
+          projectId,
+          paymentDetails: {
+            amount: totalAmount,
+            engineerShare: engineerAmount,
+            platformFee,
+            paymentMethod: paymentMethodName,
+            transactionId,
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Failed to send receipt email:', error);
+      // Don't throw - email is nice-to-have
+    }
   };
 
   const handleStripePayment = async () => {
@@ -207,14 +270,20 @@ export function MultiPaymentModal({
 
       if (error) throw error;
 
-      const { error: confirmError } = await stripe.confirmCardPayment(data.client_secret, {
+      const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(data.client_secret, {
         payment_method: { card: cardElement }
       });
 
       if (confirmError) {
         toast({ title: 'Payment failed', description: confirmError.message, variant: 'destructive' });
       } else {
-        toast({ title: 'Success', description: 'Payment completed successfully!' });
+        // Generate PDF receipt
+        generatePDFReceipt(paymentIntent.id, 'Credit Card');
+        
+        // Send email receipt
+        await sendReceiptEmail(paymentIntent.id, 'Credit Card');
+        
+        toast({ title: 'Success', description: 'Payment completed! Receipt downloaded and emailed.' });
         onOpenChange(false);
         window.location.href = `/project/${projectId}`;
       }
