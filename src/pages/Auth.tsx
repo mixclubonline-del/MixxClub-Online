@@ -42,13 +42,14 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleDemoLogin = async (role: 'client' | 'engineer') => {
+  const handleDemoLogin = async (role: 'client' | 'engineer' | 'admin') => {
     setLoading(true);
     setError('');
     
     const demoCredentials = {
       client: { email: 'demo-artist@mixclub.app', password: 'demo123456' },
-      engineer: { email: 'demo-engineer@mixclub.app', password: 'demo123456' }
+      engineer: { email: 'demo-engineer@mixclub.app', password: 'demo123456' },
+      admin: { email: 'admin@mixclub.app', password: 'admin123456' }
     };
 
     const credentials = demoCredentials[role];
@@ -76,16 +77,17 @@ const Auth = () => {
           return;
         }
 
-        // Update profile with role
-        if (signUpData.user) {
-          await supabase
-            .from('profiles')
-            .update({ role })
-            .eq('id', signUpData.user.id);
+      // Update profile with role
+      if (signUpData.user) {
+        const profileRole = role === 'admin' ? 'client' : role;
+        await supabase
+          .from('profiles')
+          .update({ role: profileRole })
+          .eq('id', signUpData.user.id);
 
-          toast.success(`Demo ${role} account ready!`);
-          navigate(role === 'engineer' ? '/engineer-crm' : '/artist-crm');
-        }
+        toast.success(`Demo ${role} account ready!`);
+        navigate(role === 'engineer' ? '/engineer-crm' : '/artist-crm');
+      }
       } else if (error) {
         setError(error.message);
       } else if (data.user) {
@@ -301,26 +303,36 @@ const Auth = () => {
 
           <div className="space-y-3 mb-6">
             <p className="text-sm text-center text-muted-foreground">Testing? Try demo accounts:</p>
-            <div className="flex gap-2">
+            <div className="grid grid-cols-3 gap-2">
               <Button
                 type="button"
                 variant="secondary"
                 onClick={() => handleDemoLogin('client')}
                 disabled={loading}
-                className="flex-1"
+                className="flex flex-col items-center py-3 h-auto"
               >
-                <Mic2 className="w-4 h-4 mr-2" />
-                Demo Artist
+                <Mic2 className="w-4 h-4 mb-1" />
+                <span className="text-xs">Artist</span>
               </Button>
               <Button
                 type="button"
                 variant="secondary"
                 onClick={() => handleDemoLogin('engineer')}
                 disabled={loading}
-                className="flex-1"
+                className="flex flex-col items-center py-3 h-auto"
               >
-                <Headphones className="w-4 h-4 mr-2" />
-                Demo Engineer
+                <Headphones className="w-4 h-4 mb-1" />
+                <span className="text-xs">Engineer</span>
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => handleDemoLogin('admin')}
+                disabled={loading}
+                className="flex flex-col items-center py-3 h-auto"
+              >
+                <Sparkles className="w-4 h-4 mb-1" />
+                <span className="text-xs">Admin</span>
               </Button>
             </div>
           </div>
