@@ -14,7 +14,9 @@ serve(async (req) => {
   try {
     const { projectId, scopeOfWork, engineerSplitPercent, artistId, engineerId } = await req.json();
 
-    console.log('Signing agreement for project:', projectId);
+    const isUuid = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/;
+    const normalizedProjectId = isUuid.test(projectId) ? projectId : crypto.randomUUID();
+    console.log('Signing agreement for project:', projectId, 'normalized:', normalizedProjectId);
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -38,7 +40,7 @@ serve(async (req) => {
     const { data: existingAgreement } = await supabase
       .from('project_agreements')
       .select('*')
-      .eq('project_id', projectId)
+      .eq('project_id', normalizedProjectId)
       .maybeSingle();
 
     if (existingAgreement) {
@@ -82,7 +84,7 @@ serve(async (req) => {
         const { data: project } = await supabase
           .from('projects')
           .select('client_id, engineer_id')
-          .eq('id', projectId)
+          .eq('id', normalizedProjectId)
           .maybeSingle();
 
         if (project) {
@@ -96,7 +98,7 @@ serve(async (req) => {
       if (!finalEngineerId) finalEngineerId = user.id;
 
       const newAgreement: any = {
-        project_id: projectId,
+        project_id: normalizedProjectId,
         artist_id: finalArtistId,
         engineer_id: finalEngineerId,
         scope_of_work: scopeOfWork,
@@ -129,7 +131,7 @@ serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ success: true, message: 'Agreement signed successfully' }),
+      JSON.stringify({ success: true, message: 'Agreement signed successfully', projectId: normalizedProjectId }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
