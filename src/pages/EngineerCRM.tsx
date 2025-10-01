@@ -10,6 +10,8 @@ import { CheckCircle, Clock, AlertCircle, Music, Plus, Upload, Award, TrendingUp
 import { CRMLayout } from '@/components/crm/CRMLayout';
 import EnhancedCRM from '@/components/crm/EnhancedCRM';
 import SessionManager from '@/components/collaboration/SessionManager';
+import CollaborationWorkspace from '@/components/collaboration/CollaborationWorkspace';
+import { RealTimeCollaboration } from '@/components/RealTimeCollaboration';
 import { toast } from 'sonner';
 import { JobPool } from '@/components/JobPool';
 import { EarningsOverview } from '@/components/engineer/EarningsOverview';
@@ -37,6 +39,7 @@ const EngineerCRM = () => {
     available: 0
   });
   const [loading, setLoading] = useState(true);
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -327,6 +330,34 @@ const EngineerCRM = () => {
               <h3 className="text-xl font-bold mb-4">All Open Jobs</h3>
               <JobPool />
             </div>
+          </div>
+        );
+
+      case 'studio':
+        return (
+          <div className="space-y-6">
+            {activeSessionId ? (
+              <CollaborationWorkspace 
+                sessionId={activeSessionId}
+                onLeaveSession={() => setActiveSessionId(null)}
+              />
+            ) : (
+              <>
+                <div className="mb-6">
+                  <h2 className="text-2xl font-bold mb-2">Studio Collaboration</h2>
+                  <p className="text-muted-foreground">Start or join live sessions with artists</p>
+                </div>
+                
+                <div className="grid lg:grid-cols-3 gap-6">
+                  <div className="lg:col-span-2">
+                    <SessionManager projectId={undefined} />
+                  </div>
+                  <div>
+                    <RealTimeCollaboration />
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         );
 

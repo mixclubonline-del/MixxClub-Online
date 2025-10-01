@@ -20,6 +20,9 @@ import { RecommendedEngineers } from '@/components/crm/RecommendedEngineers';
 import { MusicalProfile } from '@/components/crm/MusicalProfile';
 import ProfileEditor from '@/components/crm/ProfileEditor';
 import ProfileInsights from '@/components/crm/ProfileInsights';
+import SessionManager from '@/components/collaboration/SessionManager';
+import CollaborationWorkspace from '@/components/collaboration/CollaborationWorkspace';
+import { RealTimeCollaboration } from '@/components/RealTimeCollaboration';
 
 const ArtistCRM = () => {
   const { user } = useAuth();
@@ -32,6 +35,7 @@ const ArtistCRM = () => {
   const [achievements, setAchievements] = useState<any[]>([]);
   const [pendingApplications, setPendingApplications] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   
   const { 
     mixingAccess, 
@@ -281,6 +285,34 @@ const ArtistCRM = () => {
               <h3 className="text-xl font-bold mb-4">Pro Responses</h3>
               <JobApplicationManager />
             </div>
+          </div>
+        );
+
+      case 'studio':
+        return (
+          <div className="space-y-6">
+            {activeSessionId ? (
+              <CollaborationWorkspace 
+                sessionId={activeSessionId}
+                onLeaveSession={() => setActiveSessionId(null)}
+              />
+            ) : (
+              <>
+                <div className="mb-6">
+                  <h2 className="text-2xl font-bold mb-2">Studio Collaboration</h2>
+                  <p className="text-muted-foreground">Connect with your engineer in real-time</p>
+                </div>
+                
+                <div className="grid lg:grid-cols-3 gap-6">
+                  <div className="lg:col-span-2">
+                    <SessionManager projectId={undefined} />
+                  </div>
+                  <div>
+                    <RealTimeCollaboration />
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         );
 
