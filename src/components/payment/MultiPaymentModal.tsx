@@ -37,6 +37,7 @@ export function MultiPaymentModal({
   const [cardElement, setCardElement] = useState<any>(null);
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'paypal' | 'apple-google'>('card');
   const [paymentRequest, setPaymentRequest] = useState<any>(null);
+  const [paypalLoaded, setPaypalLoaded] = useState(false);
   const paypalButtonRef = useRef<HTMLDivElement>(null);
 
   const totalAmount = amount;
@@ -46,15 +47,31 @@ export function MultiPaymentModal({
   useEffect(() => {
     if (open) {
       initStripe();
-      initPayPal();
+      
+      // Load PayPal SDK script
+      const script = document.createElement('script');
+      script.src = 'https://www.paypal.com/sdk/js?client-id=test&currency=USD&enable-funding=venmo';
+      script.async = true;
+      script.onload = () => setPaypalLoaded(true);
+      script.onerror = () => {
+        console.error('Failed to load PayPal SDK');
+        toast({ title: 'Error', description: 'Failed to load PayPal', variant: 'destructive' });
+      };
+      
+      // Only add script if it doesn't exist
+      if (!document.querySelector('script[src*="paypal.com/sdk"]')) {
+        document.body.appendChild(script);
+      } else if (window.paypal) {
+        setPaypalLoaded(true);
+      }
     }
   }, [open]);
 
   useEffect(() => {
-    if (open && paymentMethod === 'paypal') {
+    if (open && paymentMethod === 'paypal' && paypalLoaded) {
       initPayPal();
     }
-  }, [paymentMethod, open]);
+  }, [paymentMethod, open, paypalLoaded]);
 
   const initStripe = async () => {
     const stripe = await stripePromise;
@@ -149,7 +166,10 @@ export function MultiPaymentModal({
   };
 
   const initPayPal = () => {
-    if (!window.paypal || !paypalButtonRef.current) return;
+    if (!window.paypal?.Buttons || !paypalButtonRef.current) {
+      console.warn('PayPal SDK not ready or button ref not available');
+      return;
+    }
     
     paypalButtonRef.current.innerHTML = '';
     
@@ -300,13 +320,11 @@ export function MultiPaymentModal({
   };
 
   return (
-    <>
-      <script src="https://www.paypal.com/sdk/js?client-id=test&currency=USD&enable-funding=venmo" />
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[520px]">
-          <DialogHeader>
-            <DialogTitle className="text-2xl text-primary">Checkout — Choose Payment</DialogTitle>
-          </DialogHeader>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[520px]">
+        <DialogHeader>
+          <DialogTitle className="text-2xl text-primary">Checkout — Choose Payment</DialogTitle>
+        </DialogHeader>
 
           <div className="space-y-6">
             {/* Payment Summary */}
@@ -409,9 +427,8 @@ export function MultiPaymentModal({
                 <div ref={paypalButtonRef} />
               </div>
             )}
-          </div>
-        </DialogContent>
-      </Dialog>
-    </>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
