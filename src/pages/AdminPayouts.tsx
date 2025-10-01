@@ -75,7 +75,7 @@ export default function AdminPayouts() {
         const engineerIds = data.map(r => r.engineer_id);
         const { data: profilesData } = await supabase
           .from('profiles')
-          .select('id, full_name, email')
+          .select('id, full_name')
           .in('id', engineerIds);
 
         const requestsWithProfiles = data.map(request => ({
@@ -252,7 +252,7 @@ export default function AdminPayouts() {
                       </div>
                       <div>
                         <div className="font-medium">
-                          {request.profiles?.full_name || request.profiles?.email || 'Unknown Engineer'}
+                          {request.profiles?.full_name || 'Unknown Engineer'}
                         </div>
                         <div className="text-sm text-muted-foreground">
                           ${request.amount.toFixed(2)} • Requested{' '}
@@ -297,7 +297,7 @@ export default function AdminPayouts() {
                       {getStatusIcon(request.status)}
                       <div>
                         <div className="font-medium">
-                          {request.profiles?.full_name || request.profiles?.email || 'Unknown'}
+                          {request.profiles?.full_name || 'Unknown'}
                         </div>
                         <div className="text-sm text-muted-foreground">
                           ${request.amount.toFixed(2)} • Processed{' '}
@@ -343,7 +343,6 @@ export default function AdminPayouts() {
                     <div className="text-sm text-muted-foreground">Engineer</div>
                     <div className="font-medium">
                       {selectedRequest.profiles?.full_name ||
-                        selectedRequest.profiles?.email ||
                         'Unknown'}
                     </div>
                   </div>

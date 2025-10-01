@@ -100,7 +100,7 @@ const EnhancedCRM: React.FC<Props> = ({ projectId }) => {
     const senderIds = [...new Set(data?.map(msg => msg.sender_id) || [])];
     const { data: profiles } = await supabase
       .from('profiles')
-      .select('id, full_name, email')
+      .select('id, full_name')
       .in('id', senderIds);
 
     const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
@@ -109,7 +109,7 @@ const EnhancedCRM: React.FC<Props> = ({ projectId }) => {
       const profile = profileMap.get(msg.sender_id);
       return {
         id: msg.id,
-        sender: profile?.full_name || profile?.email || 'Unknown',
+        sender: profile?.full_name || 'Unknown',
         text: msg.content || '',
         timestamp: msg.created_at,
         sender_id: msg.sender_id
@@ -134,7 +134,7 @@ const EnhancedCRM: React.FC<Props> = ({ projectId }) => {
     const uploaderIds = [...new Set(data?.map(file => file.uploaded_by) || [])];
     const { data: profiles } = await supabase
       .from('profiles')
-      .select('id, full_name, email')
+      .select('id, full_name')
       .in('id', uploaderIds);
 
     const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
@@ -145,7 +145,7 @@ const EnhancedCRM: React.FC<Props> = ({ projectId }) => {
         id: file.id,
         name: file.file_name,
         url: file.file_path,
-        uploadedBy: profile?.full_name || profile?.email || 'Unknown',
+        uploadedBy: profile?.full_name || 'Unknown',
         file_path: file.file_path
       };
     }) || [];

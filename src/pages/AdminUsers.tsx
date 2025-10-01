@@ -26,7 +26,6 @@ import { toast } from 'sonner';
 
 interface UserProfile {
   id: string;
-  email: string;
   full_name: string | null;
   role: string;
   created_at: string;
@@ -97,8 +96,8 @@ export default function AdminUsers() {
 
   const filteredUsers = users.filter((u) => {
     const matchesSearch = 
-      u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      u.full_name?.toLowerCase().includes(searchTerm.toLowerCase());
+      u.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      u.id.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = roleFilter === 'all' || u.role === roleFilter;
     return matchesSearch && matchesRole;
   });
@@ -125,7 +124,7 @@ export default function AdminUsers() {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search users by email or name..."
+              placeholder="Search users by name or ID..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-9"
@@ -149,7 +148,7 @@ export default function AdminUsers() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Email</TableHead>
+                <TableHead>ID</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Role</TableHead>
                 <TableHead>Level</TableHead>
@@ -161,7 +160,7 @@ export default function AdminUsers() {
             <TableBody>
               {filteredUsers.map((u) => (
                 <TableRow key={u.id}>
-                  <TableCell className="font-medium">{u.email}</TableCell>
+                  <TableCell className="font-medium">{u.id.substring(0, 20)}...</TableCell>
                   <TableCell>{u.full_name || 'N/A'}</TableCell>
                   <TableCell>
                     <Badge variant={u.role === 'admin' ? 'default' : 'secondary'}>

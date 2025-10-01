@@ -83,7 +83,7 @@ export const JobApplicationManager = () => {
       const engineerIds = data?.map(app => app.engineer_id) || [];
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('id, full_name, email, role')
+        .select('id, full_name, role')
         .in('id', engineerIds);
 
       // Combine the data
@@ -91,7 +91,6 @@ export const JobApplicationManager = () => {
         ...app,
         engineer_profile: profiles?.find(p => p.id === app.engineer_id) || {
           full_name: 'Unknown',
-          email: '',
           role: 'engineer'
         },
         job_posting: app.job_postings

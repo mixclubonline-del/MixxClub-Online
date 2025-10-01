@@ -76,7 +76,7 @@ export default function MobileAdminPayouts() {
         const engineerIds = data.map(r => r.engineer_id);
         const { data: profilesData } = await supabase
           .from('profiles')
-          .select('id, full_name, email')
+          .select('id, full_name')
           .in('id', engineerIds);
 
         const requestsWithProfiles = data.map(request => ({
@@ -245,7 +245,7 @@ export default function MobileAdminPayouts() {
                       </div>
                       <div className="flex-1">
                         <div className="font-medium text-sm">
-                          {request.profiles?.full_name || request.profiles?.email || 'Unknown Engineer'}
+                          {request.profiles?.full_name || 'Unknown Engineer'}
                         </div>
                         <div className="text-xs text-muted-foreground">
                           ${request.amount.toFixed(2)} • {new Date(request.requested_at).toLocaleDateString()}
@@ -280,7 +280,7 @@ export default function MobileAdminPayouts() {
                       </div>
                       <div className="flex-1">
                         <div className="font-medium text-sm">
-                          {request.profiles?.full_name || request.profiles?.email || 'Unknown'}
+                          {request.profiles?.full_name || 'Unknown'}
                         </div>
                         <div className="text-xs text-muted-foreground">
                           ${request.amount.toFixed(2)} • {request.processed_at && new Date(request.processed_at).toLocaleDateString()}
@@ -315,7 +315,7 @@ export default function MobileAdminPayouts() {
                   <div>
                     <div className="text-xs text-muted-foreground">Engineer</div>
                     <div className="font-medium text-sm">
-                      {selectedRequest.profiles?.full_name || selectedRequest.profiles?.email || 'Unknown'}
+                      {selectedRequest.profiles?.full_name || 'Unknown'}
                     </div>
                   </div>
                   <div>

@@ -20,7 +20,6 @@ import { MobileBottomNav } from '@/components/mobile/MobileBottomNav';
 
 interface UserProfile {
   id: string;
-  email: string;
   full_name: string | null;
   role: string;
   created_at: string;
@@ -57,7 +56,6 @@ export default function MobileAdminUsers() {
     if (searchTerm) {
       filtered = filtered.filter(
         (u) =>
-          u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
           u.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
@@ -154,7 +152,7 @@ export default function MobileAdminUsers() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search by name or email..."
+              placeholder="Search by name or ID..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-9"
@@ -205,7 +203,7 @@ export default function MobileAdminUsers() {
                           {profile.full_name || 'No name'}
                         </div>
                         <div className="text-xs text-muted-foreground truncate">
-                          {profile.email}
+                          ID: {profile.id.substring(0, 8)}...
                         </div>
                       </div>
                     </div>

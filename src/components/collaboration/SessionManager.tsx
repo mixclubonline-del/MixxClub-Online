@@ -30,9 +30,9 @@ interface Session {
     audio_input_enabled: boolean;
     video_enabled: boolean;
     permissions: any;
-    profiles: { full_name: string; email: string };
+    profiles: { full_name: string };
   }>;
-  host?: { full_name: string; email: string };
+  host?: { full_name: string };
 }
 
 interface SessionManagerProps {
@@ -111,7 +111,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({ projectId }) => {
       const hostIds = [...new Set(sessionsData?.map(s => s.host_user_id) || [])];
       const { data: hostProfiles } = await supabase
         .from('profiles')
-        .select('id, full_name, email')
+        .select('id, full_name')
         .in('id', hostIds);
 
       // Get participants for each session
@@ -127,7 +127,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({ projectId }) => {
           audio_input_enabled,
           video_enabled,
           permissions,
-          profiles:profiles(full_name, email)
+          profiles:profiles(full_name)
         `)
         .in('session_id', sessionIds);
 
@@ -135,7 +135,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({ projectId }) => {
       const participantUserIds = [...new Set(participantsData?.map(p => p.user_id) || [])];
       const { data: participantProfiles } = await supabase
         .from('profiles')
-        .select('id, full_name, email')
+        .select('id, full_name')
         .in('id', participantUserIds);
 
       const hostMap = new Map(hostProfiles?.map(p => [p.id, p]) || []);
@@ -146,12 +146,12 @@ const SessionManager: React.FC<SessionManagerProps> = ({ projectId }) => {
         const host = hostMap.get(session.host_user_id);
         const sessionParticipants = participantsData?.filter(p => p.session_id === session.id).map(p => ({
           ...p,
-          profiles: participantProfileMap.get(p.user_id) || { full_name: 'Unknown', email: '' }
+          profiles: participantProfileMap.get(p.user_id) || { full_name: 'Unknown' }
         })) || [];
 
         return {
           ...session,
-          host: host || { full_name: 'Unknown', email: '' },
+          host: host || { full_name: 'Unknown' },
           participants: sessionParticipants
         };
       }) || [];
@@ -178,7 +178,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({ projectId }) => {
       const hostIds = [...new Set(sessionsData?.map(s => s.host_user_id) || [])];
       const { data: hostProfiles } = await supabase
         .from('profiles')
-        .select('id, full_name, email')
+        .select('id, full_name')
         .in('id', hostIds);
 
       // Get participants for each session
@@ -201,7 +201,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({ projectId }) => {
       const participantUserIds = [...new Set(participantsData?.map(p => p.user_id) || [])];
       const { data: participantProfiles } = await supabase
         .from('profiles')
-        .select('id, full_name, email')
+        .select('id, full_name')
         .in('id', participantUserIds);
 
       const hostMap = new Map(hostProfiles?.map(p => [p.id, p]) || []);
@@ -212,12 +212,12 @@ const SessionManager: React.FC<SessionManagerProps> = ({ projectId }) => {
         const host = hostMap.get(session.host_user_id);
         const sessionParticipants = participantsData?.filter(p => p.session_id === session.id).map(p => ({
           ...p,
-          profiles: participantProfileMap.get(p.user_id) || { full_name: 'Unknown', email: '' }
+          profiles: participantProfileMap.get(p.user_id) || { full_name: 'Unknown' }
         })) || [];
 
         return {
           ...session,
-          host: host || { full_name: 'Unknown', email: '' },
+          host: host || { full_name: 'Unknown' },
           participants: sessionParticipants
         };
       }) || [];

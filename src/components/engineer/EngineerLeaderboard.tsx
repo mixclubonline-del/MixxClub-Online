@@ -12,7 +12,6 @@ interface LeaderboardEntry {
   rank: number;
   profile: {
     full_name: string | null;
-    email: string;
   } | null;
 }
 
@@ -30,7 +29,7 @@ export function EngineerLeaderboard() {
         .from('engineer_leaderboard')
         .select(`
           *,
-          profile:profiles(full_name, email)
+          profile:profiles(full_name)
         `)
         .order('rank', { ascending: true })
         .limit(10);
@@ -96,7 +95,7 @@ export function EngineerLeaderboard() {
 
                 <div className="flex-1 min-w-0">
                   <div className="font-medium truncate">
-                    {leader.profile?.full_name || leader.profile?.email || 'Anonymous'}
+                    {leader.profile?.full_name || 'Anonymous'}
                   </div>
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <span className="flex items-center gap-1">

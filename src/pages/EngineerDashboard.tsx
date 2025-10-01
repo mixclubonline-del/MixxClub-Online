@@ -60,7 +60,7 @@ const EngineerDashboard = () => {
         const clientIds = data.map(p => p.client_id);
         const { data: profilesData } = await supabase
           .from('profiles')
-          .select('id, full_name, email')
+          .select('id, full_name')
           .in('id', clientIds);
 
         const projectsWithProfiles = data.map(project => ({
@@ -213,7 +213,7 @@ const EngineerDashboard = () => {
                         <div>
                           <div className="font-medium">{project.title}</div>
                           <div className="text-sm text-muted-foreground">
-                            Client: {project.profiles?.full_name || project.profiles?.email || 'Unknown'}
+                            Client: {project.profiles?.full_name || 'Unknown'}
                           </div>
                         </div>
                         <Badge className={getStatusColor(project.status)}>

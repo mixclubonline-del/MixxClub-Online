@@ -45,7 +45,7 @@ interface Participant {
   audio_input_enabled: boolean;
   video_enabled: boolean;
   permissions: any;
-  profiles: { full_name: string; email: string };
+  profiles: { full_name: string };
 }
 
 interface AudioStream {
@@ -65,7 +65,7 @@ interface ChatMessage {
   comment_text: string;
   timestamp_seconds: number;
   created_at: string;
-  profiles: { full_name: string; email: string };
+  profiles: { full_name: string };
 }
 
 const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({ 
@@ -119,7 +119,7 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
         .from('session_participants')
         .select(`
           *,
-          profiles:profiles(full_name, email)
+          profiles:profiles(full_name)
         `)
         .eq('session_id', sessionId);
 
@@ -129,14 +129,14 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
       const participantUserIds = participantsData?.map(p => p.user_id) || [];
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('id, full_name, email')
+        .select('id, full_name')
         .in('id', participantUserIds);
 
       const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
 
       const formattedParticipants = participantsData?.map(p => ({
         ...p,
-        profiles: profileMap.get(p.user_id) || { full_name: 'Unknown', email: '' }
+        profiles: profileMap.get(p.user_id) || { full_name: 'Unknown' }
       })) || [];
 
       setParticipants(formattedParticipants);
@@ -163,14 +163,14 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
       const senderIds = [...new Set(messagesData?.map(m => m.user_id) || [])];
       const { data: senderProfiles } = await supabase
         .from('profiles')
-        .select('id, full_name, email')
+        .select('id, full_name')
         .in('id', senderIds);
 
       const senderProfileMap = new Map(senderProfiles?.map(p => [p.id, p]) || []);
 
       const formattedMessages = messagesData?.map(m => ({
         ...m,
-        profiles: senderProfileMap.get(m.user_id) || { full_name: 'Unknown', email: '' }
+        profiles: senderProfileMap.get(m.user_id) || { full_name: 'Unknown' }
       })) || [];
 
       setChatMessages(formattedMessages);
