@@ -115,11 +115,27 @@ const Auth = () => {
         localStorage.removeItem(`artist_crm_slideshow_seen_${data.user.id}`);
         localStorage.removeItem('engineer_crm_slideshow_seen');
         
-        // Reset onboarding status for demo accounts to show slideshow
-        await supabase
+        // Ensure onboarding profile exists and is set to completed for slideshow
+        const { data: existingProfile } = await supabase
           .from('onboarding_profiles')
-          .update({ onboarding_completed: true })
-          .eq('user_id', data.user.id);
+          .select('id')
+          .eq('user_id', data.user.id)
+          .single();
+
+        if (existingProfile) {
+          await supabase
+            .from('onboarding_profiles')
+            .update({ onboarding_completed: true })
+            .eq('user_id', data.user.id);
+        } else {
+          await supabase
+            .from('onboarding_profiles')
+            .insert({
+              user_id: data.user.id,
+              user_type: role === 'engineer' ? 'engineer' : 'artist',
+              onboarding_completed: true
+            });
+        }
         
         // Route based on which demo button was clicked
         if (role === 'admin') {
