@@ -47,9 +47,9 @@ const Auth = () => {
     setError('');
     
     const demoCredentials = {
-      client: { email: 'demo-artist@mixclub.app', password: 'demo123456' },
-      engineer: { email: 'demo-engineer@mixclub.app', password: 'demo123456' },
-      admin: { email: 'admin@mixclub.app', password: 'admin123456' }
+      client: { email: 'demo.artist@mixclub.test', password: 'demo123456' },
+      engineer: { email: 'demo.engineer@mixclub.test', password: 'demo123456' },
+      admin: { email: 'demo.admin@mixclub.test', password: 'admin123456' }
     };
 
     const credentials = demoCredentials[role];
