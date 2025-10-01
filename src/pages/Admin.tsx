@@ -24,10 +24,11 @@ export default function Admin() {
         return;
       }
 
-      const { data, error } = await supabase.rpc('is_admin');
-      console.log('Admin check:', { data, error });
+      const { data, error } = await supabase.rpc('is_admin', { user_uuid: user.id });
+      console.log('Admin check:', { user: user.id, data, error });
       
       if (error || !data) {
+        console.log('Not admin, redirecting to home');
         navigate('/');
         return;
       }
