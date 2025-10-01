@@ -8,29 +8,32 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Sleek Dark Design - Black & Purple */
-    --background: 0 0% 7%;
+    /* Raven AI Sound - Deep Space Professional */
+    --background: 0 0% 3%;
     --foreground: 0 0% 98%;
 
-    --card: 0 0% 10%;
+    --card: 240 10% 8%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 10%;
+    --popover: 240 10% 8%;
     --popover-foreground: 0 0% 98%;
 
     --primary: 262 83% 58%;
     --primary-foreground: 0 0% 98%;
-    --primary-glow: 262 83% 68%;
-    --primary-muted: 262 50% 40%;
+    --primary-glow: 262 83% 70%;
+    --primary-muted: 262 50% 35%;
+    --primary-deep: 262 83% 45%;
 
-    --secondary: 0 0% 15%;
+    --secondary: 240 10% 12%;
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 65%;
+    --muted: 240 8% 15%;
+    --muted-foreground: 0 0% 60%;
 
-    --accent: 262 83% 58%;
+    --accent: 220 90% 60%;
     --accent-foreground: 0 0% 98%;
+    --accent-cyan: 180 100% 50%;
+    --accent-blue: 220 90% 60%;
 
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 98%;
@@ -41,30 +44,36 @@ All colors MUST be HSL.
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 7%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 15%;
+    --border: 240 8% 18%;
+    --input: 240 10% 12%;
     --ring: 262 83% 58%;
 
     --radius: 0.75rem;
 
-    /* Dark Elegant Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(262 83% 58%), hsl(262 83% 68%));
-    --gradient-primary-hover: linear-gradient(135deg, hsl(262 83% 63%), hsl(262 83% 73%));
-    --gradient-glass: linear-gradient(135deg, hsl(0 0% 10% / 0.6), hsl(0 0% 15% / 0.4));
-    --gradient-glass-hover: linear-gradient(135deg, hsl(0 0% 15% / 0.8), hsl(0 0% 20% / 0.6));
-    --gradient-card: linear-gradient(135deg, hsl(0 0% 10% / 0.8), hsl(0 0% 12% / 0.9));
-    --gradient-hero: linear-gradient(180deg, hsl(0 0% 7%), hsl(262 20% 10%));
-    --gradient-track: linear-gradient(90deg, hsl(262 83% 58% / 0.3), hsl(262 83% 68% / 0.2));
+    /* Raven-Inspired Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(262 83% 58%), hsl(262 83% 70%));
+    --gradient-primary-hover: linear-gradient(135deg, hsl(262 83% 65%), hsl(262 83% 75%));
+    --gradient-raven: linear-gradient(135deg, hsl(262 83% 58%), hsl(220 90% 60%), hsl(180 100% 50%));
+    --gradient-glass: linear-gradient(135deg, hsl(240 10% 8% / 0.7), hsl(240 10% 12% / 0.5));
+    --gradient-glass-hover: linear-gradient(135deg, hsl(240 10% 12% / 0.9), hsl(240 10% 15% / 0.7));
+    --gradient-card: linear-gradient(135deg, hsl(240 10% 8% / 0.9), hsl(240 10% 10% / 0.95));
+    --gradient-hero: linear-gradient(180deg, hsl(0 0% 3%), hsl(262 30% 8%), hsl(220 40% 10%));
+    --gradient-studio: linear-gradient(90deg, hsl(240 10% 8%), hsl(262 20% 10%), hsl(240 10% 8%));
+    --gradient-audio-wave: linear-gradient(90deg, transparent 0%, hsl(262 83% 58% / 0.3) 50%, transparent 100%);
+    --gradient-metallic: linear-gradient(135deg, hsl(0 0% 70%), hsl(0 0% 90%), hsl(0 0% 70%));
     
-    /* Elegant Glow Effects */
-    --shadow-glow: 0 0 60px hsl(262 83% 58% / 0.5);
-    --shadow-glow-sm: 0 0 30px hsl(262 83% 58% / 0.3);
-    --shadow-glow-cyan: 0 0 50px hsl(180 100% 50% / 0.3);
-    --shadow-glow-pink: 0 0 50px hsl(320 100% 50% / 0.3);
-    --shadow-elegant: 0 20px 60px hsl(0 0% 0% / 0.7);
-    --shadow-glass: 0 8px 32px hsl(262 83% 58% / 0.15);
-    --shadow-glass-lg: 0 16px 48px hsl(262 83% 58% / 0.25);
-    --shadow-inner: inset 0 2px 4px hsl(0 0% 0% / 0.3);
+    /* Dramatic Glow Effects */
+    --shadow-glow: 0 0 80px hsl(262 83% 58% / 0.6);
+    --shadow-glow-sm: 0 0 40px hsl(262 83% 58% / 0.4);
+    --shadow-glow-lg: 0 0 120px hsl(262 83% 58% / 0.5);
+    --shadow-glow-cyan: 0 0 60px hsl(180 100% 50% / 0.4);
+    --shadow-glow-blue: 0 0 60px hsl(220 90% 60% / 0.4);
+    --shadow-glow-raven: 0 20px 80px hsl(262 83% 58% / 0.4), 0 0 40px hsl(220 90% 60% / 0.3);
+    --shadow-elegant: 0 25px 80px hsl(0 0% 0% / 0.9);
+    --shadow-glass: 0 8px 32px hsl(262 83% 58% / 0.2);
+    --shadow-glass-lg: 0 16px 64px hsl(262 83% 58% / 0.3);
+    --shadow-inner: inset 0 2px 8px hsl(0 0% 0% / 0.5);
+    --shadow-studio: 0 4px 24px hsl(0 0% 0% / 0.6), inset 0 1px 2px hsl(0 0% 100% / 0.05);
     
     /* Smooth Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -113,11 +122,32 @@ All colors MUST be HSL.
   @keyframes pulse-glow {
     0%, 100% { 
       opacity: 1;
-      filter: drop-shadow(0 0 20px hsl(var(--primary) / 0.5));
+      filter: drop-shadow(0 0 30px hsl(var(--primary) / 0.6));
     }
     50% { 
-      opacity: 0.9;
-      filter: drop-shadow(0 0 40px hsl(var(--primary) / 0.8));
+      opacity: 0.95;
+      filter: drop-shadow(0 0 60px hsl(var(--primary) / 0.9));
+    }
+  }
+
+  @keyframes audio-wave {
+    0%, 100% { 
+      transform: scaleY(1);
+    }
+    50% { 
+      transform: scaleY(1.5);
+    }
+  }
+
+  @keyframes raven-float {
+    0%, 100% { 
+      transform: translateY(0px) translateX(0px);
+    }
+    33% { 
+      transform: translateY(-30px) translateX(10px);
+    }
+    66% { 
+      transform: translateY(-15px) translateX(-10px);
     }
   }
 
@@ -184,6 +214,14 @@ All colors MUST be HSL.
     animation: pulse-glow 2s ease-in-out infinite;
   }
 
+  .animate-audio-wave {
+    animation: audio-wave 1.5s ease-in-out infinite;
+  }
+
+  .animate-raven-float {
+    animation: raven-float 8s ease-in-out infinite;
+  }
+
   .animate-scale-in {
     animation: scale-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
@@ -208,9 +246,9 @@ All colors MUST be HSL.
 
   /* Glassmorphism utilities */
   .glass {
-    background: linear-gradient(135deg, hsl(var(--card) / 0.7), hsl(var(--card) / 0.5));
-    backdrop-filter: blur(16px);
-    border: 1px solid hsl(var(--border) / 0.3);
+    background: linear-gradient(135deg, hsl(var(--card) / 0.8), hsl(var(--card) / 0.6));
+    backdrop-filter: blur(20px);
+    border: 1px solid hsl(var(--border) / 0.4);
   }
 
   .glass-hover {
@@ -218,9 +256,23 @@ All colors MUST be HSL.
   }
 
   .glass-hover:hover {
-    background: linear-gradient(135deg, hsl(var(--card) / 0.8), hsl(var(--card) / 0.6));
-    border-color: hsl(var(--primary) / 0.4);
-    box-shadow: var(--shadow-glass);
+    background: linear-gradient(135deg, hsl(var(--card) / 0.95), hsl(var(--card) / 0.85));
+    border-color: hsl(var(--primary) / 0.6);
+    box-shadow: var(--shadow-glass-lg);
+  }
+
+  .glass-studio {
+    background: linear-gradient(135deg, hsl(var(--card) / 0.9), hsl(var(--card) / 0.7));
+    backdrop-filter: blur(24px);
+    border: 1px solid hsl(var(--border) / 0.5);
+    box-shadow: var(--shadow-studio);
+  }
+
+  .metallic-accent {
+    background: var(--gradient-metallic);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
   /* Modern scrollbar */
