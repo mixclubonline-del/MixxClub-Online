@@ -1,7 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Pause, RotateCcw, Volume2, VolumeX } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import engineerStudio from "@/assets/engineer-studio-hero.jpg";
 
@@ -34,34 +32,21 @@ const scriptSegments = [
 ];
 
 export const EngineerShowcaseSlideshow = () => {
-  const [isPlaying, setIsPlaying] = useState(false);
   const [currentSegment, setCurrentSegment] = useState(0);
-  const [progress, setProgress] = useState(0);
-  const [isMuted, setIsMuted] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const startTimeRef = useRef<number>(0);
   const navigate = useNavigate();
 
   const currentText = scriptSegments[currentSegment];
-  const totalDuration = scriptSegments.reduce((acc, seg) => acc + seg.duration, 0);
 
   useEffect(() => {
-    if (isPlaying) {
-      startTimeRef.current = Date.now();
-      playSegment();
-    } else {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
-    }
+    playSegment();
 
     return () => {
       if (timerRef.current) {
         clearTimeout(timerRef.current);
       }
     };
-  }, [isPlaying, currentSegment]);
+  }, [currentSegment]);
 
   const playSegment = () => {
     const segment = scriptSegments[currentSegment];
@@ -70,45 +55,10 @@ export const EngineerShowcaseSlideshow = () => {
       if (currentSegment < scriptSegments.length - 1) {
         setCurrentSegment(prev => prev + 1);
       } else {
-        setIsPlaying(false);
+        // Loop back to start
         setCurrentSegment(0);
-        setProgress(0);
       }
     }, segment.duration);
-
-    // Update progress
-    const interval = setInterval(() => {
-      if (isPlaying) {
-        const elapsed = Date.now() - startTimeRef.current;
-        const segmentProgress = (elapsed / segment.duration) * 100;
-        
-        const previousDuration = scriptSegments
-          .slice(0, currentSegment)
-          .reduce((acc, seg) => acc + seg.duration, 0);
-        
-        const totalProgress = ((previousDuration + elapsed) / totalDuration) * 100;
-        setProgress(Math.min(totalProgress, 100));
-      }
-    }, 50);
-
-    return () => clearInterval(interval);
-  };
-
-  const handlePlayPause = () => {
-    setIsPlaying(!isPlaying);
-  };
-
-  const handleReplay = () => {
-    setCurrentSegment(0);
-    setProgress(0);
-    setIsPlaying(true);
-  };
-
-  const toggleMute = () => {
-    setIsMuted(!isMuted);
-    if (audioRef.current) {
-      audioRef.current.muted = !isMuted;
-    }
   };
 
   const getImageTransform = () => {
@@ -127,7 +77,7 @@ export const EngineerShowcaseSlideshow = () => {
   };
 
   return (
-    <section className="relative w-full min-h-screen overflow-hidden bg-gradient-to-b from-background via-background/95 to-background">
+    <section className="relative w-full py-32 overflow-hidden bg-gradient-to-b from-background via-background/95 to-background">
       {/* Background Image with Parallax */}
       <motion.div 
         className="absolute inset-0 z-0"
@@ -174,9 +124,9 @@ export const EngineerShowcaseSlideshow = () => {
       </div>
 
       {/* Content Container */}
-      <div className="relative z-20 container mx-auto px-4 min-h-screen flex flex-col items-center justify-center">
+      <div className="relative z-20 container mx-auto px-4 flex flex-col items-center justify-center">
         {/* Text Content */}
-        <div className="max-w-4xl w-full text-center space-y-8 mb-12">
+        <div className="max-w-4xl w-full text-center space-y-8">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentSegment}
@@ -217,84 +167,15 @@ export const EngineerShowcaseSlideshow = () => {
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ delay: 1 }}
               >
-                <Button
-                  size="lg"
+                <button
                   onClick={() => navigate("/for-engineers")}
-                  className="text-lg px-8 py-6 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/30"
+                  className="text-lg px-8 py-4 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg shadow-lg shadow-primary/30 transition-all duration-300"
                 >
                   Join as Engineer - Earn 70%
-                </Button>
+                </button>
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
-
-        {/* Controls */}
-        <div className="glass-studio rounded-2xl p-6 max-w-2xl w-full space-y-4">
-          {/* Progress Bar */}
-          <div className="relative h-2 bg-secondary rounded-full overflow-hidden">
-            <motion.div
-              className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary to-primary-glow"
-              style={{ width: `${progress}%` }}
-              transition={{ duration: 0.1 }}
-            />
-          </div>
-
-          {/* Control Buttons */}
-          <div className="flex items-center justify-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleMute}
-              className="hover:bg-secondary/80"
-            >
-              {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
-            </Button>
-
-            <Button
-              size="icon"
-              onClick={handleReplay}
-              className="hover:bg-secondary/80"
-              variant="ghost"
-            >
-              <RotateCcw className="w-5 h-5" />
-            </Button>
-
-            <Button
-              size="lg"
-              onClick={handlePlayPause}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground w-16 h-16 rounded-full shadow-lg shadow-primary/30"
-            >
-              {isPlaying ? (
-                <Pause className="w-6 h-6" />
-              ) : (
-                <Play className="w-6 h-6 ml-1" />
-              )}
-            </Button>
-          </div>
-
-          {/* Segment Indicators */}
-          <div className="flex justify-center gap-2">
-            {scriptSegments.map((_, index) => (
-              <motion.div
-                key={index}
-                className={`h-1.5 rounded-full transition-all ${
-                  index === currentSegment
-                    ? "w-8 bg-primary"
-                    : index < currentSegment
-                    ? "w-4 bg-primary/50"
-                    : "w-4 bg-secondary"
-                }`}
-                animate={{
-                  scale: index === currentSegment ? [1, 1.2, 1] : 1,
-                }}
-                transition={{
-                  duration: 0.5,
-                  repeat: index === currentSegment && isPlaying ? Infinity : 0,
-                }}
-              />
-            ))}
-          </div>
         </div>
       </div>
 
