@@ -22,6 +22,7 @@ import { EngineerReviews } from '@/components/review/EngineerReviews';
 import ProfileEditor from '@/components/crm/ProfileEditor';
 import ProfileInsights from '@/components/crm/ProfileInsights';
 import { EngineerCRMChatbot } from '@/components/crm/EngineerCRMChatbot';
+import EngineerCRMSlideshow from '@/components/crm/EngineerCRMSlideshow';
 
 const EngineerCRM = () => {
   const { user } = useAuth();
@@ -42,6 +43,7 @@ const EngineerCRM = () => {
   });
   const [loading, setLoading] = useState(true);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  const [showSlideshow, setShowSlideshow] = useState(false);
 
   useEffect(() => {
     const checkAccess = async () => {
@@ -59,6 +61,21 @@ const EngineerCRM = () => {
         toast.error('Please use the Admin Panel');
         navigate('/admin');
         return;
+      }
+
+      // Check if this is first time in CRM after onboarding
+      const slideshowSeen = localStorage.getItem('engineer_crm_slideshow_seen');
+      
+      if (!slideshowSeen) {
+        const { data: onboardingData } = await supabase
+          .from('onboarding_profiles')
+          .select('onboarding_completed')
+          .eq('user_id', user.id)
+          .single();
+
+        if (onboardingData?.onboarding_completed) {
+          setShowSlideshow(true);
+        }
       }
 
       fetchData();
@@ -173,6 +190,26 @@ const EngineerCRM = () => {
     };
     return colors[priority as keyof typeof colors] || 'bg-gray-500';
   };
+
+  const handleSlideshowComplete = () => {
+    localStorage.setItem('engineer_crm_slideshow_seen', 'true');
+    setShowSlideshow(false);
+    navigate('/engineer-crm?tab=opportunities');
+  };
+
+  const handleSlideshowSkip = () => {
+    localStorage.setItem('engineer_crm_slideshow_seen', 'true');
+    setShowSlideshow(false);
+  };
+
+  if (showSlideshow) {
+    return (
+      <EngineerCRMSlideshow
+        onComplete={handleSlideshowComplete}
+        onSkip={handleSlideshowSkip}
+      />
+    );
+  }
 
   if (loading) {
     return (
