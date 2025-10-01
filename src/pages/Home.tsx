@@ -14,6 +14,7 @@ import { PluginShowcase } from "@/components/PluginShowcase";
 import { Testimonials } from "@/components/Testimonials";
 import { LiveStats } from "@/components/LiveStats";
 import { BeforeAfterComparison } from "@/components/BeforeAfterComparison";
+import { EngineerShowcaseSlideshow } from "@/components/EngineerShowcaseSlideshow";
 import { Button } from "@/components/ui/button";
 import { Users, Zap, Music, Sparkles } from "lucide-react";
 
@@ -22,6 +23,7 @@ const Home = () => {
     <div className="min-h-screen">
       <Navigation />
       <Hero />
+      <EngineerShowcaseSlideshow />
       <BeforeAfterComparison />
       <ProblemStatement />
       <HowItWorks />
