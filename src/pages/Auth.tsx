@@ -42,6 +42,69 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const handleDemoLogin = async (role: 'client' | 'engineer') => {
+    setLoading(true);
+    setError('');
+    
+    const demoCredentials = {
+      client: { email: 'demo-artist@mixclub.app', password: 'demo123456' },
+      engineer: { email: 'demo-engineer@mixclub.app', password: 'demo123456' }
+    };
+
+    const credentials = demoCredentials[role];
+
+    try {
+      // Try to sign in first
+      let { data, error } = await supabase.auth.signInWithPassword(credentials);
+
+      // If user doesn't exist, create them
+      if (error?.message.includes('Invalid login')) {
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email: credentials.email,
+          password: credentials.password,
+          options: {
+            data: {
+              full_name: role === 'client' ? 'Demo Artist' : 'Demo Engineer',
+            },
+            emailRedirectTo: `${window.location.origin}/`,
+          },
+        });
+
+        if (signUpError) {
+          setError(signUpError.message);
+          setLoading(false);
+          return;
+        }
+
+        // Update profile with role
+        if (signUpData.user) {
+          await supabase
+            .from('profiles')
+            .update({ role })
+            .eq('id', signUpData.user.id);
+
+          toast.success(`Demo ${role} account ready!`);
+          navigate(role === 'engineer' ? '/engineer-crm' : '/artist-crm');
+        }
+      } else if (error) {
+        setError(error.message);
+      } else if (data.user) {
+        toast.success('Logged in as demo user!');
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', data.user.id)
+          .single();
+        
+        navigate(profile?.role === 'engineer' ? '/engineer-crm' : '/artist-crm');
+      }
+    } catch (err) {
+      setError("Demo login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleOAuthSignIn = async (provider: 'google' | 'apple') => {
     setError("");
     setLoading(true);
@@ -227,6 +290,39 @@ const Auth = () => {
               <Apple className="w-5 h-5" />
               <span className="ml-2">Continue with Apple</span>
             </Button>
+          </div>
+
+          <div className="relative mb-6">
+            <Separator />
+            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">
+              or
+            </span>
+          </div>
+
+          <div className="space-y-3 mb-6">
+            <p className="text-sm text-center text-muted-foreground">Testing? Try demo accounts:</p>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => handleDemoLogin('client')}
+                disabled={loading}
+                className="flex-1"
+              >
+                <Mic2 className="w-4 h-4 mr-2" />
+                Demo Artist
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => handleDemoLogin('engineer')}
+                disabled={loading}
+                className="flex-1"
+              >
+                <Headphones className="w-4 h-4 mr-2" />
+                Demo Engineer
+              </Button>
+            </div>
           </div>
 
           <div className="relative mb-6">
