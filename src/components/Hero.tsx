@@ -5,13 +5,12 @@ import mixclub3DLogo from "@/assets/mixclub-3d-logo.png";
 
 const Hero = () => {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-primary/5 to-accent/10">
-      {/* Dynamic gradient orbs - Google Glass style */}
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background">
+      {/* Subtle gradient orbs */}
       <div className="absolute inset-0">
-        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-gradient-to-br from-secondary/40 to-primary/30 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-gradient-to-br from-primary/40 to-accent/30 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-br from-accent/20 to-primary-glow/25 rounded-full blur-3xl animate-pulse-glow" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute top-1/3 right-1/3 w-[400px] h-[400px] bg-gradient-to-br from-primary-glow/30 to-secondary/25 rounded-full blur-3xl animate-float" style={{ animationDelay: '3s' }}></div>
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/15 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40rem] h-[40rem] bg-primary/10 rounded-full blur-3xl animate-pulse-glow" style={{ animationDelay: '1s' }}></div>
       </div>
 
       {/* Content */}
@@ -27,21 +26,21 @@ const Hero = () => {
 
         {/* Introducing Badge */}
         <div className="mb-8">
-          <div className="inline-flex items-center px-5 py-2.5 rounded-full bg-gradient-to-r from-primary/15 to-accent/15 border-2 border-primary/40 backdrop-blur-md shadow-glow-sm">
-            <span className="text-sm font-bold text-primary animate-pulse-glow">YOUR SOUND, PERFECTED</span>
+          <div className="inline-flex items-center px-4 py-2 rounded-full bg-primary/10 border border-primary/30 backdrop-blur-sm">
+            <span className="text-sm font-medium text-primary">YOUR SOUND, PERFECTED</span>
           </div>
         </div>
 
         {/* Main Headline with Gradient */}
         <div className="space-y-8 mb-16">
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold leading-tight max-w-6xl mx-auto">
-            <span className="bg-gradient-to-r from-secondary via-primary to-accent bg-clip-text text-transparent animate-shimmer">
+            <span className="bg-gradient-to-r from-primary via-primary-glow to-primary bg-clip-text text-transparent">
               Turn Your Tracks Into
               Radio-Ready Hits
             </span>
           </h1>
           
-          <p className="text-xl md:text-2xl text-foreground/80 max-w-4xl mx-auto leading-relaxed font-medium">
+          <p className="text-xl md:text-2xl text-muted-foreground max-w-4xl mx-auto leading-relaxed">
             Connect with pro engineers who've worked on your favorite songs across hip-hop, pop, rock, and beyond. 
             Get studio-quality mixing and mastering in days, not weeks. Your music deserves to sound as good as the pros.
           </p>
@@ -70,34 +69,34 @@ const Hero = () => {
 
         {/* Feature Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          <div className="p-6 rounded-2xl bg-card/60 backdrop-blur-xl border-2 border-primary/30 hover:border-primary/60 hover:shadow-glow-sm transition-all duration-300 hover:scale-105">
+          <div className="p-6 rounded-2xl bg-card/50 backdrop-blur-sm border border-primary/20 hover:border-primary/40 hover:shadow-glow-sm transition-all duration-300">
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-3 rounded-xl bg-gradient-to-br from-primary/20 to-primary-glow/20 shadow-glow-sm">
+              <div className="p-2 rounded-lg bg-primary/10">
                 <Music className="w-6 h-6 text-primary" />
               </div>
-              <h3 className="font-bold text-lg text-foreground">Instant Mastering Polish</h3>
+              <h3 className="font-semibold text-lg">Instant Mastering Polish</h3>
             </div>
-            <p className="text-foreground/70 font-medium">AI trained on chart-topping hits makes your tracks streaming-ready with that radio polish.</p>
+            <p className="text-muted-foreground">AI trained on chart-topping hits makes your tracks streaming-ready with that radio polish.</p>
           </div>
           
-          <div className="p-6 rounded-2xl bg-card/60 backdrop-blur-xl border-2 border-secondary/30 hover:border-secondary/60 hover:shadow-glow-cyan transition-all duration-300 hover:scale-105">
+          <div className="p-6 rounded-2xl bg-card/50 backdrop-blur-sm border border-primary/20 hover:border-primary/40 hover:shadow-glow-sm transition-all duration-300">
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-3 rounded-xl bg-gradient-to-br from-secondary/20 to-secondary/10 shadow-glow-cyan">
-                <HeartHandshake className="w-6 h-6 text-secondary" />
+              <div className="p-2 rounded-lg bg-primary/10">
+                <HeartHandshake className="w-6 h-6 text-primary" />
               </div>
-              <h3 className="font-bold text-lg text-foreground">Pro Mixing Engineers</h3>
+              <h3 className="font-semibold text-lg">Pro Mixing Engineers</h3>
             </div>
-            <p className="text-foreground/70 font-medium">Real musicians who've mixed hits you know and love - ready to work on your tracks.</p>
+            <p className="text-muted-foreground">Real musicians who've mixed hits you know and love - ready to work on your tracks.</p>
           </div>
           
-          <div className="p-6 rounded-2xl bg-card/60 backdrop-blur-xl border-2 border-accent/30 hover:border-accent/60 hover:shadow-glow-pink transition-all duration-300 hover:scale-105">
+          <div className="p-6 rounded-2xl bg-card/50 backdrop-blur-sm border border-primary/20 hover:border-primary/40 hover:shadow-glow-sm transition-all duration-300">
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-3 rounded-xl bg-gradient-to-br from-accent/20 to-accent/10 shadow-glow-pink">
-                <Award className="w-6 h-6 text-accent" />
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Award className="w-6 h-6 text-primary" />
               </div>
-              <h3 className="font-bold text-lg text-foreground">Live Studio Sessions</h3>
+              <h3 className="font-semibold text-lg">Live Studio Sessions</h3>
             </div>
-            <p className="text-foreground/70 font-medium">Collaborate in real-time like you're in the studio together - instant feedback and live edits.</p>
+            <p className="text-muted-foreground">Collaborate in real-time like you're in the studio together - instant feedback and live edits.</p>
           </div>
         </div>
       </div>
