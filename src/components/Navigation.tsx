@@ -90,6 +90,8 @@ const Navigation = () => {
             <>
               {/* Desktop Navigation */}
               <div className="hidden md:flex items-center gap-8">
+                {user && <RealTimeNotifications userId={user.id} />}
+                
                 {navLinks.map((link) => (
                   <Link
                     key={link.to}
@@ -261,6 +263,11 @@ const Navigation = () => {
             <div className={`pt-2 space-y-2 transform transition-all duration-300 ${
               isOpen ? 'translate-x-0 opacity-100' : 'translate-x-4 opacity-0'
             }`} style={{ transitionDelay: `${navLinks.length * 50}ms` }}>
+              {user && (
+                <div className="px-4 mb-2">
+                  <RealTimeNotifications userId={user.id} />
+                </div>
+              )}
               {user ? (
                 <Button 
                   onClick={signOut} 

@@ -45,27 +45,38 @@ export const EngineerReviews = ({ engineerId }: EngineerReviewsProps) => {
     try {
       const { data, error } = await supabase
         .from('project_reviews')
-        .select(`
-          *,
-          profiles:artist_id (
-            full_name
-          )
-        `)
+        .select('*')
         .eq('engineer_id', engineerId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      setReviews(data || []);
+      // Fetch profiles separately for each review
+      const reviewsWithProfiles = await Promise.all(
+        (data || []).map(async (review) => {
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', review.artist_id)
+            .maybeSingle();
+          
+          return {
+            ...review,
+            profiles: profileData || { full_name: null }
+          };
+        })
+      );
+
+      setReviews(reviewsWithProfiles);
       
       // Calculate stats
-      if (data && data.length > 0) {
-        const totalReviews = data.length;
-        const avgRating = data.reduce((sum, r) => sum + Number(r.rating), 0) / totalReviews;
-        const avgComm = data.reduce((sum, r) => sum + Number(r.communication_rating || 0), 0) / totalReviews;
-        const avgQual = data.reduce((sum, r) => sum + Number(r.quality_rating || 0), 0) / totalReviews;
-        const avgTime = data.reduce((sum, r) => sum + Number(r.timeliness_rating || 0), 0) / totalReviews;
-        const recommendations = data.filter(r => r.would_recommend).length;
+      if (reviewsWithProfiles && reviewsWithProfiles.length > 0) {
+        const totalReviews = reviewsWithProfiles.length;
+        const avgRating = reviewsWithProfiles.reduce((sum, r) => sum + Number(r.rating), 0) / totalReviews;
+        const avgComm = reviewsWithProfiles.reduce((sum, r) => sum + Number(r.communication_rating || 0), 0) / totalReviews;
+        const avgQual = reviewsWithProfiles.reduce((sum, r) => sum + Number(r.quality_rating || 0), 0) / totalReviews;
+        const avgTime = reviewsWithProfiles.reduce((sum, r) => sum + Number(r.timeliness_rating || 0), 0) / totalReviews;
+        const recommendations = reviewsWithProfiles.filter(r => r.would_recommend).length;
         
         setStats({
           averageRating: avgRating,

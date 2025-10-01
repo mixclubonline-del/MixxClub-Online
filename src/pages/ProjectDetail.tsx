@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
 import Navigation from '@/components/Navigation';
 import { SharedProjectWorkspace } from '@/components/collaboration/SharedProjectWorkspace';
 import { ServiceRecommendations } from '@/components/crm/ServiceRecommendations';
 import { EngineerReferralSystem } from '@/components/crm/EngineerReferralSystem';
 import { TrackEvolutionTimeline } from '@/components/crm/TrackEvolutionTimeline';
 import { MusicalCompatibilityScore } from '@/components/crm/MusicalCompatibilityScore';
+import { ProjectReviewDialog } from '@/components/review/ProjectReviewDialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
@@ -19,6 +21,8 @@ const ProjectDetail = () => {
   const navigate = useNavigate();
   const [project, setProject] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [showReviewDialog, setShowReviewDialog] = useState(false);
+  const [hasReviewed, setHasReviewed] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -48,6 +52,18 @@ const ProjectDetail = () => {
 
       if (error) throw error;
       setProject(data);
+
+      // Check if artist has already reviewed this project
+      if (user?.id === data.client_id && data.engineer_id) {
+        const { data: reviewData } = await supabase
+          .from('project_reviews')
+          .select('id')
+          .eq('project_id', projectId)
+          .eq('artist_id', user.id)
+          .maybeSingle();
+        
+        setHasReviewed(!!reviewData);
+      }
     } catch (error: any) {
       console.error('Error fetching project:', error);
       toast.error('Failed to load project');
@@ -100,15 +116,32 @@ const ProjectDetail = () => {
       <Navigation />
       
       <div className="container px-4 md:px-6 pt-24 pb-8">
-        {/* Back Button */}
-        <Button 
-          variant="ghost" 
-          onClick={() => navigate(-1)}
-          className="mb-6"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Dashboard
-        </Button>
+        <div className="flex items-center justify-between mb-6">
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate(-1)}
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Dashboard
+          </Button>
+
+          {/* Review Button for completed projects */}
+          {isArtist && project.status === 'completed' && project.engineer_id && (
+            <div className="flex items-center gap-3">
+              {hasReviewed ? (
+                <Badge variant="secondary" className="px-4 py-2">
+                  <Star className="w-4 h-4 mr-1 fill-primary" />
+                  Review Submitted
+                </Badge>
+              ) : (
+                <Button onClick={() => setShowReviewDialog(true)}>
+                  <Star className="w-4 h-4 mr-2" />
+                  Rate Engineer
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* Main Workspace */}
         <div className="mb-8">
@@ -160,6 +193,22 @@ const ProjectDetail = () => {
             )}
           </TabsContent>
         </Tabs>
+
+        {/* Review Dialog */}
+        {project.engineer_id && (
+          <ProjectReviewDialog
+            open={showReviewDialog}
+            onOpenChange={setShowReviewDialog}
+            projectId={projectId!}
+            engineerId={project.engineer_id}
+            engineerName={project.engineer?.full_name}
+            onReviewSubmitted={() => {
+              setHasReviewed(true);
+              fetchProject();
+              toast.success('Thank you for your review!');
+            }}
+          />
+        )}
       </div>
     </div>
   );

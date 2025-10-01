@@ -18,6 +18,7 @@ import { EarningsOverview } from '@/components/engineer/EarningsOverview';
 import { PayoutManagement } from '@/components/engineer/PayoutManagement';
 import { RecommendedArtists } from '@/components/crm/RecommendedArtists';
 import { MusicalProfile } from '@/components/crm/MusicalProfile';
+import { EngineerReviews } from '@/components/review/EngineerReviews';
 import ProfileEditor from '@/components/crm/ProfileEditor';
 import ProfileInsights from '@/components/crm/ProfileInsights';
 
@@ -431,6 +432,11 @@ const EngineerCRM = () => {
                   ))}
                 </div>
               )}
+            </div>
+            
+            <div className="lg:col-span-3 mt-8">
+              <h3 className="text-xl font-bold mb-4">Client Reviews</h3>
+              <EngineerReviews engineerId={user?.id || ''} />
             </div>
           </div>
         );

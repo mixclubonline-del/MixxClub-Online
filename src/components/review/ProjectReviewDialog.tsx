@@ -45,8 +45,7 @@ export const ProjectReviewDialog = ({
 
       const { error } = await supabase
         .from('project_reviews')
-        .insert({
-          project_id: projectId,
+        .insert([{
           artist_id: user.id,
           engineer_id: engineerId,
           rating,
@@ -55,7 +54,7 @@ export const ProjectReviewDialog = ({
           timeliness_rating: timelinessRating,
           review_text: reviewText,
           would_recommend: wouldRecommend
-        });
+        }] as any);
 
       if (error) throw error;
 

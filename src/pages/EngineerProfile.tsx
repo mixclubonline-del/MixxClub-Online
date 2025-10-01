@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
+import { EngineerReviews } from "@/components/review/EngineerReviews";
 import { 
   Star, 
   Award, 
@@ -236,6 +237,15 @@ export default function EngineerProfile() {
                 </div>
               )}
             </div>
+          </Card>
+
+          {/* Reviews Section */}
+          <Card className="p-6 mb-8">
+            <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+              <Star className="w-6 h-6" />
+              Client Reviews
+            </h2>
+            <EngineerReviews engineerId={userId!} />
           </Card>
 
           {/* CTA */}

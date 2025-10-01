@@ -12,6 +12,7 @@ import { EngineerCRMDashboard } from '@/components/crm/EngineerCRMDashboard';
 import { AdvancedMixingStudio } from '@/components/mixing/AdvancedMixingStudio';
 import { AIMasteringService } from '@/components/mastering/AIMasteringService';
 import { LockedServiceTab } from '@/components/crm/LockedServiceTab';
+import { CompletedProjectCard } from '@/components/crm/CompletedProjectCard';
 import { toast } from 'sonner';
 import { JobApplicationManager } from '@/components/crm/JobApplicationManager';
 import { JobPostingForm } from '@/components/JobPostingForm';
@@ -212,45 +213,7 @@ const ArtistCRM = () => {
             {projects.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {projects.map((project) => (
-                  <Card 
-                    key={project.id} 
-                    className="p-6 hover:shadow-lg transition-shadow cursor-pointer"
-                    onClick={() => navigate(`/project/${project.id}`)}
-                  >
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-lg mb-1">{project.title}</h3>
-                        <p className="text-sm text-muted-foreground line-clamp-2">{project.description}</p>
-                      </div>
-                      <Badge variant="outline" className="ml-2">
-                        {project.status}
-                      </Badge>
-                    </div>
-                    
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      {project.engineer ? (
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
-                            {project.engineer.full_name?.[0] || 'E'}
-                          </div>
-                          <span>{project.engineer.full_name}</span>
-                        </div>
-                      ) : (
-                        <span className="text-yellow-500">No engineer assigned</span>
-                      )}
-                      <span>•</span>
-                      <span>{project.audio_files?.[0]?.count || 0} files</span>
-                    </div>
-                    
-                    <div className="mt-4 pt-4 border-t flex justify-between items-center">
-                      <span className="text-xs text-muted-foreground">
-                        Created {new Date(project.created_at).toLocaleDateString()}
-                      </span>
-                      <Button variant="ghost" size="sm">
-                        View Details
-                      </Button>
-                    </div>
-                  </Card>
+                  <CompletedProjectCard key={project.id} project={project} />
                 ))}
               </div>
             ) : (
