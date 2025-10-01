@@ -39,7 +39,7 @@ export const MobileAuthDialog = ({ open, onOpenChange, mode = 'login' }: MobileA
 
         toast({
           title: "Account created!",
-          description: "Please check your email to verify your account"
+          description: "You can now sign in with your credentials"
         });
       } else {
         const { error } = await supabase.auth.signInWithPassword({
