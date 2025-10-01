@@ -1,5 +1,8 @@
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
+import ProblemStatement from "@/components/ProblemStatement";
+import HowItWorks from "@/components/HowItWorks";
+import WhyMixClub from "@/components/WhyMixClub";
 import Services from "@/components/Services";
 import AudioPreview from "@/components/AudioPreview";
 import { SuccessStories } from "@/components/SuccessStories";
@@ -9,6 +12,7 @@ import Contact from "@/components/Contact";
 import { StickyUploadButton } from "@/components/StickyUploadButton";
 import { PluginShowcase } from "@/components/PluginShowcase";
 import { Testimonials } from "@/components/Testimonials";
+import { LiveStats } from "@/components/LiveStats";
 import { Button } from "@/components/ui/button";
 import { Users, Zap, Music, Sparkles } from "lucide-react";
 
@@ -17,10 +21,11 @@ const Home = () => {
     <div className="min-h-screen">
       <Navigation />
       <Hero />
+      <ProblemStatement />
+      <HowItWorks />
+      <WhyMixClub />
       <Services />
-      <AudioPreview />
-      <PluginShowcase />
-      <section id="instant-demo" className="py-20 bg-gradient-to-b from-muted/30 to-primary/5 relative overflow-hidden scroll-mt-20">
+      <section id="instant-demo" className="py-20 bg-gradient-to-b from-primary/5 to-muted/30 relative overflow-hidden scroll-mt-20">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,hsl(var(--primary)/0.1),transparent_70%)]" />
         <div className="container px-6 relative z-10">
           <div className="text-center mb-12 animate-fade-in">
@@ -35,8 +40,11 @@ const Home = () => {
           <MasteringChatbot />
         </div>
       </section>
-      <Testimonials />
+      <AudioPreview />
       <SuccessStories />
+      <Testimonials />
+      <LiveStats />
+      <PluginShowcase />
       <section className="py-20 bg-gradient-to-b from-background to-card relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,hsl(var(--primary)/0.1),transparent_70%)]" />
         <div className="container px-6 relative z-10">
