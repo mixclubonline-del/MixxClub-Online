@@ -34,6 +34,7 @@ import AdminFeatures from './pages/AdminFeatures';
 import AdminFinancial from './pages/AdminFinancial';
 import AdminAnalytics from './pages/AdminAnalytics';
 import AdminContent from './pages/AdminContent';
+import AdminTestPayments from './pages/AdminTestPayments';
 import { JobBoard } from './pages/JobBoard';
 import HybridDAW from "./pages/HybridDAW";
 import ProjectDetail from "./pages/ProjectDetail";
@@ -83,6 +84,7 @@ const App = () => (
             <Route path="/admin/audio" element={<AdminAudio />} />
             <Route path="/admin/media" element={<AdminMedia />} />
             <Route path="/admin/payouts" element={<AdminPayouts />} />
+            <Route path="/admin/test-payments" element={<AdminTestPayments />} />
             <Route path="/for-engineers" element={<ForEngineers />} />
             <Route path="/engineers" element={<EngineerDirectory />} />
             <Route path="/engineer/:userId" element={<EngineerProfile />} />

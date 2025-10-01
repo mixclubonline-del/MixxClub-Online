@@ -11,6 +11,7 @@ import {
   Settings,
   Menu,
   LogOut,
+  CreditCard,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -29,6 +30,7 @@ const navigation = [
   { name: 'Audio Samples', href: '/admin/audio', icon: FileAudio },
   { name: 'Media Library', href: '/admin/media', icon: Image },
   { name: 'Payouts', href: '/admin/payouts', icon: Settings },
+  { name: 'Test Payments', href: '/admin/test-payments', icon: CreditCard },
 ];
 
 export function AdminLayout({ children }: AdminLayoutProps) {
