@@ -13,6 +13,7 @@ import { StickyUploadButton } from "@/components/StickyUploadButton";
 import { PluginShowcase } from "@/components/PluginShowcase";
 import { Testimonials } from "@/components/Testimonials";
 import { LiveStats } from "@/components/LiveStats";
+import { BeforeAfterComparison } from "@/components/BeforeAfterComparison";
 import { Button } from "@/components/ui/button";
 import { Users, Zap, Music, Sparkles } from "lucide-react";
 
@@ -75,6 +76,7 @@ const Home = () => {
       <Testimonials />
       <LiveStats />
       <PluginShowcase />
+      <BeforeAfterComparison />
       <section id="engineers" className="py-32 bg-gradient-to-b from-background via-[hsl(262_30%_8%)] to-background relative overflow-hidden">
         {/* Animated background elements */}
         <div className="absolute inset-0">
