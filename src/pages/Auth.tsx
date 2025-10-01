@@ -65,7 +65,7 @@ const Auth = () => {
           password: credentials.password,
           options: {
             data: {
-              full_name: role === 'client' ? 'Demo Artist' : 'Demo Engineer',
+              full_name: role === 'admin' ? 'Demo Admin' : role === 'engineer' ? 'Demo Engineer' : 'Demo Artist',
             },
             emailRedirectTo: `${window.location.origin}/`,
           },
@@ -77,28 +77,54 @@ const Auth = () => {
           return;
         }
 
-      // Update profile with role
-      if (signUpData.user) {
-        const profileRole = role === 'admin' ? 'client' : role;
-        await supabase
-          .from('profiles')
-          .update({ role: profileRole })
-          .eq('id', signUpData.user.id);
+        // Update profile with role
+        if (signUpData.user) {
+          const profileRole = role === 'admin' ? 'client' : role;
+          await supabase
+            .from('profiles')
+            .update({ role: profileRole })
+            .eq('id', signUpData.user.id);
 
-        toast.success(`Demo ${role} account ready!`);
-        navigate(role === 'engineer' ? '/engineer-crm' : '/artist-crm');
-      }
+          // For admin, also add to user_roles table
+          if (role === 'admin') {
+            await supabase
+              .from('user_roles')
+              .insert({ user_id: signUpData.user.id, role: 'admin' });
+          }
+
+          toast.success(`Demo ${role} account ready!`);
+          
+          // Route based on demo role
+          if (role === 'admin') {
+            navigate('/admin');
+          } else if (role === 'engineer') {
+            navigate('/engineer-crm');
+          } else {
+            navigate('/artist-crm');
+          }
+        }
       } else if (error) {
         setError(error.message);
       } else if (data.user) {
-        toast.success('Logged in as demo user!');
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', data.user.id)
-          .single();
-        
-        navigate(profile?.role === 'engineer' ? '/engineer-crm' : '/artist-crm');
+        // Existing user - check if admin first
+        const { data: isAdminUser } = await supabase.rpc('is_admin', { 
+          user_uuid: data.user.id 
+        });
+
+        if (isAdminUser) {
+          toast.success('Logged in as Admin!');
+          navigate('/admin');
+        } else {
+          // Check regular profile role
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', data.user.id)
+            .single();
+          
+          toast.success('Logged in as demo user!');
+          navigate(profile?.role === 'engineer' ? '/engineer-crm' : '/artist-crm');
+        }
       }
     } catch (err) {
       setError("Demo login failed");
