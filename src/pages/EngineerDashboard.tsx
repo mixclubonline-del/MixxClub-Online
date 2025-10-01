@@ -119,7 +119,7 @@ const EngineerDashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <div className="container px-6 py-24">
+      <div className="container px-6 pt-24 pb-12">
         <div className="mb-8 flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-bold mb-2">Engineer Dashboard</h1>

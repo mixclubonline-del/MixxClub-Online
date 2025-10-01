@@ -76,7 +76,7 @@ export default function EngineerDirectory() {
     <div className="min-h-screen bg-background">
       <Navigation />
       
-      <section className="pt-32 pb-12 px-4">
+      <section className="pt-24 pb-12 px-4">
         <div className="container mx-auto max-w-6xl">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 text-center">
             Find Your Perfect Engineer

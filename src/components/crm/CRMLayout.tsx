@@ -88,7 +88,7 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions }: 
       <Navigation />
       
       <SidebarProvider>
-        <div className="flex min-h-screen w-full pt-16">
+        <div className="flex min-h-screen w-full pt-20">
           <Sidebar className="border-r">
             <SidebarContent>
               {/* Welcome Section */}

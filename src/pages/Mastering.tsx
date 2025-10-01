@@ -147,7 +147,7 @@ const Mastering = () => {
     return (
       <div className="min-h-screen bg-background">
         <Navigation />
-        <div className="pt-20">
+        <div className="pt-24 pb-12">
           <div className="container px-6 text-center py-20">
             <Lock className="w-16 h-16 mx-auto mb-6 text-muted-foreground" />
             <h1 className="text-3xl font-bold mb-4">Sign In Required</h1>
