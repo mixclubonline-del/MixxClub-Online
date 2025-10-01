@@ -107,11 +107,16 @@ const Auth = () => {
         setError(error.message);
       } else if (data.user) {
         // Existing user - check if admin first
-        const { data: isAdminUser } = await supabase.rpc('is_admin', { 
-          user_uuid: data.user.id 
-        });
+        const { data: isAdminUser } = await supabase.rpc('is_admin');
 
         if (isAdminUser) {
+          toast.success('Logged in as Admin!');
+          navigate('/admin');
+        } else if (role === 'admin') {
+          // Ensure admin role exists for demo admin, then route
+          await supabase
+            .from('user_roles')
+            .upsert({ user_id: data.user.id, role: 'admin' }, { onConflict: 'user_id,role', ignoreDuplicates: true });
           toast.success('Logged in as Admin!');
           navigate('/admin');
         } else {
@@ -232,9 +237,7 @@ const Auth = () => {
         const { data: { user: authUser } } = await supabase.auth.getUser();
         if (authUser) {
           // Check if user is admin using RPC function
-          const { data: isAdminUser } = await supabase.rpc('is_admin', { 
-            user_uuid: authUser.id 
-          });
+          const { data: isAdminUser } = await supabase.rpc('is_admin');
 
           if (isAdminUser) {
             toast.success("Welcome back, Admin!");
