@@ -15,7 +15,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { Home, Briefcase, Search, DollarSign, User, Music, Award } from 'lucide-react';
+import { Home, Briefcase, Search, DollarSign, User, Music, Award, Headphones } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 
 interface CRMLayoutProps {
@@ -50,6 +50,12 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions }: 
       icon: Home,
       path: userType === 'engineer' ? '/engineer-crm' : '/artist-crm',
       section: 'dashboard',
+    },
+    {
+      title: 'Studio',
+      icon: Headphones,
+      path: userType === 'engineer' ? '/engineer-studio' : '/artist-studio',
+      section: 'studio',
     },
     {
       title: 'Active Work',

@@ -15,6 +15,8 @@ import ArtistDashboard from "./pages/ArtistDashboard";
 import EngineerDashboard from "./pages/EngineerDashboard";
 import ArtistCRM from "./pages/ArtistCRM";
 import EngineerCRM from "./pages/EngineerCRM";
+import ArtistStudio from "./pages/ArtistStudio";
+import EngineerStudio from "./pages/EngineerStudio";
 import Mixing from "./pages/Mixing";
 import Mastering from "./pages/Mastering";
 import MixingShowcase from "./pages/MixingShowcase";
@@ -51,8 +53,10 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/artist-dashboard" element={<ArtistDashboard />} />
             <Route path="/engineer-dashboard" element={<EngineerDashboard />} />
-            <Route path="/artist-crm" element={<ArtistCRM />} />
-            <Route path="/engineer-crm" element={<EngineerCRM />} />
+        <Route path="/artist-crm" element={<ArtistCRM />} />
+        <Route path="/engineer-crm" element={<EngineerCRM />} />
+        <Route path="/artist-studio" element={<ArtistStudio />} />
+        <Route path="/engineer-studio" element={<EngineerStudio />} />
             <Route path="/mixing" element={<MixingShowcase />} />
             <Route path="/mastering" element={<MasteringShowcase />} />
             <Route path="/mixing-studio" element={<Mixing />} />
