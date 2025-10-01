@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { AudioFileUpload } from '@/components/crm/AudioFileUpload';
+import Navigation from '@/components/Navigation';
 
 const ArtistStudio = () => {
   const { user } = useAuth();
@@ -123,8 +124,9 @@ const ArtistStudio = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-background">
+      <Navigation />
+      <div className="max-w-6xl mx-auto p-6 pt-24">
         <div className="mb-6">
           <h1 className="text-3xl font-bold mb-2">Artist Studio</h1>
           <p className="text-muted-foreground">Upload and manage your music sessions</p>
