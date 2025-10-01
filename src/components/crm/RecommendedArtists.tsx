@@ -45,27 +45,29 @@ export const RecommendedArtists = () => {
         .from('engineer_profiles')
         .select('specialties')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       const userSpecialties = engineerProfile?.specialties || [];
 
       // Fetch open job postings
       const { data: jobPostings, error } = await supabase
         .from('job_postings')
-        .select(`
-          *,
-          artist:profiles!job_postings_artist_id_fkey(
-            id,
-            full_name,
-            avatar_url
-          )
-        `)
+        .select('*')
         .eq('status', 'open')
         .is('assigned_engineer_id', null)
         .order('created_at', { ascending: false })
         .limit(12);
 
       if (error) throw error;
+
+      // Get artist profiles separately
+      const artistIds = [...new Set(jobPostings?.map(job => job.artist_id) || [])];
+      const { data: artistProfiles } = await supabase
+        .from('profiles')
+        .select('id, full_name, avatar_url')
+        .in('id', artistIds);
+
+      const artistMap = new Map(artistProfiles?.map(a => [a.id, a]) || []);
 
       // Calculate match scores
       const matchedOpportunities = jobPostings?.map((job: any) => {
@@ -103,11 +105,13 @@ export const RecommendedArtists = () => {
           matchScore += 15;
         }
 
+        const artist = artistMap.get(job.artist_id);
+
         return {
           id: job.id,
           artist_id: job.artist_id,
-          artist_name: job.artist?.full_name || 'Unknown Artist',
-          avatar_url: job.artist?.avatar_url,
+          artist_name: artist?.full_name || 'Unknown Artist',
+          avatar_url: artist?.avatar_url || null,
           title: job.title,
           genre: job.genre,
           budget: job.budget || 0,

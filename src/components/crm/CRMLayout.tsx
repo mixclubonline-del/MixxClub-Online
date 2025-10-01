@@ -54,7 +54,7 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions }: 
     {
       title: 'Studio',
       icon: Headphones,
-      path: userType === 'engineer' ? '/engineer-studio' : '/artist-studio',
+      path: userType === 'engineer' ? '/engineer-crm?tab=studio' : '/artist-crm?tab=studio',
       section: 'studio',
     },
     {
