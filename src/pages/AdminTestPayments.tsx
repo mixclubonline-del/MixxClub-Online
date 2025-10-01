@@ -7,17 +7,34 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { MultiPaymentModal } from '@/components/payment/MultiPaymentModal';
-import { CreditCard } from 'lucide-react';
+import { AgreementModal } from '@/components/payment/AgreementModal';
+import { CreditCard, FileCheck } from 'lucide-react';
 
 export default function AdminTestPayments() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAgreementModalOpen, setIsAgreementModalOpen] = useState(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [agreementSigned, setAgreementSigned] = useState(false);
   const [testData, setTestData] = useState({
     projectId: 'test-project-' + Date.now(),
     amount: 100,
-    engineerSplitPercent: 70
+    engineerSplitPercent: 70,
+    projectName: 'Test Project - Full Album Mix',
+    artistName: 'John Doe',
+    engineerName: 'Jane Smith',
+    scopeOfWork: 'Complete mixing and mastering of 10-track album including stem separation, effects processing, and final mastering.'
   });
+
+  const handleOpenFlow = () => {
+    setAgreementSigned(false);
+    setIsAgreementModalOpen(true);
+  };
+
+  const handleAgreementSigned = () => {
+    setAgreementSigned(true);
+    setIsPaymentModalOpen(true);
+  };
 
   return (
     <AdminLayout>
@@ -74,14 +91,34 @@ export default function AdminTestPayments() {
               <p className="text-sm">Platform Fee: ${(testData.amount - (testData.amount * testData.engineerSplitPercent) / 100).toFixed(2)}</p>
             </div>
 
-            <Button
-              onClick={() => setIsModalOpen(true)}
-              className="w-full"
-              size="lg"
-            >
-              <CreditCard className="mr-2 h-4 w-4" />
-              Open Payment Modal
-            </Button>
+            <div className="space-y-2">
+              <Button
+                onClick={handleOpenFlow}
+                className="w-full"
+                size="lg"
+              >
+                <FileCheck className="mr-2 h-4 w-4" />
+                Start: Agreement + Payment Flow
+              </Button>
+              <p className="text-xs text-muted-foreground text-center">
+                Opens agreement modal first, then payment after signing
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Button
+                onClick={() => setIsPaymentModalOpen(true)}
+                variant="outline"
+                className="w-full"
+                size="lg"
+              >
+                <CreditCard className="mr-2 h-4 w-4" />
+                Skip to Payment (No Agreement)
+              </Button>
+              <p className="text-xs text-muted-foreground text-center">
+                For testing payment only
+              </p>
+            </div>
           </CardContent>
         </Card>
 
@@ -128,9 +165,21 @@ export default function AdminTestPayments() {
         </Card>
       </div>
 
+      <AgreementModal
+        open={isAgreementModalOpen}
+        onOpenChange={setIsAgreementModalOpen}
+        projectId={testData.projectId}
+        projectName={testData.projectName}
+        artistName={testData.artistName}
+        engineerName={testData.engineerName}
+        scopeOfWork={testData.scopeOfWork}
+        engineerSplitPercent={testData.engineerSplitPercent}
+        onAgreementSigned={handleAgreementSigned}
+      />
+
       <MultiPaymentModal
-        open={isModalOpen}
-        onOpenChange={setIsModalOpen}
+        open={isPaymentModalOpen}
+        onOpenChange={setIsPaymentModalOpen}
         projectId={testData.projectId}
         amount={testData.amount}
         engineerSplitPercent={testData.engineerSplitPercent}

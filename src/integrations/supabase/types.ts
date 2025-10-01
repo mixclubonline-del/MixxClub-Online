@@ -1639,6 +1639,54 @@ export type Database = {
           },
         ]
       }
+      project_agreements: {
+        Row: {
+          agreement_status: string
+          artist_id: string
+          artist_signature_ip: string | null
+          artist_signed_at: string | null
+          created_at: string
+          engineer_id: string | null
+          engineer_signature_ip: string | null
+          engineer_signed_at: string | null
+          engineer_split_percent: number
+          id: string
+          project_id: string
+          scope_of_work: string
+          updated_at: string
+        }
+        Insert: {
+          agreement_status?: string
+          artist_id: string
+          artist_signature_ip?: string | null
+          artist_signed_at?: string | null
+          created_at?: string
+          engineer_id?: string | null
+          engineer_signature_ip?: string | null
+          engineer_signed_at?: string | null
+          engineer_split_percent?: number
+          id?: string
+          project_id: string
+          scope_of_work: string
+          updated_at?: string
+        }
+        Update: {
+          agreement_status?: string
+          artist_id?: string
+          artist_signature_ip?: string | null
+          artist_signed_at?: string | null
+          created_at?: string
+          engineer_id?: string | null
+          engineer_signature_ip?: string | null
+          engineer_signed_at?: string | null
+          engineer_split_percent?: number
+          id?: string
+          project_id?: string
+          scope_of_work?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       project_files: {
         Row: {
           created_at: string
