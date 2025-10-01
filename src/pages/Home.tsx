@@ -22,6 +22,7 @@ const Home = () => {
     <div className="min-h-screen">
       <Navigation />
       <Hero />
+      <BeforeAfterComparison />
       <ProblemStatement />
       <HowItWorks />
       <WhyMixClub />
@@ -76,7 +77,6 @@ const Home = () => {
       <Testimonials />
       <LiveStats />
       <PluginShowcase />
-      <BeforeAfterComparison />
       <section id="engineers" className="py-32 bg-gradient-to-b from-background via-[hsl(262_30%_8%)] to-background relative overflow-hidden">
         {/* Animated background elements */}
         <div className="absolute inset-0">
