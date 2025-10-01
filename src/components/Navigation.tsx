@@ -100,8 +100,19 @@ const Navigation = () => {
                       isActiveRoute(link.to) ? 'text-primary' : ''
                     }`}
                   >
-                    {link.label}
-                    <span className={`absolute bottom-0 left-0 w-full h-0.5 bg-primary transform transition-transform duration-300 ${
+                    <div className="flex items-center gap-2">
+                      {link.label}
+                      {(link as any).featured && (
+                        <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-gradient-to-r from-primary via-[hsl(220_90%_60%)] to-[hsl(180_100%_50%)] text-foreground animate-pulse-glow shadow-glow-sm">
+                          NEW
+                        </span>
+                      )}
+                    </div>
+                    <span className={`absolute bottom-0 left-0 w-full h-0.5 ${
+                      (link as any).featured 
+                        ? 'bg-gradient-to-r from-primary via-[hsl(220_90%_60%)] to-[hsl(180_100%_50%)]' 
+                        : 'bg-primary'
+                    } transform transition-transform duration-300 ${
                       isActiveRoute(link.to) ? 'scale-x-100' : 'scale-x-0 hover:scale-x-100'
                     }`}></span>
                   </Link>
@@ -231,10 +242,19 @@ const Navigation = () => {
                 to={link.to}
                 className={`block px-4 py-3 rounded-lg text-foreground hover:text-primary hover:bg-primary/5 transition-all duration-300 transform ${
                   isOpen ? 'translate-x-0 opacity-100' : 'translate-x-4 opacity-0'
-                } ${isActiveRoute(link.to) ? 'text-primary bg-primary/5' : ''}`}
+                } ${isActiveRoute(link.to) ? 'text-primary bg-primary/5' : ''} ${
+                  (link as any).featured ? 'font-bold' : ''
+                }`}
                 style={{ transitionDelay: `${index * 50}ms` }}
               >
-                {link.label}
+                <div className="flex items-center justify-between">
+                  <span>{link.label}</span>
+                  {(link as any).featured && (
+                    <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-gradient-to-r from-primary via-[hsl(220_90%_60%)] to-[hsl(180_100%_50%)] text-foreground animate-pulse-glow">
+                      NEW
+                    </span>
+                  )}
+                </div>
               </Link>
             ))}
 
