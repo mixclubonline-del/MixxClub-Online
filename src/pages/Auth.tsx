@@ -108,18 +108,28 @@ const Auth = () => {
       } else if (error) {
         setError(error.message);
       } else if (data.user) {
-        // Existing user - route directly based on demo role clicked
+        // Existing user - reset demo state for fresh experience
         console.log('Checking admin status for demo login, role:', role, 'user:', data.user.id);
+        
+        // Clear localStorage slideshow flags for fresh demo experience
+        localStorage.removeItem(`artist_crm_slideshow_seen_${data.user.id}`);
+        localStorage.removeItem('engineer_crm_slideshow_seen');
+        
+        // Reset onboarding status for demo accounts to show slideshow
+        await supabase
+          .from('onboarding_profiles')
+          .update({ onboarding_completed: true })
+          .eq('user_id', data.user.id);
         
         // Route based on which demo button was clicked
         if (role === 'admin') {
           toast.success('Logged in as Admin!');
           navigate('/admin');
         } else if (role === 'engineer') {
-          toast.success('Logged in as demo user!');
+          toast.success('Demo started fresh! Watch the intro.');
           navigate('/engineer-crm');
         } else {
-          toast.success('Logged in as demo user!');
+          toast.success('Demo started fresh! Watch the intro.');
           navigate('/artist-crm');
         }
       }
