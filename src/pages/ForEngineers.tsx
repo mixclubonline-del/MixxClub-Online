@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Navigation from "@/components/Navigation";
+import { EngineerShowcaseSlideshow } from "@/components/EngineerShowcaseSlideshow";
 import { Link } from "react-router-dom";
 import { 
   Video, 
@@ -20,6 +21,8 @@ export default function ForEngineers() {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
+      
+      <EngineerShowcaseSlideshow />
       
       {/* Hero Section */}
       <section className="pt-24 pb-20 px-4">
