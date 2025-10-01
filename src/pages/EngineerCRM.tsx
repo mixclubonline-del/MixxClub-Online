@@ -16,6 +16,8 @@ import { toast } from 'sonner';
 import { JobPool } from '@/components/JobPool';
 import { EarningsOverview } from '@/components/engineer/EarningsOverview';
 import { PayoutManagement } from '@/components/engineer/PayoutManagement';
+import { RecommendedArtists } from '@/components/crm/RecommendedArtists';
+import { MusicalProfile } from '@/components/crm/MusicalProfile';
 
 const EngineerCRM = () => {
   const { user } = useAuth();
@@ -264,6 +266,12 @@ const EngineerCRM = () => {
             </Card>
           </div>
         </div>
+
+        {/* Musical Profile */}
+        <MusicalProfile userType="engineer" />
+
+        {/* Recommended Artists */}
+        <RecommendedArtists />
 
         {/* Main Content */}
         <Tabs defaultValue="open-sessions" className="space-y-6">

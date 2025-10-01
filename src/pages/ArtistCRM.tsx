@@ -21,6 +21,8 @@ import { toast } from 'sonner';
 import { JobApplicationManager } from '@/components/crm/JobApplicationManager';
 import { JobPostingForm } from '@/components/JobPostingForm';
 import { PackagesShop } from '@/components/crm/PackagesShop';
+import { RecommendedEngineers } from '@/components/crm/RecommendedEngineers';
+import { MusicalProfile } from '@/components/crm/MusicalProfile';
 
 const ArtistCRM = () => {
   const { user } = useAuth();
@@ -226,6 +228,12 @@ const ArtistCRM = () => {
             </Card>
           </div>
         </div>
+
+        {/* Musical Profile */}
+        <MusicalProfile userType="artist" />
+
+        {/* Recommended Engineers */}
+        <RecommendedEngineers />
 
         {/* Main Content */}
         <Tabs defaultValue="sessions" className="space-y-6">
