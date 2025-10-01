@@ -16,6 +16,8 @@ import { EarningsOverview } from '@/components/engineer/EarningsOverview';
 import { PayoutManagement } from '@/components/engineer/PayoutManagement';
 import { RecommendedArtists } from '@/components/crm/RecommendedArtists';
 import { MusicalProfile } from '@/components/crm/MusicalProfile';
+import ProfileEditor from '@/components/crm/ProfileEditor';
+import ProfileInsights from '@/components/crm/ProfileInsights';
 
 const EngineerCRM = () => {
   const { user } = useAuth();
@@ -350,13 +352,17 @@ const EngineerCRM = () => {
 
       case 'profile':
         return (
-          <div className="space-y-6">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold mb-2">Your Profile</h2>
-              <p className="text-muted-foreground">Manage your musical identity and preferences</p>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <ProfileEditor />
             </div>
-            <MusicalProfile userType="engineer" />
-            <div className="mt-8">
+            <div>
+              <ProfileInsights />
+            </div>
+            <div className="lg:col-span-3">
+              <MusicalProfile userType="engineer" />
+            </div>
+            <div className="lg:col-span-3 mt-8">
               <h3 className="text-xl font-bold mb-4">Your Badges</h3>
               {achievements.length === 0 ? (
                 <Card className="p-12 text-center">
