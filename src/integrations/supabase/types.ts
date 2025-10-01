@@ -1908,34 +1908,55 @@ export type Database = {
       }
       project_reviews: {
         Row: {
+          artist_id: string | null
+          communication_rating: number | null
           created_at: string
+          engineer_id: string | null
           id: string
           is_public: boolean | null
           project_id: string
+          quality_rating: number | null
           rating: number
           review_text: string | null
           reviewed_id: string
           reviewer_id: string
+          timeliness_rating: number | null
+          updated_at: string | null
+          would_recommend: boolean | null
         }
         Insert: {
+          artist_id?: string | null
+          communication_rating?: number | null
           created_at?: string
+          engineer_id?: string | null
           id?: string
           is_public?: boolean | null
           project_id: string
+          quality_rating?: number | null
           rating: number
           review_text?: string | null
           reviewed_id: string
           reviewer_id: string
+          timeliness_rating?: number | null
+          updated_at?: string | null
+          would_recommend?: boolean | null
         }
         Update: {
+          artist_id?: string | null
+          communication_rating?: number | null
           created_at?: string
+          engineer_id?: string | null
           id?: string
           is_public?: boolean | null
           project_id?: string
+          quality_rating?: number | null
           rating?: number
           review_text?: string | null
           reviewed_id?: string
           reviewer_id?: string
+          timeliness_rating?: number | null
+          updated_at?: string | null
+          would_recommend?: boolean | null
         }
         Relationships: [
           {
