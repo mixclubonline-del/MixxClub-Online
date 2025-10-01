@@ -88,7 +88,7 @@ export const ArtistCRMSlideshow = ({ onComplete, onSkip }: ArtistCRMSlideshowPro
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 bg-background"
+      className="fixed top-20 left-0 right-0 bottom-0 z-50 bg-background"
     >
       {/* Skip Button */}
       <Button

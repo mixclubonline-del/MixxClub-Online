@@ -89,7 +89,7 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions }: 
       
       <SidebarProvider>
         <div className="flex min-h-screen w-full pt-20">
-          <Sidebar className="border-r">
+          <Sidebar className="border-r z-[90]">
             <SidebarContent>
               {/* Welcome Section */}
               <div className="p-4 border-b">

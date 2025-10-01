@@ -66,7 +66,7 @@ const EngineerCRMSlideshow = ({ onComplete, onSkip }: EngineerCRMSlideshowProps)
   const imageTransform = getImageTransform();
 
   return (
-    <div className="fixed inset-0 z-50 bg-background">
+    <div className="fixed top-20 left-0 right-0 bottom-0 z-50 bg-background">
       {/* Skip Button */}
       <Button
         variant="ghost"
