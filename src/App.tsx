@@ -29,6 +29,7 @@ import AdminMedia from './pages/AdminMedia';
 import AdminPayouts from './pages/AdminPayouts';
 import { JobBoard } from './pages/JobBoard';
 import HybridDAW from "./pages/HybridDAW";
+import ProjectDetail from "./pages/ProjectDetail";
 import NotFound from "./pages/NotFound";
 import { PersistentChatbot } from "@/components/PersistentChatbot";
 
@@ -66,6 +67,7 @@ const App = () => (
             <Route path="/for-engineers" element={<ForEngineers />} />
             <Route path="/engineers" element={<EngineerDirectory />} />
             <Route path="/engineer/:userId" element={<EngineerProfile />} />
+            <Route path="/project/:projectId" element={<ProjectDetail />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
