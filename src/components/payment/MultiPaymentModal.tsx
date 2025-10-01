@@ -171,48 +171,54 @@ export function MultiPaymentModal({
       return;
     }
     
+    // Clear any existing buttons
     paypalButtonRef.current.innerHTML = '';
     
-    window.paypal.Buttons({
-      createOrder: async () => {
-        try {
-          const { data, error } = await supabase.functions.invoke('create-paypal-order', {
-            body: { projectId, amount: totalAmount }
-          });
-          if (error) throw error;
-          return data.orderId;
-        } catch (error) {
-          console.error('PayPal order creation error:', error);
-          toast({ title: 'Error', description: 'Failed to create PayPal order', variant: 'destructive' });
-          throw error;
+    try {
+      window.paypal.Buttons({
+        createOrder: async () => {
+          try {
+            const { data, error } = await supabase.functions.invoke('create-paypal-order', {
+              body: { projectId, amount: totalAmount }
+            });
+            if (error) throw error;
+            return data.orderId;
+          } catch (error) {
+            console.error('PayPal order creation error:', error);
+            toast({ title: 'Error', description: 'Failed to create PayPal order', variant: 'destructive' });
+            throw error;
+          }
+        },
+        onApprove: async (data: any) => {
+          setLoading(true);
+          try {
+            const { data: captureData, error } = await supabase.functions.invoke('capture-paypal-order', {
+              body: { orderId: data.orderID, projectId }
+            });
+            if (error) throw error;
+            
+            generatePDFReceipt(data.orderID, 'PayPal / Venmo');
+            await sendReceiptEmail(data.orderID, 'PayPal / Venmo');
+            
+            toast({ title: 'Success', description: 'Payment completed! Receipt downloaded and emailed.' });
+            onOpenChange(false);
+            window.location.href = `/project/${projectId}`;
+          } catch (error) {
+            console.error('PayPal capture error:', error);
+            toast({ title: 'Error', description: 'Payment failed', variant: 'destructive' });
+          } finally {
+            setLoading(false);
+          }
+        },
+        onError: (err: any) => {
+          console.error('PayPal error:', err);
+          toast({ title: 'Error', description: 'PayPal payment failed', variant: 'destructive' });
         }
-      },
-      onApprove: async (data: any) => {
-        setLoading(true);
-        try {
-          const { data: captureData, error } = await supabase.functions.invoke('capture-paypal-order', {
-            body: { orderId: data.orderID, projectId }
-          });
-          if (error) throw error;
-          
-          generatePDFReceipt(data.orderID, 'PayPal / Venmo');
-          await sendReceiptEmail(data.orderID, 'PayPal / Venmo');
-          
-          toast({ title: 'Success', description: 'Payment completed! Receipt downloaded and emailed.' });
-          onOpenChange(false);
-          window.location.href = `/project/${projectId}`;
-        } catch (error) {
-          console.error('PayPal capture error:', error);
-          toast({ title: 'Error', description: 'Payment failed', variant: 'destructive' });
-        } finally {
-          setLoading(false);
-        }
-      },
-      onError: (err: any) => {
-        console.error('PayPal error:', err);
-        toast({ title: 'Error', description: 'PayPal payment failed', variant: 'destructive' });
-      }
-    }).render(paypalButtonRef.current);
+      }).render(paypalButtonRef.current);
+    } catch (error) {
+      console.error('Failed to initialize PayPal buttons:', error);
+      toast({ title: 'Error', description: 'Failed to initialize PayPal', variant: 'destructive' });
+    }
   };
 
   const generatePDFReceipt = (transactionId: string, paymentMethodName: string) => {
@@ -424,7 +430,13 @@ export function MultiPaymentModal({
 
             {paymentMethod === 'paypal' && (
               <div className="space-y-3">
-                <div ref={paypalButtonRef} />
+                {paypalLoaded ? (
+                  <div ref={paypalButtonRef} className="min-h-[150px]" />
+                ) : (
+                  <div className="flex items-center justify-center min-h-[150px] border rounded-lg bg-muted/20">
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                  </div>
+                )}
               </div>
             )}
         </div>
