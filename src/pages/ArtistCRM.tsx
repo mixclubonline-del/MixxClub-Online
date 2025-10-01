@@ -25,6 +25,7 @@ import SessionManager from '@/components/collaboration/SessionManager';
 import CollaborationWorkspace from '@/components/collaboration/CollaborationWorkspace';
 import { RealTimeCollaboration } from '@/components/RealTimeCollaboration';
 import { ArtistCRMChatbot } from '@/components/crm/ArtistCRMChatbot';
+import { ArtistCRMSlideshow } from '@/components/crm/ArtistCRMSlideshow';
 
 const ArtistCRM = () => {
   const { user } = useAuth();
@@ -38,6 +39,8 @@ const ArtistCRM = () => {
   const [pendingApplications, setPendingApplications] = useState(0);
   const [loading, setLoading] = useState(true);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  const [showSlideshow, setShowSlideshow] = useState(false);
+  const [checkingSlideshow, setCheckingSlideshow] = useState(true);
   
   const { 
     mixingAccess, 
@@ -66,11 +69,45 @@ const ArtistCRM = () => {
         return;
       }
 
+      // Check if slideshow should be shown
+      const slideshowKey = `artist_crm_slideshow_seen_${user.id}`;
+      const slideshowSeen = localStorage.getItem(slideshowKey);
+
+      if (!slideshowSeen) {
+        // Check if user has completed onboarding
+        const { data: onboardingData } = await supabase
+          .from('onboarding_profiles')
+          .select('onboarding_completed')
+          .eq('user_id', user.id)
+          .single();
+
+        if (onboardingData?.onboarding_completed) {
+          setShowSlideshow(true);
+        }
+      }
+      
+      setCheckingSlideshow(false);
       fetchData();
     };
 
     checkAccess();
   }, [user, navigate]);
+
+  const handleSlideshowComplete = () => {
+    if (user) {
+      localStorage.setItem(`artist_crm_slideshow_seen_${user.id}`, 'true');
+    }
+    setShowSlideshow(false);
+    // Navigate to active-work tab to start first project
+    navigate('/artist-crm?tab=active-work');
+  };
+
+  const handleSlideshowSkip = () => {
+    if (user) {
+      localStorage.setItem(`artist_crm_slideshow_seen_${user.id}`, 'true');
+    }
+    setShowSlideshow(false);
+  };
 
   const fetchData = async () => {
     try {
@@ -129,7 +166,7 @@ const ArtistCRM = () => {
     }
   };
 
-  if (loading || servicesLoading) {
+  if (loading || servicesLoading || checkingSlideshow) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -137,6 +174,16 @@ const ArtistCRM = () => {
           <p className="text-muted-foreground">Loading your dashboard...</p>
         </div>
       </div>
+    );
+  }
+
+  // Show slideshow if it's the first time
+  if (showSlideshow) {
+    return (
+      <ArtistCRMSlideshow 
+        onComplete={handleSlideshowComplete}
+        onSkip={handleSlideshowSkip}
+      />
     );
   }
 
