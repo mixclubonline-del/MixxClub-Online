@@ -1934,6 +1934,33 @@ export type Database = {
           },
         ]
       }
+      rate_limits: {
+        Row: {
+          action: string
+          attempts: number | null
+          created_at: string | null
+          id: string
+          identifier: string
+          window_start: string | null
+        }
+        Insert: {
+          action: string
+          attempts?: number | null
+          created_at?: string | null
+          id?: string
+          identifier: string
+          window_start?: string | null
+        }
+        Update: {
+          action?: string
+          attempts?: number | null
+          created_at?: string | null
+          id?: string
+          identifier?: string
+          window_start?: string | null
+        }
+        Relationships: []
+      }
       remote_session_analytics: {
         Row: {
           client_satisfaction: number | null

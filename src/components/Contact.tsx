@@ -40,6 +40,26 @@ const Contact = () => {
       
       setLoading(true);
 
+      // Check rate limit using email as identifier
+      const { data: rateLimitData, error: rateLimitError } = await supabase.functions.invoke(
+        'check-rate-limit',
+        {
+          body: { 
+            action: 'contact_form_submit',
+            identifier: validated.email 
+          }
+        }
+      );
+
+      if (rateLimitError) {
+        throw new Error('Rate limit check failed');
+      }
+
+      if (!rateLimitData?.allowed) {
+        toast.error(rateLimitData?.message || 'Too many requests. Please try again later.');
+        return;
+      }
+
       // Insert into Supabase
       const { error } = await supabase
         .from('contact_submissions')
