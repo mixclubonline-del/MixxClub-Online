@@ -19,6 +19,17 @@ const AuthCallback = () => {
         }
 
         if (session?.user) {
+          // Check if user is admin first
+          const { data: isAdminUser } = await supabase.rpc('is_admin', { 
+            user_uuid: session.user.id 
+          });
+
+          if (isAdminUser) {
+            toast.success('Welcome back, Admin!');
+            navigate('/admin');
+            return;
+          }
+
           // Check if user has a profile
           const { data: profile } = await supabase
             .from('profiles')

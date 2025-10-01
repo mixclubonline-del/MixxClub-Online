@@ -205,6 +205,18 @@ const Auth = () => {
         // Get user profile to determine role-based redirect
         const { data: { user: authUser } } = await supabase.auth.getUser();
         if (authUser) {
+          // Check if user is admin using RPC function
+          const { data: isAdminUser } = await supabase.rpc('is_admin', { 
+            user_uuid: authUser.id 
+          });
+
+          if (isAdminUser) {
+            toast.success("Welcome back, Admin!");
+            navigate("/admin");
+            return;
+          }
+
+          // Check regular role for non-admin users
           const { data: profile } = await supabase
             .from('profiles')
             .select('role')
