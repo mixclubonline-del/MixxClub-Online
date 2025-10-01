@@ -168,12 +168,82 @@ const ArtistCRM = () => {
     switch (currentTab) {
       case 'active-work':
         return (
-          <div>
+          <div className="space-y-6">
             <div className="mb-6">
               <h2 className="text-2xl font-bold mb-2">Your Sessions</h2>
               <p className="text-muted-foreground">Manage your active music projects</p>
             </div>
-            <EngineerCRMDashboard />
+            
+            {/* Quick Action: New Project */}
+            <Card className="p-6 bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold mb-1">Ready to create something amazing?</h3>
+                  <p className="text-sm text-muted-foreground">Start a new project and connect with top engineers</p>
+                </div>
+                <Button onClick={() => navigate('/artist-studio')} size="lg">
+                  <Plus className="w-4 h-4 mr-2" />
+                  New Project
+                </Button>
+              </div>
+            </Card>
+
+            {/* Projects Grid */}
+            {projects.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {projects.map((project) => (
+                  <Card 
+                    key={project.id} 
+                    className="p-6 hover:shadow-lg transition-shadow cursor-pointer"
+                    onClick={() => navigate(`/project/${project.id}`)}
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-lg mb-1">{project.title}</h3>
+                        <p className="text-sm text-muted-foreground line-clamp-2">{project.description}</p>
+                      </div>
+                      <Badge variant="outline" className="ml-2">
+                        {project.status}
+                      </Badge>
+                    </div>
+                    
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      {project.engineer ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
+                            {project.engineer.full_name?.[0] || 'E'}
+                          </div>
+                          <span>{project.engineer.full_name}</span>
+                        </div>
+                      ) : (
+                        <span className="text-yellow-500">No engineer assigned</span>
+                      )}
+                      <span>•</span>
+                      <span>{project.audio_files?.[0]?.count || 0} files</span>
+                    </div>
+                    
+                    <div className="mt-4 pt-4 border-t flex justify-between items-center">
+                      <span className="text-xs text-muted-foreground">
+                        Created {new Date(project.created_at).toLocaleDateString()}
+                      </span>
+                      <Button variant="ghost" size="sm">
+                        View Details
+                      </Button>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <Card className="p-12 text-center">
+                <Music className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                <h3 className="text-xl font-semibold mb-2">No sessions yet</h3>
+                <p className="text-muted-foreground mb-6">Start your first project to begin your journey</p>
+                <Button onClick={() => navigate('/artist-studio')} size="lg">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create Your First Project
+                </Button>
+              </Card>
+            )}
           </div>
         );
 
