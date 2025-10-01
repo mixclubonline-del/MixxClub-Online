@@ -1554,7 +1554,6 @@ export type Database = {
           badges: Json | null
           bio: string | null
           created_at: string | null
-          email: string
           full_name: string | null
           id: string
           level: number | null
@@ -1567,7 +1566,6 @@ export type Database = {
           badges?: Json | null
           bio?: string | null
           created_at?: string | null
-          email: string
           full_name?: string | null
           id: string
           level?: number | null
@@ -1580,7 +1578,6 @@ export type Database = {
           badges?: Json | null
           bio?: string | null
           created_at?: string | null
-          email?: string
           full_name?: string | null
           id?: string
           level?: number | null
