@@ -10,6 +10,10 @@ import { EarningsOverview } from '@/components/engineer/EarningsOverview';
 import { PayoutManagement } from '@/components/engineer/PayoutManagement';
 import { BadgesDisplay } from '@/components/engineer/BadgesDisplay';
 import { EngineerLeaderboard } from '@/components/engineer/EngineerLeaderboard';
+import { AchievementProgress } from '@/components/gamification/AchievementProgress';
+import { MonthlyAwards } from '@/components/gamification/MonthlyAwards';
+import { BadgeShowcase } from '@/components/gamification/BadgeShowcase';
+import { EnhancedLeaderboard } from '@/components/gamification/EnhancedLeaderboard';
 import { Music, Clock, Zap, Award } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -247,6 +251,27 @@ const EngineerDashboard = () => {
           />
         </div>
 
+        {/* Monthly Awards */}
+        <div className="mb-8">
+          <MonthlyAwards />
+        </div>
+
+        {/* Achievement Progress */}
+        <div className="mb-8">
+          {user && <AchievementProgress userId={user.id} />}
+        </div>
+
+        {/* Badge Showcase */}
+        <div className="mb-8">
+          <BadgeShowcase badges={badges} />
+        </div>
+
+        {/* Enhanced Leaderboard */}
+        <div className="mb-8">
+          <EnhancedLeaderboard />
+        </div>
+
+        {/* Original Gamification Section */}
         <div className="grid lg:grid-cols-2 gap-6">
           {/* Badges & Streaks */}
           <BadgesDisplay
@@ -255,7 +280,7 @@ const EngineerDashboard = () => {
             longestStreak={streak.longest_streak}
           />
 
-          {/* Leaderboard */}
+          {/* Legacy Leaderboard */}
           <EngineerLeaderboard />
         </div>
       </div>

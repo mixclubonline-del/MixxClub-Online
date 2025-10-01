@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      achievement_progress: {
+        Row: {
+          achievement_type: string
+          completed_at: string | null
+          current_progress: number | null
+          id: string
+          progress_metadata: Json | null
+          started_at: string | null
+          target_progress: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          achievement_type: string
+          completed_at?: string | null
+          current_progress?: number | null
+          id?: string
+          progress_metadata?: Json | null
+          started_at?: string | null
+          target_progress: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          achievement_type?: string
+          completed_at?: string | null
+          current_progress?: number | null
+          id?: string
+          progress_metadata?: Json | null
+          started_at?: string | null
+          target_progress?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       achievements: {
         Row: {
           badge_description: string | null
@@ -587,7 +623,10 @@ export type Database = {
         Row: {
           badge_description: string | null
           badge_name: string
+          badge_rarity: Database["public"]["Enums"]["badge_rarity"] | null
           badge_type: string
+          criteria_met: Json | null
+          display_order: number | null
           earned_at: string | null
           engineer_id: string
           icon_name: string | null
@@ -596,7 +635,10 @@ export type Database = {
         Insert: {
           badge_description?: string | null
           badge_name: string
+          badge_rarity?: Database["public"]["Enums"]["badge_rarity"] | null
           badge_type: string
+          criteria_met?: Json | null
+          display_order?: number | null
           earned_at?: string | null
           engineer_id: string
           icon_name?: string | null
@@ -605,7 +647,10 @@ export type Database = {
         Update: {
           badge_description?: string | null
           badge_name?: string
+          badge_rarity?: Database["public"]["Enums"]["badge_rarity"] | null
           badge_type?: string
+          criteria_met?: Json | null
+          display_order?: number | null
           earned_at?: string | null
           engineer_id?: string
           icon_name?: string | null
@@ -704,7 +749,10 @@ export type Database = {
           completed_projects: number | null
           engineer_id: string
           id: string
+          leaderboard_type: string | null
           period: string | null
+          period_end: string | null
+          period_start: string | null
           rank: number | null
           total_bonuses: number | null
           total_earnings: number | null
@@ -715,7 +763,10 @@ export type Database = {
           completed_projects?: number | null
           engineer_id: string
           id?: string
+          leaderboard_type?: string | null
           period?: string | null
+          period_end?: string | null
+          period_start?: string | null
           rank?: number | null
           total_bonuses?: number | null
           total_earnings?: number | null
@@ -726,7 +777,10 @@ export type Database = {
           completed_projects?: number | null
           engineer_id?: string
           id?: string
+          leaderboard_type?: string | null
           period?: string | null
+          period_end?: string | null
+          period_start?: string | null
           rank?: number | null
           total_bonuses?: number | null
           total_earnings?: number | null
@@ -736,14 +790,14 @@ export type Database = {
           {
             foreignKeyName: "engineer_leaderboard_engineer_id_fkey"
             columns: ["engineer_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "engineer_leaderboard_engineer_id_fkey"
             columns: ["engineer_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "public_profiles"
             referencedColumns: ["id"]
           },
@@ -1252,6 +1306,42 @@ export type Database = {
           price?: number
           track_limit?: number | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      monthly_awards: {
+        Row: {
+          award_category: string
+          award_description: string | null
+          award_value: number
+          awarded_at: string | null
+          created_at: string | null
+          id: string
+          period_month: number
+          period_year: number
+          winner_id: string
+        }
+        Insert: {
+          award_category: string
+          award_description?: string | null
+          award_value?: number
+          awarded_at?: string | null
+          created_at?: string | null
+          id?: string
+          period_month: number
+          period_year: number
+          winner_id: string
+        }
+        Update: {
+          award_category?: string
+          award_description?: string | null
+          award_value?: number
+          awarded_at?: string | null
+          created_at?: string | null
+          id?: string
+          period_month?: number
+          period_year?: number
+          winner_id?: string
         }
         Relationships: []
       }
@@ -2712,6 +2802,14 @@ export type Database = {
         Args: { p_base_amount: number; p_project_id: string }
         Returns: number
       }
+      calculate_monthly_awards: {
+        Args: { p_month: number; p_year: number }
+        Returns: undefined
+      }
+      check_and_award_badges: {
+        Args: { p_engineer_id: string }
+        Returns: undefined
+      }
       create_notification: {
         Args: {
           p_action_url?: string
@@ -2752,6 +2850,14 @@ export type Database = {
         Args: { session_uuid: string; user_uuid: string }
         Returns: boolean
       }
+      update_achievement_progress: {
+        Args: {
+          p_achievement_type: string
+          p_increment?: number
+          p_user_id: string
+        }
+        Returns: undefined
+      }
       update_engineer_leaderboard: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -2762,6 +2868,7 @@ export type Database = {
       }
     }
     Enums: {
+      badge_rarity: "common" | "rare" | "epic" | "legendary"
       project_status:
         | "pending"
         | "in_progress"
@@ -2898,6 +3005,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      badge_rarity: ["common", "rare", "epic", "legendary"],
       project_status: [
         "pending",
         "in_progress",
