@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { AdminLayout } from '@/components/admin/AdminLayout';
+import { NotificationTestPanel } from '@/components/admin/NotificationTestPanel';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, Music, FileAudio, TrendingUp } from 'lucide-react';
 
@@ -73,6 +74,8 @@ export default function Admin() {
           <h1 className="text-3xl font-bold">Admin Dashboard</h1>
           <p className="text-muted-foreground mt-2">Manage your platform from here</p>
         </div>
+
+        <NotificationTestPanel />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card>
