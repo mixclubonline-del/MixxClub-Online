@@ -14,6 +14,8 @@ import EnhancedCRM from '@/components/crm/EnhancedCRM';
 import SessionManager from '@/components/collaboration/SessionManager';
 import { toast } from 'sonner';
 import { JobPool } from '@/components/JobPool';
+import { EarningsOverview } from '@/components/engineer/EarningsOverview';
+import { PayoutManagement } from '@/components/engineer/PayoutManagement';
 
 const EngineerCRM = () => {
   const { user } = useAuth();
@@ -22,6 +24,13 @@ const EngineerCRM = () => {
   const [tasks, setTasks] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
   const [achievements, setAchievements] = useState<any[]>([]);
+  const [earnings, setEarnings] = useState({
+    total: 0,
+    pending: 0,
+    paid: 0,
+    bonuses: 0,
+    available: 0
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -80,6 +89,28 @@ const EngineerCRM = () => {
 
       if (achievementsError) throw achievementsError;
       setAchievements(achievementsData || []);
+
+      // Fetch earnings
+      const { data: earningsData, error: earningsError } = await supabase
+        .from('engineer_earnings')
+        .select('*')
+        .eq('engineer_id', user?.id);
+
+      if (earningsError) throw earningsError;
+
+      // Calculate earnings totals
+      const totalEarnings = earningsData?.reduce((sum, e) => sum + Number(e.total_amount || 0), 0) || 0;
+      const pendingEarnings = earningsData?.filter(e => e.status === 'pending').reduce((sum, e) => sum + Number(e.total_amount || 0), 0) || 0;
+      const paidEarnings = earningsData?.filter(e => e.status === 'paid').reduce((sum, e) => sum + Number(e.total_amount || 0), 0) || 0;
+      const bonuses = earningsData?.reduce((sum, e) => sum + Number(e.bonus_amount || 0), 0) || 0;
+      
+      setEarnings({
+        total: totalEarnings,
+        pending: pendingEarnings,
+        paid: paidEarnings,
+        bonuses: bonuses,
+        available: pendingEarnings
+      });
     } catch (error: any) {
       console.error('Error fetching data:', error);
       toast.error('Failed to load dashboard');
@@ -244,6 +275,10 @@ const EngineerCRM = () => {
               <TabsTrigger value="collaboration" className="gap-2 whitespace-nowrap">
                 <Zap className="w-4 h-4" />
                 Live Studio
+              </TabsTrigger>
+              <TabsTrigger value="payments" className="gap-2 whitespace-nowrap">
+                <DollarSign className="w-4 h-4" />
+                Payments
               </TabsTrigger>
               <TabsTrigger value="achievements" className="whitespace-nowrap">Badges</TabsTrigger>
             </TabsList>
@@ -416,6 +451,27 @@ const EngineerCRM = () => {
                 ))}
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="payments" className="space-y-6">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold mb-2">Payments & Earnings</h2>
+              <p className="text-muted-foreground">
+                Track your earnings and request payouts
+              </p>
+            </div>
+
+            <EarningsOverview
+              totalEarnings={earnings.total}
+              pendingEarnings={earnings.pending}
+              paidEarnings={earnings.paid}
+              totalBonuses={earnings.bonuses}
+            />
+
+            <PayoutManagement
+              engineerId={user?.id || ''}
+              availableBalance={earnings.available}
+            />
           </TabsContent>
 
           <TabsContent value="achievements" className="space-y-4">
