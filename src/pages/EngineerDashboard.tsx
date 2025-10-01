@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
 import { useEngineerEarnings } from '@/hooks/useEngineerEarnings';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { EarningsOverview } from '@/components/engineer/EarningsOverview';
 import { PayoutManagement } from '@/components/engineer/PayoutManagement';
 import { BadgesDisplay } from '@/components/engineer/BadgesDisplay';
@@ -14,6 +15,9 @@ import { AchievementProgress } from '@/components/gamification/AchievementProgre
 import { MonthlyAwards } from '@/components/gamification/MonthlyAwards';
 import { BadgeShowcase } from '@/components/gamification/BadgeShowcase';
 import { EnhancedLeaderboard } from '@/components/gamification/EnhancedLeaderboard';
+import { QuickAchievements } from '@/components/gamification/QuickAchievements';
+import { MobileStatsCarousel } from '@/components/mobile/MobileStatsCarousel';
+import { MobileNotificationBanner } from '@/components/mobile/MobileNotificationBanner';
 import { Music, Clock, Zap, Award } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -32,6 +36,7 @@ interface Project {
 const EngineerDashboard = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
+  const isMobile = useIsMobile();
   const { stats, badges, streak, loading: dataLoading } = useEngineerEarnings(user?.id);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(true);
@@ -138,6 +143,16 @@ const EngineerDashboard = () => {
           </div>
         </div>
 
+        {/* Mobile Notification Banner */}
+        {isMobile && <MobileNotificationBanner />}
+
+        {/* Quick Achievements for Mobile */}
+        {isMobile && user && (
+          <div className="mb-6">
+            <QuickAchievements userId={user.id} />
+          </div>
+        )}
+
         {/* Earnings Overview */}
         <div className="mb-8">
           <EarningsOverview
@@ -148,8 +163,24 @@ const EngineerDashboard = () => {
           />
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
+        {/* Mobile Stats Carousel */}
+        {isMobile && (
+          <div className="mb-8">
+            <MobileStatsCarousel
+              stats={{
+                activeProjects: stats.activeProjects,
+                completedProjects: stats.completedProjects,
+                averageRating: stats.averageRating,
+                totalEarnings: stats.totalEarnings,
+                pendingEarnings: stats.pendingEarnings,
+                currentStreak: streak.current_streak,
+              }}
+            />
+          </div>
+        )}
+
+        {/* Stats Cards - Desktop Only */}
+        <div className="hidden md:grid md:grid-cols-3 gap-6 mb-8">
           <Card className="border-border">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
