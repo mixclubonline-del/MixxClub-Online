@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Play, Pause, Volume2, VolumeX, ArrowLeftRight } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, ArrowLeftRight, Users, Check, X, Frown } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 
 export function BeforeAfterComparison() {
@@ -128,65 +128,74 @@ export function BeforeAfterComparison() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
               </span>
-              <span className="text-sm font-bold text-primary uppercase tracking-wider">Live Audio Demo</span>
+              <span className="text-sm font-bold text-primary uppercase tracking-wider">Your Journey</span>
             </div>
             
             <h2 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tighter mb-6 leading-[1.05]">
-              <span className="block mb-2">From</span>
-              <span className="bg-gradient-to-r from-red-500 via-red-400 to-red-500 bg-clip-text text-transparent">
-                Bedroom Demo
+              <span className="block mb-2 text-muted-foreground">Before</span>
+              <span className="bg-gradient-to-r from-muted-foreground via-muted to-muted-foreground bg-clip-text text-transparent">
+                Mix Club
               </span>
-              <span className="block my-2 text-2xl md:text-4xl text-muted-foreground">to</span>
+              <span className="block my-3 text-2xl md:text-3xl text-muted-foreground/60">vs</span>
               <span className="bg-gradient-to-r from-primary via-[hsl(220_90%_60%)] to-[hsl(180_100%_50%)] bg-clip-text text-transparent drop-shadow-[0_0_40px_hsl(262_83%_58%/0.5)]">
-                Radio Ready
+                After Mix Club
               </span>
             </h2>
             
-            <p className="text-lg md:text-2xl text-foreground/80 max-w-3xl mx-auto font-light leading-relaxed">
-              Press play and experience the{" "}
-              <span className="text-primary font-semibold">dramatic transformation</span>
-              {" "}professional mastering delivers
+            <p className="text-lg md:text-2xl text-foreground/80 max-w-4xl mx-auto font-light leading-relaxed mb-3">
+              From isolated bedroom struggle to{" "}
+              <span className="text-primary font-semibold">thriving in a professional community</span>
+            </p>
+            <p className="text-base md:text-lg text-muted-foreground/70 max-w-2xl mx-auto">
+              Same artist. Same track. Different world.
             </p>
           </div>
 
           {/* Audio Players - Split Screen Design */}
           <div className="grid md:grid-cols-2 gap-6 md:gap-8 mb-10 md:mb-16">
-            {/* Before Card */}
+            {/* Before Mix Club Card */}
             <Card className={`group relative overflow-hidden glass-studio border-2 transition-all duration-500 hover:scale-[1.02] ${
               activeTrack === 'before' 
-                ? 'border-red-500/70 shadow-[0_0_40px_rgba(239,68,68,0.3)] scale-[1.02]' 
-                : 'border-red-500/30 hover:border-red-500/60'
+                ? 'border-muted-foreground/50 shadow-[0_0_30px_rgba(100,100,100,0.3)] scale-[1.02]' 
+                : 'border-muted/30 hover:border-muted-foreground/30'
             }`}>
-              <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute inset-0 bg-gradient-to-br from-muted-foreground/5 via-muted/10 to-background opacity-50" />
               
               <div className="relative p-6 md:p-8">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-2xl md:text-3xl font-black text-foreground">BEFORE</h3>
-                  <div className="px-4 py-1.5 rounded-full bg-red-500/20 border-2 border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.2)]">
-                    <span className="text-xs font-bold text-red-400 uppercase tracking-wider">Raw</span>
+                  <div className="space-y-3">
+                    <div className="inline-block px-4 py-2 rounded-full bg-muted border border-muted-foreground/20">
+                      <span className="text-xs md:text-sm font-bold text-muted-foreground uppercase tracking-wider">Before Mix Club</span>
+                    </div>
+                    <h3 className="text-2xl md:text-3xl font-black text-muted-foreground">Struggling Alone</h3>
                   </div>
+                  <Frown className="w-10 h-10 md:w-12 md:h-12 text-muted-foreground/60" />
                 </div>
                 
-                <div className="space-y-2 mb-6">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <div className="w-2 h-2 bg-red-500/50 rounded-full" />
-                    <span>Muddy low frequencies</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <div className="w-2 h-2 bg-red-500/50 rounded-full" />
-                    <span>Harsh, unbalanced highs</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <div className="w-2 h-2 bg-red-500/50 rounded-full" />
-                    <span>Limited dynamic range</span>
-                  </div>
+                <p className="text-sm md:text-base text-muted-foreground/80 leading-relaxed mb-6">
+                  DIY bedroom producer working in isolation with limited resources
+                </p>
+
+                <div className="space-y-3 mb-6">
+                  {[
+                    "Working in isolation",
+                    "No professional feedback",
+                    "Limited industry connections",
+                    "Stuck with bedroom sound",
+                    "Hours of frustration"
+                  ].map((painPoint, idx) => (
+                    <div key={idx} className="flex items-start gap-3 text-muted-foreground/70">
+                      <X className="w-4 h-4 md:w-5 md:h-5 mt-0.5 flex-shrink-0 text-muted-foreground/50" />
+                      <span className="text-xs md:text-sm">{painPoint}</span>
+                    </div>
+                  ))}
                 </div>
                 
-                <div className="aspect-[4/3] bg-gradient-to-br from-red-500/10 to-red-900/5 rounded-2xl flex items-center justify-center border-2 border-red-500/20 relative overflow-hidden group-hover:border-red-500/40 transition-colors duration-500">
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(239,68,68,0.1),transparent_70%)]" />
+                <div className="aspect-[4/3] bg-gradient-to-br from-muted/20 to-muted/5 rounded-2xl flex items-center justify-center border-2 border-muted/30 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(100,100,100,0.1),transparent_70%)]" />
                   <div className="text-center relative z-10">
-                    <VolumeX className="w-16 md:w-24 h-16 md:h-24 text-red-500/50 mx-auto mb-3 group-hover:scale-110 transition-transform duration-500" />
-                    <p className="text-xs md:text-sm font-medium text-red-400/70 uppercase tracking-wider">Unmastered</p>
+                    <Frown className="w-16 md:w-24 h-16 md:h-24 text-muted-foreground/40 mx-auto mb-3" />
+                    <p className="text-xs md:text-sm font-medium text-muted-foreground/60 uppercase tracking-wider">Isolated</p>
                   </div>
                 </div>
               </div>
@@ -194,42 +203,52 @@ export function BeforeAfterComparison() {
               <audio ref={beforeAudioRef} src={beforeUrl} />
             </Card>
 
-            {/* After Card */}
+            {/* After Mix Club Card */}
             <Card className={`group relative overflow-hidden glass-studio border-2 transition-all duration-500 hover:scale-[1.02] ${
               activeTrack === 'after' 
                 ? 'border-primary/70 shadow-glow scale-[1.02]' 
                 : 'border-primary/30 hover:border-primary/60'
             }`}>
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute inset-0 bg-gradient-raven opacity-20" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(139,92,246,0.15),transparent)]" />
               
               <div className="relative p-6 md:p-8">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-2xl md:text-3xl font-black text-foreground">AFTER</h3>
-                  <div className="px-4 py-1.5 rounded-full bg-primary/20 border-2 border-primary/50 shadow-glow-sm">
-                    <span className="text-xs font-bold text-primary uppercase tracking-wider">Pro</span>
+                  <div className="space-y-3">
+                    <div className="inline-block px-4 py-2 rounded-full bg-primary/20 border border-primary/40 shadow-glow-sm">
+                      <span className="text-xs md:text-sm font-bold text-primary uppercase tracking-wider">After Mix Club</span>
+                    </div>
+                    <h3 className="text-2xl md:text-3xl font-black bg-gradient-to-r from-primary via-[hsl(220_90%_60%)] to-[hsl(180_100%_50%)] bg-clip-text text-transparent">
+                      Thriving Together
+                    </h3>
                   </div>
+                  <Users className="w-10 h-10 md:w-12 md:h-12 text-primary animate-pulse-glow" />
                 </div>
                 
-                <div className="space-y-2 mb-6">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <div className="w-2 h-2 bg-primary/70 rounded-full animate-pulse-glow" />
-                    <span>Crystal clear clarity</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <div className="w-2 h-2 bg-primary/70 rounded-full animate-pulse-glow" />
-                    <span>Perfect frequency balance</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <div className="w-2 h-2 bg-primary/70 rounded-full animate-pulse-glow" />
-                    <span>Punchy, radio-ready loudness</span>
-                  </div>
+                <p className="text-sm md:text-base text-foreground/90 leading-relaxed mb-6 font-medium">
+                  Professional network of engineers ready to bring your vision to life
+                </p>
+
+                <div className="space-y-3 mb-6">
+                  {[
+                    "Connected to pro engineers",
+                    "Real-time collaboration",
+                    "Industry-standard results",
+                    "Growing fanbase",
+                    "Career breakthrough"
+                  ].map((benefit, idx) => (
+                    <div key={idx} className="flex items-start gap-3 text-foreground/80">
+                      <Check className="w-4 h-4 md:w-5 md:h-5 mt-0.5 flex-shrink-0 text-primary" />
+                      <span className="text-xs md:text-sm font-medium">{benefit}</span>
+                    </div>
+                  ))}
                 </div>
                 
                 <div className="aspect-[4/3] bg-gradient-to-br from-primary/10 to-[hsl(220_90%_60%)]/5 rounded-2xl flex items-center justify-center border-2 border-primary/20 relative overflow-hidden group-hover:border-primary/50 transition-colors duration-500">
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,hsl(var(--primary)/0.15),transparent_70%)]" />
                   <div className="text-center relative z-10">
-                    <Volume2 className="w-16 md:w-24 h-16 md:h-24 text-primary/70 mx-auto mb-3 animate-pulse-glow group-hover:scale-110 transition-transform duration-500" />
-                    <p className="text-xs md:text-sm font-medium text-primary/90 uppercase tracking-wider">Mastered</p>
+                    <Users className="w-16 md:w-24 h-16 md:h-24 text-primary/70 mx-auto mb-3 animate-pulse-glow group-hover:scale-110 transition-transform duration-500" />
+                    <p className="text-xs md:text-sm font-medium text-primary/90 uppercase tracking-wider">Connected</p>
                   </div>
                 </div>
               </div>
@@ -256,9 +275,9 @@ export function BeforeAfterComparison() {
                     <p className="text-xs text-muted-foreground">
                       Now Playing:{" "}
                       <span className={`font-bold ${
-                        activeTrack === 'before' ? 'text-red-400' : 'text-primary'
+                        activeTrack === 'before' ? 'text-muted-foreground' : 'text-primary'
                       }`}>
-                        {activeTrack === 'before' ? 'BEFORE' : 'AFTER'}
+                        {activeTrack === 'before' ? 'BEFORE MIX CLUB' : 'AFTER MIX CLUB'}
                       </span>
                     </p>
                   </div>
@@ -291,7 +310,7 @@ export function BeforeAfterComparison() {
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
                   <ArrowLeftRight className="w-6 h-6 mr-3 group-hover:rotate-180 transition-transform duration-500" />
                   <span className="relative">
-                    Switch to {activeTrack === 'before' ? 'AFTER' : 'BEFORE'}
+                    Switch to {activeTrack === 'before' ? 'AFTER MIX CLUB' : 'BEFORE MIX CLUB'}
                   </span>
                 </Button>
 
