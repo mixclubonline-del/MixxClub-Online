@@ -39,6 +39,7 @@ import HybridDAW from "./pages/HybridDAW";
 import ProjectDetail from "./pages/ProjectDetail";
 import NotFound from "./pages/NotFound";
 import MobileHome from "./pages/MobileHome";
+import MobileLanding from "./pages/MobileLanding";
 import MobileAdmin from "./pages/MobileAdmin";
 import MobileAdminPayouts from "./pages/MobileAdminPayouts";
 import MobileAdminUsers from "./pages/MobileAdminUsers";
@@ -88,7 +89,8 @@ const App = () => (
             <Route path="/project/:projectId" element={<ProjectDetail />} />
             
             {/* Mobile Routes */}
-            <Route path="/mobile-home" element={<MobileHome />} />
+          <Route path="/mobile-home" element={<MobileHome />} />
+          <Route path="/mobile-landing" element={<MobileLanding />} />
             <Route path="/mobile-admin" element={<MobileAdmin />} />
             <Route path="/mobile-admin/payouts" element={<MobileAdminPayouts />} />
             <Route path="/mobile-admin/users" element={<MobileAdminUsers />} />
