@@ -1,0 +1,56 @@
+# Audio Files Directory
+
+This directory should contain 5 trap beat audio files for the slideshow experience:
+
+## Required Files:
+1. **trap-beat-1.mp3** - Low intensity intro (~90 BPM, minimal elements)
+2. **trap-beat-2.mp3** - Medium-low intensity (~100 BPM, add hi-hats)
+3. **trap-beat-3.mp3** - Medium intensity (~110 BPM, full beat)
+4. **trap-beat-4.mp3** - Medium-high intensity (~120 BPM, more layers)
+5. **trap-beat-5.mp3** - High intensity finale (~130 BPM, maximum energy)
+
+## Specifications:
+- **Format**: MP3
+- **Duration**: 10-15 seconds (must loop seamlessly)
+- **Sample Rate**: 44.1kHz or higher
+- **Bit Rate**: 192kbps or higher for quality
+
+## Where to Find Royalty-Free Trap Beats:
+
+### Pixabay (Easiest - No signup required)
+1. Visit: https://pixabay.com/music/search/trap%20beat/
+2. Click on any trap beat
+3. Click the "Download" button
+4. Rename to trap-beat-[1-5].mp3 and place here
+
+### FreeBeats.io (Quality beats)
+1. Visit: https://freebeats.io/royalty-free-trap-beats
+2. Browse and download beats
+3. Follow social media for free download (no cost)
+4. Trim to 10-15 seconds and make them loop
+
+### Freesound.org (Community library)
+1. Visit: https://freesound.org
+2. Search for "trap beat" or "trap instrumental"
+3. Filter by "Creative Commons 0" for maximum freedom
+4. Download and edit as needed
+
+### Free-Stock-Music.com
+1. Visit: https://www.free-stock-music.com/trap.html
+2. Download with attribution
+3. Edit to create progressive intensity
+
+## Tips for Selection:
+- Choose beats with similar style/sound for smooth transitions
+- Ensure increasing energy from 1→5
+- Test loop points (start/end should blend seamlessly)
+- Keep them short (10-15s) for quick loading
+- All should work well together as a progressive sequence
+
+## Editing Tools (if needed):
+- **Audacity** (Free): https://www.audacityteam.org/
+- **Online Audio Cutter**: https://mp3cut.net/
+- Use fade in/out for seamless loops
+
+## License Attribution:
+If using beats that require attribution, add credits to your app's footer or about page.
