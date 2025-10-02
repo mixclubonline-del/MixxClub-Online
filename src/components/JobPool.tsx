@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Clock, DollarSign, Music, User, Calendar, MapPin } from 'lucide-react';
+import { Clock, DollarSign, Music, User, Calendar, MapPin, Bookmark, BookmarkCheck } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
@@ -35,6 +35,7 @@ interface Application {
 export const JobPool = () => {
   const { user } = useAuth();
   const [jobs, setJobs] = useState<JobPosting[]>([]);
+  const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [selectedJob, setSelectedJob] = useState<JobPosting | null>(null);
   const [application, setApplication] = useState<Application>({
@@ -45,7 +46,10 @@ export const JobPool = () => {
 
   useEffect(() => {
     fetchJobs();
-  }, []);
+    if (user) {
+      fetchSavedJobs();
+    }
+  }, [user]);
 
   const fetchJobs = async () => {
     try {
@@ -62,6 +66,66 @@ export const JobPool = () => {
       toast.error('Failed to load job postings');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchSavedJobs = async () => {
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from('saved_jobs')
+      .select('job_id')
+      .eq('user_id', user.id);
+
+    if (error) {
+      console.error('Error fetching saved jobs:', error);
+      return;
+    }
+
+    setSavedJobIds(new Set(data.map(sj => sj.job_id)));
+  };
+
+  const toggleSaveJob = async (jobId: string) => {
+    if (!user) {
+      toast.error('Please log in to save jobs');
+      return;
+    }
+
+    const isSaved = savedJobIds.has(jobId);
+
+    if (isSaved) {
+      const { error } = await supabase
+        .from('saved_jobs')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('job_id', jobId);
+
+      if (error) {
+        toast.error('Failed to remove job');
+        return;
+      }
+
+      toast.success('Job removed from saved');
+      setSavedJobIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(jobId);
+        return newSet;
+      });
+    } else {
+      const { error } = await supabase
+        .from('saved_jobs')
+        .insert({
+          user_id: user.id,
+          job_id: jobId
+        });
+
+      if (error) {
+        toast.error('Failed to save job');
+        return;
+      }
+
+      toast.success('Job saved for later');
+      setSavedJobIds(prev => new Set(prev).add(jobId));
     }
   };
 
@@ -139,14 +203,22 @@ export const JobPool = () => {
         </TabsList>
 
         <TabsContent value="all" className="space-y-4">
-          <JobGrid jobs={jobs} onSelectJob={setSelectedJob} getServiceColor={getServiceColor} />
+          <JobGrid 
+            jobs={jobs} 
+            onSelectJob={setSelectedJob} 
+            getServiceColor={getServiceColor}
+            savedJobIds={savedJobIds}
+            onToggleSave={toggleSaveJob}
+          />
         </TabsContent>
 
         <TabsContent value="mixing" className="space-y-4">
           <JobGrid 
             jobs={jobs.filter(job => job.service_type === 'mixing')} 
             onSelectJob={setSelectedJob} 
-            getServiceColor={getServiceColor} 
+            getServiceColor={getServiceColor}
+            savedJobIds={savedJobIds}
+            onToggleSave={toggleSaveJob}
           />
         </TabsContent>
 
@@ -154,7 +226,9 @@ export const JobPool = () => {
           <JobGrid 
             jobs={jobs.filter(job => job.service_type === 'mastering')} 
             onSelectJob={setSelectedJob} 
-            getServiceColor={getServiceColor} 
+            getServiceColor={getServiceColor}
+            savedJobIds={savedJobIds}
+            onToggleSave={toggleSaveJob}
           />
         </TabsContent>
 
@@ -162,7 +236,9 @@ export const JobPool = () => {
           <JobGrid 
             jobs={jobs.filter(job => job.service_type === 'both')} 
             onSelectJob={setSelectedJob} 
-            getServiceColor={getServiceColor} 
+            getServiceColor={getServiceColor}
+            savedJobIds={savedJobIds}
+            onToggleSave={toggleSaveJob}
           />
         </TabsContent>
       </Tabs>
@@ -258,20 +334,38 @@ export const JobPool = () => {
   );
 };
 
-const JobGrid = ({ jobs, onSelectJob, getServiceColor }: {
+const JobGrid = ({ jobs, onSelectJob, getServiceColor, savedJobIds, onToggleSave }: {
   jobs: JobPosting[];
   onSelectJob: (job: JobPosting) => void;
   getServiceColor: (service: string) => string;
+  savedJobIds: Set<string>;
+  onToggleSave: (jobId: string) => void;
 }) => (
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     {jobs.map((job) => (
       <Card key={job.id} className="hover:shadow-lg transition-shadow cursor-pointer">
         <CardHeader>
           <div className="flex justify-between items-start">
-            <CardTitle className="text-lg">{job.title}</CardTitle>
-            <Badge className={getServiceColor(job.service_type)}>
-              {job.service_type}
-            </Badge>
+            <CardTitle className="text-lg flex-1">{job.title}</CardTitle>
+            <div className="flex items-center gap-2">
+              <Badge className={getServiceColor(job.service_type)}>
+                {job.service_type}
+              </Badge>
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleSave(job.id);
+                }}
+              >
+                {savedJobIds.has(job.id) ? (
+                  <BookmarkCheck className="w-5 h-5 fill-primary text-primary" />
+                ) : (
+                  <Bookmark className="w-5 h-5" />
+                )}
+              </Button>
+            </div>
           </div>
           <CardDescription className="line-clamp-2">
             {job.description}

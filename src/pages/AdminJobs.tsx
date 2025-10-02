@@ -6,9 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
-import { Briefcase, Search, DollarSign, Calendar, User } from 'lucide-react';
+import { Briefcase, Search, DollarSign, Calendar, User, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import { exportToCSV } from '@/utils/csvExport';
 
 interface JobPosting {
   id: string;
@@ -95,6 +96,21 @@ export default function AdminJobs() {
     completed: jobs.filter(j => j.status === 'completed').length,
   };
 
+  const exportJobsToCSV = () => {
+    const exportData = filteredJobs.map(job => ({
+      'ID': job.id,
+      'Title': job.title,
+      'Service Type': job.service_type,
+      'Genre': job.genre || '',
+      'Budget': job.budget || 0,
+      'Status': job.status,
+      'Created': format(new Date(job.created_at), 'yyyy-MM-dd'),
+      'Deadline': job.deadline ? format(new Date(job.deadline), 'yyyy-MM-dd') : '',
+    }));
+    exportToCSV(exportData, 'job-postings');
+    toast.success('Jobs exported to CSV');
+  };
+
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -105,7 +121,13 @@ export default function AdminJobs() {
               Monitor and manage all job postings on the platform
             </p>
           </div>
-          <Button onClick={fetchJobs}>Refresh</Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={exportJobsToCSV}>
+              <Download className="w-4 h-4 mr-2" />
+              Export CSV
+            </Button>
+            <Button onClick={fetchJobs}>Refresh</Button>
+          </div>
         </div>
 
         <div className="relative">

@@ -841,6 +841,42 @@ export type Database = {
           },
         ]
       }
+      application_templates: {
+        Row: {
+          cover_letter: string | null
+          created_at: string | null
+          experience_summary: string | null
+          id: string
+          is_default: boolean | null
+          portfolio_links: Json | null
+          template_name: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          cover_letter?: string | null
+          created_at?: string | null
+          experience_summary?: string | null
+          id?: string
+          is_default?: boolean | null
+          portfolio_links?: Json | null
+          template_name: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          cover_letter?: string | null
+          created_at?: string | null
+          experience_summary?: string | null
+          id?: string
+          is_default?: boolean | null
+          portfolio_links?: Json | null
+          template_name?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       attorney_notifications: {
         Row: {
           attorney_email: string
@@ -4642,43 +4678,100 @@ export type Database = {
           },
         ]
       }
+      project_templates: {
+        Row: {
+          checklist_items: Json | null
+          created_at: string | null
+          created_by: string | null
+          default_budget: number | null
+          estimated_duration_days: number | null
+          id: string
+          is_public: boolean | null
+          required_files: Json | null
+          service_type: string
+          template_description: string | null
+          template_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          checklist_items?: Json | null
+          created_at?: string | null
+          created_by?: string | null
+          default_budget?: number | null
+          estimated_duration_days?: number | null
+          id?: string
+          is_public?: boolean | null
+          required_files?: Json | null
+          service_type: string
+          template_description?: string | null
+          template_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          checklist_items?: Json | null
+          created_at?: string | null
+          created_by?: string | null
+          default_budget?: number | null
+          estimated_duration_days?: number | null
+          id?: string
+          is_public?: boolean | null
+          required_files?: Json | null
+          service_type?: string
+          template_description?: string | null
+          template_name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       projects: {
         Row: {
+          actual_start_date: string | null
           budget: number | null
           client_id: string
           created_at: string
           deadline: string | null
           description: string | null
           engineer_id: string | null
+          estimated_completion_date: string | null
           id: string
           metadata: Json | null
+          progress_percentage: number | null
           status: Database["public"]["Enums"]["project_status"]
+          time_tracked_minutes: number | null
           title: string
           updated_at: string
         }
         Insert: {
+          actual_start_date?: string | null
           budget?: number | null
           client_id: string
           created_at?: string
           deadline?: string | null
           description?: string | null
           engineer_id?: string | null
+          estimated_completion_date?: string | null
           id?: string
           metadata?: Json | null
+          progress_percentage?: number | null
           status?: Database["public"]["Enums"]["project_status"]
+          time_tracked_minutes?: number | null
           title: string
           updated_at?: string
         }
         Update: {
+          actual_start_date?: string | null
           budget?: number | null
           client_id?: string
           created_at?: string
           deadline?: string | null
           description?: string | null
           engineer_id?: string | null
+          estimated_completion_date?: string | null
           id?: string
           metadata?: Json | null
+          progress_percentage?: number | null
           status?: Database["public"]["Enums"]["project_status"]
+          time_tracked_minutes?: number | null
           title?: string
           updated_at?: string
         }
@@ -4855,6 +4948,77 @@ export type Database = {
           period_start?: string
           revenue_by_geography?: Json | null
           revenue_by_service?: Json | null
+        }
+        Relationships: []
+      }
+      saved_jobs: {
+        Row: {
+          created_at: string | null
+          id: string
+          job_id: string
+          notes: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          job_id: string
+          notes?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          job_id?: string
+          notes?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_jobs_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_postings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      saved_payment_methods: {
+        Row: {
+          card_brand: string | null
+          card_exp_month: number | null
+          card_exp_year: number | null
+          card_last4: string | null
+          created_at: string | null
+          id: string
+          is_default: boolean | null
+          stripe_payment_method_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          card_brand?: string | null
+          card_exp_month?: number | null
+          card_exp_year?: number | null
+          card_last4?: string | null
+          created_at?: string | null
+          id?: string
+          is_default?: boolean | null
+          stripe_payment_method_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          card_brand?: string | null
+          card_exp_month?: number | null
+          card_exp_year?: number | null
+          card_last4?: string | null
+          created_at?: string | null
+          id?: string
+          is_default?: boolean | null
+          stripe_payment_method_id?: string
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -5435,6 +5599,53 @@ export type Database = {
           },
           {
             foreignKeyName: "tasks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      time_tracking_entries: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          duration_minutes: number | null
+          end_time: string | null
+          id: string
+          is_billable: boolean | null
+          project_id: string
+          start_time: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          end_time?: string | null
+          id?: string
+          is_billable?: boolean | null
+          project_id: string
+          start_time: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          end_time?: string | null
+          id?: string
+          is_billable?: boolean | null
+          project_id?: string
+          start_time?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "time_tracking_entries_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
