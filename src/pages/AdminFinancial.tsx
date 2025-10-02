@@ -7,6 +7,7 @@ import { AIFinancialController } from '@/components/admin/AIFinancialController'
 import { RevenueAnalytics } from '@/components/admin/RevenueAnalytics';
 import { ChurnPrediction } from '@/components/admin/ChurnPrediction';
 import { CashFlowManagement } from '@/components/admin/CashFlowManagement';
+import { DocumentGenerator } from '@/components/admin/DocumentGenerator';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -142,7 +143,7 @@ export default function AdminFinancial() {
         </div>
 
         <Tabs defaultValue="ai" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="ai" className="flex items-center gap-2">
               <Sparkles className="h-4 w-4" />
               AI Insights
@@ -158,6 +159,10 @@ export default function AdminFinancial() {
             <TabsTrigger value="cashflow" className="flex items-center gap-2">
               <Wallet className="h-4 w-4" />
               Cash Flow
+            </TabsTrigger>
+            <TabsTrigger value="documents" className="flex items-center gap-2">
+              <DollarSign className="h-4 w-4" />
+              Documents
             </TabsTrigger>
             <TabsTrigger value="overview">Overview</TabsTrigger>
           </TabsList>
@@ -176,6 +181,10 @@ export default function AdminFinancial() {
 
           <TabsContent value="cashflow" className="space-y-4">
             <CashFlowManagement />
+          </TabsContent>
+
+          <TabsContent value="documents" className="space-y-4">
+            <DocumentGenerator />
           </TabsContent>
 
           <TabsContent value="overview" className="space-y-4">
