@@ -52,7 +52,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         client_secret: paymentIntent.client_secret,
-        publishable_key: 'pk_test_51QVN0XRq9IzNdyTiZdlJCuGBBBN5d7OQBdBnhYQGCTx8MJyOGT9LJPqmSVzgM6GC2KQYjuFxL8m3GFyMUMZ3JX9z00pJqvHH0N'
+        publishable_key: Deno.env.get('STRIPE_PUBLISHABLE_KEY') || ''
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

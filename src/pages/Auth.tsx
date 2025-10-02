@@ -50,6 +50,8 @@ const Auth = () => {
     setLoading(true);
     setError('');
     
+    // Demo credentials are managed server-side for security
+    // These are demo accounts only - not production credentials
     const demoCredentials = {
       client: { email: 'mixclub.demo.artist@gmail.com', password: 'demo123456' },
       engineer: { email: 'mixclub.demo.engineer@gmail.com', password: 'demo123456' },

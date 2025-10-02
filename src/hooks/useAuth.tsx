@@ -27,15 +27,34 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(session?.user ?? null);
         setLoading(false);
         
-        // Defer profile fetching
+        // Defer role fetching from user_roles table (secure)
         if (session?.user) {
           setTimeout(async () => {
-            const { data: profile } = await supabase
-              .from('profiles')
+            // Fetch from user_roles table for secure authorization
+            const { data: roles } = await supabase
+              .from('user_roles')
               .select('role')
-              .eq('id', session.user.id)
-              .single();
-            setUserRole(profile?.role || 'client');
+              .eq('user_id', session.user.id);
+            
+            // Set role priority: admin > engineer > client
+            if (roles && roles.length > 0) {
+              const roleTypes = roles.map(r => r.role);
+              if (roleTypes.includes('admin')) {
+                setUserRole('admin');
+              } else if (roleTypes.includes('engineer')) {
+                setUserRole('engineer');
+              } else {
+                setUserRole('client');
+              }
+            } else {
+              // Fallback to profiles.role for display purposes only
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('role')
+                .eq('id', session.user.id)
+                .single();
+              setUserRole(profile?.role || 'client');
+            }
           }, 0);
         } else {
           setUserRole(null);
