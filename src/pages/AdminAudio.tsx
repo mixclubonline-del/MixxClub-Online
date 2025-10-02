@@ -10,8 +10,11 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Upload, Music, Trash2, Edit, Save, X } from 'lucide-react';
+import { Upload, Music, Trash2 } from 'lucide-react';
+import { BeatFilesManager } from '@/components/admin/BeatFilesManager';
+import { StorageInspector } from '@/components/admin/StorageInspector';
 
 interface AudioSample {
   id: string;
@@ -204,9 +207,18 @@ export default function AdminAudio() {
     <AdminLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Audio Samples Management</h1>
-          <p className="text-muted-foreground">Manage before/after audio samples for showcase</p>
+          <h1 className="text-3xl font-bold">Audio Management</h1>
+          <p className="text-muted-foreground">Manage all audio content and files</p>
         </div>
+
+        <Tabs defaultValue="showcase" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="showcase">Showcase Samples</TabsTrigger>
+            <TabsTrigger value="beats">Beat Files</TabsTrigger>
+            <TabsTrigger value="inspector">Storage Inspector</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="showcase" className="space-y-6 mt-6">
 
         {/* Upload Form */}
         <Card>
@@ -372,6 +384,16 @@ export default function AdminAudio() {
             )}
           </CardContent>
         </Card>
+          </TabsContent>
+
+          <TabsContent value="beats" className="space-y-6 mt-6">
+            <BeatFilesManager />
+          </TabsContent>
+
+          <TabsContent value="inspector" className="space-y-6 mt-6">
+            <StorageInspector />
+          </TabsContent>
+        </Tabs>
       </div>
     </AdminLayout>
   );

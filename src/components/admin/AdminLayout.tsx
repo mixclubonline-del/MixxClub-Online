@@ -23,7 +23,7 @@ interface AdminLayoutProps {
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
   { name: 'Users', href: '/admin/users', icon: Users },
-  { name: 'Beat Files', href: '/admin/beat-files', icon: FileAudio },
+  { name: 'Audio', href: '/admin/audio', icon: FileAudio },
   { name: 'Contacts', href: '/admin/contacts', icon: Menu },
   { name: 'Job Postings', href: '/admin/jobs', icon: Menu },
   { name: 'Notifications', href: '/admin/notifications', icon: Menu },
@@ -35,7 +35,6 @@ const navigation = [
   { name: 'Financial', href: '/admin/financial', icon: Settings },
   { name: 'Analytics', href: '/admin/analytics', icon: Settings },
   { name: 'Content', href: '/admin/content', icon: FileAudio },
-  { name: 'Audio Samples', href: '/admin/audio', icon: FileAudio },
   { name: 'Media Library', href: '/admin/media', icon: Image },
   { name: 'Payouts', href: '/admin/payouts', icon: Settings },
   { name: 'Test Payments', href: '/admin/test-payments', icon: CreditCard },
