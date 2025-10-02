@@ -6,7 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { DollarSign, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { DollarSign, Clock, CheckCircle, XCircle, Loader2, Building2 } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface PayoutManagementProps {
   engineerId: string;
@@ -25,6 +26,8 @@ export function PayoutManagement({ engineerId, availableBalance }: PayoutManagem
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
   const [requests, setRequests] = useState<PayoutRequest[]>([]);
+  const [stripeConnected, setStripeConnected] = useState(false);
+  const [checkingStripe, setCheckingStripe] = useState(true);
   const { toast } = useToast();
 
   const fetchPayoutRequests = async () => {
@@ -42,7 +45,51 @@ export function PayoutManagement({ engineerId, availableBalance }: PayoutManagem
 
   useEffect(() => {
     fetchPayoutRequests();
+    checkStripeConnection();
   }, [engineerId]);
+
+  const checkStripeConnection = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('stripe_connect_account_id')
+        .eq('id', engineerId)
+        .single();
+
+      if (!error && data?.stripe_connect_account_id) {
+        setStripeConnected(true);
+      }
+    } catch (error) {
+      console.error('Error checking Stripe connection:', error);
+    } finally {
+      setCheckingStripe(false);
+    }
+  };
+
+  const handleConnectBank = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('setup-stripe-connect', {
+        body: {
+          returnUrl: `${window.location.origin}/engineer-crm?tab=business&stripe=success`,
+          refreshUrl: `${window.location.origin}/engineer-crm?tab=business&stripe=refresh`,
+        }
+      });
+
+      if (error) throw error;
+
+      // Redirect to Stripe Connect onboarding
+      window.location.href = data.url;
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to connect bank account',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleRequestPayout = async () => {
     if (!amount || Number(amount) <= 0) {
@@ -123,6 +170,34 @@ export function PayoutManagement({ engineerId, availableBalance }: PayoutManagem
           <div className="text-2xl font-bold">${availableBalance.toFixed(2)}</div>
         </div>
 
+        {!checkingStripe && !stripeConnected && (
+          <Alert>
+            <Building2 className="h-4 w-4" />
+            <AlertDescription>
+              <div className="space-y-2">
+                <p className="font-medium">Connect your bank account to receive payouts</p>
+                <p className="text-sm text-muted-foreground">
+                  We use Stripe Connect to securely transfer money to your bank account.
+                  The setup takes less than 2 minutes.
+                </p>
+                <Button onClick={handleConnectBank} disabled={loading} size="sm">
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Setting up...
+                    </>
+                  ) : (
+                    <>
+                      <Building2 className="mr-2 h-4 w-4" />
+                      Connect Bank Account
+                    </>
+                  )}
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
+
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="amount">Payout Amount</Label>
@@ -137,7 +212,7 @@ export function PayoutManagement({ engineerId, availableBalance }: PayoutManagem
                 max={availableBalance}
                 step="0.01"
               />
-              <Button onClick={handleRequestPayout} disabled={loading}>
+              <Button onClick={handleRequestPayout} disabled={loading || !stripeConnected}>
                 {loading ? 'Processing...' : 'Request Payout'}
               </Button>
             </div>

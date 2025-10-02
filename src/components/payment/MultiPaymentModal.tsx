@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { loadStripe } from '@stripe/stripe-js';
-import { CreditCard, Loader2, Smartphone, Wallet } from 'lucide-react';
+import { CreditCard, Loader2, Smartphone, Wallet, Bitcoin } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import jsPDF from 'jspdf';
@@ -37,7 +37,7 @@ export function MultiPaymentModal({
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [cardElement, setCardElement] = useState<any>(null);
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'paypal' | 'apple-google'>('card');
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'paypal' | 'apple-google' | 'crypto'>('card');
   const [paymentRequest, setPaymentRequest] = useState<any>(null);
   const [paypalLoaded, setPaypalLoaded] = useState(false);
   const paypalButtonRef = useRef<HTMLDivElement>(null);
@@ -327,6 +327,32 @@ export function MultiPaymentModal({
     }
   };
 
+  const handleCryptoPayment = async () => {
+    setLoading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const { data, error } = await supabase.functions.invoke('create-crypto-checkout', {
+        body: { projectId, amount: totalAmount }
+      });
+
+      if (error) throw error;
+
+      // Redirect to Coinbase Commerce hosted checkout
+      window.location.href = data.hosted_url;
+    } catch (error) {
+      console.error('Crypto payment error:', error);
+      toast({ 
+        title: 'Payment failed', 
+        description: error instanceof Error ? error.message : 'Unknown error',
+        variant: 'destructive' 
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[520px]">
@@ -379,6 +405,14 @@ export function MultiPaymentModal({
                   <Label htmlFor="paypal" className="flex items-center gap-2 cursor-pointer flex-1">
                     <Wallet className="h-4 w-4" />
                     PayPal / Venmo
+                  </Label>
+                </div>
+
+                <div className="flex items-center space-x-2 border rounded-lg p-3 cursor-pointer hover:bg-accent">
+                  <RadioGroupItem value="crypto" id="crypto" />
+                  <Label htmlFor="crypto" className="flex items-center gap-2 cursor-pointer flex-1">
+                    <Bitcoin className="h-4 w-4" />
+                    Cryptocurrency (BTC, ETH, USDC)
                   </Label>
                 </div>
               </div>
@@ -441,6 +475,39 @@ export function MultiPaymentModal({
                     <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                   </div>
                 )}
+              </div>
+            )}
+
+            {paymentMethod === 'crypto' && (
+              <div className="space-y-3">
+                <div className="p-4 border rounded-lg bg-muted/20">
+                  <p className="text-sm text-muted-foreground mb-2">Supported cryptocurrencies:</p>
+                  <div className="flex gap-2 mb-4">
+                    <Badge variant="secondary">Bitcoin (BTC)</Badge>
+                    <Badge variant="secondary">Ethereum (ETH)</Badge>
+                    <Badge variant="secondary">USDC</Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    You'll be redirected to Coinbase Commerce to complete your payment securely.
+                  </p>
+                </div>
+                <Button 
+                  onClick={handleCryptoPayment} 
+                  disabled={loading}
+                  className="w-full"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Redirecting...
+                    </>
+                  ) : (
+                    <>
+                      <Bitcoin className="mr-2 h-4 w-4" />
+                      Pay with Crypto
+                    </>
+                  )}
+                </Button>
               </div>
             )}
 
