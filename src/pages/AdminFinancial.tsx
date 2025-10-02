@@ -4,11 +4,15 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { AIFinancialController } from '@/components/admin/AIFinancialController';
+import { RevenueAnalytics } from '@/components/admin/RevenueAnalytics';
+import { ChurnPrediction } from '@/components/admin/ChurnPrediction';
+import { CashFlowManagement } from '@/components/admin/CashFlowManagement';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { DollarSign, TrendingUp, Users, CreditCard, Calendar, Sparkles } from 'lucide-react';
+import { DollarSign, TrendingUp, Users, CreditCard, Calendar, Sparkles, BarChart3, AlertTriangle, Wallet } from 'lucide-react';
 
 interface FinancialStats {
   totalRevenue: number;
@@ -138,16 +142,40 @@ export default function AdminFinancial() {
         </div>
 
         <Tabs defaultValue="ai" className="space-y-4">
-          <TabsList>
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="ai" className="flex items-center gap-2">
               <Sparkles className="h-4 w-4" />
               AI Insights
             </TabsTrigger>
-            <TabsTrigger value="overview">Financial Overview</TabsTrigger>
+            <TabsTrigger value="analytics" className="flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Revenue Analytics
+            </TabsTrigger>
+            <TabsTrigger value="churn" className="flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4" />
+              Churn Prevention
+            </TabsTrigger>
+            <TabsTrigger value="cashflow" className="flex items-center gap-2">
+              <Wallet className="h-4 w-4" />
+              Cash Flow
+            </TabsTrigger>
+            <TabsTrigger value="overview">Overview</TabsTrigger>
           </TabsList>
 
           <TabsContent value="ai" className="space-y-4">
             <AIFinancialController />
+          </TabsContent>
+
+          <TabsContent value="analytics" className="space-y-4">
+            <RevenueAnalytics />
+          </TabsContent>
+
+          <TabsContent value="churn" className="space-y-4">
+            <ChurnPrediction />
+          </TabsContent>
+
+          <TabsContent value="cashflow" className="space-y-4">
+            <CashFlowManagement />
           </TabsContent>
 
           <TabsContent value="overview" className="space-y-4">
