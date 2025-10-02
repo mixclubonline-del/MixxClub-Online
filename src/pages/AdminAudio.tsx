@@ -97,6 +97,15 @@ export default function AdminAudio() {
 
     setUploading(true);
     try {
+      // Verify admin status before upload
+      const { data: isAdminUser, error: adminError } = await supabase.rpc('is_admin', { 
+        user_uuid: user?.id 
+      });
+      
+      if (adminError || !isAdminUser) {
+        throw new Error('Admin access required. Please ensure you have admin privileges.');
+      }
+
       // Upload before file
       const beforePath = `${Date.now()}-${beforeFile.name}`;
       const { error: beforeError } = await supabase.storage
@@ -128,7 +137,10 @@ export default function AdminAudio() {
           created_by: user?.id,
         });
 
-      if (dbError) throw dbError;
+      if (dbError) {
+        console.error('Database insert error:', dbError);
+        throw new Error(`Database error: ${dbError.message}`);
+      }
 
       toast({
         title: 'Success',
