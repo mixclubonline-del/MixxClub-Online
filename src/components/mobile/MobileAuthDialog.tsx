@@ -18,6 +18,8 @@ export const MobileAuthDialog = ({ open, onOpenChange, mode = 'login' }: MobileA
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resetMode, setResetMode] = useState(false);
+  const [resetEmailSent, setResetEmailSent] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -67,6 +69,42 @@ export const MobileAuthDialog = ({ open, onOpenChange, mode = 'login' }: MobileA
     }
   };
 
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    try {
+      if (!email) {
+        toast({
+          title: "Email required",
+          description: "Please enter your email address",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth`,
+      });
+
+      if (error) throw error;
+      
+      setResetEmailSent(true);
+      toast({
+        title: "Email sent!",
+        description: "Check your inbox for password reset link"
+      });
+    } catch (error: any) {
+      toast({
+        title: "Reset failed",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleOAuth = async (provider: 'google' | 'apple') => {
     setLoading(true);
     try {
@@ -94,11 +132,71 @@ export const MobileAuthDialog = ({ open, onOpenChange, mode = 'login' }: MobileA
       <DialogContent className="w-[95vw] max-w-md rounded-lg">
         <DialogHeader>
           <DialogTitle className="text-2xl">
-            {authMode === 'login' ? '👋 Sign In' : '🎉 Create Account'}
+            {resetMode ? '🔑 Reset Password' : authMode === 'login' ? '👋 Sign In' : '🎉 Create Account'}
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleAuth} className="space-y-4 py-4">
+        {resetMode ? (
+          <form onSubmit={handlePasswordReset} className="space-y-4 py-4">
+            {resetEmailSent ? (
+              <div className="text-center space-y-4 py-4">
+                <p className="text-muted-foreground">
+                  We've sent a password reset link to <strong>{email}</strong>
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setResetMode(false);
+                    setResetEmailSent(false);
+                  }}
+                  className="w-full h-12"
+                >
+                  Back to Sign In
+                </Button>
+              </div>
+            ) : (
+              <>
+                <Input
+                  type="email"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="h-12 text-base"
+                />
+                
+                <div className="flex gap-3">
+                  <Button 
+                    type="submit" 
+                    className="flex-1 h-12"
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      'Send Reset Link'
+                    )}
+                  </Button>
+                  
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setResetMode(false)}
+                    className="flex-1 h-12"
+                    disabled={loading}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </>
+            )}
+          </form>
+        ) : (
+          <form onSubmit={handleAuth} className="space-y-4 py-4">
           <Input
             type="email"
             placeholder="Email"
@@ -116,6 +214,16 @@ export const MobileAuthDialog = ({ open, onOpenChange, mode = 'login' }: MobileA
             required
             className="h-12 text-base"
           />
+
+          {authMode === 'login' && (
+            <button
+              type="button"
+              onClick={() => setResetMode(true)}
+              className="text-sm text-primary hover:underline text-left"
+            >
+              Forgot Password?
+            </button>
+          )}
 
           <div className="flex gap-3">
             <Button 
@@ -176,6 +284,7 @@ export const MobileAuthDialog = ({ open, onOpenChange, mode = 'login' }: MobileA
             </Button>
           </div>
         </form>
+        )}
       </DialogContent>
     </Dialog>
   );
