@@ -4,7 +4,7 @@ project_id = "htvmkylgrrlaydhdbonl"
 verify_jwt = false
 
 [functions.admin-chat-enhanced]
-verify_jwt = false
+verify_jwt = true
 
 [api]
 enabled = true
@@ -46,28 +46,28 @@ double_confirm_changes = true
 enable_confirmations = false
 
 [functions.analyze-audio]
-verify_jwt = false
+verify_jwt = true
 
 [functions.mastering-chat]
-verify_jwt = false
+verify_jwt = true
 
 [functions.chat-vercel-ai]
-verify_jwt = false
+verify_jwt = true
 
 [functions.chat-simple]
-verify_jwt = false
+verify_jwt = true
 
 [functions.collaboration-websocket]
-verify_jwt = false
+verify_jwt = true
 
 [functions.ai-audio-processing]
-verify_jwt = false
+verify_jwt = true
 
 [functions.export-audio]
-verify_jwt = false
+verify_jwt = true
 
 [functions.advanced-mastering]
-verify_jwt = false
+verify_jwt = true
 
 [functions.check-rate-limit]
 verify_jwt = false
