@@ -1591,6 +1591,27 @@ export type Database = {
         }
         Relationships: []
       }
+      organizations: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
       payments: {
         Row: {
           amount: number
@@ -2790,6 +2811,35 @@ export type Database = {
           },
         ]
       }
+      user_organizations: {
+        Row: {
+          created_at: string
+          member_role: string
+          organization_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          member_role?: string
+          organization_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          member_role?: string
+          organization_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_organizations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -2928,6 +2978,10 @@ export type Database = {
       }
       is_admin: {
         Args: { user_uuid: string }
+        Returns: boolean
+      }
+      is_org_admin: {
+        Args: { p_org_id: string; p_user_id: string }
         Returns: boolean
       }
       is_session_host: {
