@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ArrowRight, Volume2, VolumeX } from "lucide-react";
+import { ArrowRight, Volume2, VolumeX } from "lucide-react";
 import engineerStudio from "@/assets/engineer-studio-hero.jpg";
 import { Button } from "@/components/ui/button";
 import { useWelcomeAudio } from "@/hooks/useWelcomeAudio";
@@ -134,14 +134,13 @@ export const ArtistCRMSlideshow = ({ onComplete, onSkip }: ArtistCRMSlideshowPro
         </div>
       )}
 
-      {/* Skip Button */}
+      {/* Enter Button */}
       <Button
-        variant="ghost"
-        size="icon"
         onClick={onSkip}
-        className="absolute top-4 right-4 z-50 hover:bg-background/80"
+        className="absolute top-4 right-4 z-50"
       >
-        <X className="h-5 w-5" />
+        Enter
+        <ArrowRight className="ml-2 h-4 w-4" />
       </Button>
 
       {/* Audio Controls */}
