@@ -1485,6 +1485,104 @@ export type Database = {
         }
         Relationships: []
       }
+      distribution_analytics: {
+        Row: {
+          created_at: string | null
+          date: string
+          earnings: number | null
+          id: string
+          listeners: number | null
+          metadata: Json | null
+          platform: string
+          playlist_adds: number | null
+          release_id: string | null
+          saves: number | null
+          streams: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          earnings?: number | null
+          id?: string
+          listeners?: number | null
+          metadata?: Json | null
+          platform: string
+          playlist_adds?: number | null
+          release_id?: string | null
+          saves?: number | null
+          streams?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          earnings?: number | null
+          id?: string
+          listeners?: number | null
+          metadata?: Json | null
+          platform?: string
+          playlist_adds?: number | null
+          release_id?: string | null
+          saves?: number | null
+          streams?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "distribution_analytics_release_id_fkey"
+            columns: ["release_id"]
+            isOneToOne: false
+            referencedRelation: "music_releases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      distribution_referrals: {
+        Row: {
+          clicked_at: string | null
+          commission_earned: number | null
+          commission_status: string | null
+          created_at: string | null
+          distributor_id: string
+          distributor_name: string
+          id: string
+          metadata: Json | null
+          referral_code: string | null
+          signed_up: boolean | null
+          signed_up_at: string | null
+          user_id: string
+        }
+        Insert: {
+          clicked_at?: string | null
+          commission_earned?: number | null
+          commission_status?: string | null
+          created_at?: string | null
+          distributor_id: string
+          distributor_name: string
+          id?: string
+          metadata?: Json | null
+          referral_code?: string | null
+          signed_up?: boolean | null
+          signed_up_at?: string | null
+          user_id: string
+        }
+        Update: {
+          clicked_at?: string | null
+          commission_earned?: number | null
+          commission_status?: string | null
+          created_at?: string | null
+          distributor_id?: string
+          distributor_name?: string
+          id?: string
+          metadata?: Json | null
+          referral_code?: string | null
+          signed_up?: boolean | null
+          signed_up_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       engineer_badges: {
         Row: {
           badge_description: string | null
@@ -3061,6 +3159,89 @@ export type Database = {
           winner_id?: string
         }
         Relationships: []
+      }
+      music_releases: {
+        Row: {
+          apple_music_url: string | null
+          artist_name: string
+          artwork_url: string | null
+          created_at: string | null
+          distributor_id: string
+          distributor_name: string
+          earnings_data: Json | null
+          id: string
+          isrc_codes: Json | null
+          metadata: Json | null
+          notes: string | null
+          platforms: Json | null
+          project_id: string | null
+          release_date: string | null
+          release_title: string
+          release_type: string | null
+          spotify_url: string | null
+          status: string | null
+          streaming_stats: Json | null
+          upc_code: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          apple_music_url?: string | null
+          artist_name: string
+          artwork_url?: string | null
+          created_at?: string | null
+          distributor_id: string
+          distributor_name: string
+          earnings_data?: Json | null
+          id?: string
+          isrc_codes?: Json | null
+          metadata?: Json | null
+          notes?: string | null
+          platforms?: Json | null
+          project_id?: string | null
+          release_date?: string | null
+          release_title: string
+          release_type?: string | null
+          spotify_url?: string | null
+          status?: string | null
+          streaming_stats?: Json | null
+          upc_code?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          apple_music_url?: string | null
+          artist_name?: string
+          artwork_url?: string | null
+          created_at?: string | null
+          distributor_id?: string
+          distributor_name?: string
+          earnings_data?: Json | null
+          id?: string
+          isrc_codes?: Json | null
+          metadata?: Json | null
+          notes?: string | null
+          platforms?: Json | null
+          project_id?: string | null
+          release_date?: string | null
+          release_title?: string
+          release_type?: string | null
+          spotify_url?: string | null
+          status?: string | null
+          streaming_stats?: Json | null
+          upc_code?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "music_releases_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notification_preferences: {
         Row: {
