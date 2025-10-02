@@ -32,6 +32,8 @@ const QUICK_ACTIONS = [
   { label: "Engineer Insights", icon: Users, prompt: "Analyze our engineer performance and suggest ways to improve engagement and quality." },
   { label: "Revenue Optimization", icon: DollarSign, prompt: "Review our pricing strategy and revenue streams. What optimizations would you recommend?" },
   { label: "Industry Trends", icon: Lightbulb, prompt: "What are the latest trends in online mixing and mastering? How should we adapt?" },
+  { label: "📅 This Week", icon: BarChart3, prompt: "What are my upcoming deadlines and events this week? Show me my calendar overview." },
+  { label: "🎯 Add Deadline", icon: TrendingUp, prompt: "I want to set a deadline reminder. Help me schedule it." },
 ];
 
 export default function AdminMixxBot() {

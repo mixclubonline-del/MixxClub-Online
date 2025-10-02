@@ -52,6 +52,17 @@ export default function AdminFeatures() {
   const getFeatureDescription = (key: string): string => {
     const descriptions: Record<string, string> = {
       THE_LAB_ENABLED: 'Enable/disable the AI Hybrid DAW Studio feature for all users',
+      TIER_1_BATTLES_STUDIOS: 'Mix Battles Arena with AI Matching Engine (100 users milestone)',
+      EDUCATION_HUB_ENABLED: 'Educational Content Hub - Video tutorials, courses, certifications (250 users)',
+      COLLABORATION_V2_ENABLED: 'Advanced Collaboration 2.0 - Voice commands, live AI suggestions (250 users)',
+      MARKETPLACE_ENABLED: 'Community Marketplace - Sample libraries, presets, templates (500 users)',
+      LABEL_SERVICES_ENABLED: 'Label Services Integration (500 users)',
+      INTEGRATIONS_ENABLED: 'API & Integration Framework - DAW plugins, streaming platforms (1000 users)',
+      AI_AUDIO_INTELLIGENCE_ENABLED: 'Advanced AI Audio Intelligence (1000 users)',
+      DISTRIBUTION_WHITE_LABEL_ENABLED: 'White-Label Distribution Infrastructure (Phase 2)',
+      DISTRIBUTION_ANALYTICS_ENABLED: 'Enhanced Analytics & Reporting Dashboard (Phase 3)',
+      DISTRIBUTION_PLAYLIST_PITCHING_ENABLED: 'Playlist Pitching & Submission Tools (Phase 3)',
+      DISTRIBUTION_REVENUE_SHARING_ENABLED: 'Revenue Sharing & Commission System (Phase 4)',
     };
     return descriptions[key] || 'No description available';
   };

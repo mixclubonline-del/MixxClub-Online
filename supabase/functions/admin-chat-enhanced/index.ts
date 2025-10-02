@@ -164,19 +164,23 @@ serve(async (req) => {
       });
     }
 
-    // Get business context data
+    // Get business context data + calendar events
     const [
       { count: totalUsers },
       { count: totalProjects },
       { count: activeEngineers },
       { data: recentRevenue },
-      { data: topEngineers }
+      { data: topEngineers },
+      { data: upcomingEvents },
+      { data: overdueEvents }
     ] = await Promise.all([
       supabaseAdmin.from('profiles').select('*', { count: 'exact', head: true }),
       supabaseAdmin.from('projects').select('*', { count: 'exact', head: true }),
       supabaseAdmin.from('engineer_profiles').select('*', { count: 'exact', head: true }).eq('is_available', true),
       supabaseAdmin.from('payments').select('amount').eq('status', 'completed').gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()),
-      supabaseAdmin.from('engineer_leaderboard').select('engineer_id, total_earnings, completed_projects, average_rating').order('total_earnings', { ascending: false }).limit(5)
+      supabaseAdmin.from('engineer_leaderboard').select('engineer_id, total_earnings, completed_projects, average_rating').order('total_earnings', { ascending: false }).limit(5),
+      supabaseAdmin.from('admin_calendar_events').select('*').eq('user_id', user.id).gte('event_date', new Date().toISOString()).eq('status', 'pending').order('event_date', { ascending: true }).limit(5),
+      supabaseAdmin.from('admin_calendar_events').select('*').eq('user_id', user.id).eq('status', 'overdue').order('event_date', { ascending: false }).limit(3)
     ]);
 
     const totalRevenue = recentRevenue?.reduce((sum, payment) => sum + Number(payment.amount), 0) || 0;
@@ -197,6 +201,24 @@ serve(async (req) => {
       });
     }
 
+    // Format calendar info
+    let calendarInfo = '';
+    if (upcomingEvents && upcomingEvents.length > 0) {
+      calendarInfo += `\n\n**📅 UPCOMING EVENTS & DEADLINES:**\n`;
+      upcomingEvents.forEach((event: any) => {
+        const eventDate = new Date(event.event_date).toLocaleString();
+        calendarInfo += `- [${event.priority?.toUpperCase()}] ${event.title} - ${eventDate}\n`;
+      });
+    }
+    
+    if (overdueEvents && overdueEvents.length > 0) {
+      calendarInfo += `\n\n**⚠️ OVERDUE ITEMS:**\n`;
+      overdueEvents.forEach((event: any) => {
+        const eventDate = new Date(event.event_date).toLocaleString();
+        calendarInfo += `- [OVERDUE] ${event.title} - Was due: ${eventDate}\n`;
+      });
+    }
+
     const contextEnhancedPrompt = `${SYSTEM_PROMPT}
 
 # CURRENT BUSINESS METRICS (Real-Time Data)
@@ -208,6 +230,18 @@ serve(async (req) => {
 - Top Engineers: ${topEngineers?.length || 0} tracked
 
 ${contextualInfo}
+
+${calendarInfo}
+
+# CALENDAR & SCHEDULING CAPABILITIES
+
+You can help admins manage deadlines and events. When users ask about calendar-related tasks:
+- Schedule deadlines: "Set a deadline for [feature] launch on [date]"
+- View upcoming events: "What's coming up?" or "Show my calendar"
+- Track milestones: "Remind me when we hit 1000 users"
+- Meeting reminders: "Schedule a team meeting for [date/time]"
+
+For calendar requests, provide specific date/time details and encourage users to use the calendar feature to track important deadlines and milestones.
 
 Use this data to provide context-aware insights and recommendations.`;
 

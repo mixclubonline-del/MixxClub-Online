@@ -31,6 +31,19 @@ export const FEATURE_FLAGS = {
   INTEGRATIONS_ENABLED: false,
   // Advanced AI Audio Intelligence
   AI_AUDIO_INTELLIGENCE_ENABLED: false,
+  
+  // ===== DISTRIBUTION HUB PHASES =====
+  // Phase 1: Affiliate partnerships (LIVE - already implemented)
+  
+  // Phase 2: White-Label Distribution Infrastructure
+  DISTRIBUTION_WHITE_LABEL_ENABLED: false,
+  
+  // Phase 3: Enhanced Analytics & Playlist Pitching
+  DISTRIBUTION_ANALYTICS_ENABLED: false,
+  DISTRIBUTION_PLAYLIST_PITCHING_ENABLED: false,
+  
+  // Phase 4: Revenue Sharing & Commission System
+  DISTRIBUTION_REVENUE_SHARING_ENABLED: false,
 } as const;
 
 /**
