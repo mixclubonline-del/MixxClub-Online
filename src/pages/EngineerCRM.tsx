@@ -551,8 +551,8 @@ const EngineerCRM = () => {
             <DynamicAppAccessHub userRole="engineer" />
             
             {/* Overview Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">{stats.map((stat, index) => (
-                <Card key={index} className="p-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">{stats.map((stat, index) => (
+                <Card key={index} className="p-4 md:p-6">
                   <div className="flex items-center gap-3">
                     <div className={`p-3 rounded-lg ${stat.color}`}>
                       {stat.icon}
@@ -567,8 +567,8 @@ const EngineerCRM = () => {
             </div>
 
             {/* Recent Activity */}
-            <div className="grid md:grid-cols-2 gap-6">
-              <Card className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+              <Card className="p-4 md:p-6">
                 <h3 className="text-lg font-semibold mb-4">Recent Tasks</h3>
                 {tasks.slice(0, 3).length > 0 ? (
                   <div className="space-y-3">
@@ -587,7 +587,7 @@ const EngineerCRM = () => {
                 )}
               </Card>
 
-              <Card className="p-6">
+                  <Card className="p-4 md:p-6">
                 <h3 className="text-lg font-semibold mb-4">Earnings Summary</h3>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">

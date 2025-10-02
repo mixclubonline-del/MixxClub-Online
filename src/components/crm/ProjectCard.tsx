@@ -61,7 +61,7 @@ export const ProjectCard = ({ project, onStartSession, selected, onSelect }: Pro
 
   return (
     <Card className={`hover:shadow-lg transition-shadow ${onSelect ? 'cursor-pointer' : ''}`}>
-      <CardHeader>
+      <CardHeader className="p-4 md:p-6">
         <div className="flex items-start justify-between">
           <div className="flex items-start gap-3 flex-1">
             {onSelect && (
@@ -107,7 +107,7 @@ export const ProjectCard = ({ project, onStartSession, selected, onSelect }: Pro
         )}
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 p-4 md:p-6 pt-0">
         <div className="p-3 bg-gradient-to-r from-primary/10 to-accent/10 rounded-lg">
           <p className="text-primary font-medium whitespace-pre-line">{aiPrep}</p>
         </div>

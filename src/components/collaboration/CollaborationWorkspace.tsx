@@ -443,9 +443,9 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
   };
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex flex-col lg:flex-row h-[calc(100vh-12rem)] bg-background gap-4">
       {/* Main workspace */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
         <div className="border-b p-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -543,7 +543,7 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
       </div>
 
       {/* Right Sidebar */}
-      <div className="w-80 border-l flex flex-col">
+      <div className="w-full lg:w-80 border-t lg:border-t-0 lg:border-l flex flex-col max-h-[600px] lg:max-h-none">
         {/* Participants */}
         <Card className="border-0 border-b rounded-none">
           <CardHeader className="pb-3">
@@ -553,7 +553,8 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="space-y-2">
+            <ScrollArea className="max-h-[200px]">
+              <div className="space-y-2 pr-4">
               {participants.map((participant) => (
                 <div key={participant.id} className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
                   <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-xs">
@@ -579,7 +580,8 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
                   </div>
                 </div>
               ))}
-            </div>
+              </div>
+            </ScrollArea>
           </CardContent>
         </Card>
 
@@ -631,9 +633,9 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
               Session Chat
             </CardTitle>
           </CardHeader>
-          <CardContent className="flex-1 flex flex-col pt-0">
-            <ScrollArea className="flex-1 mb-3" ref={chatContainerRef}>
-              <div className="space-y-2">
+          <CardContent className="flex-1 flex flex-col pt-0 min-h-0">
+            <ScrollArea className="flex-1 mb-3 max-h-[300px]">
+              <div className="space-y-2 pr-4">
                 {chatMessages.map((message) => (
                   <div key={message.id} className="text-xs">
                     <div className="flex items-center gap-1 mb-1">
