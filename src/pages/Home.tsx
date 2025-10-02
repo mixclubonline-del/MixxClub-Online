@@ -1,4 +1,5 @@
 import { AppDownloadPopup } from "@/components/AppDownloadPopup";
+import { MobileAppDownloadPopup } from "@/components/MobileAppDownloadPopup";
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
 import { HomeShowcaseSlideshow } from "@/components/HomeShowcaseSlideshow";
@@ -21,6 +22,7 @@ const Home = () => {
       
       {/* App Download Pop-up */}
       <AppDownloadPopup />
+      <MobileAppDownloadPopup />
       
       {/* Slideshow Introduction */}
       <HomeShowcaseSlideshow />
