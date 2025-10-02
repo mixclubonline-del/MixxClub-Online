@@ -1,4 +1,3 @@
-import { AppDownloadPopup } from "@/components/AppDownloadPopup";
 import { MobileAppDownloadPopup } from "@/components/MobileAppDownloadPopup";
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
@@ -20,8 +19,7 @@ const Home = () => {
     <div className="min-h-screen">
       <Navigation />
       
-      {/* App Download Pop-up */}
-      <AppDownloadPopup />
+      {/* Mobile App Marketing Pop-up */}
       <MobileAppDownloadPopup />
       
       {/* Slideshow Introduction */}
