@@ -18,8 +18,25 @@ const Home = () => {
       {/* Hero Section */}
       <Hero />
 
+      {/* Value Proposition for Artists & Engineers - Prominent Placement */}
+      <section className="py-20 bg-gradient-to-b from-background to-[hsl(262_30%_8%)]">
+        <div className="container px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-black mb-4">
+              <span className="bg-gradient-to-r from-primary via-accent-blue to-accent-cyan bg-clip-text text-transparent">
+                Choose Your Path
+              </span>
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Whether you're creating or engineering, MixClub has your journey covered
+            </p>
+          </div>
+          <ValueProposition />
+        </div>
+      </section>
+
       {/* Live Community Status */}
-      <section className="py-12 bg-gradient-to-b from-background to-[hsl(262_30%_8%)]">
+      <section className="py-12 bg-[hsl(262_30%_8%)]">
         <div className="container px-6">
           <div className="grid lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
             <div className="lg:col-span-2">
@@ -33,26 +50,9 @@ const Home = () => {
       </section>
 
       {/* Tier-Based Feature Showcase */}
-      <section className="py-20 bg-[hsl(262_30%_8%)]">
-        <div className="container px-6">
-          <TierShowcase />
-        </div>
-      </section>
-
-      {/* Value Proposition for Artists & Engineers */}
       <section className="py-20 bg-gradient-to-b from-[hsl(262_30%_8%)] to-background">
         <div className="container px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-black mb-4">
-              <span className="bg-gradient-to-r from-primary via-accent-blue to-accent-cyan bg-clip-text text-transparent">
-                Choose Your Path
-              </span>
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Whether you're creating or engineering, MixClub has your journey covered
-            </p>
-          </div>
-          <ValueProposition />
+          <TierShowcase />
         </div>
       </section>
 
