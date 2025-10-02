@@ -116,13 +116,13 @@ const navigationItems: NavItem[] = [
     category: 'Discover',
   },
 
-  // Support
+  // Help (Bottom)
   {
     label: 'FAQ',
     path: '/faq',
     icon: HelpCircle,
     roles: ['artist', 'engineer', null],
-    category: 'Support',
+    category: 'Help',
   },
 ];
 
