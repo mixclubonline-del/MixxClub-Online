@@ -7,6 +7,7 @@ import { Upload, Send, Bot, User, Music, Settings, MessageCircle, X, Minimize2 }
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import mixclub3DLogo from '@/assets/mixclub-3d-logo.png';
+import { useLocation } from 'react-router-dom';
 
 interface Message {
   id: string;
@@ -15,6 +16,7 @@ interface Message {
 }
 
 export const PersistentChatbot = () => {
+  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -29,6 +31,11 @@ export const PersistentChatbot = () => {
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  // Hide on admin pages - MixxBot handles admin assistance
+  if (location.pathname.startsWith('/admin')) {
+    return null;
+  }
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
