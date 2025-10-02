@@ -103,12 +103,13 @@ const Hero = () => {
               size="lg" 
               variant="outline" 
               className="text-lg px-10 py-7 glass-studio border-2 border-primary/40 hover:border-primary/70 hover:bg-card/90 hover:shadow-glow-sm transition-all duration-300 font-semibold" 
-              asChild
+              onClick={() => {
+                const demoSection = document.getElementById('instant-demo');
+                demoSection?.scrollIntoView({ behavior: 'smooth' });
+              }}
             >
-              <a href="#demo">
-                Try Free Demo
-                <Play className="ml-2 w-5 h-5" />
-              </a>
+              Try Free Demo
+              <Play className="ml-2 w-5 h-5" />
             </Button>
           </div>
 

@@ -51,33 +51,45 @@ const AnimatedStat = ({ icon, value, label, suffix = '', delay = 0 }: StatProps)
 
 export const LiveStats = () => {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
-      <AnimatedStat
-        icon={<Brain className="w-6 h-6 text-primary" />}
-        value="15"
-        label="AI Models Active"
-        delay={0}
-      />
-      <AnimatedStat
-        icon={<Zap className="w-6 h-6 text-primary" />}
-        value="2.1"
-        suffix="s"
-        label="Avg Processing"
-        delay={200}
-      />
-      <AnimatedStat
-        icon={<Activity className="w-6 h-6 text-primary" />}
-        value="847"
-        label="Tracks Mixed Today"
-        delay={400}
-      />
-      <AnimatedStat
-        icon={<Users className="w-6 h-6 text-primary" />}
-        value="3200"
-        suffix="+"
-        label="Active Users"
-        delay={600}
-      />
-    </div>
+    <section className="py-20 bg-gradient-to-b from-background to-muted/30">
+      <div className="container px-6">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            Trusted By Thousands
+          </h2>
+          <p className="text-lg text-muted-foreground">
+            Real-time stats from our growing community
+          </p>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
+          <AnimatedStat
+            icon={<Brain className="w-6 h-6 text-primary" />}
+            value="15"
+            label="AI Models Active"
+            delay={0}
+          />
+          <AnimatedStat
+            icon={<Zap className="w-6 h-6 text-primary" />}
+            value="2.1"
+            suffix="s"
+            label="Avg Processing"
+            delay={200}
+          />
+          <AnimatedStat
+            icon={<Activity className="w-6 h-6 text-primary" />}
+            value="847"
+            label="Tracks Mixed Today"
+            delay={400}
+          />
+          <AnimatedStat
+            icon={<Users className="w-6 h-6 text-primary" />}
+            value="3200"
+            suffix="+"
+            label="Active Users"
+            delay={600}
+          />
+        </div>
+      </div>
+    </section>
   );
 };

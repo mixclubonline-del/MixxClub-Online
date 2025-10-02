@@ -6,7 +6,6 @@ import WhyMixClub from "@/components/WhyMixClub";
 import Services from "@/components/Services";
 import AudioPreview from "@/components/AudioPreview";
 import { SuccessStories } from "@/components/SuccessStories";
-import { MasteringChatbot } from "@/components/MasteringChatbot";
 import Pricing from "@/components/Pricing";
 import Contact from "@/components/Contact";
 import { PluginShowcase } from "@/components/PluginShowcase";
@@ -14,95 +13,27 @@ import { Testimonials } from "@/components/Testimonials";
 import { LiveStats } from "@/components/LiveStats";
 import { BeforeAfterComparison } from "@/components/BeforeAfterComparison";
 import { HomeShowcaseSlideshow } from "@/components/HomeShowcaseSlideshow";
+import { InstantDemoSection } from "@/components/InstantDemoSection";
+import { RecentSuccesses } from "@/components/RecentSuccesses";
+import { FreemiumBanner } from "@/components/FreemiumBanner";
 import { Button } from "@/components/ui/button";
-import { Users, Zap, Music, Sparkles, Volume2 } from "lucide-react";
-import { useWelcomeAudio } from "@/hooks/useWelcomeAudio";
-import { toast } from "sonner";
+import { Users, Zap, Music, Sparkles } from "lucide-react";
 
 const Home = () => {
-  const { enableAudio, playSegment, isAudioEnabled, isLoading } = useWelcomeAudio(1);
-
-  const testAudio = async () => {
-    try {
-      await enableAudio();
-      if (isAudioEnabled) {
-        await playSegment(0);
-        toast.success('Audio test successful! Playing track.');
-      }
-    } catch (error) {
-      console.error('Audio test failed:', error);
-    }
-  };
-
   return (
     <div className="min-h-screen">
-      {/* Audio Test Button - Fixed position */}
-      <div className="fixed bottom-4 right-4 z-50">
-        <Button 
-          onClick={testAudio}
-          disabled={isLoading}
-          size="lg"
-          className="shadow-glow"
-        >
-          <Volume2 className="w-5 h-5 mr-2" />
-          {isLoading ? 'Loading...' : isAudioEnabled ? 'Test Audio ✓' : 'Test Audio'}
-        </Button>
-      </div>
-
       <Navigation />
       <Hero />
+      <InstantDemoSection />
+      <RecentSuccesses />
       <HomeShowcaseSlideshow />
       <BeforeAfterComparison />
+      <FreemiumBanner />
       <ProblemStatement />
       <HowItWorks />
       <WhyMixClub />
       <Services />
-      <section id="instant-demo" className="py-20 bg-gradient-to-b from-primary/5 to-muted/30 relative overflow-hidden scroll-mt-20">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,hsl(var(--primary)/0.1),transparent_70%)]" />
-        <div className="container px-6 relative z-10">
-          <div className="text-center mb-12 animate-fade-in">
-            <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Try Our Instant Mastering Polish
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Upload any track and hear what pro mastering can do - get instant feedback and an A/B comparison 
-              with that radio-ready polish. <span className="text-primary font-semibold">Totally free!</span>
-            </p>
-          </div>
-          <MasteringChatbot />
-        </div>
-      </section>
       <AudioPreview />
-      <section id="upload" className="py-20 bg-gradient-to-b from-muted/30 to-background relative overflow-hidden scroll-mt-20">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,hsl(var(--primary)/0.1),transparent_70%)]" />
-        <div className="container px-6 relative z-10">
-          <div className="max-w-4xl mx-auto text-center mb-12 animate-fade-in">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary via-[hsl(220_90%_60%)] to-[hsl(180_100%_50%)] bg-clip-text text-transparent">
-              Upload Your Track
-            </h2>
-            <p className="text-xl text-muted-foreground">
-              Get started by uploading your vocals or stems. Our AI will analyze your track and match you with the perfect engineer.
-            </p>
-          </div>
-          <div className="max-w-2xl mx-auto">
-            <div className="glass-studio rounded-2xl p-8 border-2 border-primary/30 hover:border-primary/50 transition-all duration-300">
-              <div className="border-2 border-dashed border-muted-foreground/30 rounded-xl p-12 text-center hover:border-primary/50 transition-colors duration-300 cursor-pointer">
-                <Music className="w-16 h-16 mx-auto mb-4 text-primary" />
-                <p className="text-lg font-semibold mb-2">Drop your audio files here</p>
-                <p className="text-sm text-muted-foreground mb-4">or click to browse</p>
-                <Button size="lg" className="shadow-glow-sm">
-                  Choose Files
-                </Button>
-              </div>
-              <div className="mt-6 flex justify-center gap-4 text-sm text-muted-foreground">
-                <span>✓ WAV, MP3, FLAC</span>
-                <span>✓ Up to 500MB</span>
-                <span>✓ Instant AI Analysis</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
       <SuccessStories />
       <Testimonials />
       <LiveStats />
