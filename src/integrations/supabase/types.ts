@@ -1840,6 +1840,54 @@ export type Database = {
         }
         Relationships: []
       }
+      discount_codes: {
+        Row: {
+          applicable_to: string | null
+          code: string
+          created_at: string | null
+          current_uses: number | null
+          discount_type: string
+          discount_value: number
+          id: string
+          is_active: boolean | null
+          max_uses: number | null
+          min_purchase_amount: number | null
+          updated_at: string | null
+          valid_from: string | null
+          valid_until: string | null
+        }
+        Insert: {
+          applicable_to?: string | null
+          code: string
+          created_at?: string | null
+          current_uses?: number | null
+          discount_type: string
+          discount_value: number
+          id?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          min_purchase_amount?: number | null
+          updated_at?: string | null
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Update: {
+          applicable_to?: string | null
+          code?: string
+          created_at?: string | null
+          current_uses?: number | null
+          discount_type?: string
+          discount_value?: number
+          id?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          min_purchase_amount?: number | null
+          updated_at?: string | null
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Relationships: []
+      }
       distribution_analytics: {
         Row: {
           created_at: string | null
@@ -2166,6 +2214,65 @@ export type Database = {
             columns: ["engineer_id"]
             isOneToOne: false
             referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      engineer_preset_packs: {
+        Row: {
+          created_at: string | null
+          daw_compatibility: string[] | null
+          demo_audio_url: string | null
+          engineer_id: string
+          file_formats: string[] | null
+          genre_optimized: string[] | null
+          id: string
+          installation_guide: string | null
+          marketplace_item_id: string
+          pack_description: string | null
+          pack_name: string
+          plugin_compatibility: Json | null
+          preset_count: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          daw_compatibility?: string[] | null
+          demo_audio_url?: string | null
+          engineer_id: string
+          file_formats?: string[] | null
+          genre_optimized?: string[] | null
+          id?: string
+          installation_guide?: string | null
+          marketplace_item_id: string
+          pack_description?: string | null
+          pack_name: string
+          plugin_compatibility?: Json | null
+          preset_count: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          daw_compatibility?: string[] | null
+          demo_audio_url?: string | null
+          engineer_id?: string
+          file_formats?: string[] | null
+          genre_optimized?: string[] | null
+          id?: string
+          installation_guide?: string | null
+          marketplace_item_id?: string
+          pack_description?: string | null
+          pack_name?: string
+          plugin_compatibility?: Json | null
+          preset_count?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "engineer_preset_packs_marketplace_item_id_fkey"
+            columns: ["marketplace_item_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_items"
             referencedColumns: ["id"]
           },
         ]
@@ -3316,9 +3423,11 @@ export type Database = {
         Row: {
           average_rating: number | null
           category_id: string | null
+          color_options: Json | null
           compatibility: Json | null
           created_at: string | null
           demo_video_url: string | null
+          design_file_url: string | null
           download_count: number | null
           featured: boolean | null
           file_path: string | null
@@ -3329,10 +3438,15 @@ export type Database = {
           item_description: string | null
           item_name: string
           item_type: string
+          mockup_images: Json | null
+          physical_product: boolean | null
           preview_audio_path: string | null
           price: number
+          printful_product_id: number | null
+          printful_variant_id: number | null
           published_at: string | null
           seller_id: string
+          size_options: Json | null
           tags: string[] | null
           technical_specs: Json | null
           thumbnail_url: string | null
@@ -3344,9 +3458,11 @@ export type Database = {
         Insert: {
           average_rating?: number | null
           category_id?: string | null
+          color_options?: Json | null
           compatibility?: Json | null
           created_at?: string | null
           demo_video_url?: string | null
+          design_file_url?: string | null
           download_count?: number | null
           featured?: boolean | null
           file_path?: string | null
@@ -3357,10 +3473,15 @@ export type Database = {
           item_description?: string | null
           item_name: string
           item_type: string
+          mockup_images?: Json | null
+          physical_product?: boolean | null
           preview_audio_path?: string | null
           price?: number
+          printful_product_id?: number | null
+          printful_variant_id?: number | null
           published_at?: string | null
           seller_id: string
+          size_options?: Json | null
           tags?: string[] | null
           technical_specs?: Json | null
           thumbnail_url?: string | null
@@ -3372,9 +3493,11 @@ export type Database = {
         Update: {
           average_rating?: number | null
           category_id?: string | null
+          color_options?: Json | null
           compatibility?: Json | null
           created_at?: string | null
           demo_video_url?: string | null
+          design_file_url?: string | null
           download_count?: number | null
           featured?: boolean | null
           file_path?: string | null
@@ -3385,10 +3508,15 @@ export type Database = {
           item_description?: string | null
           item_name?: string
           item_type?: string
+          mockup_images?: Json | null
+          physical_product?: boolean | null
           preview_audio_path?: string | null
           price?: number
+          printful_product_id?: number | null
+          printful_variant_id?: number | null
           published_at?: string | null
           seller_id?: string
+          size_options?: Json | null
           tags?: string[] | null
           technical_specs?: Json | null
           thumbnail_url?: string | null
@@ -3410,6 +3538,8 @@ export type Database = {
       marketplace_purchases: {
         Row: {
           buyer_id: string
+          cart_items: Json | null
+          discount_amount: number | null
           download_expires_at: string | null
           download_url: string | null
           id: string
@@ -3418,10 +3548,16 @@ export type Database = {
           payment_status: string
           purchase_price: number
           purchased_at: string | null
+          shipping_cost: number | null
           stripe_payment_id: string | null
+          subtotal: number | null
+          tax_amount: number | null
+          total_amount: number | null
         }
         Insert: {
           buyer_id: string
+          cart_items?: Json | null
+          discount_amount?: number | null
           download_expires_at?: string | null
           download_url?: string | null
           id?: string
@@ -3430,10 +3566,16 @@ export type Database = {
           payment_status?: string
           purchase_price: number
           purchased_at?: string | null
+          shipping_cost?: number | null
           stripe_payment_id?: string | null
+          subtotal?: number | null
+          tax_amount?: number | null
+          total_amount?: number | null
         }
         Update: {
           buyer_id?: string
+          cart_items?: Json | null
+          discount_amount?: number | null
           download_expires_at?: string | null
           download_url?: string | null
           id?: string
@@ -3442,7 +3584,11 @@ export type Database = {
           payment_status?: string
           purchase_price?: number
           purchased_at?: string | null
+          shipping_cost?: number | null
           stripe_payment_id?: string | null
+          subtotal?: number | null
+          tax_amount?: number | null
+          total_amount?: number | null
         }
         Relationships: [
           {
@@ -3983,6 +4129,72 @@ export type Database = {
           user_type?: string
         }
         Relationships: []
+      }
+      order_fulfillment: {
+        Row: {
+          carrier: string | null
+          created_at: string | null
+          delivered_at: string | null
+          estimated_delivery: string | null
+          id: string
+          notes: string | null
+          printful_order_id: string | null
+          printful_status: string | null
+          purchase_id: string
+          shipped_at: string | null
+          shipping_address_id: string | null
+          shipping_status: string | null
+          tracking_number: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          carrier?: string | null
+          created_at?: string | null
+          delivered_at?: string | null
+          estimated_delivery?: string | null
+          id?: string
+          notes?: string | null
+          printful_order_id?: string | null
+          printful_status?: string | null
+          purchase_id: string
+          shipped_at?: string | null
+          shipping_address_id?: string | null
+          shipping_status?: string | null
+          tracking_number?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          carrier?: string | null
+          created_at?: string | null
+          delivered_at?: string | null
+          estimated_delivery?: string | null
+          id?: string
+          notes?: string | null
+          printful_order_id?: string | null
+          printful_status?: string | null
+          purchase_id?: string
+          shipped_at?: string | null
+          shipping_address_id?: string | null
+          shipping_status?: string | null
+          tracking_number?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_fulfillment_purchase_id_fkey"
+            columns: ["purchase_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_purchases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_fulfillment_shipping_address_id_fkey"
+            columns: ["shipping_address_id"]
+            isOneToOne: false
+            referencedRelation: "shipping_addresses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       organizations: {
         Row: {
@@ -5226,6 +5438,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      shipping_addresses: {
+        Row: {
+          address_line1: string
+          address_line2: string | null
+          city: string
+          country: string
+          created_at: string | null
+          full_name: string
+          id: string
+          is_default: boolean | null
+          phone: string | null
+          postal_code: string
+          state_province: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          address_line1: string
+          address_line2?: string | null
+          city: string
+          country?: string
+          created_at?: string | null
+          full_name: string
+          id?: string
+          is_default?: boolean | null
+          phone?: string | null
+          postal_code: string
+          state_province: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          address_line1?: string
+          address_line2?: string | null
+          city?: string
+          country?: string
+          created_at?: string | null
+          full_name?: string
+          id?: string
+          is_default?: boolean | null
+          phone?: string | null
+          postal_code?: string
+          state_province?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       showcase_audio_samples: {
         Row: {
