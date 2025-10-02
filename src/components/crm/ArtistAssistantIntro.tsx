@@ -7,29 +7,38 @@ import { Sparkles, Upload, Users, FileAudio, MessageCircle } from "lucide-react"
 interface ArtistAssistantIntroProps {
   open: boolean;
   onClose: () => void;
+  onNavigate: (tab: string) => void;
+  onOpenChatbot: () => void;
 }
 
-export const ArtistAssistantIntro = ({ open, onClose }: ArtistAssistantIntroProps) => {
+export const ArtistAssistantIntro = ({ open, onClose, onNavigate, onOpenChatbot }: ArtistAssistantIntroProps) => {
   const features = [
     {
       icon: Users,
       title: "Find Perfect Engineers",
-      description: "I'll help you discover engineers who match your unique sound and style"
+      description: "I'll help you discover engineers who match your unique sound and style",
+      action: () => onNavigate('opportunities')
     },
     {
       icon: Upload,
       title: "Get Professional Feedback",
-      description: "Upload tracks and receive expert insights on mixing and mastering"
+      description: "Upload tracks and receive expert insights on mixing and mastering",
+      action: () => onNavigate('studio')
     },
     {
       icon: FileAudio,
       title: "Manage Your Projects",
-      description: "Track revisions, collaborate seamlessly, and stay organized"
+      description: "Track revisions, collaborate seamlessly, and stay organized",
+      action: () => onNavigate('active-work')
     },
     {
       icon: MessageCircle,
       title: "24/7 Guidance",
-      description: "Ask me anything about pricing, packages, and collaboration tools"
+      description: "Ask me anything about pricing, packages, and collaboration tools",
+      action: () => {
+        onClose();
+        onOpenChatbot();
+      }
     }
   ];
 
@@ -99,12 +108,13 @@ export const ArtistAssistantIntro = ({ open, onClose }: ArtistAssistantIntroProp
             {/* Features Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
               {features.map((feature, index) => (
-                <motion.div
+                <motion.button
                   key={index}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.5 + index * 0.1 }}
-                  className="flex gap-3 p-4 rounded-lg bg-card border border-border/50 hover:border-primary/50 transition-colors"
+                  onClick={feature.action}
+                  className="flex gap-3 p-4 rounded-lg bg-card border border-border/50 hover:border-primary/50 hover:bg-accent/50 transition-all cursor-pointer text-left"
                 >
                   <div className="flex-shrink-0">
                     <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -115,7 +125,7 @@ export const ArtistAssistantIntro = ({ open, onClose }: ArtistAssistantIntroProp
                     <h3 className="font-semibold mb-1">{feature.title}</h3>
                     <p className="text-sm text-muted-foreground">{feature.description}</p>
                   </div>
-                </motion.div>
+                </motion.button>
               ))}
             </div>
 

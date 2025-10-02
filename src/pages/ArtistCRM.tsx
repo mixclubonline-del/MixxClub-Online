@@ -71,11 +71,11 @@ const ArtistCRM = () => {
         return;
       }
 
-      // Check if assistant intro should be shown
-      const assistantIntroKey = `artist_assistant_intro_seen_${user.id}`;
-      const assistantIntroSeen = localStorage.getItem(assistantIntroKey);
+      // Check if slideshow should be shown first
+      const slideshowKey = `artist_crm_slideshow_seen_${user.id}`;
+      const slideshowSeen = localStorage.getItem(slideshowKey);
 
-      if (!assistantIntroSeen) {
+      if (!slideshowSeen) {
         // Check if user has completed onboarding
         const { data: onboardingData } = await supabase
           .from('onboarding_profiles')
@@ -84,14 +84,14 @@ const ArtistCRM = () => {
           .single();
 
         if (onboardingData?.onboarding_completed) {
-          setShowAssistantIntro(true);
+          setShowSlideshow(true);
         }
       } else {
-        // Check if slideshow should be shown after intro
-        const slideshowKey = `artist_crm_slideshow_seen_${user.id}`;
-        const slideshowSeen = localStorage.getItem(slideshowKey);
+        // Check if assistant intro should be shown after slideshow
+        const assistantIntroKey = `artist_assistant_intro_seen_${user.id}`;
+        const assistantIntroSeen = localStorage.getItem(assistantIntroKey);
 
-        if (!slideshowSeen) {
+        if (!assistantIntroSeen) {
           const { data: onboardingData } = await supabase
             .from('onboarding_profiles')
             .select('onboarding_completed')
@@ -99,7 +99,7 @@ const ArtistCRM = () => {
             .single();
 
           if (onboardingData?.onboarding_completed) {
-            setShowSlideshow(true);
+            setShowAssistantIntro(true);
           }
         }
       }
@@ -111,21 +111,12 @@ const ArtistCRM = () => {
     checkAccess();
   }, [user, navigate]);
 
-  const handleAssistantIntroClose = () => {
-    if (user) {
-      localStorage.setItem(`artist_assistant_intro_seen_${user.id}`, 'true');
-    }
-    setShowAssistantIntro(false);
-    setShowSlideshow(true); // Show slideshow after intro
-  };
-
   const handleSlideshowComplete = () => {
     if (user) {
       localStorage.setItem(`artist_crm_slideshow_seen_${user.id}`, 'true');
     }
     setShowSlideshow(false);
-    // Navigate to active-work tab to start first project
-    navigate('/artist-crm?tab=active-work');
+    setShowAssistantIntro(true); // Show assistant intro after slideshow
   };
 
   const handleSlideshowSkip = () => {
@@ -133,6 +124,33 @@ const ArtistCRM = () => {
       localStorage.setItem(`artist_crm_slideshow_seen_${user.id}`, 'true');
     }
     setShowSlideshow(false);
+    setShowAssistantIntro(true); // Show assistant intro even if skipped
+  };
+
+  const handleAssistantIntroClose = () => {
+    if (user) {
+      localStorage.setItem(`artist_assistant_intro_seen_${user.id}`, 'true');
+    }
+    setShowAssistantIntro(false);
+    // Navigate to dashboard after intro
+    navigate('/artist-crm?tab=dashboard');
+  };
+
+  const handleAssistantNavigate = (tab: string) => {
+    if (user) {
+      localStorage.setItem(`artist_assistant_intro_seen_${user.id}`, 'true');
+    }
+    setShowAssistantIntro(false);
+    navigate(`/artist-crm?tab=${tab}`);
+  };
+
+  const handleOpenChatbot = () => {
+    // Chatbot is always visible in the bottom right
+    // This just closes the intro
+    if (user) {
+      localStorage.setItem(`artist_assistant_intro_seen_${user.id}`, 'true');
+    }
+    setShowAssistantIntro(false);
   };
 
   const fetchData = async () => {
@@ -203,22 +221,24 @@ const ArtistCRM = () => {
     );
   }
 
-  // Show assistant intro first, then slideshow
-  if (showAssistantIntro) {
-    return (
-      <ArtistAssistantIntro 
-        open={showAssistantIntro}
-        onClose={handleAssistantIntroClose}
-      />
-    );
-  }
-
-  // Show slideshow after intro
+  // Show slideshow first, then assistant intro
   if (showSlideshow) {
     return (
       <ArtistCRMSlideshow 
         onComplete={handleSlideshowComplete}
         onSkip={handleSlideshowSkip}
+      />
+    );
+  }
+
+  // Show assistant intro after slideshow
+  if (showAssistantIntro) {
+    return (
+      <ArtistAssistantIntro 
+        open={showAssistantIntro}
+        onClose={handleAssistantIntroClose}
+        onNavigate={handleAssistantNavigate}
+        onOpenChatbot={handleOpenChatbot}
       />
     );
   }

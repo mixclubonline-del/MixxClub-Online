@@ -65,11 +65,11 @@ const EngineerCRM = () => {
         return;
       }
 
-      // Check if assistant intro should be shown
-      const assistantIntroKey = `engineer_assistant_intro_seen_${user.id}`;
-      const assistantIntroSeen = localStorage.getItem(assistantIntroKey);
+      // Check if slideshow should be shown first
+      const slideshowKey = `engineer_crm_slideshow_seen_${user.id}`;
+      const slideshowSeen = localStorage.getItem(slideshowKey);
       
-      if (!assistantIntroSeen) {
+      if (!slideshowSeen) {
         const { data: onboardingData } = await supabase
           .from('onboarding_profiles')
           .select('onboarding_completed')
@@ -77,14 +77,14 @@ const EngineerCRM = () => {
           .single();
 
         if (onboardingData?.onboarding_completed) {
-          setShowAssistantIntro(true);
+          setShowSlideshow(true);
         }
       } else {
-        // Check if slideshow should be shown after intro
-        const slideshowKey = `engineer_crm_slideshow_seen_${user.id}`;
-        const slideshowSeen = localStorage.getItem(slideshowKey);
+        // Check if assistant intro should be shown after slideshow
+        const assistantIntroKey = `engineer_assistant_intro_seen_${user.id}`;
+        const assistantIntroSeen = localStorage.getItem(assistantIntroKey);
         
-        if (!slideshowSeen) {
+        if (!assistantIntroSeen) {
           const { data: onboardingData } = await supabase
             .from('onboarding_profiles')
             .select('onboarding_completed')
@@ -92,7 +92,7 @@ const EngineerCRM = () => {
             .single();
 
           if (onboardingData?.onboarding_completed) {
-            setShowSlideshow(true);
+            setShowAssistantIntro(true);
           }
         }
       }
@@ -210,20 +210,12 @@ const EngineerCRM = () => {
     return colors[priority as keyof typeof colors] || 'bg-gray-500';
   };
 
-  const handleAssistantIntroClose = () => {
-    if (user) {
-      localStorage.setItem(`engineer_assistant_intro_seen_${user.id}`, 'true');
-    }
-    setShowAssistantIntro(false);
-    setShowSlideshow(true); // Show slideshow after intro
-  };
-
   const handleSlideshowComplete = () => {
     if (user) {
       localStorage.setItem(`engineer_crm_slideshow_seen_${user.id}`, 'true');
     }
     setShowSlideshow(false);
-    navigate('/engineer-crm?tab=opportunities');
+    setShowAssistantIntro(true); // Show assistant intro after slideshow
   };
 
   const handleSlideshowSkip = () => {
@@ -231,24 +223,53 @@ const EngineerCRM = () => {
       localStorage.setItem(`engineer_crm_slideshow_seen_${user.id}`, 'true');
     }
     setShowSlideshow(false);
+    setShowAssistantIntro(true); // Show assistant intro even if skipped
   };
 
-  // Show assistant intro first
-  if (showAssistantIntro) {
-    return (
-      <EngineerAssistantIntro 
-        open={showAssistantIntro}
-        onClose={handleAssistantIntroClose}
-      />
-    );
-  }
+  const handleAssistantIntroClose = () => {
+    if (user) {
+      localStorage.setItem(`engineer_assistant_intro_seen_${user.id}`, 'true');
+    }
+    setShowAssistantIntro(false);
+    // Navigate to dashboard after intro
+    navigate('/engineer-crm?tab=dashboard');
+  };
 
-  // Show slideshow after intro
+  const handleAssistantNavigate = (tab: string) => {
+    if (user) {
+      localStorage.setItem(`engineer_assistant_intro_seen_${user.id}`, 'true');
+    }
+    setShowAssistantIntro(false);
+    navigate(`/engineer-crm?tab=${tab}`);
+  };
+
+  const handleOpenChatbot = () => {
+    // Chatbot is always visible in the bottom right
+    // This just closes the intro
+    if (user) {
+      localStorage.setItem(`engineer_assistant_intro_seen_${user.id}`, 'true');
+    }
+    setShowAssistantIntro(false);
+  };
+
+  // Show slideshow first, then assistant intro
   if (showSlideshow) {
     return (
       <EngineerCRMSlideshow
         onComplete={handleSlideshowComplete}
         onSkip={handleSlideshowSkip}
+      />
+    );
+  }
+
+  // Show assistant intro after slideshow
+  if (showAssistantIntro) {
+    return (
+      <EngineerAssistantIntro 
+        open={showAssistantIntro}
+        onClose={handleAssistantIntroClose}
+        onNavigate={handleAssistantNavigate}
+        onOpenChatbot={handleOpenChatbot}
       />
     );
   }

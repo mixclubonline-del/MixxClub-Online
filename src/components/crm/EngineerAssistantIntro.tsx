@@ -7,29 +7,38 @@ import { Sparkles, TrendingUp, DollarSign, Wrench, Award, MessageCircle } from "
 interface EngineerAssistantIntroProps {
   open: boolean;
   onClose: () => void;
+  onNavigate: (tab: string) => void;
+  onOpenChatbot: () => void;
 }
 
-export const EngineerAssistantIntro = ({ open, onClose }: EngineerAssistantIntroProps) => {
+export const EngineerAssistantIntro = ({ open, onClose, onNavigate, onOpenChatbot }: EngineerAssistantIntroProps) => {
   const features = [
     {
       icon: DollarSign,
       title: "Maximize Your Revenue",
-      description: "I'll help you optimize your 70% revenue share and grow your income"
+      description: "I'll help you optimize your 70% revenue share and grow your income",
+      action: () => onNavigate('business')
     },
     {
       icon: Wrench,
       title: "Technical Guidance",
-      description: "Get expert tips for mixing, mastering, and using our professional tools"
+      description: "Get expert tips for mixing, mastering, and using our professional tools",
+      action: () => onNavigate('studio')
     },
     {
       icon: TrendingUp,
       title: "Build Your Reputation",
-      description: "Grow your client base and establish yourself as a top engineer"
+      description: "Grow your client base and establish yourself as a top engineer",
+      action: () => onNavigate('opportunities')
     },
     {
       icon: Award,
       title: "Manage Your Business",
-      description: "Track earnings, handle payouts, and streamline your workflow"
+      description: "Track earnings, handle payouts, and streamline your workflow",
+      action: () => {
+        onClose();
+        onOpenChatbot();
+      }
     }
   ];
 
@@ -99,12 +108,13 @@ export const EngineerAssistantIntro = ({ open, onClose }: EngineerAssistantIntro
             {/* Features Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
               {features.map((feature, index) => (
-                <motion.div
+                <motion.button
                   key={index}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.5 + index * 0.1 }}
-                  className="flex gap-3 p-4 rounded-lg bg-card border border-border/50 hover:border-primary/50 transition-colors"
+                  onClick={feature.action}
+                  className="flex gap-3 p-4 rounded-lg bg-card border border-border/50 hover:border-primary/50 hover:bg-accent/50 transition-all cursor-pointer text-left"
                 >
                   <div className="flex-shrink-0">
                     <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -115,7 +125,7 @@ export const EngineerAssistantIntro = ({ open, onClose }: EngineerAssistantIntro
                     <h3 className="font-semibold mb-1">{feature.title}</h3>
                     <p className="text-sm text-muted-foreground">{feature.description}</p>
                   </div>
-                </motion.div>
+                </motion.button>
               ))}
             </div>
 
