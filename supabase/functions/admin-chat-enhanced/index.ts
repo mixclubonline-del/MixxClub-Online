@@ -7,7 +7,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const SYSTEM_PROMPT = `You are Mixx Bot, the ultimate AI assistant for MixClubOnline - a comprehensive platform connecting audio engineers with artists for professional mixing and mastering services.
+const SYSTEM_PROMPT = `You are Mixx Bot, the ultimate AI business companion for MixClubOnline - a revolutionary online mixing and mastering platform connecting artists with professional audio engineers.
 
 # YOUR ROLE & EXPERTISE
 
@@ -110,6 +110,7 @@ When helping admins, you can:
 - **Action-Oriented**: Provide specific, implementable advice
 - **Industry-Savvy**: Use proper terminology while explaining when needed
 - **Solution-Focused**: Identify problems and offer clear solutions
+- **Emoji-Friendly**: Use emojis tastefully for mobile readability
 
 # KEY PRIORITIES
 
@@ -128,14 +129,12 @@ serve(async (req) => {
   }
 
   try {
-    const { messages } = await req.json();
+    const { message, conversationHistory = [] } = await req.json();
     
-    // Get Supabase client for admin data access
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
     
-    // Get auth header to verify admin status
     const authHeader = req.headers.get('authorization');
     if (!authHeader) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
@@ -144,9 +143,8 @@ serve(async (req) => {
       });
     }
 
-    // Verify user is admin
     const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
     
     if (authError || !user) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
@@ -155,7 +153,7 @@ serve(async (req) => {
       });
     }
 
-    const { data: isAdmin, error: adminError } = await supabase.rpc('is_admin', { 
+    const { data: isAdmin, error: adminError } = await supabaseAdmin.rpc('is_admin', { 
       user_uuid: user.id 
     });
 
@@ -166,7 +164,7 @@ serve(async (req) => {
       });
     }
 
-    // Get business context data for enhanced responses
+    // Get business context data
     const [
       { count: totalUsers },
       { count: totalProjects },
@@ -174,16 +172,31 @@ serve(async (req) => {
       { data: recentRevenue },
       { data: topEngineers }
     ] = await Promise.all([
-      supabase.from('profiles').select('*', { count: 'exact', head: true }),
-      supabase.from('projects').select('*', { count: 'exact', head: true }),
-      supabase.from('engineer_profiles').select('*', { count: 'exact', head: true }).eq('is_available', true),
-      supabase.from('payments').select('amount').eq('status', 'completed').gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()),
-      supabase.from('engineer_leaderboard').select('engineer_id, total_earnings, completed_projects, average_rating').order('total_earnings', { ascending: false }).limit(5)
+      supabaseAdmin.from('profiles').select('*', { count: 'exact', head: true }),
+      supabaseAdmin.from('projects').select('*', { count: 'exact', head: true }),
+      supabaseAdmin.from('engineer_profiles').select('*', { count: 'exact', head: true }).eq('is_available', true),
+      supabaseAdmin.from('payments').select('amount').eq('status', 'completed').gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()),
+      supabaseAdmin.from('engineer_leaderboard').select('engineer_id, total_earnings, completed_projects, average_rating').order('total_earnings', { ascending: false }).limit(5)
     ]);
 
     const totalRevenue = recentRevenue?.reduce((sum, payment) => sum + Number(payment.amount), 0) || 0;
 
-    // Add business context to system message
+    // Fetch cross-chatbot context for enhanced intelligence
+    const { data: recentMessages } = await supabaseAdmin
+      .from('chatbot_messages')
+      .select('chatbot_type, role, content, created_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(10);
+
+    let contextualInfo = '';
+    if (recentMessages && recentMessages.length > 0) {
+      contextualInfo = `\n\n**Recent User Activity Across Platform:**\n`;
+      recentMessages.forEach(msg => {
+        contextualInfo += `- ${msg.chatbot_type} bot: ${msg.role === 'user' ? 'User asked' : 'Bot responded'} (${new Date(msg.created_at).toLocaleString()})\n`;
+      });
+    }
+
     const contextEnhancedPrompt = `${SYSTEM_PROMPT}
 
 # CURRENT BUSINESS METRICS (Real-Time Data)
@@ -194,36 +207,52 @@ serve(async (req) => {
 - Revenue (Last 30 Days): $${totalRevenue.toFixed(2)}
 - Top Engineers: ${topEngineers?.length || 0} tracked
 
+${contextualInfo}
+
 Use this data to provide context-aware insights and recommendations.`;
 
-    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
-    if (!OPENAI_API_KEY) {
-      throw new Error('OPENAI_API_KEY not configured');
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    if (!LOVABLE_API_KEY) {
+      throw new Error('LOVABLE_API_KEY not configured');
     }
 
-    console.log('Calling OpenAI with enhanced admin context...');
+    console.log('Calling Lovable AI with enhanced admin context...');
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: contextEnhancedPrompt },
-          ...messages
+          ...conversationHistory,
+          { role: 'user', content: message }
         ],
-        temperature: 0.7,
-        max_tokens: 2000,
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('OpenAI API error:', response.status, errorText);
-      throw new Error(`OpenAI API error: ${response.status}`);
+      console.error('Lovable AI API error:', response.status, errorText);
+      
+      if (response.status === 429) {
+        return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again in a moment.' }), {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
+      if (response.status === 402) {
+        return new Response(JSON.stringify({ error: 'AI credits depleted. Please add funds to continue.' }), {
+          status: 402,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
+      throw new Error(`Lovable AI API error: ${response.status}`);
     }
 
     const data = await response.json();

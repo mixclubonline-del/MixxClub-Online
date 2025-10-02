@@ -1,4 +1,4 @@
-import { Home, Briefcase, DollarSign, User, Plus, Shield } from 'lucide-react';
+import { Home, Briefcase, DollarSign, User, Plus, Shield, Bot } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
@@ -29,9 +29,9 @@ export const MobileBottomNav = () => {
 
   const adminTabs = [
     { icon: Home, label: 'Dashboard', path: '/mobile-admin' },
+    { icon: Bot, label: 'Mixx Bot', path: '/mobile-mixxbot' },
     { icon: User, label: 'Users', path: '/mobile-admin/users' },
     { icon: DollarSign, label: 'Payouts', path: '/mobile-admin/payouts' },
-    { icon: Shield, label: 'Admin', path: '/admin' },
   ];
 
   const tabs = isAdmin ? adminTabs : isEngineer ? engineerTabs : artistTabs;

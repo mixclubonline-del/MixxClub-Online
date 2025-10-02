@@ -52,6 +52,7 @@ import MobileLanding from "./pages/MobileLanding";
 import MobileAdmin from "./pages/MobileAdmin";
 import MobileAdminPayouts from "./pages/MobileAdminPayouts";
 import MobileAdminUsers from "./pages/MobileAdminUsers";
+import MobileMixxBot from "./pages/MobileMixxBot";
 import { PersistentChatbot } from "@/components/PersistentChatbot";
 
 const queryClient = new QueryClient();
@@ -109,6 +110,7 @@ const App = () => (
           <Route path="/mobile-home" element={<MobileHome />} />
           <Route path="/mobile-landing" element={<MobileLanding />} />
             <Route path="/mobile-admin" element={<MobileAdmin />} />
+            <Route path="/mobile-mixxbot" element={<MobileMixxBot />} />
             <Route path="/mobile-admin/payouts" element={<MobileAdminPayouts />} />
             <Route path="/mobile-admin/users" element={<MobileAdminUsers />} />
             
