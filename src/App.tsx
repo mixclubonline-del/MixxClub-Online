@@ -7,6 +7,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { PWAInstallPrompt } from "@/components/mobile/PWAInstallPrompt";
 import Home from "./pages/Home";
+import BeatBattle from "./pages/BeatBattle";
+import CommunityLeaderboard from "./pages/CommunityLeaderboard";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
 import ArtistOnboarding from "./pages/ArtistOnboarding";
@@ -66,7 +68,9 @@ const App = () => (
         <AuthProvider>
           <Routes>
             <Route path="/" element={<Home />} />
-        <Route path="/auth" element={<Auth />} />
+            <Route path="/beat-battle" element={<BeatBattle />} />
+            <Route path="/leaderboard" element={<CommunityLeaderboard />} />
+            <Route path="/auth" element={<Auth />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/onboarding/artist" element={<ArtistOnboarding />} />
         <Route path="/onboarding/engineer" element={<EngineerOnboarding />} />

@@ -16,6 +16,7 @@ import { HomeShowcaseSlideshow } from "@/components/HomeShowcaseSlideshow";
 import { InstantDemoSection } from "@/components/InstantDemoSection";
 import { RecentSuccesses } from "@/components/RecentSuccesses";
 import { FreemiumBanner } from "@/components/FreemiumBanner";
+import { CommunityShowcase } from "@/components/home/CommunityShowcase";
 import { Button } from "@/components/ui/button";
 import { Users, Zap, Music, Sparkles } from "lucide-react";
 
@@ -36,6 +37,7 @@ const Home = () => {
       <AudioPreview />
       <SuccessStories />
       <Testimonials />
+      <CommunityShowcase />
       <LiveStats />
       <PluginShowcase />
       <section id="engineers" className="py-32 bg-gradient-to-b from-background via-[hsl(262_30%_8%)] to-background relative overflow-hidden">

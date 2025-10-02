@@ -18,6 +18,7 @@ import { JobApplicationManager } from '@/components/crm/JobApplicationManager';
 import { JobPostingForm } from '@/components/JobPostingForm';
 import { PackagesShop } from '@/components/crm/PackagesShop';
 import { RecommendedEngineers } from '@/components/crm/RecommendedEngineers';
+import { AIMatchingEngine } from '@/components/ai/AIMatchingEngine';
 import { MusicalProfile } from '@/components/crm/MusicalProfile';
 import ProfileEditor from '@/components/crm/ProfileEditor';
 import ProfileInsights from '@/components/crm/ProfileInsights';
@@ -339,9 +340,20 @@ const ArtistCRM = () => {
           <div className="space-y-6">
             <div className="mb-6">
               <h2 className="text-2xl font-bold mb-2">Find Your Perfect Engineer</h2>
-              <p className="text-muted-foreground">Connect with pros who match your vibe</p>
+              <p className="text-muted-foreground">AI-powered matching for your unique sound</p>
             </div>
-            <RecommendedEngineers />
+            
+            <AIMatchingEngine 
+              userGenre={profile?.genre || 'Hip Hop'}
+              projectType="mixing"
+              budget={500}
+              urgency="medium"
+            />
+            
+            <div className="mt-8">
+              <h3 className="text-xl font-bold mb-4">All Engineers</h3>
+              <RecommendedEngineers />
+            </div>
             
             {mixingAccess ? (
               <div className="mt-8">
