@@ -76,10 +76,10 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.create-distribution-checkout]
-verify_jwt = false
+verify_jwt = true
 
 [functions.create-addon-payment]
-verify_jwt = false
+verify_jwt = true
 
 [functions.generate-financial-insights]
 verify_jwt = true
