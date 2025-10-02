@@ -9,7 +9,7 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* Raven AI Sound - Deep Space Professional */
-    --background: 0 0% 3%;
+    --background: 0 0% 7%;
     --foreground: 0 0% 98%;
 
     --card: 240 10% 8%;
