@@ -1,21 +1,30 @@
 import { useState } from 'react';
-import { MobileBottomNav } from '@/components/mobile/MobileBottomNav';
+import { MobileEnhancedNav } from '@/components/mobile/MobileEnhancedNav';
 import { MobileOnboardingWizard } from '@/components/mobile/MobileOnboardingWizard';
 import { MobileAuthDialog } from '@/components/mobile/MobileAuthDialog';
+import { PullToRefresh } from '@/components/mobile/PullToRefresh';
 import Hero from '@/components/Hero';
 import Services from '@/components/Services';
 import HowItWorks from '@/components/HowItWorks';
 import { Testimonials } from '@/components/Testimonials';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
+import { useMobileOptimization } from '@/hooks/useMobileOptimization';
 
 const MobileLanding = () => {
   const [showWizard, setShowWizard] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('signup');
   const { user } = useAuth();
+  const { triggerHaptic } = useMobileOptimization({ enableHaptics: true });
+
+  const handleRefresh = async () => {
+    triggerHaptic('medium');
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  };
 
   const handleGetStarted = () => {
+    triggerHaptic('light');
     if (user) {
       setShowWizard(true);
     } else {
@@ -25,18 +34,23 @@ const MobileLanding = () => {
   };
 
   const handleSignIn = () => {
+    triggerHaptic('light');
     setAuthMode('login');
     setShowAuth(true);
   };
 
   return (
     <div className="min-h-screen pb-32">
-      <div className="container mx-auto px-4 py-8 space-y-16">
+      <MobileEnhancedNav />
+      
+      <PullToRefresh onRefresh={handleRefresh}>
+        <div className="container mx-auto px-4 py-8 space-y-16">
         <Hero />
         <Services />
         <HowItWorks />
         <Testimonials />
       </div>
+      </PullToRefresh>
 
       {/* Fixed Bottom CTAs */}
       <div className="fixed bottom-16 left-0 right-0 p-4 bg-gradient-to-t from-background via-background to-transparent space-y-2 z-40">
@@ -74,8 +88,6 @@ const MobileLanding = () => {
         onOpenChange={setShowAuth}
         mode={authMode}
       />
-
-      <MobileBottomNav />
     </div>
   );
 };

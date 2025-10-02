@@ -6,6 +6,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { PWAInstallPrompt } from "@/components/mobile/PWAInstallPrompt";
+import { MobileRouteGuard } from "@/components/mobile/MobileRouteGuard";
+import { OfflineIndicator } from "@/components/mobile/OfflineIndicator";
 import Home from "./pages/Home";
 import MixBattles from "./pages/MixBattles";
 import CommunityLeaderboard from "./pages/CommunityLeaderboard";
@@ -83,6 +85,8 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <MobileRouteGuard />
+          <OfflineIndicator />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/mix-battles" element={<MixBattles />} />

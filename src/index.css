@@ -2,7 +2,80 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+@layer base {
+  :root {
+    --background: 262 30% 4%;
+    --foreground: 0 0% 95%;
+    --card: 262 30% 6%;
+    --card-foreground: 0 0% 95%;
+    --popover: 262 30% 6%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 262 100% 75%;
+    --primary-foreground: 262 30% 4%;
+    --primary-glow: 262 100% 85%;
+    --secondary: 200 100% 65%;
+    --secondary-foreground: 262 30% 4%;
+    --muted: 262 20% 15%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 180 100% 60%;
+    --accent-foreground: 262 30% 4%;
+    --accent-blue: 200 100% 65%;
+    --accent-cyan: 180 100% 60%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 262 30% 18%;
+    --input: 262 30% 18%;
+    --ring: 262 100% 75%;
+    --radius: 0.75rem;
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+    --gradient-accent: linear-gradient(135deg, hsl(var(--accent-blue)), hsl(var(--accent-cyan)));
+    --shadow-glow: 0 0 20px hsl(var(--primary) / 0.3);
+  }
+}
+
+@layer utilities {
+  /* Mobile-specific utilities */
+  .safe-area-inset-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Haptic feedback visual */
+  .active\\:scale-95:active {
+    transform: scale(0.95);
+  }
+
+  /* Glow effect */
+  .drop-shadow-glow {
+    filter: drop-shadow(0 0 8px hsl(var(--primary) / 0.5));
+  }
+
+  /* Pull to refresh animation */
+  @keyframes slide-in-top {
+    from {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-slide-in-top {
+    animation: slide-in-top 0.3s ease-out;
+  }
+}
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here.
 All colors MUST be HSL.
 */
 
