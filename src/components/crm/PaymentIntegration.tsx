@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { CreditCard, DollarSign, CheckCircle, Clock, X } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAnalytics } from '@/hooks/useAnalytics';
+import { TrustBadges } from '@/components/TrustBadges';
 
 interface PaymentIntegrationProps {
   projectId: string;
@@ -18,6 +20,7 @@ export const PaymentIntegration = ({ projectId, amount, projectTitle }: PaymentI
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'apple' | null>(null);
   const [cardNumber, setCardNumber] = useState('');
   const [paymentStatus, setPaymentStatus] = useState<'pending' | 'processing' | 'completed' | null>(null);
+  const { trackPurchase, trackEvent } = useAnalytics();
 
   const handlePayment = async (method: 'card' | 'apple') => {
     try {
@@ -66,6 +69,17 @@ export const PaymentIntegration = ({ projectId, amount, projectTitle }: PaymentI
 
       setPaymentStatus('completed');
       toast.success(`Payment of $${amount} completed successfully! +${Math.floor(amount / 10)} points`);
+      
+      // Track successful payment
+      trackPurchase(amount, 'project_payment');
+      trackEvent({
+        event: 'payment_completed',
+        properties: { 
+          project_id: projectId,
+          amount,
+          method
+        }
+      });
     } catch (error: any) {
       console.error('Payment error:', error);
       setPaymentStatus(null);
@@ -92,7 +106,10 @@ export const PaymentIntegration = ({ projectId, amount, projectTitle }: PaymentI
 
   return (
     <Card className="p-6">
-      <div className="mb-6">
+      {/* Trust Badges */}
+      <TrustBadges />
+      
+      <div className="mb-6 mt-4">
         <h3 className="text-2xl font-bold mb-2">Complete Payment</h3>
         <p className="text-muted-foreground">
           Secure payment for: {projectTitle}

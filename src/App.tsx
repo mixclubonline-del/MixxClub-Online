@@ -39,6 +39,7 @@ import ForEngineers from "./pages/ForEngineers";
 import EngineerDirectory from "./pages/EngineerDirectory";
 import EngineerProfile from "./pages/EngineerProfile";
 import ComingSoon from "./pages/ComingSoon";
+import FAQ from "./pages/FAQ";
 import Admin from "./pages/Admin";
 import AdminUsers from "./pages/AdminUsers";
 import AdminAudio from './pages/AdminAudio';
@@ -131,6 +132,7 @@ const App = () => (
             <Route path="/engineer/:userId" element={<EngineerProfile />} />
             <Route path="/project/:projectId" element={<ProjectDetail />} />
             <Route path="/coming-soon" element={<ComingSoon />} />
+            <Route path="/faq" element={<FAQ />} />
             
             {/* Mobile Routes */}
           <Route path="/mobile-home" element={<MobileHome />} />

@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Star, Quote } from "lucide-react";
+import { Star, Quote, Play } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 
 export const Testimonials = () => {
   const testimonials = [
@@ -109,9 +110,17 @@ export const Testimonials = () => {
                 </p>
 
                 <div className="pt-3 border-t border-border">
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-muted-foreground mb-2">
                     Track: <span className="text-foreground font-medium">{testimonial.track}</span>
                   </p>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-8 text-xs gap-2 hover:text-primary"
+                  >
+                    <Play className="w-3 h-3" />
+                    Listen to Before/After
+                  </Button>
                 </div>
               </CardContent>
             </Card>

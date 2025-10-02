@@ -11,6 +11,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ArrowLeft, Music, Sparkles, Users, Zap, Headphones, Mic2, Apple } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 // Import Google icon
 const GoogleIcon = () => (
@@ -34,6 +35,7 @@ const Auth = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const mode = searchParams.get("mode") || "login";
+  const { trackSignup, trackEvent } = useAnalytics();
   
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -163,6 +165,12 @@ const Auth = () => {
     try {
       const redirectUrl = `${window.location.origin}/auth/callback`;
       
+      // Track OAuth attempt
+      trackEvent({
+        event: 'oauth_attempt',
+        properties: { provider, mode }
+      });
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
@@ -231,6 +239,9 @@ const Auth = () => {
             .from('profiles')
             .update({ role })
             .eq('id', data.user.id);
+          
+          // Track signup
+          trackSignup('email');
         }
 
         toast.success("Account created! Redirecting to onboarding...");

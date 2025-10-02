@@ -8,6 +8,8 @@ import { CreditCard, Loader2, Smartphone, Wallet } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import jsPDF from 'jspdf';
+import { TrustBadges } from '@/components/TrustBadges';
+import { RefundPolicy } from '@/components/RefundPolicy';
 
 declare global {
   interface Window {
@@ -333,6 +335,8 @@ export function MultiPaymentModal({
         </DialogHeader>
 
           <div className="space-y-6">
+            {/* Trust Badges */}
+            <TrustBadges />
             {/* Payment Summary */}
             <div className="bg-secondary/20 p-4 rounded-lg space-y-1">
               <p className="flex justify-between font-semibold">
@@ -439,6 +443,9 @@ export function MultiPaymentModal({
                 )}
               </div>
             )}
+
+            {/* Refund Policy */}
+            <RefundPolicy />
         </div>
       </DialogContent>
     </Dialog>
