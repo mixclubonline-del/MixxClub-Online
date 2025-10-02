@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import type { Track } from "@/pages/HybridDAW";
 
 type ExportFormat = 'wav' | 'mp3' | 'stems' | 'project';

@@ -15,7 +15,7 @@ import {
   Download 
 } from "lucide-react";
 import { useAudioImport } from "@/hooks/useAudioImport";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface ImportedAudioFile {
   id: string;
