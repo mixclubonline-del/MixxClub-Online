@@ -28,8 +28,8 @@ export const AppDownloadPopup = () => {
   const totalMembers = milestones?.reduce((sum, m) => sum + (m.contributor_count || 0), 0) || 1247;
 
   useEffect(() => {
-    // Don't show if user is authenticated or PWA is already installed
-    if (user || !canInstall) return;
+    // Don't show if user is authenticated
+    if (user) return;
 
     // Check if popup was dismissed in this session
     const dismissed = sessionStorage.getItem('app-download-popup-dismissed');
