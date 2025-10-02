@@ -14,6 +14,8 @@ import {
   LogOut,
   CreditCard,
   Truck,
+  FileText,
+  Presentation,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -44,6 +46,8 @@ const navigation = [
   { name: 'Marketplace', href: '/admin/marketplace', icon: Settings },
   { name: 'Integrations', href: '/admin/integrations', icon: Settings },
   { name: 'Community Milestones', href: '/admin/milestones', icon: Settings },
+  { name: 'Legal Documents', href: '/admin/legal-documents', icon: FileText },
+  { name: 'System Presentation', href: '/admin/system-presentation', icon: Presentation },
 ];
 
 export function AdminLayout({ children }: AdminLayoutProps) {

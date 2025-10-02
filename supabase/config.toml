@@ -101,3 +101,21 @@ verify_jwt = true
 
 [functions.crypto-payment-webhook]
 verify_jwt = false
+
+[functions.docusign-send-for-review]
+verify_jwt = true
+
+[functions.docusign-webhook]
+verify_jwt = false
+
+[functions.collect-system-metrics]
+verify_jwt = true
+
+[functions.create-presentation-share]
+verify_jwt = true
+
+[functions.verify-presentation-share]
+verify_jwt = false
+
+[functions.send-attorney-notification-email]
+verify_jwt = false

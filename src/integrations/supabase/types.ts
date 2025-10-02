@@ -841,6 +841,59 @@ export type Database = {
           },
         ]
       }
+      attorney_notifications: {
+        Row: {
+          attorney_email: string
+          attorney_name: string | null
+          created_at: string | null
+          document_id: string | null
+          email_error: string | null
+          email_sent: boolean | null
+          email_sent_at: string | null
+          id: string
+          notification_type: string
+          responded: boolean | null
+          responded_at: string | null
+          response_notes: string | null
+        }
+        Insert: {
+          attorney_email: string
+          attorney_name?: string | null
+          created_at?: string | null
+          document_id?: string | null
+          email_error?: string | null
+          email_sent?: boolean | null
+          email_sent_at?: string | null
+          id?: string
+          notification_type: string
+          responded?: boolean | null
+          responded_at?: string | null
+          response_notes?: string | null
+        }
+        Update: {
+          attorney_email?: string
+          attorney_name?: string | null
+          created_at?: string | null
+          document_id?: string | null
+          email_error?: string | null
+          email_sent?: boolean | null
+          email_sent_at?: string | null
+          id?: string
+          notification_type?: string
+          responded?: boolean | null
+          responded_at?: string | null
+          response_notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attorney_notifications_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "legal_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audio_files: {
         Row: {
           bit_depth: number | null
@@ -3007,6 +3060,75 @@ export type Database = {
           },
         ]
       }
+      legal_documents: {
+        Row: {
+          attorney_email: string | null
+          attorney_name: string | null
+          attorney_notes: string | null
+          attorney_reviewed: boolean | null
+          attorney_reviewed_at: string | null
+          content: string
+          created_at: string | null
+          created_by: string | null
+          document_type: string
+          docusign_completed_at: string | null
+          docusign_document_url: string | null
+          docusign_envelope_id: string | null
+          docusign_sent_at: string | null
+          docusign_status: string | null
+          effective_date: string | null
+          id: string
+          title: string
+          updated_at: string | null
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          attorney_email?: string | null
+          attorney_name?: string | null
+          attorney_notes?: string | null
+          attorney_reviewed?: boolean | null
+          attorney_reviewed_at?: string | null
+          content: string
+          created_at?: string | null
+          created_by?: string | null
+          document_type: string
+          docusign_completed_at?: string | null
+          docusign_document_url?: string | null
+          docusign_envelope_id?: string | null
+          docusign_sent_at?: string | null
+          docusign_status?: string | null
+          effective_date?: string | null
+          id?: string
+          title: string
+          updated_at?: string | null
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          attorney_email?: string | null
+          attorney_name?: string | null
+          attorney_notes?: string | null
+          attorney_reviewed?: boolean | null
+          attorney_reviewed_at?: string | null
+          content?: string
+          created_at?: string | null
+          created_by?: string | null
+          document_type?: string
+          docusign_completed_at?: string | null
+          docusign_document_url?: string | null
+          docusign_envelope_id?: string | null
+          docusign_sent_at?: string | null
+          docusign_status?: string | null
+          effective_date?: string | null
+          id?: string
+          title?: string
+          updated_at?: string | null
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: []
+      }
       lesson_progress: {
         Row: {
           completed_at: string | null
@@ -4166,6 +4288,57 @@ export type Database = {
           },
         ]
       }
+      presentation_shares: {
+        Row: {
+          access_count: number | null
+          created_at: string | null
+          created_by: string
+          expires_at: string
+          failed_attempts: number | null
+          id: string
+          is_active: boolean | null
+          last_accessed_at: string | null
+          notes: string | null
+          password_hash: string
+          presentation_type: string
+          recipient_email: string | null
+          recipient_name: string | null
+          share_token: string
+        }
+        Insert: {
+          access_count?: number | null
+          created_at?: string | null
+          created_by: string
+          expires_at: string
+          failed_attempts?: number | null
+          id?: string
+          is_active?: boolean | null
+          last_accessed_at?: string | null
+          notes?: string | null
+          password_hash: string
+          presentation_type?: string
+          recipient_email?: string | null
+          recipient_name?: string | null
+          share_token: string
+        }
+        Update: {
+          access_count?: number | null
+          created_at?: string | null
+          created_by?: string
+          expires_at?: string
+          failed_attempts?: number | null
+          id?: string
+          is_active?: boolean | null
+          last_accessed_at?: string | null
+          notes?: string | null
+          password_hash?: string
+          presentation_type?: string
+          recipient_email?: string | null
+          recipient_name?: string | null
+          share_token?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -4852,6 +5025,44 @@ export type Database = {
           },
         ]
       }
+      share_link_security_logs: {
+        Row: {
+          alerted_at: string | null
+          created_at: string | null
+          failed_attempts: number | null
+          id: string
+          ip_address: string
+          last_attempt_at: string | null
+          share_id: string | null
+        }
+        Insert: {
+          alerted_at?: string | null
+          created_at?: string | null
+          failed_attempts?: number | null
+          id?: string
+          ip_address: string
+          last_attempt_at?: string | null
+          share_id?: string | null
+        }
+        Update: {
+          alerted_at?: string | null
+          created_at?: string | null
+          failed_attempts?: number | null
+          id?: string
+          ip_address?: string
+          last_attempt_at?: string | null
+          share_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "share_link_security_logs_share_id_fkey"
+            columns: ["share_id"]
+            isOneToOne: false
+            referencedRelation: "presentation_shares"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       showcase_audio_samples: {
         Row: {
           after_file_name: string
@@ -5137,6 +5348,33 @@ export type Database = {
           total_reviews?: number | null
           updated_at?: string | null
           website_url?: string | null
+        }
+        Relationships: []
+      }
+      system_metrics: {
+        Row: {
+          id: string
+          metadata: Json | null
+          metric_type: string
+          metric_unit: string | null
+          metric_value: number
+          recorded_at: string | null
+        }
+        Insert: {
+          id?: string
+          metadata?: Json | null
+          metric_type: string
+          metric_unit?: string | null
+          metric_value: number
+          recorded_at?: string | null
+        }
+        Update: {
+          id?: string
+          metadata?: Json | null
+          metric_type?: string
+          metric_unit?: string | null
+          metric_value?: number
+          recorded_at?: string | null
         }
         Relationships: []
       }
