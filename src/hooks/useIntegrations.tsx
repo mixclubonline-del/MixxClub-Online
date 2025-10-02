@@ -9,11 +9,12 @@ export interface IntegrationProvider {
   provider_description: string | null;
   logo_url: string | null;
   documentation_url: string | null;
+  api_version: string | null;
   auth_type: 'oauth' | 'api_key' | 'jwt' | 'basic';
+  required_scopes: string[];
+  webhook_support: boolean;
   is_active: boolean;
   is_premium: boolean;
-  webhook_support: boolean;
-  setup_instructions: any;
 }
 
 export interface UserIntegration {
@@ -24,8 +25,9 @@ export interface UserIntegration {
   connection_metadata: any;
   last_sync_at: string | null;
   sync_frequency: 'manual' | 'hourly' | 'daily' | 'weekly' | 'real_time';
+  error_log: any[];
   created_at: string;
-  integration_providers?: IntegrationProvider;
+  updated_at: string;
 }
 
 export interface StreamingConnection {
@@ -82,7 +84,45 @@ export const useUserIntegrations = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data as UserIntegration[];
+      return data;
+    },
+  });
+};
+
+export const useConnectIntegration = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      providerId,
+      connectionData,
+    }: {
+      providerId: string;
+      connectionData: any;
+    }) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      const { data, error } = await supabase
+        .from("user_integrations")
+        .insert({
+          user_id: user.id,
+          provider_id: providerId,
+          connection_status: "active",
+          connection_metadata: connectionData,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-integrations"] });
+      toast.success("Integration connected successfully!");
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to connect: ${error.message}`);
     },
   });
 };
@@ -98,48 +138,11 @@ export const useStreamingConnections = () => {
         .from("streaming_connections")
         .select("*")
         .eq("user_id", user.id)
-        .order("platform_name");
+        .eq("is_active", true)
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
       return data as StreamingConnection[];
-    },
-  });
-};
-
-export const useConnectIntegration = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({
-      providerId,
-      metadata,
-    }: {
-      providerId: string;
-      metadata?: any;
-    }) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
-
-      const { data, error } = await supabase
-        .from("user_integrations")
-        .insert({
-          user_id: user.id,
-          provider_id: providerId,
-          connection_status: "pending",
-          connection_metadata: metadata || {},
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user-integrations"] });
-      toast.success("Integration connected successfully!");
-    },
-    onError: (error: Error) => {
-      toast.error(`Failed to connect integration: ${error.message}`);
     },
   });
 };
