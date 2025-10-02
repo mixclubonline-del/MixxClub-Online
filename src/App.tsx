@@ -177,7 +177,7 @@ const App = () => (
             <Route path="/distribution" element={<AppLayout><DistributionHub /></AppLayout>} />
             
             {/* Merch Store */}
-            <Route path="/merch" element={<MerchStore />} />
+            <Route path="/merch" element={<AppLayout><MerchStore /></AppLayout>} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

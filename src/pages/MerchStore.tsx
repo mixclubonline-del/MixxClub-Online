@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
-import Navigation from "@/components/Navigation";
 
 interface MerchVariant {
   id: string;
@@ -110,20 +109,14 @@ export default function MerchStore() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
-        <div className="container mx-auto px-4 py-20 text-center">
-          <p className="text-muted-foreground">Loading merch store...</p>
-        </div>
+      <div className="container mx-auto px-4 py-8 text-center">
+        <p className="text-muted-foreground">Loading merch store...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      
-      <div className="container mx-auto px-4 py-20">
+    <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-4xl font-bold mb-2">MixClub Merch Store</h1>
@@ -222,6 +215,5 @@ export default function MerchStore() {
           </Card>
         )}
       </div>
-    </div>
   );
 }
