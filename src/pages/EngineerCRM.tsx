@@ -25,6 +25,8 @@ import { EngineerCRMChatbot } from '@/components/crm/EngineerCRMChatbot';
 import EngineerCRMSlideshow from '@/components/crm/EngineerCRMSlideshow';
 import { EngineerAssistantIntro } from '@/components/crm/EngineerAssistantIntro';
 
+import { DynamicAppAccessHub } from '@/components/crm/DynamicAppAccessHub';
+
 const EngineerCRM = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -545,9 +547,11 @@ const EngineerCRM = () => {
       default:
         return (
           <div className="space-y-6">
+            {/* Dynamic App Access Hub */}
+            <DynamicAppAccessHub userRole="engineer" />
+            
             {/* Overview Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              {stats.map((stat, index) => (
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">{stats.map((stat, index) => (
                 <Card key={index} className="p-4">
                   <div className="flex items-center gap-3">
                     <div className={`p-3 rounded-lg ${stat.color}`}>

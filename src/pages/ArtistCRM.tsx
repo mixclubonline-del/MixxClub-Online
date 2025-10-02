@@ -30,6 +30,8 @@ import { ArtistCRMSlideshow } from '@/components/crm/ArtistCRMSlideshow';
 import { ArtistAssistantIntro } from '@/components/crm/ArtistAssistantIntro';
 import { DistributionWorkflow } from '@/components/crm/DistributionWorkflow';
 
+import { DynamicAppAccessHub } from '@/components/crm/DynamicAppAccessHub';
+
 const ArtistCRM = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -495,9 +497,11 @@ const ArtistCRM = () => {
       default:
         return (
           <div className="space-y-6">
+            {/* Dynamic App Access Hub */}
+            <DynamicAppAccessHub userRole="artist" />
+            
             {/* Overview Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              {stats.map((stat, index) => (
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">{stats.map((stat, index) => (
                 <Card key={index} className="p-4">
                   <div className="flex items-center gap-3">
                     <div className={`p-3 rounded-lg ${stat.color}`}>

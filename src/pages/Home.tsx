@@ -1,3 +1,4 @@
+import { AppDownloadPopup } from "@/components/AppDownloadPopup";
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
 import { HomeShowcaseSlideshow } from "@/components/HomeShowcaseSlideshow";
@@ -17,6 +18,9 @@ const Home = () => {
   return (
     <div className="min-h-screen">
       <Navigation />
+      
+      {/* App Download Pop-up */}
+      <AppDownloadPopup />
       
       {/* Slideshow Introduction */}
       <HomeShowcaseSlideshow />
