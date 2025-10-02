@@ -1,0 +1,153 @@
+
+-- Phase 1: Security Hardening (Complete Cleanup)
+-- Fix RLS policies and function search paths
+
+-- =====================================================
+-- 1. Fix Function Search Paths
+-- =====================================================
+
+-- Fix is_org_admin function
+CREATE OR REPLACE FUNCTION public.is_org_admin(p_user_id uuid, p_org_id uuid)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  select exists (
+    select 1
+    from public.user_organizations uo
+    where uo.user_id = p_user_id
+      and uo.organization_id = p_org_id
+      and uo.member_role = 'admin'
+  );
+$$;
+
+-- Fix update_chatbot_messages_updated_at function
+CREATE OR REPLACE FUNCTION public.update_chatbot_messages_updated_at()
+RETURNS trigger
+LANGUAGE plpgsql
+SET search_path = public
+AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$;
+
+-- =====================================================
+-- 2. Clean up and Add RLS Policies for ai_mixing_suggestions
+-- =====================================================
+
+-- Drop all existing policies
+DROP POLICY IF EXISTS "Users can view suggestions for their sessions" ON public.ai_mixing_suggestions;
+DROP POLICY IF EXISTS "System can insert AI suggestions" ON public.ai_mixing_suggestions;
+DROP POLICY IF EXISTS "Users can update suggestion feedback" ON public.ai_mixing_suggestions;
+
+-- Create new policies
+CREATE POLICY "Users can view suggestions for their sessions"
+ON public.ai_mixing_suggestions
+FOR SELECT
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM public.collaboration_sessions cs
+    WHERE cs.id = ai_mixing_suggestions.session_id
+    AND (cs.host_user_id = auth.uid() OR is_session_participant(cs.id, auth.uid()))
+  )
+);
+
+CREATE POLICY "System can insert AI suggestions"
+ON public.ai_mixing_suggestions
+FOR INSERT
+TO authenticated
+WITH CHECK (true);
+
+CREATE POLICY "Users can update suggestion feedback"
+ON public.ai_mixing_suggestions
+FOR UPDATE
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM public.collaboration_sessions cs
+    WHERE cs.id = ai_mixing_suggestions.session_id
+    AND (cs.host_user_id = auth.uid() OR is_session_participant(cs.id, auth.uid()))
+  )
+);
+
+-- =====================================================
+-- 3. Clean up and Add RLS Policies for course_lessons
+-- =====================================================
+
+-- Drop all existing policies
+DROP POLICY IF EXISTS "Everyone can view published course lessons" ON public.course_lessons;
+DROP POLICY IF EXISTS "Instructors can manage their course lessons" ON public.course_lessons;
+
+-- Create new policies
+CREATE POLICY "Everyone can view published course lessons"
+ON public.course_lessons
+FOR SELECT
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM public.courses c
+    WHERE c.id = course_lessons.course_id
+    AND (c.is_published = true OR c.instructor_id = auth.uid())
+  )
+);
+
+CREATE POLICY "Instructors can manage their course lessons"
+ON public.course_lessons
+FOR ALL
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM public.courses c
+    WHERE c.id = course_lessons.course_id
+    AND c.instructor_id = auth.uid()
+  )
+)
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM public.courses c
+    WHERE c.id = course_lessons.course_id
+    AND c.instructor_id = auth.uid()
+  )
+);
+
+-- =====================================================
+-- 4. Clean up and Add RLS Policies for course_reviews
+-- =====================================================
+
+-- Drop all existing policies
+DROP POLICY IF EXISTS "Everyone can view course reviews" ON public.course_reviews;
+DROP POLICY IF EXISTS "Users can create reviews" ON public.course_reviews;
+DROP POLICY IF EXISTS "Enrolled users can create reviews" ON public.course_reviews;
+DROP POLICY IF EXISTS "Users can update their own reviews" ON public.course_reviews;
+DROP POLICY IF EXISTS "Users can delete their own reviews" ON public.course_reviews;
+
+-- Create new policies
+CREATE POLICY "Everyone can view course reviews"
+ON public.course_reviews
+FOR SELECT
+TO authenticated
+USING (true);
+
+CREATE POLICY "Users can create reviews"
+ON public.course_reviews
+FOR INSERT
+TO authenticated
+WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own reviews"
+ON public.course_reviews
+FOR UPDATE
+TO authenticated
+USING (auth.uid() = user_id)
+WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own reviews"
+ON public.course_reviews
+FOR DELETE
+TO authenticated
+USING (auth.uid() = user_id);
