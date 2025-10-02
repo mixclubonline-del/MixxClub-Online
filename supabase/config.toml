@@ -3,6 +3,9 @@ project_id = "htvmkylgrrlaydhdbonl"
 [functions.generate-trap-beat]
 verify_jwt = false
 
+[functions.admin-chat-enhanced]
+verify_jwt = false
+
 [api]
 enabled = true
 port = 54321
