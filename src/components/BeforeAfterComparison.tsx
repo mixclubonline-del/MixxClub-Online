@@ -3,8 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Play, Pause, Volume2, VolumeX, ArrowLeftRight, Users, Check, X, Frown } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
+import { useShowcaseAudio } from '@/hooks/useShowcaseAudio';
 
 export function BeforeAfterComparison() {
+  const { samples, loading: audioLoading } = useShowcaseAudio('mixing');
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -15,9 +17,10 @@ export function BeforeAfterComparison() {
   const beforeAudioRef = useRef<HTMLAudioElement>(null);
   const afterAudioRef = useRef<HTMLAudioElement>(null);
 
-  // Demo audio URLs (replace with actual files)
-  const beforeUrl = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
-  const afterUrl = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3";
+  // Use first uploaded sample or fallback to demo
+  const firstSample = samples[0];
+  const beforeUrl = firstSample?.beforeUrl || "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
+  const afterUrl = firstSample?.afterUrl || "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3";
 
   useEffect(() => {
     const beforeAudio = beforeAudioRef.current;

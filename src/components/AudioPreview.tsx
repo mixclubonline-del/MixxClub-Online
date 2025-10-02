@@ -1,53 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Play, Pause } from "lucide-react";
+import { Play, Pause, Loader2 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
-
-interface Track {
-  title: string;
-  beforeUrl?: string;
-  afterUrl?: string;
-}
-
-const tracks: Track[] = [
-  { 
-    title: "Hip-Hop Vocal Transform",
-    beforeUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-    afterUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"
-  },
-  { 
-    title: "R&B Studio Polish",
-    beforeUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
-    afterUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"
-  },
-  { 
-    title: "Electronic Mix Magic",
-    beforeUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3",
-    afterUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3"
-  },
-];
-
-const trackDetails = [
-  {
-    genre: "Hip-Hop",
-    artist: "Independent Artist",
-    improvement: "Vocal clarity +40%, Mix balance +35%",
-    color: "hsl(262 90% 60%)"
-  },
-  {
-    genre: "R&B",
-    artist: "Emerging Artist",
-    improvement: "Studio quality +60%, Dynamics +45%",
-    color: "hsl(280 80% 70%)"
-  },
-  {
-    genre: "Electronic",
-    artist: "Bedroom Producer",
-    improvement: "Commercial ready +80%, AI stem separation",
-    color: "hsl(210 90% 60%)"
-  }
-];
+import { useShowcaseAudio } from "@/hooks/useShowcaseAudio";
 
 const AudioPreview = () => {
+  const { samples, loading: audioLoading } = useShowcaseAudio();
   const [playingTrack, setPlayingTrack] = useState<{ index: number; type: 'before' | 'after' } | null>(null);
   const audioRefs = useRef<{ [key: string]: HTMLAudioElement }>({});
   const canvasRefs = useRef<{ [key: string]: HTMLCanvasElement }>({});
@@ -158,7 +115,7 @@ const AudioPreview = () => {
         const isPlaying = playingTrack?.index === index && playingTrack?.type === type;
         const width = canvas.width;
         const height = canvas.height;
-        const trackColor = trackDetails[index]?.color || 'hsl(var(--primary))';
+        const trackColor = 'hsl(262 90% 60%)';
         
         ctx.clearRect(0, 0, width, height);
         
@@ -222,6 +179,9 @@ const AudioPreview = () => {
     };
   }, [playingTrack]);
 
+  // Use uploaded samples or show loading
+  const displaySamples = samples.length > 0 ? samples : [];
+
   return (
     <div className="relative overflow-hidden py-24 bg-card">
       <canvas
@@ -242,111 +202,121 @@ const AudioPreview = () => {
             </p>
           </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
-          {tracks.map((track, index) => (
-            <Card 
-              key={index} 
-              className="border-border bg-card overflow-hidden transition-all duration-300 hover:shadow-glass hover:border-primary/30 hover:scale-105"
-              style={{
-                animation: playingTrack?.index === index ? 'glow-pulse 2s ease-in-out infinite' : 'none'
-              }}
-            >
-              <CardHeader>
-                <div className="flex items-center gap-2 mb-2">
-                  <span 
-                    className="px-2 py-1 text-xs rounded-full font-medium"
-                    style={{
-                      backgroundColor: `${trackDetails[index].color.replace(')', ' / 0.2)')}`,
-                      color: trackDetails[index].color
-                    }}
-                  >
-                    {trackDetails[index].genre}
-                  </span>
-                  <span className="text-xs text-muted-foreground">{trackDetails[index].artist}</span>
-                </div>
-                <CardTitle className="text-lg">{track.title}</CardTitle>
-                <p className="text-xs text-muted-foreground mt-2">{trackDetails[index].improvement}</p>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Before */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Before</span>
-                    <button
-                      onClick={() => togglePlay(index, 'before')}
-                      className="w-8 h-8 rounded-full bg-muted hover:bg-primary/20 flex items-center justify-center transition-all duration-300 hover:scale-110"
-                      style={{
-                        boxShadow: playingTrack?.index === index && playingTrack?.type === 'before' 
-                          ? `0 0 20px ${trackDetails[index].color}` 
-                          : 'none'
-                      }}
-                    >
-                      {playingTrack?.index === index && playingTrack?.type === 'before' ? (
-                        <Pause className="w-4 h-4" />
-                      ) : (
-                        <Play className="w-4 h-4" />
-                      )}
-                    </button>
+        {audioLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : displaySamples.length === 0 ? (
+          <div className="text-center py-12 text-muted-foreground">
+            <p>No audio samples available yet. Check back soon!</p>
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-3 gap-6">
+            {displaySamples.map((sample, index) => (
+              <Card 
+                key={sample.id} 
+                className="border-border bg-card overflow-hidden transition-all duration-300 hover:shadow-glass hover:border-primary/30 hover:scale-105"
+                style={{
+                  animation: playingTrack?.index === index ? 'glow-pulse 2s ease-in-out infinite' : 'none'
+                }}
+              >
+                <CardHeader>
+                  <div className="flex items-center gap-2 mb-2">
+                    {sample.genre && (
+                      <span 
+                        className="px-2 py-1 text-xs rounded-full font-medium bg-primary/20 text-primary"
+                      >
+                        {sample.genre}
+                      </span>
+                    )}
+                    <span className="text-xs text-muted-foreground capitalize">{sample.category}</span>
                   </div>
-                  <canvas
-                    ref={(el) => {
-                      if (el) canvasRefs.current[`${index}-before`] = el;
-                    }}
-                    className="w-full h-16 rounded-lg"
-                    width="300"
-                    height="64"
-                  />
-                  <audio
-                    ref={(el) => {
-                      if (el) audioRefs.current[`${index}-before`] = el;
-                    }}
-                    onEnded={() => setPlayingTrack(null)}
-                  >
-                    <source src={track.beforeUrl} type="audio/mpeg" />
-                  </audio>
-                </div>
+                  <CardTitle className="text-lg">{sample.title}</CardTitle>
+                  {sample.description && (
+                    <p className="text-xs text-muted-foreground mt-2">{sample.description}</p>
+                  )}
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Before */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Before</span>
+                      <button
+                        onClick={() => togglePlay(index, 'before')}
+                        className="w-8 h-8 rounded-full bg-muted hover:bg-primary/20 flex items-center justify-center transition-all duration-300 hover:scale-110"
+                        style={{
+                          boxShadow: playingTrack?.index === index && playingTrack?.type === 'before' 
+                            ? '0 0 20px hsl(var(--primary))' 
+                            : 'none'
+                        }}
+                      >
+                        {playingTrack?.index === index && playingTrack?.type === 'before' ? (
+                          <Pause className="w-4 h-4" />
+                        ) : (
+                          <Play className="w-4 h-4" />
+                        )}
+                      </button>
+                    </div>
+                    <canvas
+                      ref={(el) => {
+                        if (el) canvasRefs.current[`${index}-before`] = el;
+                      }}
+                      className="w-full h-16 rounded-lg"
+                      width="300"
+                      height="64"
+                    />
+                    <audio
+                      ref={(el) => {
+                        if (el) audioRefs.current[`${index}-before`] = el;
+                      }}
+                      onEnded={() => setPlayingTrack(null)}
+                    >
+                      <source src={sample.beforeUrl} type="audio/mpeg" />
+                    </audio>
+                  </div>
 
-                {/* After */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-primary uppercase tracking-wider">After</span>
-                    <button
-                      onClick={() => togglePlay(index, 'after')}
-                      className="w-8 h-8 rounded-full bg-primary/20 hover:bg-primary/30 flex items-center justify-center transition-all duration-300 hover:scale-110"
-                      style={{
-                        boxShadow: playingTrack?.index === index && playingTrack?.type === 'after' 
-                          ? `0 0 20px ${trackDetails[index].color}` 
-                          : 'none'
+                  {/* After */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-semibold text-primary uppercase tracking-wider">After</span>
+                      <button
+                        onClick={() => togglePlay(index, 'after')}
+                        className="w-8 h-8 rounded-full bg-primary/20 hover:bg-primary/30 flex items-center justify-center transition-all duration-300 hover:scale-110"
+                        style={{
+                          boxShadow: playingTrack?.index === index && playingTrack?.type === 'after' 
+                            ? '0 0 20px hsl(var(--primary))' 
+                            : 'none'
+                        }}
+                      >
+                        {playingTrack?.index === index && playingTrack?.type === 'after' ? (
+                          <Pause className="w-4 h-4 text-primary" />
+                        ) : (
+                          <Play className="w-4 h-4 text-primary" />
+                        )}
+                      </button>
+                    </div>
+                    <canvas
+                      ref={(el) => {
+                        if (el) canvasRefs.current[`${index}-after`] = el;
                       }}
+                      className="w-full h-16 rounded-lg"
+                      width="300"
+                      height="64"
+                    />
+                    <audio
+                      ref={(el) => {
+                        if (el) audioRefs.current[`${index}-after`] = el;
+                      }}
+                      onEnded={() => setPlayingTrack(null)}
                     >
-                      {playingTrack?.index === index && playingTrack?.type === 'after' ? (
-                        <Pause className="w-4 h-4 text-primary" />
-                      ) : (
-                        <Play className="w-4 h-4 text-primary" />
-                      )}
-                    </button>
+                      <source src={sample.afterUrl} type="audio/mpeg" />
+                    </audio>
                   </div>
-                  <canvas
-                    ref={(el) => {
-                      if (el) canvasRefs.current[`${index}-after`] = el;
-                    }}
-                    className="w-full h-16 rounded-lg"
-                    width="300"
-                    height="64"
-                  />
-                  <audio
-                    ref={(el) => {
-                      if (el) audioRefs.current[`${index}-after`] = el;
-                    }}
-                    onEnded={() => setPlayingTrack(null)}
-                  >
-                    <source src={track.afterUrl} type="audio/mpeg" />
-                  </audio>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
         </div>
       </section>
     </div>
