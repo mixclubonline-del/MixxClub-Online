@@ -74,10 +74,8 @@ export const ArtistCRMSlideshow = ({ onComplete, onSkip }: ArtistCRMSlideshowPro
       if (currentSegment < scriptSegments.length - 1) {
         setCurrentSegment(prev => prev + 1);
       } else {
-        // Auto-complete after last segment
-        setTimeout(() => {
-          onComplete();
-        }, 1500);
+        // Loop back to start for continuous playback
+        setCurrentSegment(0);
       }
     }, segment.duration);
   };

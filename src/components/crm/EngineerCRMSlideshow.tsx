@@ -55,7 +55,8 @@ const EngineerCRMSlideshow = ({ onComplete, onSkip }: EngineerCRMSlideshowProps)
       if (currentSegment < scriptSegments.length - 1) {
         setCurrentSegment(currentSegment + 1);
       } else {
-        onComplete();
+        // Loop back to start for continuous playback
+        setCurrentSegment(0);
       }
     }, segment.duration);
   };
