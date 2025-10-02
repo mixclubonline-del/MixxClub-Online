@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import Navigation from '@/components/Navigation';
 import {
   LayoutDashboard,
   Users,
@@ -68,7 +69,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pt-20">
+      <Navigation />
       {/* Mobile Header */}
       <div className="lg:hidden border-b bg-card">
         <div className="flex items-center justify-between p-4">
