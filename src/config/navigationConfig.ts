@@ -115,15 +115,6 @@ const navigationItems: NavItem[] = [
     roles: ['artist', 'engineer', null],
     category: 'Discover',
   },
-
-  // Help (Bottom)
-  {
-    label: 'FAQ',
-    path: '/faq',
-    icon: HelpCircle,
-    roles: ['artist', 'engineer', null],
-    category: 'Help',
-  },
 ];
 
 export const getNavigationForRole = (role: UserRole): NavCategory[] => {

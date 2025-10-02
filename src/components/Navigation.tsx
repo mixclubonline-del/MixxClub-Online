@@ -45,7 +45,6 @@ const Navigation = () => {
         { to: "/for-engineers", label: "For Engineers" },
         { to: "/merch", label: "Merch Store", badge: "NEW" },
         { to: "/coming-soon", label: "Coming Soon" },
-        { to: "/faq", label: "FAQ" },
       ];
     }
 
@@ -58,7 +57,6 @@ const Navigation = () => {
         { to: "/distribution", label: "Distribution" },
         { to: "/merch", label: "Merch Store", badge: "NEW" },
         { to: "/coming-soon", label: "Coming Soon" },
-        { to: "/faq", label: "FAQ" },
       ];
     }
 
@@ -70,7 +68,6 @@ const Navigation = () => {
       { to: "/distribution", label: "Distribution", featured: true },
       { to: "/merch", label: "Merch Store", badge: "NEW" },
       { to: "/coming-soon", label: "Coming Soon" },
-      { to: "/faq", label: "FAQ" },
       ...(isFeatureEnabled('THE_LAB_ENABLED') ? [{ to: "/hybrid-daw", label: "The Lab" }] : []),
     ];
   };
