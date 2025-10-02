@@ -28,6 +28,7 @@ import { RealTimeCollaboration } from '@/components/RealTimeCollaboration';
 import { ArtistCRMChatbot } from '@/components/crm/ArtistCRMChatbot';
 import { ArtistCRMSlideshow } from '@/components/crm/ArtistCRMSlideshow';
 import { ArtistAssistantIntro } from '@/components/crm/ArtistAssistantIntro';
+import { DistributionWorkflow } from '@/components/crm/DistributionWorkflow';
 
 const ArtistCRM = () => {
   const { user } = useAuth();
@@ -316,10 +317,20 @@ const ArtistCRM = () => {
 
             {/* Projects Grid */}
             {projects.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {projects.map((project) => (
-                  <CompletedProjectCard key={project.id} project={project} />
-                ))}
+              <div className="space-y-6">
+                {/* Distribution CTA for Completed Projects */}
+                {projects.some((p: any) => p.status === 'completed') && (
+                  <DistributionWorkflow 
+                    projectId={projects.find((p: any) => p.status === 'completed')?.id || ''} 
+                    projectTitle={projects.find((p: any) => p.status === 'completed')?.title || ''} 
+                  />
+                )}
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {projects.map((project) => (
+                    <CompletedProjectCard key={project.id} project={project} />
+                  ))}
+                </div>
               </div>
             ) : (
               <Card className="p-12 text-center">

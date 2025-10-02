@@ -60,6 +60,7 @@ const Navigation = () => {
       { to: "/artist-crm", label: "Dashboard" },
       { to: "/mixing", label: "Mixing Magic" },
       { to: "/mastering", label: "Mastering Polish" },
+      { to: "/distribution", label: "Distribution", featured: true },
       ...(isFeatureEnabled('THE_LAB_ENABLED') ? [{ to: "/hybrid-daw", label: "The Lab" }] : []),
     ];
   };
