@@ -22,6 +22,13 @@ interface AdminLayoutProps {
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
   { name: 'Users', href: '/admin/users', icon: Users },
+  { name: 'Beat Files', href: '/admin/beat-files', icon: FileAudio },
+  { name: 'Contacts', href: '/admin/contacts', icon: Menu },
+  { name: 'Job Postings', href: '/admin/jobs', icon: Menu },
+  { name: 'Notifications', href: '/admin/notifications', icon: Menu },
+  { name: 'Sessions', href: '/admin/sessions', icon: Menu },
+  { name: 'Security', href: '/admin/security', icon: Settings },
+  { name: 'Achievements', href: '/admin/achievements', icon: Menu },
   { name: 'Packages', href: '/admin/packages', icon: Settings },
   { name: 'Feature Flags', href: '/admin/features', icon: Settings },
   { name: 'Financial', href: '/admin/financial', icon: Settings },

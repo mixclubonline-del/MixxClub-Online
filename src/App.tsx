@@ -36,6 +36,13 @@ import AdminFinancial from './pages/AdminFinancial';
 import AdminAnalytics from './pages/AdminAnalytics';
 import AdminContent from './pages/AdminContent';
 import AdminTestPayments from './pages/AdminTestPayments';
+import AdminBeatFiles from './pages/AdminBeatFiles';
+import AdminContacts from './pages/AdminContacts';
+import AdminJobs from './pages/AdminJobs';
+import AdminNotifications from './pages/AdminNotifications';
+import AdminSessions from './pages/AdminSessions';
+import AdminSecurity from './pages/AdminSecurity';
+import AdminAchievements from './pages/AdminAchievements';
 import { JobBoard } from './pages/JobBoard';
 import HybridDAW from "./pages/HybridDAW";
 import ProjectDetail from "./pages/ProjectDetail";
@@ -77,6 +84,13 @@ const App = () => (
             <Route path="/jobs" element={<JobBoard />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/beat-files" element={<AdminBeatFiles />} />
+            <Route path="/admin/contacts" element={<AdminContacts />} />
+            <Route path="/admin/jobs" element={<AdminJobs />} />
+            <Route path="/admin/notifications" element={<AdminNotifications />} />
+            <Route path="/admin/sessions" element={<AdminSessions />} />
+            <Route path="/admin/security" element={<AdminSecurity />} />
+            <Route path="/admin/achievements" element={<AdminAchievements />} />
             <Route path="/admin/packages" element={<AdminPackages />} />
             <Route path="/admin/features" element={<AdminFeatures />} />
             <Route path="/admin/financial" element={<AdminFinancial />} />
