@@ -30,6 +30,8 @@ import StudioDirectory from "./pages/StudioDirectory";
 import EducationalHub from "./pages/EducationalHub";
 import CourseViewer from "./pages/CourseViewer";
 import MyCertifications from "./pages/MyCertifications";
+import Marketplace from "./pages/Marketplace";
+import LabelServices from "./pages/LabelServices";
 import ForEngineers from "./pages/ForEngineers";
 import EngineerDirectory from "./pages/EngineerDirectory";
 import EngineerProfile from "./pages/EngineerProfile";
@@ -141,6 +143,10 @@ const App = () => (
             <Route path="/education" element={<EducationalHub />} />
             <Route path="/course/:courseId" element={<CourseViewer />} />
             <Route path="/my-certifications" element={<MyCertifications />} />
+            
+            {/* Tier 3 Features */}
+            <Route path="/marketplace" element={<Marketplace />} />
+            <Route path="/label-services" element={<LabelServices />} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

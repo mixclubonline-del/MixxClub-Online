@@ -1913,6 +1913,182 @@ export type Database = {
         }
         Relationships: []
       }
+      label_partnerships: {
+        Row: {
+          contact_email: string | null
+          created_at: string | null
+          featured: boolean | null
+          genres_specialized: string[] | null
+          id: string
+          is_active: boolean | null
+          label_description: string | null
+          label_name: string
+          logo_url: string | null
+          partnership_tier: string
+          social_links: Json | null
+          success_stories: Json | null
+          total_artists: number | null
+          updated_at: string | null
+          website_url: string | null
+          years_established: number | null
+        }
+        Insert: {
+          contact_email?: string | null
+          created_at?: string | null
+          featured?: boolean | null
+          genres_specialized?: string[] | null
+          id?: string
+          is_active?: boolean | null
+          label_description?: string | null
+          label_name: string
+          logo_url?: string | null
+          partnership_tier?: string
+          social_links?: Json | null
+          success_stories?: Json | null
+          total_artists?: number | null
+          updated_at?: string | null
+          website_url?: string | null
+          years_established?: number | null
+        }
+        Update: {
+          contact_email?: string | null
+          created_at?: string | null
+          featured?: boolean | null
+          genres_specialized?: string[] | null
+          id?: string
+          is_active?: boolean | null
+          label_description?: string | null
+          label_name?: string
+          logo_url?: string | null
+          partnership_tier?: string
+          social_links?: Json | null
+          success_stories?: Json | null
+          total_artists?: number | null
+          updated_at?: string | null
+          website_url?: string | null
+          years_established?: number | null
+        }
+        Relationships: []
+      }
+      label_service_requests: {
+        Row: {
+          artist_id: string
+          artist_links: Json | null
+          audio_samples: string[] | null
+          created_at: string | null
+          id: string
+          label_id: string
+          label_response: string | null
+          request_message: string
+          responded_at: string | null
+          service_id: string
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          artist_id: string
+          artist_links?: Json | null
+          audio_samples?: string[] | null
+          created_at?: string | null
+          id?: string
+          label_id: string
+          label_response?: string | null
+          request_message: string
+          responded_at?: string | null
+          service_id: string
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          artist_id?: string
+          artist_links?: Json | null
+          audio_samples?: string[] | null
+          created_at?: string | null
+          id?: string
+          label_id?: string
+          label_response?: string | null
+          request_message?: string
+          responded_at?: string | null
+          service_id?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "label_service_requests_label_id_fkey"
+            columns: ["label_id"]
+            isOneToOne: false
+            referencedRelation: "label_partnerships"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "label_service_requests_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "label_services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      label_services: {
+        Row: {
+          base_price: number | null
+          created_at: string | null
+          features: string[] | null
+          id: string
+          is_available: boolean | null
+          label_id: string
+          pricing_model: string
+          requirements: string[] | null
+          revenue_split_percentage: number | null
+          service_description: string | null
+          service_name: string
+          service_type: string
+          turnaround_days: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          base_price?: number | null
+          created_at?: string | null
+          features?: string[] | null
+          id?: string
+          is_available?: boolean | null
+          label_id: string
+          pricing_model?: string
+          requirements?: string[] | null
+          revenue_split_percentage?: number | null
+          service_description?: string | null
+          service_name: string
+          service_type: string
+          turnaround_days?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          base_price?: number | null
+          created_at?: string | null
+          features?: string[] | null
+          id?: string
+          is_available?: boolean | null
+          label_id?: string
+          pricing_model?: string
+          requirements?: string[] | null
+          revenue_split_percentage?: number | null
+          service_description?: string | null
+          service_name?: string
+          service_type?: string
+          turnaround_days?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "label_services_label_id_fkey"
+            columns: ["label_id"]
+            isOneToOne: false
+            referencedRelation: "label_partnerships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lesson_progress: {
         Row: {
           completed_at: string | null
@@ -1966,6 +2142,279 @@ export type Database = {
             columns: ["lesson_id"]
             isOneToOne: false
             referencedRelation: "course_lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_categories: {
+        Row: {
+          category_description: string | null
+          category_name: string
+          created_at: string | null
+          display_order: number | null
+          icon_name: string | null
+          id: string
+          is_active: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          category_description?: string | null
+          category_name: string
+          created_at?: string | null
+          display_order?: number | null
+          icon_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          category_description?: string | null
+          category_name?: string
+          created_at?: string | null
+          display_order?: number | null
+          icon_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      marketplace_earnings: {
+        Row: {
+          created_at: string | null
+          gross_amount: number
+          id: string
+          item_id: string
+          net_amount: number
+          payout_date: string | null
+          payout_status: string
+          platform_fee: number
+          purchase_id: string
+          seller_id: string
+          stripe_transfer_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          gross_amount: number
+          id?: string
+          item_id: string
+          net_amount: number
+          payout_date?: string | null
+          payout_status?: string
+          platform_fee: number
+          purchase_id: string
+          seller_id: string
+          stripe_transfer_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          gross_amount?: number
+          id?: string
+          item_id?: string
+          net_amount?: number
+          payout_date?: string | null
+          payout_status?: string
+          platform_fee?: number
+          purchase_id?: string
+          seller_id?: string
+          stripe_transfer_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_earnings_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketplace_earnings_purchase_id_fkey"
+            columns: ["purchase_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_purchases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_items: {
+        Row: {
+          average_rating: number | null
+          category_id: string | null
+          compatibility: Json | null
+          created_at: string | null
+          demo_video_url: string | null
+          download_count: number | null
+          featured: boolean | null
+          file_path: string | null
+          file_size: number | null
+          id: string
+          is_free: boolean | null
+          is_published: boolean | null
+          item_description: string | null
+          item_name: string
+          item_type: string
+          preview_audio_path: string | null
+          price: number
+          published_at: string | null
+          seller_id: string
+          tags: string[] | null
+          technical_specs: Json | null
+          thumbnail_url: string | null
+          total_revenue: number | null
+          total_reviews: number | null
+          total_sales: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          average_rating?: number | null
+          category_id?: string | null
+          compatibility?: Json | null
+          created_at?: string | null
+          demo_video_url?: string | null
+          download_count?: number | null
+          featured?: boolean | null
+          file_path?: string | null
+          file_size?: number | null
+          id?: string
+          is_free?: boolean | null
+          is_published?: boolean | null
+          item_description?: string | null
+          item_name: string
+          item_type: string
+          preview_audio_path?: string | null
+          price?: number
+          published_at?: string | null
+          seller_id: string
+          tags?: string[] | null
+          technical_specs?: Json | null
+          thumbnail_url?: string | null
+          total_revenue?: number | null
+          total_reviews?: number | null
+          total_sales?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          average_rating?: number | null
+          category_id?: string | null
+          compatibility?: Json | null
+          created_at?: string | null
+          demo_video_url?: string | null
+          download_count?: number | null
+          featured?: boolean | null
+          file_path?: string | null
+          file_size?: number | null
+          id?: string
+          is_free?: boolean | null
+          is_published?: boolean | null
+          item_description?: string | null
+          item_name?: string
+          item_type?: string
+          preview_audio_path?: string | null
+          price?: number
+          published_at?: string | null
+          seller_id?: string
+          tags?: string[] | null
+          technical_specs?: Json | null
+          thumbnail_url?: string | null
+          total_revenue?: number | null
+          total_reviews?: number | null
+          total_sales?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_items_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_purchases: {
+        Row: {
+          buyer_id: string
+          download_expires_at: string | null
+          download_url: string | null
+          id: string
+          item_id: string
+          payment_method: string | null
+          payment_status: string
+          purchase_price: number
+          purchased_at: string | null
+          stripe_payment_id: string | null
+        }
+        Insert: {
+          buyer_id: string
+          download_expires_at?: string | null
+          download_url?: string | null
+          id?: string
+          item_id: string
+          payment_method?: string | null
+          payment_status?: string
+          purchase_price: number
+          purchased_at?: string | null
+          stripe_payment_id?: string | null
+        }
+        Update: {
+          buyer_id?: string
+          download_expires_at?: string | null
+          download_url?: string | null
+          id?: string
+          item_id?: string
+          payment_method?: string | null
+          payment_status?: string
+          purchase_price?: number
+          purchased_at?: string | null
+          stripe_payment_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_purchases_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_reviews: {
+        Row: {
+          created_at: string | null
+          helpful_count: number | null
+          id: string
+          item_id: string
+          rating: number
+          review_text: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          helpful_count?: number | null
+          id?: string
+          item_id: string
+          rating: number
+          review_text?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          helpful_count?: number | null
+          id?: string
+          item_id?: string
+          rating?: number
+          review_text?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_reviews_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_items"
             referencedColumns: ["id"]
           },
         ]
