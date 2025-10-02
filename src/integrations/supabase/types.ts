@@ -95,6 +95,108 @@ export type Database = {
           },
         ]
       }
+      add_on_purchases: {
+        Row: {
+          add_on_id: string
+          amount: number
+          completed_at: string | null
+          created_at: string | null
+          currency: string | null
+          id: string
+          project_id: string | null
+          status: string
+          stripe_payment_intent_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          add_on_id: string
+          amount: number
+          completed_at?: string | null
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          project_id?: string | null
+          status?: string
+          stripe_payment_intent_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          add_on_id?: string
+          amount?: number
+          completed_at?: string | null
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          project_id?: string | null
+          status?: string
+          stripe_payment_intent_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "add_on_purchases_add_on_id_fkey"
+            columns: ["add_on_id"]
+            isOneToOne: false
+            referencedRelation: "add_on_services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "add_on_purchases_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      add_on_services: {
+        Row: {
+          created_at: string | null
+          currency: string | null
+          display_order: number | null
+          features: Json | null
+          id: string
+          is_active: boolean | null
+          price: number
+          processing_time_minutes: number | null
+          service_description: string | null
+          service_name: string
+          service_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          currency?: string | null
+          display_order?: number | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          price: number
+          processing_time_minutes?: number | null
+          service_description?: string | null
+          service_name: string
+          service_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          currency?: string | null
+          display_order?: number | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          price?: number
+          processing_time_minutes?: number | null
+          service_description?: string | null
+          service_name?: string
+          service_type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       admin_alerts: {
         Row: {
           alert_type: string
@@ -1653,65 +1755,51 @@ export type Database = {
       }
       distribution_packages: {
         Row: {
-          billing_cycle: string | null
+          billing_cycle: string
           created_at: string | null
+          currency: string | null
           display_order: number | null
           features: Json | null
           id: string
           is_active: boolean | null
-          max_releases: number | null
+          package_description: string | null
           package_name: string
-          package_type: string
           price: number
-          provider_id: string | null
-          revenue_split_percentage: number | null
-          stores_included: string[] | null
-          territory_coverage: string | null
+          releases_per_year: number
+          stores_included: Json | null
           updated_at: string | null
         }
         Insert: {
-          billing_cycle?: string | null
+          billing_cycle?: string
           created_at?: string | null
+          currency?: string | null
           display_order?: number | null
           features?: Json | null
           id?: string
           is_active?: boolean | null
-          max_releases?: number | null
+          package_description?: string | null
           package_name: string
-          package_type: string
-          price?: number
-          provider_id?: string | null
-          revenue_split_percentage?: number | null
-          stores_included?: string[] | null
-          territory_coverage?: string | null
+          price: number
+          releases_per_year: number
+          stores_included?: Json | null
           updated_at?: string | null
         }
         Update: {
-          billing_cycle?: string | null
+          billing_cycle?: string
           created_at?: string | null
+          currency?: string | null
           display_order?: number | null
           features?: Json | null
           id?: string
           is_active?: boolean | null
-          max_releases?: number | null
+          package_description?: string | null
           package_name?: string
-          package_type?: string
           price?: number
-          provider_id?: string | null
-          revenue_split_percentage?: number | null
-          stores_included?: string[] | null
-          territory_coverage?: string | null
+          releases_per_year?: number
+          stores_included?: Json | null
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "distribution_packages_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "white_label_providers"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       distribution_referrals: {
         Row: {
@@ -2557,9 +2645,13 @@ export type Database = {
           description: string | null
           genre: string | null
           id: string
+          is_premium: boolean | null
+          payment_status: string | null
+          posting_fee: number | null
           service_type: string
           status: string
           stems_prepared: boolean | null
+          stripe_payment_intent_id: string | null
           title: string
           updated_at: string
         }
@@ -2573,9 +2665,13 @@ export type Database = {
           description?: string | null
           genre?: string | null
           id?: string
+          is_premium?: boolean | null
+          payment_status?: string | null
+          posting_fee?: number | null
           service_type?: string
           status?: string
           stems_prepared?: boolean | null
+          stripe_payment_intent_id?: string | null
           title: string
           updated_at?: string
         }
@@ -2589,9 +2685,13 @@ export type Database = {
           description?: string | null
           genre?: string | null
           id?: string
+          is_premium?: boolean | null
+          payment_status?: string | null
+          posting_fee?: number | null
           service_type?: string
           status?: string
           stems_prepared?: boolean | null
+          stripe_payment_intent_id?: string | null
           title?: string
           updated_at?: string
         }
@@ -3420,13 +3520,6 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "music_releases_subscription_id_fkey"
-            columns: ["subscription_id"]
-            isOneToOne: false
-            referencedRelation: "user_distribution_subscriptions"
             referencedColumns: ["id"]
           },
         ]
@@ -4967,41 +5060,41 @@ export type Database = {
       }
       user_distribution_subscriptions: {
         Row: {
-          auto_renew: boolean | null
           created_at: string | null
-          expires_at: string | null
+          current_period_end: string | null
+          current_period_start: string | null
           id: string
-          metadata: Json | null
           package_id: string
           releases_used: number | null
           status: string
-          subscribed_at: string | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
-          auto_renew?: boolean | null
           created_at?: string | null
-          expires_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
           id?: string
-          metadata?: Json | null
           package_id: string
           releases_used?: number | null
           status?: string
-          subscribed_at?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
-          auto_renew?: boolean | null
           created_at?: string | null
-          expires_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
           id?: string
-          metadata?: Json | null
           package_id?: string
           releases_used?: number | null
           status?: string
-          subscribed_at?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           updated_at?: string | null
           user_id?: string
         }
@@ -5559,6 +5652,10 @@ export type Database = {
           target_value: number
           unlocked_at: string
         }[]
+      }
+      has_distribution_access: {
+        Args: { user_id: string }
+        Returns: boolean
       }
       has_mastering_access: {
         Args: { user_id: string }

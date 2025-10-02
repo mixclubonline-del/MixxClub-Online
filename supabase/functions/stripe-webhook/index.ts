@@ -46,7 +46,14 @@ serve(async (req) => {
 
       if (userId && packageId) {
         // Determine which table to insert into based on package type
-        const tableName = packageType === 'mixing' ? 'user_mixing_subscriptions' : 'user_mastering_subscriptions';
+        let tableName: string;
+        if (packageType === 'mixing') {
+          tableName = 'user_mixing_subscriptions';
+        } else if (packageType === 'distribution') {
+          tableName = 'user_distribution_subscriptions';
+        } else {
+          tableName = 'user_mastering_subscriptions';
+        }
         
         // Create user subscription record
         const { error } = await supabaseClient

@@ -5,8 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { DistributionPaywall } from "@/components/distribution/DistributionPaywall";
 import { 
-  Music, 
+  Music,
   Upload, 
   TrendingUp, 
   DollarSign, 
@@ -141,11 +142,17 @@ const DistributionHub = () => {
         </div>
 
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="packages">Packages</TabsTrigger>
             <TabsTrigger value="distributors">Distributors</TabsTrigger>
             <TabsTrigger value="releases">My Releases</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
+
+          {/* Packages Tab */}
+          <TabsContent value="packages">
+            <DistributionPaywall />
+          </TabsContent>
 
           {/* Distributors Tab */}
           <TabsContent value="distributors" className="space-y-6">

@@ -74,3 +74,9 @@ verify_jwt = false
 
 [functions.cleanup-rate-limits]
 verify_jwt = false
+
+[functions.create-distribution-checkout]
+verify_jwt = false
+
+[functions.create-addon-payment]
+verify_jwt = false
