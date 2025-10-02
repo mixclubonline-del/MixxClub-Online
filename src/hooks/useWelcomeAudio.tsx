@@ -33,16 +33,16 @@ export const useWelcomeAudio = (segmentCount: number) => {
   }, []);
 
   // Load audio file and create analyzer
-  const loadAudioFile = useCallback(async (intensity: number): Promise<AudioSegment> => {
+  const loadAudioFile = useCallback(async (fileName: string, intensity: number): Promise<AudioSegment> => {
     const ctx = audioContextRef.current!;
     
     // Get public URL from Supabase Storage
     const { data } = supabase.storage
       .from('media-library')
-      .getPublicUrl(`beats/trap-beat-${intensity}.mp3`);
+      .getPublicUrl(`beats/${fileName}`);
     
     if (!data?.publicUrl) {
-      throw new Error(`Failed to get URL for trap-beat-${intensity}.mp3`);
+      throw new Error(`Failed to get URL for ${fileName}`);
     }
     
     // Create audio element
@@ -119,17 +119,42 @@ export const useWelcomeAudio = (segmentCount: number) => {
     try {
       initAudioContext();
       
-      toast.loading('Loading trap beats...', { id: 'beats' });
+      toast.loading('Loading audio files...', { id: 'beats' });
       
-      // Load audio files for each intensity level
+      // List all audio files in the beats folder
+      const { data: files, error: listError } = await supabase.storage
+        .from('media-library')
+        .list('beats', {
+          limit: 100,
+          sortBy: { column: 'name', order: 'asc' }
+        });
+
+      if (listError) {
+        throw new Error(`Failed to list audio files: ${listError.message}`);
+      }
+
+      if (!files || files.length === 0) {
+        throw new Error('No audio files found in beats folder. Please upload via Admin > Audio Management.');
+      }
+
+      // Filter audio files and take only what we need
+      const audioFiles = files
+        .filter(file => file.name.match(/\.(mp3|wav|ogg)$/i))
+        .slice(0, segmentCount);
+
+      if (audioFiles.length < segmentCount) {
+        toast.error(`Found ${audioFiles.length} audio file(s), need ${segmentCount}. Please upload more.`);
+      }
+
+      // Load audio files
       const segments: AudioSegment[] = [];
-      for (let i = 1; i <= segmentCount; i++) {
+      for (let i = 0; i < audioFiles.length; i++) {
         try {
-          const segment = await loadAudioFile(i);
+          const segment = await loadAudioFile(audioFiles[i].name, i + 1);
           segments.push(segment);
         } catch (error) {
-          console.error(`Failed to load trap-beat-${i}.mp3:`, error);
-          toast.error(`Missing audio file: trap-beat-${i}.mp3. Please upload via Admin > Audio Management.`);
+          console.error(`Failed to load ${audioFiles[i].name}:`, error);
+          toast.error(`Failed to load: ${audioFiles[i].name}`);
           throw error;
         }
       }
@@ -137,11 +162,11 @@ export const useWelcomeAudio = (segmentCount: number) => {
       audioSegmentsRef.current = segments;
       setIsAudioEnabled(true);
       
-      toast.success('🔥 Trap beats loaded!', { id: 'beats' });
+      toast.success(`🔥 Loaded ${segments.length} audio file(s)!`, { id: 'beats' });
       
     } catch (error) {
       console.error('Error loading audio:', error);
-      toast.error('Failed to load audio files');
+      toast.error(error instanceof Error ? error.message : 'Failed to load audio files');
     } finally {
       setIsLoading(false);
     }
