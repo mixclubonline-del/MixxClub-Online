@@ -1,6 +1,10 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.58.0';
+import { checkRateLimit, rateLimitHeaders } from '../_shared/rate-limit.ts';
+import { analysisCache } from '../_shared/response-cache.ts';
+import { handleError, validateRequest, createResponse, AppError } from '../_shared/error-handler.ts';
+import { createLogger } from '../_shared/logger.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,12 +16,48 @@ const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const lovableApiKey = Deno.env.get('LOVABLE_API_KEY')!;
 
 serve(async (req) => {
+  const requestId = crypto.randomUUID();
+  const logger = createLogger('analyze-audio');
+  logger.setContext({ requestId });
+  const startTime = Date.now();
+  
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { fileId, filePath, fileName } = await req.json();
+    const body = await req.json();
+    logger.info('Received analysis request', { fileName: body.fileName });
+    
+    // Validate required fields
+    validateRequest(body, ['fileId', 'filePath', 'fileName']);
+    
+    const { fileId, filePath, fileName } = body;
+    
+    // Rate limiting - 10 requests per 5 minutes per file
+    const rateLimitResult = await checkRateLimit(
+      fileId,
+      { maxRequests: 10, windowMs: 5 * 60 * 1000, keyPrefix: 'analyze-audio' },
+      supabaseUrl,
+      supabaseServiceKey
+    );
+    
+    if (!rateLimitResult.allowed) {
+      logger.warn('Rate limit exceeded', { fileId });
+      throw new AppError('Rate limit exceeded. Please try again later.', 429, 'RATE_LIMIT_EXCEEDED');
+    }
+    
+    // Check cache first (5 minute TTL)
+    const cacheKey = `analysis:${fileId}`;
+    const cached = analysisCache.get(cacheKey);
+    
+    if (cached) {
+      logger.info('Returning cached analysis', { fileId });
+      return createResponse({
+        ...cached,
+        cached: true
+      }, 200, rateLimitHeaders(rateLimitResult));
+    }
     
     if (!fileId || !filePath) {
       return new Response(
@@ -28,7 +68,7 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     
-    console.log('Starting BPM analysis for file:', fileName);
+    logger.info('Starting AI-powered analysis', { fileName });
 
     // Use Lovable AI for audio analysis
     const analysisResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
@@ -148,20 +188,21 @@ Make educated estimates based on filename analysis and genre conventions.`
     });
 
     if (!analysisResponse.ok) {
-      console.error('AI analysis failed:', analysisResponse.status, await analysisResponse.text());
+      const errorText = await analysisResponse.text();
+      logger.warn('AI analysis failed, using fallback', { 
+        status: analysisResponse.status, 
+        error: errorText 
+      });
       
-      // Fallback analysis based on filename
       const fallbackAnalysis = generateFallbackAnalysis(fileName);
       
-      console.log('Using fallback analysis:', fallbackAnalysis);
+      // Cache fallback for 2 minutes
+      analysisCache.set(cacheKey, { analysis: fallbackAnalysis, source: 'fallback' }, 2 * 60 * 1000);
 
-      return new Response(
-        JSON.stringify({
-          analysis: fallbackAnalysis,
-          source: 'fallback'
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return createResponse({
+        analysis: fallbackAnalysis,
+        source: 'fallback'
+      }, 200, rateLimitHeaders(rateLimitResult));
     }
 
     const aiResponse = await analysisResponse.json();
@@ -181,28 +222,31 @@ Make educated estimates based on filename analysis and genre conventions.`
       analysis = generateFallbackAnalysis(fileName);
     }
 
-    console.log('BPM analysis completed for file:', fileName, analysis);
+    const duration = Date.now() - startTime;
+    logger.performance('Analysis completed', duration, { fileName, source: 'ai' });
+    
+    // Cache successful analysis for 5 minutes
+    const result = { analysis, source: 'ai' };
+    analysisCache.set(cacheKey, result, 5 * 60 * 1000);
 
-    return new Response(
-      JSON.stringify({
-        analysis,
-        source: 'ai'
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return createResponse(result, 200, rateLimitHeaders(rateLimitResult));
 
   } catch (error) {
-    console.error('Error in analyze-audio function:', error);
-    const fallbackAnalysis = generateFallbackAnalysis('unknown_file');
+    logger.error('Error in analyze-audio function', error);
     
-    return new Response(
-      JSON.stringify({ 
+    // Try fallback for graceful degradation
+    try {
+      const body = await req.clone().json();
+      const fallbackAnalysis = generateFallbackAnalysis(body.fileName || 'unknown_file');
+      
+      return createResponse({ 
         analysis: fallbackAnalysis,
-        source: 'error_fallback',
-        error: error instanceof Error ? error.message : 'Unknown error'
-      }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+        source: 'error_fallback'
+      });
+    } catch (fallbackError) {
+      const errorResponse = handleError(error, requestId);
+      return createResponse(errorResponse.body, errorResponse.status);
+    }
   }
 });
 
