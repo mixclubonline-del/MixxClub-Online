@@ -543,6 +543,57 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_financial_insights: {
+        Row: {
+          action_metadata: Json | null
+          action_taken: boolean | null
+          confidence_score: number | null
+          created_at: string | null
+          currency: string | null
+          description: string
+          expires_at: string | null
+          id: string
+          impact_amount: number | null
+          insight_type: string
+          metadata: Json | null
+          severity: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          action_metadata?: Json | null
+          action_taken?: boolean | null
+          confidence_score?: number | null
+          created_at?: string | null
+          currency?: string | null
+          description: string
+          expires_at?: string | null
+          id?: string
+          impact_amount?: number | null
+          insight_type: string
+          metadata?: Json | null
+          severity?: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          action_metadata?: Json | null
+          action_taken?: boolean | null
+          confidence_score?: number | null
+          created_at?: string | null
+          currency?: string | null
+          description?: string
+          expires_at?: string | null
+          id?: string
+          impact_amount?: number | null
+          insight_type?: string
+          metadata?: Json | null
+          severity?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       ai_mastering_presets: {
         Row: {
           compression_settings: Json
@@ -2374,6 +2425,89 @@ export type Database = {
           stems_generated?: boolean | null
           stems_paths?: Json | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      financial_actions_log: {
+        Row: {
+          action_description: string
+          action_type: string
+          created_at: string | null
+          error_message: string | null
+          executed_at: string | null
+          executed_by: string | null
+          id: string
+          insight_id: string | null
+          result: Json | null
+          status: string
+        }
+        Insert: {
+          action_description: string
+          action_type: string
+          created_at?: string | null
+          error_message?: string | null
+          executed_at?: string | null
+          executed_by?: string | null
+          id?: string
+          insight_id?: string | null
+          result?: Json | null
+          status?: string
+        }
+        Update: {
+          action_description?: string
+          action_type?: string
+          created_at?: string | null
+          error_message?: string | null
+          executed_at?: string | null
+          executed_by?: string | null
+          id?: string
+          insight_id?: string | null
+          result?: Json | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_actions_log_insight_id_fkey"
+            columns: ["insight_id"]
+            isOneToOne: false
+            referencedRelation: "ai_financial_insights"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      financial_forecasts: {
+        Row: {
+          confidence_interval_lower: number | null
+          confidence_interval_upper: number | null
+          created_at: string | null
+          factors: Json | null
+          forecast_date: string
+          forecast_type: string
+          id: string
+          model_accuracy: number | null
+          predicted_value: number
+        }
+        Insert: {
+          confidence_interval_lower?: number | null
+          confidence_interval_upper?: number | null
+          created_at?: string | null
+          factors?: Json | null
+          forecast_date: string
+          forecast_type: string
+          id?: string
+          model_accuracy?: number | null
+          predicted_value: number
+        }
+        Update: {
+          confidence_interval_lower?: number | null
+          confidence_interval_upper?: number | null
+          created_at?: string | null
+          factors?: Json | null
+          forecast_date?: string
+          forecast_type?: string
+          id?: string
+          model_accuracy?: number | null
+          predicted_value?: number
         }
         Relationships: []
       }
@@ -4476,6 +4610,69 @@ export type Database = {
           },
         ]
       }
+      revenue_analytics: {
+        Row: {
+          arr: number | null
+          average_revenue_per_user: number | null
+          churn_mrr: number | null
+          churn_rate: number | null
+          churned_customers: number | null
+          contraction_mrr: number | null
+          created_at: string | null
+          customer_acquisition_cost: number | null
+          customer_lifetime_value: number | null
+          expansion_mrr: number | null
+          id: string
+          mrr: number | null
+          new_customers: number | null
+          new_mrr: number | null
+          period_end: string
+          period_start: string
+          revenue_by_geography: Json | null
+          revenue_by_service: Json | null
+        }
+        Insert: {
+          arr?: number | null
+          average_revenue_per_user?: number | null
+          churn_mrr?: number | null
+          churn_rate?: number | null
+          churned_customers?: number | null
+          contraction_mrr?: number | null
+          created_at?: string | null
+          customer_acquisition_cost?: number | null
+          customer_lifetime_value?: number | null
+          expansion_mrr?: number | null
+          id?: string
+          mrr?: number | null
+          new_customers?: number | null
+          new_mrr?: number | null
+          period_end: string
+          period_start: string
+          revenue_by_geography?: Json | null
+          revenue_by_service?: Json | null
+        }
+        Update: {
+          arr?: number | null
+          average_revenue_per_user?: number | null
+          churn_mrr?: number | null
+          churn_rate?: number | null
+          churned_customers?: number | null
+          contraction_mrr?: number | null
+          created_at?: string | null
+          customer_acquisition_cost?: number | null
+          customer_lifetime_value?: number | null
+          expansion_mrr?: number | null
+          id?: string
+          mrr?: number | null
+          new_customers?: number | null
+          new_mrr?: number | null
+          period_end?: string
+          period_start?: string
+          revenue_by_geography?: Json | null
+          revenue_by_service?: Json | null
+        }
+        Relationships: []
+      }
       screen_shares: {
         Row: {
           ended_at: string | null
@@ -5721,6 +5918,10 @@ export type Database = {
           p_user_id?: string
         }
         Returns: boolean
+      }
+      update_revenue_analytics: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
     }
     Enums: {

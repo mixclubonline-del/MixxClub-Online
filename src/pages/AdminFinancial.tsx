@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { AdminLayout } from '@/components/admin/AdminLayout';
+import { AIFinancialController } from '@/components/admin/AIFinancialController';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { DollarSign, TrendingUp, Users, CreditCard, Calendar } from 'lucide-react';
+import { DollarSign, TrendingUp, Users, CreditCard, Calendar, Sparkles } from 'lucide-react';
 
 interface FinancialStats {
   totalRevenue: number;
@@ -118,7 +120,7 @@ export default function AdminFinancial() {
           <div>
             <h1 className="text-3xl font-bold">Financial Management</h1>
             <p className="text-muted-foreground">
-              Revenue analytics and transaction management
+              AI-powered financial insights and analytics
             </p>
           </div>
           <Select value={timeRange} onValueChange={setTimeRange}>
@@ -134,6 +136,21 @@ export default function AdminFinancial() {
             </SelectContent>
           </Select>
         </div>
+
+        <Tabs defaultValue="ai" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="ai" className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4" />
+              AI Insights
+            </TabsTrigger>
+            <TabsTrigger value="overview">Financial Overview</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="ai" className="space-y-4">
+            <AIFinancialController />
+          </TabsContent>
+
+          <TabsContent value="overview" className="space-y-4">
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <Card>
@@ -241,6 +258,8 @@ export default function AdminFinancial() {
             </div>
           </CardContent>
         </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </AdminLayout>
   );
