@@ -43,6 +43,7 @@ const Navigation = () => {
         { to: "/mixing", label: "Mixing Magic" },
         { to: "/mastering", label: "Mastering Polish" },
         { to: "/for-engineers", label: "For Engineers" },
+        { to: "/coming-soon", label: "Coming Soon" },
       ];
     }
 
@@ -53,6 +54,7 @@ const Navigation = () => {
         { to: "/mixing", label: "Mixing Studio" },
         { to: "/mastering", label: "Mastering Studio" },
         { to: "/distribution", label: "Distribution" },
+        { to: "/coming-soon", label: "Coming Soon" },
       ];
     }
 
@@ -62,6 +64,7 @@ const Navigation = () => {
       { to: "/mixing", label: "Mixing Magic" },
       { to: "/mastering", label: "Mastering Polish" },
       { to: "/distribution", label: "Distribution", featured: true },
+      { to: "/coming-soon", label: "Coming Soon" },
       ...(isFeatureEnabled('THE_LAB_ENABLED') ? [{ to: "/hybrid-daw", label: "The Lab" }] : []),
     ];
   };

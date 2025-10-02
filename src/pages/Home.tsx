@@ -1,11 +1,14 @@
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
+import { HomeShowcaseSlideshow } from "@/components/HomeShowcaseSlideshow";
 import { LiveCommunityCounter } from "@/components/home/LiveCommunityCounter";
 import { TierShowcase } from "@/components/home/TierShowcase";
 import { ValueProposition } from "@/components/home/ValueProposition";
 import { LiveActivityFeed } from "@/components/home/LiveActivityFeed";
 import { BeforeAfterComparison } from "@/components/BeforeAfterComparison";
 import { RecentSuccesses } from "@/components/RecentSuccesses";
+import { InstantDemoSection } from "@/components/InstantDemoSection";
+import { PackagesShop } from "@/components/crm/PackagesShop";
 import { useNavigate } from "react-router-dom";
 
 const Home = () => {
@@ -14,6 +17,9 @@ const Home = () => {
   return (
     <div className="min-h-screen">
       <Navigation />
+      
+      {/* Slideshow Introduction */}
+      <HomeShowcaseSlideshow />
       
       {/* Hero Section */}
       <Hero />
@@ -32,6 +38,33 @@ const Home = () => {
             </p>
           </div>
           <ValueProposition />
+        </div>
+      </section>
+
+      {/* Before/After Comparison - Moved here */}
+      <section className="py-20 bg-gradient-to-b from-[hsl(262_30%_8%)] to-background">
+        <div className="container px-6">
+          <BeforeAfterComparison />
+        </div>
+      </section>
+
+      {/* AI Mastering Trial */}
+      <InstantDemoSection />
+
+      {/* Packages Shop */}
+      <section className="py-20 bg-gradient-to-b from-background to-[hsl(262_30%_8%)]">
+        <div className="container px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-black mb-4">
+              <span className="bg-gradient-to-r from-primary via-accent-blue to-accent-cyan bg-clip-text text-transparent">
+                Choose Your Package
+              </span>
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Professional mixing and mastering services tailored to your needs
+            </p>
+          </div>
+          <PackagesShop />
         </div>
       </section>
 
@@ -57,7 +90,7 @@ const Home = () => {
       </section>
 
       {/* Social Proof */}
-      <section className="py-20 bg-gradient-to-b from-background to-[hsl(262_30%_8%)]">
+      <section className="py-20 bg-gradient-to-b from-[hsl(262_30%_8%)] to-background">
         <div className="container px-6">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-black mb-4">
@@ -71,9 +104,6 @@ const Home = () => {
           </div>
           
           <RecentSuccesses />
-          <div className="mt-16">
-            <BeforeAfterComparison />
-          </div>
         </div>
       </section>
 
