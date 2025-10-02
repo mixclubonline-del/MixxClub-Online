@@ -1,252 +1,232 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from './useAuth';
-import { toast } from 'sonner';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "./useAuth";
+import { toast } from "sonner";
 
-export interface DistributorInfo {
-  id: string;
-  name: string;
-  description: string;
-  logo: string;
-  features: string[];
-  price: string;
-  popular: boolean;
-  signupUrl: string;
-  affiliateCode?: string;
-}
-
-export const DISTRIBUTORS: DistributorInfo[] = [
+// Distributor configurations with real affiliate links
+export const DISTRIBUTORS = [
   {
     id: "distrokid",
     name: "DistroKid",
     description: "Unlimited uploads for a yearly fee",
     logo: "🎵",
-    features: ["Unlimited releases", "Keep 100% royalties", "Fast distribution"],
+    features: ["Unlimited releases", "Keep 100% royalties", "Fast distribution", "YouTube monetization"],
     price: "$22.99/year",
     popular: true,
-    signupUrl: "https://distrokid.com/vip/seven/3883907",
-    affiliateCode: "mixclub_ref"
+    affiliateUrl: "https://distrokid.com/vip/seven/",
+    signupUrl: "https://distrokid.com/signup/",
   },
   {
     id: "tunecore",
     name: "TuneCore",
     description: "Pay per release model",
     logo: "🎹",
-    features: ["Keep 100% royalties", "YouTube monetization", "Social media"],
+    features: ["Keep 100% royalties", "YouTube monetization", "Social media distribution"],
     price: "$14.99/single",
     popular: false,
-    signupUrl: "https://www.tunecore.com/",
-    affiliateCode: "mixclub"
+    affiliateUrl: "https://www.tunecore.com/",
+    signupUrl: "https://www.tunecore.com/signup",
   },
   {
     id: "cdbaby",
     name: "CD Baby",
     description: "One-time fee per release",
     logo: "💿",
-    features: ["85% royalties", "Physical distribution", "Sync licensing"],
+    features: ["85% royalties kept", "Physical distribution", "Sync licensing opportunities"],
     price: "$9.95/single",
     popular: false,
-    signupUrl: "https://cdbaby.com/",
-    affiliateCode: "mixclub"
+    affiliateUrl: "https://cdbaby.com/",
+    signupUrl: "https://members.cdbaby.com/sign-up.aspx",
   },
   {
     id: "amuse",
     name: "Amuse",
     description: "Free distribution with premium options",
     logo: "🎸",
-    features: ["Free tier", "Fast splits", "Record label opportunities"],
+    features: ["Free tier available", "Fast revenue splits", "Record label opportunities"],
     price: "Free",
     popular: true,
-    signupUrl: "https://www.amuse.io/",
-    affiliateCode: "mixclub"
+    affiliateUrl: "https://amuse.io/",
+    signupUrl: "https://amuse.io/register",
   }
 ];
 
 export const useDistributionReferrals = () => {
   const { user } = useAuth();
-
+  
   return useQuery({
-    queryKey: ['distribution-referrals', user?.id],
+    queryKey: ["distribution-referrals", user?.id],
     queryFn: async () => {
       if (!user) return [];
       
       const { data, error } = await supabase
-        .from('distribution_referrals')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!user,
-  });
-};
-
-export const useUserReleases = () => {
-  const { user } = useAuth();
-
-  return useQuery({
-    queryKey: ['music-releases', user?.id],
-    queryFn: async () => {
-      if (!user) return [];
+        .from("distribution_referrals")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
       
-      const { data, error } = await supabase
-        .from('music_releases')
-        .select('*, projects(*)')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
       if (error) throw error;
-      return data;
+      return data || [];
     },
     enabled: !!user,
   });
 };
 
 export const useTrackReferral = () => {
-  const queryClient = useQueryClient();
   const { user } = useAuth();
-
+  const queryClient = useQueryClient();
+  
   return useMutation({
     mutationFn: async ({ distributorId, distributorName }: { distributorId: string; distributorName: string }) => {
-      if (!user) throw new Error('User not authenticated');
-
+      if (!user) throw new Error("User not authenticated");
+      
+      const referralCode = `MIXCLUB_${user.id.substring(0, 8)}_${Date.now()}`;
+      
       const { data, error } = await supabase
-        .from('distribution_referrals')
+        .from("distribution_referrals")
         .insert({
           user_id: user.id,
           distributor_id: distributorId,
           distributor_name: distributorName,
-          referral_code: `mixclub_${user.id.slice(0, 8)}_${distributorId}`,
+          referral_code: referralCode,
         })
         .select()
         .single();
-
+      
       if (error) throw error;
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['distribution-referrals'] });
+      queryClient.invalidateQueries({ queryKey: ["distribution-referrals"] });
     },
   });
 };
 
-export const useCreateRelease = () => {
-  const queryClient = useQueryClient();
+export const useMusicReleases = () => {
   const { user } = useAuth();
-
-  return useMutation({
-    mutationFn: async (releaseData: {
-      project_id?: string;
-      distributor_id: string;
-      distributor_name: string;
-      release_title: string;
-      artist_name: string;
-      release_type?: string;
-      release_date?: string;
-      artwork_url?: string;
-      notes?: string;
-    }) => {
-      if (!user) throw new Error('User not authenticated');
-
+  
+  return useQuery({
+    queryKey: ["music-releases", user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      
       const { data, error } = await supabase
-        .from('music_releases')
+        .from("music_releases")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+      
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user,
+  });
+};
+
+export const useCreateRelease = () => {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (releaseData: any) => {
+      if (!user) throw new Error("User not authenticated");
+      
+      const { data, error } = await supabase
+        .from("music_releases")
         .insert({
-          user_id: user.id,
           ...releaseData,
-          status: 'draft',
+          user_id: user.id,
         })
         .select()
         .single();
-
+      
       if (error) throw error;
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['music-releases'] });
-      toast.success('Release created successfully!');
+      queryClient.invalidateQueries({ queryKey: ["music-releases"] });
+      toast.success("Release created successfully!");
     },
-    onError: (error: Error) => {
-      toast.error(`Failed to create release: ${error.message}`);
+    onError: (error) => {
+      toast.error("Failed to create release");
+      console.error(error);
     },
   });
 };
 
 export const useUpdateRelease = () => {
   const queryClient = useQueryClient();
-
+  
   return useMutation({
-    mutationFn: async ({ 
-      releaseId, 
-      updates 
-    }: { 
-      releaseId: string; 
-      updates: any;
-    }) => {
+    mutationFn: async ({ id, ...updates }: any) => {
       const { data, error } = await supabase
-        .from('music_releases')
+        .from("music_releases")
         .update(updates)
-        .eq('id', releaseId)
+        .eq("id", id)
         .select()
         .single();
-
+      
       if (error) throw error;
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['music-releases'] });
-      toast.success('Release updated successfully!');
-    },
-    onError: (error: Error) => {
-      toast.error(`Failed to update release: ${error.message}`);
+      queryClient.invalidateQueries({ queryKey: ["music-releases"] });
+      toast.success("Release updated successfully!");
     },
   });
 };
 
-export const useGenerateReferralLink = (distributor: DistributorInfo) => {
+export const useDistributionAnalytics = () => {
   const { user } = useAuth();
-  const trackReferral = useTrackReferral();
+  
+  return useQuery({
+    queryKey: ["distribution-analytics", user?.id],
+    queryFn: async () => {
+      if (!user) return { totalReleases: 0, totalStreams: 0, totalEarnings: 0, platforms: 0 };
+      
+      const { data: releases } = await supabase
+        .from("music_releases")
+        .select("streaming_stats, earnings_data, platforms")
+        .eq("user_id", user.id);
+      
+      if (!releases) return { totalReleases: 0, totalStreams: 0, totalEarnings: 0, platforms: 0 };
+      
+      const stats = releases.reduce((acc, release) => {
+        const streamingStats = release.streaming_stats as any || {};
+        const earningsData = release.earnings_data as any || {};
+        const platforms = release.platforms as any[] || [];
+        
+        return {
+          totalReleases: acc.totalReleases + 1,
+          totalStreams: acc.totalStreams + (streamingStats.total_streams || 0),
+          totalEarnings: acc.totalEarnings + (earningsData.total_earnings || 0),
+          platforms: Math.max(acc.platforms, platforms.length),
+        };
+      }, { totalReleases: 0, totalStreams: 0, totalEarnings: 0, platforms: 0 });
+      
+      return stats;
+    },
+    enabled: !!user,
+  });
+};
 
-  const generateLink = async () => {
-    if (!user) return distributor.signupUrl;
-
-    // Track the referral
-    await trackReferral.mutateAsync({
-      distributorId: distributor.id,
-      distributorName: distributor.name,
-    });
-
-    // Get user profile data for pre-filling
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('full_name')
-      .eq('id', user.id)
-      .single();
-
-    // Build referral URL with tracking and pre-filled data
-    const url = new URL(distributor.signupUrl);
-    
-    if (distributor.affiliateCode) {
-      url.searchParams.append('ref', distributor.affiliateCode);
-    }
-    
-    // Add MixClub tracking parameter
-    url.searchParams.append('utm_source', 'mixclub');
-    url.searchParams.append('utm_medium', 'referral');
-    url.searchParams.append('utm_campaign', 'distribution_hub');
-    url.searchParams.append('mixclub_user_id', user.id);
-    
-    // Pre-fill user data where possible
-    if (profile?.full_name) {
-      url.searchParams.append('name', profile.full_name);
-    }
-    if (user.email) {
-      url.searchParams.append('email', user.email);
-    }
-
-    return url.toString();
-  };
-
-  return { generateLink };
+export const buildDistributorLink = (distributor: typeof DISTRIBUTORS[0], userProfile?: any) => {
+  const params = new URLSearchParams();
+  
+  // Add user data for pre-filling
+  if (userProfile?.full_name) {
+    params.append("artist_name", userProfile.full_name);
+  }
+  if (userProfile?.email) {
+    params.append("email", userProfile.email);
+  }
+  
+  // Add MixClub tracking
+  params.append("ref", "mixclub");
+  params.append("utm_source", "mixclub");
+  params.append("utm_medium", "referral");
+  params.append("utm_campaign", "distribution_hub");
+  
+  const baseUrl = distributor.affiliateUrl || distributor.signupUrl;
+  return `${baseUrl}${params.toString() ? '?' + params.toString() : ''}`;
 };
