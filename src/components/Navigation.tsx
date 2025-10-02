@@ -42,7 +42,7 @@ const Navigation = () => {
       return [
         { to: "/mixing", label: "Mixing Magic" },
         { to: "/mastering", label: "Mastering Polish" },
-        { to: "/beat-battle", label: "Beat Battles", featured: true },
+        { to: "/mix-battles", label: "Mix Battles", featured: true },
         { to: "/for-engineers", label: "For Engineers" },
       ];
     }
@@ -51,7 +51,7 @@ const Navigation = () => {
       return [
         { to: "/engineer-crm", label: "Dashboard" },
         { to: "/jobs", label: "Job Board" },
-        { to: "/beat-battle", label: "Beat Battles" },
+        { to: "/mix-battles", label: "Mix Battles" },
         { to: "/mixing", label: "Mixing Studio" },
         { to: "/mastering", label: "Mastering Studio" },
       ];
@@ -60,7 +60,7 @@ const Navigation = () => {
     // Artists and clients
     return [
       { to: "/artist-crm", label: "Dashboard" },
-      { to: "/beat-battle", label: "Beat Battles" },
+      { to: "/mix-battles", label: "Mix Battles" },
       { to: "/mixing", label: "Mixing Magic" },
       { to: "/mastering", label: "Mastering Polish" },
       ...(isFeatureEnabled('THE_LAB_ENABLED') ? [{ to: "/hybrid-daw", label: "The Lab" }] : []),

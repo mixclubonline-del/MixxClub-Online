@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 export interface CommunityMilestone {
+  id: string;
   feature_key: string;
   milestone_name: string;
   milestone_description: string | null;
@@ -22,6 +23,7 @@ export const useCommunityMilestones = () => {
       const { data, error } = await supabase
         .from("community_milestones")
         .select(`
+          id,
           feature_key,
           milestone_name,
           milestone_description,
@@ -45,7 +47,7 @@ export const useCommunityMilestones = () => {
           const { count } = await supabase
             .from("milestone_contributors")
             .select("user_id", { count: "exact", head: true })
-            .eq("milestone_id", milestone.feature_key);
+            .eq("milestone_id", milestone.id);
 
           return {
             ...milestone,
