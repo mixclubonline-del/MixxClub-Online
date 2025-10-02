@@ -7,11 +7,11 @@ import { useWelcomeAudio } from '@/hooks/useWelcomeAudio';
 import { useAudioReactivity } from '@/hooks/useAudioReactivity';
 
 const scriptSegments = [
-  { text: "Welcome to the club — Mixx Club Online.", duration: 2500, focus: 'center' },
-  { text: "Engineers, this is your stage.", duration: 3000, focus: 'left' },
-  { text: "Get paid, get recognized, and use powerful tools", duration: 3500, focus: 'right' },
-  { text: "to take your craft to the next level.", duration: 3500, focus: 'center-zoom' },
-  { text: "The future of mixing is here.", duration: 3000, focus: 'full' }
+  { text: "Welcome to the club — Mixx Club Online.", duration: 5000, focus: 'center' },
+  { text: "Engineers, this is your stage.", duration: 6000, focus: 'left' },
+  { text: "Get paid, get recognized, and use powerful tools", duration: 7000, focus: 'right' },
+  { text: "to take your craft to the next level.", duration: 7000, focus: 'center-zoom' },
+  { text: "The future of mixing is here.", duration: 6000, focus: 'full' }
 ];
 
 interface EngineerCRMSlideshowProps {

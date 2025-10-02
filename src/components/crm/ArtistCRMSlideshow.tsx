@@ -9,27 +9,27 @@ import { useAudioReactivity } from "@/hooks/useAudioReactivity";
 const scriptSegments = [
   { 
     text: "Welcome to the club — Mixx Club Online.", 
-    duration: 2500,
+    duration: 5000,
     focus: "center",
   },
   { 
     text: "Artists, this is where your bedroom recordings", 
-    duration: 3000,
+    duration: 6000,
     focus: "left",
   },
   { 
     text: "get transformed into billboard-ready tracks.", 
-    duration: 3500,
+    duration: 7000,
     focus: "right",
   },
   { 
     text: "Upload your music, connect with real engineers,", 
-    duration: 3500,
+    duration: 7000,
     focus: "center-zoom",
   },
   { 
     text: "and level up your sound.", 
-    duration: 3000,
+    duration: 6000,
     focus: "full",
   },
 ];
