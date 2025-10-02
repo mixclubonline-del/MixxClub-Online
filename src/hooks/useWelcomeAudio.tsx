@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AudioSegment {
   intensity: number;
@@ -35,8 +36,17 @@ export const useWelcomeAudio = (segmentCount: number) => {
   const loadAudioFile = useCallback(async (intensity: number): Promise<AudioSegment> => {
     const ctx = audioContextRef.current!;
     
+    // Get public URL from Supabase Storage
+    const { data } = supabase.storage
+      .from('media-library')
+      .getPublicUrl(`beats/trap-beat-${intensity}.mp3`);
+    
+    if (!data?.publicUrl) {
+      throw new Error(`Failed to get URL for trap-beat-${intensity}.mp3`);
+    }
+    
     // Create audio element
-    const audio = new Audio(`/audio/trap-beat-${intensity}.mp3`);
+    const audio = new Audio(data.publicUrl);
     audio.loop = true;
     audio.crossOrigin = 'anonymous';
     
@@ -119,7 +129,7 @@ export const useWelcomeAudio = (segmentCount: number) => {
           segments.push(segment);
         } catch (error) {
           console.error(`Failed to load trap-beat-${i}.mp3:`, error);
-          toast.error(`Missing audio file: trap-beat-${i}.mp3. Please add audio files to /public/audio/`);
+          toast.error(`Missing audio file: trap-beat-${i}.mp3. Please upload via Admin > Audio Management.`);
           throw error;
         }
       }
