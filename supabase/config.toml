@@ -119,3 +119,9 @@ verify_jwt = false
 
 [functions.send-attorney-notification-email]
 verify_jwt = false
+
+[functions.printful-sync-products]
+verify_jwt = true
+
+[functions.printful-create-order]
+verify_jwt = true

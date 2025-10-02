@@ -72,6 +72,7 @@ import PresentationShare from './pages/PresentationShare';
 import { JobBoard } from './pages/JobBoard';
 import HybridDAW from "./pages/HybridDAW";
 import ProjectDetail from "./pages/ProjectDetail";
+import MerchStore from "./pages/MerchStore";
 import NotFound from "./pages/NotFound";
 import MobileHome from "./pages/MobileHome";
 import MobileLanding from "./pages/MobileLanding";
@@ -173,6 +174,9 @@ const App = () => (
             <Route path="/integrations" element={<Integrations />} />
             <Route path="/ai-audio-intelligence" element={<AIAudioIntelligence />} />
             <Route path="/distribution" element={<DistributionHub />} />
+            
+            {/* Merch Store */}
+            <Route path="/merch" element={<MerchStore />} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
