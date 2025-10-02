@@ -137,6 +137,119 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_calendar_events: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          description: string | null
+          event_date: string
+          event_type: string
+          id: string
+          is_recurring: boolean | null
+          metadata: Json | null
+          priority: string | null
+          recurrence_rule: string | null
+          reminder_date: string | null
+          status: string
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          event_date: string
+          event_type: string
+          id?: string
+          is_recurring?: boolean | null
+          metadata?: Json | null
+          priority?: string | null
+          recurrence_rule?: string | null
+          reminder_date?: string | null
+          status?: string
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          event_date?: string
+          event_type?: string
+          id?: string
+          is_recurring?: boolean | null
+          metadata?: Json | null
+          priority?: string | null
+          recurrence_rule?: string | null
+          reminder_date?: string | null
+          status?: string
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      affiliate_commissions: {
+        Row: {
+          amount: number
+          commission_type: string
+          created_at: string | null
+          currency: string | null
+          description: string | null
+          id: string
+          metadata: Json | null
+          payment_method: string | null
+          payout_date: string | null
+          referral_id: string | null
+          status: string
+          transaction_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          commission_type: string
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_method?: string | null
+          payout_date?: string | null
+          referral_id?: string | null
+          status?: string
+          transaction_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          commission_type?: string
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_method?: string | null
+          payout_date?: string | null
+          referral_id?: string | null
+          status?: string
+          transaction_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_commissions_referral_id_fkey"
+            columns: ["referral_id"]
+            isOneToOne: false
+            referencedRelation: "distribution_referrals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_audio_profiles: {
         Row: {
           ai_model_version: string | null
@@ -1534,6 +1647,68 @@ export type Database = {
             columns: ["release_id"]
             isOneToOne: false
             referencedRelation: "music_releases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      distribution_packages: {
+        Row: {
+          billing_cycle: string | null
+          created_at: string | null
+          display_order: number | null
+          features: Json | null
+          id: string
+          is_active: boolean | null
+          max_releases: number | null
+          package_name: string
+          package_type: string
+          price: number
+          provider_id: string | null
+          revenue_split_percentage: number | null
+          stores_included: string[] | null
+          territory_coverage: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          billing_cycle?: string | null
+          created_at?: string | null
+          display_order?: number | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          max_releases?: number | null
+          package_name: string
+          package_type: string
+          price?: number
+          provider_id?: string | null
+          revenue_split_percentage?: number | null
+          stores_included?: string[] | null
+          territory_coverage?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          billing_cycle?: string | null
+          created_at?: string | null
+          display_order?: number | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          max_releases?: number | null
+          package_name?: string
+          package_type?: string
+          price?: number
+          provider_id?: string | null
+          revenue_split_percentage?: number | null
+          stores_included?: string[] | null
+          territory_coverage?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "distribution_packages_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "white_label_providers"
             referencedColumns: ["id"]
           },
         ]
@@ -3168,6 +3343,7 @@ export type Database = {
           created_at: string | null
           distributor_id: string
           distributor_name: string
+          distributor_type: string | null
           earnings_data: Json | null
           id: string
           isrc_codes: Json | null
@@ -3181,6 +3357,7 @@ export type Database = {
           spotify_url: string | null
           status: string | null
           streaming_stats: Json | null
+          subscription_id: string | null
           upc_code: string | null
           updated_at: string | null
           user_id: string
@@ -3192,6 +3369,7 @@ export type Database = {
           created_at?: string | null
           distributor_id: string
           distributor_name: string
+          distributor_type?: string | null
           earnings_data?: Json | null
           id?: string
           isrc_codes?: Json | null
@@ -3205,6 +3383,7 @@ export type Database = {
           spotify_url?: string | null
           status?: string | null
           streaming_stats?: Json | null
+          subscription_id?: string | null
           upc_code?: string | null
           updated_at?: string | null
           user_id: string
@@ -3216,6 +3395,7 @@ export type Database = {
           created_at?: string | null
           distributor_id?: string
           distributor_name?: string
+          distributor_type?: string | null
           earnings_data?: Json | null
           id?: string
           isrc_codes?: Json | null
@@ -3229,6 +3409,7 @@ export type Database = {
           spotify_url?: string | null
           status?: string | null
           streaming_stats?: Json | null
+          subscription_id?: string | null
           upc_code?: string | null
           updated_at?: string | null
           user_id?: string
@@ -3239,6 +3420,13 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "music_releases_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "user_distribution_subscriptions"
             referencedColumns: ["id"]
           },
         ]
@@ -3673,6 +3861,71 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      playlist_submissions: {
+        Row: {
+          created_at: string | null
+          curator_email: string | null
+          id: string
+          metadata: Json | null
+          pitch_message: string | null
+          platform: string
+          playlist_curator: string | null
+          playlist_name: string
+          playlist_url: string | null
+          release_id: string | null
+          response_date: string | null
+          submission_date: string | null
+          submission_status: string | null
+          track_url: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          curator_email?: string | null
+          id?: string
+          metadata?: Json | null
+          pitch_message?: string | null
+          platform: string
+          playlist_curator?: string | null
+          playlist_name: string
+          playlist_url?: string | null
+          release_id?: string | null
+          response_date?: string | null
+          submission_date?: string | null
+          submission_status?: string | null
+          track_url?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          curator_email?: string | null
+          id?: string
+          metadata?: Json | null
+          pitch_message?: string | null
+          platform?: string
+          playlist_curator?: string | null
+          playlist_name?: string
+          playlist_url?: string | null
+          release_id?: string | null
+          response_date?: string | null
+          submission_date?: string | null
+          submission_status?: string | null
+          track_url?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "playlist_submissions_release_id_fkey"
+            columns: ["release_id"]
+            isOneToOne: false
+            referencedRelation: "music_releases"
             referencedColumns: ["id"]
           },
         ]
@@ -4712,6 +4965,56 @@ export type Database = {
           },
         ]
       }
+      user_distribution_subscriptions: {
+        Row: {
+          auto_renew: boolean | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          metadata: Json | null
+          package_id: string
+          releases_used: number | null
+          status: string
+          subscribed_at: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          auto_renew?: boolean | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          metadata?: Json | null
+          package_id: string
+          releases_used?: number | null
+          status?: string
+          subscribed_at?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          auto_renew?: boolean | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          metadata?: Json | null
+          package_id?: string
+          releases_used?: number | null
+          status?: string
+          subscribed_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_distribution_subscriptions_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "distribution_packages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_enrollments: {
         Row: {
           certificate_id: string | null
@@ -5038,6 +5341,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      white_label_providers: {
+        Row: {
+          api_endpoint: string | null
+          api_key_required: boolean | null
+          created_at: string | null
+          features: Json | null
+          id: string
+          is_active: boolean | null
+          pricing_model: Json | null
+          provider_name: string
+          provider_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          api_endpoint?: string | null
+          api_key_required?: boolean | null
+          created_at?: string | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          pricing_model?: Json | null
+          provider_name: string
+          provider_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          api_endpoint?: string | null
+          api_key_required?: boolean | null
+          created_at?: string | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          pricing_model?: Json | null
+          provider_name?: string
+          provider_type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
     }
     Views: {
