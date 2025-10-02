@@ -27,6 +27,7 @@ import MixingShowcase from "./pages/MixingShowcase";
 import MasteringShowcase from "./pages/MasteringShowcase";
 import BattleTournaments from "./pages/BattleTournaments";
 import StudioDirectory from "./pages/StudioDirectory";
+import EducationHub from "./pages/EducationHub";
 import ForEngineers from "./pages/ForEngineers";
 import EngineerDirectory from "./pages/EngineerDirectory";
 import EngineerProfile from "./pages/EngineerProfile";
@@ -133,6 +134,9 @@ const App = () => (
             {/* Tier 1 Features */}
             <Route path="/battle-tournaments" element={<BattleTournaments />} />
             <Route path="/studio-directory" element={<StudioDirectory />} />
+            
+            {/* Tier 2 Features */}
+            <Route path="/education-hub" element={<EducationHub />} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
