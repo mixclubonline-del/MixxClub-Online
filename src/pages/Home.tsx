@@ -114,74 +114,121 @@ const Home = () => {
       {/* Footer */}
       <footer className="border-t border-border py-12 bg-card">
         <div className="container px-6">
-          <div className="max-w-7xl mx-auto">
-            <div className="grid md:grid-cols-4 gap-8 mb-8">
-              <div className="md:col-span-2">
-                <h3 className="text-2xl font-black mb-3 bg-gradient-to-r from-primary to-accent-blue bg-clip-text text-transparent">
-                  MixClubOnline
-                </h3>
-                <p className="text-muted-foreground mb-4">
-                  By musicians, for musicians. Join the community that's redefining music collaboration.
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  © 2025 MixClubOnline. All rights reserved.
-                </p>
-              </div>
-              
-              <div>
-                <h4 className="font-bold mb-3">Platform</h4>
-                <div className="space-y-2">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            {/* Brand */}
+            <div className="col-span-1">
+              <h3 className="text-xl font-bold mb-4 bg-gradient-to-r from-primary to-accent-blue bg-clip-text text-transparent">
+                MixClub
+              </h3>
+              <p className="text-muted-foreground text-sm">
+                Connecting artists with world-class audio engineers for professional mixing and mastering.
+              </p>
+            </div>
+
+            {/* Services */}
+            <div>
+              <h4 className="font-semibold mb-4">Services</h4>
+              <ul className="space-y-2">
+                <li>
                   <button
-                    onClick={() => navigate('/mixing')}
-                    className="block text-sm text-muted-foreground hover:text-primary transition-colors"
+                    onClick={() => navigate("/mixing")}
+                    className="text-muted-foreground hover:text-primary text-sm transition-colors"
                   >
                     Mixing
                   </button>
+                </li>
+                <li>
                   <button
-                    onClick={() => navigate('/mastering')}
-                    className="block text-sm text-muted-foreground hover:text-primary transition-colors"
+                    onClick={() => navigate("/mastering")}
+                    className="text-muted-foreground hover:text-primary text-sm transition-colors"
                   >
                     Mastering
                   </button>
+                </li>
+                <li>
                   <button
-                    onClick={() => navigate('/artist-crm')}
-                    className="block text-sm text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    Artist Dashboard
-                  </button>
-                  <button
-                    onClick={() => navigate('/engineer-crm')}
-                    className="block text-sm text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    Engineer Dashboard
-                  </button>
-                </div>
-              </div>
-              
-              <div>
-                <h4 className="font-bold mb-3">Community</h4>
-                <div className="space-y-2">
-                  <button
-                    onClick={() => navigate('/leaderboard')}
-                    className="block text-sm text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    Leaderboard
-                  </button>
-                  <button
-                    onClick={() => navigate('/how-it-works')}
-                    className="block text-sm text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    How It Works
-                  </button>
-                  <button
-                    onClick={() => navigate('/for-engineers')}
-                    className="block text-sm text-muted-foreground hover:text-primary transition-colors"
+                    onClick={() => navigate("/for-engineers")}
+                    className="text-muted-foreground hover:text-primary text-sm transition-colors"
                   >
                     For Engineers
                   </button>
-                </div>
-              </div>
+                </li>
+                <li>
+                  <button
+                    onClick={() => navigate("/engineers")}
+                    className="text-muted-foreground hover:text-primary text-sm transition-colors"
+                  >
+                    Find Engineers
+                  </button>
+                </li>
+              </ul>
             </div>
+
+            {/* Company */}
+            <div>
+              <h4 className="font-semibold mb-4">Company</h4>
+              <ul className="space-y-2">
+                <li>
+                  <button
+                    onClick={() => navigate("/how-it-works")}
+                    className="text-muted-foreground hover:text-primary text-sm transition-colors"
+                  >
+                    How It Works
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => navigate("/faq")}
+                    className="text-muted-foreground hover:text-primary text-sm transition-colors"
+                  >
+                    FAQ
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => navigate("/terms")}
+                    className="text-muted-foreground hover:text-primary text-sm transition-colors"
+                  >
+                    Terms of Service
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => navigate("/privacy")}
+                    className="text-muted-foreground hover:text-primary text-sm transition-colors"
+                  >
+                    Privacy Policy
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            {/* Connect */}
+            <div>
+              <h4 className="font-semibold mb-4">Connect</h4>
+              <ul className="space-y-2">
+                <li>
+                  <a
+                    href="mailto:support@mixclubonline.com"
+                    className="text-muted-foreground hover:text-primary text-sm transition-colors"
+                  >
+                    Support
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="mailto:legal@mixclubonline.com"
+                    className="text-muted-foreground hover:text-primary text-sm transition-colors"
+                  >
+                    Legal
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t border-border mt-8 pt-8 text-center text-sm text-muted-foreground">
+            <p>&copy; 2025 MixClub. All rights reserved.</p>
           </div>
         </div>
       </footer>
