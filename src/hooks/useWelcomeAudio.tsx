@@ -1,11 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 interface AudioSegment {
   intensity: number;
-  audioUrl: string | null;
-  analyser: AnalyserNode | null;
+  oscillators: OscillatorNode[];
+  analyser: AnalyserNode;
 }
 
 export const useWelcomeAudio = (segmentCount: number) => {
@@ -17,9 +16,10 @@ export const useWelcomeAudio = (segmentCount: number) => {
   
   const audioContextRef = useRef<AudioContext | null>(null);
   const audioSegmentsRef = useRef<AudioSegment[]>([]);
-  const currentSourceRef = useRef<AudioBufferSourceNode | null>(null);
+  const currentOscillatorsRef = useRef<OscillatorNode[]>([]);
   const gainNodeRef = useRef<GainNode | null>(null);
   const audioDataRef = useRef<Uint8Array>(new Uint8Array(128));
+  const beatIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Initialize audio context
   const initAudioContext = useCallback(() => {
@@ -30,47 +30,144 @@ export const useWelcomeAudio = (segmentCount: number) => {
     }
   }, []);
 
-  // Request audio permission and load beats
+  // Generate trap beat using Web Audio API
+  const generateTrapBeat = useCallback((intensity: number): AudioSegment => {
+    const ctx = audioContextRef.current!;
+    const analyser = ctx.createAnalyser();
+    analyser.fftSize = 256;
+    analyser.connect(gainNodeRef.current!);
+
+    return {
+      intensity,
+      oscillators: [],
+      analyser
+    };
+  }, []);
+
+  // Play a kick drum sound
+  const playKick = useCallback((intensity: number) => {
+    const ctx = audioContextRef.current!;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    
+    osc.frequency.setValueAtTime(150, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+    
+    gain.gain.setValueAtTime(1, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+    
+    const segment = audioSegmentsRef.current[currentSegment];
+    if (segment) {
+      osc.connect(gain);
+      gain.connect(segment.analyser);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.5);
+    }
+  }, [currentSegment]);
+
+  // Play a hi-hat sound
+  const playHiHat = useCallback(() => {
+    const ctx = audioContextRef.current!;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    
+    osc.frequency.setValueAtTime(8000 + Math.random() * 2000, ctx.currentTime);
+    osc.type = 'square';
+    
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05);
+    
+    const segment = audioSegmentsRef.current[currentSegment];
+    if (segment) {
+      osc.connect(gain);
+      gain.connect(segment.analyser);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.05);
+    }
+  }, [currentSegment]);
+
+  // Play a snare sound
+  const playSnare = useCallback(() => {
+    const ctx = audioContextRef.current!;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    
+    osc.frequency.setValueAtTime(200, ctx.currentTime);
+    osc.type = 'triangle';
+    
+    gain.gain.setValueAtTime(0.8, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+    
+    const segment = audioSegmentsRef.current[currentSegment];
+    if (segment) {
+      osc.connect(gain);
+      gain.connect(segment.analyser);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.2);
+    }
+  }, [currentSegment]);
+
+  // Play beat pattern based on intensity
+  const playBeatPattern = useCallback((intensity: number) => {
+    if (!audioContextRef.current || !isAudioEnabled) return;
+
+    const bpm = 80 + (intensity * 10);
+    const beatDuration = 60000 / bpm;
+
+    let beatCount = 0;
+    
+    if (beatIntervalRef.current) {
+      clearInterval(beatIntervalRef.current);
+    }
+
+    beatIntervalRef.current = setInterval(() => {
+      // Kick on 1 and 3
+      if (beatCount % 4 === 0 || beatCount % 4 === 2) {
+        playKick(intensity);
+      }
+      
+      // Snare on 2 and 4
+      if (beatCount % 4 === 1 || beatCount % 4 === 3) {
+        playSnare();
+      }
+      
+      // Hi-hats based on intensity
+      if (intensity >= 2) {
+        playHiHat();
+        if (intensity >= 3 && beatCount % 2 === 1) {
+          setTimeout(() => playHiHat(), beatDuration / 4);
+        }
+        if (intensity >= 4 && beatCount % 2 === 0) {
+          setTimeout(() => playHiHat(), beatDuration / 2);
+        }
+        if (intensity === 5) {
+          setTimeout(() => playHiHat(), (beatDuration * 3) / 4);
+        }
+      }
+      
+      beatCount++;
+    }, beatDuration);
+  }, [isAudioEnabled, playKick, playSnare, playHiHat]);
+
+  // Request audio permission and generate beats
   const enableAudio = useCallback(async () => {
     setIsLoading(true);
     
     try {
       initAudioContext();
       
-      // Generate beats for each intensity level
-      const segments: AudioSegment[] = [];
+      toast.loading('Generating trap beats...', { id: 'beats' });
       
+      // Generate beat analyzers for each intensity level
+      const segments: AudioSegment[] = [];
       for (let i = 1; i <= segmentCount; i++) {
-        toast.loading(`Generating trap beat ${i}/${segmentCount}...`, { id: `beat-${i}` });
-        
-        const { data, error } = await supabase.functions.invoke('generate-trap-beat', {
-          body: { intensity: i }
-        });
-
-        if (error || !data?.audioUrl) {
-          console.error(`Failed to generate beat ${i}:`, error);
-          toast.error(`Failed to generate beat ${i}`, { id: `beat-${i}` });
-          segments.push({ intensity: i, audioUrl: null, analyser: null });
-          continue;
-        }
-
-        // Create analyser for this segment
-        const analyser = audioContextRef.current!.createAnalyser();
-        analyser.fftSize = 256;
-        analyser.connect(gainNodeRef.current!);
-
-        segments.push({ 
-          intensity: i, 
-          audioUrl: data.audioUrl,
-          analyser 
-        });
-        
-        toast.success(`Beat ${i} ready!`, { id: `beat-${i}` });
+        segments.push(generateTrapBeat(i));
       }
 
       audioSegmentsRef.current = segments;
       setIsAudioEnabled(true);
-      toast.success('🔥 Trap beats loaded!');
+      
+      toast.success('🔥 Trap beats ready!', { id: 'beats' });
       
     } catch (error) {
       console.error('Error enabling audio:', error);
@@ -78,45 +175,25 @@ export const useWelcomeAudio = (segmentCount: number) => {
     } finally {
       setIsLoading(false);
     }
-  }, [segmentCount, initAudioContext]);
+  }, [segmentCount, initAudioContext, generateTrapBeat]);
 
   // Play segment
   const playSegment = useCallback(async (segmentIndex: number) => {
     if (!audioContextRef.current || !isAudioEnabled) return;
 
-    // Stop current audio
-    if (currentSourceRef.current) {
-      currentSourceRef.current.stop();
-      currentSourceRef.current = null;
-    }
-
+    setCurrentSegment(segmentIndex);
+    
     const segment = audioSegmentsRef.current[segmentIndex];
-    if (!segment?.audioUrl) return;
+    if (!segment) return;
 
-    try {
-      // Fetch and decode audio
-      const response = await fetch(segment.audioUrl);
-      const arrayBuffer = await response.arrayBuffer();
-      const audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
-
-      // Create source and connect
-      const source = audioContextRef.current.createBufferSource();
-      source.buffer = audioBuffer;
-      source.connect(segment.analyser!);
-      
-      // Apply volume
-      if (gainNodeRef.current) {
-        gainNodeRef.current.gain.value = isMuted ? 0 : volume;
-      }
-
-      source.start(0);
-      currentSourceRef.current = source;
-      setCurrentSegment(segmentIndex);
-
-    } catch (error) {
-      console.error('Error playing segment:', error);
+    // Apply volume
+    if (gainNodeRef.current) {
+      gainNodeRef.current.gain.value = isMuted ? 0 : volume;
     }
-  }, [isAudioEnabled, volume, isMuted]);
+
+    // Start beat pattern for this intensity
+    playBeatPattern(segment.intensity);
+  }, [isAudioEnabled, volume, isMuted, playBeatPattern]);
 
   // Get audio reactive data
   const getAudioData = useCallback(() => {
@@ -168,8 +245,8 @@ export const useWelcomeAudio = (segmentCount: number) => {
   // Cleanup
   useEffect(() => {
     return () => {
-      if (currentSourceRef.current) {
-        currentSourceRef.current.stop();
+      if (beatIntervalRef.current) {
+        clearInterval(beatIntervalRef.current);
       }
       if (audioContextRef.current) {
         audioContextRef.current.close();
