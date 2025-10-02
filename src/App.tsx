@@ -81,6 +81,7 @@ import MobileAdminPayouts from "./pages/MobileAdminPayouts";
 import MobileAdminUsers from "./pages/MobileAdminUsers";
 import MobileMixxBot from "./pages/MobileMixxBot";
 import { PersistentChatbot } from "@/components/PersistentChatbot";
+import { AppLayout } from "@/components/layouts/AppLayout";
 
 const queryClient = new QueryClient();
 
@@ -105,16 +106,16 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/artist-dashboard" element={<ArtistDashboard />} />
             <Route path="/engineer-dashboard" element={<EngineerDashboard />} />
-        <Route path="/artist-crm" element={<ArtistCRM />} />
-        <Route path="/engineer-crm" element={<EngineerCRM />} />
-        <Route path="/artist-studio" element={<ArtistStudio />} />
-        <Route path="/engineer-studio" element={<EngineerStudio />} />
+        <Route path="/artist-crm" element={<AppLayout><ArtistCRM /></AppLayout>} />
+        <Route path="/engineer-crm" element={<AppLayout><EngineerCRM /></AppLayout>} />
+        <Route path="/artist-studio" element={<AppLayout><ArtistStudio /></AppLayout>} />
+        <Route path="/engineer-studio" element={<AppLayout><EngineerStudio /></AppLayout>} />
             <Route path="/mixing" element={<MixingShowcase />} />
             <Route path="/mastering" element={<MasteringShowcase />} />
             <Route path="/mixing-studio" element={<Mixing />} />
             <Route path="/mastering-studio" element={<Mastering />} />
-            <Route path="/hybrid-daw" element={<HybridDAW />} />
-            <Route path="/jobs" element={<JobBoard />} />
+            <Route path="/hybrid-daw" element={<AppLayout><HybridDAW /></AppLayout>} />
+            <Route path="/jobs" element={<AppLayout><JobBoard /></AppLayout>} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/admin/users" element={<AdminUsers />} />
             <Route path="/admin/beat-files" element={<AdminBeatFiles />} />
@@ -143,7 +144,7 @@ const App = () => (
             <Route path="/for-engineers" element={<ForEngineers />} />
             <Route path="/engineers" element={<EngineerDirectory />} />
             <Route path="/engineer/:userId" element={<EngineerProfile />} />
-            <Route path="/project/:projectId" element={<ProjectDetail />} />
+            <Route path="/project/:projectId" element={<AppLayout><ProjectDetail /></AppLayout>} />
             <Route path="/coming-soon" element={<ComingSoon />} />
             <Route path="/faq" element={<FAQ />} />
             <Route path="/terms" element={<Terms />} />
@@ -173,7 +174,7 @@ const App = () => (
             {/* Tier 4 Features */}
             <Route path="/integrations" element={<Integrations />} />
             <Route path="/ai-audio-intelligence" element={<AIAudioIntelligence />} />
-            <Route path="/distribution" element={<DistributionHub />} />
+            <Route path="/distribution" element={<AppLayout><DistributionHub /></AppLayout>} />
             
             {/* Merch Store */}
             <Route path="/merch" element={<MerchStore />} />

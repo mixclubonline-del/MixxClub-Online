@@ -1,4 +1,4 @@
-import { Home, Briefcase, DollarSign, User, Plus, Bot, Bell, Menu } from 'lucide-react';
+import { Home, Briefcase, DollarSign, User, Plus, Bot, Bell, Menu, ShoppingBag } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useMobileOptimization } from '@/hooks/useMobileOptimization';
@@ -30,24 +30,24 @@ export const MobileEnhancedNav = () => {
   const engineerTabs: NavTab[] = [
     { icon: Home, label: 'Home', path: '/engineer-crm' },
     { icon: Briefcase, label: 'Jobs', path: '/jobs', badge: 5 },
+    { icon: ShoppingBag, label: 'Shop', path: '/merch' },
     { icon: Bot, label: 'AI', path: '/mobile-mixxbot' },
-    { icon: DollarSign, label: 'Earnings', path: '/engineer-dashboard' },
     { icon: User, label: 'Profile', path: '/engineer-profile' },
   ];
 
   const artistTabs: NavTab[] = [
     { icon: Home, label: 'Home', path: '/artist-crm' },
-    { icon: Plus, label: 'New', path: '/jobs' },
-    { icon: Bot, label: 'AI', path: '/mobile-mixxbot' },
     { icon: Briefcase, label: 'Projects', path: '/artist-dashboard' },
+    { icon: ShoppingBag, label: 'Shop', path: '/merch' },
+    { icon: Bot, label: 'AI', path: '/mobile-mixxbot' },
     { icon: User, label: 'Profile', path: '/artist-crm' },
   ];
 
   const adminTabs: NavTab[] = [
     { icon: Home, label: 'Dashboard', path: '/mobile-admin' },
     { icon: Bot, label: 'Mixx Bot', path: '/mobile-mixxbot' },
+    { icon: ShoppingBag, label: 'Shop', path: '/merch' },
     { icon: User, label: 'Users', path: '/mobile-admin/users' },
-    { icon: DollarSign, label: 'Payouts', path: '/mobile-admin/payouts' },
   ];
 
   const tabs = isAdmin ? adminTabs : isEngineer ? engineerTabs : artistTabs;

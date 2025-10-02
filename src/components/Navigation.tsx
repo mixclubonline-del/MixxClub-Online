@@ -43,6 +43,7 @@ const Navigation = () => {
         { to: "/mixing", label: "Mixing Magic" },
         { to: "/mastering", label: "Mastering Polish" },
         { to: "/for-engineers", label: "For Engineers" },
+        { to: "/merch", label: "Merch Store", badge: "NEW" },
         { to: "/coming-soon", label: "Coming Soon" },
         { to: "/faq", label: "FAQ" },
       ];
@@ -55,6 +56,7 @@ const Navigation = () => {
         { to: "/mixing", label: "Mixing Studio" },
         { to: "/mastering", label: "Mastering Studio" },
         { to: "/distribution", label: "Distribution" },
+        { to: "/merch", label: "Merch Store", badge: "NEW" },
         { to: "/coming-soon", label: "Coming Soon" },
         { to: "/faq", label: "FAQ" },
       ];
@@ -66,6 +68,7 @@ const Navigation = () => {
       { to: "/mixing", label: "Mixing Magic" },
       { to: "/mastering", label: "Mastering Polish" },
       { to: "/distribution", label: "Distribution", featured: true },
+      { to: "/merch", label: "Merch Store", badge: "NEW" },
       { to: "/coming-soon", label: "Coming Soon" },
       { to: "/faq", label: "FAQ" },
       ...(isFeatureEnabled('THE_LAB_ENABLED') ? [{ to: "/hybrid-daw", label: "The Lab" }] : []),
@@ -120,6 +123,11 @@ const Navigation = () => {
                   >
                     <div className="flex items-center gap-2">
                       {link.label}
+                      {(link as any).badge && (
+                        <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-primary/20 text-primary border border-primary/30">
+                          {(link as any).badge}
+                        </span>
+                      )}
                       {(link as any).featured && (
                         <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-gradient-to-r from-primary via-[hsl(220_90%_60%)] to-[hsl(180_100%_50%)] text-foreground animate-pulse-glow shadow-glow-sm">
                           NEW
@@ -267,6 +275,11 @@ const Navigation = () => {
               >
                 <div className="flex items-center justify-between">
                   <span>{link.label}</span>
+                  {(link as any).badge && (
+                    <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-primary/20 text-primary border border-primary/30">
+                      {(link as any).badge}
+                    </span>
+                  )}
                   {(link as any).featured && (
                     <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-gradient-to-r from-primary via-[hsl(220_90%_60%)] to-[hsl(180_100%_50%)] text-foreground animate-pulse-glow">
                       NEW
