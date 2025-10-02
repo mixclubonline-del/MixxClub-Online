@@ -137,6 +137,257 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_audio_profiles: {
+        Row: {
+          ai_model_version: string | null
+          analysis_version: string
+          audio_file_id: string
+          beat_grid: Json | null
+          chord_progression: Json | null
+          confidence_scores: Json | null
+          created_at: string | null
+          crest_factor: number | null
+          dynamic_range: number | null
+          frequency_balance: Json | null
+          frequency_distribution: Json | null
+          genre_prediction: Json | null
+          harmonic_complexity: number | null
+          harmonic_content: Json | null
+          id: string
+          improvement_suggestions: Json | null
+          key_signature: string | null
+          loudness_lufs: number | null
+          mastering_quality_score: number | null
+          mixing_balance_score: number | null
+          mood_analysis: Json | null
+          peak_level: number | null
+          phase_correlation: number | null
+          problem_frequencies: Json | null
+          processing_time_ms: number | null
+          rhythm_patterns: Json | null
+          rms_level: number | null
+          scale_type: string | null
+          spatial_distribution: Json | null
+          spectral_centroid: number | null
+          spectral_flux: number | null
+          spectral_rolloff: number | null
+          stereo_width: number | null
+          style_references: Json | null
+          tempo_bpm: number | null
+          time_signature: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          ai_model_version?: string | null
+          analysis_version?: string
+          audio_file_id: string
+          beat_grid?: Json | null
+          chord_progression?: Json | null
+          confidence_scores?: Json | null
+          created_at?: string | null
+          crest_factor?: number | null
+          dynamic_range?: number | null
+          frequency_balance?: Json | null
+          frequency_distribution?: Json | null
+          genre_prediction?: Json | null
+          harmonic_complexity?: number | null
+          harmonic_content?: Json | null
+          id?: string
+          improvement_suggestions?: Json | null
+          key_signature?: string | null
+          loudness_lufs?: number | null
+          mastering_quality_score?: number | null
+          mixing_balance_score?: number | null
+          mood_analysis?: Json | null
+          peak_level?: number | null
+          phase_correlation?: number | null
+          problem_frequencies?: Json | null
+          processing_time_ms?: number | null
+          rhythm_patterns?: Json | null
+          rms_level?: number | null
+          scale_type?: string | null
+          spatial_distribution?: Json | null
+          spectral_centroid?: number | null
+          spectral_flux?: number | null
+          spectral_rolloff?: number | null
+          stereo_width?: number | null
+          style_references?: Json | null
+          tempo_bpm?: number | null
+          time_signature?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          ai_model_version?: string | null
+          analysis_version?: string
+          audio_file_id?: string
+          beat_grid?: Json | null
+          chord_progression?: Json | null
+          confidence_scores?: Json | null
+          created_at?: string | null
+          crest_factor?: number | null
+          dynamic_range?: number | null
+          frequency_balance?: Json | null
+          frequency_distribution?: Json | null
+          genre_prediction?: Json | null
+          harmonic_complexity?: number | null
+          harmonic_content?: Json | null
+          id?: string
+          improvement_suggestions?: Json | null
+          key_signature?: string | null
+          loudness_lufs?: number | null
+          mastering_quality_score?: number | null
+          mixing_balance_score?: number | null
+          mood_analysis?: Json | null
+          peak_level?: number | null
+          phase_correlation?: number | null
+          problem_frequencies?: Json | null
+          processing_time_ms?: number | null
+          rhythm_patterns?: Json | null
+          rms_level?: number | null
+          scale_type?: string | null
+          spatial_distribution?: Json | null
+          spectral_centroid?: number | null
+          spectral_flux?: number | null
+          spectral_rolloff?: number | null
+          stereo_width?: number | null
+          style_references?: Json | null
+          tempo_bpm?: number | null
+          time_signature?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_audio_profiles_audio_file_id_fkey"
+            columns: ["audio_file_id"]
+            isOneToOne: false
+            referencedRelation: "audio_files"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_collaboration_matches: {
+        Row: {
+          artist_id: string
+          artist_interested: boolean | null
+          compatibility_score: number
+          complementary_skills: Json | null
+          created_at: string | null
+          engineer_id: string
+          engineer_interested: boolean | null
+          expires_at: string | null
+          genre_match_score: number | null
+          id: string
+          match_factors: Json | null
+          match_status: string | null
+          shared_characteristics: Json | null
+          style_match_score: number | null
+          technical_match_score: number | null
+          viewed_by_artist: boolean | null
+          viewed_by_engineer: boolean | null
+        }
+        Insert: {
+          artist_id: string
+          artist_interested?: boolean | null
+          compatibility_score: number
+          complementary_skills?: Json | null
+          created_at?: string | null
+          engineer_id: string
+          engineer_interested?: boolean | null
+          expires_at?: string | null
+          genre_match_score?: number | null
+          id?: string
+          match_factors?: Json | null
+          match_status?: string | null
+          shared_characteristics?: Json | null
+          style_match_score?: number | null
+          technical_match_score?: number | null
+          viewed_by_artist?: boolean | null
+          viewed_by_engineer?: boolean | null
+        }
+        Update: {
+          artist_id?: string
+          artist_interested?: boolean | null
+          compatibility_score?: number
+          complementary_skills?: Json | null
+          created_at?: string | null
+          engineer_id?: string
+          engineer_interested?: boolean | null
+          expires_at?: string | null
+          genre_match_score?: number | null
+          id?: string
+          match_factors?: Json | null
+          match_status?: string | null
+          shared_characteristics?: Json | null
+          style_match_score?: number | null
+          technical_match_score?: number | null
+          viewed_by_artist?: boolean | null
+          viewed_by_engineer?: boolean | null
+        }
+        Relationships: []
+      }
+      ai_mastering_presets: {
+        Row: {
+          compression_settings: Json
+          created_at: string | null
+          eq_curve: Json
+          genre_optimized: string | null
+          id: string
+          is_public: boolean | null
+          last_updated_at: string | null
+          limiting_settings: Json
+          model_confidence: number | null
+          preset_name: string
+          saturation_settings: Json | null
+          stereo_enhancement: Json | null
+          success_rate: number | null
+          times_used: number | null
+          training_samples: number | null
+          user_id: string
+          user_rating: number | null
+        }
+        Insert: {
+          compression_settings: Json
+          created_at?: string | null
+          eq_curve: Json
+          genre_optimized?: string | null
+          id?: string
+          is_public?: boolean | null
+          last_updated_at?: string | null
+          limiting_settings: Json
+          model_confidence?: number | null
+          preset_name: string
+          saturation_settings?: Json | null
+          stereo_enhancement?: Json | null
+          success_rate?: number | null
+          times_used?: number | null
+          training_samples?: number | null
+          user_id: string
+          user_rating?: number | null
+        }
+        Update: {
+          compression_settings?: Json
+          created_at?: string | null
+          eq_curve?: Json
+          genre_optimized?: string | null
+          id?: string
+          is_public?: boolean | null
+          last_updated_at?: string | null
+          limiting_settings?: Json
+          model_confidence?: number | null
+          preset_name?: string
+          saturation_settings?: Json | null
+          stereo_enhancement?: Json | null
+          success_rate?: number | null
+          times_used?: number | null
+          training_samples?: number | null
+          user_id?: string
+          user_rating?: number | null
+        }
+        Relationships: []
+      }
       ai_match_analysis: {
         Row: {
           analysis_type: string
@@ -261,6 +512,65 @@ export type Database = {
             columns: ["session_id"]
             isOneToOne: false
             referencedRelation: "collaboration_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      api_rate_limits: {
+        Row: {
+          created_at: string | null
+          current_day_count: number | null
+          current_hour_count: number | null
+          day_reset_at: string | null
+          hour_reset_at: string | null
+          id: string
+          integration_provider_id: string | null
+          is_throttled: boolean | null
+          rate_limit_tier: string
+          requests_per_day: number
+          requests_per_hour: number
+          throttle_until: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_day_count?: number | null
+          current_hour_count?: number | null
+          day_reset_at?: string | null
+          hour_reset_at?: string | null
+          id?: string
+          integration_provider_id?: string | null
+          is_throttled?: boolean | null
+          rate_limit_tier?: string
+          requests_per_day: number
+          requests_per_hour: number
+          throttle_until?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          current_day_count?: number | null
+          current_hour_count?: number | null
+          day_reset_at?: string | null
+          hour_reset_at?: string | null
+          id?: string
+          integration_provider_id?: string | null
+          is_throttled?: boolean | null
+          rate_limit_tier?: string
+          requests_per_day?: number
+          requests_per_hour?: number
+          throttle_until?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_rate_limits_integration_provider_id_fkey"
+            columns: ["integration_provider_id"]
+            isOneToOne: false
+            referencedRelation: "integration_providers"
             referencedColumns: ["id"]
           },
         ]
@@ -1828,6 +2138,107 @@ export type Database = {
           years_experience?: number | null
         }
         Relationships: []
+      }
+      integration_providers: {
+        Row: {
+          api_version: string | null
+          auth_type: string
+          created_at: string | null
+          documentation_url: string | null
+          id: string
+          is_active: boolean | null
+          is_premium: boolean | null
+          logo_url: string | null
+          provider_description: string | null
+          provider_name: string
+          provider_type: string
+          rate_limits: Json | null
+          required_scopes: string[] | null
+          setup_instructions: Json | null
+          updated_at: string | null
+          webhook_support: boolean | null
+        }
+        Insert: {
+          api_version?: string | null
+          auth_type: string
+          created_at?: string | null
+          documentation_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_premium?: boolean | null
+          logo_url?: string | null
+          provider_description?: string | null
+          provider_name: string
+          provider_type: string
+          rate_limits?: Json | null
+          required_scopes?: string[] | null
+          setup_instructions?: Json | null
+          updated_at?: string | null
+          webhook_support?: boolean | null
+        }
+        Update: {
+          api_version?: string | null
+          auth_type?: string
+          created_at?: string | null
+          documentation_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_premium?: boolean | null
+          logo_url?: string | null
+          provider_description?: string | null
+          provider_name?: string
+          provider_type?: string
+          rate_limits?: Json | null
+          required_scopes?: string[] | null
+          setup_instructions?: Json | null
+          updated_at?: string | null
+          webhook_support?: boolean | null
+        }
+        Relationships: []
+      }
+      integration_usage_logs: {
+        Row: {
+          action_metadata: Json | null
+          action_type: string
+          api_response: Json | null
+          created_at: string | null
+          duration_ms: number | null
+          error_message: string | null
+          id: string
+          status: string
+          user_integration_id: string
+        }
+        Insert: {
+          action_metadata?: Json | null
+          action_type: string
+          api_response?: Json | null
+          created_at?: string | null
+          duration_ms?: number | null
+          error_message?: string | null
+          id?: string
+          status: string
+          user_integration_id: string
+        }
+        Update: {
+          action_metadata?: Json | null
+          action_type?: string
+          api_response?: Json | null
+          created_at?: string | null
+          duration_ms?: number | null
+          error_message?: string | null
+          id?: string
+          status?: string
+          user_integration_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integration_usage_logs_user_integration_id_fkey"
+            columns: ["user_integration_id"]
+            isOneToOne: false
+            referencedRelation: "user_integrations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       job_applications: {
         Row: {
@@ -3855,6 +4266,57 @@ export type Database = {
         }
         Relationships: []
       }
+      streaming_connections: {
+        Row: {
+          analytics_data: Json | null
+          artist_profile_id: string | null
+          artist_profile_url: string | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          last_synced_at: string | null
+          platform_name: string
+          top_tracks: Json | null
+          total_listeners: number | null
+          total_streams: number | null
+          updated_at: string | null
+          user_id: string
+          verified: boolean | null
+        }
+        Insert: {
+          analytics_data?: Json | null
+          artist_profile_id?: string | null
+          artist_profile_url?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_synced_at?: string | null
+          platform_name: string
+          top_tracks?: Json | null
+          total_listeners?: number | null
+          total_streams?: number | null
+          updated_at?: string | null
+          user_id: string
+          verified?: boolean | null
+        }
+        Update: {
+          analytics_data?: Json | null
+          artist_profile_id?: string | null
+          artist_profile_url?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_synced_at?: string | null
+          platform_name?: string
+          top_tracks?: Json | null
+          total_listeners?: number | null
+          total_streams?: number | null
+          updated_at?: string | null
+          user_id?: string
+          verified?: boolean | null
+        }
+        Relationships: []
+      }
       studio_partnerships: {
         Row: {
           address: string | null
@@ -4138,6 +4600,62 @@ export type Database = {
             columns: ["battle_id"]
             isOneToOne: false
             referencedRelation: "battles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_integrations: {
+        Row: {
+          access_token_encrypted: string | null
+          connection_metadata: Json | null
+          connection_status: string
+          created_at: string | null
+          error_log: Json | null
+          id: string
+          last_sync_at: string | null
+          provider_id: string
+          refresh_token_encrypted: string | null
+          sync_frequency: string | null
+          token_expires_at: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          access_token_encrypted?: string | null
+          connection_metadata?: Json | null
+          connection_status?: string
+          created_at?: string | null
+          error_log?: Json | null
+          id?: string
+          last_sync_at?: string | null
+          provider_id: string
+          refresh_token_encrypted?: string | null
+          sync_frequency?: string | null
+          token_expires_at?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          access_token_encrypted?: string | null
+          connection_metadata?: Json | null
+          connection_status?: string
+          created_at?: string | null
+          error_log?: Json | null
+          id?: string
+          last_sync_at?: string | null
+          provider_id?: string
+          refresh_token_encrypted?: string | null
+          sync_frequency?: string | null
+          token_expires_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_integrations_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "integration_providers"
             referencedColumns: ["id"]
           },
         ]

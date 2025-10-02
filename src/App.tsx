@@ -32,6 +32,8 @@ import CourseViewer from "./pages/CourseViewer";
 import MyCertifications from "./pages/MyCertifications";
 import Marketplace from "./pages/Marketplace";
 import LabelServices from "./pages/LabelServices";
+import Integrations from "./pages/Integrations";
+import AIAudioIntelligence from "./pages/AIAudioIntelligence";
 import ForEngineers from "./pages/ForEngineers";
 import EngineerDirectory from "./pages/EngineerDirectory";
 import EngineerProfile from "./pages/EngineerProfile";
@@ -147,6 +149,10 @@ const App = () => (
             {/* Tier 3 Features */}
             <Route path="/marketplace" element={<Marketplace />} />
             <Route path="/label-services" element={<LabelServices />} />
+            
+            {/* Tier 4 Features */}
+            <Route path="/integrations" element={<Integrations />} />
+            <Route path="/ai-audio-intelligence" element={<AIAudioIntelligence />} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
