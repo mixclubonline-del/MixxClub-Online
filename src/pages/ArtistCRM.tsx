@@ -26,6 +26,7 @@ import CollaborationWorkspace from '@/components/collaboration/CollaborationWork
 import { RealTimeCollaboration } from '@/components/RealTimeCollaboration';
 import { ArtistCRMChatbot } from '@/components/crm/ArtistCRMChatbot';
 import { ArtistCRMSlideshow } from '@/components/crm/ArtistCRMSlideshow';
+import { ArtistAssistantIntro } from '@/components/crm/ArtistAssistantIntro';
 
 const ArtistCRM = () => {
   const { user } = useAuth();
@@ -39,6 +40,7 @@ const ArtistCRM = () => {
   const [pendingApplications, setPendingApplications] = useState(0);
   const [loading, setLoading] = useState(true);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  const [showAssistantIntro, setShowAssistantIntro] = useState(false);
   const [showSlideshow, setShowSlideshow] = useState(false);
   const [checkingSlideshow, setCheckingSlideshow] = useState(true);
   
@@ -69,11 +71,11 @@ const ArtistCRM = () => {
         return;
       }
 
-      // Check if slideshow should be shown
-      const slideshowKey = `artist_crm_slideshow_seen_${user.id}`;
-      const slideshowSeen = localStorage.getItem(slideshowKey);
+      // Check if assistant intro should be shown
+      const assistantIntroKey = `artist_assistant_intro_seen_${user.id}`;
+      const assistantIntroSeen = localStorage.getItem(assistantIntroKey);
 
-      if (!slideshowSeen) {
+      if (!assistantIntroSeen) {
         // Check if user has completed onboarding
         const { data: onboardingData } = await supabase
           .from('onboarding_profiles')
@@ -82,7 +84,23 @@ const ArtistCRM = () => {
           .single();
 
         if (onboardingData?.onboarding_completed) {
-          setShowSlideshow(true);
+          setShowAssistantIntro(true);
+        }
+      } else {
+        // Check if slideshow should be shown after intro
+        const slideshowKey = `artist_crm_slideshow_seen_${user.id}`;
+        const slideshowSeen = localStorage.getItem(slideshowKey);
+
+        if (!slideshowSeen) {
+          const { data: onboardingData } = await supabase
+            .from('onboarding_profiles')
+            .select('onboarding_completed')
+            .eq('user_id', user.id)
+            .single();
+
+          if (onboardingData?.onboarding_completed) {
+            setShowSlideshow(true);
+          }
         }
       }
       
@@ -92,6 +110,14 @@ const ArtistCRM = () => {
 
     checkAccess();
   }, [user, navigate]);
+
+  const handleAssistantIntroClose = () => {
+    if (user) {
+      localStorage.setItem(`artist_assistant_intro_seen_${user.id}`, 'true');
+    }
+    setShowAssistantIntro(false);
+    setShowSlideshow(true); // Show slideshow after intro
+  };
 
   const handleSlideshowComplete = () => {
     if (user) {
@@ -177,7 +203,17 @@ const ArtistCRM = () => {
     );
   }
 
-  // Show slideshow if it's the first time
+  // Show assistant intro first, then slideshow
+  if (showAssistantIntro) {
+    return (
+      <ArtistAssistantIntro 
+        open={showAssistantIntro}
+        onClose={handleAssistantIntroClose}
+      />
+    );
+  }
+
+  // Show slideshow after intro
   if (showSlideshow) {
     return (
       <ArtistCRMSlideshow 
