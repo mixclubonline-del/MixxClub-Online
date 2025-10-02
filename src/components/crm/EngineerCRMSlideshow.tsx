@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { X } from 'lucide-react';
+import { X, Volume2, VolumeX } from 'lucide-react';
 import heroImage from '@/assets/engineer-studio-hero.jpg';
+import { useWelcomeAudio } from '@/hooks/useWelcomeAudio';
+import { useAudioReactivity } from '@/hooks/useAudioReactivity';
 
 const scriptSegments = [
   { text: "Welcome to the club — Mixx Club Online.", duration: 2500, focus: 'center' },
@@ -19,7 +21,14 @@ interface EngineerCRMSlideshowProps {
 
 const EngineerCRMSlideshow = ({ onComplete, onSkip }: EngineerCRMSlideshowProps) => {
   const [currentSegment, setCurrentSegment] = useState(0);
+  const [showAudioPrompt, setShowAudioPrompt] = useState(true);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  const audio = useWelcomeAudio(scriptSegments.length);
+  const audioReactivity = useAudioReactivity({
+    audioDataCallback: audio.isAudioEnabled ? audio.getAudioData : undefined,
+    simulationMode: !audio.isAudioEnabled
+  });
 
   useEffect(() => {
     playSegment();
@@ -32,6 +41,11 @@ const EngineerCRMSlideshow = ({ onComplete, onSkip }: EngineerCRMSlideshowProps)
 
   const playSegment = () => {
     const segment = scriptSegments[currentSegment];
+    
+    // Play audio for this segment
+    if (audio.isAudioEnabled) {
+      audio.playSegment(currentSegment);
+    }
     
     if (timerRef.current) {
       clearTimeout(timerRef.current);
@@ -67,6 +81,36 @@ const EngineerCRMSlideshow = ({ onComplete, onSkip }: EngineerCRMSlideshowProps)
 
   return (
     <div className="fixed top-20 left-0 right-0 bottom-0 z-50 bg-background">
+      {/* Audio Prompt */}
+      {showAudioPrompt && !audio.isAudioEnabled && (
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-background/95 backdrop-blur-sm p-8 rounded-lg border border-secondary/30 max-w-md">
+          <h3 className="text-2xl font-bold mb-4">Experience with Audio?</h3>
+          <p className="text-muted-foreground mb-6">
+            Get the full experience with dynamic trap beats that sync with the visuals
+          </p>
+          <div className="flex gap-4">
+            <Button
+              variant="secondary"
+              onClick={() => {
+                audio.enableAudio();
+                setShowAudioPrompt(false);
+              }}
+              disabled={audio.isLoading}
+              className="flex-1"
+            >
+              {audio.isLoading ? 'Loading Beats...' : '🔥 Yes, Let\'s Go!'}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setShowAudioPrompt(false)}
+              className="flex-1"
+            >
+              Continue Silent
+            </Button>
+          </div>
+        </div>
+      )}
+      
       {/* Skip Button */}
       <Button
         variant="ghost"
@@ -76,6 +120,20 @@ const EngineerCRMSlideshow = ({ onComplete, onSkip }: EngineerCRMSlideshowProps)
       >
         <X className="h-6 w-6" />
       </Button>
+
+      {/* Audio Controls */}
+      {audio.isAudioEnabled && (
+        <div className="absolute top-4 left-4 z-50">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => audio.setIsMuted(!audio.isMuted)}
+            className="hover:bg-secondary/20"
+          >
+            {audio.isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+          </Button>
+        </div>
+      )}
 
       {/* Background Image with Parallax */}
       <motion.div
@@ -93,29 +151,59 @@ const EngineerCRMSlideshow = ({ onComplete, onSkip }: EngineerCRMSlideshowProps)
         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
       </motion.div>
 
-      {/* Animated Particles */}
+      {/* Audio-Reactive Particles */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(30)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-1 h-1 bg-secondary rounded-full"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              y: [0, -30, 0],
-              opacity: [0.2, 0.8, 0.2],
-              scale: [1, 1.5, 1],
-            }}
-            transition={{
-              duration: 3 + Math.random() * 2,
-              repeat: Infinity,
-              delay: Math.random() * 2,
-            }}
-          />
-        ))}
+        {[...Array(30)].map((_, i) => {
+          const beatIndex = i % audioReactivity.beats.length;
+          const beatIntensity = audioReactivity.beats[beatIndex] / 100;
+          
+          return (
+            <motion.div
+              key={i}
+              className="absolute rounded-full"
+              style={{
+                width: `${2 + beatIntensity * 4}px`,
+                height: `${2 + beatIntensity * 4}px`,
+                backgroundColor: `hsl(var(--secondary) / ${0.3 + beatIntensity * 0.5})`,
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+              }}
+              animate={{
+                y: [0, -30 - beatIntensity * 20, 0],
+                opacity: [0.2, 0.2 + beatIntensity * 0.6, 0.2],
+                scale: [1, 1 + beatIntensity * 0.5, 1],
+              }}
+              transition={{
+                duration: 3 + Math.random() * 2,
+                repeat: Infinity,
+                delay: Math.random() * 2,
+              }}
+            />
+          );
+        })}
       </div>
+
+      {/* Beat Visualization Bars */}
+      {audio.isAudioEnabled && (
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex gap-1 z-20">
+          {audioReactivity.beats.map((beat, i) => (
+            <motion.div
+              key={i}
+              className="w-1 bg-secondary/60 rounded-full"
+              style={{
+                height: `${8 + (beat / 100) * 24}px`,
+              }}
+              animate={{
+                scaleY: [0.5, 1 + (beat / 100), 0.5],
+              }}
+              transition={{
+                duration: 0.15,
+                ease: "easeOut",
+              }}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Content Container */}
       <div className="relative z-10 flex items-center justify-center min-h-screen px-4">
@@ -137,6 +225,15 @@ const EngineerCRMSlideshow = ({ onComplete, onSkip }: EngineerCRMSlideshowProps)
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   backgroundClip: 'text',
+                  textShadow: audio.isAudioEnabled 
+                    ? `0 0 ${20 + audioReactivity.amplitude / 5}px hsl(var(--secondary) / 0.5)`
+                    : undefined,
+                }}
+                animate={{
+                  scale: audio.isAudioEnabled ? [1, 1 + (audioReactivity.amplitude / 1000), 1] : 1
+                }}
+                transition={{
+                  scale: { duration: 0.15, ease: "easeOut" }
                 }}
               >
                 {scriptSegments[currentSegment].text}

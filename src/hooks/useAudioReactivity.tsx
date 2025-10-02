@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 interface AudioReactivityState {
   isPlaying: boolean;
@@ -7,7 +7,12 @@ interface AudioReactivityState {
   beats: number[];
 }
 
-export const useAudioReactivity = () => {
+interface UseAudioReactivityOptions {
+  audioDataCallback?: () => AudioReactivityState;
+  simulationMode?: boolean;
+}
+
+export const useAudioReactivity = (options?: UseAudioReactivityOptions) => {
   const [audioState, setAudioState] = useState<AudioReactivityState>({
     isPlaying: false,
     amplitude: 0,
@@ -15,19 +20,26 @@ export const useAudioReactivity = () => {
     beats: []
   });
 
-  useEffect(() => {
-    // Simulate audio reactivity - in a real app this would connect to actual audio analysis
-    const interval = setInterval(() => {
-      setAudioState(prev => ({
-        isPlaying: Math.random() > 0.3, // 70% chance of "audio playing"
+  const updateAudioState = useCallback(() => {
+    if (options?.audioDataCallback) {
+      // Use real audio data from callback
+      const realData = options.audioDataCallback();
+      setAudioState(realData);
+    } else if (options?.simulationMode !== false) {
+      // Fallback to simulation mode
+      setAudioState({
+        isPlaying: Math.random() > 0.3,
         amplitude: Math.random() * 100,
         frequency: Math.random() * 20000,
         beats: Array.from({ length: 8 }, () => Math.random() * 100)
-      }));
-    }, 150);
+      });
+    }
+  }, [options]);
 
+  useEffect(() => {
+    const interval = setInterval(updateAudioState, 50); // 20 FPS for smooth visuals
     return () => clearInterval(interval);
-  }, []);
+  }, [updateAudioState]);
 
   return audioState;
 };
