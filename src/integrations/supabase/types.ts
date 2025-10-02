@@ -5383,6 +5383,47 @@ export type Database = {
       }
     }
     Views: {
+      connection_monitor: {
+        Row: {
+          active_connections: number | null
+          idle_connections: number | null
+          idle_in_transaction: number | null
+          longest_idle_seconds: number | null
+          total_connections: number | null
+          waiting_connections: number | null
+        }
+        Relationships: []
+      }
+      database_health_monitor: {
+        Row: {
+          dead_row_percent: number | null
+          dead_rows: number | null
+          last_analyze: string | null
+          last_autoanalyze: string | null
+          last_autovacuum: string | null
+          last_vacuum: string | null
+          row_count: number | null
+          schemaname: unknown | null
+          size_bytes: number | null
+          table_name: unknown | null
+          total_size: string | null
+          vacuum_status: string | null
+        }
+        Relationships: []
+      }
+      index_usage_stats: {
+        Row: {
+          index_size: string | null
+          indexname: unknown | null
+          schemaname: unknown | null
+          tablename: unknown | null
+          times_used: number | null
+          tuples_fetched: number | null
+          tuples_read: number | null
+          usage_level: string | null
+        }
+        Relationships: []
+      }
       public_profiles: {
         Row: {
           avatar_url: string | null
@@ -5458,6 +5499,30 @@ export type Database = {
         Args: { p_engineer_id: string }
         Returns: undefined
       }
+      cleanup_old_audit_logs: {
+        Args: { days_to_keep?: number }
+        Returns: {
+          deleted_count: number
+          newest_deleted: string
+          oldest_deleted: string
+        }[]
+      }
+      cleanup_old_chatbot_messages: {
+        Args: { days_to_keep?: number }
+        Returns: {
+          deleted_count: number
+          newest_deleted: string
+          oldest_deleted: string
+        }[]
+      }
+      cleanup_old_notifications: {
+        Args: { days_to_keep?: number }
+        Returns: {
+          deleted_count: number
+          newest_deleted: string
+          oldest_deleted: string
+        }[]
+      }
       create_admin_alert: {
         Args: {
           p_alert_type: string
@@ -5525,6 +5590,15 @@ export type Database = {
       is_session_participant: {
         Args: { session_uuid: string; user_uuid: string }
         Returns: boolean
+      }
+      run_maintenance_cleanup: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          execution_time_ms: number
+          records_deleted: number
+          status: string
+          task_name: string
+        }[]
       }
       update_achievement_progress: {
         Args: {
