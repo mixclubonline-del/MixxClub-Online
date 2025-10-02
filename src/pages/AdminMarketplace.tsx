@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { ShoppingBag, Disc, Settings2, DollarSign, Plus, TrendingUp, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { MerchStoreFlowchart } from "@/components/admin/MerchStoreFlowchart";
 
 const AdminMarketplace = () => {
   const { user } = useAuth();
@@ -89,6 +90,7 @@ const AdminMarketplace = () => {
             <h1 className="text-3xl font-bold">Marketplace Management</h1>
             <p className="text-muted-foreground">Sync and manage Printful merchandise products</p>
           </div>
+
           <Button onClick={syncProducts} disabled={syncing}>
             {syncing ? (
               <>
@@ -103,6 +105,9 @@ const AdminMarketplace = () => {
             )}
           </Button>
         </div>
+
+        {/* Merch Store Flowchart */}
+        <MerchStoreFlowchart />
 
         <div className="grid gap-6 md:grid-cols-3 mb-6">
           <Card>
