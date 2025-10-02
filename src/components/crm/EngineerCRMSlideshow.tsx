@@ -24,11 +24,18 @@ const EngineerCRMSlideshow = ({ onComplete, onSkip }: EngineerCRMSlideshowProps)
   const [showAudioPrompt, setShowAudioPrompt] = useState(true);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   
-  const audio = useWelcomeAudio(scriptSegments.length);
+  const audio = useWelcomeAudio(1); // Load only 1 audio file
   const audioReactivity = useAudioReactivity({
     audioDataCallback: audio.isAudioEnabled ? audio.getAudioData : undefined,
     simulationMode: !audio.isAudioEnabled
   });
+
+  // Start playing audio once when enabled
+  useEffect(() => {
+    if (audio.isAudioEnabled) {
+      audio.playSegment(0); // Play the single audio file
+    }
+  }, [audio.isAudioEnabled]);
 
   useEffect(() => {
     playSegment();
@@ -42,11 +49,7 @@ const EngineerCRMSlideshow = ({ onComplete, onSkip }: EngineerCRMSlideshowProps)
   const playSegment = () => {
     const segment = scriptSegments[currentSegment];
     
-    // Play audio for this segment
-    if (audio.isAudioEnabled) {
-      audio.playSegment(currentSegment);
-    }
-    
+    // Visual segment timer only (audio plays continuously)
     if (timerRef.current) {
       clearTimeout(timerRef.current);
     }

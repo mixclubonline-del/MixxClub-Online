@@ -20,14 +20,14 @@ import { useWelcomeAudio } from "@/hooks/useWelcomeAudio";
 import { toast } from "sonner";
 
 const Home = () => {
-  const { enableAudio, playSegment, isAudioEnabled, isLoading } = useWelcomeAudio(5);
+  const { enableAudio, playSegment, isAudioEnabled, isLoading } = useWelcomeAudio(1);
 
   const testAudio = async () => {
     try {
       await enableAudio();
       if (isAudioEnabled) {
         await playSegment(0);
-        toast.success('Audio test successful! Playing beat 1.');
+        toast.success('Audio test successful! Playing track.');
       }
     } catch (error) {
       console.error('Audio test failed:', error);
