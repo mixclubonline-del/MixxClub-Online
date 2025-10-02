@@ -25,6 +25,8 @@ import Mixing from "./pages/Mixing";
 import Mastering from "./pages/Mastering";
 import MixingShowcase from "./pages/MixingShowcase";
 import MasteringShowcase from "./pages/MasteringShowcase";
+import BattleTournaments from "./pages/BattleTournaments";
+import StudioDirectory from "./pages/StudioDirectory";
 import ForEngineers from "./pages/ForEngineers";
 import EngineerDirectory from "./pages/EngineerDirectory";
 import EngineerProfile from "./pages/EngineerProfile";
@@ -127,6 +129,10 @@ const App = () => (
             <Route path="/mobile-mixxbot" element={<MobileMixxBot />} />
             <Route path="/mobile-admin/payouts" element={<MobileAdminPayouts />} />
             <Route path="/mobile-admin/users" element={<MobileAdminUsers />} />
+            
+            {/* Tier 1 Features */}
+            <Route path="/battle-tournaments" element={<BattleTournaments />} />
+            <Route path="/studio-directory" element={<StudioDirectory />} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

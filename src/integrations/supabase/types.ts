@@ -137,6 +137,71 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_match_analysis: {
+        Row: {
+          analysis_type: string
+          audio_file_id: string
+          complexity_score: number | null
+          created_at: string | null
+          detected_genre: string | null
+          full_analysis: Json | null
+          id: string
+          instrumentation: Json | null
+          key_signature: string | null
+          mixing_quality: Json | null
+          mood_score: Json | null
+          technical_quality: number | null
+          tempo_bpm: number | null
+          updated_at: string | null
+          user_id: string
+          vocal_presence: number | null
+        }
+        Insert: {
+          analysis_type?: string
+          audio_file_id: string
+          complexity_score?: number | null
+          created_at?: string | null
+          detected_genre?: string | null
+          full_analysis?: Json | null
+          id?: string
+          instrumentation?: Json | null
+          key_signature?: string | null
+          mixing_quality?: Json | null
+          mood_score?: Json | null
+          technical_quality?: number | null
+          tempo_bpm?: number | null
+          updated_at?: string | null
+          user_id: string
+          vocal_presence?: number | null
+        }
+        Update: {
+          analysis_type?: string
+          audio_file_id?: string
+          complexity_score?: number | null
+          created_at?: string | null
+          detected_genre?: string | null
+          full_analysis?: Json | null
+          id?: string
+          instrumentation?: Json | null
+          key_signature?: string | null
+          mixing_quality?: Json | null
+          mood_score?: Json | null
+          technical_quality?: number | null
+          tempo_bpm?: number | null
+          updated_at?: string | null
+          user_id?: string
+          vocal_presence?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_match_analysis_audio_file_id_fkey"
+            columns: ["audio_file_id"]
+            isOneToOne: false
+            referencedRelation: "audio_files"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audio_files: {
         Row: {
           bit_depth: number | null
@@ -345,6 +410,60 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      battle_tournaments: {
+        Row: {
+          bracket_data: Json | null
+          created_at: string | null
+          created_by: string | null
+          current_participants: number | null
+          end_date: string | null
+          entry_fee: number | null
+          id: string
+          max_participants: number | null
+          prize_pool: number | null
+          rules: Json | null
+          start_date: string
+          status: string
+          tournament_name: string
+          tournament_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          bracket_data?: Json | null
+          created_at?: string | null
+          created_by?: string | null
+          current_participants?: number | null
+          end_date?: string | null
+          entry_fee?: number | null
+          id?: string
+          max_participants?: number | null
+          prize_pool?: number | null
+          rules?: Json | null
+          start_date: string
+          status?: string
+          tournament_name: string
+          tournament_type?: string
+          updated_at?: string | null
+        }
+        Update: {
+          bracket_data?: Json | null
+          created_at?: string | null
+          created_by?: string | null
+          current_participants?: number | null
+          end_date?: string | null
+          entry_fee?: number | null
+          id?: string
+          max_participants?: number | null
+          prize_pool?: number | null
+          rules?: Json | null
+          start_date?: string
+          status?: string
+          tournament_name?: string
+          tournament_type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       battle_votes: {
         Row: {
@@ -1027,6 +1146,51 @@ export type Database = {
           },
         ]
       }
+      engineer_skill_assessments: {
+        Row: {
+          assessment_type: string
+          created_at: string | null
+          engineer_id: string
+          genre_specialties: Json | null
+          id: string
+          last_assessed: string | null
+          match_compatibility_score: number | null
+          portfolio_analysis: Json | null
+          skill_level: string
+          technical_scores: Json | null
+          updated_at: string | null
+          verified_by_ai: boolean | null
+        }
+        Insert: {
+          assessment_type: string
+          created_at?: string | null
+          engineer_id: string
+          genre_specialties?: Json | null
+          id?: string
+          last_assessed?: string | null
+          match_compatibility_score?: number | null
+          portfolio_analysis?: Json | null
+          skill_level?: string
+          technical_scores?: Json | null
+          updated_at?: string | null
+          verified_by_ai?: boolean | null
+        }
+        Update: {
+          assessment_type?: string
+          created_at?: string | null
+          engineer_id?: string
+          genre_specialties?: Json | null
+          id?: string
+          last_assessed?: string | null
+          match_compatibility_score?: number | null
+          portfolio_analysis?: Json | null
+          skill_level?: string
+          technical_scores?: Json | null
+          updated_at?: string | null
+          verified_by_ai?: boolean | null
+        }
+        Relationships: []
+      }
       engineer_streaks: {
         Row: {
           current_streak: number | null
@@ -1242,6 +1406,84 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      hybrid_bookings: {
+        Row: {
+          attendees: Json | null
+          booking_type: string
+          created_at: string | null
+          duration_hours: number
+          engineer_id: string | null
+          engineer_payment: number | null
+          equipment_needed: Json | null
+          id: string
+          project_id: string | null
+          session_date: string
+          session_notes: string | null
+          special_requests: string | null
+          status: string
+          studio_id: string
+          studio_payment: number | null
+          total_cost: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          attendees?: Json | null
+          booking_type?: string
+          created_at?: string | null
+          duration_hours?: number
+          engineer_id?: string | null
+          engineer_payment?: number | null
+          equipment_needed?: Json | null
+          id?: string
+          project_id?: string | null
+          session_date: string
+          session_notes?: string | null
+          special_requests?: string | null
+          status?: string
+          studio_id: string
+          studio_payment?: number | null
+          total_cost: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          attendees?: Json | null
+          booking_type?: string
+          created_at?: string | null
+          duration_hours?: number
+          engineer_id?: string | null
+          engineer_payment?: number | null
+          equipment_needed?: Json | null
+          id?: string
+          project_id?: string | null
+          session_date?: string
+          session_notes?: string | null
+          special_requests?: string | null
+          status?: string
+          studio_id?: string
+          studio_payment?: number | null
+          total_cost?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hybrid_bookings_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hybrid_bookings_studio_id_fkey"
+            columns: ["studio_id"]
+            isOneToOne: false
+            referencedRelation: "studio_partnerships"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       job_applications: {
         Row: {
@@ -2763,6 +3005,93 @@ export type Database = {
         }
         Relationships: []
       }
+      studio_partnerships: {
+        Row: {
+          address: string | null
+          amenities: Json | null
+          availability_calendar: Json | null
+          contact_email: string | null
+          contact_phone: string | null
+          coordinates: Json | null
+          created_at: string | null
+          day_rate: number | null
+          equipment_list: Json | null
+          hourly_rate: number | null
+          id: string
+          is_active: boolean | null
+          location_city: string
+          location_country: string
+          location_state: string | null
+          partner_since: string | null
+          photos: Json | null
+          rating_average: number | null
+          revenue_share_percentage: number | null
+          room_types: Json | null
+          studio_name: string
+          studio_type: string
+          total_bookings: number | null
+          total_reviews: number | null
+          updated_at: string | null
+          website_url: string | null
+        }
+        Insert: {
+          address?: string | null
+          amenities?: Json | null
+          availability_calendar?: Json | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          coordinates?: Json | null
+          created_at?: string | null
+          day_rate?: number | null
+          equipment_list?: Json | null
+          hourly_rate?: number | null
+          id?: string
+          is_active?: boolean | null
+          location_city: string
+          location_country: string
+          location_state?: string | null
+          partner_since?: string | null
+          photos?: Json | null
+          rating_average?: number | null
+          revenue_share_percentage?: number | null
+          room_types?: Json | null
+          studio_name: string
+          studio_type?: string
+          total_bookings?: number | null
+          total_reviews?: number | null
+          updated_at?: string | null
+          website_url?: string | null
+        }
+        Update: {
+          address?: string | null
+          amenities?: Json | null
+          availability_calendar?: Json | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          coordinates?: Json | null
+          created_at?: string | null
+          day_rate?: number | null
+          equipment_list?: Json | null
+          hourly_rate?: number | null
+          id?: string
+          is_active?: boolean | null
+          location_city?: string
+          location_country?: string
+          location_state?: string | null
+          partner_since?: string | null
+          photos?: Json | null
+          rating_average?: number | null
+          revenue_share_percentage?: number | null
+          room_types?: Json | null
+          studio_name?: string
+          studio_type?: string
+          total_bookings?: number | null
+          total_reviews?: number | null
+          updated_at?: string | null
+          website_url?: string | null
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
           completed_at: string | null
@@ -2823,6 +3152,69 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tournament_participants: {
+        Row: {
+          created_at: string | null
+          current_round: number | null
+          engineer_id: string | null
+          entry_status: string
+          id: string
+          losses: number | null
+          seed_number: number | null
+          submission_file_id: string | null
+          submitted_at: string | null
+          total_score: number | null
+          tournament_id: string
+          user_id: string
+          wins: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          current_round?: number | null
+          engineer_id?: string | null
+          entry_status?: string
+          id?: string
+          losses?: number | null
+          seed_number?: number | null
+          submission_file_id?: string | null
+          submitted_at?: string | null
+          total_score?: number | null
+          tournament_id: string
+          user_id: string
+          wins?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          current_round?: number | null
+          engineer_id?: string | null
+          entry_status?: string
+          id?: string
+          losses?: number | null
+          seed_number?: number | null
+          submission_file_id?: string | null
+          submitted_at?: string | null
+          total_score?: number | null
+          tournament_id?: string
+          user_id?: string
+          wins?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tournament_participants_submission_file_id_fkey"
+            columns: ["submission_file_id"]
+            isOneToOne: false
+            referencedRelation: "audio_files"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tournament_participants_tournament_id_fkey"
+            columns: ["tournament_id"]
+            isOneToOne: false
+            referencedRelation: "battle_tournaments"
             referencedColumns: ["id"]
           },
         ]

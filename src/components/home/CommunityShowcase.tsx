@@ -7,7 +7,7 @@ import { FEATURE_FLAGS } from "@/config/featureFlags";
 export const CommunityShowcase = () => {
   const navigate = useNavigate();
 
-  if (!FEATURE_FLAGS.MIX_BATTLES_ENABLED) {
+  if (!FEATURE_FLAGS.TIER_1_BATTLES_STUDIOS) {
     return null;
   }
 
