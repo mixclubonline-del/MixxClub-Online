@@ -12,33 +12,37 @@ interface EngineerAssistantIntroProps {
 }
 
 export const EngineerAssistantIntro = ({ open, onClose, onNavigate, onOpenChatbot }: EngineerAssistantIntroProps) => {
+  const handleFeatureClick = (action: () => void) => {
+    // Close dialog first to prevent any blocking
+    onClose();
+    // Small delay to ensure dialog closes before action
+    setTimeout(action, 100);
+  };
+
   const features = [
     {
       icon: DollarSign,
       title: "Maximize Your Revenue",
       description: "I'll help you optimize your 70% revenue share and grow your income",
-      action: () => onNavigate('business')
+      action: () => handleFeatureClick(() => onNavigate('business'))
     },
     {
       icon: Wrench,
       title: "Technical Guidance",
       description: "Get expert tips for mixing, mastering, and using our professional tools",
-      action: () => onNavigate('studio')
+      action: () => handleFeatureClick(() => onNavigate('studio'))
     },
     {
       icon: TrendingUp,
       title: "Build Your Reputation",
       description: "Grow your client base and establish yourself as a top engineer",
-      action: () => onNavigate('opportunities')
+      action: () => handleFeatureClick(() => onNavigate('opportunities'))
     },
     {
       icon: Award,
       title: "Manage Your Business",
       description: "Track earnings, handle payouts, and streamline your workflow",
-      action: () => {
-        onClose();
-        onOpenChatbot();
-      }
+      action: () => handleFeatureClick(onOpenChatbot)
     }
   ];
 

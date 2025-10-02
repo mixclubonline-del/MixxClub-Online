@@ -12,33 +12,37 @@ interface ArtistAssistantIntroProps {
 }
 
 export const ArtistAssistantIntro = ({ open, onClose, onNavigate, onOpenChatbot }: ArtistAssistantIntroProps) => {
+  const handleFeatureClick = (action: () => void) => {
+    // Close dialog first to prevent any blocking
+    onClose();
+    // Small delay to ensure dialog closes before action
+    setTimeout(action, 100);
+  };
+
   const features = [
     {
       icon: Users,
       title: "Find Perfect Engineers",
       description: "I'll help you discover engineers who match your unique sound and style",
-      action: () => onNavigate('opportunities')
+      action: () => handleFeatureClick(() => onNavigate('opportunities'))
     },
     {
       icon: Upload,
       title: "Get Professional Feedback",
       description: "Upload tracks and receive expert insights on mixing and mastering",
-      action: () => onNavigate('studio')
+      action: () => handleFeatureClick(() => onNavigate('studio'))
     },
     {
       icon: FileAudio,
       title: "Manage Your Projects",
       description: "Track revisions, collaborate seamlessly, and stay organized",
-      action: () => onNavigate('active-work')
+      action: () => handleFeatureClick(() => onNavigate('active-work'))
     },
     {
       icon: MessageCircle,
       title: "24/7 Guidance",
       description: "Ask me anything about pricing, packages, and collaboration tools",
-      action: () => {
-        onClose();
-        onOpenChatbot();
-      }
+      action: () => handleFeatureClick(onOpenChatbot)
     }
   ];
 
