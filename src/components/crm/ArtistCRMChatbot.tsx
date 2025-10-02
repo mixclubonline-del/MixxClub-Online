@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -15,6 +16,10 @@ interface Message {
 }
 
 export const ArtistCRMChatbot = () => {
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const currentTab = searchParams.get('tab') || 'overview';
+  
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -73,16 +78,36 @@ export const ArtistCRMChatbot = () => {
     setInput('');
 
     try {
-      const systemPrompt = `You are an Artist CRM assistant for MixClub Online. Help artists with:
-- Uploading and managing their music tracks
-- Finding and selecting the right engineers
-- Understanding collaboration workflows
-- Pricing, packages, and payment information
+      const pageContext = `Current page: Artist CRM - ${currentTab === 'overview' ? 'Dashboard' : currentTab}`;
+      
+      const systemPrompt = `You are an Artist CRM assistant for MixClub Online. 
+
+**NAVIGATION MAP:**
+- /artist-crm (Dashboard overview with stats)
+- /artist-crm?tab=active-work (Active projects and collaborations)
+- /artist-crm?tab=opportunities (Job board and engineer directory)
+- /artist-crm?tab=studio (Collaboration workspace and tools)
+- /artist-crm?tab=business (Packages, payments, history)
+- /artist-crm?tab=profile (Profile settings and portfolio)
+
+**CURRENT LOCATION:** ${pageContext}
+
+**YOUR CAPABILITIES:**
+- Help navigate between CRM sections with direct links
+- Upload and manage music tracks
+- Find and select engineers
+- Understand collaboration workflows
+- Pricing, packages, and payment info
 - Project management and feedback
 - Platform features like before/after comparisons
 - Best practices for working with engineers
 
-Be friendly, concise, and artist-focused. Provide practical guidance.`;
+**NAVIGATION HELP:**
+When users ask about features, provide links like:
+"You can view your active projects at [Active Work](/artist-crm?tab=active-work)"
+"Check the [Opportunities](/artist-crm?tab=opportunities) tab to find engineers"
+
+Be friendly, concise, and provide actionable navigation guidance.`;
 
       const { data, error } = await supabase.functions.invoke('chat-simple', {
         body: {
@@ -91,6 +116,7 @@ Be friendly, concise, and artist-focused. Provide practical guidance.`;
             ...messages.map(msg => ({ role: msg.role, content: msg.content })),
             { role: 'user', content: messageContent }
           ],
+          context: { page: location.pathname, tab: currentTab }
         },
       });
 

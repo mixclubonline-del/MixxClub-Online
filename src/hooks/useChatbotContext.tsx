@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 
@@ -14,6 +15,8 @@ interface ChatMessage {
 interface ChatbotContextValue {
   messages: ChatMessage[];
   loading: boolean;
+  currentPage: string;
+  currentTab: string;
   fetchMessages: (chatbotType?: string) => Promise<void>;
   fetchRecentContext: (limit?: number) => Promise<ChatMessage[]>;
 }
@@ -22,8 +25,14 @@ const ChatbotContext = createContext<ChatbotContextValue | undefined>(undefined)
 
 export const ChatbotContextProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth();
+  const location = useLocation();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(false);
+  
+  // Extract current page and tab from location
+  const currentPage = location.pathname;
+  const searchParams = new URLSearchParams(location.search);
+  const currentTab = searchParams.get('tab') || 'overview';
 
   const fetchMessages = async (chatbotType?: string) => {
     if (!user) return;
@@ -80,7 +89,7 @@ export const ChatbotContextProvider = ({ children }: { children: ReactNode }) =>
   }, [user]);
 
   return (
-    <ChatbotContext.Provider value={{ messages, loading, fetchMessages, fetchRecentContext }}>
+    <ChatbotContext.Provider value={{ messages, loading, currentPage, currentTab, fetchMessages, fetchRecentContext }}>
       {children}
     </ChatbotContext.Provider>
   );

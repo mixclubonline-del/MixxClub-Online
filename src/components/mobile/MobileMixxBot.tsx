@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -64,6 +65,9 @@ const quickActions: QuickAction[] = [
 ];
 
 export const MobileMixxBot = ({ onClose }: { onClose?: () => void }) => {
+  const location = useLocation();
+  const currentPage = location.pathname;
+  
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -158,7 +162,8 @@ export const MobileMixxBot = ({ onClose }: { onClose?: () => void }) => {
           conversationHistory: messages.map(m => ({
             role: m.role,
             content: m.content
-          }))
+          })),
+          context: { page: currentPage, isMobile: true }
         }
       });
 

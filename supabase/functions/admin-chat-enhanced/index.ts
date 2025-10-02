@@ -129,7 +129,7 @@ serve(async (req) => {
   }
 
   try {
-    const { message, conversationHistory = [] } = await req.json();
+    const { message, conversationHistory = [], context = {}, messages: directMessages } = await req.json();
     
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -219,6 +219,32 @@ serve(async (req) => {
       });
     }
 
+    // Add navigation context
+    const currentPage = context.page || 'unknown';
+    const isMobile = context.isMobile || false;
+    
+    let navigationInfo = '\n\n# NAVIGATION CONTEXT & ASSISTANCE\n';
+    navigationInfo += `**Current Location:** ${currentPage}\n`;
+    navigationInfo += `**Device:** ${isMobile ? 'Mobile' : 'Desktop'}\n\n`;
+    
+    navigationInfo += `**ADMIN PANEL NAVIGATION MAP:**\n`;
+    navigationInfo += `- /admin (Main dashboard)\n`;
+    navigationInfo += `- /admin-analytics (Platform analytics)\n`;
+    navigationInfo += `- /admin-users (User management)\n`;
+    navigationInfo += `- /admin-financial (Revenue, payments, documents)\n`;
+    navigationInfo += `- /admin-jobs (Job postings management)\n`;
+    navigationInfo += `- /admin-payouts (Engineer payouts)\n`;
+    navigationInfo += `- /admin-content (Content moderation)\n`;
+    navigationInfo += `- /admin-notifications (Notification center)\n`;
+    navigationInfo += `- /mobile-admin (Mobile admin dashboard)\n\n`;
+    
+    navigationInfo += `**SMART NAVIGATION:**\n`;
+    navigationInfo += `When users ask about features, provide direct navigation:\n`;
+    navigationInfo += `- "Check analytics" → "View [Platform Analytics](/admin-analytics)"\n`;
+    navigationInfo += `- "Manage users" → "Go to [User Management](/admin-users)"\n`;
+    navigationInfo += `- "Financial reports" → "Visit [Financial Dashboard](/admin-financial)"\n`;
+    navigationInfo += `- "Review payouts" → "Check [Engineer Payouts](/admin-payouts)"\n\n`;
+
     const contextEnhancedPrompt = `${SYSTEM_PROMPT}
 
 # CURRENT BUSINESS METRICS (Real-Time Data)
@@ -233,6 +259,8 @@ ${contextualInfo}
 
 ${calendarInfo}
 
+${navigationInfo}
+
 # CALENDAR & SCHEDULING CAPABILITIES
 
 You can help admins manage deadlines and events. When users ask about calendar-related tasks:
@@ -243,6 +271,8 @@ You can help admins manage deadlines and events. When users ask about calendar-r
 
 For calendar requests, provide specific date/time details and encourage users to use the calendar feature to track important deadlines and milestones.
 
+**IMPORTANT:** Provide contextual navigation links based on user questions. Help them find the right admin panel quickly.
+
 Use this data to provide context-aware insights and recommendations.`;
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
@@ -251,6 +281,12 @@ Use this data to provide context-aware insights and recommendations.`;
     }
 
     console.log('Calling Lovable AI with enhanced admin context...');
+
+    // Support both message formats (single message or messages array)
+    const aiMessages = directMessages || [
+      ...conversationHistory,
+      ...(message ? [{ role: 'user', content: message }] : [])
+    ];
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -262,8 +298,7 @@ Use this data to provide context-aware insights and recommendations.`;
         model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: contextEnhancedPrompt },
-          ...conversationHistory,
-          { role: 'user', content: message }
+          ...aiMessages
         ],
       }),
     });

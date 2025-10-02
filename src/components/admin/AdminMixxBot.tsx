@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -37,6 +38,9 @@ const QUICK_ACTIONS = [
 ];
 
 export default function AdminMixxBot() {
+  const location = useLocation();
+  const currentPage = location.pathname;
+  
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
@@ -82,7 +86,8 @@ export default function AdminMixxBot() {
           messages: [...messages, userMessage].map(m => ({
             role: m.role,
             content: m.content
-          }))
+          })),
+          context: { page: currentPage }
         },
         headers: {
           Authorization: `Bearer ${session.access_token}`

@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -15,6 +16,10 @@ interface Message {
 }
 
 export const EngineerCRMChatbot = () => {
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const currentTab = searchParams.get('tab') || 'overview';
+  
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -73,18 +78,38 @@ export const EngineerCRMChatbot = () => {
     setInput('');
 
     try {
-      const systemPrompt = `You are an Engineer CRM assistant for MixClub Online. Help engineers with:
-- Using AI mastering tools and available plugins
-- Optimizing their profile for more clients
-- Managing multiple projects efficiently
-- Understanding the 70% revenue share and payment system
-- Best practices for client communication
-- Workflow optimization and delivery timelines
-- Quality standards for different genres
-- Building reputation through reviews and ratings
+      const pageContext = `Current page: Engineer CRM - ${currentTab === 'overview' ? 'Dashboard' : currentTab}`;
+      
+      const systemPrompt = `You are an Engineer CRM assistant for MixClub Online.
+
+**NAVIGATION MAP:**
+- /engineer-crm (Dashboard with earnings and stats)
+- /engineer-crm?tab=active-projects (Current client projects)
+- /engineer-crm?tab=opportunities (Job applications and new gigs)
+- /engineer-crm?tab=tools (AI mastering and workspace)
+- /engineer-crm?tab=business (Earnings, payouts, analytics)
+- /engineer-crm?tab=profile (Portfolio, reviews, badges)
+
+**CURRENT LOCATION:** ${pageContext}
+
+**YOUR CAPABILITIES:**
+- Navigate between CRM sections with direct links
+- AI mastering tools and plugins guidance
+- Profile optimization for more clients
+- Multi-project management
+- Revenue share (70%) and payment system
+- Client communication best practices
+- Workflow optimization and timelines
+- Genre-specific quality standards
+- Reputation building through reviews
 - Technical workspace setup
 
-Be professional, technical when needed, and business-focused. Provide actionable advice for audio engineers.`;
+**NAVIGATION HELP:**
+Provide contextual links like:
+"View your earnings at [Business](/engineer-crm?tab=business)"
+"Check [Active Projects](/engineer-crm?tab=active-projects) for client work"
+
+Be professional, technical, and business-focused with actionable advice.`;
 
       const { data, error } = await supabase.functions.invoke('chat-simple', {
         body: {
@@ -93,6 +118,7 @@ Be professional, technical when needed, and business-focused. Provide actionable
             ...messages.map(msg => ({ role: msg.role, content: msg.content })),
             { role: 'user', content: messageContent }
           ],
+          context: { page: location.pathname, tab: currentTab }
         },
       });
 
