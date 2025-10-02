@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, TrendingUp } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 
 interface MerchVariant {
@@ -55,33 +55,6 @@ export default function MerchStore() {
     }
   };
 
-  const syncProducts = async () => {
-    if (!user) {
-      toast.error('Please log in to sync products');
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      const { data, error } = await supabase.functions.invoke('printful-sync-products', {
-        headers: {
-          Authorization: `Bearer ${session?.access_token}`
-        }
-      });
-      
-      if (error) throw error;
-      
-      toast.success(`Synced ${data?.productCount || 0} products from Printful!`);
-      loadProducts();
-    } catch (error: any) {
-      console.error('Sync error:', error);
-      toast.error(error.message || 'Failed to sync products');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const addToCart = (variantId: string) => {
     const newCart = new Map(cart);
@@ -123,29 +96,21 @@ export default function MerchStore() {
             <p className="text-muted-foreground">Exclusive gear for audio professionals</p>
           </div>
           
-          <div className="flex gap-4">
-            <Button onClick={syncProducts} variant="outline">
-              <TrendingUp className="mr-2 h-4 w-4" />
-              Sync Products
-            </Button>
-            
-            <Button variant="secondary" className="relative">
-              <ShoppingCart className="mr-2 h-4 w-4" />
-              Cart
-              {getCartItemCount() > 0 && (
-                <Badge variant="destructive" className="absolute -top-2 -right-2">
-                  {getCartItemCount()}
-                </Badge>
-              )}
-            </Button>
-          </div>
+          <Button variant="secondary" className="relative">
+            <ShoppingCart className="mr-2 h-4 w-4" />
+            Cart
+            {getCartItemCount() > 0 && (
+              <Badge variant="destructive" className="absolute -top-2 -right-2">
+                {getCartItemCount()}
+              </Badge>
+            )}
+          </Button>
         </div>
 
         {products.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
-              <p className="text-muted-foreground mb-4">No products available yet</p>
-              <Button onClick={syncProducts}>Sync Products from Printful</Button>
+              <p className="text-muted-foreground">No products available yet. Check back soon!</p>
             </CardContent>
           </Card>
         ) : (

@@ -5,14 +5,18 @@ import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingBag, Disc, Settings2, DollarSign, Plus } from "lucide-react";
+import { ShoppingBag, Disc, Settings2, DollarSign, Plus, TrendingUp, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const AdminMarketplace = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
+  const [productCount, setProductCount] = useState(0);
+  const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -29,10 +33,49 @@ const AdminMarketplace = () => {
 
       setIsAdmin(true);
       setLoading(false);
+      loadProductStats();
     };
 
     checkAdmin();
   }, [user, navigate]);
+
+  const loadProductStats = async () => {
+    try {
+      const { count, error } = await supabase
+        .from('merch_products')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_active', true);
+
+      if (error) throw error;
+      setProductCount(count || 0);
+    } catch (error: any) {
+      console.error('Error loading product stats:', error);
+    }
+  };
+
+  const syncProducts = async () => {
+    try {
+      setSyncing(true);
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const { data, error } = await supabase.functions.invoke('printful-sync-products', {
+        headers: {
+          Authorization: `Bearer ${session?.access_token}`
+        }
+      });
+      
+      if (error) throw error;
+      
+      toast.success(`Successfully synced ${data?.productCount || 0} products from Printful!`);
+      setLastSyncTime(new Date());
+      loadProductStats();
+    } catch (error: any) {
+      console.error('Sync error:', error);
+      toast.error(error.message || 'Failed to sync products');
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
@@ -43,50 +86,54 @@ const AdminMarketplace = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Marketplace Expansion</h1>
-            <p className="text-muted-foreground">Manage sample libraries, presets, and templates</p>
+            <h1 className="text-3xl font-bold">Marketplace Management</h1>
+            <p className="text-muted-foreground">Sync and manage Printful merchandise products</p>
           </div>
-          <Badge variant="outline" className="text-warning border-warning">
-            Coming Soon
-          </Badge>
+          <Button onClick={syncProducts} disabled={syncing}>
+            {syncing ? (
+              <>
+                <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                Syncing...
+              </>
+            ) : (
+              <>
+                <TrendingUp className="w-4 h-4 mr-2" />
+                Sync Products
+              </>
+            )}
+          </Button>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-3 mb-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Disc className="w-5 h-5" />
-                Sample Library
+                <ShoppingBag className="w-5 h-5" />
+                Active Products
               </CardTitle>
-              <CardDescription>Upload and manage audio samples</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground mb-4">
-                Curate a collection of high-quality samples for artists to use in their productions.
+              <p className="text-3xl font-bold">{productCount}</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Currently available in store
               </p>
-              <Button disabled className="w-full">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Sample Pack
-              </Button>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Settings2 className="w-5 h-5" />
-                Preset Collections
+                <RefreshCw className="w-5 h-5" />
+                Last Sync
               </CardTitle>
-              <CardDescription>Share engineer presets</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground mb-4">
-                Allow engineers to sell their custom plugin presets and mixing templates.
+              <p className="text-lg font-medium">
+                {lastSyncTime ? lastSyncTime.toLocaleString() : 'Never'}
               </p>
-              <Button disabled className="w-full">
-                <Plus className="w-4 h-4 mr-2" />
-                Upload Presets
-              </Button>
+              <p className="text-sm text-muted-foreground mt-1">
+                Printful integration status
+              </p>
             </CardContent>
           </Card>
 
@@ -94,18 +141,56 @@ const AdminMarketplace = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <DollarSign className="w-5 h-5" />
-                Revenue Sharing
+                Revenue (Coming Soon)
               </CardTitle>
-              <CardDescription>Configure marketplace splits</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold">$0.00</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Total merch sales
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ShoppingBag className="w-5 h-5" />
+                Printful Integration
+              </CardTitle>
+              <CardDescription>Merchandise products via Printful</CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground mb-4">
-                Set fair revenue splits between creators, MixClub, and contributors.
+                Sync products from Printful to populate the merch store with t-shirts, hoodies, and more branded gear.
               </p>
-              <Button disabled className="w-full">
-                <Settings2 className="w-4 h-4 mr-2" />
-                Configure Splits
-              </Button>
+              <div className="space-y-2 text-sm">
+                <p>✓ Automated product syncing</p>
+                <p>✓ Print-on-demand fulfillment</p>
+                <p>✓ No inventory management needed</p>
+                <p>✓ Direct integration with store</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Disc className="w-5 h-5" />
+                Future Marketplace Features
+              </CardTitle>
+              <CardDescription>Coming soon</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <p>• Sample pack library</p>
+                <p>• Engineer preset collections</p>
+                <p>• DAW project templates</p>
+                <p>• Revenue sharing system</p>
+                <p>• Creator storefronts</p>
+              </div>
             </CardContent>
           </Card>
         </div>
