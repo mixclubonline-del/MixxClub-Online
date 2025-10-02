@@ -43,6 +43,15 @@ Deno.serve(async (req) => {
       throw new Error('Unauthorized');
     }
 
+    // Check if user is admin
+    const { data: isAdminData, error: adminError } = await supabaseClient.rpc('is_admin', {
+      user_uuid: user.id
+    });
+
+    if (adminError || !isAdminData) {
+      throw new Error('Admin access required');
+    }
+
     logger.info('Syncing Printful products', { userId: user.id });
 
     const printfulApiKey = Deno.env.get('PRINTFUL_API_KEY');

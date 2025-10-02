@@ -57,17 +57,28 @@ export default function MerchStore() {
   };
 
   const syncProducts = async () => {
+    if (!user) {
+      toast.error('Please log in to sync products');
+      return;
+    }
+
     try {
       setLoading(true);
-      const { error } = await supabase.functions.invoke('printful-sync-products');
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const { data, error } = await supabase.functions.invoke('printful-sync-products', {
+        headers: {
+          Authorization: `Bearer ${session?.access_token}`
+        }
+      });
       
       if (error) throw error;
       
-      toast.success('Products synced successfully!');
+      toast.success(`Synced ${data?.productCount || 0} products from Printful!`);
       loadProducts();
     } catch (error: any) {
-      toast.error('Failed to sync products');
-      console.error(error);
+      console.error('Sync error:', error);
+      toast.error(error.message || 'Failed to sync products');
     } finally {
       setLoading(false);
     }
