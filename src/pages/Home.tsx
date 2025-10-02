@@ -15,11 +15,40 @@ import { LiveStats } from "@/components/LiveStats";
 import { BeforeAfterComparison } from "@/components/BeforeAfterComparison";
 import { HomeShowcaseSlideshow } from "@/components/HomeShowcaseSlideshow";
 import { Button } from "@/components/ui/button";
-import { Users, Zap, Music, Sparkles } from "lucide-react";
+import { Users, Zap, Music, Sparkles, Volume2 } from "lucide-react";
+import { useWelcomeAudio } from "@/hooks/useWelcomeAudio";
+import { toast } from "sonner";
 
 const Home = () => {
+  const { enableAudio, playSegment, isAudioEnabled, isLoading } = useWelcomeAudio(5);
+
+  const testAudio = async () => {
+    try {
+      await enableAudio();
+      if (isAudioEnabled) {
+        await playSegment(0);
+        toast.success('Audio test successful! Playing beat 1.');
+      }
+    } catch (error) {
+      console.error('Audio test failed:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen">
+      {/* Audio Test Button - Fixed position */}
+      <div className="fixed bottom-4 right-4 z-50">
+        <Button 
+          onClick={testAudio}
+          disabled={isLoading}
+          size="lg"
+          className="shadow-glow"
+        >
+          <Volume2 className="w-5 h-5 mr-2" />
+          {isLoading ? 'Loading...' : isAudioEnabled ? 'Test Audio ✓' : 'Test Audio'}
+        </Button>
+      </div>
+
       <Navigation />
       <Hero />
       <HomeShowcaseSlideshow />
