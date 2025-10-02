@@ -431,13 +431,16 @@ export type Database = {
       }
       battles: {
         Row: {
+          battle_type: string | null
           created_at: string
           description: string | null
           event_date: string | null
           id: string
           league: string | null
+          prize_pool: number | null
           rapper1: string
           rapper2: string
+          stems_required: boolean | null
           title: string
           updated_at: string
           video_id: string
@@ -445,13 +448,16 @@ export type Database = {
           votes_count: number | null
         }
         Insert: {
+          battle_type?: string | null
           created_at?: string
           description?: string | null
           event_date?: string | null
           id?: string
           league?: string | null
+          prize_pool?: number | null
           rapper1: string
           rapper2: string
+          stems_required?: boolean | null
           title: string
           updated_at?: string
           video_id: string
@@ -459,13 +465,16 @@ export type Database = {
           votes_count?: number | null
         }
         Update: {
+          battle_type?: string | null
           created_at?: string
           description?: string | null
           event_date?: string | null
           id?: string
           league?: string | null
+          prize_pool?: number | null
           rapper1?: string
           rapper2?: string
+          stems_required?: boolean | null
           title?: string
           updated_at?: string
           video_id?: string
@@ -621,6 +630,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      community_milestones: {
+        Row: {
+          created_at: string | null
+          current_value: number
+          display_order: number | null
+          feature_key: string
+          icon_name: string | null
+          id: string
+          is_unlocked: boolean
+          milestone_description: string | null
+          milestone_name: string
+          milestone_type: string
+          reward_description: string | null
+          target_value: number
+          unlocked_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          current_value?: number
+          display_order?: number | null
+          feature_key: string
+          icon_name?: string | null
+          id?: string
+          is_unlocked?: boolean
+          milestone_description?: string | null
+          milestone_name: string
+          milestone_type: string
+          reward_description?: string | null
+          target_value: number
+          unlocked_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          current_value?: number
+          display_order?: number | null
+          feature_key?: string
+          icon_name?: string | null
+          id?: string
+          is_unlocked?: boolean
+          milestone_description?: string | null
+          milestone_name?: string
+          milestone_type?: string
+          reward_description?: string | null
+          target_value?: number
+          unlocked_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       contact_submissions: {
         Row: {
@@ -1347,6 +1407,82 @@ export type Database = {
           uploaded_by?: string | null
         }
         Relationships: []
+      }
+      milestone_contributors: {
+        Row: {
+          contribution_count: number
+          first_contribution_at: string | null
+          id: string
+          last_contribution_at: string | null
+          milestone_id: string
+          user_id: string
+        }
+        Insert: {
+          contribution_count?: number
+          first_contribution_at?: string | null
+          id?: string
+          last_contribution_at?: string | null
+          milestone_id: string
+          user_id: string
+        }
+        Update: {
+          contribution_count?: number
+          first_contribution_at?: string | null
+          id?: string
+          last_contribution_at?: string | null
+          milestone_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "milestone_contributors_milestone_id_fkey"
+            columns: ["milestone_id"]
+            isOneToOne: false
+            referencedRelation: "community_milestones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      milestone_progress_log: {
+        Row: {
+          created_at: string | null
+          id: string
+          increment_amount: number
+          milestone_id: string
+          new_value: number
+          previous_value: number
+          reason: string | null
+          triggered_by: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          increment_amount: number
+          milestone_id: string
+          new_value: number
+          previous_value: number
+          reason?: string | null
+          triggered_by?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          increment_amount?: number
+          milestone_id?: string
+          new_value?: number
+          previous_value?: number
+          reason?: string | null
+          triggered_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "milestone_progress_log_milestone_id_fkey"
+            columns: ["milestone_id"]
+            isOneToOne: false
+            referencedRelation: "community_milestones"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       mixing_packages: {
         Row: {
@@ -2961,6 +3097,20 @@ export type Database = {
         }
         Returns: string
       }
+      get_community_milestones_status: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          contributor_count: number
+          current_value: number
+          feature_key: string
+          is_unlocked: boolean
+          milestone_description: string
+          milestone_name: string
+          progress_percentage: number
+          target_value: number
+          unlocked_at: string
+        }[]
+      }
       has_mastering_access: {
         Args: { user_id: string }
         Returns: boolean
@@ -3007,6 +3157,15 @@ export type Database = {
       update_engineer_streak: {
         Args: { p_engineer_id: string }
         Returns: undefined
+      }
+      update_milestone_progress: {
+        Args: {
+          p_feature_key: string
+          p_increment?: number
+          p_reason?: string
+          p_user_id?: string
+        }
+        Returns: boolean
       }
     }
     Enums: {
