@@ -13,6 +13,7 @@ import {
   Menu,
   LogOut,
   CreditCard,
+  Truck,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -38,6 +39,7 @@ const navigation = [
   { name: 'Media Library', href: '/admin/media', icon: Image },
   { name: 'Payouts', href: '/admin/payouts', icon: Settings },
   { name: 'Test Payments', href: '/admin/test-payments', icon: CreditCard },
+  { name: 'Distribution Hub', href: '/distribution', icon: Truck },
   { name: 'Education Hub', href: '/admin/education', icon: Settings },
   { name: 'Marketplace', href: '/admin/marketplace', icon: Settings },
   { name: 'Integrations', href: '/admin/integrations', icon: Settings },

@@ -52,6 +52,7 @@ const Navigation = () => {
         { to: "/jobs", label: "Job Board" },
         { to: "/mixing", label: "Mixing Studio" },
         { to: "/mastering", label: "Mastering Studio" },
+        { to: "/distribution", label: "Distribution" },
       ];
     }
 
