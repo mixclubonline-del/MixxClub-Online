@@ -6,6 +6,7 @@ import { LiveStats } from "@/components/LiveStats";
 import { BeforeAfterComparison } from "@/components/BeforeAfterComparison";
 import { FreemiumBanner } from "@/components/FreemiumBanner";
 import { CommunityShowcase } from "@/components/home/CommunityShowcase";
+import { CommunityMilestoneTracker } from "@/components/CommunityMilestoneTracker";
 import { Button } from "@/components/ui/button";
 import { Users, Award, Music2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -63,7 +64,7 @@ const Home = () => {
             </p>
             <Button
               size="lg"
-              onClick={() => navigate('/beat-battle')}
+              onClick={() => navigate('/mix-battles')}
               className="text-lg px-10 py-7 shadow-glow-raven"
             >
               View Current Battles
@@ -145,6 +146,13 @@ const Home = () => {
       </section>
 
       <CommunityShowcase />
+
+      {/* Community Milestones */}
+      <section className="py-20 bg-gradient-to-b from-background to-muted/30">
+        <div className="container px-6">
+          <CommunityMilestoneTracker />
+        </div>
+      </section>
 
       <footer className="border-t border-border py-8 bg-card">
         <div className="container px-6">

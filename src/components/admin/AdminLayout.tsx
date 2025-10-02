@@ -41,6 +41,7 @@ const navigation = [
   { name: 'Education Hub', href: '/admin/education', icon: Settings },
   { name: 'Marketplace', href: '/admin/marketplace', icon: Settings },
   { name: 'Integrations', href: '/admin/integrations', icon: Settings },
+  { name: 'Community Milestones', href: '/admin/milestones', icon: Settings },
 ];
 
 export function AdminLayout({ children }: AdminLayoutProps) {

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Music, Trophy, Users, Clock, Zap, Star, TrendingUp, Upload } from 'lucide-react';
+import { Music, Trophy, Users, Clock, Star, TrendingUp, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -25,7 +25,7 @@ interface Battle {
   }>;
 }
 
-const BeatBattle = () => {
+const MixBattles = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [selectedBattle, setSelectedBattle] = useState<string | null>(null);
@@ -33,8 +33,8 @@ const BeatBattle = () => {
   const activeBattles: Battle[] = [
     {
       id: '1',
-      title: 'Winter Trap Championship',
-      description: 'Create the hardest trap beat with winter vibes',
+      title: 'Winter Mixing Showcase',
+      description: 'Create the cleanest mix with winter vibes - showcase your mixing skills',
       prize: '$500 + Featured Placement',
       entries: 47,
       maxEntries: 100,
@@ -44,8 +44,8 @@ const BeatBattle = () => {
     },
     {
       id: '2',
-      title: 'Boom Bap Revival',
-      description: 'Bring back the golden age of hip hop',
+      title: 'Golden Age Mix Challenge',
+      description: 'Mix a classic boom bap track with modern clarity',
       prize: '$300 + Studio Session',
       entries: 89,
       maxEntries: 100,
@@ -53,36 +53,36 @@ const BeatBattle = () => {
       genre: 'Boom Bap',
       status: 'voting',
       topEntries: [
-        { artist: 'BeatMaker Pro', title: 'Classic Flow', votes: 234 },
-        { artist: 'DJ Nostalgia', title: '90s Revival', votes: 187 },
-        { artist: 'Sample King', title: 'Back to the Roots', votes: 156 }
+        { artist: 'MixMaster Pro', title: 'Classic Flow Mix', votes: 234 },
+        { artist: 'Engineer Nova', title: '90s Clarity', votes: 187 },
+        { artist: 'Mix King', title: 'Vintage Polish', votes: 156 }
       ]
     },
     {
       id: '3',
-      title: 'Melodic Drill Battle',
-      description: 'Combine drill energy with melodic elements',
+      title: 'Melodic Song Battle',
+      description: 'Complete song production - from writing to final master',
       prize: '$400 + Engineer Collab',
       entries: 34,
       maxEntries: 75,
       deadline: '5 days',
-      genre: 'Drill',
+      genre: 'Melodic',
       status: 'active'
     }
   ];
 
   const pastWinners = [
     {
-      battle: 'November Trap Battle',
+      battle: 'November Mix Championship',
       winner: 'Marcus Chen',
-      track: 'Dark Nights',
+      track: 'Dark Nights - Final Mix',
       prize: '$500',
       votes: 423
     },
     {
-      battle: 'October Lo-Fi Challenge',
+      battle: 'October Song Challenge',
       winner: 'Sarah M.',
-      track: 'Sunset Dreams',
+      track: 'Sunset Dreams - Full Production',
       prize: '$300',
       votes: 387
     }
@@ -113,16 +113,16 @@ const BeatBattle = () => {
           <div className="max-w-4xl mx-auto text-center">
             <Badge className="mb-6 px-4 py-2">
               <Trophy className="w-4 h-4 mr-2" />
-              Monthly Beat Battles
+              Mix & Song Battles
             </Badge>
             
             <h1 className="text-5xl md:text-7xl font-black mb-6 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
-              Compete. Create. Win.
+              Compete. Mix. Win.
             </h1>
             
             <p className="text-xl text-muted-foreground mb-8">
-              Join our monthly beat battles, showcase your skills, and win cash prizes. 
-              Get feedback from top engineers and grow your reputation.
+              Join our mix battles and song challenges, showcase your engineering skills, and win cash prizes. 
+              Get feedback from the community and grow your reputation.
             </p>
 
             {/* Stats */}
@@ -308,16 +308,16 @@ const BeatBattle = () => {
       <section className="py-20 bg-gradient-to-b from-muted/30 to-background">
         <div className="container px-6">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-4xl font-bold text-center mb-12">How Beat Battles Work</h2>
+            <h2 className="text-4xl font-bold text-center mb-12">How Mix & Song Battles Work</h2>
             
             <div className="grid md:grid-cols-3 gap-8">
               <div className="text-center">
                 <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
                   <Upload className="w-8 h-8 text-primary" />
                 </div>
-                <h3 className="font-bold mb-2">1. Submit Your Beat</h3>
+                <h3 className="font-bold mb-2">1. Submit Your Mix</h3>
                 <p className="text-sm text-muted-foreground">
-                  Upload your best work before the deadline
+                  Upload your best mix or full song before the deadline
                 </p>
               </div>
               
@@ -327,7 +327,7 @@ const BeatBattle = () => {
                 </div>
                 <h3 className="font-bold mb-2">2. Community Votes</h3>
                 <p className="text-sm text-muted-foreground">
-                  Artists and engineers vote for their favorites
+                  Engineers and artists vote for their favorites
                 </p>
               </div>
               
@@ -348,4 +348,4 @@ const BeatBattle = () => {
   );
 };
 
-export default BeatBattle;
+export default MixBattles;

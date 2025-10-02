@@ -7,7 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { PWAInstallPrompt } from "@/components/mobile/PWAInstallPrompt";
 import Home from "./pages/Home";
-import BeatBattle from "./pages/BeatBattle";
+import MixBattles from "./pages/MixBattles";
 import CommunityLeaderboard from "./pages/CommunityLeaderboard";
 import HowItWorks from "./pages/HowItWorks";
 import Auth from "./pages/Auth";
@@ -38,6 +38,7 @@ import AdminFeatures from './pages/AdminFeatures';
 import AdminEducation from "./pages/AdminEducation";
 import AdminMarketplace from "./pages/AdminMarketplace";
 import AdminIntegrations from "./pages/AdminIntegrations";
+import AdminMilestones from "./pages/AdminMilestones";
 import AdminFinancial from './pages/AdminFinancial';
 import AdminAnalytics from './pages/AdminAnalytics';
 import AdminContent from './pages/AdminContent';
@@ -72,7 +73,7 @@ const App = () => (
         <AuthProvider>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/beat-battle" element={<BeatBattle />} />
+            <Route path="/mix-battles" element={<MixBattles />} />
             <Route path="/leaderboard" element={<CommunityLeaderboard />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/auth" element={<Auth />} />
@@ -106,6 +107,7 @@ const App = () => (
             <Route path="/admin/education" element={<AdminEducation />} />
             <Route path="/admin/marketplace" element={<AdminMarketplace />} />
             <Route path="/admin/integrations" element={<AdminIntegrations />} />
+            <Route path="/admin/milestones" element={<AdminMilestones />} />
             <Route path="/admin/financial" element={<AdminFinancial />} />
             <Route path="/admin/analytics" element={<AdminAnalytics />} />
             <Route path="/admin/content" element={<AdminContent />} />

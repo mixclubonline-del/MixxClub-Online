@@ -10,7 +10,10 @@ export const FEATURE_FLAGS = {
   // Enable this when ready to launch the AI Studio feature
   THE_LAB_ENABLED: false,
   
-  // Phase 3 Features - Educational & Marketplace Expansion
+  // Phase 3 Features - Community-Driven Unlocks
+  // Mix Battles - Competitive mixing and song battles
+  MIX_BATTLES_ENABLED: false,
+  
   // Educational Content Hub - Video tutorials, courses, certifications
   EDUCATION_HUB_ENABLED: false,
   
