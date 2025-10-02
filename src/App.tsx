@@ -27,7 +27,9 @@ import MixingShowcase from "./pages/MixingShowcase";
 import MasteringShowcase from "./pages/MasteringShowcase";
 import BattleTournaments from "./pages/BattleTournaments";
 import StudioDirectory from "./pages/StudioDirectory";
-import EducationHub from "./pages/EducationHub";
+import EducationalHub from "./pages/EducationalHub";
+import CourseViewer from "./pages/CourseViewer";
+import MyCertifications from "./pages/MyCertifications";
 import ForEngineers from "./pages/ForEngineers";
 import EngineerDirectory from "./pages/EngineerDirectory";
 import EngineerProfile from "./pages/EngineerProfile";
@@ -136,7 +138,9 @@ const App = () => (
             <Route path="/studio-directory" element={<StudioDirectory />} />
             
             {/* Tier 2 Features */}
-            <Route path="/education-hub" element={<EducationHub />} />
+            <Route path="/education" element={<EducationalHub />} />
+            <Route path="/course/:courseId" element={<CourseViewer />} />
+            <Route path="/my-certifications" element={<MyCertifications />} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
