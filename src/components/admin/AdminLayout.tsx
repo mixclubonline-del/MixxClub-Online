@@ -38,6 +38,9 @@ const navigation = [
   { name: 'Media Library', href: '/admin/media', icon: Image },
   { name: 'Payouts', href: '/admin/payouts', icon: Settings },
   { name: 'Test Payments', href: '/admin/test-payments', icon: CreditCard },
+  { name: 'Education Hub', href: '/admin/education', icon: Settings },
+  { name: 'Marketplace', href: '/admin/marketplace', icon: Settings },
+  { name: 'Integrations', href: '/admin/integrations', icon: Settings },
 ];
 
 export function AdminLayout({ children }: AdminLayoutProps) {

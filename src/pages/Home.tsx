@@ -1,155 +1,176 @@
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
-import ProblemStatement from "@/components/ProblemStatement";
-import HowItWorks from "@/components/HowItWorks";
-import WhyMixClub from "@/components/WhyMixClub";
-import Services from "@/components/Services";
-import AudioPreview from "@/components/AudioPreview";
-import { SuccessStories } from "@/components/SuccessStories";
-import Pricing from "@/components/Pricing";
-import Contact from "@/components/Contact";
-import { PluginShowcase } from "@/components/PluginShowcase";
-import { Testimonials } from "@/components/Testimonials";
-import { LiveStats } from "@/components/LiveStats";
-import { BeforeAfterComparison } from "@/components/BeforeAfterComparison";
-import { HomeShowcaseSlideshow } from "@/components/HomeShowcaseSlideshow";
 import { InstantDemoSection } from "@/components/InstantDemoSection";
 import { RecentSuccesses } from "@/components/RecentSuccesses";
+import { LiveStats } from "@/components/LiveStats";
+import { BeforeAfterComparison } from "@/components/BeforeAfterComparison";
 import { FreemiumBanner } from "@/components/FreemiumBanner";
 import { CommunityShowcase } from "@/components/home/CommunityShowcase";
 import { Button } from "@/components/ui/button";
-import { Users, Zap, Music, Sparkles } from "lucide-react";
+import { Users, Award, Music2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen">
       <Navigation />
+      
+      {/* SECTION 1: Hero + Instant Demo */}
       <Hero />
       <InstantDemoSection />
-      <RecentSuccesses />
-      <HomeShowcaseSlideshow />
-      <BeforeAfterComparison />
-      <FreemiumBanner />
-      <ProblemStatement />
-      <HowItWorks />
-      <WhyMixClub />
-      <Services />
-      <AudioPreview />
-      <SuccessStories />
-      <Testimonials />
-      <CommunityShowcase />
-      <LiveStats />
-      <PluginShowcase />
-      <section id="engineers" className="py-32 bg-gradient-to-b from-background via-[hsl(262_30%_8%)] to-background relative overflow-hidden">
-        {/* Animated background elements */}
-        <div className="absolute inset-0">
-          <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-raven-float" />
-          <div className="absolute bottom-1/4 left-1/4 w-80 h-80 bg-[hsl(220_90%_60%)]/15 rounded-full blur-3xl animate-pulse-glow" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[hsl(180_100%_50%)]/10 rounded-full blur-3xl animate-raven-float" style={{ animationDelay: '1s' }} />
+
+      {/* SECTION 2: Social Proof + Trust */}
+      <section className="py-20 bg-gradient-to-b from-background to-[hsl(262_30%_8%)]">
+        <div className="container px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-black mb-4">
+              <span className="bg-gradient-to-r from-primary via-[hsl(220_90%_60%)] to-[hsl(180_100%_50%)] bg-clip-text text-transparent">
+                Real Artists, Real Results
+              </span>
+            </h2>
+            <p className="text-xl text-muted-foreground">
+              Join thousands of musicians getting radio-ready sound
+            </p>
+          </div>
+          
+          <RecentSuccesses />
+          <div className="mt-12">
+            <LiveStats />
+          </div>
+          <div className="mt-12">
+            <BeforeAfterComparison />
+          </div>
         </div>
-        
-        {/* Grid pattern */}
-        <div className="absolute inset-0 opacity-[0.015]" style={{
-          backgroundImage: 'linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)',
-          backgroundSize: '60px 60px'
-        }} />
-        
-        <div className="container px-6 relative z-10">
-          <div className="max-w-6xl mx-auto">
-            {/* Header with dramatic styling */}
-            <div className="text-center mb-16 animate-fade-in">
-              <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass-studio border-2 border-primary/40 shadow-glow-sm mb-6">
-                <Sparkles className="w-4 h-4 text-primary animate-pulse-glow" />
-                <span className="text-sm font-semibold bg-gradient-to-r from-foreground via-[hsl(0_0%_90%)] to-foreground bg-clip-text text-transparent">
-                  FOR AUDIO PROFESSIONALS
-                </span>
-              </div>
-              
-              <h2 className="text-5xl md:text-7xl font-black tracking-tighter mb-6 leading-[1.1]">
-                <span className="bg-gradient-to-r from-primary via-[hsl(220_90%_60%)] to-[hsl(180_100%_50%)] bg-clip-text text-transparent drop-shadow-[0_0_40px_hsl(262_83%_58%/0.5)]">
-                  Join Our Network of Engineers
+      </section>
+
+      {/* Beat Battles Teaser */}
+      <section className="py-16 bg-[hsl(262_30%_8%)]">
+        <div className="container px-6">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass-studio border-2 border-primary/40 mb-6">
+              <Award className="w-4 h-4 text-primary animate-pulse-glow" />
+              <span className="text-sm font-semibold">THIS MONTH'S CHALLENGE</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-black mb-6">
+              <span className="bg-gradient-to-r from-primary via-[hsl(220_90%_60%)] to-[hsl(180_100%_50%)] bg-clip-text text-transparent">
+                Beat Battles Live
+              </span>
+            </h2>
+            <p className="text-xl text-muted-foreground mb-8">
+              Compete with other producers, win prizes, and get discovered
+            </p>
+            <Button
+              size="lg"
+              onClick={() => navigate('/beat-battle')}
+              className="text-lg px-10 py-7 shadow-glow-raven"
+            >
+              View Current Battles
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 3: Community + Conversion */}
+      <section className="py-20 bg-gradient-to-b from-[hsl(262_30%_8%)] to-background">
+        <div className="container px-6">
+          <FreemiumBanner />
+          
+          {/* Engineer Spotlight */}
+          <div className="mt-20 max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl md:text-5xl font-black mb-4">
+                <span className="bg-gradient-to-r from-primary via-[hsl(220_90%_60%)] to-[hsl(180_100%_50%)] bg-clip-text text-transparent">
+                  For Engineers: Your Craft, Your Rules
                 </span>
               </h2>
-              
-              <p className="text-xl md:text-2xl text-foreground/70 max-w-3xl mx-auto font-light leading-relaxed">
-                Turn your passion into profit. Join MixClub's growing community of audio professionals and{" "}
-                <span className="text-primary font-bold">earn 70% on every project</span>
+              <p className="text-xl text-muted-foreground">
+                Fair pay for great work. Build your reputation, grow your client base.
               </p>
             </div>
-            
-            {/* Feature cards with enhanced styling */}
-            <div className="grid md:grid-cols-3 gap-8 mb-16">
-              <div className="group glass-studio rounded-2xl p-8 border-2 border-primary/30 hover:border-primary/60 transition-all duration-500 hover:scale-[1.05] hover:shadow-glow">
-                <div className="relative mb-6">
-                  <div className="absolute inset-0 blur-2xl opacity-0 group-hover:opacity-100 bg-primary/40 rounded-full transition-opacity duration-500" />
-                  <div className="w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center relative z-10 group-hover:scale-110 transition-transform duration-300">
-                    <Users className="w-8 h-8 text-primary" />
-                  </div>
+
+            <div className="grid md:grid-cols-3 gap-8 mb-12">
+              <div className="glass-studio rounded-2xl p-8 border-2 border-primary/30 text-center">
+                <div className="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                  <Users className="w-8 h-8 text-primary" />
                 </div>
-                <h3 className="text-2xl font-bold mb-3 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
-                  Steady Income
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Get consistent work from talented artists worldwide. Build your client base with our growing platform.
+                <h3 className="text-2xl font-bold mb-3">Find Your Artists</h3>
+                <p className="text-muted-foreground">
+                  Get matched with artists who need your specific expertise and style.
                 </p>
               </div>
-              
-              <div className="group glass-studio rounded-2xl p-8 border-2 border-[hsl(220_90%_60%)]/30 hover:border-[hsl(220_90%_60%)]/60 transition-all duration-500 hover:scale-[1.05] hover:shadow-glow-blue">
-                <div className="relative mb-6">
-                  <div className="absolute inset-0 blur-2xl opacity-0 group-hover:opacity-100 bg-[hsl(220_90%_60%)]/40 rounded-full transition-opacity duration-500" />
-                  <div className="w-16 h-16 bg-gradient-to-br from-[hsl(220_90%_60%)]/20 to-[hsl(220_90%_60%)]/10 rounded-2xl flex items-center justify-center relative z-10 group-hover:scale-110 transition-transform duration-300">
-                    <Zap className="w-8 h-8 text-[hsl(220_90%_60%)]" />
-                  </div>
+
+              <div className="glass-studio rounded-2xl p-8 border-2 border-[hsl(220_90%_60%)]/30 text-center">
+                <div className="w-16 h-16 bg-[hsl(220_90%_60%)]/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                  <Music2 className="w-8 h-8 text-[hsl(220_90%_60%)]" />
                 </div>
-                <h3 className="text-2xl font-bold mb-3 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
-                  70% Revenue
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Keep most of what you earn with our <span className="text-[hsl(220_90%_60%)] font-medium">industry-leading</span> fair split. You do the work, you get paid.
+                <h3 className="text-2xl font-bold mb-3">Keep 70%</h3>
+                <p className="text-muted-foreground">
+                  Industry-leading revenue share. You do the work, you get paid fairly.
                 </p>
               </div>
-              
-              <div className="group glass-studio rounded-2xl p-8 border-2 border-[hsl(180_100%_50%)]/30 hover:border-[hsl(180_100%_50%)]/60 transition-all duration-500 hover:scale-[1.05] hover:shadow-glow-cyan">
-                <div className="relative mb-6">
-                  <div className="absolute inset-0 blur-2xl opacity-0 group-hover:opacity-100 bg-[hsl(180_100%_50%)]/40 rounded-full transition-opacity duration-500" />
-                  <div className="w-16 h-16 bg-gradient-to-br from-[hsl(180_100%_50%)]/20 to-[hsl(180_100%_50%)]/10 rounded-2xl flex items-center justify-center relative z-10 group-hover:scale-110 transition-transform duration-300">
-                    <Music className="w-8 h-8 text-[hsl(180_100%_50%)]" />
-                  </div>
+
+              <div className="glass-studio rounded-2xl p-8 border-2 border-[hsl(180_100%_50%)]/30 text-center">
+                <div className="w-16 h-16 bg-[hsl(180_100%_50%)]/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                  <Award className="w-8 h-8 text-[hsl(180_100%_50%)]" />
                 </div>
-                <h3 className="text-2xl font-bold mb-3 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
-                  Build Portfolio
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Showcase your work and grow your reputation with <span className="text-[hsl(180_100%_50%)] font-medium">verified reviews</span> from real artists.
+                <h3 className="text-2xl font-bold mb-3">Build Your Name</h3>
+                <p className="text-muted-foreground">
+                  Verified reviews and portfolio growth with every completed project.
                 </p>
               </div>
             </div>
-            
-            {/* CTA Button */}
-            <div className="text-center animate-scale-in">
-              <Button 
-                onClick={() => window.location.href = '/for-engineers'}
+
+            <div className="text-center">
+              <Button
                 size="lg"
-                className="text-xl px-12 py-8 shadow-glow-raven hover:shadow-glow-lg transition-all duration-300 font-bold group"
+                onClick={() => navigate('/for-engineers')}
+                className="text-lg px-10 py-7 shadow-glow-raven"
               >
-                <Sparkles className="w-6 h-6 mr-3 group-hover:rotate-12 transition-transform duration-300" />
                 Join as Engineer
               </Button>
-              <p className="mt-6 text-sm text-muted-foreground">
+              <p className="mt-4 text-sm text-muted-foreground">
                 Already a member?{" "}
-                <a href="/auth" className="text-primary hover:text-primary-glow transition-colors duration-200 font-medium">
+                <button
+                  onClick={() => navigate('/auth')}
+                  className="text-primary hover:text-primary-glow transition-colors"
+                >
                   Sign in here
-                </a>
+                </button>
               </p>
             </div>
           </div>
         </div>
       </section>
-      <Pricing />
-      <Contact />
+
+      <CommunityShowcase />
+
       <footer className="border-t border-border py-8 bg-card">
-        <div className="container px-6 text-center text-sm text-muted-foreground">
-          <p>© 2025 MixClubOnline. Make your music sound as good as the pros.</p>
+        <div className="container px-6">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
+            <p>© 2025 MixClubOnline. By musicians, for musicians.</p>
+            <div className="flex gap-6">
+              <button
+                onClick={() => navigate('/how-it-works')}
+                className="hover:text-primary transition-colors"
+              >
+                How It Works
+              </button>
+              <button
+                onClick={() => navigate('/for-engineers')}
+                className="hover:text-primary transition-colors"
+              >
+                For Engineers
+              </button>
+              <button
+                onClick={() => navigate('/leaderboard')}
+                className="hover:text-primary transition-colors"
+              >
+                Community
+              </button>
+            </div>
+          </div>
         </div>
       </footer>
     </div>

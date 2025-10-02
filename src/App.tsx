@@ -9,6 +9,7 @@ import { PWAInstallPrompt } from "@/components/mobile/PWAInstallPrompt";
 import Home from "./pages/Home";
 import BeatBattle from "./pages/BeatBattle";
 import CommunityLeaderboard from "./pages/CommunityLeaderboard";
+import HowItWorks from "./pages/HowItWorks";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
 import ArtistOnboarding from "./pages/ArtistOnboarding";
@@ -34,6 +35,9 @@ import AdminMedia from './pages/AdminMedia';
 import AdminPayouts from './pages/AdminPayouts';
 import AdminPackages from './pages/AdminPackages';
 import AdminFeatures from './pages/AdminFeatures';
+import AdminEducation from "./pages/AdminEducation";
+import AdminMarketplace from "./pages/AdminMarketplace";
+import AdminIntegrations from "./pages/AdminIntegrations";
 import AdminFinancial from './pages/AdminFinancial';
 import AdminAnalytics from './pages/AdminAnalytics';
 import AdminContent from './pages/AdminContent';
@@ -70,6 +74,7 @@ const App = () => (
             <Route path="/" element={<Home />} />
             <Route path="/beat-battle" element={<BeatBattle />} />
             <Route path="/leaderboard" element={<CommunityLeaderboard />} />
+            <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/auth" element={<Auth />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/onboarding/artist" element={<ArtistOnboarding />} />
@@ -98,6 +103,9 @@ const App = () => (
             <Route path="/admin/achievements" element={<AdminAchievements />} />
             <Route path="/admin/packages" element={<AdminPackages />} />
             <Route path="/admin/features" element={<AdminFeatures />} />
+            <Route path="/admin/education" element={<AdminEducation />} />
+            <Route path="/admin/marketplace" element={<AdminMarketplace />} />
+            <Route path="/admin/integrations" element={<AdminIntegrations />} />
             <Route path="/admin/financial" element={<AdminFinancial />} />
             <Route path="/admin/analytics" element={<AdminAnalytics />} />
             <Route path="/admin/content" element={<AdminContent />} />

@@ -10,8 +10,15 @@ export const FEATURE_FLAGS = {
   // Enable this when ready to launch the AI Studio feature
   THE_LAB_ENABLED: false,
   
-  // Add more feature flags here as needed
-  // EXAMPLE_FEATURE: true,
+  // Phase 3 Features - Educational & Marketplace Expansion
+  // Educational Content Hub - Video tutorials, courses, certifications
+  EDUCATION_HUB_ENABLED: false,
+  
+  // Marketplace Expansion - Sample libraries, presets, templates
+  MARKETPLACE_ENABLED: false,
+  
+  // API & Integration Framework - DAW plugins, streaming platforms
+  INTEGRATIONS_ENABLED: false,
 } as const;
 
 /**

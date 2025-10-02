@@ -80,13 +80,13 @@ const Hero = () => {
           {/* Main headline with dramatic typography */}
           <h1 className="text-6xl md:text-8xl font-black tracking-tighter max-w-5xl leading-[1.1]">
             <span className="bg-gradient-to-r from-primary via-primary-glow via-[hsl(220_90%_60%)] to-[hsl(180_100%_50%)] bg-clip-text text-transparent drop-shadow-[0_0_40px_hsl(262_83%_58%/0.5)]">
-              Turn Your Tracks Into Radio-Ready Hits
+              Your Music Deserves Better
             </span>
           </h1>
 
           <p className="text-xl md:text-2xl text-foreground/70 max-w-2xl font-light">
-            Professional mixing and mastering powered by AI and{" "}
-            <span className="text-primary font-medium">award-winning engineers</span>
+            Join thousands of artists getting radio-ready sound.{" "}
+            <span className="text-primary font-medium">Smart tools that enhance your creativity.</span>
           </p>
 
           {/* CTA Buttons with enhanced styling */}
@@ -121,10 +121,10 @@ const Hero = () => {
                 <Zap className="w-12 h-12 text-primary relative z-10 group-hover:scale-110 transition-transform duration-300" />
               </div>
               <h3 className="text-xl font-bold mb-2 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
-                Instant Mastering Polish
+                Get Radio-Ready Sound
               </h3>
               <p className="text-sm text-muted-foreground text-center leading-relaxed">
-                AI-powered mastering in seconds with <span className="text-primary font-medium">studio-grade quality</span>
+                AI mastering in seconds, <span className="text-primary font-medium">no technical knowledge needed</span>
               </p>
             </div>
             <div className="group flex flex-col items-center p-8 rounded-2xl glass-studio border-2 border-[hsl(220_90%_60%)]/30 hover:border-[hsl(220_90%_60%)]/60 transition-all duration-500 hover:scale-[1.02] hover:shadow-glow-blue">
@@ -133,10 +133,10 @@ const Hero = () => {
                 <Users className="w-12 h-12 text-[hsl(220_90%_60%)] relative z-10 group-hover:scale-110 transition-transform duration-300" />
               </div>
               <h3 className="text-xl font-bold mb-2 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
-                Pro Mixing Engineers
+                Connect With Pros
               </h3>
               <p className="text-sm text-muted-foreground text-center leading-relaxed">
-                Connect with <span className="text-[hsl(220_90%_60%)] font-medium">top industry talent</span> worldwide
+                Work with <span className="text-[hsl(220_90%_60%)] font-medium">skilled engineers</span> who understand your vision
               </p>
             </div>
             <div className="group flex flex-col items-center p-8 rounded-2xl glass-studio border-2 border-[hsl(180_100%_50%)]/30 hover:border-[hsl(180_100%_50%)]/60 transition-all duration-500 hover:scale-[1.02] hover:shadow-glow-cyan">
@@ -145,10 +145,10 @@ const Hero = () => {
                 <Music className="w-12 h-12 text-[hsl(180_100%_50%)] relative z-10 group-hover:scale-110 transition-transform duration-300" />
               </div>
               <h3 className="text-xl font-bold mb-2 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
-                Live Studio Sessions
+                Grow Together
               </h3>
               <p className="text-sm text-muted-foreground text-center leading-relaxed">
-                Real-time collaboration with <span className="text-[hsl(180_100%_50%)] font-medium">professional tools</span>
+                Join a <span className="text-[hsl(180_100%_50%)] font-medium">creative community</span> supporting each other
               </p>
             </div>
           </div>
