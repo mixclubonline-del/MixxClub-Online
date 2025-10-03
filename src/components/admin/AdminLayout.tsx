@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import Navigation from '@/components/Navigation';
+import { useMobileDetect } from '@/hooks/useMobileDetect';
 import {
   Sidebar,
   SidebarContent,
@@ -117,14 +118,18 @@ const navigationGroups = [
 
 export function AdminLayout({ children }: AdminLayoutProps) {
   const { signOut } = useAuth();
+  const { isMobile } = useMobileDetect();
 
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
       
-      <SidebarProvider>
+      <SidebarProvider defaultOpen={!isMobile}>
         <div className="flex min-h-screen w-full pt-20">
-          <Sidebar className="border-r z-[90]">
+          <Sidebar 
+            className="border-r z-[90]" 
+            collapsible="offcanvas"
+          >
             <SidebarContent>
               {/* Admin Profile Section */}
               <div className="p-4 border-b">
@@ -182,11 +187,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             </SidebarContent>
           </Sidebar>
 
-          <main className="flex-1">
-            <div className="p-6">
-              <div className="mb-6">
-                <SidebarTrigger className="mb-2" />
-              </div>
+          <main className="flex-1 overflow-x-hidden">
+            <div className={isMobile ? 'p-4' : 'p-6'}>
               {children}
             </div>
           </main>

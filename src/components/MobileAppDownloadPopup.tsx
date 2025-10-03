@@ -45,21 +45,14 @@ export const MobileAppDownloadPopup = () => {
 
       if (progress >= SCROLL_THRESHOLD && !open) {
         setOpen(true);
-        trackEvent({
-          event: 'mobile_app_popup_shown',
-          properties: { trigger: 'scroll', platform }
-        });
+        trackEvent('mobile_app_popup_shown', { trigger: 'scroll', platform });
       }
     };
 
-    // Set timer for auto-show
     const timer = setTimeout(() => {
       if (scrollProgress < SCROLL_THRESHOLD) {
         setOpen(true);
-        trackEvent({
-          event: 'mobile_app_popup_shown',
-          properties: { trigger: 'timer', platform }
-        });
+        trackEvent('mobile_app_popup_shown', { trigger: 'timer', platform });
       }
     }, POPUP_DELAY);
 
@@ -77,17 +70,11 @@ export const MobileAppDownloadPopup = () => {
       timestamp: Date.now(),
       dismissed: true
     }));
-    trackEvent({
-      event: 'mobile_app_popup_dismissed',
-      properties: { platform }
-    });
+    trackEvent('mobile_app_popup_dismissed', { platform });
   };
 
   const handleTryMobile = () => {
-    trackEvent({
-      event: 'mobile_app_popup_clicked',
-      properties: { action: 'try_mobile', platform }
-    });
+    trackEvent('mobile_app_popup_clicked', { action: 'try_mobile', platform });
     navigate('/mobile-landing');
     setOpen(false);
   };

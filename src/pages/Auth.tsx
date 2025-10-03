@@ -168,10 +168,7 @@ const Auth = () => {
       const redirectUrl = `${window.location.origin}/auth/callback`;
       
       // Track OAuth attempt
-      trackEvent({
-        event: 'oauth_attempt',
-        properties: { provider, mode }
-      });
+      trackEvent('oauth_attempt', { provider, mode });
       
       const { error } = await supabase.auth.signInWithOAuth({
         provider,

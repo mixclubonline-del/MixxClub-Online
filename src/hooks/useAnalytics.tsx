@@ -1,224 +1,158 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from './useAuth';
 
 interface AnalyticsEvent {
-  event: string;
+  name: string;
   properties?: Record<string, any>;
+  timestamp: string;
 }
 
+class AnalyticsService {
+  private queue: AnalyticsEvent[] = [];
+  private readonly MAX_QUEUE_SIZE = 50;
+
+  track(eventName: string, properties?: Record<string, any>) {
+    const event: AnalyticsEvent = {
+      name: eventName,
+      properties,
+      timestamp: new Date().toISOString(),
+    };
+
+    this.queue.push(event);
+
+    // Log in development
+    if (import.meta.env.DEV) {
+      console.log('📊 Analytics Event:', event);
+    }
+
+    // Flush queue if it gets too large
+    if (this.queue.length >= this.MAX_QUEUE_SIZE) {
+      this.flush();
+    }
+
+    // In production, send to your analytics service
+    if (import.meta.env.PROD) {
+      // TODO: Integrate with analytics service (e.g., Google Analytics, Mixpanel, Amplitude)
+      // Example: window.gtag?.('event', eventName, properties);
+    }
+  }
+
+  pageView(path: string, properties?: Record<string, any>) {
+    this.track('page_view', {
+      path,
+      ...properties,
+    });
+  }
+
+  userAction(action: string, properties?: Record<string, any>) {
+    this.track('user_action', {
+      action,
+      ...properties,
+    });
+  }
+
+  error(error: Error, context?: Record<string, any>) {
+    this.track('error', {
+      message: error.message,
+      stack: error.stack,
+      ...context,
+    });
+  }
+
+  performance(metric: string, value: number, context?: Record<string, any>) {
+    this.track('performance', {
+      metric,
+      value,
+      ...context,
+    });
+  }
+
+  // Convenience methods for common events
+  trackEvent(eventName: string, properties?: Record<string, any>) {
+    this.track(eventName, properties);
+  }
+
+  trackSignup(method: string, role?: string) {
+    this.track('signup', { method, role });
+  }
+
+  trackPurchase(amount: number, projectId?: string) {
+    this.track('purchase', { amount, projectId });
+  }
+
+  private flush() {
+    if (import.meta.env.DEV) {
+      console.log('📊 Flushing analytics queue:', this.queue.length, 'events');
+    }
+    
+    // In production, batch send events to your analytics service
+    if (import.meta.env.PROD) {
+      // TODO: Batch send events
+    }
+
+    this.queue = [];
+  }
+
+  // Call this when user navigates away or app closes
+  cleanup() {
+    this.flush();
+  }
+}
+
+export const analytics = new AnalyticsService();
+
+// Hook for easy access to analytics
 export const useAnalytics = () => {
+  return analytics;
+};
+
+// Hook for automatic page view tracking
+export const usePageTracking = () => {
   const location = useLocation();
+  const { user } = useAuth();
 
-  // Track page views
   useEffect(() => {
-    trackPageView(location.pathname);
-  }, [location]);
+    analytics.pageView(location.pathname, {
+      userId: user?.id,
+      search: location.search,
+    });
+  }, [location.pathname, location.search, user?.id]);
+};
 
-  const trackPageView = (page: string) => {
-    // Log for development
-    console.log('[Analytics] Page View:', page);
-    
-    // In production, send to analytics service
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('config', 'GA_MEASUREMENT_ID', {
-        page_path: page,
+// Hook for tracking component mount/unmount
+export const useComponentTracking = (componentName: string) => {
+  useEffect(() => {
+    const startTime = Date.now();
+    analytics.track('component_mounted', { componentName });
+
+    return () => {
+      const duration = Date.now() - startTime;
+      analytics.track('component_unmounted', { 
+        componentName,
+        duration,
       });
-    }
+    };
+  }, [componentName]);
+};
+
+// Hook for tracking user interactions
+export const useInteractionTracking = () => {
+  const trackClick = (element: string, properties?: Record<string, any>) => {
+    analytics.userAction('click', { element, ...properties });
   };
 
-  const trackEvent = async ({ event, properties = {} }: AnalyticsEvent) => {
-    console.log('[Analytics] Event:', event, properties);
-    
-    // Send to GA4
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', event, properties);
-    }
-
-    // Send to backend for database tracking
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      await supabase.functions.invoke('track-analytics-event', {
-        body: {
-          eventName: event,
-          eventData: properties,
-          userId: user?.id,
-        },
-      });
-    } catch (error) {
-      console.error('Failed to track event:', error);
-    }
+  const trackFormSubmit = (formName: string, properties?: Record<string, any>) => {
+    analytics.userAction('form_submit', { formName, ...properties });
   };
 
-  const trackConversion = (conversionType: string, value?: number) => {
-    console.log('[Analytics] Conversion:', conversionType, value);
-    
-    trackEvent({
-      event: 'conversion',
-      properties: {
-        conversion_type: conversionType,
-        value: value,
-        timestamp: new Date().toISOString(),
-      },
-    });
-  };
-
-  const trackSignup = (method: string) => {
-    trackEvent({
-      event: 'sign_up',
-      properties: { method },
-    });
-  };
-
-  const trackPurchase = (amount: number, packageType: string) => {
-    trackEvent({
-      event: 'purchase',
-      properties: {
-        value: amount,
-        currency: 'USD',
-        package_type: packageType,
-      },
-    });
-    trackConversion('purchase', amount);
-  };
-
-  const trackProjectCreated = (projectType: string) => {
-    trackEvent({
-      event: 'project_created',
-      properties: { project_type: projectType },
-    });
-  };
-
-  const trackFileUpload = (fileType: string, fileSize: number) => {
-    trackEvent({
-      event: 'file_upload',
-      properties: {
-        file_type: fileType,
-        file_size_mb: (fileSize / (1024 * 1024)).toFixed(2),
-      },
-    });
-  };
-
-  const trackEngagement = (action: string, details?: Record<string, any>) => {
-    trackEvent({
-      event: 'user_engagement',
-      properties: {
-        action,
-        ...details,
-      },
-    });
-  };
-
-  // Qualifier tracking
-  const trackQualifierStarted = () => {
-    trackEvent({
-      event: 'qualifier_started',
-      properties: {},
-    });
-  };
-
-  const trackQualifierStepCompleted = (stepNumber: number, stepData: any) => {
-    trackEvent({
-      event: 'qualifier_step_completed',
-      properties: { step: stepNumber, data: stepData },
-    });
-  };
-
-  const trackQualifierCompleted = (selections: any) => {
-    trackEvent({
-      event: 'qualifier_completed',
-      properties: selections,
-    });
-  };
-
-  const trackEngineerMatchesViewed = (matchCount: number) => {
-    trackEvent({
-      event: 'engineer_matches_viewed',
-      properties: { match_count: matchCount },
-    });
-  };
-
-  const trackSignupFromQualifier = (source: string) => {
-    trackEvent({
-      event: 'signup_from_qualifier',
-      properties: { source },
-    });
-  };
-
-  // Conversion tracking
-  const trackAccountCreated = (userType: string, source: string) => {
-    trackEvent({
-      event: 'account_created',
-      properties: { user_type: userType, source },
-    });
-  };
-
-  const trackPaymentCompleted = (amount: number, paymentMethod: string, packageType: string) => {
-    trackEvent({
-      event: 'payment_completed',
-      properties: { amount, payment_method: paymentMethod, package_type: packageType },
-    });
-  };
-
-  const trackEngineerBooked = (engineerId: string, matchScore: number) => {
-    trackEvent({
-      event: 'engineer_booked',
-      properties: { engineer_id: engineerId, match_score: matchScore },
-    });
-  };
-
-  // Engagement tracking
-  const trackPricingTierClicked = (tier: string) => {
-    trackEvent({
-      event: 'pricing_tier_clicked',
-      properties: { tier },
-    });
-  };
-
-  const trackPackageBuilderUsed = (selections: any) => {
-    trackEvent({
-      event: 'package_builder_used',
-      properties: selections,
-    });
-  };
-
-  const trackExitPopupShown = (trigger: string) => {
-    trackEvent({
-      event: 'exit_popup_shown',
-      properties: { trigger },
-    });
-  };
-
-  const trackSubscriptionCTAViewed = (placement: string) => {
-    trackEvent({
-      event: 'subscription_cta_viewed',
-      properties: { placement },
-    });
+  const trackSearch = (query: string, results?: number) => {
+    analytics.userAction('search', { query, results });
   };
 
   return {
-    trackPageView,
-    trackEvent,
-    trackConversion,
-    trackSignup,
-    trackPurchase,
-    trackProjectCreated,
-    trackFileUpload,
-    trackEngagement,
-    // Qualifier tracking
-    trackQualifierStarted,
-    trackQualifierStepCompleted,
-    trackQualifierCompleted,
-    trackEngineerMatchesViewed,
-    trackSignupFromQualifier,
-    // Conversion tracking
-    trackAccountCreated,
-    trackPaymentCompleted,
-    trackEngineerBooked,
-    // Engagement tracking
-    trackPricingTierClicked,
-    trackPackageBuilderUsed,
-    trackExitPopupShown,
-    trackSubscriptionCTAViewed,
+    trackClick,
+    trackFormSubmit,
+    trackSearch,
   };
 };

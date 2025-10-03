@@ -4,8 +4,10 @@ import { PerformanceMetrics } from "@/components/admin/PerformanceMetrics";
 import { ErrorTracker } from "@/components/admin/ErrorTracker";
 import { APIUsageMonitor } from "@/components/admin/APIUsageMonitor";
 import { DatabasePerformance } from "@/components/admin/DatabasePerformance";
+import { PerformanceDashboard } from "@/components/admin/PerformanceDashboard";
+import { BundleAnalyzer } from "@/components/admin/BundleAnalyzer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Activity, Server, Database, Zap, AlertCircle } from "lucide-react";
+import { Activity, Server, Database, Zap, AlertCircle, Package } from "lucide-react";
 
 export default function SystemMonitoring() {
   return (
@@ -40,12 +42,20 @@ export default function SystemMonitoring() {
               <AlertCircle className="h-4 w-4" />
               Errors
             </TabsTrigger>
+            <TabsTrigger value="bundle" className="gap-2">
+              <Package className="h-4 w-4" />
+              Bundle
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
             <div className="grid gap-6 md:grid-cols-2">
               <SystemHealthMonitor />
               <PerformanceMetrics />
+            </div>
+            <div className="grid gap-6 md:grid-cols-2">
+              <PerformanceDashboard />
+              <BundleAnalyzer />
             </div>
             <ErrorTracker />
           </TabsContent>
@@ -65,6 +75,13 @@ export default function SystemMonitoring() {
 
           <TabsContent value="errors" className="space-y-6">
             <ErrorTracker />
+          </TabsContent>
+
+          <TabsContent value="bundle" className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-2">
+              <BundleAnalyzer />
+              <PerformanceDashboard />
+            </div>
           </TabsContent>
         </Tabs>
       </div>

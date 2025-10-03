@@ -2,7 +2,8 @@ import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/lib/queryClient";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { PWAInstallPrompt } from "@/components/mobile/PWAInstallPrompt";
@@ -10,6 +11,7 @@ import { MobileRouteGuard } from "@/components/mobile/MobileRouteGuard";
 import { OfflineIndicator } from "@/components/mobile/OfflineIndicator";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AdminRoute } from "@/components/admin/AdminRoute";
+import { usePageTracking } from "@/hooks/useAnalytics";
 
 // Lazy load heavy components
 const Home = React.lazy(() => import("./pages/Home"));
@@ -121,29 +123,15 @@ import { AppLayout } from "@/components/layouts/AppLayout";
 import { DashboardSkeleton } from "@/components/ui/loading-skeleton";
 import { PerformanceMonitor } from "@/components/PerformanceMonitor";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
-      refetchOnWindowFocus: false,
-      retry: 1,
-    },
-  },
-});
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <ErrorBoundary>
-            <MobileRouteGuard />
-            <OfflineIndicator />
-            <React.Suspense fallback={<DashboardSkeleton />}>
-              <Routes>
+// App content wrapper for analytics tracking
+const AppContent = () => {
+  usePageTracking();
+  return (
+    <>
+      <MobileRouteGuard />
+      <OfflineIndicator />
+      <React.Suspense fallback={<DashboardSkeleton />}>
+        <Routes>
                 <Route path="/" element={<Home />} />
             <Route path="/mix-battles" element={<MixBattles />} />
             <Route path="/leaderboard" element={<CommunityLeaderboard />} />
@@ -261,10 +249,23 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
-            </React.Suspense>
-          <PersistentChatbot />
-          <PWAInstallPrompt />
-          <PerformanceMonitor />
+        </React.Suspense>
+      </>
+    );
+};
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <AuthProvider>
+          <ErrorBoundary>
+            <AppContent />
+            <PersistentChatbot />
+            <PWAInstallPrompt />
+            <PerformanceMonitor />
           </ErrorBoundary>
         </AuthProvider>
       </BrowserRouter>

@@ -71,15 +71,8 @@ export const PaymentIntegration = ({ projectId, amount, projectTitle }: PaymentI
       toast.success(`Payment of $${amount} completed successfully! +${Math.floor(amount / 10)} points`);
       
       // Track successful payment
-      trackPurchase(amount, 'project_payment');
-      trackEvent({
-        event: 'payment_completed',
-        properties: { 
-          project_id: projectId,
-          amount,
-          method
-        }
-      });
+      trackPurchase(amount, projectId);
+      trackEvent('payment_completed', { project_id: projectId, amount, method });
     } catch (error: any) {
       console.error('Payment error:', error);
       setPaymentStatus(null);

@@ -60,10 +60,7 @@ export const DynamicAppAccessHub = ({ userRole }: DynamicAppAccessHubProps) => {
   };
 
   const handleQuickAction = (action: string, route: string) => {
-    trackEvent({ 
-      event: 'app_hub_action_clicked', 
-      properties: { action, userRole } 
-    });
+    trackEvent('app_hub_action_clicked', { action, userRole });
     navigate(route);
   };
 
