@@ -6,6 +6,10 @@ import { useNavigate } from "react-router-dom";
 import { SupportTicketManager } from "@/components/admin/SupportTicketManager";
 import { UserFeedbackAnalyzer } from "@/components/admin/UserFeedbackAnalyzer";
 import { AnnouncementBroadcaster } from "@/components/admin/AnnouncementBroadcaster";
+import { UserBehaviorAnalytics } from "@/components/admin/UserBehaviorAnalytics";
+import { SegmentBuilder } from "@/components/admin/SegmentBuilder";
+import { NPS_SurveyManager } from "@/components/admin/NPS_SurveyManager";
+import { CustomerJourneyMap } from "@/components/admin/CustomerJourneyMap";
 import { CustomerSuccessDashboard } from "@/components/admin/CustomerSuccessDashboard";
 
 export default function CustomerSuccess() {

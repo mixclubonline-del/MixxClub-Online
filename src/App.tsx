@@ -225,7 +225,9 @@ const App = () => (
             <Route path="/admin/content-management" element={<ContentManagement />} />
             <Route path="/admin/configuration" element={<PlatformConfiguration />} />
             <Route path="/admin/users" element={<UserManagement />} />
-            <Route path="/admin/monitoring" element={<SystemMonitoring />} />
+          <Route path="/admin/monitoring" element={<SystemMonitoring />} />
+          <Route path="/admin/audit-compliance" element={<AuditCompliance />} />
+          <Route path="/admin/backup-recovery" element={<BackupRecovery />} />
             
             {/* Tier 1 Features */}
             <Route path="/battle-tournaments" element={<BattleTournaments />} />
