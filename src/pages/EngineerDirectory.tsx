@@ -82,7 +82,7 @@ export default function EngineerDirectory() {
             Find Your Perfect Engineer
           </h1>
           <p className="text-xl text-muted-foreground text-center mb-8">
-            Browse our network of talented engineers specializing in remote collaboration
+            Browse engineers from rising bedroom producers to seasoned studio pros — all verified and rated by our community
           </p>
 
           <div className="max-w-2xl mx-auto mb-12">

@@ -7,7 +7,7 @@ const WhyMixClub = () => {
     {
       icon: Users,
       title: "Real Engineers, Not Just AI",
-      description: "Every track is handled by verified professionals with proven portfolios. AI enhances their work, it doesn't replace them.",
+      description: "Every track is handled by verified engineers at all experience levels. From rising talent to studio veterans, find the right match for your budget and vision.",
       badge: "Human Touch"
     },
     {
@@ -59,6 +59,18 @@ const WhyMixClub = () => {
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Traditional studios are expensive. Freelance sites are hit-or-miss. 
             AI-only tools sound robotic. We combined the best of all worlds.
+          </p>
+        </div>
+
+        <div className="mt-12 text-center mb-12">
+          <h3 className="text-3xl font-bold mb-4">
+            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              The Full Spectrum Advantage
+            </span>
+          </h3>
+          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+            Unlike Musiversal's exclusive model, we give you choice. Need an affordable mix from a talented newcomer? 
+            Or a premium veteran engineer? You decide. Every engineer is verified, rated, and AI-matched to your needs.
           </p>
         </div>
 

@@ -71,16 +71,16 @@ const Hero = () => {
           {/* Main Headline */}
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-tight animate-fade-in">
             <span className="bg-gradient-to-r from-primary via-accent-blue to-accent-cyan bg-clip-text text-transparent">
-              Create. Collaborate.
+              Connect With Your Perfect Engineer
             </span>
             <br />
-            <span className="text-foreground">Unlock Together.</span>
+            <span className="text-foreground">From Bedroom Producers to Studio Veterans</span>
           </h1>
 
           {/* Description */}
           <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto animate-fade-in" style={{ animationDelay: '0.2s' }}>
-            Join a growing community of artists and engineers. Every member brings us closer to unlocking 
-            powerful new features — mix battles, education, marketplace, and more.
+            Find the right engineer for your budget and vision — from rising talent to seasoned pros, 
+            all enhanced by AI-powered matching. Your sound, your choice, your budget.
           </p>
 
           {/* CTA Buttons */}
@@ -106,9 +106,9 @@ const Hero = () => {
           {/* Feature Pills */}
           <div className="flex flex-wrap gap-4 justify-center pt-8 animate-fade-in" style={{ animationDelay: '0.6s' }}>
             {[
-              { icon: Zap, label: 'Professional Mixing & Mastering', color: 'primary' },
-              { icon: Users, label: 'AI-Powered Matching', color: 'accent' },
-              { icon: TrendingUp, label: 'Community-Driven Growth', color: 'success' },
+              { icon: Users, label: 'Engineers at Every Level', color: 'primary' },
+              { icon: Zap, label: 'AI-Powered Matching', color: 'accent' },
+              { icon: TrendingUp, label: 'Match Confidence Scoring', color: 'success' },
             ].map((feature, index) => (
               <div
                 key={index}

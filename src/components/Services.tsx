@@ -26,28 +26,28 @@ const Services = () => {
               <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mb-4">
                 <Bot className="w-6 h-6 text-primary" />
               </div>
-              <CardTitle className="text-xl">Pro Engineers + Smart AI</CardTitle>
+              <CardTitle className="text-xl">Real Engineers at Every Level</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground mb-4">
-                Real musicians with Grammy credits, powered by intelligent tools
+                From rising bedroom producers to seasoned studio veterans, all using pro-grade AI tools
               </p>
               <ul className="space-y-2 mb-6">
                 <li className="flex items-start gap-2 text-sm text-muted-foreground">
                   <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Engineers who've worked on chart hits</span>
+                  <span>Verified engineers from beginner-friendly to pro-level</span>
+                </li>
+                <li className="flex items-start gap-2 text-sm text-muted-foreground">
+                  <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                  <span>Transparent experience levels and portfolios</span>
+                </li>
+                <li className="flex items-start gap-2 text-sm text-muted-foreground">
+                  <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                  <span>AI-powered matching finds your perfect fit</span>
                 </li>
                 <li className="flex items-start gap-2 text-sm text-muted-foreground">
                   <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
                   <span>AI helps dial in your perfect sound</span>
-                </li>
-                <li className="flex items-start gap-2 text-sm text-muted-foreground">
-                  <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Get your tracks back in days, not weeks</span>
-                </li>
-                <li className="flex items-start gap-2 text-sm text-muted-foreground">
-                  <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Every mix gets better with time</span>
                 </li>
               </ul>
               <Button variant="outline" className="w-full" asChild>

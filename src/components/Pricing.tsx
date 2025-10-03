@@ -31,7 +31,7 @@ const Pricing = () => {
           <Card className="border-border bg-card">
             <CardHeader>
               <CardTitle className="text-2xl">Starter</CardTitle>
-              <p className="text-sm text-muted-foreground">Perfect for bedroom producers and new artists</p>
+              <p className="text-sm text-muted-foreground">Perfect for bedroom producers and new artists - matched with rising engineers gaining experience</p>
               <div className="mt-4 space-y-1">
                 <div className="text-sm text-muted-foreground line-through">$89 at traditional studios</div>
                 <div>
@@ -101,7 +101,7 @@ const Pricing = () => {
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-5 h-5 text-primary flex-shrink-0" />
-                  <span>Advanced AI + Human Engineer</span>
+                  <span>Experienced engineer + AI tools for studio-quality results</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-5 h-5 text-primary flex-shrink-0" />
@@ -154,11 +154,11 @@ const Pricing = () => {
               <ul className="space-y-3">
                 <li className="flex items-center gap-2">
                   <Check className="w-5 h-5 text-primary flex-shrink-0" />
-                  <span>Grammy-level mixing + mastering</span>
+                  <span>Top-tier mixing + mastering with verified veteran engineers</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-5 h-5 text-primary flex-shrink-0" />
-                  <span>Multiple engineer options</span>
+                  <span>Multiple verified engineer options to match your needs</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-5 h-5 text-primary flex-shrink-0" />
@@ -256,7 +256,7 @@ const Pricing = () => {
                   <ul className="space-y-2 text-sm">
                     <li className="flex items-center gap-2">
                       <span className="text-green-500">✅</span>
-                      <span>Grammy engineers + AI power</span>
+                      <span>Real engineers at every level + AI enhancement</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <span className="text-green-500">✅</span>
