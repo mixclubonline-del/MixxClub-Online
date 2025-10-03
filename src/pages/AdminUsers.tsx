@@ -23,6 +23,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Search, Filter } from 'lucide-react';
 import { toast } from 'sonner';
+import { DataTablePagination } from '@/components/ui/data-table-pagination';
 
 interface UserProfile {
   id: string;
@@ -37,9 +38,12 @@ export default function AdminUsers() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [users, setUsers] = useState<UserProfile[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -61,14 +65,35 @@ export default function AdminUsers() {
     if (!loading) {
       checkAdmin();
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, navigate, currentPage, pageSize, roleFilter]);
 
   const fetchUsers = async () => {
     setIsLoading(true);
-    const { data, error } = await supabase
+    
+    // Get total count
+    let countQuery = supabase
+      .from('profiles')
+      .select('*', { count: 'exact', head: true });
+    
+    if (roleFilter !== 'all') {
+      countQuery = countQuery.eq('role', roleFilter as 'admin' | 'client' | 'engineer');
+    }
+    
+    const { count } = await countQuery;
+    setTotalCount(count || 0);
+    
+    // Get paginated data
+    let query = supabase
       .from('profiles')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .range((currentPage - 1) * pageSize, currentPage * pageSize - 1);
+    
+    if (roleFilter !== 'all') {
+      query = query.eq('role', roleFilter as 'admin' | 'client' | 'engineer');
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       toast.error('Failed to fetch users');
@@ -196,6 +221,25 @@ export default function AdminUsers() {
         {filteredUsers.length === 0 && (
           <div className="text-center py-12 text-muted-foreground">
             No users found matching your criteria
+          </div>
+        )}
+        
+        {totalCount > 0 && (
+          <div className="mt-4">
+            <DataTablePagination
+              currentPage={currentPage}
+              totalPages={Math.ceil(totalCount / pageSize)}
+              pageSize={pageSize}
+              totalItems={totalCount}
+              onPageChange={(page) => {
+                setCurrentPage(page);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              onPageSizeChange={(size) => {
+                setPageSize(size);
+                setCurrentPage(1);
+              }}
+            />
           </div>
         )}
       </div>

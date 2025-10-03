@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Bell, CheckCircle, Circle } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import { DataTablePagination } from '@/components/ui/data-table-pagination';
 
 interface Notification {
   id: string;
@@ -20,19 +21,30 @@ interface Notification {
 
 export default function AdminNotifications() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
 
   useEffect(() => {
     fetchNotifications();
-  }, []);
+  }, [currentPage, pageSize]);
 
   const fetchNotifications = async () => {
     try {
+      // Get total count
+      const { count } = await supabase
+        .from('notifications')
+        .select('*', { count: 'exact', head: true });
+      
+      setTotalCount(count || 0);
+      
+      // Get paginated data
       const { data, error } = await supabase
         .from('notifications')
         .select('*')
         .order('created_at', { ascending: false })
-        .limit(100);
+        .range((currentPage - 1) * pageSize, currentPage * pageSize - 1);
 
       if (error) throw error;
       setNotifications(data || []);
@@ -116,7 +128,7 @@ export default function AdminNotifications() {
           <CardHeader>
             <CardTitle>Recent Notifications</CardTitle>
             <CardDescription>
-              Last 100 notifications sent to users
+              System notifications sent to users
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -127,36 +139,57 @@ export default function AdminNotifications() {
                 No notifications found
               </div>
             ) : (
-              <div className="space-y-3">
-                {notifications.map((notification) => (
-                  <div 
-                    key={notification.id}
-                    className="flex items-start gap-3 p-3 rounded-lg border"
-                  >
-                    <div className="mt-1">
-                      {notification.is_read ? (
-                        <CheckCircle className="h-4 w-4 text-muted-foreground" />
-                      ) : (
-                        <Circle className="h-4 w-4 text-primary" />
-                      )}
+              <>
+                <div className="space-y-3">
+                  {notifications.map((notification) => (
+                    <div 
+                      key={notification.id}
+                      className="flex items-start gap-3 p-3 rounded-lg border"
+                    >
+                      <div className="mt-1">
+                        {notification.is_read ? (
+                          <CheckCircle className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <Circle className="h-4 w-4 text-primary" />
+                        )}
+                      </div>
+                      <div className="flex-1 space-y-1">
+                        <div className="flex items-center gap-2">
+                          <Badge variant={getTypeColor(notification.type)}>
+                            {notification.type.replace(/_/g, ' ')}
+                          </Badge>
+                        </div>
+                        <div className="font-medium">{notification.title}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {notification.message}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {format(new Date(notification.created_at), 'MMM d, yyyy h:mm a')}
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex-1 space-y-1">
-                      <div className="flex items-center gap-2">
-                        <Badge variant={getTypeColor(notification.type)}>
-                          {notification.type.replace(/_/g, ' ')}
-                        </Badge>
-                      </div>
-                      <div className="font-medium">{notification.title}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {notification.message}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {format(new Date(notification.created_at), 'MMM d, yyyy h:mm a')}
-                      </div>
-                    </div>
+                  ))}
+                </div>
+                
+                {totalCount > 0 && (
+                  <div className="mt-6">
+                    <DataTablePagination
+                      currentPage={currentPage}
+                      totalPages={Math.ceil(totalCount / pageSize)}
+                      pageSize={pageSize}
+                      totalItems={totalCount}
+                      onPageChange={(page) => {
+                        setCurrentPage(page);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      onPageSizeChange={(size) => {
+                        setPageSize(size);
+                        setCurrentPage(1);
+                      }}
+                    />
                   </div>
-                ))}
-              </div>
+                )}
+              </>
             )}
           </CardContent>
         </Card>

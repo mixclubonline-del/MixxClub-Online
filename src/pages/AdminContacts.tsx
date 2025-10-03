@@ -16,6 +16,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Mail, Phone, DollarSign, Search, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import { DataTablePagination } from '@/components/ui/data-table-pagination';
 
 interface ContactSubmission {
   id: string;
@@ -29,19 +30,31 @@ interface ContactSubmission {
 
 export default function AdminContacts() {
   const [contacts, setContacts] = useState<ContactSubmission[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
     fetchContacts();
-  }, []);
+  }, [currentPage, pageSize]);
 
   const fetchContacts = async () => {
     try {
+      // Get total count
+      const { count } = await supabase
+        .from('contact_submissions')
+        .select('*', { count: 'exact', head: true });
+      
+      setTotalCount(count || 0);
+      
+      // Get paginated data
       const { data, error } = await supabase
         .from('contact_submissions')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .range((currentPage - 1) * pageSize, currentPage * pageSize - 1);
 
       if (error) throw error;
       setContacts(data || []);
@@ -107,55 +120,76 @@ export default function AdminContacts() {
                 No contact submissions found
               </div>
             ) : (
-              <div className="space-y-4">
-                {filteredContacts.map((contact) => (
-                  <Card key={contact.id}>
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <CardTitle className="text-lg">{contact.name}</CardTitle>
-                          <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                              <Mail className="h-4 w-4" />
-                              <a href={`mailto:${contact.email}`} className="hover:underline">
-                                {contact.email}
-                              </a>
-                            </div>
-                            {contact.phone && (
+              <>
+                <div className="space-y-4">
+                  {filteredContacts.map((contact) => (
+                    <Card key={contact.id}>
+                      <CardHeader>
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <CardTitle className="text-lg">{contact.name}</CardTitle>
+                            <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
                               <div className="flex items-center gap-1">
-                                <Phone className="h-4 w-4" />
-                                <a href={`tel:${contact.phone}`} className="hover:underline">
-                                  {contact.phone}
+                                <Mail className="h-4 w-4" />
+                                <a href={`mailto:${contact.email}`} className="hover:underline">
+                                  {contact.email}
                                 </a>
                               </div>
+                              {contact.phone && (
+                                <div className="flex items-center gap-1">
+                                  <Phone className="h-4 w-4" />
+                                  <a href={`tel:${contact.phone}`} className="hover:underline">
+                                    {contact.phone}
+                                  </a>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {contact.budget && (
+                              <Badge variant={getBudgetColor(contact.budget)}>
+                                <DollarSign className="h-3 w-3 mr-1" />
+                                {contact.budget}
+                              </Badge>
                             )}
+                            <span className="text-xs text-muted-foreground">
+                              {format(new Date(contact.created_at), 'MMM d, yyyy')}
+                            </span>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          {contact.budget && (
-                            <Badge variant={getBudgetColor(contact.budget)}>
-                              <DollarSign className="h-3 w-3 mr-1" />
-                              {contact.budget}
-                            </Badge>
-                          )}
-                          <span className="text-xs text-muted-foreground">
-                            {format(new Date(contact.created_at), 'MMM d, yyyy')}
-                          </span>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm whitespace-pre-wrap">{contact.message}</p>
+                        <div className="mt-4">
+                          <Button size="sm" onClick={() => window.open(`mailto:${contact.email}`, '_blank')}>
+                            <Mail className="h-4 w-4 mr-2" />
+                            Reply via Email
+                          </Button>
                         </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm whitespace-pre-wrap">{contact.message}</p>
-                      <div className="mt-4">
-                        <Button size="sm" onClick={() => window.open(`mailto:${contact.email}`, '_blank')}>
-                          <Mail className="h-4 w-4 mr-2" />
-                          Reply via Email
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+                
+                {totalCount > 0 && (
+                  <div className="mt-6">
+                    <DataTablePagination
+                      currentPage={currentPage}
+                      totalPages={Math.ceil(totalCount / pageSize)}
+                      pageSize={pageSize}
+                      totalItems={totalCount}
+                      onPageChange={(page) => {
+                        setCurrentPage(page);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      onPageSizeChange={(size) => {
+                        setPageSize(size);
+                        setCurrentPage(1);
+                      }}
+                    />
+                  </div>
+                )}
+              </>
             )}
           </CardContent>
         </Card>

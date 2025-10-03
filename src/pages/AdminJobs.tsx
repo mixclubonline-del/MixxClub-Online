@@ -10,6 +10,7 @@ import { Briefcase, Search, DollarSign, Calendar, User, Download } from 'lucide-
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { exportToCSV } from '@/utils/csvExport';
+import { DataTablePagination } from '@/components/ui/data-table-pagination';
 
 interface JobPosting {
   id: string;
@@ -27,20 +28,43 @@ interface JobPosting {
 
 export default function AdminJobs() {
   const [jobs, setJobs] = useState<JobPosting[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
     fetchJobs();
-  }, []);
+  }, [currentPage, pageSize, statusFilter]);
 
   const fetchJobs = async () => {
     try {
-      const { data, error } = await supabase
+      // Get total count
+      let countQuery = supabase
+        .from('job_postings')
+        .select('*', { count: 'exact', head: true });
+      
+      if (statusFilter !== 'all') {
+        countQuery = countQuery.eq('status', statusFilter);
+      }
+      
+      const { count } = await countQuery;
+      setTotalCount(count || 0);
+      
+      // Get paginated data
+      let query = supabase
         .from('job_postings')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .range((currentPage - 1) * pageSize, currentPage * pageSize - 1);
+      
+      if (statusFilter !== 'all') {
+        query = query.eq('status', statusFilter);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
       setJobs(data || []);
@@ -158,85 +182,106 @@ export default function AdminJobs() {
                 </CardContent>
               </Card>
             ) : (
-              <div className="space-y-4">
-                {filteredJobs.map((job) => (
-                  <Card key={job.id}>
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div className="space-y-1">
-                          <CardTitle className="flex items-center gap-2">
-                            <Briefcase className="h-5 w-5" />
-                            {job.title}
-                          </CardTitle>
-                          <CardDescription>
-                            Posted on {format(new Date(job.created_at), 'MMM d, yyyy')}
-                          </CardDescription>
+              <>
+                <div className="space-y-4">
+                  {filteredJobs.map((job) => (
+                    <Card key={job.id}>
+                      <CardHeader>
+                        <div className="flex items-start justify-between">
+                          <div className="space-y-1">
+                            <CardTitle className="flex items-center gap-2">
+                              <Briefcase className="h-5 w-5" />
+                              {job.title}
+                            </CardTitle>
+                            <CardDescription>
+                              Posted on {format(new Date(job.created_at), 'MMM d, yyyy')}
+                            </CardDescription>
+                          </div>
+                          <Badge variant={getStatusColor(job.status)}>
+                            {job.status.replace('_', ' ')}
+                          </Badge>
                         </div>
-                        <Badge variant={getStatusColor(job.status)}>
-                          {job.status.replace('_', ' ')}
-                        </Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <p className="text-sm">{job.description}</p>
-                      
-                      <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <Briefcase className="h-4 w-4" />
-                          {job.service_type}
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <p className="text-sm">{job.description}</p>
+                        
+                        <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-1">
+                            <Briefcase className="h-4 w-4" />
+                            {job.service_type}
+                          </div>
+                          {job.genre && (
+                            <div className="flex items-center gap-1">
+                              Genre: {job.genre}
+                            </div>
+                          )}
+                          {job.budget && (
+                            <div className="flex items-center gap-1">
+                              <DollarSign className="h-4 w-4" />
+                              ${job.budget}
+                            </div>
+                          )}
+                          {job.deadline && (
+                            <div className="flex items-center gap-1">
+                              <Calendar className="h-4 w-4" />
+                              {format(new Date(job.deadline), 'MMM d, yyyy')}
+                            </div>
+                          )}
                         </div>
-                        {job.genre && (
-                          <div className="flex items-center gap-1">
-                            Genre: {job.genre}
-                          </div>
-                        )}
-                        {job.budget && (
-                          <div className="flex items-center gap-1">
-                            <DollarSign className="h-4 w-4" />
-                            ${job.budget}
-                          </div>
-                        )}
-                        {job.deadline && (
-                          <div className="flex items-center gap-1">
-                            <Calendar className="h-4 w-4" />
-                            {format(new Date(job.deadline), 'MMM d, yyyy')}
-                          </div>
-                        )}
-                      </div>
 
-                      <div className="flex gap-2">
-                        {job.status === 'open' && (
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => updateJobStatus(job.id, 'in_progress')}
-                          >
-                            Mark In Progress
-                          </Button>
-                        )}
-                        {job.status === 'in_progress' && (
-                          <>
+                        <div className="flex gap-2">
+                          {job.status === 'open' && (
                             <Button 
                               size="sm" 
                               variant="outline"
-                              onClick={() => updateJobStatus(job.id, 'completed')}
+                              onClick={() => updateJobStatus(job.id, 'in_progress')}
                             >
-                              Mark Completed
+                              Mark In Progress
                             </Button>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => updateJobStatus(job.id, 'open')}
-                            >
-                              Reopen
-                            </Button>
-                          </>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+                          )}
+                          {job.status === 'in_progress' && (
+                            <>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => updateJobStatus(job.id, 'completed')}
+                              >
+                                Mark Completed
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => updateJobStatus(job.id, 'open')}
+                              >
+                                Reopen
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+                
+                {totalCount > 0 && (
+                  <div className="mt-6">
+                    <DataTablePagination
+                      currentPage={currentPage}
+                      totalPages={Math.ceil(totalCount / pageSize)}
+                      pageSize={pageSize}
+                      totalItems={totalCount}
+                      onPageChange={(page) => {
+                        setCurrentPage(page);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      onPageSizeChange={(size) => {
+                        setPageSize(size);
+                        setCurrentPage(1);
+                      }}
+                    />
+                  </div>
+                )}
+              </>
             )}
           </TabsContent>
         </Tabs>
