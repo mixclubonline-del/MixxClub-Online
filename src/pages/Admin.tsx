@@ -185,12 +185,12 @@ export default function Admin() {
               </div>
             </Card>
 
-            <Card className="p-6 hover:shadow-lg transition-all cursor-pointer group bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20" onClick={() => navigate('/admin-launch-readiness')}>
+            <Card className="p-6 hover:shadow-lg transition-all cursor-pointer group bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20" onClick={() => navigate('/admin/core-testing')}>
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600">
-                  <Rocket className="h-5 w-5 text-white" />
+                  <TestTube2 className="h-5 w-5 text-white" />
                 </div>
-                <h3 className="font-bold">Launch Test</h3>
+                <h3 className="font-bold">Core Testing</h3>
               </div>
             </Card>
 

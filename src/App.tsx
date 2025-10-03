@@ -83,6 +83,7 @@ import MobileAdminBot from './pages/MobileAdminBot';
 import AdminSecurityCenter from './pages/AdminSecurityCenter';
 import AdminLaunchControl from './pages/AdminLaunchControl';
 import MobileTesting from './pages/MobileTesting';
+import CoreFeaturesTesting from './pages/CoreFeaturesTesting';
 import PresentationShare from './pages/PresentationShare';
 import { JobBoard } from './pages/JobBoard';
 import ProjectDetail from "./pages/ProjectDetail";
@@ -194,6 +195,7 @@ const App = () => (
           <Route path="/admin-security" element={<AdminSecurityCenter />} />
           <Route path="/admin/launch-control" element={<AdminLaunchControl />} />
           <Route path="/admin/mobile-testing" element={<MobileTesting />} />
+          <Route path="/admin/core-testing" element={<CoreFeaturesTesting />} />
             
             {/* Tier 1 Features */}
             <Route path="/battle-tournaments" element={<BattleTournaments />} />
