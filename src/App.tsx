@@ -57,6 +57,8 @@ import FAQ from "./pages/FAQ";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Settings from "./pages/Settings";
+import Checkout from "./pages/Checkout";
+import OrderSuccess from "./pages/OrderSuccess";
 // Lazy load all admin pages for better performance
 const AdminUsers = React.lazy(() => import("./pages/AdminUsers"));
 const AdminAudio = React.lazy(() => import('./pages/AdminAudio'));
@@ -201,6 +203,8 @@ const AppContent = () => {
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/settings" element={<AppLayout><Settings /></AppLayout>} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/order-success/:paymentId" element={<OrderSuccess />} />
             
             {/* Mobile Routes */}
           <Route path="/mobile-home" element={<MobileHome />} />
