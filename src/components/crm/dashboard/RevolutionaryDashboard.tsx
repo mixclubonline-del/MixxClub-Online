@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
-import { AICopilotSidebar } from './AICopilotSidebar';
+import { ResizableAICopilot } from './ResizableAICopilot';
 import { AudioVisualization3D } from './AudioVisualization3D';
 import { SmartStatsGrid } from './SmartStatsGrid';
 import { GamificationHub } from './GamificationHub';
@@ -16,7 +16,6 @@ import { cn } from '@/lib/utils';
 export const RevolutionaryDashboard = () => {
   const { user } = useAuth();
   const [showCommandPalette, setShowCommandPalette] = useState(false);
-  const [copilotOpen, setCopilotOpen] = useState(true);
   const { theme, updateMood } = useMoodTheming();
   const { insights, isLoading: insightsLoading } = useAIDashboardInsights();
 
@@ -40,14 +39,6 @@ export const RevolutionaryDashboard = () => {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      {/* AI Copilot Sidebar */}
-      <AICopilotSidebar 
-        isOpen={copilotOpen}
-        onClose={() => setCopilotOpen(!copilotOpen)}
-        insights={insights}
-        isLoading={insightsLoading}
-      />
-
       {/* Morphing Background */}
       <motion.div
         className="fixed inset-0 -z-10"
@@ -84,48 +75,47 @@ export const RevolutionaryDashboard = () => {
         ))}
       </div>
 
-      {/* Main Content with Dynamic Padding */}
-      <div className={cn(
-        "transition-all duration-300 container px-4 md:px-6 py-6 space-y-6",
-        copilotOpen ? "ml-80" : "ml-0"
-      )}>
-        {/* Gamification Bar */}
-        <GamificationHub />
+      {/* Resizable AI Copilot + Dashboard Content */}
+      <ResizableAICopilot insights={insights} isLoading={insightsLoading}>
+        <div className="container px-4 md:px-6 py-6 space-y-6">
+          {/* Gamification Bar */}
+          <GamificationHub />
 
-        {/* Smart Stats Grid */}
-        <SmartStatsGrid />
+          {/* Smart Stats Grid */}
+          <SmartStatsGrid />
 
-        {/* Main Grid: Projects + Activity Feed */}
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* AI Recommended Projects (2/3 width) */}
-          <div className="lg:col-span-2 space-y-6">
-            <AIProjectRecommender />
-            
-            {/* 3D Audio Visualization */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              <AudioVisualization3D />
-            </motion.div>
+          {/* Main Grid: Projects + Activity Feed */}
+          <div className="grid lg:grid-cols-3 gap-6">
+            {/* AI Recommended Projects (2/3 width) */}
+            <div className="lg:col-span-2 space-y-6">
+              <AIProjectRecommender />
+              
+              {/* 3D Audio Visualization */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+              >
+                <AudioVisualization3D />
+              </motion.div>
+            </div>
+
+            {/* Live Activity Feed (1/3 width) */}
+            <div className="lg:col-span-1">
+              <LiveActivityFeed />
+            </div>
           </div>
 
-          {/* Live Activity Feed (1/3 width) */}
-          <div className="lg:col-span-1">
-            <LiveActivityFeed />
-          </div>
+          {/* Quick Actions */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+          >
+            <QuickActionLauncher onOpenPalette={() => setShowCommandPalette(true)} />
+          </motion.div>
         </div>
-
-        {/* Quick Actions */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-        >
-          <QuickActionLauncher onOpenPalette={() => setShowCommandPalette(true)} />
-        </motion.div>
-      </div>
+      </ResizableAICopilot>
 
       {/* Command Palette Modal */}
       <AnimatePresence>
