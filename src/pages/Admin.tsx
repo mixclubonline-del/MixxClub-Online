@@ -9,7 +9,7 @@ import { MobileDeploymentChecklist } from '@/components/admin/MobileDeploymentCh
 import { PerformanceOptimizer } from '@/components/admin/PerformanceOptimizer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, Music, FileAudio, TrendingUp, Rocket, TestTube2, Zap, CheckCircle, Bot, Shield, Smartphone, Sparkles, Activity, AlertTriangle, FileText, Target, DollarSign, Eye, Megaphone } from 'lucide-react';
+import { Users, Music, FileAudio, TrendingUp, Rocket, TestTube2, Zap, CheckCircle, Bot, Shield, Smartphone, Sparkles, Activity, AlertTriangle, FileText, Target, DollarSign, Eye, Megaphone, Headphones } from 'lucide-react';
 
 export default function Admin() {
   const { user, loading } = useAuth();
@@ -238,6 +238,15 @@ export default function Admin() {
                   <Megaphone className="h-5 w-5 text-white" />
                 </div>
                 <h3 className="font-bold">Marketing & Growth</h3>
+              </div>
+            </Card>
+
+            <Card className="p-6 hover:shadow-lg transition-all cursor-pointer group bg-gradient-to-br from-cyan-50 to-teal-50 dark:from-cyan-950/20 dark:to-teal-950/20" onClick={() => navigate('/admin/customer-success')}>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-lg bg-gradient-to-r from-cyan-600 to-teal-600">
+                  <Headphones className="h-5 w-5 text-white" />
+                </div>
+                <h3 className="font-bold">Customer Success</h3>
               </div>
             </Card>
           </div>
