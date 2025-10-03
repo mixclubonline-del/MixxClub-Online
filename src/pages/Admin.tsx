@@ -94,19 +94,19 @@ export default function Admin() {
                 <div>
                   <CardTitle className="text-xl flex items-center gap-2">
                     <Rocket className="w-6 h-6" />
-                    $50M Launch System
+                    Command Center
                   </CardTitle>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Comprehensive readiness test for all launch systems
+                    Comprehensive platform control and real-time monitoring
                   </p>
                 </div>
                 <Button 
-                  onClick={() => navigate('/admin/launch-readiness')}
+                  onClick={() => navigate('/admin/command-center')}
                   size="lg"
                   className="gap-2"
                 >
-                  <TestTube2 className="w-5 h-5" />
-                  Run Tests
+                  <Activity className="w-5 h-5" />
+                  Open Dashboard
                 </Button>
               </div>
             </CardHeader>
@@ -114,19 +114,19 @@ export default function Admin() {
               <div className="flex gap-4 text-sm">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                  <span>Database Tables</span>
+                  <span>Real-time Monitoring</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                  <span>Edge Functions</span>
+                  <span>Quick Actions</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                  <span>Analytics</span>
+                  <span>System Health</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                  <span>A/B Testing</span>
+                  <span>Activity Feed</span>
                 </div>
               </div>
             </CardContent>

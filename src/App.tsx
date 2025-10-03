@@ -89,6 +89,7 @@ import CustomerSuccess from "@/pages/CustomerSuccess";
 import DataReporting from "@/pages/DataReporting";
 import IntegrationAutomation from "@/pages/IntegrationAutomation";
 import TeamManagement from "@/pages/TeamManagement";
+import AdminCommandCenter from "@/pages/AdminCommandCenter";
 import AdminSecurityCenter from './pages/AdminSecurityCenter';
 import AdminLaunchControl from './pages/AdminLaunchControl';
 import PresentationShare from './pages/PresentationShare';
@@ -210,6 +211,7 @@ const App = () => (
           <Route path="/admin/data-reporting" element={<DataReporting />} />
           <Route path="/admin/integration-automation" element={<IntegrationAutomation />} />
           <Route path="/admin/team-management" element={<TeamManagement />} />
+          <Route path="/admin/command-center" element={<AdminCommandCenter />} />
             
             {/* Tier 1 Features */}
             <Route path="/battle-tournaments" element={<BattleTournaments />} />
