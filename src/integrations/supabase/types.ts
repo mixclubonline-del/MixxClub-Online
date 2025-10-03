@@ -930,6 +930,81 @@ export type Database = {
           },
         ]
       }
+      audio_comments: {
+        Row: {
+          audio_file_id: string | null
+          comment_text: string
+          created_at: string | null
+          id: string
+          is_resolved: boolean | null
+          parent_comment_id: string | null
+          session_id: string | null
+          timestamp_seconds: number
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          audio_file_id?: string | null
+          comment_text: string
+          created_at?: string | null
+          id?: string
+          is_resolved?: boolean | null
+          parent_comment_id?: string | null
+          session_id?: string | null
+          timestamp_seconds: number
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          audio_file_id?: string | null
+          comment_text?: string
+          created_at?: string | null
+          id?: string
+          is_resolved?: boolean | null
+          parent_comment_id?: string | null
+          session_id?: string | null
+          timestamp_seconds?: number
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audio_comments_audio_file_id_fkey"
+            columns: ["audio_file_id"]
+            isOneToOne: false
+            referencedRelation: "audio_files"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audio_comments_parent_comment_id_fkey"
+            columns: ["parent_comment_id"]
+            isOneToOne: false
+            referencedRelation: "audio_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audio_comments_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "collaboration_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audio_comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audio_comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audio_files: {
         Row: {
           bit_depth: number | null
@@ -1488,12 +1563,15 @@ export type Database = {
         Row: {
           audio_quality: string | null
           created_at: string
+          current_playback_position: number | null
           ended_at: string | null
           host_user_id: string
           id: string
+          is_playing: boolean | null
           max_participants: number | null
           project_id: string | null
           session_name: string
+          session_state: Json | null
           session_type: string
           started_at: string | null
           status: string
@@ -1502,12 +1580,15 @@ export type Database = {
         Insert: {
           audio_quality?: string | null
           created_at?: string
+          current_playback_position?: number | null
           ended_at?: string | null
           host_user_id: string
           id?: string
+          is_playing?: boolean | null
           max_participants?: number | null
           project_id?: string | null
           session_name: string
+          session_state?: Json | null
           session_type?: string
           started_at?: string | null
           status?: string
@@ -1516,12 +1597,15 @@ export type Database = {
         Update: {
           audio_quality?: string | null
           created_at?: string
+          current_playback_position?: number | null
           ended_at?: string | null
           host_user_id?: string
           id?: string
+          is_playing?: boolean | null
           max_participants?: number | null
           project_id?: string | null
           session_name?: string
+          session_state?: Json | null
           session_type?: string
           started_at?: string | null
           status?: string
@@ -5060,6 +5144,64 @@ export type Database = {
         }
         Relationships: []
       }
+      project_versions: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          file_references: Json | null
+          id: string
+          project_id: string | null
+          save_note: string | null
+          snapshot_data: Json | null
+          version_name: string | null
+          version_number: number
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          file_references?: Json | null
+          id?: string
+          project_id?: string | null
+          save_note?: string | null
+          snapshot_data?: Json | null
+          version_name?: string | null
+          version_number: number
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          file_references?: Json | null
+          id?: string
+          project_id?: string | null
+          save_note?: string | null
+          snapshot_data?: Json | null
+          version_name?: string | null
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_versions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_versions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_versions_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           actual_start_date: string | null
@@ -5431,6 +5573,58 @@ export type Database = {
             columns: ["session_id"]
             isOneToOne: false
             referencedRelation: "collaboration_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      session_cursor_positions: {
+        Row: {
+          cursor_timestamp_seconds: number | null
+          cursor_x: number
+          cursor_y: number
+          id: string
+          session_id: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          cursor_timestamp_seconds?: number | null
+          cursor_x: number
+          cursor_y: number
+          id?: string
+          session_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          cursor_timestamp_seconds?: number | null
+          cursor_x?: number
+          cursor_y?: number
+          id?: string
+          session_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_cursor_positions_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "collaboration_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_cursor_positions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_cursor_positions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
             referencedColumns: ["id"]
           },
         ]
