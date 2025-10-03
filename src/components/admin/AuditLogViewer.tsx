@@ -5,39 +5,64 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Download, Search, Filter } from "lucide-react";
+import { Download, Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DataTablePagination } from "@/components/ui/data-table-pagination";
 
 export const AuditLogViewer = () => {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [actionFilter, setActionFilter] = useState<string>("all");
   const [dateRange, setDateRange] = useState<string>("7days");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
 
-  const { data: logs, isLoading } = useQuery({
-    queryKey: ["audit-logs", actionFilter, dateRange],
+  const { data: logsData, isLoading } = useQuery({
+    queryKey: ["audit-logs", actionFilter, dateRange, currentPage, pageSize],
     queryFn: async () => {
-      let query = supabase
+      // Get total count
+      let countQuery = supabase
         .from("audit_logs")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(100);
+        .select("*", { count: "exact", head: true });
 
       if (actionFilter !== "all") {
-        query = query.eq("action", actionFilter);
+        countQuery = countQuery.eq("action", actionFilter);
       }
 
       const daysAgo = dateRange === "7days" ? 7 : dateRange === "30days" ? 30 : 90;
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - daysAgo);
+      countQuery = countQuery.gte("created_at", startDate.toISOString());
+
+      const { count } = await countQuery;
+
+      // Get paginated data
+      let query = supabase
+        .from("audit_logs")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .range((currentPage - 1) * pageSize, currentPage * pageSize - 1);
+
+      if (actionFilter !== "all") {
+        query = query.eq("action", actionFilter);
+      }
+
       query = query.gte("created_at", startDate.toISOString());
 
       const { data, error } = await query;
       if (error) throw error;
-      return data;
+      
+      return {
+        logs: data || [],
+        totalCount: count || 0,
+      };
     },
   });
+
+  const logs = logsData?.logs || [];
+  const totalCount = logsData?.totalCount || 0;
+  const totalPages = Math.ceil(totalCount / pageSize);
 
   const exportLogs = () => {
     if (!logs || logs.length === 0) {
@@ -118,44 +143,63 @@ export const AuditLogViewer = () => {
 
         {isLoading ? (
           <div className="space-y-2">
-            {[...Array(5)].map((_, i) => (
+            {[...Array(pageSize)].map((_, i) => (
               <Skeleton key={i} className="h-20 w-full" />
             ))}
           </div>
         ) : (
-          <div className="space-y-2 max-h-[600px] overflow-y-auto">
-            {filteredLogs?.map((log) => (
-              <Card key={log.id} className="p-4">
-                <div className="flex justify-between items-start">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{log.action}</span>
-                      <span className="text-sm text-muted-foreground">on {log.table_name}</span>
+          <>
+            <div className="space-y-2">
+              {filteredLogs?.map((log) => (
+                <Card key={log.id} className="p-4">
+                  <div className="flex justify-between items-start">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{log.action}</span>
+                        <span className="text-sm text-muted-foreground">on {log.table_name}</span>
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {new Date(log.created_at).toLocaleString()}
+                      </div>
+                      {log.user_id && (
+                        <div className="text-xs text-muted-foreground">User: {log.user_id}</div>
+                      )}
                     </div>
-                    <div className="text-sm text-muted-foreground">
-                      {new Date(log.created_at).toLocaleString()}
+                    <div className="flex gap-2">
+                      {log.old_data && (
+                        <div className="text-xs bg-destructive/10 px-2 py-1 rounded">Old Data</div>
+                      )}
+                      {log.new_data && (
+                        <div className="text-xs bg-primary/10 px-2 py-1 rounded">New Data</div>
+                      )}
                     </div>
-                    {log.user_id && (
-                      <div className="text-xs text-muted-foreground">User: {log.user_id}</div>
-                    )}
                   </div>
-                  <div className="flex gap-2">
-                    {log.old_data && (
-                      <div className="text-xs bg-destructive/10 px-2 py-1 rounded">Old Data</div>
-                    )}
-                    {log.new_data && (
-                      <div className="text-xs bg-primary/10 px-2 py-1 rounded">New Data</div>
-                    )}
-                  </div>
+                </Card>
+              ))}
+              {filteredLogs?.length === 0 && (
+                <div className="text-center py-8 text-muted-foreground">
+                  No audit logs found
                 </div>
-              </Card>
-            ))}
-            {filteredLogs?.length === 0 && (
-              <div className="text-center py-8 text-muted-foreground">
-                No audit logs found
-              </div>
+              )}
+            </div>
+
+            {totalPages > 0 && (
+              <DataTablePagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                pageSize={pageSize}
+                totalItems={totalCount}
+                onPageChange={(page) => {
+                  setCurrentPage(page);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                onPageSizeChange={(size) => {
+                  setPageSize(size);
+                  setCurrentPage(1);
+                }}
+              />
             )}
-          </div>
+          </>
         )}
       </CardContent>
     </Card>

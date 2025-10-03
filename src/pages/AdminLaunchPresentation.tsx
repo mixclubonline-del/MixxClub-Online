@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -20,17 +20,22 @@ interface Slide {
   color: string;
 }
 
+// Memoized stat card component
+const StatCard = memo(({ label, value }: { label: string; value: string }) => (
+  <Card className="p-4">
+    <p className="text-sm text-muted-foreground">{label}</p>
+    <p className="text-2xl font-bold">{value}</p>
+  </Card>
+));
+StatCard.displayName = 'StatCard';
+
 const AdminLaunchPresentation = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [metrics, setMetrics] = useState<any>(null);
   const [prediction, setPrediction] = useState<any>(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    loadLaunchData();
-  }, []);
-
-  const loadLaunchData = async () => {
+  const loadLaunchData = useCallback(async () => {
     try {
       const [metricsRes, predictionRes] = await Promise.all([
         supabase.functions.invoke('analyze-launch-metrics'),
@@ -42,9 +47,13 @@ const AdminLaunchPresentation = () => {
     } catch (error) {
       console.error('Error loading launch data:', error);
     }
-  };
+  }, []);
 
-  const slides: Slide[] = [
+  useEffect(() => {
+    loadLaunchData();
+  }, [loadLaunchData]);
+
+  const slides: Slide[] = useMemo(() => [
     {
       id: 1,
       title: '$50M Launch Strategy',
@@ -64,10 +73,7 @@ const AdminLaunchPresentation = () => {
               { label: 'Target Valuation', value: '$50M' },
               { label: 'Timeline', value: '90 Days' },
             ].map((stat) => (
-              <Card key={stat.label} className="p-4">
-                <p className="text-sm text-muted-foreground">{stat.label}</p>
-                <p className="text-2xl font-bold">{stat.value}</p>
-              </Card>
+              <StatCard key={stat.label} label={stat.label} value={stat.value} />
             ))}
           </div>
         </div>
@@ -811,7 +817,7 @@ const AdminLaunchPresentation = () => {
         </div>
       ),
     },
-  ];
+  ], []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white p-8">

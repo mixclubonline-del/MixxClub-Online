@@ -9,6 +9,7 @@ import { PWAInstallPrompt } from "@/components/mobile/PWAInstallPrompt";
 import { MobileRouteGuard } from "@/components/mobile/MobileRouteGuard";
 import { OfflineIndicator } from "@/components/mobile/OfflineIndicator";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { AdminRoute } from "@/components/admin/AdminRoute";
 
 // Lazy load heavy components
 const Home = React.lazy(() => import("./pages/Home"));
@@ -53,57 +54,58 @@ import ComingSoon from "./pages/ComingSoon";
 import FAQ from "./pages/FAQ";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
-import AdminUsers from "./pages/AdminUsers";
-import AdminAudio from './pages/AdminAudio';
-import AdminMedia from './pages/AdminMedia';
-import AdminPayouts from './pages/AdminPayouts';
-import AdminPackages from './pages/AdminPackages';
-import AdminFeatures from './pages/AdminFeatures';
-import AdminEducation from "./pages/AdminEducation";
-import AdminMarketplace from "./pages/AdminMarketplace";
-import AdminIntegrations from "./pages/AdminIntegrations";
-import AdminMilestones from "./pages/AdminMilestones";
-import AdminFinancial from './pages/AdminFinancial';
-import AdminAnalytics from './pages/AdminAnalytics';
-import AdminContent from './pages/AdminContent';
-import AdminTestPayments from './pages/AdminTestPayments';
-import AdminBeatFiles from './pages/AdminBeatFiles';
-import AdminContacts from './pages/AdminContacts';
-import AdminJobs from './pages/AdminJobs';
-import AdminNotifications from './pages/AdminNotifications';
-import AdminSessions from './pages/AdminSessions';
-import AdminSecurity from './pages/AdminSecurity';
-import AdminAchievements from './pages/AdminAchievements';
-import AdminLegalDocuments from './pages/AdminLegalDocuments';
-import AdminSystemPresentation from './pages/AdminSystemPresentation';
-import AdminLaunchPresentation from './pages/AdminLaunchPresentation';
-import AdminLaunchDashboard from './pages/AdminLaunchDashboard';
-import AdminLaunchReadiness from './pages/AdminLaunchReadiness';
-import MobileAdminBot from './pages/MobileAdminBot';
-import MobileTesting from "@/pages/MobileTesting";
-import CoreFeaturesTesting from "@/pages/CoreFeaturesTesting";
-import RevenueFeatures from "@/pages/RevenueFeatures";
-import UXOptimization from "@/pages/UXOptimization";
-import MarketingGrowth from "@/pages/MarketingGrowth";
-import CustomerSuccess from "@/pages/CustomerSuccess";
-import DataReporting from "@/pages/DataReporting";
-import IntegrationAutomation from "@/pages/IntegrationAutomation";
-import TeamManagement from "@/pages/TeamManagement";
-import AdminCommandCenter from "@/pages/AdminCommandCenter";
-import LaunchReadiness from "@/pages/LaunchReadiness";
-import CommunicationCenter from "@/pages/CommunicationCenter";
-import AdvancedAnalytics from "@/pages/AdvancedAnalytics";
-import ContentManagement from "@/pages/ContentManagement";
-import PlatformConfiguration from "@/pages/PlatformConfiguration";
-import UserManagement from "@/pages/UserManagement";
-import SystemMonitoring from "@/pages/SystemMonitoring";
-import AuditCompliance from "@/pages/AuditCompliance";
-import BackupRecovery from "@/pages/BackupRecovery";
-import AutomationHub from "@/pages/AutomationHub";
-import MultiTenancy from "@/pages/MultiTenancy";
-import AdminSecurityCenter from './pages/AdminSecurityCenter';
-import AdminLaunchControl from './pages/AdminLaunchControl';
-import PresentationShare from './pages/PresentationShare';
+// Lazy load all admin pages for better performance
+const AdminUsers = React.lazy(() => import("./pages/AdminUsers"));
+const AdminAudio = React.lazy(() => import('./pages/AdminAudio'));
+const AdminMedia = React.lazy(() => import('./pages/AdminMedia'));
+const AdminPayouts = React.lazy(() => import('./pages/AdminPayouts'));
+const AdminPackages = React.lazy(() => import('./pages/AdminPackages'));
+const AdminFeatures = React.lazy(() => import('./pages/AdminFeatures'));
+const AdminEducation = React.lazy(() => import("./pages/AdminEducation"));
+const AdminMarketplace = React.lazy(() => import("./pages/AdminMarketplace"));
+const AdminIntegrations = React.lazy(() => import("./pages/AdminIntegrations"));
+const AdminMilestones = React.lazy(() => import("./pages/AdminMilestones"));
+const AdminFinancial = React.lazy(() => import('./pages/AdminFinancial'));
+const AdminAnalytics = React.lazy(() => import('./pages/AdminAnalytics'));
+const AdminContent = React.lazy(() => import('./pages/AdminContent'));
+const AdminTestPayments = React.lazy(() => import('./pages/AdminTestPayments'));
+const AdminBeatFiles = React.lazy(() => import('./pages/AdminBeatFiles'));
+const AdminContacts = React.lazy(() => import('./pages/AdminContacts'));
+const AdminJobs = React.lazy(() => import('./pages/AdminJobs'));
+const AdminNotifications = React.lazy(() => import('./pages/AdminNotifications'));
+const AdminSessions = React.lazy(() => import('./pages/AdminSessions'));
+const AdminSecurity = React.lazy(() => import('./pages/AdminSecurity'));
+const AdminAchievements = React.lazy(() => import('./pages/AdminAchievements'));
+const AdminLegalDocuments = React.lazy(() => import('./pages/AdminLegalDocuments'));
+const AdminSystemPresentation = React.lazy(() => import('./pages/AdminSystemPresentation'));
+const AdminLaunchPresentation = React.lazy(() => import('./pages/AdminLaunchPresentation'));
+const AdminLaunchDashboard = React.lazy(() => import('./pages/AdminLaunchDashboard'));
+const AdminLaunchReadiness = React.lazy(() => import('./pages/AdminLaunchReadiness'));
+const MobileAdminBot = React.lazy(() => import('./pages/MobileAdminBot'));
+const MobileTesting = React.lazy(() => import("./pages/MobileTesting"));
+const CoreFeaturesTesting = React.lazy(() => import("./pages/CoreFeaturesTesting"));
+const RevenueFeatures = React.lazy(() => import("./pages/RevenueFeatures"));
+const UXOptimization = React.lazy(() => import("./pages/UXOptimization"));
+const MarketingGrowth = React.lazy(() => import("./pages/MarketingGrowth"));
+const CustomerSuccess = React.lazy(() => import("./pages/CustomerSuccess"));
+const DataReporting = React.lazy(() => import("./pages/DataReporting"));
+const IntegrationAutomation = React.lazy(() => import("./pages/IntegrationAutomation"));
+const TeamManagement = React.lazy(() => import("./pages/TeamManagement"));
+const AdminCommandCenter = React.lazy(() => import("./pages/AdminCommandCenter"));
+const LaunchReadiness = React.lazy(() => import("./pages/LaunchReadiness"));
+const CommunicationCenter = React.lazy(() => import("./pages/CommunicationCenter"));
+const AdvancedAnalytics = React.lazy(() => import("./pages/AdvancedAnalytics"));
+const ContentManagement = React.lazy(() => import("./pages/ContentManagement"));
+const PlatformConfiguration = React.lazy(() => import("./pages/PlatformConfiguration"));
+const UserManagement = React.lazy(() => import("./pages/UserManagement"));
+const SystemMonitoring = React.lazy(() => import("./pages/SystemMonitoring"));
+const AuditCompliance = React.lazy(() => import("./pages/AuditCompliance"));
+const BackupRecovery = React.lazy(() => import("./pages/BackupRecovery"));
+const AutomationHub = React.lazy(() => import("./pages/AutomationHub"));
+const MultiTenancy = React.lazy(() => import("./pages/MultiTenancy"));
+const AdminSecurityCenter = React.lazy(() => import('./pages/AdminSecurityCenter'));
+const AdminLaunchControl = React.lazy(() => import('./pages/AdminLaunchControl'));
+const PresentationShare = React.lazy(() => import('./pages/PresentationShare'));
 import { JobBoard } from './pages/JobBoard';
 import ProjectDetail from "./pages/ProjectDetail";
 import MerchStore from "./pages/MerchStore";
@@ -164,33 +166,33 @@ const App = () => (
             <Route path="/mastering-studio" element={<Mastering />} />
             <Route path="/hybrid-daw" element={<AppLayout><HybridDAW /></AppLayout>} />
             <Route path="/jobs" element={<AppLayout><JobBoard /></AppLayout>} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/admin/users" element={<AdminUsers />} />
-            <Route path="/admin/beat-files" element={<AdminBeatFiles />} />
-            <Route path="/admin/contacts" element={<AdminContacts />} />
-            <Route path="/admin/jobs" element={<AdminJobs />} />
-            <Route path="/admin/notifications" element={<AdminNotifications />} />
-            <Route path="/admin/sessions" element={<AdminSessions />} />
-            <Route path="/admin/security" element={<AdminSecurity />} />
-            <Route path="/admin/achievements" element={<AdminAchievements />} />
-            <Route path="/admin/packages" element={<AdminPackages />} />
-            <Route path="/admin/features" element={<AdminFeatures />} />
-            <Route path="/admin/education" element={<AdminEducation />} />
-            <Route path="/admin/marketplace" element={<AdminMarketplace />} />
-            <Route path="/admin/integrations" element={<AdminIntegrations />} />
-            <Route path="/admin/milestones" element={<AdminMilestones />} />
-            <Route path="/admin/financial" element={<AdminFinancial />} />
-            <Route path="/admin/analytics" element={<AdminAnalytics />} />
-            <Route path="/admin/content" element={<AdminContent />} />
-            <Route path="/admin/audio" element={<AdminAudio />} />
-            <Route path="/admin/media" element={<AdminMedia />} />
-            <Route path="/admin/payouts" element={<AdminPayouts />} />
-            <Route path="/admin/test-payments" element={<AdminTestPayments />} />
-            <Route path="/admin/legal-documents" element={<AdminLegalDocuments />} />
-            <Route path="/admin/system-presentation" element={<AdminSystemPresentation />} />
-            <Route path="/admin/launch-presentation" element={<AdminLaunchPresentation />} />
-            <Route path="/admin/launch-dashboard" element={<AdminLaunchDashboard />} />
-            <Route path="/admin/launch-readiness" element={<AdminLaunchReadiness />} />
+            <Route path="/admin" element={<AdminRoute section="Admin Dashboard"><Admin /></AdminRoute>} />
+            <Route path="/admin/users" element={<AdminRoute section="Users"><AdminUsers /></AdminRoute>} />
+            <Route path="/admin/beat-files" element={<AdminRoute section="Beat Files"><AdminBeatFiles /></AdminRoute>} />
+            <Route path="/admin/contacts" element={<AdminRoute section="Contacts"><AdminContacts /></AdminRoute>} />
+            <Route path="/admin/jobs" element={<AdminRoute section="Jobs"><AdminJobs /></AdminRoute>} />
+            <Route path="/admin/notifications" element={<AdminRoute section="Notifications"><AdminNotifications /></AdminRoute>} />
+            <Route path="/admin/sessions" element={<AdminRoute section="Sessions"><AdminSessions /></AdminRoute>} />
+            <Route path="/admin/security" element={<AdminRoute section="Security"><AdminSecurity /></AdminRoute>} />
+            <Route path="/admin/achievements" element={<AdminRoute section="Achievements"><AdminAchievements /></AdminRoute>} />
+            <Route path="/admin/packages" element={<AdminRoute section="Packages"><AdminPackages /></AdminRoute>} />
+            <Route path="/admin/features" element={<AdminRoute section="Features"><AdminFeatures /></AdminRoute>} />
+            <Route path="/admin/education" element={<AdminRoute section="Education"><AdminEducation /></AdminRoute>} />
+            <Route path="/admin/marketplace" element={<AdminRoute section="Marketplace"><AdminMarketplace /></AdminRoute>} />
+            <Route path="/admin/integrations" element={<AdminRoute section="Integrations"><AdminIntegrations /></AdminRoute>} />
+            <Route path="/admin/milestones" element={<AdminRoute section="Milestones"><AdminMilestones /></AdminRoute>} />
+            <Route path="/admin/financial" element={<AdminRoute section="Financial"><AdminFinancial /></AdminRoute>} />
+            <Route path="/admin/analytics" element={<AdminRoute section="Analytics"><AdminAnalytics /></AdminRoute>} />
+            <Route path="/admin/content" element={<AdminRoute section="Content"><AdminContent /></AdminRoute>} />
+            <Route path="/admin/audio" element={<AdminRoute section="Audio"><AdminAudio /></AdminRoute>} />
+            <Route path="/admin/media" element={<AdminRoute section="Media"><AdminMedia /></AdminRoute>} />
+            <Route path="/admin/payouts" element={<AdminRoute section="Payouts"><AdminPayouts /></AdminRoute>} />
+            <Route path="/admin/test-payments" element={<AdminRoute section="Test Payments"><AdminTestPayments /></AdminRoute>} />
+            <Route path="/admin/legal-documents" element={<AdminRoute section="Legal Documents"><AdminLegalDocuments /></AdminRoute>} />
+            <Route path="/admin/system-presentation" element={<AdminRoute section="System Presentation"><AdminSystemPresentation /></AdminRoute>} />
+            <Route path="/admin/launch-presentation" element={<AdminRoute section="Launch Presentation"><AdminLaunchPresentation /></AdminRoute>} />
+            <Route path="/admin/launch-dashboard" element={<AdminRoute section="Launch Dashboard"><AdminLaunchDashboard /></AdminRoute>} />
+            <Route path="/admin/launch-readiness" element={<AdminRoute section="Launch Readiness"><AdminLaunchReadiness /></AdminRoute>} />
             <Route path="/presentation/share/:token" element={<PresentationShare />} />
             <Route path="/for-engineers" element={<ForEngineers />} />
             <Route path="/engineers" element={<EngineerDirectory />} />
