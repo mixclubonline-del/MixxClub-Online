@@ -78,6 +78,15 @@ export const RevolutionaryDashboard = () => {
       {/* Resizable AI Copilot + Dashboard Content */}
       <ResizableAICopilot insights={insights} isLoading={insightsLoading}>
         <div className="container px-4 md:px-6 py-6 space-y-6">
+          {/* Quick Actions */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.1 }}
+          >
+            <QuickActionLauncher onOpenPalette={() => setShowCommandPalette(true)} />
+          </motion.div>
+
           {/* Gamification Bar */}
           <GamificationHub />
 
@@ -106,14 +115,6 @@ export const RevolutionaryDashboard = () => {
             </div>
           </div>
 
-          {/* Quick Actions */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-          >
-            <QuickActionLauncher onOpenPalette={() => setShowCommandPalette(true)} />
-          </motion.div>
         </div>
       </ResizableAICopilot>
 
