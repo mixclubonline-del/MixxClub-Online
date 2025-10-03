@@ -18,7 +18,11 @@ declare global {
   }
 }
 
-const stripePromise = loadStripe('pk_test_51QVN0XRq9IzNdyTiZdlJCuGBBBN5d7OQBdBnhYQGCTx8MJyOGT9LJPqmSVzgM6GC2KQYjuFxL8m3GFyMUMZ3JX9z00pJqvHH0N');
+// Use environment variable for Stripe publishable key
+const STRIPE_PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 
+  'pk_test_51QVN0XRq9IzNdyTiZdlJCuGBBBN5d7OQBdBnhYQGCTx8MJyOGT9LJPqmSVzgM6GC2KQYjuFxL8m3GFyMUMZ3JX9z00pJqvHH0N';
+
+const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY);
 
 interface MultiPaymentModalProps {
   open: boolean;
