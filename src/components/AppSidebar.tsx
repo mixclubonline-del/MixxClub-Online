@@ -47,7 +47,7 @@ export function AppSidebar() {
           </div>
           {!isCollapsed && (
             <div className="flex flex-col">
-              <span className="font-bold text-lg leading-tight">
+              <span className="font-bold text-lg leading-tight bg-gradient-to-r from-white via-white/85 via-purple-300 to-primary bg-clip-text text-transparent bg-[length:200%_auto] animate-[gradient-shift_4s_ease-in-out_infinite] group-hover:animate-[gradient-shift_1.5s_ease-in-out_infinite] transition-all duration-300">
                 MixClub
               </span>
             </div>

@@ -97,7 +97,7 @@ const Navigation = () => {
                 className="w-12 h-9 object-contain relative z-10 transition-transform duration-300 group-hover:rotate-3" 
               />
             </div>
-            <span className="font-bold text-xl group-hover:text-primary transition-colors duration-300">
+            <span className="font-bold text-xl bg-gradient-to-r from-white via-white/80 via-purple-300 to-primary bg-clip-text text-transparent bg-[length:200%_auto] animate-[gradient-shift_3s_ease-in-out_infinite] group-hover:animate-[gradient-shift_1s_ease-in-out_infinite] transition-all duration-300">
               MixClub
             </span>
           </Link>
