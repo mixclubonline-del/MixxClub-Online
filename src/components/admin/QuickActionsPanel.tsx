@@ -93,9 +93,9 @@ const quickActions = [
   },
   {
     icon: Settings,
-    label: 'System Settings',
-    description: 'Configure platform',
-    path: '/admin/features',
+    label: 'Configuration',
+    description: 'Feature flags & settings',
+    path: '/admin/configuration',
     color: 'bg-gray-500'
   }
 ];
