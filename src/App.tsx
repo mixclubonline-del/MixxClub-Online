@@ -83,6 +83,7 @@ import MobileAdminBot from './pages/MobileAdminBot';
 import MobileTesting from "@/pages/MobileTesting";
 import CoreFeaturesTesting from "@/pages/CoreFeaturesTesting";
 import RevenueFeatures from "@/pages/RevenueFeatures";
+import UXOptimization from "@/pages/UXOptimization";
 import AdminSecurityCenter from './pages/AdminSecurityCenter';
 import AdminLaunchControl from './pages/AdminLaunchControl';
 import PresentationShare from './pages/PresentationShare';
@@ -198,6 +199,7 @@ const App = () => (
           <Route path="/admin/mobile-testing" element={<MobileTesting />} />
           <Route path="/admin/core-testing" element={<CoreFeaturesTesting />} />
           <Route path="/admin/revenue" element={<RevenueFeatures />} />
+          <Route path="/admin/ux-optimization" element={<UXOptimization />} />
             
             {/* Tier 1 Features */}
             <Route path="/battle-tournaments" element={<BattleTournaments />} />

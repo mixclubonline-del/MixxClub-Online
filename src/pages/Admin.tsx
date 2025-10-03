@@ -9,7 +9,7 @@ import { MobileDeploymentChecklist } from '@/components/admin/MobileDeploymentCh
 import { PerformanceOptimizer } from '@/components/admin/PerformanceOptimizer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, Music, FileAudio, TrendingUp, Rocket, TestTube2, Zap, CheckCircle, Bot, Shield, Smartphone, Sparkles, Activity, AlertTriangle, FileText, Target, DollarSign } from 'lucide-react';
+import { Users, Music, FileAudio, TrendingUp, Rocket, TestTube2, Zap, CheckCircle, Bot, Shield, Smartphone, Sparkles, Activity, AlertTriangle, FileText, Target, DollarSign, Eye } from 'lucide-react';
 
 export default function Admin() {
   const { user, loading } = useAuth();
@@ -213,13 +213,22 @@ export default function Admin() {
             </Card>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
             <Card className="p-6 hover:shadow-lg transition-all cursor-pointer group bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-950/20 dark:to-orange-950/20" onClick={() => navigate('/admin-security')}>
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 rounded-lg bg-gradient-to-r from-red-600 to-orange-600">
                   <Shield className="h-5 w-5 text-white" />
                 </div>
                 <h3 className="font-bold">Security</h3>
+              </div>
+            </Card>
+
+            <Card className="p-6 hover:shadow-lg transition-all cursor-pointer group bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-950/20 dark:to-rose-950/20" onClick={() => navigate('/admin/ux-optimization')}>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-lg bg-gradient-to-r from-pink-600 to-rose-600">
+                  <Eye className="h-5 w-5 text-white" />
+                </div>
+                <h3 className="font-bold">UX Optimization</h3>
               </div>
             </Card>
           </div>
