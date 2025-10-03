@@ -22,7 +22,7 @@ export const DashboardHub = () => {
   ]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4">
       {/* Compact Stats Bar */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -37,7 +37,7 @@ export const DashboardHub = () => {
       </div>
 
       {/* Quick Stats - Horizontal */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card className="p-6 hover:shadow-lg transition-all duration-300 hover:scale-105">
           <div className="flex items-center gap-3 mb-2">
             <TrendingUp className="w-6 h-6 text-green-500" />
@@ -68,10 +68,10 @@ export const DashboardHub = () => {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Daily Quests */}
-        <Card className="lg:col-span-2 p-8">
-          <div className="flex items-center gap-3 mb-6">
+        <Card className="lg:col-span-2 p-6">
+          <div className="flex items-center gap-3 mb-4">
             <Target className="w-7 h-7 text-primary" />
             <h2 className="text-2xl font-bold">Daily Quests</h2>
             <Badge variant="outline" className="ml-auto">
@@ -116,11 +116,11 @@ export const DashboardHub = () => {
         </Card>
 
         {/* Live Activity Globe */}
-        <Card className="p-8 relative overflow-hidden">
+        <Card className="p-6 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-3xl" />
           
           <div className="relative">
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center gap-3 mb-4">
               <Globe className="w-7 h-7 text-primary animate-pulse" />
               <h2 className="text-2xl font-bold">Live Activity</h2>
             </div>

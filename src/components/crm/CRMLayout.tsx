@@ -211,7 +211,7 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions }: 
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <Navigation />
       
-      <SidebarProvider defaultOpen={true}>
+      <SidebarProvider defaultOpen={false}>
         <div className="flex min-h-screen w-full pt-16">
           <Sidebar className="border-r border-primary/20 z-[90] w-64 lg:w-72 bg-card/50 backdrop-blur-sm" collapsible="icon">
             <SidebarContent>
@@ -298,10 +298,10 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions }: 
           </Sidebar>
 
           <main className="flex-1 overflow-auto">
-            <div className="max-w-[1800px] mx-auto p-4 lg:p-6">
+            <div className="max-w-[1800px] mx-auto p-2 lg:p-3">
               {/* Compact Header with Quick Actions Toolbar */}
-              <div className="mb-6 animate-fade-in">
-                <div className="flex items-center justify-between mb-4">
+              <div className="mb-3 animate-fade-in">
+                <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <SidebarTrigger />
                     <div className="flex items-center gap-2">
