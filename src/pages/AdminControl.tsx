@@ -1,45 +1,45 @@
 import { AdminLayout } from '@/components/admin/AdminLayout';
-import { RevenueDashboard } from '@/components/admin/RevenueDashboard';
+import { UserManagement } from '@/components/admin/UserManagement';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-export default function AdminAnalytics() {
+export default function AdminControl() {
   return (
     <AdminLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
+          <h1 className="text-3xl font-bold">Admin Control Panel</h1>
           <p className="text-muted-foreground mt-2">
-            Track revenue, user engagement, and platform performance
+            Manage users, content, and platform operations
           </p>
         </div>
 
-        <Tabs defaultValue="revenue" className="space-y-6">
+        <Tabs defaultValue="users" className="space-y-6">
           <TabsList>
-            <TabsTrigger value="revenue">Revenue</TabsTrigger>
             <TabsTrigger value="users">Users</TabsTrigger>
-            <TabsTrigger value="projects">Projects</TabsTrigger>
-            <TabsTrigger value="engineers">Engineers</TabsTrigger>
+            <TabsTrigger value="content">Content</TabsTrigger>
+            <TabsTrigger value="system">System Health</TabsTrigger>
+            <TabsTrigger value="disputes">Disputes</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="revenue">
-            <RevenueDashboard />
-          </TabsContent>
-
           <TabsContent value="users">
+            <UserManagement />
+          </TabsContent>
+
+          <TabsContent value="content">
             <div className="text-center py-12 text-muted-foreground">
-              User analytics coming soon
+              Content moderation coming soon
             </div>
           </TabsContent>
 
-          <TabsContent value="projects">
+          <TabsContent value="system">
             <div className="text-center py-12 text-muted-foreground">
-              Project analytics coming soon
+              System health monitor coming soon
             </div>
           </TabsContent>
 
-          <TabsContent value="engineers">
+          <TabsContent value="disputes">
             <div className="text-center py-12 text-muted-foreground">
-              Engineer analytics coming soon
+              Dispute manager coming soon
             </div>
           </TabsContent>
         </Tabs>

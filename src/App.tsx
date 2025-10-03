@@ -98,6 +98,7 @@ const LaunchReadiness = React.lazy(() => import("./pages/LaunchReadiness"));
 const CommunicationCenter = React.lazy(() => import("./pages/CommunicationCenter"));
 const AdvancedAnalytics = React.lazy(() => import("./pages/AdvancedAnalytics"));
 const ContentManagement = React.lazy(() => import("./pages/ContentManagement"));
+const AdminControl = React.lazy(() => import("./pages/AdminControl"));
 const PlatformConfiguration = React.lazy(() => import("./pages/PlatformConfiguration"));
 const UserManagement = React.lazy(() => import("./pages/UserManagement"));
 const SystemMonitoring = React.lazy(() => import("./pages/SystemMonitoring"));
@@ -225,6 +226,7 @@ const AppContent = () => {
             <Route path="/admin/content-management" element={<ContentManagement />} />
             <Route path="/admin/configuration" element={<PlatformConfiguration />} />
             <Route path="/admin/users" element={<UserManagement />} />
+            <Route path="/admin/control" element={<AdminRoute section="Control Panel"><AdminControl /></AdminRoute>} />
           <Route path="/admin/monitoring" element={<SystemMonitoring />} />
             <Route path="/admin/audit-log" element={<AuditLog />} />
             <Route path="/admin/advanced-features" element={<AdvancedFeatures />} />
