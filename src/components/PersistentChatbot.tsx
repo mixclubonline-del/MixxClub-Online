@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import mixclub3DLogo from '@/assets/mixclub-3d-logo.png';
 import { useLocation } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 
 interface Message {
   id: string;
@@ -31,6 +32,12 @@ export const PersistentChatbot = () => {
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
+
+  // Hide for authenticated users - they have CRM chatbots instead
+  if (user) {
+    return null;
+  }
 
   // Hide on admin pages - MixxBot handles admin assistance
   if (location.pathname.startsWith('/admin')) {
