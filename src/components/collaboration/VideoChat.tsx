@@ -49,44 +49,50 @@ export function VideoChat({ sessionId, userId, participants }: VideoChatProps) {
   };
 
   return (
-    <Card>
+    <Card className="touch-manipulation">
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
+        <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <span>Video Conference</span>
-          <div className="flex gap-2">
-            {localStream && (
-              <>
-                <Button
-                  size="sm"
-                  variant={isAudioEnabled ? "default" : "destructive"}
-                  onClick={toggleAudio}
-                >
-                  {isAudioEnabled ? <Mic className="h-4 w-4" /> : <MicOff className="h-4 w-4" />}
-                </Button>
-                <Button
-                  size="sm"
-                  variant={isVideoEnabled ? "default" : "destructive"}
-                  onClick={toggleVideo}
-                >
-                  {isVideoEnabled ? <Video className="h-4 w-4" /> : <VideoOff className="h-4 w-4" />}
-                </Button>
-                <Button
-                  size="sm"
-                  variant={isScreenSharing ? "default" : "outline"}
-                  onClick={isScreenSharing ? stopScreenShare : startScreenShare}
-                >
-                  {isScreenSharing ? <MonitorOff className="h-4 w-4" /> : <Monitor className="h-4 w-4" />}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  onClick={handleEndCall}
-                >
-                  <Phone className="h-4 w-4" />
-                </Button>
-              </>
-            )}
-          </div>
+          {localStream && (
+            <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+              <Button
+                size="sm"
+                variant={isAudioEnabled ? "default" : "destructive"}
+                onClick={toggleAudio}
+                className="touch-manipulation"
+              >
+                {isAudioEnabled ? <Mic className="h-4 w-4" /> : <MicOff className="h-4 w-4" />}
+                <span className="ml-2 hidden sm:inline">{isAudioEnabled ? 'Mute' : 'Unmute'}</span>
+              </Button>
+              <Button
+                size="sm"
+                variant={isVideoEnabled ? "default" : "destructive"}
+                onClick={toggleVideo}
+                className="touch-manipulation"
+              >
+                {isVideoEnabled ? <Video className="h-4 w-4" /> : <VideoOff className="h-4 w-4" />}
+                <span className="ml-2 hidden sm:inline">{isVideoEnabled ? 'Stop' : 'Start'}</span>
+              </Button>
+              <Button
+                size="sm"
+                variant={isScreenSharing ? "default" : "outline"}
+                onClick={isScreenSharing ? stopScreenShare : startScreenShare}
+                className="touch-manipulation hidden sm:flex"
+              >
+                {isScreenSharing ? <MonitorOff className="h-4 w-4" /> : <Monitor className="h-4 w-4" />}
+                <span className="ml-2 hidden md:inline">Screen</span>
+              </Button>
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={handleEndCall}
+                className="touch-manipulation"
+              >
+                <Phone className="h-4 w-4" />
+                <span className="ml-2 hidden sm:inline">End</span>
+              </Button>
+            </div>
+          )}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -101,7 +107,7 @@ export function VideoChat({ sessionId, userId, participants }: VideoChatProps) {
           ) : (
             <>
               {/* Local Video */}
-              <div className="relative aspect-video bg-black rounded-lg overflow-hidden">
+              <div className="relative aspect-video bg-black rounded-lg overflow-hidden touch-none">
                 <video
                   ref={localVideoRef}
                   autoPlay
@@ -109,13 +115,13 @@ export function VideoChat({ sessionId, userId, participants }: VideoChatProps) {
                   playsInline
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute bottom-2 left-2 bg-black/50 px-2 py-1 rounded text-white text-sm">
+                <div className="absolute bottom-2 left-2 bg-black/50 px-2 py-1 rounded text-white text-xs sm:text-sm">
                   You
                 </div>
               </div>
 
               {/* Remote Videos */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                 {Array.from(remoteVideos.entries()).map(([peerId, stream]) => (
                   <RemoteVideo key={peerId} stream={stream} peerId={peerId} />
                 ))}
@@ -138,14 +144,14 @@ function RemoteVideo({ stream, peerId }: { stream: MediaStream; peerId: string }
   }, [stream]);
 
   return (
-    <div className="relative aspect-video bg-black rounded-lg overflow-hidden">
+    <div className="relative aspect-video bg-black rounded-lg overflow-hidden touch-none">
       <video
         ref={videoRef}
         autoPlay
         playsInline
         className="w-full h-full object-cover"
       />
-      <div className="absolute bottom-2 left-2 bg-black/50 px-2 py-1 rounded text-white text-sm">
+      <div className="absolute bottom-2 left-2 bg-black/50 px-2 py-1 rounded text-white text-xs sm:text-sm">
         Participant {peerId.slice(-4)}
       </div>
     </div>

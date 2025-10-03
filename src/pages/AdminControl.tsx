@@ -1,6 +1,8 @@
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { UserManagement } from '@/components/admin/UserManagement';
+import { RefundManager } from '@/components/admin/RefundManager';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Users, DollarSign, Activity, Shield } from 'lucide-react';
 
 export default function AdminControl() {
   return (
@@ -14,32 +16,42 @@ export default function AdminControl() {
         </div>
 
         <Tabs defaultValue="users" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="users">Users</TabsTrigger>
-            <TabsTrigger value="content">Content</TabsTrigger>
-            <TabsTrigger value="system">System Health</TabsTrigger>
-            <TabsTrigger value="disputes">Disputes</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
+            <TabsTrigger value="users">
+              <Users className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Users</span>
+            </TabsTrigger>
+            <TabsTrigger value="payments">
+              <DollarSign className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Payments</span>
+            </TabsTrigger>
+            <TabsTrigger value="security">
+              <Shield className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Security</span>
+            </TabsTrigger>
+            <TabsTrigger value="system">
+              <Activity className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">System</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="users">
             <UserManagement />
           </TabsContent>
 
-          <TabsContent value="content">
+          <TabsContent value="payments">
+            <RefundManager />
+          </TabsContent>
+
+          <TabsContent value="security">
             <div className="text-center py-12 text-muted-foreground">
-              Content moderation coming soon
+              Security monitor coming soon
             </div>
           </TabsContent>
 
           <TabsContent value="system">
             <div className="text-center py-12 text-muted-foreground">
               System health monitor coming soon
-            </div>
-          </TabsContent>
-
-          <TabsContent value="disputes">
-            <div className="text-center py-12 text-muted-foreground">
-              Dispute manager coming soon
             </div>
           </TabsContent>
         </Tabs>

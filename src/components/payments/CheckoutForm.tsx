@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
+const stripePromise = loadStripe('pk_test_51QeD9FRujx1S8DZ3xAhOp3UcfkQV9m0YU8tEiVzFgU1iiGaYH7YXmV2HGMQIiLLX6VBzPt7Dv58XTcjJVIjXBFuL00oeMvjIhD');
 
 interface CheckoutFormProps {
   amount: number;
@@ -75,7 +75,7 @@ export function CheckoutForm({ amount, projectId, onSuccess }: CheckoutFormProps
   const [clientSecret, setClientSecret] = useState<string>('');
   const [loading, setLoading] = useState(true);
 
-  useState(() => {
+  useEffect(() => {
     const createPaymentIntent = async () => {
       try {
         const { data, error } = await supabase.functions.invoke('create-payment-intent', {
@@ -83,8 +83,9 @@ export function CheckoutForm({ amount, projectId, onSuccess }: CheckoutFormProps
         });
 
         if (error) throw error;
-        setClientSecret(data.client_secret);
+        setClientSecret(data.clientSecret);
       } catch (err) {
+        console.error('Payment initialization error:', err);
         toast.error('Failed to initialize payment');
       } finally {
         setLoading(false);
@@ -92,7 +93,7 @@ export function CheckoutForm({ amount, projectId, onSuccess }: CheckoutFormProps
     };
 
     createPaymentIntent();
-  });
+  }, [amount, projectId]);
 
   if (loading) {
     return (

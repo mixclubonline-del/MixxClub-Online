@@ -49,10 +49,12 @@ serve(async (req) => {
       },
     });
 
+    console.log('Payment intent created:', paymentIntent.id);
+
     return new Response(
       JSON.stringify({ 
-        client_secret: paymentIntent.client_secret,
-        publishable_key: Deno.env.get('STRIPE_PUBLISHABLE_KEY') || ''
+        clientSecret: paymentIntent.client_secret,
+        paymentIntentId: paymentIntent.id
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
