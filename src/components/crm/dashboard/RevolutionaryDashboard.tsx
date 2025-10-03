@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
-import { AICommandCenter } from './AICommandCenter';
+import { AICopilotSidebar } from './AICopilotSidebar';
 import { AudioVisualization3D } from './AudioVisualization3D';
 import { SmartStatsGrid } from './SmartStatsGrid';
 import { GamificationHub } from './GamificationHub';
@@ -11,10 +11,12 @@ import { QuickActionLauncher } from './QuickActionLauncher';
 import { useMoodTheming } from '@/hooks/useMoodTheming';
 import { useAIDashboardInsights } from '@/hooks/useAIDashboardInsights';
 import { useCommandPalette } from '@/hooks/useCommandPalette';
+import { cn } from '@/lib/utils';
 
 export const RevolutionaryDashboard = () => {
   const { user } = useAuth();
   const [showCommandPalette, setShowCommandPalette] = useState(false);
+  const [copilotOpen, setCopilotOpen] = useState(true);
   const { theme, updateMood } = useMoodTheming();
   const { insights, isLoading: insightsLoading } = useAIDashboardInsights();
 
@@ -38,6 +40,14 @@ export const RevolutionaryDashboard = () => {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
+      {/* AI Copilot Sidebar */}
+      <AICopilotSidebar 
+        isOpen={copilotOpen}
+        onClose={() => setCopilotOpen(!copilotOpen)}
+        insights={insights}
+        isLoading={insightsLoading}
+      />
+
       {/* Morphing Background */}
       <motion.div
         className="fixed inset-0 -z-10"
@@ -74,11 +84,11 @@ export const RevolutionaryDashboard = () => {
         ))}
       </div>
 
-      {/* AI Command Center - Floating */}
-      <AICommandCenter insights={insights} isLoading={insightsLoading} />
-
-      {/* Main Content */}
-      <div className="container px-4 md:px-6 py-6 space-y-6">
+      {/* Main Content with Dynamic Padding */}
+      <div className={cn(
+        "transition-all duration-300 container px-4 md:px-6 py-6 space-y-6",
+        copilotOpen ? "ml-80" : "ml-0"
+      )}>
         {/* Gamification Bar */}
         <GamificationHub />
 
