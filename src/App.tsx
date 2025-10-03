@@ -87,6 +87,7 @@ import UXOptimization from "@/pages/UXOptimization";
 import MarketingGrowth from "@/pages/MarketingGrowth";
 import CustomerSuccess from "@/pages/CustomerSuccess";
 import DataReporting from "@/pages/DataReporting";
+import IntegrationAutomation from "@/pages/IntegrationAutomation";
 import AdminSecurityCenter from './pages/AdminSecurityCenter';
 import AdminLaunchControl from './pages/AdminLaunchControl';
 import PresentationShare from './pages/PresentationShare';
@@ -206,6 +207,7 @@ const App = () => (
           <Route path="/admin/marketing" element={<MarketingGrowth />} />
           <Route path="/admin/customer-success" element={<CustomerSuccess />} />
           <Route path="/admin/data-reporting" element={<DataReporting />} />
+          <Route path="/admin/integration-automation" element={<IntegrationAutomation />} />
             
             {/* Tier 1 Features */}
             <Route path="/battle-tournaments" element={<BattleTournaments />} />

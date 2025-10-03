@@ -9,7 +9,7 @@ import { MobileDeploymentChecklist } from '@/components/admin/MobileDeploymentCh
 import { PerformanceOptimizer } from '@/components/admin/PerformanceOptimizer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, Music, FileAudio, TrendingUp, Rocket, TestTube2, Zap, CheckCircle, Bot, Shield, Smartphone, Sparkles, Activity, AlertTriangle, FileText, Target, DollarSign, Eye, Megaphone, Headphones, BarChart3 } from 'lucide-react';
+import { Users, Music, FileAudio, TrendingUp, Rocket, TestTube2, Zap, CheckCircle, Bot, Shield, Smartphone, Sparkles, Activity, AlertTriangle, FileText, Target, DollarSign, Eye, Megaphone, Headphones, BarChart3, Plug } from 'lucide-react';
 
 export default function Admin() {
   const { user, loading } = useAuth();
@@ -240,6 +240,35 @@ export default function Admin() {
                 <h3 className="font-bold">Marketing & Growth</h3>
               </div>
             </Card>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+            <Card className="p-6 hover:shadow-lg transition-all cursor-pointer group bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-950/20 dark:to-orange-950/20" onClick={() => navigate('/admin-security')}>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-lg bg-gradient-to-r from-red-600 to-orange-600">
+                  <Shield className="h-5 w-5 text-white" />
+                </div>
+                <h3 className="font-bold">Security</h3>
+              </div>
+            </Card>
+
+            <Card className="p-6 hover:shadow-lg transition-all cursor-pointer group bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-950/20 dark:to-rose-950/20" onClick={() => navigate('/admin/ux-optimization')}>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-lg bg-gradient-to-r from-pink-600 to-rose-600">
+                  <Eye className="h-5 w-5 text-white" />
+                </div>
+                <h3 className="font-bold">UX Optimization</h3>
+              </div>
+            </Card>
+
+            <Card className="p-6 hover:shadow-lg transition-all cursor-pointer group bg-gradient-to-br from-indigo-50 to-violet-50 dark:from-indigo-950/20 dark:to-violet-950/20" onClick={() => navigate('/admin/marketing')}>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600">
+                  <Megaphone className="h-5 w-5 text-white" />
+                </div>
+                <h3 className="font-bold">Marketing & Growth</h3>
+              </div>
+            </Card>
 
             <Card className="p-6 hover:shadow-lg transition-all cursor-pointer group bg-gradient-to-br from-cyan-50 to-teal-50 dark:from-cyan-950/20 dark:to-teal-950/20" onClick={() => navigate('/admin/customer-success')}>
               <div className="flex items-center gap-3 mb-3">
@@ -256,6 +285,15 @@ export default function Admin() {
                   <BarChart3 className="h-5 w-5 text-white" />
                 </div>
                 <h3 className="font-bold">Data & Reporting</h3>
+              </div>
+            </Card>
+
+            <Card className="p-6 hover:shadow-lg transition-all cursor-pointer group bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20" onClick={() => navigate('/admin/integration-automation')}>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600">
+                  <Plug className="h-5 w-5 text-white" />
+                </div>
+                <h3 className="font-bold">Integration & Automation</h3>
               </div>
             </Card>
           </div>
