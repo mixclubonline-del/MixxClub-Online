@@ -81,6 +81,7 @@ import MobileAdmin from "./pages/MobileAdmin";
 import MobileAdminPayouts from "./pages/MobileAdminPayouts";
 import MobileAdminUsers from "./pages/MobileAdminUsers";
 import MobileMixxBot from "./pages/MobileMixxBot";
+import AudioLab from "./pages/AudioLab";
 import { PersistentChatbot } from "@/components/PersistentChatbot";
 import { AppLayout } from "@/components/layouts/AppLayout";
 
@@ -146,6 +147,7 @@ const App = () => (
             <Route path="/for-engineers" element={<ForEngineers />} />
             <Route path="/engineers" element={<EngineerDirectory />} />
             <Route path="/engineer/:userId" element={<EngineerProfile />} />
+            <Route path="/audio-lab" element={<AudioLab />} />
             <Route path="/project/:projectId" element={<AppLayout><ProjectDetail /></AppLayout>} />
             <Route path="/coming-soon" element={<ComingSoon />} />
             <Route path="/faq" element={<FAQ />} />
