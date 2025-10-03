@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { 
   Users, DollarSign, Settings, Shield, BarChart3, 
-  Megaphone, Headphones, Plug, UserCog, Zap
+  Megaphone, Headphones, Plug, UserCog, Zap, MessageCircle
 } from "lucide-react";
 
 const quickActions = [
@@ -69,6 +69,13 @@ const quickActions = [
     description: 'System health check',
     path: '/admin/launch-readiness',
     color: 'bg-yellow-500'
+  },
+  {
+    icon: MessageCircle,
+    label: 'Communications',
+    description: 'Email & notifications',
+    path: '/admin/communications',
+    color: 'bg-pink-500'
   },
   {
     icon: Settings,
