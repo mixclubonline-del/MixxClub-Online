@@ -3317,6 +3317,45 @@ export type Database = {
           },
         ]
       }
+      launch_metrics: {
+        Row: {
+          ad_spend_daily: number | null
+          created_at: string
+          id: string
+          metric_date: string
+          payments_completed: number | null
+          projects_created: number | null
+          qualifier_completed: number | null
+          qualifier_started: number | null
+          revenue_daily: number | null
+          signups: number | null
+        }
+        Insert: {
+          ad_spend_daily?: number | null
+          created_at?: string
+          id?: string
+          metric_date: string
+          payments_completed?: number | null
+          projects_created?: number | null
+          qualifier_completed?: number | null
+          qualifier_started?: number | null
+          revenue_daily?: number | null
+          signups?: number | null
+        }
+        Update: {
+          ad_spend_daily?: number | null
+          created_at?: string
+          id?: string
+          metric_date?: string
+          payments_completed?: number | null
+          projects_created?: number | null
+          qualifier_completed?: number | null
+          qualifier_started?: number | null
+          revenue_daily?: number | null
+          signups?: number | null
+        }
+        Relationships: []
+      }
       legal_documents: {
         Row: {
           attorney_email: string | null
