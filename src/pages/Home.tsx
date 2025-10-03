@@ -1,234 +1,80 @@
-import { MobileAppDownloadPopup } from "@/components/MobileAppDownloadPopup";
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
-import { HomeShowcaseSlideshow } from "@/components/HomeShowcaseSlideshow";
-import { LiveCommunityCounter } from "@/components/home/LiveCommunityCounter";
-import { TierShowcase } from "@/components/home/TierShowcase";
 import { ValueProposition } from "@/components/home/ValueProposition";
-import { LiveActivityFeed } from "@/components/home/LiveActivityFeed";
 import { BeforeAfterComparison } from "@/components/BeforeAfterComparison";
-import { RecentSuccesses } from "@/components/RecentSuccesses";
 import { InstantDemoSection } from "@/components/InstantDemoSection";
-import { PackagesShop } from "@/components/crm/PackagesShop";
+import { PackageBuilder } from "@/components/home/PackageBuilder";
+import { SubscriptionCTA } from "@/components/home/SubscriptionCTA";
+import { LiveActivityFeed } from "@/components/home/LiveActivityFeed";
+import { TierShowcase } from "@/components/home/TierShowcase";
+import { RecentSuccesses } from "@/components/RecentSuccesses";
+import { ExitIntentPopup } from "@/components/home/ExitIntentPopup";
+import { LiveNotifications } from "@/components/home/LiveNotifications";
 import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen flex flex-col">
       <Navigation />
-      
-      {/* Mobile App Marketing Pop-up */}
-      <MobileAppDownloadPopup />
-      
-      {/* Slideshow Introduction */}
-      <HomeShowcaseSlideshow />
-      
-      {/* Hero Section */}
+      <ExitIntentPopup />
+      <LiveNotifications />
       <Hero />
-
-      {/* Value Proposition for Artists & Engineers - Prominent Placement */}
-      <section className="py-20 bg-gradient-to-b from-background to-[hsl(262_30%_8%)]">
-        <div className="container px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-black mb-4">
-              <span className="bg-gradient-to-r from-primary via-accent-blue to-accent-cyan bg-clip-text text-transparent">
-                Choose Your Path
-              </span>
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Whether you're creating or engineering, MixClub has your journey covered
-            </p>
-          </div>
-          <ValueProposition />
-        </div>
-      </section>
-
-      {/* Before/After Comparison - Moved here */}
-      <section className="py-20 bg-gradient-to-b from-[hsl(262_30%_8%)] to-background">
-        <div className="container px-6">
-          <BeforeAfterComparison />
-        </div>
-      </section>
-
-      {/* AI Mastering Trial */}
+      <BeforeAfterComparison />
       <InstantDemoSection />
-
-      {/* Packages Shop */}
-      <section className="py-20 bg-gradient-to-b from-background to-[hsl(262_30%_8%)]">
-        <div className="container px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-black mb-4">
-              <span className="bg-gradient-to-r from-primary via-accent-blue to-accent-cyan bg-clip-text text-transparent">
-                Choose Your Package
-              </span>
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Professional mixing and mastering services tailored to your needs
-            </p>
-          </div>
-          <PackagesShop />
-        </div>
-      </section>
-
-      {/* Live Community Status */}
-      <section className="py-12 bg-[hsl(262_30%_8%)]">
-        <div className="container px-6">
-          <div className="grid lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
-            <div className="lg:col-span-2">
-              <LiveCommunityCounter />
-            </div>
-            <div>
-              <LiveActivityFeed />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Tier-Based Feature Showcase */}
-      <section className="py-20 bg-gradient-to-b from-[hsl(262_30%_8%)] to-background">
-        <div className="container px-6">
-          <TierShowcase />
-        </div>
-      </section>
-
-      {/* Social Proof */}
-      <section className="py-20 bg-gradient-to-b from-[hsl(262_30%_8%)] to-background">
-        <div className="container px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-black mb-4">
-              <span className="bg-gradient-to-r from-primary via-accent-blue to-accent-cyan bg-clip-text text-transparent">
-                Real Results, Real Artists
-              </span>
-            </h2>
-            <p className="text-xl text-muted-foreground">
-              Join thousands of musicians getting professional sound
-            </p>
-          </div>
-          
-          <RecentSuccesses />
-        </div>
-      </section>
-
+      <ValueProposition />
+      <PackageBuilder />
+      <SubscriptionCTA />
+      <LiveActivityFeed />
+      <TierShowcase />
+      <RecentSuccesses />
+      
       {/* Footer */}
-      <footer className="border-t border-border py-12 bg-card">
-        <div className="container px-6">
+      <footer className="bg-muted/30 border-t mt-20">
+        <div className="container mx-auto px-4 py-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {/* Brand */}
-            <div className="col-span-1">
-              <h3 className="text-xl font-bold mb-4 bg-gradient-to-r from-white via-purple-300 to-primary bg-clip-text text-transparent bg-[length:200%_auto] animate-[gradient-shift_5s_ease-in-out_infinite]">
-                MixClub
-              </h3>
-              <p className="text-muted-foreground text-sm">
-                Connecting artists with world-class audio engineers for professional mixing and mastering.
+            <div className="space-y-4">
+              <h3 className="text-xl font-bold">MixClub</h3>
+              <p className="text-sm text-muted-foreground">
+                Professional mixing from $29 to $149+. Find your perfect engineer match.
               </p>
             </div>
 
             {/* Services */}
-            <div>
-              <h4 className="font-semibold mb-4">Services</h4>
-              <ul className="space-y-2">
-                <li>
-                  <button
-                    onClick={() => navigate("/mixing")}
-                    className="text-muted-foreground hover:text-primary text-sm transition-colors"
-                  >
-                    Mixing
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => navigate("/mastering")}
-                    className="text-muted-foreground hover:text-primary text-sm transition-colors"
-                  >
-                    Mastering
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => navigate("/for-engineers")}
-                    className="text-muted-foreground hover:text-primary text-sm transition-colors"
-                  >
-                    For Engineers
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => navigate("/engineers")}
-                    className="text-muted-foreground hover:text-primary text-sm transition-colors"
-                  >
-                    Find Engineers
-                  </button>
-                </li>
+            <div className="space-y-4">
+              <h4 className="font-semibold">Services</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><button onClick={() => navigate('/mixing')} className="hover:text-primary transition-colors">Mixing</button></li>
+                <li><button onClick={() => navigate('/mastering')} className="hover:text-primary transition-colors">Mastering</button></li>
+                <li><button onClick={() => navigate('/studio-directory')} className="hover:text-primary transition-colors">Studio Sessions</button></li>
+                <li><button onClick={() => navigate('/distribution-hub')} className="hover:text-primary transition-colors">Distribution</button></li>
               </ul>
             </div>
 
             {/* Company */}
-            <div>
-              <h4 className="font-semibold mb-4">Company</h4>
-              <ul className="space-y-2">
-                <li>
-                  <button
-                    onClick={() => navigate("/how-it-works")}
-                    className="text-muted-foreground hover:text-primary text-sm transition-colors"
-                  >
-                    How It Works
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => navigate("/faq")}
-                    className="text-muted-foreground hover:text-primary text-sm transition-colors"
-                  >
-                    FAQ
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => navigate("/terms")}
-                    className="text-muted-foreground hover:text-primary text-sm transition-colors"
-                  >
-                    Terms of Service
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => navigate("/privacy")}
-                    className="text-muted-foreground hover:text-primary text-sm transition-colors"
-                  >
-                    Privacy Policy
-                  </button>
-                </li>
+            <div className="space-y-4">
+              <h4 className="font-semibold">Company</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><button onClick={() => navigate('/how-it-works')} className="hover:text-primary transition-colors">How It Works</button></li>
+                <li><button onClick={() => navigate('/for-engineers')} className="hover:text-primary transition-colors">For Engineers</button></li>
+                <li><button onClick={() => navigate('/faq')} className="hover:text-primary transition-colors">FAQ</button></li>
               </ul>
             </div>
 
             {/* Connect */}
-            <div>
-              <h4 className="font-semibold mb-4">Connect</h4>
-              <ul className="space-y-2">
-                <li>
-                  <a
-                    href="mailto:support@mixclubonline.com"
-                    className="text-muted-foreground hover:text-primary text-sm transition-colors"
-                  >
-                    Support
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="mailto:legal@mixclubonline.com"
-                    className="text-muted-foreground hover:text-primary text-sm transition-colors"
-                  >
-                    Legal
-                  </a>
-                </li>
+            <div className="space-y-4">
+              <h4 className="font-semibold">Connect</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><a href="mailto:support@mixclub.com" className="hover:text-primary transition-colors">Support</a></li>
+                <li><a href="mailto:legal@mixclub.com" className="hover:text-primary transition-colors">Legal</a></li>
               </ul>
             </div>
           </div>
 
-          <div className="border-t border-border mt-8 pt-8 text-center text-sm text-muted-foreground">
-            <p>&copy; 2025 MixClub. All rights reserved.</p>
+          <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
+            <p>&copy; 2024 MixClub. All rights reserved.</p>
           </div>
         </div>
       </footer>
