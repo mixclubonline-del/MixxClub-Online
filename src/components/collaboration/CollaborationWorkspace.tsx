@@ -26,7 +26,8 @@ import {
   Download,
   Upload,
   Phone,
-  PhoneOff
+  PhoneOff,
+  Music
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -443,227 +444,310 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
   };
 
   return (
-    <div className="flex flex-col lg:flex-row h-[calc(100vh-12rem)] bg-background gap-4">
-      {/* Main workspace */}
+    <div className="flex h-[calc(100vh-8rem)] bg-gradient-to-br from-background via-muted/20 to-background">
+      {/* Left Sidebar - Collapsible */}
+      <div className="w-64 border-r bg-card/50 backdrop-blur-sm flex flex-col animate-slide-in-right">
+        <div className="p-4 border-b">
+          <h3 className="font-semibold text-sm flex items-center gap-2">
+            <Settings className="w-4 h-4 text-primary" />
+            Workspace Tools
+          </h3>
+        </div>
+        <ScrollArea className="flex-1">
+          <div className="p-4 space-y-4">
+            <Card className="p-3 bg-muted/50 hover:bg-muted transition-colors cursor-pointer">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-2 bg-primary/10 rounded">
+                  <Music className="w-4 h-4 text-primary" />
+                </div>
+                <span className="font-medium text-sm">Tracks</span>
+              </div>
+              <p className="text-xs text-muted-foreground">Manage audio files</p>
+            </Card>
+
+            <Card className="p-3 bg-muted/50 hover:bg-muted transition-colors cursor-pointer">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-2 bg-accent-cyan/10 rounded">
+                  <Volume2 className="w-4 h-4 text-accent-cyan" />
+                </div>
+                <span className="font-medium text-sm">Mixer</span>
+              </div>
+              <p className="text-xs text-muted-foreground">Audio levels</p>
+            </Card>
+          </div>
+        </ScrollArea>
+      </div>
+
+      {/* Center - Main Workspace (60% width) */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <div className="border-b p-4 flex items-center justify-between">
+        <div className="border-b p-4 bg-card/80 backdrop-blur-sm flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <h2 className="text-xl font-semibold">Live Collaboration Session</h2>
-            <Badge className="bg-green-500 text-white">
-              <div className="w-2 h-2 bg-white rounded-full mr-1 animate-pulse"></div>
+            <h2 className="text-xl font-bold bg-gradient-to-r from-primary via-accent-cyan to-accent-blue bg-clip-text text-transparent">
+              Live Collaboration
+            </h2>
+            <Badge className="bg-green-500 text-white pulse-live">
+              <div className="w-2 h-2 bg-white rounded-full mr-1"></div>
               Live
             </Badge>
           </div>
           
           <div className="flex items-center gap-2">
             {isRecording && (
-              <div className="flex items-center gap-2 text-red-500">
-                <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+              <div className="flex items-center gap-2 text-red-500 pulse-live">
+                <div className="w-3 h-3 bg-red-500 rounded-full"></div>
                 <span className="text-sm font-mono">{formatTime(recordingDuration)}</span>
               </div>
             )}
             
-            <Button variant="outline" onClick={onLeaveSession}>
-              <PhoneOff className="w-4 h-4 mr-2" />
-              Leave Session
+            <Button variant="outline" onClick={onLeaveSession} className="gap-2">
+              <PhoneOff className="w-4 h-4" />
+              Leave
             </Button>
           </div>
         </div>
 
-        {/* Video/Screen Share Area */}
-        <div className="flex-1 bg-gray-900 flex items-center justify-center relative">
+        {/* Waveform Display Area - Much Larger Now */}
+        <div className="flex-1 bg-gradient-to-br from-muted/30 to-background flex flex-col items-center justify-center relative p-8">
           {isScreenSharing ? (
-            <div className="text-center text-white">
-              <Monitor className="w-16 h-16 mx-auto mb-4" />
-              <p>Screen sharing active</p>
+            <div className="text-center animate-fade-in">
+              <div className="p-6 bg-primary/10 rounded-full w-fit mx-auto mb-4 bloom-hover">
+                <Monitor className="w-20 h-20 text-primary" />
+              </div>
+              <p className="text-xl font-semibold mb-2">Screen Sharing Active</p>
+              <p className="text-muted-foreground">Collaborators can see your screen</p>
             </div>
           ) : (
-            <div className="text-center text-white">
-              <Users className="w-16 h-16 mx-auto mb-4" />
-              <p>Collaboration workspace</p>
-              <p className="text-sm text-gray-400">Share your screen or enable video to start</p>
+            <div className="text-center max-w-2xl animate-scale-in">
+              <div className="p-8 bg-gradient-to-br from-primary/20 to-accent-cyan/20 rounded-2xl w-fit mx-auto mb-6 shadow-glow-lg bloom-hover">
+                <Users className="w-24 h-24 text-primary" />
+              </div>
+              <h3 className="text-3xl font-bold mb-3 bg-gradient-to-r from-primary to-accent-cyan bg-clip-text text-transparent">
+                Global Collaboration Studio
+              </h3>
+              <p className="text-muted-foreground mb-6">
+                Create music with artists and engineers from anywhere in the world 🌍
+              </p>
+              <div className="flex items-center justify-center gap-4">
+                <Card className="p-4 bg-muted/50">
+                  <div className="text-2xl font-bold text-primary">{participants.length}</div>
+                  <div className="text-xs text-muted-foreground">Active Users</div>
+                </Card>
+                <Card className="p-4 bg-muted/50">
+                  <div className="text-2xl font-bold text-accent-cyan">{audioStreams.length}</div>
+                  <div className="text-xs text-muted-foreground">Audio Streams</div>
+                </Card>
+              </div>
             </div>
           )}
+
+          {/* Floating Cursors Placeholder */}
+          <div className="absolute top-4 left-4 text-xs text-muted-foreground">
+            💡 Real-time cursors and edits appear here
+          </div>
         </div>
 
-        {/* Control Bar */}
-        <div className="border-t p-4 bg-card">
-          <div className="flex items-center justify-center gap-4">
+        {/* Control Bar - More Prominent */}
+        <div className="border-t p-6 bg-card/90 backdrop-blur-md">
+          <div className="flex items-center justify-center gap-6">
             <Button
               variant={isMicEnabled ? "default" : "secondary"}
               size="lg"
               onClick={toggleMicrophone}
-              className="rounded-full"
+              className="rounded-full w-14 h-14 bloom-hover"
             >
-              {isMicEnabled ? <Mic className="w-5 h-5" /> : <MicOff className="w-5 h-5" />}
+              {isMicEnabled ? <Mic className="w-6 h-6" /> : <MicOff className="w-6 h-6" />}
             </Button>
             
             <Button
               variant={isVideoEnabled ? "default" : "secondary"}
               size="lg"
               onClick={toggleVideo}
-              className="rounded-full"
+              className="rounded-full w-14 h-14 bloom-hover"
             >
-              {isVideoEnabled ? <Video className="w-5 h-5" /> : <VideoOff className="w-5 h-5" />}
+              {isVideoEnabled ? <Video className="w-6 h-6" /> : <VideoOff className="w-6 h-6" />}
             </Button>
             
             <Button
               variant={isScreenSharing ? "default" : "secondary"}
               size="lg"
               onClick={toggleScreenShare}
-              className="rounded-full"
+              className="rounded-full w-14 h-14 bloom-hover"
             >
-              {isScreenSharing ? <MonitorOff className="w-5 h-5" /> : <Monitor className="w-5 h-5" />}
+              {isScreenSharing ? <MonitorOff className="w-6 h-6" /> : <Monitor className="w-6 h-6" />}
             </Button>
             
-            <Separator orientation="vertical" className="h-8" />
+            <Separator orientation="vertical" className="h-10" />
             
             <Button
               variant={isRecording ? "destructive" : "secondary"}
               size="lg"
               onClick={isRecording ? stopRecording : startRecording}
-              className="rounded-full"
+              className="rounded-full w-14 h-14 bloom-hover"
             >
-              {isRecording ? <Square className="w-5 h-5" /> : <div className="w-5 h-5 bg-red-500 rounded-full" />}
+              {isRecording ? <Square className="w-6 h-6" /> : <div className="w-6 h-6 bg-red-500 rounded-full pulse-live" />}
             </Button>
             
-            <div className="flex items-center gap-2">
-              <Volume2 className="w-4 h-4" />
+            <div className="flex items-center gap-3 px-4 py-2 bg-muted rounded-full">
+              <Volume2 className="w-5 h-5 text-primary" />
               <Slider
                 value={masterVolume}
                 onValueChange={setMasterVolume}
                 max={100}
                 step={1}
-                className="w-24"
+                className="w-32"
               />
+              <span className="text-sm font-medium w-12 text-right">{masterVolume[0]}%</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Right Sidebar */}
-      <div className="w-full lg:w-80 border-t lg:border-t-0 lg:border-l flex flex-col max-h-[600px] lg:max-h-none">
-        {/* Participants */}
-        <Card className="border-0 border-b rounded-none">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <Users className="w-4 h-4" />
-              Participants ({participants.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <ScrollArea className="max-h-[200px]">
-              <div className="space-y-2 pr-4">
-              {participants.map((participant) => (
-                <div key={participant.id} className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
-                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-xs">
-                    {participant.profiles.full_name?.charAt(0) || 'U'}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium truncate">
-                      {participant.profiles.full_name || 'Unknown'}
+      {/* Right Sidebar - Collapsible */}
+      <div className="w-96 border-l bg-card/50 backdrop-blur-sm flex flex-col animate-slide-in-right">
+        {/* Participants Section */}
+        <div className="p-4 border-b">
+          <h3 className="font-semibold text-sm flex items-center gap-2 mb-3">
+            <Users className="w-4 h-4 text-primary" />
+            Collaborators ({participants.length})
+          </h3>
+          <ScrollArea className="max-h-64">
+            <div className="space-y-2 pr-4">
+              {participants.map((participant, index) => (
+                <Card 
+                  key={participant.id} 
+                  className="p-3 bloom-hover animate-fade-in"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent-cyan flex items-center justify-center text-white font-bold">
+                      {participant.profiles.full_name?.charAt(0) || 'U'}
                     </div>
-                    <div className="text-xs text-muted-foreground">{participant.role}</div>
-                  </div>
-                  <div className="flex gap-1">
-                    {participant.audio_input_enabled ? (
-                      <Mic className="w-3 h-3 text-green-500" />
-                    ) : (
-                      <MicOff className="w-3 h-3 text-muted-foreground" />
-                    )}
-                    {participant.video_enabled ? (
-                      <Video className="w-3 h-3 text-green-500" />
-                    ) : (
-                      <VideoOff className="w-3 h-3 text-muted-foreground" />
-                    )}
-                  </div>
-                </div>
-              ))}
-              </div>
-            </ScrollArea>
-          </CardContent>
-        </Card>
-
-        {/* Audio Mixer */}
-        <Card className="border-0 border-b rounded-none">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm">Audio Mixer</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <ScrollArea className="max-h-48">
-              <div className="space-y-3">
-                {audioStreams.map((stream) => (
-                  <div key={stream.id} className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-medium truncate">{stream.stream_name}</span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => toggleStreamMute(stream.id)}
-                        className="h-6 w-6 p-0"
-                      >
-                        {stream.is_muted ? (
-                          <VolumeX className="w-3 h-3" />
-                        ) : (
-                          <Volume2 className="w-3 h-3" />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-semibold truncate">
+                        {participant.profiles.full_name || 'Unknown'}
+                      </div>
+                      <div className="text-xs text-muted-foreground flex items-center gap-2">
+                        <span>{participant.role}</span>
+                        {participant.is_active && (
+                          <div className="w-2 h-2 bg-green-500 rounded-full pulse-live"></div>
                         )}
-                      </Button>
+                      </div>
                     </div>
+                    <div className="flex gap-1">
+                      {participant.audio_input_enabled ? (
+                        <div className="p-1 bg-green-500/20 rounded">
+                          <Mic className="w-3 h-3 text-green-500" />
+                        </div>
+                      ) : (
+                        <div className="p-1 bg-muted rounded">
+                          <MicOff className="w-3 h-3 text-muted-foreground" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </ScrollArea>
+        </div>
+
+        {/* Audio Mixer Section */}
+        <div className="p-4 border-b">
+          <h3 className="font-semibold text-sm flex items-center gap-2 mb-3">
+            <Volume2 className="w-4 h-4 text-accent-cyan" />
+            Audio Mixer
+          </h3>
+          <ScrollArea className="max-h-48">
+            <div className="space-y-3 pr-4">
+              {audioStreams.map((stream, index) => (
+                <Card 
+                  key={stream.id} 
+                  className="p-3 bg-muted/50 animate-fade-in"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-medium truncate flex-1">{stream.stream_name}</span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggleStreamMute(stream.id)}
+                      className="h-7 w-7 p-0 hover:bg-primary/10"
+                    >
+                      {stream.is_muted ? (
+                        <VolumeX className="w-4 h-4 text-muted-foreground" />
+                      ) : (
+                        <Volume2 className="w-4 h-4 text-primary" />
+                      )}
+                    </Button>
+                  </div>
+                  <div className="flex items-center gap-2">
                     <Slider
                       value={[stream.volume * 100]}
                       onValueChange={([value]) => updateStreamVolume(stream.id, value)}
                       max={100}
                       step={1}
-                      className="w-full"
+                      className="flex-1"
                       disabled={stream.is_muted}
                     />
+                    <span className="text-xs text-muted-foreground w-10 text-right">
+                      {Math.round(stream.volume * 100)}%
+                    </span>
                   </div>
-                ))}
-              </div>
-            </ScrollArea>
-          </CardContent>
-        </Card>
-
-        {/* Chat */}
-        <Card className="flex-1 border-0 rounded-none flex flex-col">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <MessageSquare className="w-4 h-4" />
-              Session Chat
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="flex-1 flex flex-col pt-0 min-h-0">
-            <ScrollArea className="flex-1 mb-3 max-h-[300px]">
-              <div className="space-y-2 pr-4">
-                {chatMessages.map((message) => (
-                  <div key={message.id} className="text-xs">
-                    <div className="flex items-center gap-1 mb-1">
-                      <span className="font-medium">{message.profiles.full_name}</span>
-                      <span className="text-muted-foreground">
-                        {new Date(message.created_at).toLocaleTimeString()}
-                      </span>
-                    </div>
-                    <p className="text-muted-foreground">{message.comment_text}</p>
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
-            
-            <div className="flex gap-2">
-              <Input
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                placeholder="Type a message..."
-                className="flex-1"
-                onKeyDown={(e) => e.key === 'Enter' && sendChatMessage()}
-              />
-              <Button size="sm" onClick={sendChatMessage}>
-                Send
-              </Button>
+                </Card>
+              ))}
             </div>
-          </CardContent>
-        </Card>
+          </ScrollArea>
+        </div>
+
+        {/* Session Chat */}
+        <div className="flex-1 flex flex-col p-4 min-h-0">
+          <h3 className="font-semibold text-sm flex items-center gap-2 mb-3">
+            <MessageSquare className="w-4 h-4 text-accent-blue" />
+            Live Chat
+          </h3>
+          <ScrollArea className="flex-1 mb-3 pr-4">
+            <div className="space-y-3">
+              {chatMessages.map((message, index) => (
+                <div 
+                  key={message.id} 
+                  className="message-enter"
+                  style={{ animationDelay: `${index * 30}ms` }}
+                >
+                  <Card className="p-3 bg-muted/50">
+                    <div className="flex items-start gap-2">
+                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary to-accent-cyan flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                        {message.profiles.full_name?.charAt(0) || 'U'}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-medium text-xs">{message.profiles.full_name}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                        <p className="text-sm">{message.comment_text}</p>
+                      </div>
+                    </div>
+                  </Card>
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+          
+          <div className="flex gap-2">
+            <Input
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              placeholder="Send a message..."
+              className="flex-1"
+              onKeyDown={(e) => e.key === 'Enter' && sendChatMessage()}
+            />
+            <Button size="sm" onClick={sendChatMessage} className="px-4">
+              <MessageSquare className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );
