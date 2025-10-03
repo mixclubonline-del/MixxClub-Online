@@ -371,6 +371,96 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_quick_actions: {
+        Row: {
+          action_name: string
+          action_type: string
+          admin_id: string
+          created_at: string
+          error_message: string | null
+          execution_time_ms: number | null
+          id: string
+          parameters: Json | null
+          result: Json | null
+          status: string
+        }
+        Insert: {
+          action_name: string
+          action_type: string
+          admin_id: string
+          created_at?: string
+          error_message?: string | null
+          execution_time_ms?: number | null
+          id?: string
+          parameters?: Json | null
+          result?: Json | null
+          status: string
+        }
+        Update: {
+          action_name?: string
+          action_type?: string
+          admin_id?: string
+          created_at?: string
+          error_message?: string | null
+          execution_time_ms?: number | null
+          id?: string
+          parameters?: Json | null
+          result?: Json | null
+          status?: string
+        }
+        Relationships: []
+      }
+      admin_security_events: {
+        Row: {
+          admin_id: string | null
+          auto_action_taken: string | null
+          created_at: string
+          description: string
+          details: Json | null
+          event_type: string
+          id: string
+          ip_address: string | null
+          is_resolved: boolean | null
+          resolution_notes: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          user_agent: string | null
+        }
+        Insert: {
+          admin_id?: string | null
+          auto_action_taken?: string | null
+          created_at?: string
+          description: string
+          details?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          is_resolved?: boolean | null
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity: string
+          user_agent?: string | null
+        }
+        Update: {
+          admin_id?: string | null
+          auto_action_taken?: string | null
+          created_at?: string
+          description?: string
+          details?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          is_resolved?: boolean | null
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       affiliate_commissions: {
         Row: {
           amount: number
@@ -1541,6 +1631,69 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      chatbot_audit_logs: {
+        Row: {
+          admin_id: string
+          ai_model_used: string | null
+          ai_response: string
+          created_at: string
+          dangerous_patterns_found: string[] | null
+          data_accessed: string[] | null
+          device_info: Json | null
+          id: string
+          injection_attempts_detected: number
+          ip_address: string | null
+          metadata: Json | null
+          response_time_ms: number | null
+          security_check_passed: boolean
+          session_id: string
+          token_count: number | null
+          tools_called: string[] | null
+          user_agent: string | null
+          user_input: string
+        }
+        Insert: {
+          admin_id: string
+          ai_model_used?: string | null
+          ai_response: string
+          created_at?: string
+          dangerous_patterns_found?: string[] | null
+          data_accessed?: string[] | null
+          device_info?: Json | null
+          id?: string
+          injection_attempts_detected?: number
+          ip_address?: string | null
+          metadata?: Json | null
+          response_time_ms?: number | null
+          security_check_passed?: boolean
+          session_id: string
+          token_count?: number | null
+          tools_called?: string[] | null
+          user_agent?: string | null
+          user_input: string
+        }
+        Update: {
+          admin_id?: string
+          ai_model_used?: string | null
+          ai_response?: string
+          created_at?: string
+          dangerous_patterns_found?: string[] | null
+          data_accessed?: string[] | null
+          device_info?: Json | null
+          id?: string
+          injection_attempts_detected?: number
+          ip_address?: string | null
+          metadata?: Json | null
+          response_time_ms?: number | null
+          security_check_passed?: boolean
+          session_id?: string
+          token_count?: number | null
+          tools_called?: string[] | null
+          user_agent?: string | null
+          user_input?: string
+        }
+        Relationships: []
       }
       chatbot_messages: {
         Row: {
@@ -6981,6 +7134,10 @@ export type Database = {
         Args: { p_month: number; p_year: number }
         Returns: undefined
       }
+      check_admin_chatbot_rate_limit: {
+        Args: { p_admin_id: string; p_limit_per_minute?: number }
+        Returns: boolean
+      }
       check_and_award_badges: {
         Args: { p_engineer_id: string }
         Returns: undefined
@@ -7046,6 +7203,10 @@ export type Database = {
           unlocked_at: string
         }[]
       }
+      get_security_dashboard_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       has_distribution_access: {
         Args: { user_id: string }
         Returns: boolean
@@ -7084,6 +7245,17 @@ export type Database = {
       is_session_participant: {
         Args: { session_uuid: string; user_uuid: string }
         Returns: boolean
+      }
+      log_security_event: {
+        Args: {
+          p_admin_id: string
+          p_auto_action?: string
+          p_description: string
+          p_details?: Json
+          p_event_type: string
+          p_severity: string
+        }
+        Returns: string
       }
       run_maintenance_cleanup: {
         Args: Record<PropertyKey, never>

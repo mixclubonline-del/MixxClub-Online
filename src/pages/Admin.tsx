@@ -7,7 +7,7 @@ import { NotificationTestPanel } from '@/components/admin/NotificationTestPanel'
 import AdminMixxBot from '@/components/admin/AdminMixxBot';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, Music, FileAudio, TrendingUp, Rocket, TestTube2 } from 'lucide-react';
+import { Users, Music, FileAudio, TrendingUp, Rocket, TestTube2, Zap, CheckCircle, Bot, Shield, Smartphone, Sparkles, Activity, AlertTriangle, FileText } from 'lucide-react';
 
 export default function Admin() {
   const { user, loading } = useAuth();
@@ -164,6 +164,36 @@ export default function Admin() {
               <CardContent>
                 <div className="text-2xl font-bold">{stats.totalAudioFiles}</div>
               </CardContent>
+            </Card>
+          </div>
+
+          {/* New Admin Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+            <Card className="p-6 hover:shadow-lg transition-all cursor-pointer group bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20" onClick={() => navigate('/admin-launch-readiness')}>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600">
+                  <Rocket className="h-5 w-5 text-white" />
+                </div>
+                <h3 className="font-bold">Launch Test</h3>
+              </div>
+            </Card>
+
+            <Card className="p-6 hover:shadow-lg transition-all cursor-pointer group bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20" onClick={() => navigate('/mobile-admin-bot')}>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600">
+                  <Bot className="h-5 w-5 text-white" />
+                </div>
+                <h3 className="font-bold">Mobile Bot</h3>
+              </div>
+            </Card>
+
+            <Card className="p-6 hover:shadow-lg transition-all cursor-pointer group bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-950/20 dark:to-orange-950/20" onClick={() => navigate('/admin-security')}>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-lg bg-gradient-to-r from-red-600 to-orange-600">
+                  <Shield className="h-5 w-5 text-white" />
+                </div>
+                <h3 className="font-bold">Security</h3>
+              </div>
             </Card>
           </div>
         </div>
