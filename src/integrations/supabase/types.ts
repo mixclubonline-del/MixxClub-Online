@@ -6521,6 +6521,45 @@ export type Database = {
           },
         ]
       }
+      user_matching_preferences: {
+        Row: {
+          audio_analysis_preferences: Json | null
+          budget_range: string | null
+          created_at: string
+          id: string
+          match_history: Json | null
+          preferred_engineer_styles: Json | null
+          preferred_genres: string[] | null
+          project_types: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          audio_analysis_preferences?: Json | null
+          budget_range?: string | null
+          created_at?: string
+          id?: string
+          match_history?: Json | null
+          preferred_engineer_styles?: Json | null
+          preferred_genres?: string[] | null
+          project_types?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          audio_analysis_preferences?: Json | null
+          budget_range?: string | null
+          created_at?: string
+          id?: string
+          match_history?: Json | null
+          preferred_engineer_styles?: Json | null
+          preferred_genres?: string[] | null
+          project_types?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_mixing_subscriptions: {
         Row: {
           created_at: string
