@@ -131,3 +131,9 @@ verify_jwt = true
 
 [functions.ai-project-insights]
 verify_jwt = true
+
+[functions.transcribe-audio]
+verify_jwt = true
+
+[functions.deploy-to-production]
+verify_jwt = true

@@ -194,12 +194,12 @@ export default function Admin() {
               </div>
             </Card>
 
-            <Card className="p-6 hover:shadow-lg transition-all cursor-pointer group bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20" onClick={() => navigate('/mobile-admin-bot')}>
+            <Card className="p-6 hover:shadow-lg transition-all cursor-pointer group bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20" onClick={() => navigate('/admin/mobile-testing')}>
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600">
-                  <Bot className="h-5 w-5 text-white" />
+                  <Smartphone className="h-5 w-5 text-white" />
                 </div>
-                <h3 className="font-bold">Mobile Bot</h3>
+                <h3 className="font-bold">Mobile Testing</h3>
               </div>
             </Card>
 
