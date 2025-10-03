@@ -6,6 +6,7 @@ import { AdminLayout } from '@/components/admin/AdminLayout';
 import { NotificationTestPanel } from '@/components/admin/NotificationTestPanel';
 import AdminMixxBot from '@/components/admin/AdminMixxBot';
 import { MobileDeploymentChecklist } from '@/components/admin/MobileDeploymentChecklist';
+import { PerformanceOptimizer } from '@/components/admin/PerformanceOptimizer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Users, Music, FileAudio, TrendingUp, Rocket, TestTube2, Zap, CheckCircle, Bot, Shield, Smartphone, Sparkles, Activity, AlertTriangle, FileText, Target } from 'lucide-react';
@@ -81,7 +82,10 @@ export default function Admin() {
 
           <NotificationTestPanel />
           
-          <MobileDeploymentChecklist />
+          <div className="grid md:grid-cols-2 gap-6">
+            <MobileDeploymentChecklist />
+            <PerformanceOptimizer />
+          </div>
 
           {/* Launch Readiness Test */}
           <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-purple-500/5">
