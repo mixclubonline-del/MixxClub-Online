@@ -24,8 +24,10 @@ import ProfileInsights from '@/components/crm/ProfileInsights';
 import { EngineerCRMChatbot } from '@/components/crm/EngineerCRMChatbot';
 import EngineerCRMSlideshow from '@/components/crm/EngineerCRMSlideshow';
 import { EngineerAssistantIntro } from '@/components/crm/EngineerAssistantIntro';
-
 import { DynamicAppAccessHub } from '@/components/crm/DynamicAppAccessHub';
+import { ActiveWorkHub } from '@/components/crm/ActiveWorkHub';
+import { DashboardHub } from '@/components/crm/DashboardHub';
+import { OpportunitiesHub } from '@/components/crm/OpportunitiesHub';
 
 const EngineerCRM = () => {
   const { user } = useAuth();
@@ -334,124 +336,10 @@ const EngineerCRM = () => {
   const renderContent = () => {
     switch (currentTab) {
       case 'active-work':
-        return (
-          <div className="space-y-6">
-            {/* Tasks Section */}
-            <div>
-              <h2 className="text-2xl font-bold mb-4">Your Tasks</h2>
-              {tasks.length === 0 ? (
-                <Card className="p-12 text-center">
-                  <CheckCircle className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                  <h3 className="text-xl font-semibold mb-2">All caught up!</h3>
-                  <p className="text-muted-foreground">No pending tasks</p>
-                </Card>
-              ) : (
-                <div className="space-y-3">
-                  {tasks.map((task) => (
-                    <Card key={task.id} className="p-6">
-                      <div className="flex items-start gap-4">
-                        <Checkbox
-                          checked={task.status === 'completed'}
-                          onCheckedChange={(checked) => {
-                            updateTaskStatus(task.id, checked ? 'completed' : 'pending');
-                          }}
-                          className="mt-1"
-                        />
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <h3 className="text-lg font-semibold">{task.title}</h3>
-                            <Badge className={`${getPriorityColor(task.priority)} text-white`}>
-                              {task.priority}
-                            </Badge>
-                            <Badge variant="outline">{task.status.replace('_', ' ')}</Badge>
-                          </div>
-                          {task.description && (
-                            <p className="text-muted-foreground mb-3">{task.description}</p>
-                          )}
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <span>Project: {task.project?.title}</span>
-                            {task.project?.client && (
-                              <span>Client: {task.project.client.full_name}</span>
-                            )}
-                          </div>
-                        </div>
-                        {task.status !== 'completed' && (
-                          <div className="flex gap-2">
-                            {task.status === 'pending' && (
-                              <Button size="sm" onClick={() => updateTaskStatus(task.id, 'in_progress')}>
-                                Start
-                              </Button>
-                            )}
-                            {task.status === 'in_progress' && (
-                              <Button size="sm" onClick={() => updateTaskStatus(task.id, 'completed')}>
-                                Complete
-                              </Button>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Projects Section */}
-            <div>
-              <h2 className="text-2xl font-bold mb-4">Active Sessions</h2>
-              {projects.length === 0 ? (
-                <Card className="p-12 text-center">
-                  <Music className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                  <h3 className="text-xl font-semibold mb-2">No active sessions</h3>
-                  <p className="text-muted-foreground">Browse opportunities to start working</p>
-                </Card>
-              ) : (
-                <div className="grid gap-4">
-                  {projects.map((project) => (
-                    <Card key={project.id} className="p-6 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(`/project/${project.id}`)}>
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h3 className="text-xl font-semibold mb-2">{project.title}</h3>
-                          <p className="text-muted-foreground mb-4">{project.description}</p>
-                          <div className="flex items-center gap-6 text-sm">
-                            {project.client && (
-                              <div className="flex items-center gap-2">
-                                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                                  {project.client.avatar_url ? (
-                                    <img src={project.client.avatar_url} alt="" className="w-full h-full rounded-full" />
-                                  ) : (
-                                    <span className="text-xs">{project.client.full_name?.charAt(0)}</span>
-                                  )}
-                                </div>
-                                <span>{project.client.full_name}</span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        <Button variant="outline" size="sm">View</Button>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        );
+        return <ActiveWorkHub userRole="engineer" onStartSession={() => navigate('/engineer-studio')} />;
 
       case 'opportunities':
-        return (
-          <div>
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold mb-2">Find Your Next Session</h2>
-              <p className="text-muted-foreground">Browse artists looking for pros like you</p>
-            </div>
-            <RecommendedArtists />
-            <div className="mt-8">
-              <h3 className="text-xl font-bold mb-4">All Open Jobs</h3>
-              <JobPool />
-            </div>
-          </div>
-        );
+        return <OpportunitiesHub userRole="engineer" />;
 
       case 'studio':
         return (
@@ -545,68 +433,7 @@ const EngineerCRM = () => {
         );
 
       default:
-        return (
-          <div className="space-y-6">
-            {/* Dynamic App Access Hub */}
-            <DynamicAppAccessHub userRole="engineer" />
-            
-            {/* Overview Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">{stats.map((stat, index) => (
-                <Card key={index} className="p-4 md:p-6">
-                  <div className="flex items-center gap-3">
-                    <div className={`p-3 rounded-lg ${stat.color}`}>
-                      {stat.icon}
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold">{stat.value}</div>
-                      <div className="text-sm text-muted-foreground">{stat.label}</div>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-
-            {/* Recent Activity */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-              <Card className="p-4 md:p-6">
-                <h3 className="text-lg font-semibold mb-4">Recent Tasks</h3>
-                {tasks.slice(0, 3).length > 0 ? (
-                  <div className="space-y-3">
-                    {tasks.slice(0, 3).map((task) => (
-                      <div key={task.id} className="flex items-center gap-3 pb-3 border-b last:border-0">
-                        <Checkbox checked={task.status === 'completed'} disabled />
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium truncate">{task.title}</p>
-                          <p className="text-sm text-muted-foreground">{task.project?.title}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-muted-foreground text-sm">No recent tasks</p>
-                )}
-              </Card>
-
-                  <Card className="p-4 md:p-6">
-                <h3 className="text-lg font-semibold mb-4">Earnings Summary</h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Total Earned</span>
-                    <span className="font-bold text-lg">${earnings.total.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Pending</span>
-                    <span className="font-semibold">${earnings.pending.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Bonuses</span>
-                    <span className="font-semibold text-green-500">${earnings.bonuses.toFixed(2)}</span>
-                  </div>
-                </div>
-              </Card>
-            </div>
-          </div>
-        );
+        return <DashboardHub />;
     }
   };
 

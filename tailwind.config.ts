@@ -65,20 +65,12 @@ export default {
       },
       keyframes: {
         "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
-          },
-          to: {
-            height: "0",
-          },
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
         },
         float: {
           "0%, 100%": { transform: "translateY(0px)" },
@@ -88,12 +80,73 @@ export default {
           "0%, 100%": { boxShadow: "0 0 20px hsl(263 70% 63% / 0.3)" },
           "50%": { boxShadow: "0 0 40px hsl(263 70% 63% / 0.6)" },
         },
+        "swipe-card": {
+          "0%": { transform: "translateX(0) rotate(0deg)", opacity: "1" },
+          "100%": { transform: "translateX(120%) rotate(15deg)", opacity: "0" },
+        },
+        "swipe-card-left": {
+          "0%": { transform: "translateX(0) rotate(0deg)", opacity: "1" },
+          "100%": { transform: "translateX(-120%) rotate(-15deg)", opacity: "0" },
+        },
+        "coin-flip": {
+          "0%": { transform: "rotateY(0deg) translateY(0)" },
+          "50%": { transform: "rotateY(180deg) translateY(-20px)" },
+          "100%": { transform: "rotateY(360deg) translateY(0)" },
+        },
+        "pulse-opportunity": {
+          "0%, 100%": { transform: "scale(1)", opacity: "1" },
+          "50%": { transform: "scale(1.05)", opacity: "0.8" },
+        },
+        "level-up": {
+          "0%": { transform: "scale(0.5)", opacity: "0" },
+          "50%": { transform: "scale(1.2)", opacity: "1" },
+          "100%": { transform: "scale(1)", opacity: "1" },
+        },
+        "float-badge": {
+          "0%": { transform: "translateY(0px) rotate(-3deg)" },
+          "50%": { transform: "translateY(-15px) rotate(3deg)" },
+          "100%": { transform: "translateY(0px) rotate(-3deg)" },
+        },
+        "slide-up-fade": {
+          "0%": { transform: "translateY(20px)", opacity: "0" },
+          "100%": { transform: "translateY(0)", opacity: "1" },
+        },
+        "confetti": {
+          "0%": { transform: "translateY(-100%) scale(0)", opacity: "0" },
+          "50%": { opacity: "1" },
+          "100%": { transform: "translateY(100vh) scale(1)", opacity: "0" },
+        },
+        "shake-gentle": {
+          "0%, 100%": { transform: "translateX(0)" },
+          "25%": { transform: "translateX(-5px)" },
+          "75%": { transform: "translateX(5px)" },
+        },
+        "pulse-ring": {
+          "0%": { transform: "scale(0.8)", opacity: "1" },
+          "100%": { transform: "scale(2)", opacity: "0" },
+        },
+        bloom: {
+          "0%": { transform: "scale(0.95)", filter: "brightness(1)" },
+          "50%": { transform: "scale(1.05)", filter: "brightness(1.2)" },
+          "100%": { transform: "scale(1)", filter: "brightness(1)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         float: "float 6s ease-in-out infinite",
         "pulse-glow": "pulse-glow 2s ease-in-out infinite",
+        "swipe-card": "swipe-card 0.5s ease-out forwards",
+        "swipe-card-left": "swipe-card-left 0.5s ease-out forwards",
+        "coin-flip": "coin-flip 0.8s ease-in-out",
+        "pulse-opportunity": "pulse-opportunity 2s ease-in-out infinite",
+        "level-up": "level-up 0.6s ease-out",
+        "float-badge": "float-badge 3s ease-in-out infinite",
+        "slide-up-fade": "slide-up-fade 0.4s ease-out",
+        confetti: "confetti 3s ease-out forwards",
+        "shake-gentle": "shake-gentle 0.5s ease-in-out",
+        "pulse-ring": "pulse-ring 1.5s ease-out infinite",
+        bloom: "bloom 0.8s ease-in-out",
       },
     },
   },

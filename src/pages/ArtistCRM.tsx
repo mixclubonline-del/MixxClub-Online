@@ -29,8 +29,10 @@ import { ArtistCRMChatbot } from '@/components/crm/ArtistCRMChatbot';
 import { ArtistCRMSlideshow } from '@/components/crm/ArtistCRMSlideshow';
 import { ArtistAssistantIntro } from '@/components/crm/ArtistAssistantIntro';
 import { DistributionWorkflow } from '@/components/crm/DistributionWorkflow';
-
 import { DynamicAppAccessHub } from '@/components/crm/DynamicAppAccessHub';
+import { ActiveWorkHub } from '@/components/crm/ActiveWorkHub';
+import { DashboardHub } from '@/components/crm/DashboardHub';
+import { OpportunitiesHub } from '@/components/crm/OpportunitiesHub';
 
 const ArtistCRM = () => {
   const { user } = useAuth();
@@ -296,105 +298,10 @@ const ArtistCRM = () => {
   const renderContent = () => {
     switch (currentTab) {
       case 'active-work':
-        return (
-          <div className="space-y-6">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold mb-2">Your Sessions</h2>
-              <p className="text-muted-foreground">Manage your active music projects</p>
-            </div>
-            
-            {/* Quick Action: New Project */}
-            <Card className="p-6 bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-lg font-semibold mb-1">Ready to create something amazing?</h3>
-                  <p className="text-sm text-muted-foreground">Start a new project and connect with top engineers</p>
-                </div>
-                <Button onClick={() => navigate('/artist-studio')} size="lg">
-                  <Plus className="w-4 h-4 mr-2" />
-                  New Project
-                </Button>
-              </div>
-            </Card>
-
-            {/* Projects Grid */}
-            {projects.length > 0 ? (
-              <div className="space-y-6">
-                {/* Distribution CTA for Completed Projects */}
-                {projects.some((p: any) => p.status === 'completed') && (
-                  <DistributionWorkflow 
-                    projectId={projects.find((p: any) => p.status === 'completed')?.id || ''} 
-                    projectTitle={projects.find((p: any) => p.status === 'completed')?.title || ''} 
-                  />
-                )}
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
-                  {projects.map((project) => (
-                    <CompletedProjectCard key={project.id} project={project} />
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <Card className="p-12 text-center">
-                <Music className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-xl font-semibold mb-2">No sessions yet</h3>
-                <p className="text-muted-foreground mb-6">Start your first project to begin your journey</p>
-                <Button onClick={() => navigate('/artist-studio')} size="lg">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Create Your First Project
-                </Button>
-              </Card>
-            )}
-          </div>
-        );
+        return <ActiveWorkHub userRole="client" onStartSession={() => navigate('/artist-studio')} />;
 
       case 'opportunities':
-        return (
-          <div className="space-y-6">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold mb-2">Find Your Perfect Engineer</h2>
-              <p className="text-muted-foreground">AI-powered matching for your unique sound</p>
-            </div>
-            
-            <AIMatchingEngine 
-              userGenre={profile?.genre || 'Hip Hop'}
-              projectType="mixing"
-              budget={500}
-              urgency="medium"
-            />
-            
-            <div className="mt-8">
-              <h3 className="text-xl font-bold mb-4">All Engineers</h3>
-              <RecommendedEngineers />
-            </div>
-            
-            {mixingAccess ? (
-              <div className="mt-8">
-                <h3 className="text-xl font-bold mb-4">Book a New Session</h3>
-                <JobPostingForm />
-              </div>
-            ) : (
-              <div className="mt-8">
-                <LockedServiceTab 
-                  serviceName="Professional Mixing"
-                  serviceType="mixing"
-                  description="Upgrade to access our professional mixing services"
-                  features={[
-                    "Post unlimited mixing jobs",
-                    "Connect with verified engineers",
-                    "Live collaboration studio",
-                    "Quick turnaround times"
-                  ]}
-                />
-              </div>
-            )}
-
-            <div className="mt-8">
-              <h3 className="text-xl font-bold mb-4">Pro Responses</h3>
-              <JobApplicationManager />
-            </div>
-          </div>
-        );
+        return <OpportunitiesHub userRole="client" />;
 
       case 'studio':
         return (
@@ -495,75 +402,7 @@ const ArtistCRM = () => {
         );
 
       default:
-        return (
-          <div className="space-y-6">
-            {/* Dynamic App Access Hub */}
-            <DynamicAppAccessHub userRole="artist" />
-            
-            {/* Overview Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">{stats.map((stat, index) => (
-                <Card key={index} className="p-4 md:p-6">
-                  <div className="flex items-center gap-3">
-                    <div className={`p-3 rounded-lg ${stat.color}`}>
-                      {stat.icon}
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold">{stat.value}</div>
-                      <div className="text-sm text-muted-foreground">{stat.label}</div>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-
-            {/* Recent Projects */}
-            <Card className="p-4 md:p-6">
-              <h3 className="text-lg font-semibold mb-4">Recent Sessions</h3>
-              {projects.slice(0, 5).length > 0 ? (
-                <div className="space-y-3">
-                  {projects.slice(0, 5).map((project) => (
-                    <div 
-                      key={project.id} 
-                      className="flex items-center justify-between pb-3 border-b last:border-0 cursor-pointer hover:bg-muted/50 -mx-2 px-2 py-2 rounded"
-                      onClick={() => navigate(`/project/${project.id}`)}
-                    >
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium truncate">{project.title}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {project.engineer?.full_name || 'No engineer assigned'}
-                        </p>
-                      </div>
-                      <Badge variant="outline">{project.status}</Badge>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <Music className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
-                  <p className="text-muted-foreground">No projects yet. Start your first session!</p>
-                  <Button className="mt-4" onClick={() => navigate('/artist-crm?tab=active-work')}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Create Project
-                  </Button>
-                </div>
-              )}
-            </Card>
-
-            {pendingApplications > 0 && (
-              <Card className="p-6 bg-primary/5 border-primary/20">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-lg font-semibold mb-1">You have {pendingApplications} new response{pendingApplications !== 1 ? 's' : ''}!</h3>
-                    <p className="text-sm text-muted-foreground">Engineers are waiting to work with you</p>
-                  </div>
-                  <Button onClick={() => navigate('/artist-crm?tab=opportunities')}>
-                    View Responses
-                  </Button>
-                </div>
-              </Card>
-            )}
-          </div>
-        );
+        return <DashboardHub />;
     }
   };
 
