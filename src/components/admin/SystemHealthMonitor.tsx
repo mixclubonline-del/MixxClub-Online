@@ -1,135 +1,136 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Activity, Database, Zap, HardDrive, Cpu, Globe } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { 
+  Activity, 
+  Server, 
+  Database, 
+  Zap, 
+  CheckCircle, 
+  AlertTriangle,
+  XCircle 
+} from "lucide-react";
 
-interface HealthMetric {
-  name: string;
-  status: 'healthy' | 'warning' | 'critical';
-  value: string;
-  icon: any;
-  description: string;
-}
+export const SystemHealthMonitor = () => {
+  const services = [
+    { 
+      name: "API Server", 
+      status: "operational", 
+      uptime: 99.99, 
+      responseTime: "45ms",
+      icon: Server 
+    },
+    { 
+      name: "Database", 
+      status: "operational", 
+      uptime: 99.98, 
+      responseTime: "12ms",
+      icon: Database 
+    },
+    { 
+      name: "Edge Functions", 
+      status: "operational", 
+      uptime: 99.95, 
+      responseTime: "89ms",
+      icon: Zap 
+    },
+    { 
+      name: "Storage", 
+      status: "degraded", 
+      uptime: 98.5, 
+      responseTime: "156ms",
+      icon: Activity 
+    },
+  ];
 
-const healthMetrics: HealthMetric[] = [
-  {
-    name: 'API Response Time',
-    status: 'healthy',
-    value: '127ms',
-    icon: Zap,
-    description: 'Average API response time'
-  },
-  {
-    name: 'Database Performance',
-    status: 'healthy',
-    value: '98.5%',
-    icon: Database,
-    description: 'Query success rate'
-  },
-  {
-    name: 'Server Uptime',
-    status: 'healthy',
-    value: '99.9%',
-    icon: Activity,
-    description: 'Last 30 days uptime'
-  },
-  {
-    name: 'Storage Usage',
-    status: 'warning',
-    value: '73%',
-    icon: HardDrive,
-    description: 'Total storage used'
-  },
-  {
-    name: 'CPU Usage',
-    status: 'healthy',
-    value: '42%',
-    icon: Cpu,
-    description: 'Average CPU utilization'
-  },
-  {
-    name: 'CDN Status',
-    status: 'healthy',
-    value: 'Active',
-    icon: Globe,
-    description: 'Content delivery network'
-  }
-];
-
-export function SystemHealthMonitor() {
-  const getStatusColor = (status: HealthMetric['status']) => {
-    switch (status) {
-      case 'healthy':
-        return 'text-green-500 bg-green-500/10';
-      case 'warning':
-        return 'text-yellow-500 bg-yellow-500/10';
-      case 'critical':
-        return 'text-red-500 bg-red-500/10';
-    }
-  };
-
-  const getStatusBadge = (status: HealthMetric['status']) => {
-    const variants = {
-      healthy: 'default',
-      warning: 'secondary',
-      critical: 'destructive'
+  const getStatusBadge = (status: string) => {
+    const configs = {
+      operational: { 
+        variant: "default" as const, 
+        icon: CheckCircle, 
+        className: "bg-green-500" 
+      },
+      degraded: { 
+        variant: "secondary" as const, 
+        icon: AlertTriangle, 
+        className: "bg-yellow-500" 
+      },
+      outage: { 
+        variant: "destructive" as const, 
+        icon: XCircle, 
+        className: "bg-red-500" 
+      },
     };
-    return <Badge variant={variants[status] as any}>{status}</Badge>;
+    
+    const config = configs[status as keyof typeof configs] || configs.operational;
+    const Icon = config.icon;
+    
+    return (
+      <Badge variant={config.variant} className={`${config.className} gap-1`}>
+        <Icon className="h-3 w-3" />
+        {status}
+      </Badge>
+    );
   };
-
-  const overallHealth = healthMetrics.filter(m => m.status === 'healthy').length / healthMetrics.length * 100;
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="p-6">
+      <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <div>
-            <CardTitle>System Health Monitor</CardTitle>
-            <CardDescription>Real-time system performance metrics</CardDescription>
-          </div>
-          <div className="text-right">
-            <div className="text-3xl font-bold text-green-500">{Math.round(overallHealth)}%</div>
-            <div className="text-sm text-muted-foreground">System Health</div>
-          </div>
+          <h3 className="text-lg font-semibold">System Health</h3>
+          <Badge className="bg-green-500">
+            <CheckCircle className="h-3 w-3 mr-1" />
+            All Systems Operational
+          </Badge>
         </div>
-      </CardHeader>
-      <CardContent>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {healthMetrics.map((metric) => {
-            const Icon = metric.icon;
+
+        <div className="grid gap-4">
+          {services.map((service) => {
+            const Icon = service.icon;
             return (
-              <div
-                key={metric.name}
-                className="flex flex-col gap-3 p-4 rounded-lg border bg-card hover:bg-accent/5 transition-colors"
-              >
+              <div key={service.name} className="p-4 border rounded-lg space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className={`p-2 rounded-lg ${getStatusColor(metric.status)}`}>
-                    <Icon className="h-5 w-5" />
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="font-medium">{service.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Response Time: {service.responseTime}
+                      </p>
+                    </div>
                   </div>
-                  {getStatusBadge(metric.status)}
+                  {getStatusBadge(service.status)}
                 </div>
-                
-                <div>
-                  <div className="text-2xl font-bold">{metric.value}</div>
-                  <div className="text-sm font-medium text-foreground">{metric.name}</div>
-                  <div className="text-xs text-muted-foreground mt-1">{metric.description}</div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Uptime</span>
+                    <span className="font-medium">{service.uptime}%</span>
+                  </div>
+                  <Progress value={service.uptime} className="h-2" />
                 </div>
               </div>
             );
           })}
         </div>
 
-        <div className="mt-6 p-4 rounded-lg bg-muted/50 border">
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="font-semibold">Last System Check</h4>
-              <p className="text-sm text-muted-foreground">2 minutes ago</p>
-            </div>
-            <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">
-              All Systems Operational
-            </Badge>
+        <div className="grid grid-cols-3 gap-4 pt-4 border-t">
+          <div className="text-center">
+            <p className="text-2xl font-bold text-green-500">99.97%</p>
+            <p className="text-sm text-muted-foreground">Overall Uptime</p>
+          </div>
+          <div className="text-center">
+            <p className="text-2xl font-bold">58ms</p>
+            <p className="text-sm text-muted-foreground">Avg Response</p>
+          </div>
+          <div className="text-center">
+            <p className="text-2xl font-bold text-blue-500">0</p>
+            <p className="text-sm text-muted-foreground">Active Incidents</p>
           </div>
         </div>
-      </CardContent>
+      </div>
     </Card>
   );
-}
+};

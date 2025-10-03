@@ -96,6 +96,7 @@ import AdvancedAnalytics from "@/pages/AdvancedAnalytics";
 import ContentManagement from "@/pages/ContentManagement";
 import PlatformConfiguration from "@/pages/PlatformConfiguration";
 import UserManagement from "@/pages/UserManagement";
+import SystemMonitoring from "@/pages/SystemMonitoring";
 import AdminSecurityCenter from './pages/AdminSecurityCenter';
 import AdminLaunchControl from './pages/AdminLaunchControl';
 import PresentationShare from './pages/PresentationShare';
@@ -224,6 +225,7 @@ const App = () => (
             <Route path="/admin/content-management" element={<ContentManagement />} />
             <Route path="/admin/configuration" element={<PlatformConfiguration />} />
             <Route path="/admin/users" element={<UserManagement />} />
+            <Route path="/admin/monitoring" element={<SystemMonitoring />} />
             
             {/* Tier 1 Features */}
             <Route path="/battle-tournaments" element={<BattleTournaments />} />
