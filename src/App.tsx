@@ -76,6 +76,8 @@ import AdminSecurity from './pages/AdminSecurity';
 import AdminAchievements from './pages/AdminAchievements';
 import AdminLegalDocuments from './pages/AdminLegalDocuments';
 import AdminSystemPresentation from './pages/AdminSystemPresentation';
+import AdminLaunchPresentation from './pages/AdminLaunchPresentation';
+import AdminLaunchDashboard from './pages/AdminLaunchDashboard';
 import PresentationShare from './pages/PresentationShare';
 import { JobBoard } from './pages/JobBoard';
 import ProjectDetail from "./pages/ProjectDetail";
@@ -161,6 +163,8 @@ const App = () => (
             <Route path="/admin/test-payments" element={<AdminTestPayments />} />
             <Route path="/admin/legal-documents" element={<AdminLegalDocuments />} />
             <Route path="/admin/system-presentation" element={<AdminSystemPresentation />} />
+            <Route path="/admin/launch-presentation" element={<AdminLaunchPresentation />} />
+            <Route path="/admin/launch-dashboard" element={<AdminLaunchDashboard />} />
             <Route path="/presentation/share/:token" element={<PresentationShare />} />
             <Route path="/for-engineers" element={<ForEngineers />} />
             <Route path="/engineers" element={<EngineerDirectory />} />
