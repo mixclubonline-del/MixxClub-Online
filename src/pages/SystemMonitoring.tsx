@@ -6,6 +6,7 @@ import { APIUsageMonitor } from "@/components/admin/APIUsageMonitor";
 import { DatabasePerformance } from "@/components/admin/DatabasePerformance";
 import { PerformanceDashboard } from "@/components/admin/PerformanceDashboard";
 import { BundleAnalyzer } from "@/components/admin/BundleAnalyzer";
+import { BundleOptimizationReport } from "@/components/admin/BundleOptimizationReport";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Activity, Server, Database, Zap, AlertCircle, Package } from "lucide-react";
 
@@ -57,6 +58,7 @@ export default function SystemMonitoring() {
               <PerformanceDashboard />
               <BundleAnalyzer />
             </div>
+            <BundleOptimizationReport />
             <ErrorTracker />
           </TabsContent>
 
@@ -82,6 +84,7 @@ export default function SystemMonitoring() {
               <BundleAnalyzer />
               <PerformanceDashboard />
             </div>
+            <BundleOptimizationReport />
           </TabsContent>
         </Tabs>
       </div>
