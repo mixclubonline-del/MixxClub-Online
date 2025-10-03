@@ -9,7 +9,7 @@ import { MobileDeploymentChecklist } from '@/components/admin/MobileDeploymentCh
 import { PerformanceOptimizer } from '@/components/admin/PerformanceOptimizer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, Music, FileAudio, TrendingUp, Rocket, TestTube2, Zap, CheckCircle, Bot, Shield, Smartphone, Sparkles, Activity, AlertTriangle, FileText, Target, DollarSign, Eye, Megaphone, Headphones, BarChart3, Plug } from 'lucide-react';
+import { Users, Music, FileAudio, TrendingUp, Rocket, TestTube2, Zap, CheckCircle, Bot, Shield, Smartphone, Sparkles, Activity, AlertTriangle, FileText, Target, DollarSign, Eye, Megaphone, Headphones, BarChart3, Plug, UserCog } from 'lucide-react';
 
 export default function Admin() {
   const { user, loading } = useAuth();
@@ -294,6 +294,15 @@ export default function Admin() {
                   <Plug className="h-5 w-5 text-white" />
                 </div>
                 <h3 className="font-bold">Integration & Automation</h3>
+              </div>
+            </Card>
+
+            <Card className="p-6 hover:shadow-lg transition-all cursor-pointer group bg-gradient-to-br from-blue-50 to-sky-50 dark:from-blue-950/20 dark:to-sky-950/20" onClick={() => navigate('/admin/team-management')}>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-lg bg-gradient-to-r from-blue-600 to-sky-600">
+                  <UserCog className="h-5 w-5 text-white" />
+                </div>
+                <h3 className="font-bold">Team Management</h3>
               </div>
             </Card>
           </div>
