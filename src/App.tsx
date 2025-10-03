@@ -80,10 +80,11 @@ import AdminLaunchPresentation from './pages/AdminLaunchPresentation';
 import AdminLaunchDashboard from './pages/AdminLaunchDashboard';
 import AdminLaunchReadiness from './pages/AdminLaunchReadiness';
 import MobileAdminBot from './pages/MobileAdminBot';
+import MobileTesting from "@/pages/MobileTesting";
+import CoreFeaturesTesting from "@/pages/CoreFeaturesTesting";
+import RevenueFeatures from "@/pages/RevenueFeatures";
 import AdminSecurityCenter from './pages/AdminSecurityCenter';
 import AdminLaunchControl from './pages/AdminLaunchControl';
-import MobileTesting from './pages/MobileTesting';
-import CoreFeaturesTesting from './pages/CoreFeaturesTesting';
 import PresentationShare from './pages/PresentationShare';
 import { JobBoard } from './pages/JobBoard';
 import ProjectDetail from "./pages/ProjectDetail";
@@ -196,6 +197,7 @@ const App = () => (
           <Route path="/admin/launch-control" element={<AdminLaunchControl />} />
           <Route path="/admin/mobile-testing" element={<MobileTesting />} />
           <Route path="/admin/core-testing" element={<CoreFeaturesTesting />} />
+          <Route path="/admin/revenue" element={<RevenueFeatures />} />
             
             {/* Tier 1 Features */}
             <Route path="/battle-tournaments" element={<BattleTournaments />} />
