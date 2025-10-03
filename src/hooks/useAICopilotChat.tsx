@@ -14,98 +14,76 @@ export const useAICopilotChat = () => {
     if (!userMessage.trim()) return;
 
     const newUserMessage: Message = { role: 'user', content: userMessage };
-    setMessages(prev => [...prev, newUserMessage]);
+    const updatedMessages = [...messages, newUserMessage];
+    setMessages(updatedMessages);
     setIsStreaming(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('copilot-chat', {
-        body: { messages: [...messages, newUserMessage] }
-      });
-
-      if (error) throw error;
-
-      // Handle streaming response
-      if (data && data.body) {
-        const reader = data.body.getReader();
-        const decoder = new TextDecoder();
-        let assistantMessage = '';
-        let textBuffer = '';
-        let streamDone = false;
-
-        // Add placeholder for assistant message
-        setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
-
-        while (!streamDone) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          
-          textBuffer += decoder.decode(value, { stream: true });
-
-          let newlineIndex: number;
-          while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
-            let line = textBuffer.slice(0, newlineIndex);
-            textBuffer = textBuffer.slice(newlineIndex + 1);
-
-            if (line.endsWith("\r")) line = line.slice(0, -1);
-            if (line.startsWith(":") || line.trim() === "") continue;
-            if (!line.startsWith("data: ")) continue;
-
-            const jsonStr = line.slice(6).trim();
-            if (jsonStr === "[DONE]") {
-              streamDone = true;
-              break;
-            }
-
-            try {
-              const parsed = JSON.parse(jsonStr);
-              const content = parsed.choices?.[0]?.delta?.content as string | undefined;
-              if (content) {
-                assistantMessage += content;
-                setMessages(prev => {
-                  const newMessages = [...prev];
-                  newMessages[newMessages.length - 1] = {
-                    role: 'assistant',
-                    content: assistantMessage
-                  };
-                  return newMessages;
-                });
-              }
-            } catch {
-              textBuffer = line + "\n" + textBuffer;
-              break;
-            }
-          }
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/copilot-chat`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ messages: updatedMessages }),
         }
+      );
 
-        // Final flush
-        if (textBuffer.trim()) {
-          for (let raw of textBuffer.split("\n")) {
-            if (!raw) continue;
-            if (raw.endsWith("\r")) raw = raw.slice(0, -1);
-            if (raw.startsWith(":") || raw.trim() === "") continue;
-            if (!raw.startsWith("data: ")) continue;
-            const jsonStr = raw.slice(6).trim();
-            if (jsonStr === "[DONE]") continue;
-            try {
-              const parsed = JSON.parse(jsonStr);
-              const content = parsed.choices?.[0]?.delta?.content as string | undefined;
-              if (content) {
-                assistantMessage += content;
-                setMessages(prev => {
-                  const newMessages = [...prev];
-                  newMessages[newMessages.length - 1] = {
-                    role: 'assistant',
-                    content: assistantMessage
-                  };
-                  return newMessages;
-                });
-              }
-            } catch { /* ignore */ }
+      if (!response.ok || !response.body) {
+        throw new Error('Failed to start AI stream');
+      }
+
+      // Stream response
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let textBuffer = '';
+      let assistantContent = '';
+
+      // Add placeholder for assistant message
+      setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        
+        textBuffer += decoder.decode(value, { stream: true });
+
+        let newlineIndex: number;
+        while ((newlineIndex = textBuffer.indexOf('\n')) !== -1) {
+          let line = textBuffer.slice(0, newlineIndex);
+          textBuffer = textBuffer.slice(newlineIndex + 1);
+
+          if (line.endsWith('\r')) line = line.slice(0, -1);
+          if (line.startsWith(':') || line.trim() === '') continue;
+          if (!line.startsWith('data: ')) continue;
+
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === '[DONE]') break;
+
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const delta = parsed.choices?.[0]?.delta?.content;
+            
+            if (delta) {
+              assistantContent += delta;
+              setMessages(prev => {
+                const newMessages = [...prev];
+                newMessages[newMessages.length - 1] = {
+                  role: 'assistant',
+                  content: assistantContent
+                };
+                return newMessages;
+              });
+            }
+          } catch (e) {
+            // Incomplete JSON, wait for more data
           }
         }
       }
     } catch (error) {
-      console.error('Chat error:', error);
+      console.error('Error sending message:', error);
       setMessages(prev => [...prev, {
         role: 'assistant',
         content: 'Sorry, I encountered an error. Please try again.'
