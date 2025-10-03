@@ -6987,6 +6987,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_metric: {
+        Args: { p_amount: number; p_date: string; p_field: string }
+        Returns: undefined
+      }
       is_admin: {
         Args: { user_uuid: string }
         Returns: boolean
