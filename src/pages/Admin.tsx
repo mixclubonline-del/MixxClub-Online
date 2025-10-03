@@ -7,7 +7,7 @@ import { NotificationTestPanel } from '@/components/admin/NotificationTestPanel'
 import AdminMixxBot from '@/components/admin/AdminMixxBot';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, Music, FileAudio, TrendingUp, Rocket, TestTube2, Zap, CheckCircle, Bot, Shield, Smartphone, Sparkles, Activity, AlertTriangle, FileText } from 'lucide-react';
+import { Users, Music, FileAudio, TrendingUp, Rocket, TestTube2, Zap, CheckCircle, Bot, Shield, Smartphone, Sparkles, Activity, AlertTriangle, FileText, Target } from 'lucide-react';
 
 export default function Admin() {
   const { user, loading } = useAuth();
@@ -168,7 +168,16 @@ export default function Admin() {
           </div>
 
           {/* New Admin Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
+            <Card className="p-6 hover:shadow-lg transition-all cursor-pointer group bg-gradient-to-br from-primary/10 to-primary/20" onClick={() => navigate('/admin/launch-control')}>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-lg bg-primary">
+                  <Target className="h-5 w-5 text-white" />
+                </div>
+                <h3 className="font-bold">Launch Control</h3>
+              </div>
+            </Card>
+
             <Card className="p-6 hover:shadow-lg transition-all cursor-pointer group bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20" onClick={() => navigate('/admin-launch-readiness')}>
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600">

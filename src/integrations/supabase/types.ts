@@ -2155,6 +2155,56 @@ export type Database = {
         }
         Relationships: []
       }
+      deployment_logs: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          deployment_config: Json | null
+          deployment_type: string
+          error_message: string | null
+          id: string
+          initiated_by: string | null
+          pre_flight_checks: Json | null
+          rollback_id: string | null
+          started_at: string | null
+          status: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          deployment_config?: Json | null
+          deployment_type: string
+          error_message?: string | null
+          id?: string
+          initiated_by?: string | null
+          pre_flight_checks?: Json | null
+          rollback_id?: string | null
+          started_at?: string | null
+          status?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          deployment_config?: Json | null
+          deployment_type?: string
+          error_message?: string | null
+          id?: string
+          initiated_by?: string | null
+          pre_flight_checks?: Json | null
+          rollback_id?: string | null
+          started_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deployment_logs_rollback_id_fkey"
+            columns: ["rollback_id"]
+            isOneToOne: false
+            referencedRelation: "deployment_logs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       discount_codes: {
         Row: {
           applicable_to: string | null
