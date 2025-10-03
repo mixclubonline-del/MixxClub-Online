@@ -4,18 +4,6 @@ import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
-} from '@/components/ui/sidebar';
 import { Home, Briefcase, Search, DollarSign, User, Music, Award, Headphones, Truck, Sparkles, Zap } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -204,156 +192,63 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions }: 
     );
   }
 
-  // Desktop layout with sidebar
+  // Desktop layout - full width
   return (
     <>
       <RoleSwitcher />
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-      <Navigation />
-      
-      <SidebarProvider defaultOpen={false}>
-        <div className="flex min-h-screen w-full pt-16">
-          <Sidebar className="border-r border-primary/20 z-[90] w-64 lg:w-72 bg-card/50 backdrop-blur-sm" collapsible="icon">
-            <SidebarContent>
-              {/* Welcome Section - Gamified */}
-              <div className="p-4 border-b border-primary/20 bg-gradient-to-br from-primary/10 via-accent/5 to-transparent">
-                <div className="mb-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-bold text-lg">
-                      {profile?.full_name || (userType === 'engineer' ? 'Pro' : 'Artist')}
-                    </h3>
-                    <Sparkles className="w-4 h-4 text-primary animate-pulse" />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Award className="w-4 h-4 text-accent" />
-                    <p className="text-sm font-medium text-primary">
-                      Level {profile?.level || 1}
-                    </p>
-                    <span className="text-xs text-muted-foreground">
-                      • {profile?.points || 0} XP
-                    </span>
-                  </div>
-                </div>
-                <Progress value={getLevelProgress()} className="h-2 bg-muted" />
-                <p className="text-xs text-muted-foreground mt-2 font-medium">
-                  {1000 - ((profile?.points || 0) % 1000)} XP to Level {(profile?.level || 1) + 1} 🎯
-                </p>
+        <Navigation />
+        
+        <div className="pt-20 px-4 md:px-6 max-w-[1800px] mx-auto">
+          {/* Header with Quick Actions */}
+          <div className="mb-3 animate-fade-in">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-6 h-6 text-primary animate-pulse-glow" />
+                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary via-accent to-primary-glow bg-clip-text text-transparent">
+                  {userType === 'engineer' ? 'Pro Studio' : 'Your Studio'}
+                </h1>
               </div>
-
-              {/* Navigation */}
-              <SidebarGroup>
-                <SidebarGroupLabel className="text-primary font-semibold">Navigation</SidebarGroupLabel>
-                <SidebarGroupContent>
-                  <SidebarMenu>
-                    {menuItems.map((item, index) => (
-                      <SidebarMenuItem key={item.section}>
-                        <SidebarMenuButton asChild>
-                          <NavLink 
-                            to={item.path}
-                            className={({ isActive }) => 
-                              cn(
-                                "transition-all duration-300 hover:scale-105",
-                                isActive 
-                                  ? 'bg-gradient-to-r from-primary/20 to-primary/10 text-primary font-semibold border-l-4 border-primary shadow-glow' 
-                                  : 'hover:bg-primary/5'
-                              )
-                            }
-                          >
-                            <item.icon className="w-4 h-4" />
-                            <span>{item.title}</span>
-                          </NavLink>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    ))}
-                  </SidebarMenu>
-                </SidebarGroupContent>
-              </SidebarGroup>
-
-              {/* Quick Stats - Colorful */}
-              <SidebarGroup className="mt-auto border-t border-primary/20 pt-4 bg-gradient-to-t from-primary/5 to-transparent">
-                <SidebarGroupLabel className="text-primary font-semibold flex items-center gap-2">
-                  <Zap className="w-4 h-4" />
-                  Quick Stats
-                </SidebarGroupLabel>
-                <SidebarGroupContent>
-                  <div className="space-y-3 px-3">
-                    {stats.slice(0, 3).map((stat, index) => (
-                      <div 
-                        key={index} 
-                        className="flex items-center gap-3 p-2 rounded-lg bg-card/50 border border-primary/10 hover:border-primary/30 transition-all duration-300 hover:scale-105 cursor-pointer"
-                      >
-                        <div className={cn("p-2 rounded-lg", stat.color)}>
-                          {stat.icon}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-lg font-bold">{stat.value}</div>
-                          <div className="text-xs text-muted-foreground truncate">{stat.label}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </SidebarGroupContent>
-              </SidebarGroup>
-            </SidebarContent>
-          </Sidebar>
-
-          <main className="flex-1 overflow-auto">
-            <div className="max-w-[1800px] mx-auto p-2 lg:p-3">
-              {/* Compact Header with Quick Actions Toolbar */}
-              <div className="mb-3 animate-fade-in">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <SidebarTrigger />
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="w-5 h-5 text-primary animate-pulse" />
-                      <h1 className="text-xl font-bold bg-gradient-to-r from-primary via-accent to-primary-glow bg-clip-text text-transparent">
-                        {userType === 'engineer' ? 'Pro Studio' : 'Your Studio'}
-                      </h1>
-                    </div>
-                  </div>
-                  
-                  {/* Horizontal Quick Actions Toolbar */}
-                  <div className="hidden xl:flex items-center gap-2">
-                    {quickActions.slice(0, 4).map((action, index) => (
-                      <Button
-                        key={index}
-                        onClick={action.onClick}
-                        variant={action.variant || 'outline'}
-                        size="sm"
-                        className="gap-2 hover:scale-105 transition-transform"
-                      >
-                        {action.icon}
-                        <span className="text-xs">{action.label}</span>
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* Mobile Quick Actions - Compact Row */}
-                <div className="xl:hidden flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                  {quickActions.map((action, index) => (
-                    <Button
-                      key={index}
-                      onClick={action.onClick}
-                      variant={action.variant || 'outline'}
-                      size="sm"
-                      className="gap-2 whitespace-nowrap flex-shrink-0"
-                    >
-                      {action.icon}
-                      <span className="text-xs">{action.label}</span>
-                    </Button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Main Content with bloom animation */}
-              <div className="animate-in fade-in slide-in-from-bottom duration-700">
-                {children}
+              
+              {/* Quick Actions Toolbar */}
+              <div className="hidden lg:flex items-center gap-2">
+                {quickActions.map((action, index) => (
+                  <Button
+                    key={index}
+                    onClick={action.onClick}
+                    variant={action.variant || 'outline'}
+                    size="sm"
+                    className="gap-2 hover:scale-105 transition-transform"
+                  >
+                    {action.icon}
+                    <span className="text-xs">{action.label}</span>
+                  </Button>
+                ))}
               </div>
             </div>
-          </main>
+            
+            {/* Mobile Quick Actions */}
+            <div className="lg:hidden flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+              {quickActions.map((action, index) => (
+                <Button
+                  key={index}
+                  onClick={action.onClick}
+                  variant={action.variant || 'outline'}
+                  size="sm"
+                  className="gap-2 whitespace-nowrap flex-shrink-0"
+                >
+                  {action.icon}
+                  <span className="text-xs">{action.label}</span>
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          {/* Main Content */}
+          <div className="animate-in fade-in duration-700">
+            {children}
+          </div>
         </div>
-      </SidebarProvider>
       </div>
     </>
   );
