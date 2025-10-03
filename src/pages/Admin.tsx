@@ -9,7 +9,7 @@ import { MobileDeploymentChecklist } from '@/components/admin/MobileDeploymentCh
 import { PerformanceOptimizer } from '@/components/admin/PerformanceOptimizer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, Music, FileAudio, TrendingUp, Rocket, TestTube2, Zap, CheckCircle, Bot, Shield, Smartphone, Sparkles, Activity, AlertTriangle, FileText, Target, DollarSign, Eye, Megaphone, Headphones } from 'lucide-react';
+import { Users, Music, FileAudio, TrendingUp, Rocket, TestTube2, Zap, CheckCircle, Bot, Shield, Smartphone, Sparkles, Activity, AlertTriangle, FileText, Target, DollarSign, Eye, Megaphone, Headphones, BarChart3 } from 'lucide-react';
 
 export default function Admin() {
   const { user, loading } = useAuth();
@@ -247,6 +247,15 @@ export default function Admin() {
                   <Headphones className="h-5 w-5 text-white" />
                 </div>
                 <h3 className="font-bold">Customer Success</h3>
+              </div>
+            </Card>
+
+            <Card className="p-6 hover:shadow-lg transition-all cursor-pointer group bg-gradient-to-br from-slate-50 to-gray-50 dark:from-slate-950/20 dark:to-gray-950/20" onClick={() => navigate('/admin/data-reporting')}>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-lg bg-gradient-to-r from-slate-600 to-gray-600">
+                  <BarChart3 className="h-5 w-5 text-white" />
+                </div>
+                <h3 className="font-bold">Data & Reporting</h3>
               </div>
             </Card>
           </div>
