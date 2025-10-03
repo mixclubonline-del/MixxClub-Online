@@ -47,7 +47,7 @@ export default function Terms() {
             <section>
               <h2 className="text-2xl font-semibold text-foreground mb-4">2. Service Description</h2>
               <p className="text-muted-foreground leading-relaxed mb-3">
-                MixClub is an online platform that connects music artists with audio engineers for mixing, mastering, and other audio production services. The Service includes:
+                MixClub is a platform that connects music artists with audio engineers for mixing, mastering, and other audio production services. The Service includes:
               </p>
               <ul className="list-disc list-inside text-muted-foreground space-y-2 ml-4">
                 <li>Project management and collaboration tools</li>

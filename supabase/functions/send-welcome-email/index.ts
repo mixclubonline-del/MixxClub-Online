@@ -57,7 +57,7 @@ serve(async (req) => {
       body: JSON.stringify({
         from: 'MixClub <onboarding@resend.dev>',
         to: [email],
-        subject: `Welcome to MixClub Online${isEngineer ? ' - Start Earning Today!' : ' - Your Music Journey Begins!'}`,
+        subject: `Welcome to MixClub${isEngineer ? ' - Start Earning Today!' : ' - Your Music Journey Begins!'}`,
         html: emailHtml,
       }),
     });
@@ -93,13 +93,13 @@ function generateArtistWelcomeEmail(userName: string, totalUsers: number, active
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Welcome to MixClub Online</title>
+  <title>Welcome to MixClub</title>
 </head>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 0; background-color: #f8f9fa;">
   
   <!-- Header -->
   <div style="background: linear-gradient(135deg, #5B3CFF 0%, #7C3AED 100%); padding: 40px 20px; text-align: center;">
-    <h1 style="color: white; margin: 0; font-size: 32px; font-weight: bold;">🎵 Welcome to MixClub Online!</h1>
+    <h1 style="color: white; margin: 0; font-size: 32px; font-weight: bold;">🎵 Welcome to MixClub!</h1>
     <p style="color: rgba(255,255,255,0.95); margin: 15px 0 0 0; font-size: 18px;">Your music deserves the best sound</p>
   </div>
   
@@ -113,7 +113,7 @@ function generateArtistWelcomeEmail(userName: string, totalUsers: number, active
         We're thrilled to have you join our community of <strong>${totalUsers.toLocaleString()}+ artists</strong> who are transforming their music with professional mixing and mastering.
       </p>
       <p style="margin: 0; font-size: 16px; line-height: 1.8;">
-        MixClub Online connects you with top-tier audio engineers who will bring your creative vision to life. No more struggling with complex software or settling for amateur sound quality.
+        MixClub connects you with top-tier audio engineers who will bring your creative vision to life. No more struggling with complex software or settling for amateur sound quality.
       </p>
     </div>
 

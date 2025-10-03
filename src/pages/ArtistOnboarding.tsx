@@ -145,7 +145,7 @@ const ArtistOnboarding = () => {
                   Terms of Service
                 </h3>
                 <div className="prose prose-sm text-muted-foreground max-h-40 overflow-y-auto space-y-2">
-                  <p>By using MixClub Online, you agree to:</p>
+                  <p>By using MixClub, you agree to:</p>
                   <ul className="list-disc list-inside space-y-1">
                     <li>Provide accurate and complete information</li>
                     <li>Use the platform for lawful purposes only</li>

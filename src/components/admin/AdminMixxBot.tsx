@@ -29,7 +29,7 @@ interface Message {
 
 const QUICK_ACTIONS = [
   { label: "Platform Overview", icon: BarChart3, prompt: "Give me a comprehensive overview of the platform's current status, including key metrics and health indicators." },
-  { label: "Growth Strategy", icon: TrendingUp, prompt: "What are the top 3 growth opportunities for MixClubOnline right now? Provide actionable strategies." },
+  { label: "Growth Strategy", icon: TrendingUp, prompt: "What are the top 3 growth opportunities for MixClub right now? Provide actionable strategies." },
   { label: "Engineer Insights", icon: Users, prompt: "Analyze our engineer performance and suggest ways to improve engagement and quality." },
   { label: "Revenue Optimization", icon: DollarSign, prompt: "Review our pricing strategy and revenue streams. What optimizations would you recommend?" },
   { label: "Industry Trends", icon: Lightbulb, prompt: "What are the latest trends in online mixing and mastering? How should we adapt?" },
@@ -47,7 +47,7 @@ export default function AdminMixxBot() {
     {
       id: "welcome",
       role: "assistant",
-      content: "👋 Hello! I'm Mixx Bot, your ultimate AI assistant for running MixClubOnline. I have deep knowledge of the music industry, mixing & mastering, and your business metrics. How can I help you grow and optimize the platform today?"
+      content: "👋 Hello! I'm Mixx Bot, your ultimate AI assistant for running MixClub. I have deep knowledge of the music industry, mixing & mastering, and your business metrics. How can I help you grow and optimize the platform today?"
     }
   ]);
   const [input, setInput] = useState("");

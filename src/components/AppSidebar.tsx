@@ -48,7 +48,7 @@ export function AppSidebar() {
           {!isCollapsed && (
             <div className="flex flex-col">
               <span className="font-bold text-lg leading-tight">
-                MixClub <span className="text-primary">Online</span>
+                MixClub
               </span>
             </div>
           )}

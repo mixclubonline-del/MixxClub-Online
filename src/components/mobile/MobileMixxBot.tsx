@@ -47,7 +47,7 @@ const quickActions: QuickAction[] = [
   {
     label: 'Growth Strategy',
     icon: <TrendingUp className="w-4 h-4" />,
-    prompt: 'What are the top 3 growth opportunities for MixClubOnline right now?',
+    prompt: 'What are the top 3 growth opportunities for MixClub right now?',
     category: 'trends'
   },
   {

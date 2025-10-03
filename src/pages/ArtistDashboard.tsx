@@ -88,7 +88,7 @@ const ArtistDashboard = () => {
         p_user_id: user.id,
         p_badge_type: 'milestone',
         p_badge_name: 'First Project',
-        p_badge_description: 'Created your first project on MixClub Online'
+        p_badge_description: 'Created your first project on MixClub'
       });
 
       toast.success('Project created successfully! +100 points');

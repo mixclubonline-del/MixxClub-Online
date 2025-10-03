@@ -8,7 +8,7 @@ By accessing or using MixClub ("Service"), you agree to be bound by these Terms 
 
 ## 2. Description of Service
 
-MixClub provides an online platform connecting music artists with audio engineers for mixing, mastering, and production services ("Services").
+MixClub provides a platform connecting music artists with audio engineers for mixing, mastering, and production services ("Services").
 
 ## 3. User Accounts
 

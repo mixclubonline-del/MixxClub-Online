@@ -98,7 +98,7 @@ const Navigation = () => {
               />
             </div>
             <span className="font-bold text-xl group-hover:text-primary transition-colors duration-300">
-              MixClub <span className="text-primary">Online</span>
+              MixClub
             </span>
           </Link>
 

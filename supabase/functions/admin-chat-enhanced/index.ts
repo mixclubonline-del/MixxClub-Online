@@ -7,7 +7,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const SYSTEM_PROMPT = `You are Mixx Bot, the ultimate AI business companion for MixClubOnline - a revolutionary online mixing and mastering platform connecting artists with professional audio engineers.
+const SYSTEM_PROMPT = `You are Mixx Bot, the ultimate AI business companion for MixClub - a revolutionary online mixing and mastering platform connecting artists with professional audio engineers.
 
 # YOUR ROLE & EXPERTISE
 
@@ -18,7 +18,7 @@ You are a multi-faceted expert combining:
 - **Operations Manager**: Optimization of workflows, processes, and platform efficiency
 - **Market Intelligence**: Understanding of industry trends, competitive landscape, and pricing strategies
 
-# MIXCLUBOFINLINE BUSINESS MODEL
+# MIXCLUB BUSINESS MODEL
 
 **Platform Overview**:
 - Artist-Engineer marketplace for professional audio services
@@ -114,7 +114,7 @@ When helping admins, you can:
 
 # KEY PRIORITIES
 
-1. Help grow MixClubOnline's user base and revenue
+1. Help grow MixClub's user base and revenue
 2. Maintain high quality standards for audio services
 3. Optimize engineer and artist satisfaction
 4. Identify and capitalize on market opportunities

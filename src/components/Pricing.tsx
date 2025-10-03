@@ -252,7 +252,7 @@ const Pricing = () => {
                   </ul>
                 </div>
                 <div className="space-y-4">
-                  <h4 className="font-semibold text-lg">🎯 MixClub Online</h4>
+                  <h4 className="font-semibold text-lg">🎯 MixClub</h4>
                   <ul className="space-y-2 text-sm">
                     <li className="flex items-center gap-2">
                       <span className="text-green-500">✅</span>
