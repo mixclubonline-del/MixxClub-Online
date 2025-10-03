@@ -72,7 +72,7 @@ const NotificationCenter = () => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={markAllAsRead}
+              onClick={() => markAllAsRead()}
               className="text-xs"
             >
               <Check className="h-3 w-3 mr-1" />

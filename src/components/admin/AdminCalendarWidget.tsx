@@ -2,14 +2,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useUpcomingEvents, useOverdueEvents, useCompleteCalendarEvent } from "@/hooks/useAdminCalendar";
+import { useAdminCalendar } from "@/hooks/useAdminCalendar";
 import { Calendar, Clock, AlertCircle, CheckCircle2, Plus } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 export function AdminCalendarWidget() {
-  const { data: upcomingEvents, isLoading: upcomingLoading } = useUpcomingEvents(5);
-  const { data: overdueEvents, isLoading: overdueLoading } = useOverdueEvents();
-  const completeEvent = useCompleteCalendarEvent();
+  const { events, isLoading, completeEvent } = useAdminCalendar();
+  
+  const now = new Date();
+  const upcomingEvents = events
+    .filter(e => new Date(e.event_date) > now && e.status !== 'completed')
+    .slice(0, 5);
+  const overdueEvents = events
+    .filter(e => new Date(e.event_date) < now && e.status !== 'completed');
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -30,7 +35,7 @@ export function AdminCalendarWidget() {
     }
   };
 
-  if (upcomingLoading || overdueLoading) {
+  if (isLoading) {
     return (
       <Card>
         <CardHeader>
@@ -59,8 +64,8 @@ export function AdminCalendarWidget() {
               Calendar & Deadlines
             </CardTitle>
             <CardDescription>
-              {upcomingEvents?.length || 0} upcoming events
-              {overdueEvents && overdueEvents.length > 0 && 
+              {upcomingEvents.length} upcoming events
+              {overdueEvents.length > 0 && 
                 `, ${overdueEvents.length} overdue`
               }
             </CardDescription>
@@ -74,7 +79,7 @@ export function AdminCalendarWidget() {
         <ScrollArea className="h-[300px]">
           <div className="space-y-4">
             {/* Overdue Events */}
-            {overdueEvents && overdueEvents.length > 0 && (
+            {overdueEvents.length > 0 && (
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-destructive text-sm font-semibold">
                   <AlertCircle className="h-4 w-4" />
@@ -103,7 +108,7 @@ export function AdminCalendarWidget() {
                         size="icon"
                         variant="ghost"
                         className="h-8 w-8"
-                        onClick={() => completeEvent.mutate(event.id)}
+                        onClick={() => completeEvent(event.id)}
                       >
                         <CheckCircle2 className="h-4 w-4" />
                       </Button>
@@ -114,7 +119,7 @@ export function AdminCalendarWidget() {
             )}
 
             {/* Upcoming Events */}
-            {upcomingEvents && upcomingEvents.length > 0 && (
+            {upcomingEvents.length > 0 && (
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm font-semibold">
                   <Clock className="h-4 w-4" />
@@ -146,7 +151,7 @@ export function AdminCalendarWidget() {
                         size="icon"
                         variant="ghost"
                         className="h-8 w-8"
-                        onClick={() => completeEvent.mutate(event.id)}
+                        onClick={() => completeEvent(event.id)}
                       >
                         <CheckCircle2 className="h-4 w-4" />
                       </Button>
@@ -157,8 +162,7 @@ export function AdminCalendarWidget() {
             )}
 
             {/* Empty State */}
-            {(!upcomingEvents || upcomingEvents.length === 0) &&
-              (!overdueEvents || overdueEvents.length === 0) && (
+            {upcomingEvents.length === 0 && overdueEvents.length === 0 && (
                 <div className="text-center py-8 text-muted-foreground">
                   <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p>No upcoming events or deadlines</p>

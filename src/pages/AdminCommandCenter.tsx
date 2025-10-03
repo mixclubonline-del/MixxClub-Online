@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { CommandCenterOverview } from "@/components/admin/CommandCenterOverview";
 import { QuickActionsPanel } from "@/components/admin/QuickActionsPanel";
 import { RecentActivityFeed } from "@/components/admin/RecentActivityFeed";
+import { RealTimeAlertsWidget } from "@/components/admin/RealTimeAlertsWidget";
 import { Rocket, CheckCircle } from "lucide-react";
 
 export default function AdminCommandCenter() {
@@ -33,8 +34,11 @@ export default function AdminCommandCenter() {
         {/* Bottom Section */}
         <div className="grid gap-6 md:grid-cols-2">
           <QuickActionsPanel />
-          <RecentActivityFeed />
+          <RealTimeAlertsWidget />
         </div>
+
+        {/* Activity Feed */}
+        <RecentActivityFeed />
 
         {/* Quick Stats Summary */}
         <Card>
