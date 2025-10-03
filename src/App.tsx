@@ -99,6 +99,8 @@ import UserManagement from "@/pages/UserManagement";
 import SystemMonitoring from "@/pages/SystemMonitoring";
 import AuditCompliance from "@/pages/AuditCompliance";
 import BackupRecovery from "@/pages/BackupRecovery";
+import AutomationHub from "@/pages/AutomationHub";
+import MultiTenancy from "@/pages/MultiTenancy";
 import AdminSecurityCenter from './pages/AdminSecurityCenter';
 import AdminLaunchControl from './pages/AdminLaunchControl';
 import PresentationShare from './pages/PresentationShare';
@@ -230,6 +232,8 @@ const App = () => (
           <Route path="/admin/monitoring" element={<SystemMonitoring />} />
           <Route path="/admin/audit-compliance" element={<AuditCompliance />} />
           <Route path="/admin/backup-recovery" element={<BackupRecovery />} />
+          <Route path="/admin/automation" element={<AutomationHub />} />
+          <Route path="/admin/multi-tenancy" element={<MultiTenancy />} />
             
             {/* Tier 1 Features */}
             <Route path="/battle-tournaments" element={<BattleTournaments />} />

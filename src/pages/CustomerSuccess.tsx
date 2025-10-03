@@ -42,10 +42,14 @@ export default function CustomerSuccess() {
             <TabsTrigger value="tickets">Support Tickets</TabsTrigger>
             <TabsTrigger value="feedback">User Feedback</TabsTrigger>
             <TabsTrigger value="announcements">Announcements</TabsTrigger>
+            <TabsTrigger value="insights">Insights</TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard">
             <CustomerSuccessDashboard />
+            <div className="mt-4">
+              <CustomerJourneyMap />
+            </div>
           </TabsContent>
 
           <TabsContent value="tickets">
@@ -54,10 +58,20 @@ export default function CustomerSuccess() {
 
           <TabsContent value="feedback">
             <UserFeedbackAnalyzer />
+            <div className="mt-4">
+              <NPS_SurveyManager />
+            </div>
           </TabsContent>
 
           <TabsContent value="announcements">
             <AnnouncementBroadcaster />
+          </TabsContent>
+
+          <TabsContent value="insights">
+            <UserBehaviorAnalytics />
+            <div className="mt-4">
+              <SegmentBuilder />
+            </div>
           </TabsContent>
         </Tabs>
       </div>

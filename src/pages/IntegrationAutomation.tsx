@@ -7,6 +7,9 @@ import { APIKeyManager } from "@/components/admin/APIKeyManager";
 import { WebhookConfiguration } from "@/components/admin/WebhookConfiguration";
 import { AutomationWorkflows } from "@/components/admin/AutomationWorkflows";
 import { IntegrationDirectory } from "@/components/admin/IntegrationDirectory";
+import { WebhookManager } from "@/components/admin/WebhookManager";
+import { DeveloperSandbox } from "@/components/admin/DeveloperSandbox";
+import { APIDocumentation } from "@/components/admin/APIDocumentation";
 
 export default function IntegrationAutomation() {
   const navigate = useNavigate();
@@ -38,6 +41,8 @@ export default function IntegrationAutomation() {
             <TabsTrigger value="api-keys">API Keys</TabsTrigger>
             <TabsTrigger value="webhooks">Webhooks</TabsTrigger>
             <TabsTrigger value="automation">Automation</TabsTrigger>
+            <TabsTrigger value="docs">API Docs</TabsTrigger>
+            <TabsTrigger value="sandbox">Sandbox</TabsTrigger>
           </TabsList>
 
           <TabsContent value="integrations">
@@ -50,10 +55,21 @@ export default function IntegrationAutomation() {
 
           <TabsContent value="webhooks">
             <WebhookConfiguration />
+            <div className="mt-4">
+              <WebhookManager />
+            </div>
           </TabsContent>
 
           <TabsContent value="automation">
             <AutomationWorkflows />
+          </TabsContent>
+
+          <TabsContent value="docs">
+            <APIDocumentation />
+          </TabsContent>
+
+          <TabsContent value="sandbox">
+            <DeveloperSandbox />
           </TabsContent>
         </Tabs>
       </div>

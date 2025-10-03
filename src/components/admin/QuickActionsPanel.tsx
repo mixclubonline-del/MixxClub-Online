@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { 
   Users, DollarSign, Settings, Shield, BarChart3, 
-  Megaphone, Headphones, Plug, UserCog, Zap, MessageCircle, FileText, Activity
+  Megaphone, Headphones, Plug, UserCog, Zap, MessageCircle, FileText, Activity,
+  Database, Building2, GitBranch, FolderLock
 } from "lucide-react";
 
 const quickActions = [
@@ -104,6 +105,34 @@ const quickActions = [
     description: 'Performance & health tracking',
     path: '/admin/monitoring',
     color: 'bg-teal-500'
+  },
+  {
+    icon: FolderLock,
+    label: 'Audit & Compliance',
+    description: 'Audit logs & GDPR compliance',
+    path: '/admin/audit-compliance',
+    color: 'bg-purple-500'
+  },
+  {
+    icon: Database,
+    label: 'Backup & Recovery',
+    description: 'Database backups & DR',
+    path: '/admin/backup-recovery',
+    color: 'bg-orange-500'
+  },
+  {
+    icon: GitBranch,
+    label: 'Automation Hub',
+    description: 'Workflows & task automation',
+    path: '/admin/automation',
+    color: 'bg-violet-500'
+  },
+  {
+    icon: Building2,
+    label: 'Multi-Tenancy',
+    description: 'Tenant & white-label config',
+    path: '/admin/multi-tenancy',
+    color: 'bg-slate-500'
   }
 ];
 

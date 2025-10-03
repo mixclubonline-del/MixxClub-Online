@@ -5,6 +5,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import SecurityMonitor from "@/components/admin/SecurityMonitor";
 import QuickActions from "@/components/admin/QuickActions";
+import { ThreatIntelligence } from "@/components/admin/ThreatIntelligence";
+import { AccessControlMatrix } from "@/components/admin/AccessControlMatrix";
+import { SecurityIncidentResponse } from "@/components/admin/SecurityIncidentResponse";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -101,28 +104,16 @@ export default function AdminSecurityCenter() {
 
           <TabsContent value="monitor" className="space-y-6">
             <SecurityMonitor />
+            <ThreatIntelligence />
           </TabsContent>
 
           <TabsContent value="actions" className="space-y-6">
             <QuickActions />
+            <SecurityIncidentResponse />
           </TabsContent>
 
           <TabsContent value="audit" className="space-y-6">
-            <Card className="p-6">
-              <h3 className="font-semibold mb-4 flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                Audit Trail
-              </h3>
-              <p className="text-muted-foreground text-sm">
-                Complete audit logs of all admin chatbot interactions, including security events, 
-                injection attempts, and action executions. All data is encrypted and stored securely.
-              </p>
-              <div className="mt-4 p-4 bg-muted/50 rounded-lg text-center">
-                <p className="text-sm text-muted-foreground">
-                  Advanced audit log viewer coming soon
-                </p>
-              </div>
-            </Card>
+            <AccessControlMatrix />
           </TabsContent>
         </Tabs>
       </div>

@@ -1,6 +1,11 @@
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { SubscriptionManager } from "@/components/admin/SubscriptionManager";
 import { ReferralSystemTracker } from "@/components/admin/ReferralSystemTracker";
+import { RevenueAnalytics } from "@/components/admin/RevenueAnalytics";
+import { ChurnPrediction } from "@/components/admin/ChurnPrediction";
+import { LTVAnalysis } from "@/components/admin/LTVAnalysis";
+import { PricingOptimization } from "@/components/admin/PricingOptimization";
+import { RevenueForecasting } from "@/components/admin/RevenueForecasting";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DollarSign, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -37,11 +42,20 @@ export default function RevenueFeatures() {
         <Tabs defaultValue="subscriptions" className="space-y-4">
           <TabsList>
             <TabsTrigger value="subscriptions">Subscriptions</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="referrals">Referral System</TabsTrigger>
           </TabsList>
 
           <TabsContent value="subscriptions" className="space-y-4">
             <SubscriptionManager />
+            <ChurnPrediction />
+            <PricingOptimization />
+          </TabsContent>
+
+          <TabsContent value="analytics" className="space-y-4">
+            <RevenueAnalytics />
+            <LTVAnalysis />
+            <RevenueForecasting />
           </TabsContent>
 
           <TabsContent value="referrals" className="space-y-4">
