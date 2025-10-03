@@ -19,12 +19,20 @@ export const ArtistBusinessHub = () => {
 
   const loadData = async () => {
     try {
-      const [p, proj] = await Promise.all([
-        supabase.from('payments').select('id, amount, status, created_at').eq('user_id', user!.id).limit(10),
-        supabase.from('projects').select('id, title, budget, status').eq('client_id', user!.id).limit(5)
-      ]);
-      setPayments(p.data || []);
-      setProjectBudgets(proj.data || []);
+      const paymentsRes = await (supabase as any)
+        .from('payments')
+        .select('id, amount, status, created_at')
+        .eq('user_id', user!.id)
+        .limit(10);
+      
+      const projectsRes = await (supabase as any)
+        .from('projects')
+        .select('id, title, budget, status')
+        .eq('client_id', user!.id)
+        .limit(5);
+      
+      setPayments(paymentsRes.data || []);
+      setProjectBudgets(projectsRes.data || []);
     } catch (error) {
       toast.error('Failed to load data');
     } finally {
