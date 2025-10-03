@@ -95,6 +95,7 @@ import CommunicationCenter from "@/pages/CommunicationCenter";
 import AdvancedAnalytics from "@/pages/AdvancedAnalytics";
 import ContentManagement from "@/pages/ContentManagement";
 import PlatformConfiguration from "@/pages/PlatformConfiguration";
+import UserManagement from "@/pages/UserManagement";
 import AdminSecurityCenter from './pages/AdminSecurityCenter';
 import AdminLaunchControl from './pages/AdminLaunchControl';
 import PresentationShare from './pages/PresentationShare';
@@ -220,8 +221,9 @@ const App = () => (
           <Route path="/admin/launch-readiness" element={<LaunchReadiness />} />
           <Route path="/admin/communications" element={<CommunicationCenter />} />
           <Route path="/admin/advanced-analytics" element={<AdvancedAnalytics />} />
-          <Route path="/admin/content-management" element={<ContentManagement />} />
-          <Route path="/admin/configuration" element={<PlatformConfiguration />} />
+            <Route path="/admin/content-management" element={<ContentManagement />} />
+            <Route path="/admin/configuration" element={<PlatformConfiguration />} />
+            <Route path="/admin/users" element={<UserManagement />} />
             
             {/* Tier 1 Features */}
             <Route path="/battle-tournaments" element={<BattleTournaments />} />
