@@ -1,4 +1,4 @@
-import { Mic2, Headphones, ArrowRight } from "lucide-react";
+import { Mic2, Headphones, ArrowRight, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
@@ -8,7 +8,8 @@ export const ValueProposition = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="grid md:grid-cols-2 gap-8">
+    <div className="space-y-8">
+      <div className="grid md:grid-cols-2 gap-8">
       {/* For Artists */}
       <motion.div
         initial={{ opacity: 0, x: -20 }}
@@ -133,6 +134,82 @@ export const ValueProposition = () => {
             >
               Join as Engineer
               <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+            </Button>
+          </div>
+        </Card>
+      </motion.div>
+      </div>
+
+      {/* Hybrid Creator Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: 0.4 }}
+      >
+        <Card className="relative overflow-hidden glass-studio border-2 border-accent-cyan/30 hover:border-accent-cyan transition-all duration-300 group">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-accent-blue/10 to-accent-cyan/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+          
+          <div className="relative p-8">
+            <div className="flex items-start justify-between mb-6">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-accent-cyan/20 flex items-center justify-center">
+                <Zap className="w-8 h-8 text-accent-cyan" />
+              </div>
+              <div className="bg-accent-cyan/20 text-accent-cyan px-3 py-1 rounded-full text-sm font-bold flex items-center gap-2">
+                <Zap className="w-4 h-4" /> NEW
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <h3 className="text-3xl font-black mb-2 bg-gradient-to-r from-primary via-accent-blue to-accent-cyan bg-clip-text text-transparent">
+                Hybrid Creator
+              </h3>
+              <p className="text-lg text-muted-foreground">
+                Be both artist and engineer - unlock the full platform
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6 mb-6">
+              <div className="space-y-3">
+                <h4 className="font-semibold text-primary flex items-center gap-2">
+                  <Mic2 className="w-4 h-4" /> As Artist
+                </h4>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li>• Post unlimited projects</li>
+                  <li>• Access all services</li>
+                  <li>• Join competitions</li>
+                </ul>
+              </div>
+              <div className="space-y-3">
+                <h4 className="font-semibold text-accent-blue flex items-center gap-2">
+                  <Headphones className="w-4 h-4" /> As Engineer
+                </h4>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li>• Earn 70% on projects</li>
+                  <li>• Build your portfolio</li>
+                  <li>• Unlock pro tools</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 p-4 bg-muted/30 rounded-lg mb-6">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-success">25%</p>
+                <p className="text-xs text-muted-foreground">Discount when using both</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-accent-cyan">1.5x</p>
+                <p className="text-xs text-muted-foreground">Bonus XP multiplier</p>
+              </div>
+            </div>
+
+            <Button 
+              onClick={() => navigate('/auth?signup=hybrid')}
+              size="lg" 
+              className="w-full group bg-gradient-to-r from-primary via-accent-blue to-accent-cyan hover:opacity-90"
+            >
+              Unlock Both Worlds
+              <Zap className="w-4 h-4 ml-2 group-hover:scale-110 transition-transform" />
             </Button>
           </div>
         </Card>

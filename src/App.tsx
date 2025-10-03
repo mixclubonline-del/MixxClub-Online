@@ -16,6 +16,7 @@ import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
 import ArtistOnboarding from "./pages/ArtistOnboarding";
 import EngineerOnboarding from "./pages/EngineerOnboarding";
+import HybridOnboarding from "./pages/HybridOnboarding";
 import Dashboard from "./pages/Dashboard";
 import ArtistDashboard from "./pages/ArtistDashboard";
 import EngineerDashboard from "./pages/EngineerDashboard";
@@ -103,6 +104,7 @@ const App = () => (
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/onboarding/artist" element={<ArtistOnboarding />} />
         <Route path="/onboarding/engineer" element={<EngineerOnboarding />} />
+        <Route path="/onboarding/hybrid" element={<HybridOnboarding />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/artist-dashboard" element={<ArtistDashboard />} />
             <Route path="/engineer-dashboard" element={<EngineerDashboard />} />

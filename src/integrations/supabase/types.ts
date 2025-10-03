@@ -2785,6 +2785,36 @@ export type Database = {
           },
         ]
       }
+      hybrid_user_preferences: {
+        Row: {
+          created_at: string | null
+          default_dashboard: string
+          id: string
+          primary_role: string
+          show_role_switcher: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          default_dashboard?: string
+          id?: string
+          primary_role: string
+          show_role_switcher?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          default_dashboard?: string
+          id?: string
+          primary_role?: string
+          show_role_switcher?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       instructor_profiles: {
         Row: {
           average_rating: number | null
@@ -4151,10 +4181,12 @@ export type Database = {
           genre: string | null
           hourly_rate: number | null
           id: string
+          is_hybrid_user: boolean | null
           onboarding_completed: boolean
           payout_preference: string | null
           portfolio_links: Json | null
           revenue_split_percentage: number | null
+          secondary_user_type: string | null
           services_offered: Json | null
           stage_name: string | null
           terms_accepted: boolean | null
@@ -4178,10 +4210,12 @@ export type Database = {
           genre?: string | null
           hourly_rate?: number | null
           id?: string
+          is_hybrid_user?: boolean | null
           onboarding_completed?: boolean
           payout_preference?: string | null
           portfolio_links?: Json | null
           revenue_split_percentage?: number | null
+          secondary_user_type?: string | null
           services_offered?: Json | null
           stage_name?: string | null
           terms_accepted?: boolean | null
@@ -4205,10 +4239,12 @@ export type Database = {
           genre?: string | null
           hourly_rate?: number | null
           id?: string
+          is_hybrid_user?: boolean | null
           onboarding_completed?: boolean
           payout_preference?: string | null
           portfolio_links?: Json | null
           revenue_split_percentage?: number | null
+          secondary_user_type?: string | null
           services_offered?: Json | null
           stage_name?: string | null
           terms_accepted?: boolean | null

@@ -20,6 +20,7 @@ import { Home, Briefcase, Search, DollarSign, User, Music, Award, Headphones, Tr
 import { NavLink } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
+import { RoleSwitcher } from './RoleSwitcher';
 
 interface CRMLayoutProps {
   children: ReactNode;
@@ -97,7 +98,9 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions }: 
   // Mobile layout - simplified without nested sidebar
   if (isMobile) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+      <>
+        <RoleSwitcher />
+        <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
         <Navigation />
         
         <div className="pt-20 pb-20 px-4 md:px-6">
@@ -196,13 +199,16 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions }: 
             {children}
           </div>
         </div>
-      </div>
+        </div>
+      </>
     );
   }
 
   // Desktop layout with sidebar
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+    <>
+      <RoleSwitcher />
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <Navigation />
       
       <SidebarProvider defaultOpen={true}>
@@ -348,6 +354,7 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions }: 
           </main>
         </div>
       </SidebarProvider>
-    </div>
+      </div>
+    </>
   );
 };

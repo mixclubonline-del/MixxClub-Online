@@ -7,6 +7,10 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   userRole: 'client' | 'engineer' | 'admin' | null;
+  userRoles: ('client' | 'engineer' | 'admin')[];
+  activeRole: 'client' | 'engineer' | 'admin' | null;
+  setActiveRole: (role: 'client' | 'engineer' | 'admin') => void;
+  isHybridUser: boolean;
   signOut: () => Promise<void>;
 }
 
@@ -17,6 +21,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState<'client' | 'engineer' | 'admin' | null>(null);
+  const [userRoles, setUserRoles] = useState<('client' | 'engineer' | 'admin')[]>([]);
+  const [activeRole, setActiveRole] = useState<'client' | 'engineer' | 'admin' | null>(null);
+  const [isHybridUser, setIsHybridUser] = useState(false);
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -33,21 +40,37 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // Defer role fetching from user_roles table (secure)
         if (session?.user) {
           setTimeout(async () => {
-            // Fetch from user_roles table for secure authorization
+            // Fetch ALL roles from user_roles table
             const { data: roles } = await supabase
               .from('user_roles')
               .select('role')
               .eq('user_id', session.user.id);
             
-            // Set role priority: admin > engineer > client
             if (roles && roles.length > 0) {
-              const roleTypes = roles.map(r => r.role);
+              const roleTypes = roles.map(r => r.role) as ('client' | 'engineer' | 'admin')[];
+              setUserRoles(roleTypes);
+              setIsHybridUser(roleTypes.length > 1 && roleTypes.some(r => r === 'client' || r === 'engineer'));
+              
+              // Fetch primary role preference
+              const { data: prefs } = await supabase
+                .from('hybrid_user_preferences')
+                .select('primary_role')
+                .eq('user_id', session.user.id)
+                .single();
+              
+              // Set primary role priority: admin > preference > first role
               if (roleTypes.includes('admin')) {
                 setUserRole('admin');
+                setActiveRole('admin');
+              } else if (prefs?.primary_role) {
+                setUserRole(prefs.primary_role as 'client' | 'engineer');
+                setActiveRole(prefs.primary_role as 'client' | 'engineer');
               } else if (roleTypes.includes('engineer')) {
                 setUserRole('engineer');
+                setActiveRole('engineer');
               } else {
                 setUserRole('client');
+                setActiveRole('client');
               }
             } else {
               // Fallback to profiles.role for display purposes only
@@ -56,11 +79,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 .select('role')
                 .eq('id', session.user.id)
                 .single();
-              setUserRole(profile?.role || 'client');
+              const fallbackRole = profile?.role || 'client';
+              setUserRole(fallbackRole);
+              setUserRoles([fallbackRole]);
+              setActiveRole(fallbackRole);
+              setIsHybridUser(false);
             }
           }, 0);
         } else {
           setUserRole(null);
+          setUserRoles([]);
+          setActiveRole(null);
+          setIsHybridUser(false);
         }
       }
     );
@@ -75,11 +105,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
+  const handleSetActiveRole = async (role: 'client' | 'engineer' | 'admin') => {
+    setActiveRole(role);
+    setUserRole(role);
+    
+    // Save preference to database
+    if (user && role !== 'admin') {
+      await supabase
+        .from('hybrid_user_preferences')
+        .upsert({
+          user_id: user.id,
+          primary_role: role,
+          default_dashboard: role === 'client' ? 'artist' : 'engineer'
+        });
+    }
+  };
+
   const signOut = async () => {
     // Clear local session first to ensure UI updates immediately
     setSession(null);
     setUser(null);
     setUserRole(null);
+    setUserRoles([]);
+    setActiveRole(null);
+    setIsHybridUser(false);
     
     // Attempt to sign out from server, but ignore session errors
     const { error } = await supabase.auth.signOut({ scope: 'local' });
@@ -93,6 +142,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     session,
     loading,
     userRole,
+    userRoles,
+    activeRole,
+    setActiveRole: handleSetActiveRole,
+    isHybridUser,
     signOut,
   };
 
