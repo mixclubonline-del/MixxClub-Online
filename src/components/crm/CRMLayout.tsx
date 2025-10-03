@@ -206,7 +206,7 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions }: 
       <Navigation />
       
       <SidebarProvider defaultOpen={true}>
-        <div className="flex min-h-screen w-full pt-20">
+        <div className="flex min-h-screen w-full pt-16">
           <Sidebar className="border-r border-primary/20 z-[90] w-64 lg:w-72 bg-card/50 backdrop-blur-sm" collapsible="icon">
             <SidebarContent>
               {/* Welcome Section - Gamified */}
@@ -292,65 +292,56 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions }: 
           </Sidebar>
 
           <main className="flex-1 overflow-auto">
-            <div className="max-w-screen-2xl mx-auto p-6 lg:p-10">
-              {/* Header - Vibrant */}
-              <div className="mb-8 animate-fade-in">
-                <SidebarTrigger className="mb-4" />
-                <div className="flex items-center gap-3 mb-2">
-                  <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary via-accent to-primary-glow bg-clip-text text-transparent">
-                    {userType === 'engineer' ? 'Pro Studio' : 'Your Studio'}
-                  </h1>
-                  <Sparkles className="w-8 h-8 text-primary animate-pulse-glow" />
+            <div className="max-w-[1800px] mx-auto p-4 lg:p-6">
+              {/* Compact Header with Quick Actions Toolbar */}
+              <div className="mb-6 animate-fade-in">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <SidebarTrigger />
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-primary animate-pulse" />
+                      <h1 className="text-xl font-bold bg-gradient-to-r from-primary via-accent to-primary-glow bg-clip-text text-transparent">
+                        {userType === 'engineer' ? 'Pro Studio' : 'Your Studio'}
+                      </h1>
+                    </div>
+                  </div>
+                  
+                  {/* Horizontal Quick Actions Toolbar */}
+                  <div className="hidden xl:flex items-center gap-2">
+                    {quickActions.slice(0, 4).map((action, index) => (
+                      <Button
+                        key={index}
+                        onClick={action.onClick}
+                        variant={action.variant || 'outline'}
+                        size="sm"
+                        className="gap-2 hover:scale-105 transition-transform"
+                      >
+                        {action.icon}
+                        <span className="text-xs">{action.label}</span>
+                      </Button>
+                    ))}
+                  </div>
                 </div>
-                <p className="text-muted-foreground text-lg">
-                  {userType === 'engineer' 
-                    ? "Let's create some magic today 🎚️"
-                    : "Let's make some hits today 🎵"
-                  }
-                </p>
-              </div>
-
-              {/* Quick Actions - Colorful Cards */}
-              <div className="mb-8 animate-in slide-in-from-bottom duration-700">
-                <div className="flex items-center gap-2 mb-4">
-                  <Zap className="w-6 h-6 text-primary animate-pulse" />
-                  <h3 className="font-bold text-xl">Quick Actions</h3>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+                
+                {/* Mobile Quick Actions - Compact Row */}
+                <div className="xl:hidden flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
                   {quickActions.map((action, index) => (
                     <Button
                       key={index}
                       onClick={action.onClick}
                       variant={action.variant || 'outline'}
-                      size="lg"
-                      className={cn(
-                        "h-auto py-6 px-4 flex flex-col items-center justify-center gap-3 transition-all duration-300 hover:scale-110",
-                        "border-2 hover:shadow-glow animate-in zoom-in group relative overflow-hidden",
-                        index % 6 === 0 && "bg-gradient-to-br from-primary/20 to-primary/5 border-primary/40 hover:border-primary hover:from-primary/30 hover:to-primary/10",
-                        index % 6 === 1 && "bg-gradient-to-br from-accent/20 to-accent/5 border-accent/40 hover:border-accent hover:from-accent/30 hover:to-accent/10",
-                        index % 6 === 2 && "bg-gradient-to-br from-primary-glow/20 to-primary-glow/5 border-primary-glow/40 hover:border-primary-glow hover:from-primary-glow/30 hover:to-primary-glow/10",
-                        index % 6 === 3 && "bg-gradient-to-br from-purple-500/20 to-purple-500/5 border-purple-500/40 hover:border-purple-500 hover:from-purple-500/30 hover:to-purple-500/10",
-                        index % 6 === 4 && "bg-gradient-to-br from-blue-500/20 to-blue-500/5 border-blue-500/40 hover:border-blue-500 hover:from-blue-500/30 hover:to-blue-500/10",
-                        index % 6 === 5 && "bg-gradient-to-br from-pink-500/20 to-pink-500/5 border-pink-500/40 hover:border-pink-500 hover:from-pink-500/30 hover:to-pink-500/10",
-                      )}
-                      style={{ animationDelay: `${index * 100}ms` }}
+                      size="sm"
+                      className="gap-2 whitespace-nowrap flex-shrink-0"
                     >
-                      <div className="relative">
-                        {action.icon}
-                        <div className="absolute inset-0 blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-300">
-                          {action.icon}
-                        </div>
-                      </div>
-                      <span className="text-sm font-semibold text-center leading-tight">
-                        {action.label}
-                      </span>
+                      {action.icon}
+                      <span className="text-xs">{action.label}</span>
                     </Button>
                   ))}
                 </div>
               </div>
 
               {/* Main Content with bloom animation */}
-              <div className="animate-in fade-in slide-in-from-bottom duration-1000 delay-300">
+              <div className="animate-in fade-in slide-in-from-bottom duration-700">
                 {children}
               </div>
             </div>

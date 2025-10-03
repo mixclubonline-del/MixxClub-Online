@@ -22,117 +22,107 @@ export const DashboardHub = () => {
   ]);
 
   return (
-    <div className="space-y-6 p-6">
-      {/* Animated Hero Section */}
-      <Card className="relative overflow-hidden bg-gradient-to-br from-primary/20 via-accent/20 to-background border-primary/30">
-        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
-        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-primary/30 to-transparent rounded-full blur-3xl animate-pulse" />
-        
-        <div className="relative p-8">
-          <div className="flex items-start justify-between mb-6">
-            <div>
-              <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
-                Welcome Back, Creator! 🎵
-              </h1>
-              <p className="text-muted-foreground text-lg">
-                Ready to make some magic today?
-              </p>
-            </div>
-            <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 text-lg animate-pulse-glow">
-              <Flame className="w-5 h-5 mr-2" />
-              7 Day Streak!
-            </Badge>
-          </div>
-
-          {/* Quick Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="p-4 rounded-lg bg-background/50 backdrop-blur-sm">
-              <div className="flex items-center gap-2 mb-2">
-                <TrendingUp className="w-5 h-5 text-green-500" />
-                <span className="text-sm text-muted-foreground">This Week</span>
-              </div>
-              <p className="text-2xl font-bold">12 Projects</p>
-            </div>
-            <div className="p-4 rounded-lg bg-background/50 backdrop-blur-sm">
-              <div className="flex items-center gap-2 mb-2">
-                <Zap className="w-5 h-5 text-yellow-500" />
-                <span className="text-sm text-muted-foreground">XP Earned</span>
-              </div>
-              <p className="text-2xl font-bold">2,450</p>
-            </div>
-            <div className="p-4 rounded-lg bg-background/50 backdrop-blur-sm">
-              <div className="flex items-center gap-2 mb-2">
-                <Users className="w-5 h-5 text-blue-500" />
-                <span className="text-sm text-muted-foreground">Collaborations</span>
-              </div>
-              <p className="text-2xl font-bold">8 Active</p>
-            </div>
-            <div className="p-4 rounded-lg bg-background/50 backdrop-blur-sm">
-              <div className="flex items-center gap-2 mb-2">
-                <Award className="w-5 h-5 text-purple-500" />
-                <span className="text-sm text-muted-foreground">Achievements</span>
-              </div>
-              <p className="text-2xl font-bold">24/50</p>
-            </div>
+    <div className="space-y-8">
+      {/* Compact Stats Bar */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1.5 animate-pulse-glow">
+            <Flame className="w-4 h-4 mr-1.5" />
+            7 Day Streak!
+          </Badge>
+          <div className="text-sm text-muted-foreground">
+            <span className="font-semibold text-foreground">2,450 XP</span> earned this week
           </div>
         </div>
-      </Card>
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Quick Stats - Horizontal */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <Card className="p-6 hover:shadow-lg transition-all duration-300 hover:scale-105">
+          <div className="flex items-center gap-3 mb-2">
+            <TrendingUp className="w-6 h-6 text-green-500" />
+            <span className="text-sm text-muted-foreground">This Week</span>
+          </div>
+          <p className="text-3xl font-bold">12 Projects</p>
+        </Card>
+        <Card className="p-6 hover:shadow-lg transition-all duration-300 hover:scale-105">
+          <div className="flex items-center gap-3 mb-2">
+            <Zap className="w-6 h-6 text-yellow-500" />
+            <span className="text-sm text-muted-foreground">XP Earned</span>
+          </div>
+          <p className="text-3xl font-bold">2,450</p>
+        </Card>
+        <Card className="p-6 hover:shadow-lg transition-all duration-300 hover:scale-105">
+          <div className="flex items-center gap-3 mb-2">
+            <Users className="w-6 h-6 text-blue-500" />
+            <span className="text-sm text-muted-foreground">Collaborations</span>
+          </div>
+          <p className="text-3xl font-bold">8 Active</p>
+        </Card>
+        <Card className="p-6 hover:shadow-lg transition-all duration-300 hover:scale-105">
+          <div className="flex items-center gap-3 mb-2">
+            <Award className="w-6 h-6 text-purple-500" />
+            <span className="text-sm text-muted-foreground">Achievements</span>
+          </div>
+          <p className="text-3xl font-bold">24/50</p>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Daily Quests */}
-        <Card className="lg:col-span-2 p-6">
-          <div className="flex items-center gap-2 mb-6">
-            <Target className="w-6 h-6 text-primary" />
-            <h2 className="text-xl font-semibold">Daily Quests</h2>
+        <Card className="lg:col-span-2 p-8">
+          <div className="flex items-center gap-3 mb-6">
+            <Target className="w-7 h-7 text-primary" />
+            <h2 className="text-2xl font-bold">Daily Quests</h2>
             <Badge variant="outline" className="ml-auto">
               <Clock className="w-3 h-3 mr-1" />
               Resets in 8h
             </Badge>
           </div>
 
-          <div className="space-y-4">
-            {dailyQuests.map((quest, index) => {
-              const QuestIcon = quest.icon;
-              const progressPercent = (quest.progress / quest.target) * 100;
-              
-              return (
-                <div 
-                  key={index}
-                  className="p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors animate-slide-up-fade"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                        <QuestIcon className="w-5 h-5 text-primary" />
+            <div className="space-y-5">
+              {dailyQuests.map((quest, index) => {
+                const QuestIcon = quest.icon;
+                const progressPercent = (quest.progress / quest.target) * 100;
+                
+                return (
+                  <div 
+                    key={index}
+                    className="p-5 rounded-xl bg-muted/50 hover:bg-muted transition-all duration-300 hover:scale-[1.02] animate-slide-up-fade"
+                    style={{ animationDelay: `${index * 100}ms` }}
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
+                          <QuestIcon className="w-6 h-6 text-primary" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-lg">{quest.title}</h3>
+                          <p className="text-sm text-muted-foreground">
+                            {quest.progress} / {quest.target} complete
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-medium">{quest.title}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          {quest.progress} / {quest.target} complete
-                        </p>
-                      </div>
+                      <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 px-3 py-1.5">
+                        <Zap className="w-4 h-4 mr-1" />
+                        {quest.xp} XP
+                      </Badge>
                     </div>
-                    <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500">
-                      <Zap className="w-3 h-3 mr-1" />
-                      {quest.xp} XP
-                    </Badge>
+                    <Progress value={progressPercent} className="h-3" />
                   </div>
-                  <Progress value={progressPercent} className="h-2" />
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
         </Card>
 
         {/* Live Activity Globe */}
-        <Card className="p-6 relative overflow-hidden">
+        <Card className="p-8 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-3xl" />
           
           <div className="relative">
-            <div className="flex items-center gap-2 mb-6">
-              <Globe className="w-6 h-6 text-primary animate-pulse" />
-              <h2 className="text-xl font-semibold">Live Activity</h2>
+            <div className="flex items-center gap-3 mb-6">
+              <Globe className="w-7 h-7 text-primary animate-pulse" />
+              <h2 className="text-2xl font-bold">Live Activity</h2>
             </div>
 
             <div className="space-y-3">

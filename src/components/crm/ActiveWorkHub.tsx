@@ -57,54 +57,41 @@ export const ActiveWorkHub = ({ userRole, onStartSession, onUploadStems }: Activ
   const progressPercentage = (stats.xp / stats.xpToNext) * 100;
 
   return (
-    <div className="space-y-6 p-6">
-      {/* Hero Status Card */}
-      <Card className="relative overflow-hidden bg-gradient-to-br from-primary/20 via-background to-accent/20 border-primary/20">
-        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-5" />
-        <div className="relative p-8">
-          <div className="flex items-start justify-between mb-6">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  Level {stats.level}
-                </h2>
-                {stats.streak >= 7 && (
-                  <Badge className="bg-gradient-to-r from-orange-500 to-red-500 animate-pulse-glow">
-                    <Flame className="w-3 h-3 mr-1" />
-                    {stats.streak} Day Streak!
-                  </Badge>
-                )}
-              </div>
-              <p className="text-muted-foreground">
-                {stats.xp} / {stats.xpToNext} XP
-              </p>
-            </div>
-            <div className="text-right">
-              <div className="text-sm text-muted-foreground mb-1">Weekly Progress</div>
-              <div className="text-2xl font-bold text-primary">{stats.weeklyProgress}%</div>
-            </div>
+    <div className="space-y-8">
+      {/* Compact Status Bar */}
+      <div className="flex items-center justify-between p-4 bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 rounded-xl border border-primary/20">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              Level {stats.level}
+            </span>
+            {stats.streak >= 7 && (
+              <Badge className="bg-gradient-to-r from-orange-500 to-red-500 animate-pulse-glow">
+                <Flame className="w-3 h-3 mr-1" />
+                {stats.streak} Day
+              </Badge>
+            )}
           </div>
-
-          {/* XP Progress Bar */}
-          <div className="relative h-3 bg-muted rounded-full overflow-hidden">
-            <div 
-              className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary via-accent to-primary animate-pulse-glow transition-all duration-500"
-              style={{ width: `${progressPercentage}%` }}
-            />
+          <div className="text-sm text-muted-foreground">
+            {stats.xp} / {stats.xpToNext} XP
           </div>
         </div>
-      </Card>
+        <div className="text-right">
+          <div className="text-sm text-muted-foreground">Weekly Progress</div>
+          <div className="text-xl font-bold text-primary">{stats.weeklyProgress}%</div>
+        </div>
+      </div>
 
-      {/* Smart Quick Actions Panel */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Smart Quick Actions Panel - Horizontal */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card 
           className="group relative overflow-hidden cursor-pointer hover:scale-105 transition-all duration-300 bg-gradient-to-br from-purple-500/20 to-cyan-500/20 border-purple-500/30"
           onClick={onStartSession}
         >
           <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-          <div className="relative p-6">
-            <Play className="w-8 h-8 mb-3 text-purple-400" />
-            <h3 className="font-semibold mb-1">Start New Session</h3>
+          <div className="relative p-8">
+            <Play className="w-10 h-10 mb-4 text-purple-400" />
+            <h3 className="font-semibold text-lg mb-2">Start New Session</h3>
             <p className="text-sm text-muted-foreground">Go live with collaborators</p>
           </div>
         </Card>
@@ -115,9 +102,9 @@ export const ActiveWorkHub = ({ userRole, onStartSession, onUploadStems }: Activ
           <div className="absolute top-2 right-2">
             <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
           </div>
-          <div className="relative p-6">
-            <Users className="w-8 h-8 mb-3 text-orange-400" />
-            <h3 className="font-semibold mb-1">Join Live Session</h3>
+          <div className="relative p-8">
+            <Users className="w-10 h-10 mb-4 text-orange-400" />
+            <h3 className="font-semibold text-lg mb-2">Join Live Session</h3>
             <p className="text-sm text-muted-foreground">3 active sessions now</p>
           </div>
         </Card>
@@ -126,9 +113,9 @@ export const ActiveWorkHub = ({ userRole, onStartSession, onUploadStems }: Activ
           className="group relative overflow-hidden cursor-pointer hover:scale-105 transition-all duration-300 bg-gradient-to-br from-blue-500/20 to-green-500/20 border-blue-500/30"
           onClick={onUploadStems}
         >
-          <div className="relative p-6">
-            <Upload className="w-8 h-8 mb-3 text-blue-400" />
-            <h3 className="font-semibold mb-1">Upload Stems</h3>
+          <div className="relative p-8">
+            <Upload className="w-10 h-10 mb-4 text-blue-400" />
+            <h3 className="font-semibold text-lg mb-2">Upload Stems</h3>
             <p className="text-sm text-muted-foreground">Add new audio files</p>
           </div>
         </Card>
@@ -136,21 +123,21 @@ export const ActiveWorkHub = ({ userRole, onStartSession, onUploadStems }: Activ
         <Card 
           className="group relative overflow-hidden cursor-pointer hover:scale-105 transition-all duration-300 bg-gradient-to-br from-pink-500/20 to-purple-500/20 border-pink-500/30"
         >
-          <div className="relative p-6">
-            <CheckCircle className="w-8 h-8 mb-3 text-pink-400" />
-            <h3 className="font-semibold mb-1">Review & Approve</h3>
+          <div className="relative p-8">
+            <CheckCircle className="w-10 h-10 mb-4 text-pink-400" />
+            <h3 className="font-semibold text-lg mb-2">Review & Approve</h3>
             <p className="text-sm text-muted-foreground">2 pending reviews</p>
           </div>
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Live Activity Feed */}
-        <Card className="lg:col-span-2 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2">
-              <Activity className="w-5 h-5 text-primary" />
-              <h3 className="font-semibold text-lg">Live Activity</h3>
+        <Card className="lg:col-span-2 p-8">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-3">
+              <Activity className="w-6 h-6 text-primary" />
+              <h3 className="font-bold text-2xl">Live Activity</h3>
             </div>
             <Badge variant="outline" className="animate-pulse">
               <Globe className="w-3 h-3 mr-1" />

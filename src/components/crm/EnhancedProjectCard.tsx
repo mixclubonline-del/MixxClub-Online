@@ -59,7 +59,7 @@ export const EnhancedProjectCard = ({ project, onStartSession, onClick }: Enhanc
 
   return (
     <Card 
-      className="group relative overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-300"
+      className="group relative overflow-hidden cursor-pointer hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={onClick}
@@ -68,12 +68,12 @@ export const EnhancedProjectCard = ({ project, onStartSession, onClick }: Enhanc
       <div className={`absolute inset-0 bg-gradient-to-br ${getStatusColor(project.status)} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
 
       {/* Album Art / Thumbnail */}
-      <div className="relative h-48 bg-gradient-to-br from-primary/20 to-accent/20 overflow-hidden">
+      <div className="relative h-64 bg-gradient-to-br from-primary/20 to-accent/20 overflow-hidden">
         {project.thumbnail ? (
           <img src={project.thumbnail} alt={project.title} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <Music className="w-16 h-16 text-muted-foreground/30" />
+            <Music className="w-20 h-20 text-muted-foreground/30" />
           </div>
         )}
         
@@ -107,26 +107,26 @@ export const EnhancedProjectCard = ({ project, onStartSession, onClick }: Enhanc
         )}
       </div>
 
-      <div className="p-6 space-y-4">
+      <div className="p-8 space-y-5">
         {/* Title & Artist */}
         <div>
-          <h3 className="font-semibold text-lg mb-1 line-clamp-1">{project.title}</h3>
+          <h3 className="font-bold text-xl mb-2 line-clamp-1">{project.title}</h3>
           {project.artist && (
-            <p className="text-sm text-muted-foreground">{project.artist}</p>
+            <p className="text-base text-muted-foreground">{project.artist}</p>
           )}
         </div>
 
         {/* Status Pipeline */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>Progress</span>
-            <span>{project.progress_percentage || 0}%</span>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <span className="font-medium">Progress</span>
+            <span className="font-bold">{project.progress_percentage || 0}%</span>
           </div>
-          <div className="flex gap-1">
+          <div className="flex gap-2">
             {stages.map((stage, index) => (
               <div
                 key={stage}
-                className={`flex-1 h-2 rounded-full transition-all duration-500 ${
+                className={`flex-1 h-3 rounded-full transition-all duration-500 ${
                   index <= currentIndex 
                     ? `bg-gradient-to-r ${getStatusColor(project.status)}` 
                     : "bg-muted"

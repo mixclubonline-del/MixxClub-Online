@@ -95,40 +95,40 @@ export const OpportunitiesHub = ({ userRole }: OpportunitiesHubProps) => {
   };
 
   return (
-    <div className="space-y-6 p-6 max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+    <div className="space-y-8 max-w-5xl mx-auto">
+      {/* Compact Header */}
+      <div className="text-center">
+        <h2 className="text-3xl font-bold mb-1 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
           AI-Powered Opportunities
         </h2>
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Swipe right to express interest, left to pass
         </p>
       </div>
 
       {/* Match Analytics */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        <Card className="p-4 text-center">
-          <TrendingUp className="w-6 h-6 mx-auto mb-2 text-green-500" />
-          <p className="text-2xl font-bold">24</p>
+      <div className="grid grid-cols-3 gap-6">
+        <Card className="p-6 text-center hover:shadow-lg transition-all duration-300 hover:scale-105">
+          <TrendingUp className="w-8 h-8 mx-auto mb-3 text-green-500" />
+          <p className="text-3xl font-bold">24</p>
           <p className="text-sm text-muted-foreground">Matches</p>
         </Card>
-        <Card className="p-4 text-center">
-          <Users className="w-6 h-6 mx-auto mb-2 text-blue-500" />
-          <p className="text-2xl font-bold">12</p>
+        <Card className="p-6 text-center hover:shadow-lg transition-all duration-300 hover:scale-105">
+          <Users className="w-8 h-8 mx-auto mb-3 text-blue-500" />
+          <p className="text-3xl font-bold">12</p>
           <p className="text-sm text-muted-foreground">Active Chats</p>
         </Card>
-        <Card className="p-4 text-center">
-          <Award className="w-6 h-6 mx-auto mb-2 text-purple-500" />
-          <p className="text-2xl font-bold">8</p>
+        <Card className="p-6 text-center hover:shadow-lg transition-all duration-300 hover:scale-105">
+          <Award className="w-8 h-8 mx-auto mb-3 text-purple-500" />
+          <p className="text-3xl font-bold">8</p>
           <p className="text-sm text-muted-foreground">Completed</p>
         </Card>
       </div>
 
       {/* Swipeable Card */}
-      <div className="relative" style={{ minHeight: "600px" }}>
+      <div className="relative" style={{ minHeight: "650px" }}>
         <Card 
-          className={`absolute inset-0 overflow-hidden transition-all duration-500 ${
+          className={`absolute inset-0 overflow-hidden transition-all duration-500 shadow-2xl ${
             swipeDirection === "right" ? "animate-swipe-card" :
             swipeDirection === "left" ? "animate-swipe-card-left" : ""
           }`}
@@ -142,8 +142,8 @@ export const OpportunitiesHub = ({ userRole }: OpportunitiesHubProps) => {
           </div>
 
           {/* Hero Section */}
-          <div className="relative h-48 bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-            <Avatar className="w-32 h-32 border-4 border-background shadow-xl">
+          <div className="relative h-56 bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+            <Avatar className="w-36 h-36 border-4 border-background shadow-xl">
               <AvatarImage src={currentOpportunity.avatar} />
               <AvatarFallback className="text-4xl">
                 {currentOpportunity.artist[0]}
@@ -151,10 +151,10 @@ export const OpportunitiesHub = ({ userRole }: OpportunitiesHubProps) => {
             </Avatar>
           </div>
 
-          <div className="p-6 space-y-6">
+          <div className="p-8 space-y-6">
             {/* Title & Artist */}
             <div className="text-center">
-              <h3 className="text-2xl font-bold mb-1">{currentOpportunity.title}</h3>
+              <h3 className="text-3xl font-bold mb-2">{currentOpportunity.title}</h3>
               <p className="text-lg text-muted-foreground flex items-center justify-center gap-2">
                 by {currentOpportunity.artist}
                 <div className="flex items-center">
