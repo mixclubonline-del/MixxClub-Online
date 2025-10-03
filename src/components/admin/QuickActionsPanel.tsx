@@ -71,6 +71,13 @@ const quickActions = [
     color: 'bg-yellow-500'
   },
   {
+    icon: BarChart3,
+    label: 'Advanced Analytics',
+    description: 'Deep insights & KPIs',
+    path: '/admin/advanced-analytics',
+    color: 'bg-teal-500'
+  },
+  {
     icon: MessageCircle,
     label: 'Communications',
     description: 'Email & notifications',
