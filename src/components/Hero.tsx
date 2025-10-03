@@ -83,6 +83,11 @@ const Hero = () => {
             all enhanced by AI-powered matching. Your sound, your choice, your budget.
           </p>
 
+          {/* Social Proof */}
+          <p className="text-sm md:text-base text-muted-foreground/80 font-medium animate-fade-in" style={{ animationDelay: '0.3s' }}>
+            ✨ Trusted by 2,500+ artists • 150+ verified engineers • 10,000+ tracks mixed
+          </p>
+
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-in pt-4" style={{ animationDelay: '0.4s' }}>
             <Button
@@ -90,7 +95,7 @@ const Hero = () => {
               onClick={handleGetStarted}
               className="text-lg px-10 py-7 shadow-glow-raven group"
             >
-              Join as Artist
+              Find Your Engineer
               <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
             </Button>
             <Button

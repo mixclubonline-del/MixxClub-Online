@@ -117,7 +117,7 @@ const Home = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {/* Brand */}
             <div className="col-span-1">
-              <h3 className="text-xl font-bold mb-4 bg-gradient-to-r from-primary to-accent-blue bg-clip-text text-transparent">
+              <h3 className="text-xl font-bold mb-4 bg-gradient-to-r from-white via-purple-300 to-primary bg-clip-text text-transparent bg-[length:200%_auto] animate-[gradient-shift_5s_ease-in-out_infinite]">
                 MixClub
               </h3>
               <p className="text-muted-foreground text-sm">
