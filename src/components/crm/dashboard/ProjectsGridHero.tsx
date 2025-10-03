@@ -2,17 +2,15 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
-  Play, Clock, CheckCircle, AlertTriangle, Music, 
-  User, Calendar, ArrowRight, Sparkles 
+  Music, Sparkles, ArrowRight
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { EnhancedProjectCard } from '@/components/crm/EnhancedProjectCard';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface ProjectsGridHeroProps {
   userRole: 'artist' | 'engineer';
@@ -37,7 +35,7 @@ export const ProjectsGridHero = ({ userRole }: ProjectsGridHeroProps) => {
         .from('projects')
         .select(`
           *,
-          audio_files(count),
+          audio_files(*),
           client:profiles!projects_client_id_fkey(full_name, avatar_url),
           engineer:profiles!projects_engineer_id_fkey(full_name, avatar_url)
         `)
@@ -47,7 +45,26 @@ export const ProjectsGridHero = ({ userRole }: ProjectsGridHeroProps) => {
         .limit(6);
 
       if (error) throw error;
-      setProjects(data || []);
+      
+      // Transform data to match EnhancedProjectCard props
+      const transformedProjects = (data || []).map(project => ({
+        ...project,
+        artist: userRole === 'artist' 
+          ? user?.user_metadata?.full_name || 'You' 
+          : project.client?.full_name,
+        collaborators: [
+          userRole === 'artist' ? project.engineer : project.client
+        ].filter(Boolean).map(c => ({
+          name: c.full_name,
+          avatar: c.avatar_url
+        })),
+        ai_health_score: getHealthScore(project),
+        ai_suggestions: generateAISuggestions(project),
+        xp_earned: project.status === 'completed' ? 50 : undefined,
+        streak_days: undefined // This could come from a separate calculation
+      }));
+      
+      setProjects(transformedProjects);
     } catch (error) {
       console.error('Error loading projects:', error);
       toast.error('Failed to load projects');
@@ -56,39 +73,12 @@ export const ProjectsGridHero = ({ userRole }: ProjectsGridHeroProps) => {
     }
   };
 
-  const getStatusConfig = (status: string) => {
-    const configs = {
-      pending: { 
-        icon: Clock, 
-        color: 'text-yellow-500', 
-        bg: 'bg-yellow-500/10',
-        label: 'Pending' 
-      },
-      in_progress: { 
-        icon: Play, 
-        color: 'text-blue-500', 
-        bg: 'bg-blue-500/10',
-        label: 'In Progress' 
-      },
-      review: { 
-        icon: AlertTriangle, 
-        color: 'text-orange-500', 
-        bg: 'bg-orange-500/10',
-        label: 'Review' 
-      },
-      completed: { 
-        icon: CheckCircle, 
-        color: 'text-green-500', 
-        bg: 'bg-green-500/10',
-        label: 'Completed' 
-      }
-    };
-    return configs[status as keyof typeof configs] || configs.pending;
-  };
-
   const getHealthScore = (project: any) => {
     let score = 100;
     const now = new Date();
+    
+    if (!project.deadline) return score;
+    
     const deadline = new Date(project.deadline);
     const created = new Date(project.created_at);
     const daysUntilDeadline = Math.floor((deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
@@ -103,20 +93,42 @@ export const ProjectsGridHero = ({ userRole }: ProjectsGridHeroProps) => {
     return Math.max(0, Math.min(100, score));
   };
 
-  const getHealthColor = (score: number) => {
-    if (score >= 80) return 'text-green-500';
-    if (score >= 60) return 'text-yellow-500';
-    return 'text-red-500';
+  const generateAISuggestions = (project: any) => {
+    const suggestions = [];
+    const healthScore = getHealthScore(project);
+    
+    if (healthScore < 60) {
+      suggestions.push('⚠️ Project at risk - deadline approaching');
+    }
+    if (!project.audio_files || project.audio_files.length === 0) {
+      suggestions.push('📁 Upload audio files to get started');
+    }
+    if (project.status === 'pending' && project.audio_files?.length > 0) {
+      suggestions.push('🚀 Ready to start mixing');
+    }
+    
+    return suggestions;
   };
 
   if (loading) {
     return (
       <div className="space-y-4">
-        {[1, 2, 3].map(i => (
-          <Card key={i} className="p-6 animate-pulse">
-            <div className="h-24 bg-muted rounded" />
-          </Card>
-        ))}
+        <div className="flex items-center justify-between mb-2">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-10 w-32" />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+          {[1, 2, 3].map(i => (
+            <Card key={i} className="p-6 animate-pulse">
+              <div className="space-y-4">
+                <Skeleton className="h-64 w-full" />
+                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="h-24 w-full" />
+              </div>
+            </Card>
+          ))}
+        </div>
       </div>
     );
   }
@@ -145,11 +157,16 @@ export const ProjectsGridHero = ({ userRole }: ProjectsGridHeroProps) => {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between mb-2">
-        <h2 className="text-2xl font-bold">Active Projects</h2>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-3xl font-bold">Active Projects</h2>
+          <p className="text-muted-foreground mt-1">
+            {projects.length} project{projects.length !== 1 ? 's' : ''} in progress
+          </p>
+        </div>
         <Button 
-          variant="ghost" 
-          size="sm"
+          variant="outline" 
+          size="lg"
           onClick={() => navigate(`/${userRole}-crm?tab=active-work`)}
           className="gap-2"
         >
@@ -158,101 +175,23 @@ export const ProjectsGridHero = ({ userRole }: ProjectsGridHeroProps) => {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {projects.map((project, index) => {
-          const statusConfig = getStatusConfig(project.status);
-          const StatusIcon = statusConfig.icon;
-          const healthScore = getHealthScore(project);
-          const collaborator = userRole === 'artist' ? project.engineer : project.client;
-          
-          return (
-            <motion.div
-              key={project.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <Card 
-                className="p-6 hover:shadow-lg transition-all cursor-pointer group"
-                onClick={() => navigate(`/project/${project.id}`)}
-              >
-                {/* Header */}
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-xl font-bold mb-1 group-hover:text-primary transition-colors">
-                      {project.title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground line-clamp-2">
-                      {project.description || 'No description provided'}
-                    </p>
-                  </div>
-                  <Badge className={statusConfig.bg}>
-                    <StatusIcon className={`w-3 h-3 mr-1 ${statusConfig.color}`} />
-                    {statusConfig.label}
-                  </Badge>
-                </div>
-
-                {/* Collaborator */}
-                {collaborator && (
-                  <div className="flex items-center gap-2 mb-4 p-3 bg-muted/50 rounded-lg">
-                    <Avatar className="w-8 h-8">
-                      <AvatarImage src={collaborator.avatar_url} />
-                      <AvatarFallback>
-                        {collaborator.full_name?.[0] || 'U'}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">
-                        {userRole === 'artist' ? 'Engineer: ' : 'Artist: '}
-                        {collaborator.full_name || 'Not assigned'}
-                      </p>
-                    </div>
-                    <User className="w-4 h-4 text-muted-foreground" />
-                  </div>
-                )}
-
-                {/* Health Score */}
-                <div className="mb-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">Project Health</span>
-                    <span className={`text-sm font-bold ${getHealthColor(healthScore)}`}>
-                      {healthScore}%
-                    </span>
-                  </div>
-                  <Progress value={healthScore} className="h-2" />
-                </div>
-
-                {/* Stats */}
-                <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
-                  <div className="flex items-center gap-1">
-                    <Music className="w-4 h-4" />
-                    <span>{project.audio_files?.[0]?.count || 0} files</span>
-                  </div>
-                  {project.deadline && (
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
-                      <span>
-                        {new Date(project.deadline).toLocaleDateString()}
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Action Button */}
-                <Button 
-                  className="w-full gap-2 group-hover:scale-105 transition-transform"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(`/project/${project.id}`);
-                  }}
-                >
-                  <Play className="w-4 h-4" />
-                  Continue Working
-                </Button>
-              </Card>
-            </motion.div>
-          );
-        })}
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8 pb-12">
+        {projects.map((project, index) => (
+          <motion.div
+            key={project.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+          >
+            <EnhancedProjectCard
+              project={project}
+              onStartSession={(projectId) => {
+                navigate(`/project/${projectId}`);
+              }}
+              onClick={() => navigate(`/project/${project.id}`)}
+            />
+          </motion.div>
+        ))}
       </div>
     </div>
   );
