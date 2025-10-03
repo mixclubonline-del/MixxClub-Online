@@ -2,15 +2,11 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { ResizableAICopilot } from './ResizableAICopilot';
-import { AudioVisualization3D } from './AudioVisualization3D';
-import { SmartStatsGrid } from './SmartStatsGrid';
-import { GamificationHub } from './GamificationHub';
-import { AIProjectRecommender } from './AIProjectRecommender';
+import { ProjectsGridHero } from './ProjectsGridHero';
 import { LiveActivityFeed } from './LiveActivityFeed';
 import { QuickActionLauncher } from './QuickActionLauncher';
 import { useMoodTheming } from '@/hooks/useMoodTheming';
 import { useAIDashboardInsights } from '@/hooks/useAIDashboardInsights';
-import { useCommandPalette } from '@/hooks/useCommandPalette';
 import { cn } from '@/lib/utils';
 
 export const RevolutionaryDashboard = () => {
@@ -78,43 +74,9 @@ export const RevolutionaryDashboard = () => {
       {/* Resizable AI Copilot + Dashboard Content */}
       <ResizableAICopilot insights={insights} isLoading={insightsLoading}>
         <div className="container px-4 md:px-6 py-6 space-y-6">
-          {/* Quick Actions */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.1 }}
-          >
-            <QuickActionLauncher onOpenPalette={() => setShowCommandPalette(true)} />
-          </motion.div>
-
-          {/* Gamification Bar */}
-          <GamificationHub />
-
-          {/* Smart Stats Grid */}
-          <SmartStatsGrid />
-
-          {/* Main Grid: Projects + Activity Feed */}
-          <div className="grid lg:grid-cols-3 gap-6">
-            {/* AI Recommended Projects (2/3 width) */}
-            <div className="lg:col-span-2 space-y-6">
-              <AIProjectRecommender />
-              
-              {/* 3D Audio Visualization */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-              >
-                <AudioVisualization3D />
-              </motion.div>
-            </div>
-
-            {/* Live Activity Feed (1/3 width) */}
-            <div className="lg:col-span-1">
-              <LiveActivityFeed />
-            </div>
-          </div>
-
+          <QuickActionLauncher onOpenPalette={() => setShowCommandPalette(true)} />
+          <ProjectsGridHero userRole="artist" />
+          <LiveActivityFeed />
         </div>
       </ResizableAICopilot>
 
