@@ -105,6 +105,7 @@ const AuditLog = React.lazy(() => import("./pages/AuditLog"));
 const AdvancedFeatures = React.lazy(() => import("./pages/AdvancedFeatures"));
 const RealtimeDashboard = React.lazy(() => import("./pages/RealtimeDashboard"));
 const DatabaseManagement = React.lazy(() => import("./pages/DatabaseManagement"));
+const Search = React.lazy(() => import("./pages/Search"));
 const AuditCompliance = React.lazy(() => import("./pages/AuditCompliance"));
 const BackupRecovery = React.lazy(() => import("./pages/BackupRecovery"));
 const AutomationHub = React.lazy(() => import("./pages/AutomationHub"));
@@ -228,6 +229,7 @@ const AppContent = () => {
             <Route path="/admin/advanced-features" element={<AdvancedFeatures />} />
             <Route path="/admin/realtime-dashboard" element={<RealtimeDashboard />} />
             <Route path="/admin/database" element={<DatabaseManagement />} />
+            <Route path="/search" element={<Search />} />
           <Route path="/admin/audit-compliance" element={<AuditCompliance />} />
           <Route path="/admin/backup-recovery" element={<BackupRecovery />} />
           <Route path="/admin/automation" element={<AutomationHub />} />
