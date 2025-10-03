@@ -8,7 +8,17 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { PWAInstallPrompt } from "@/components/mobile/PWAInstallPrompt";
 import { MobileRouteGuard } from "@/components/mobile/MobileRouteGuard";
 import { OfflineIndicator } from "@/components/mobile/OfflineIndicator";
-import Home from "./pages/Home";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+
+// Lazy load heavy components
+const Home = React.lazy(() => import("./pages/Home"));
+const ArtistCRM = React.lazy(() => import("./pages/ArtistCRM"));
+const EngineerCRM = React.lazy(() => import("./pages/EngineerCRM"));
+const AudioLab = React.lazy(() => import("./pages/AudioLab"));
+const HybridDAW = React.lazy(() => import("./pages/HybridDAW"));
+const Admin = React.lazy(() => import("./pages/Admin"));
+
+// Keep critical routes non-lazy
 import MixBattles from "./pages/MixBattles";
 import CommunityLeaderboard from "./pages/CommunityLeaderboard";
 import HowItWorks from "./pages/HowItWorks";
@@ -20,8 +30,6 @@ import HybridOnboarding from "./pages/HybridOnboarding";
 import Dashboard from "./pages/Dashboard";
 import ArtistDashboard from "./pages/ArtistDashboard";
 import EngineerDashboard from "./pages/EngineerDashboard";
-import ArtistCRM from "./pages/ArtistCRM";
-import EngineerCRM from "./pages/EngineerCRM";
 import ArtistStudio from "./pages/ArtistStudio";
 import EngineerStudio from "./pages/EngineerStudio";
 import Mixing from "./pages/Mixing";
@@ -45,7 +53,6 @@ import ComingSoon from "./pages/ComingSoon";
 import FAQ from "./pages/FAQ";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
-import Admin from "./pages/Admin";
 import AdminUsers from "./pages/AdminUsers";
 import AdminAudio from './pages/AdminAudio';
 import AdminMedia from './pages/AdminMedia';
@@ -71,7 +78,6 @@ import AdminLegalDocuments from './pages/AdminLegalDocuments';
 import AdminSystemPresentation from './pages/AdminSystemPresentation';
 import PresentationShare from './pages/PresentationShare';
 import { JobBoard } from './pages/JobBoard';
-import HybridDAW from "./pages/HybridDAW";
 import ProjectDetail from "./pages/ProjectDetail";
 import MerchStore from "./pages/MerchStore";
 import NotFound from "./pages/NotFound";
@@ -81,11 +87,21 @@ import MobileAdmin from "./pages/MobileAdmin";
 import MobileAdminPayouts from "./pages/MobileAdminPayouts";
 import MobileAdminUsers from "./pages/MobileAdminUsers";
 import MobileMixxBot from "./pages/MobileMixxBot";
-import AudioLab from "./pages/AudioLab";
 import { PersistentChatbot } from "@/components/PersistentChatbot";
 import { AppLayout } from "@/components/layouts/AppLayout";
+import { DashboardSkeleton } from "@/components/ui/loading-skeleton";
+import { PerformanceMonitor } from "@/components/PerformanceMonitor";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -94,10 +110,12 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <MobileRouteGuard />
-          <OfflineIndicator />
-          <Routes>
-            <Route path="/" element={<Home />} />
+          <ErrorBoundary>
+            <MobileRouteGuard />
+            <OfflineIndicator />
+            <React.Suspense fallback={<DashboardSkeleton />}>
+              <Routes>
+                <Route path="/" element={<Home />} />
             <Route path="/mix-battles" element={<MixBattles />} />
             <Route path="/leaderboard" element={<CommunityLeaderboard />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
@@ -186,8 +204,11 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+            </React.Suspense>
           <PersistentChatbot />
           <PWAInstallPrompt />
+          <PerformanceMonitor />
+          </ErrorBoundary>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
