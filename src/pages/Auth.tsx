@@ -432,48 +432,6 @@ const Auth = () => {
             </span>
           </div>
 
-          <div className="space-y-3 mb-6">
-            <p className="text-sm text-center text-muted-foreground">Testing? Try demo accounts:</p>
-            <div className="grid grid-cols-3 gap-2">
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => handleDemoLogin('client')}
-                disabled={loading}
-                className="flex flex-col items-center py-3 h-auto"
-              >
-                <Mic2 className="w-4 h-4 mb-1" />
-                <span className="text-xs">Artist</span>
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => handleDemoLogin('engineer')}
-                disabled={loading}
-                className="flex flex-col items-center py-3 h-auto"
-              >
-                <Headphones className="w-4 h-4 mb-1" />
-                <span className="text-xs">Engineer</span>
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => handleDemoLogin('admin')}
-                disabled={loading}
-                className="flex flex-col items-center py-3 h-auto"
-              >
-                <Sparkles className="w-4 h-4 mb-1" />
-                <span className="text-xs">Admin</span>
-              </Button>
-            </div>
-          </div>
-
-          <div className="relative mb-6">
-            <Separator />
-            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">
-              or continue with email
-            </span>
-          </div>
 
           {resetMode ? (
             // Password Reset Form
