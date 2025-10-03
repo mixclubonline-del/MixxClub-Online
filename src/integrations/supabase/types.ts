@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      ab_test_variants: {
+        Row: {
+          conversions: number | null
+          created_at: string
+          id: string
+          impressions: number | null
+          is_winner: boolean | null
+          test_name: string
+          traffic_percentage: number | null
+          updated_at: string
+          variant_config: Json
+          variant_name: string
+        }
+        Insert: {
+          conversions?: number | null
+          created_at?: string
+          id?: string
+          impressions?: number | null
+          is_winner?: boolean | null
+          test_name: string
+          traffic_percentage?: number | null
+          updated_at?: string
+          variant_config?: Json
+          variant_name: string
+        }
+        Update: {
+          conversions?: number | null
+          created_at?: string
+          id?: string
+          impressions?: number | null
+          is_winner?: boolean | null
+          test_name?: string
+          traffic_percentage?: number | null
+          updated_at?: string
+          variant_config?: Json
+          variant_name?: string
+        }
+        Relationships: []
+      }
       achievement_progress: {
         Row: {
           achievement_type: string
@@ -94,6 +133,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      ad_conversions: {
+        Row: {
+          conversion_type: string
+          conversion_value: number | null
+          created_at: string
+          id: string
+          user_id: string | null
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
+        }
+        Insert: {
+          conversion_type: string
+          conversion_value?: number | null
+          created_at?: string
+          id?: string
+          user_id?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+        }
+        Update: {
+          conversion_type?: string
+          conversion_value?: number | null
+          created_at?: string
+          id?: string
+          user_id?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+        }
+        Relationships: []
       }
       add_on_purchases: {
         Row: {
