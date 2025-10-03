@@ -241,6 +241,23 @@ export default function Admin() {
               </div>
             </Card>
           </div>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer mt-4" onClick={() => navigate("/admin/launch-readiness")}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Rocket className="h-5 w-5" />
+                Launch Readiness
+              </CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                System health, performance metrics, and launch checklist
+              </p>
+            </CardHeader>
+            <CardContent>
+              <Button className="w-full">
+                Check System Status
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </AdminLayout>
       <AdminMixxBot />
