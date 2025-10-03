@@ -6,7 +6,8 @@ import { AdminLayout } from '@/components/admin/AdminLayout';
 import { NotificationTestPanel } from '@/components/admin/NotificationTestPanel';
 import AdminMixxBot from '@/components/admin/AdminMixxBot';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Music, FileAudio, TrendingUp } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Users, Music, FileAudio, TrendingUp, Rocket, TestTube2 } from 'lucide-react';
 
 export default function Admin() {
   const { user, loading } = useAuth();
@@ -78,6 +79,51 @@ export default function Admin() {
           </div>
 
           <NotificationTestPanel />
+
+          {/* Launch Readiness Test */}
+          <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-purple-500/5">
+            <CardHeader>
+              <div className="flex items-start justify-between">
+                <div>
+                  <CardTitle className="text-xl flex items-center gap-2">
+                    <Rocket className="w-6 h-6" />
+                    $50M Launch System
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Comprehensive readiness test for all launch systems
+                  </p>
+                </div>
+                <Button 
+                  onClick={() => navigate('/admin/launch-readiness')}
+                  size="lg"
+                  className="gap-2"
+                >
+                  <TestTube2 className="w-5 h-5" />
+                  Run Tests
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                  <span>Database Tables</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                  <span>Edge Functions</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                  <span>Analytics</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                  <span>A/B Testing</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card>
