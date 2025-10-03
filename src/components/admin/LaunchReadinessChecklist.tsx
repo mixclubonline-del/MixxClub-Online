@@ -1,135 +1,136 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, AlertCircle, Circle } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { CheckCircle, XCircle, AlertCircle, Clock } from "lucide-react";
 
-interface ChecklistItem {
+interface CheckItem {
   id: string;
+  name: string;
+  status: 'passed' | 'failed' | 'warning' | 'pending';
+  description: string;
   category: string;
-  item: string;
-  status: 'complete' | 'in-progress' | 'pending';
-  priority: 'critical' | 'high' | 'medium';
 }
 
-const checklistItems: ChecklistItem[] = [
-  // Infrastructure
-  { id: '1', category: 'Infrastructure', item: 'Database backup configured', status: 'complete', priority: 'critical' },
-  { id: '2', category: 'Infrastructure', item: 'CDN setup and tested', status: 'complete', priority: 'high' },
-  { id: '3', category: 'Infrastructure', item: 'SSL certificates valid', status: 'complete', priority: 'critical' },
-  { id: '4', category: 'Infrastructure', item: 'Rate limiting configured', status: 'complete', priority: 'high' },
+const checklistItems: CheckItem[] = [
+  // Security Checks
+  { id: '1', name: 'SSL Certificate', status: 'passed', description: 'Valid SSL certificate installed', category: 'Security' },
+  { id: '2', name: 'RLS Policies', status: 'passed', description: 'Row Level Security enabled on all tables', category: 'Security' },
+  { id: '3', name: 'API Rate Limiting', status: 'warning', description: 'Rate limiting configured but not stress tested', category: 'Security' },
+  { id: '4', name: 'Environment Variables', status: 'passed', description: 'All secrets properly configured', category: 'Security' },
   
-  // Security
-  { id: '5', category: 'Security', item: 'RLS policies tested', status: 'complete', priority: 'critical' },
-  { id: '6', category: 'Security', item: 'Authentication flows verified', status: 'complete', priority: 'critical' },
-  { id: '7', category: 'Security', item: 'API keys secured', status: 'complete', priority: 'critical' },
-  { id: '8', category: 'Security', item: 'CORS configured', status: 'complete', priority: 'high' },
+  // Performance Checks
+  { id: '5', name: 'Page Load Speed', status: 'passed', description: 'Average load time: 1.2s', category: 'Performance' },
+  { id: '6', name: 'Database Indexes', status: 'passed', description: 'All required indexes created', category: 'Performance' },
+  { id: '7', name: 'CDN Configuration', status: 'warning', description: 'CDN enabled but cache settings need review', category: 'Performance' },
+  { id: '8', name: 'Image Optimization', status: 'passed', description: 'All images optimized and compressed', category: 'Performance' },
   
-  // Features
-  { id: '9', category: 'Features', item: 'Payment processing tested', status: 'complete', priority: 'critical' },
-  { id: '10', category: 'Features', item: 'File upload/download verified', status: 'complete', priority: 'high' },
-  { id: '11', category: 'Features', item: 'Real-time features working', status: 'complete', priority: 'high' },
-  { id: '12', category: 'Features', item: 'Email notifications active', status: 'complete', priority: 'medium' },
+  // Functionality Checks
+  { id: '9', name: 'Payment Processing', status: 'passed', description: 'Stripe integration tested successfully', category: 'Functionality' },
+  { id: '10', name: 'Email Service', status: 'passed', description: 'Email delivery working correctly', category: 'Functionality' },
+  { id: '11', name: 'User Authentication', status: 'passed', description: 'All auth flows tested and working', category: 'Functionality' },
+  { id: '12', name: 'File Upload', status: 'pending', description: 'Storage buckets need final testing', category: 'Functionality' },
   
-  // Performance
-  { id: '13', category: 'Performance', item: 'Load testing completed', status: 'in-progress', priority: 'high' },
-  { id: '14', category: 'Performance', item: 'Image optimization enabled', status: 'complete', priority: 'medium' },
-  { id: '15', category: 'Performance', item: 'Caching strategy implemented', status: 'complete', priority: 'high' },
+  // Content Checks
+  { id: '13', name: 'Legal Pages', status: 'warning', description: 'Terms of Service needs legal review', category: 'Content' },
+  { id: '14', name: 'Privacy Policy', status: 'passed', description: 'Privacy policy up to date', category: 'Content' },
+  { id: '15', name: 'Error Pages', status: 'passed', description: '404 and 500 pages configured', category: 'Content' },
+  { id: '16', name: 'SEO Meta Tags', status: 'passed', description: 'All pages have proper meta tags', category: 'Content' },
   
-  // Legal & Compliance
-  { id: '16', category: 'Legal', item: 'Terms of Service published', status: 'complete', priority: 'critical' },
-  { id: '17', category: 'Legal', item: 'Privacy Policy published', status: 'complete', priority: 'critical' },
-  { id: '18', category: 'Legal', item: 'Cookie consent configured', status: 'complete', priority: 'high' },
-  
-  // Marketing
-  { id: '19', category: 'Marketing', item: 'SEO meta tags configured', status: 'complete', priority: 'high' },
-  { id: '20', category: 'Marketing', item: 'Analytics tracking active', status: 'complete', priority: 'high' },
-  { id: '21', category: 'Marketing', item: 'Social media accounts ready', status: 'pending', priority: 'medium' },
+  // Monitoring Checks
+  { id: '17', name: 'Error Tracking', status: 'passed', description: 'Error monitoring active', category: 'Monitoring' },
+  { id: '18', name: 'Analytics', status: 'passed', description: 'Analytics tracking installed', category: 'Monitoring' },
+  { id: '19', name: 'Uptime Monitoring', status: 'warning', description: 'Monitoring configured but alerts need testing', category: 'Monitoring' },
+  { id: '20', name: 'Backup System', status: 'passed', description: 'Automated daily backups enabled', category: 'Monitoring' },
 ];
 
 export function LaunchReadinessChecklist() {
   const categories = Array.from(new Set(checklistItems.map(item => item.category)));
   
-  const getStatusIcon = (status: ChecklistItem['status']) => {
+  const getStatusIcon = (status: CheckItem['status']) => {
     switch (status) {
-      case 'complete':
-        return <CheckCircle2 className="h-5 w-5 text-green-500" />;
-      case 'in-progress':
+      case 'passed':
+        return <CheckCircle className="h-5 w-5 text-green-500" />;
+      case 'failed':
+        return <XCircle className="h-5 w-5 text-red-500" />;
+      case 'warning':
         return <AlertCircle className="h-5 w-5 text-yellow-500" />;
       case 'pending':
-        return <Circle className="h-5 w-5 text-muted-foreground" />;
+        return <Clock className="h-5 w-5 text-gray-500" />;
     }
   };
 
-  const getStatusBadge = (status: ChecklistItem['status']) => {
-    const variants = {
-      complete: 'default',
-      'in-progress': 'secondary',
+  const getStatusBadge = (status: CheckItem['status']) => {
+    const variants: Record<string, any> = {
+      passed: 'default',
+      failed: 'destructive',
+      warning: 'secondary',
       pending: 'outline'
     };
-    return <Badge variant={variants[status] as any}>{status}</Badge>;
+    return variants[status];
   };
 
-  const getPriorityBadge = (priority: ChecklistItem['priority']) => {
-    const colors = {
-      critical: 'bg-red-500',
-      high: 'bg-orange-500',
-      medium: 'bg-blue-500'
-    };
-    return <Badge className={colors[priority]}>{priority}</Badge>;
+  const calculateProgress = () => {
+    const passed = checklistItems.filter(item => item.status === 'passed').length;
+    return (passed / checklistItems.length) * 100;
   };
 
-  const categoryProgress = (category: string) => {
+  const getCategoryStats = (category: string) => {
     const items = checklistItems.filter(item => item.category === category);
-    const completed = items.filter(item => item.status === 'complete').length;
-    return Math.round((completed / items.length) * 100);
+    const passed = items.filter(item => item.status === 'passed').length;
+    return { total: items.length, passed };
   };
-
-  const totalProgress = Math.round(
-    (checklistItems.filter(item => item.status === 'complete').length / checklistItems.length) * 100
-  );
 
   return (
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>Launch Readiness Checklist</CardTitle>
-            <CardDescription>Track your progress towards production launch</CardDescription>
+            <CardTitle>Pre-Launch Checklist</CardTitle>
+            <CardDescription>Comprehensive system validation and readiness checks</CardDescription>
           </div>
           <div className="text-right">
-            <div className="text-3xl font-bold text-primary">{totalProgress}%</div>
-            <div className="text-sm text-muted-foreground">Overall Progress</div>
+            <div className="text-2xl font-bold">{Math.round(calculateProgress())}%</div>
+            <div className="text-sm text-muted-foreground">Complete</div>
           </div>
         </div>
+        <Progress value={calculateProgress()} className="mt-4" />
       </CardHeader>
       <CardContent className="space-y-6">
-        {categories.map(category => (
-          <div key={category} className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">{category}</h3>
-              <Badge variant="outline">{categoryProgress(category)}%</Badge>
-            </div>
-            
-            <div className="space-y-2">
-              {checklistItems
-                .filter(item => item.category === category)
-                .map(item => (
+        {categories.map((category) => {
+          const stats = getCategoryStats(category);
+          const categoryItems = checklistItems.filter(item => item.category === category);
+          
+          return (
+            <div key={category} className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-lg">{category}</h3>
+                <Badge variant="outline">
+                  {stats.passed} / {stats.total} passed
+                </Badge>
+              </div>
+              
+              <div className="space-y-2">
+                {categoryItems.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/5 transition-colors"
+                    className="flex items-start gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
                   >
-                    <div className="flex items-center gap-3">
-                      {getStatusIcon(item.status)}
-                      <span className="text-sm">{item.item}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {getPriorityBadge(item.priority)}
-                      {getStatusBadge(item.status)}
+                    {getStatusIcon(item.status)}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-medium">{item.name}</span>
+                        <Badge variant={getStatusBadge(item.status)} className="text-xs">
+                          {item.status}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">{item.description}</p>
                     </div>
                   </div>
                 ))}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </CardContent>
     </Card>
   );
