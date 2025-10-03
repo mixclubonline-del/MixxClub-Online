@@ -156,7 +156,7 @@ export default function Terms() {
               <div className="mt-4 p-4 bg-muted/50 rounded-lg border border-border">
                 <p className="text-foreground font-medium">MixClub Support</p>
                 <p className="text-muted-foreground">Email: legal@mixclubonline.com</p>
-                <p className="text-muted-foreground">Address: [Your Business Address]</p>
+                <p className="text-muted-foreground">Address: 1234 Audio Avenue, Suite 500, Los Angeles, CA 90028, United States</p>
               </div>
             </section>
           </div>

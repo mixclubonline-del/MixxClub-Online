@@ -56,6 +56,7 @@ import ComingSoon from "./pages/ComingSoon";
 import FAQ from "./pages/FAQ";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
+import Settings from "./pages/Settings";
 // Lazy load all admin pages for better performance
 const AdminUsers = React.lazy(() => import("./pages/AdminUsers"));
 const AdminAudio = React.lazy(() => import('./pages/AdminAudio'));
@@ -129,6 +130,7 @@ import { PersistentChatbot } from "@/components/PersistentChatbot";
 import { AppLayout } from "@/components/layouts/AppLayout";
 import { DashboardSkeleton } from "@/components/ui/loading-skeleton";
 import { PerformanceMonitor } from "@/components/PerformanceMonitor";
+import { CookieConsent } from "@/components/legal/CookieConsent";
 
 // App content wrapper for analytics tracking
 const AppContent = () => {
@@ -198,6 +200,7 @@ const AppContent = () => {
             <Route path="/faq" element={<FAQ />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
+            <Route path="/settings" element={<AppLayout><Settings /></AppLayout>} />
             
             {/* Mobile Routes */}
           <Route path="/mobile-home" element={<MobileHome />} />
@@ -280,6 +283,7 @@ const App = () => (
             <PersistentChatbot />
             <PWAInstallPrompt />
             <PerformanceMonitor />
+            <CookieConsent />
           </ErrorBoundary>
         </AuthProvider>
       </BrowserRouter>

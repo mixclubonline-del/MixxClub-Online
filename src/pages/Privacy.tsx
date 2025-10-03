@@ -200,7 +200,7 @@ export default function Privacy() {
               <div className="mt-4 p-4 bg-muted/50 rounded-lg border border-border">
                 <p className="text-foreground font-medium">MixClub Privacy Team</p>
                 <p className="text-muted-foreground">Email: privacy@mixclubonline.com</p>
-                <p className="text-muted-foreground">Address: [Your Business Address]</p>
+                <p className="text-muted-foreground">Address: 1234 Audio Avenue, Suite 500, Los Angeles, CA 90028, United States</p>
               </div>
             </section>
           </div>
