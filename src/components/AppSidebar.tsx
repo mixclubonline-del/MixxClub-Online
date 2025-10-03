@@ -10,18 +10,15 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarHeader,
-  SidebarFooter,
   useSidebar,
 } from '@/components/ui/sidebar';
 import { getNavigationForRole, UserRole } from '@/config/navigationConfig';
 import mixclub3DLogo from '@/assets/mixclub-3d-logo.png';
-import { Button } from '@/components/ui/button';
-import { LogOut } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 export function AppSidebar() {
   const location = useLocation();
-  const { userRole, signOut, user } = useAuth();
+  const { userRole } = useAuth();
   const { state } = useSidebar();
   const isCollapsed = state === 'collapsed';
 
@@ -117,18 +114,6 @@ export function AppSidebar() {
         ))}
       </SidebarContent>
 
-      {user && (
-        <SidebarFooter className="border-t border-sidebar-border p-4">
-          <Button
-            variant="ghost"
-            onClick={signOut}
-            className="w-full justify-start gap-3 hover:bg-destructive/10 hover:text-destructive"
-          >
-            <LogOut className="h-5 w-5" />
-            {!isCollapsed && <span>Sign Out</span>}
-          </Button>
-        </SidebarFooter>
-      )}
     </Sidebar>
   );
 }
