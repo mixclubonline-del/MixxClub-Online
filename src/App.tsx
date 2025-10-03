@@ -97,6 +97,8 @@ import ContentManagement from "@/pages/ContentManagement";
 import PlatformConfiguration from "@/pages/PlatformConfiguration";
 import UserManagement from "@/pages/UserManagement";
 import SystemMonitoring from "@/pages/SystemMonitoring";
+import AuditCompliance from "@/pages/AuditCompliance";
+import BackupRecovery from "@/pages/BackupRecovery";
 import AdminSecurityCenter from './pages/AdminSecurityCenter';
 import AdminLaunchControl from './pages/AdminLaunchControl';
 import PresentationShare from './pages/PresentationShare';
