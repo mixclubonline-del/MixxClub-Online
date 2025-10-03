@@ -5125,6 +5125,7 @@ export type Database = {
           full_name: string | null
           id: string
           level: number | null
+          notification_preferences: Json | null
           points: number | null
           role: Database["public"]["Enums"]["user_role"] | null
           stripe_connect_account_id: string | null
@@ -5138,6 +5139,7 @@ export type Database = {
           full_name?: string | null
           id: string
           level?: number | null
+          notification_preferences?: Json | null
           points?: number | null
           role?: Database["public"]["Enums"]["user_role"] | null
           stripe_connect_account_id?: string | null
@@ -5151,6 +5153,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           level?: number | null
+          notification_preferences?: Json | null
           points?: number | null
           role?: Database["public"]["Enums"]["user_role"] | null
           stripe_connect_account_id?: string | null
