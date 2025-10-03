@@ -1,6 +1,8 @@
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { UserManagement } from '@/components/admin/UserManagement';
 import { RefundManager } from '@/components/admin/RefundManager';
+import { SecurityMonitorDashboard } from '@/components/admin/SecurityMonitorDashboard';
+import { SystemHealthDashboard } from '@/components/admin/SystemHealthDashboard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Users, DollarSign, Activity, Shield } from 'lucide-react';
 
@@ -44,15 +46,11 @@ export default function AdminControl() {
           </TabsContent>
 
           <TabsContent value="security">
-            <div className="text-center py-12 text-muted-foreground">
-              Security monitor coming soon
-            </div>
+            <SecurityMonitorDashboard />
           </TabsContent>
 
           <TabsContent value="system">
-            <div className="text-center py-12 text-muted-foreground">
-              System health monitor coming soon
-            </div>
+            <SystemHealthDashboard />
           </TabsContent>
         </Tabs>
       </div>
