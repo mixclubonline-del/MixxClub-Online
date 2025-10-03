@@ -9,7 +9,7 @@ import { MobileDeploymentChecklist } from '@/components/admin/MobileDeploymentCh
 import { PerformanceOptimizer } from '@/components/admin/PerformanceOptimizer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, Music, FileAudio, TrendingUp, Rocket, TestTube2, Zap, CheckCircle, Bot, Shield, Smartphone, Sparkles, Activity, AlertTriangle, FileText, Target, DollarSign, Eye } from 'lucide-react';
+import { Users, Music, FileAudio, TrendingUp, Rocket, TestTube2, Zap, CheckCircle, Bot, Shield, Smartphone, Sparkles, Activity, AlertTriangle, FileText, Target, DollarSign, Eye, Megaphone } from 'lucide-react';
 
 export default function Admin() {
   const { user, loading } = useAuth();
@@ -229,6 +229,15 @@ export default function Admin() {
                   <Eye className="h-5 w-5 text-white" />
                 </div>
                 <h3 className="font-bold">UX Optimization</h3>
+              </div>
+            </Card>
+
+            <Card className="p-6 hover:shadow-lg transition-all cursor-pointer group bg-gradient-to-br from-indigo-50 to-violet-50 dark:from-indigo-950/20 dark:to-violet-950/20" onClick={() => navigate('/admin/marketing')}>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600">
+                  <Megaphone className="h-5 w-5 text-white" />
+                </div>
+                <h3 className="font-bold">Marketing & Growth</h3>
               </div>
             </Card>
           </div>
