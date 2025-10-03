@@ -10,6 +10,10 @@ import { TierShowcase } from "@/components/home/TierShowcase";
 import { RecentSuccesses } from "@/components/RecentSuccesses";
 import { ExitIntentPopup } from "@/components/home/ExitIntentPopup";
 import { LiveNotifications } from "@/components/home/LiveNotifications";
+import { ScarcityTimer } from "@/components/home/ScarcityTimer";
+import { EngineerAvailability } from "@/components/home/EngineerAvailability";
+import { ComparisonTable } from "@/components/home/ComparisonTable";
+import { BulkPricingSection } from "@/components/home/BulkPricingSection";
 import { useNavigate } from "react-router-dom";
 
 const Home = () => {
@@ -21,10 +25,14 @@ const Home = () => {
       <ExitIntentPopup />
       <LiveNotifications />
       <Hero />
+      <ScarcityTimer />
       <BeforeAfterComparison />
+      <EngineerAvailability />
       <InstantDemoSection />
       <ValueProposition />
+      <ComparisonTable />
       <PackageBuilder />
+      <BulkPricingSection />
       <SubscriptionCTA />
       <LiveActivityFeed />
       <TierShowcase />

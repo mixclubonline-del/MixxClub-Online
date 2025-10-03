@@ -2,6 +2,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { Link } from "react-router-dom";
+import { ComparisonTable } from "./home/ComparisonTable";
+import { BulkPricingSection } from "./home/BulkPricingSection";
+import { ScarcityTimer } from "./home/ScarcityTimer";
 
 const Pricing = () => {
   return (
@@ -221,6 +224,15 @@ const Pricing = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Scarcity Timer */}
+        <ScarcityTimer />
+
+        {/* Comparison Table */}
+        <ComparisonTable />
+
+        {/* Bulk Pricing */}
+        <BulkPricingSection />
 
         {/* Value Proposition Section */}
         <div className="max-w-4xl mx-auto">
