@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Music, DollarSign, Radio, Star } from 'lucide-react';
+import { Music, DollarSign, Radio, Star, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface SmartBudgetQualifierProps {
   open: boolean;
@@ -18,6 +20,20 @@ interface QualifierData {
   genre: string;
 }
 
+interface EngineerMatch {
+  engineerId: string;
+  engineerName: string;
+  avatarUrl?: string;
+  specialties: string[];
+  experience: number;
+  rating: number;
+  totalReviews: number;
+  hourlyRate: number;
+  matchScore: number;
+  matchingGenres: string[];
+  portfolioLinks: any[];
+}
+
 const projectTypes = [
   { value: 'single', label: 'Single track', discount: '' },
   { value: 'ep', label: 'EP (3-5 tracks)', discount: 'Save 15%' },
@@ -26,9 +42,11 @@ const projectTypes = [
 ];
 
 const budgetRanges = [
-  { value: 'starter', label: 'Under $50', tier: 'Starter', recommended: false },
-  { value: 'professional', label: '$50-$100', tier: 'Professional', recommended: true },
-  { value: 'premium', label: '$100+', tier: 'Premium', recommended: false },
+  { value: 'under-50', label: 'Under $50', tier: 'Starter', recommended: false },
+  { value: '50-100', label: '$50-$100', tier: 'Professional', recommended: true },
+  { value: '100-300', label: '$100-$300', tier: 'Pro', recommended: false },
+  { value: '300-500', label: '$300-$500', tier: 'Premium', recommended: false },
+  { value: '500+', label: '$500+', tier: 'Elite', recommended: false },
   { value: 'unsure', label: 'Not sure', tier: '', recommended: false },
 ];
 
@@ -41,38 +59,6 @@ const genres = [
   'Other',
 ];
 
-const mockEngineerMatches = [
-  {
-    id: 1,
-    name: 'Alex Rivera',
-    tier: 'Professional',
-    matchScore: 92,
-    rating: 4.9,
-    reviews: 127,
-    price: 79,
-    specialty: 'Hip-Hop/Rap',
-  },
-  {
-    id: 2,
-    name: 'Jordan Chen',
-    tier: 'Professional',
-    matchScore: 88,
-    rating: 4.8,
-    reviews: 95,
-    price: 85,
-    specialty: 'Pop/R&B',
-  },
-  {
-    id: 3,
-    name: 'Taylor Morgan',
-    tier: 'Premium',
-    matchScore: 85,
-    rating: 5.0,
-    reviews: 203,
-    price: 149,
-    specialty: 'Multiple genres',
-  },
-];
 
 export const SmartBudgetQualifier = ({ open, onOpenChange }: SmartBudgetQualifierProps) => {
   const [step, setStep] = useState(1);
@@ -81,15 +67,53 @@ export const SmartBudgetQualifier = ({ open, onOpenChange }: SmartBudgetQualifie
     budget: '',
     genre: '',
   });
+  const [matches, setMatches] = useState<EngineerMatch[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  // Fetch matches when we reach step 4
+  useEffect(() => {
+    if (step === 4 && data.budget && data.genre) {
+      fetchMatches();
+    }
+  }, [step]);
+
+  const fetchMatches = async () => {
+    setIsLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const response = await supabase.functions.invoke('match-engineers', {
+        body: {
+          budgetRange: data.budget,
+          genres: [data.genre],
+          projectType: data.projectType,
+        },
+        headers: session ? { Authorization: `Bearer ${session.access_token}` } : {},
+      });
+
+      if (response.error) throw response.error;
+      
+      setMatches(response.data.matches || []);
+      
+      // Store matcher data and engineer IDs in localStorage
+      localStorage.setItem('qualifierData', JSON.stringify({
+        ...data,
+        matchedEngineers: response.data.matches.map((m: EngineerMatch) => m.engineerId),
+      }));
+    } catch (error) {
+      console.error('Error fetching matches:', error);
+      toast.error('Failed to find matches. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleNext = () => {
     if (step < 4) setStep(step + 1);
   };
 
   const handleComplete = () => {
-    // Store in localStorage for later use
-    localStorage.setItem('qualifierData', JSON.stringify(data));
     onOpenChange(false);
     navigate('/auth');
   };
@@ -238,50 +262,68 @@ export const SmartBudgetQualifier = ({ open, onOpenChange }: SmartBudgetQualifie
               exit={{ opacity: 0, x: -20 }}
               className="space-y-4"
             >
-              <div className="text-center mb-6">
-                <h3 className="text-2xl font-bold mb-2">We found 8 engineers perfect for you!</h3>
-                <p className="text-muted-foreground">Here are your top 3 matches based on your preferences</p>
-              </div>
+              {isLoading ? (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
+                  <p className="text-lg font-medium">Finding your perfect engineer matches...</p>
+                  <p className="text-sm text-muted-foreground">Analyzing {data.budget} budget • {data.genre} • {data.projectType}</p>
+                </div>
+              ) : (
+                <>
+                  <div className="text-center mb-6">
+                    <h3 className="text-2xl font-bold mb-2">We found {matches.length} engineers perfect for you!</h3>
+                    <p className="text-muted-foreground">Here are your top matches based on your preferences</p>
+                  </div>
 
-              <div className="space-y-4">
-                {mockEngineerMatches.map((engineer) => (
-                  <Card key={engineer.id} className="p-6 hover:border-primary transition-all">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex items-start gap-4 flex-1">
-                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-purple-600" />
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h4 className="font-bold text-lg">{engineer.name}</h4>
-                            <Badge variant="secondary">{engineer.tier}</Badge>
-                          </div>
-                          <div className="flex items-center gap-2 mb-2">
-                            <div className="flex items-center gap-1">
-                              <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                              <span className="font-medium">{engineer.rating}</span>
+                  <div className="space-y-4 max-h-[400px] overflow-y-auto">
+                    {matches.slice(0, 3).map((engineer) => (
+                      <Card key={engineer.engineerId} className="p-6 hover:border-primary transition-all">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex items-start gap-4 flex-1">
+                            <div 
+                              className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-purple-600 bg-cover bg-center"
+                              style={engineer.avatarUrl ? { backgroundImage: `url(${engineer.avatarUrl})` } : {}}
+                            />
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <h4 className="font-bold text-lg">{engineer.engineerName}</h4>
+                                {engineer.experience > 0 && (
+                                  <Badge variant="secondary">{engineer.experience}+ years</Badge>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2 mb-2">
+                                <div className="flex items-center gap-1">
+                                  <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                                  <span className="font-medium">{engineer.rating.toFixed(1)}</span>
+                                </div>
+                                <span className="text-sm text-muted-foreground">({engineer.totalReviews} reviews)</span>
+                                <Badge className="bg-green-500/10 text-green-700 dark:text-green-400">
+                                  {engineer.matchScore}% Match
+                                </Badge>
+                              </div>
+                              <p className="text-sm text-muted-foreground">
+                                Specialties: {engineer.specialties.slice(0, 2).join(', ')}
+                                {engineer.specialties.length > 2 && ` +${engineer.specialties.length - 2} more`}
+                              </p>
                             </div>
-                            <span className="text-sm text-muted-foreground">({engineer.reviews} reviews)</span>
-                            <Badge className="bg-green-500/10 text-green-700 dark:text-green-400">
-                              {engineer.matchScore}% Match
-                            </Badge>
                           </div>
-                          <p className="text-sm text-muted-foreground">Specialty: {engineer.specialty}</p>
+                          <div className="text-right">
+                            <p className="text-2xl font-bold">${engineer.hourlyRate}</p>
+                            <p className="text-sm text-muted-foreground">per track</p>
+                          </div>
                         </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-2xl font-bold">${engineer.price}</p>
-                        <p className="text-sm text-muted-foreground">per track</p>
-                      </div>
-                    </div>
-                  </Card>
-                ))}
-              </div>
+                      </Card>
+                    ))}
+                  </div>
 
-              <Button onClick={handleComplete} className="w-full" size="lg">
-                Create Account to Book Your Engineer
-              </Button>
-              <p className="text-center text-sm text-muted-foreground">
-                Already have an account? <a href="/auth" className="text-primary hover:underline">Sign in</a>
-              </p>
+                  <Button onClick={handleComplete} className="w-full" size="lg">
+                    Create Account to View All {matches.length} Matches
+                  </Button>
+                  <p className="text-center text-sm text-muted-foreground">
+                    Already have an account? <a href="/auth" className="text-primary hover:underline">Sign in</a>
+                  </p>
+                </>
+              )}
             </motion.div>
           )}
         </AnimatePresence>

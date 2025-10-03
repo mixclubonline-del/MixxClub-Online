@@ -33,6 +33,7 @@ import { DynamicAppAccessHub } from '@/components/crm/DynamicAppAccessHub';
 import { ActiveWorkHub } from '@/components/crm/ActiveWorkHub';
 import { DashboardHub } from '@/components/crm/DashboardHub';
 import { OpportunitiesHub } from '@/components/crm/OpportunitiesHub';
+import { YourMatches } from '@/components/crm/YourMatches';
 
 const ArtistCRM = () => {
   const { user } = useAuth();
@@ -297,6 +298,9 @@ const ArtistCRM = () => {
 
   const renderContent = () => {
     switch (currentTab) {
+      case 'matches':
+        return <YourMatches />;
+        
       case 'active-work':
         return <ActiveWorkHub userRole="client" onStartSession={() => navigate('/artist-studio')} />;
 
