@@ -101,7 +101,7 @@ const Mixing = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button className="w-full" onClick={() => window.location.href = '/auth'}>
+            <Button className="w-full" onClick={() => { const a = document.createElement('a'); a.href = '/auth'; a.click(); }}>
               Sign In
             </Button>
           </CardContent>

@@ -137,18 +137,30 @@ export const RealTimeCollaboration = () => {
       )
       .subscribe();
 
-    // Simulate online users (in a real app, this would be tracked in the database)
-    const simulateOnlineUsers = () => {
-      const mockUsers: OnlineUser[] = [
-        { id: '1', full_name: 'MixMaster AI', status: 'working', current_project: 'Dark Nights Mix' },
-        { id: '2', full_name: 'BeatCrafter Pro', status: 'online' },
-        { id: '3', full_name: 'VocalQueen', status: 'working', current_project: 'Summer Vibes' },
-        { id: '4', full_name: 'SoundWeaver', status: 'away' },
-      ];
-      setOnlineUsers(mockUsers);
+    // Load real online users from session participants
+    const loadOnlineUsers = async () => {
+      const { data } = await supabase
+        .from('session_participants')
+        .select(`
+          user_id,
+          profiles!inner(id, full_name),
+          collaboration_sessions!inner(session_name, status)
+        `)
+        .eq('is_active', true)
+        .limit(10);
+
+      if (data) {
+        const users: OnlineUser[] = data.map((p: any) => ({
+          id: p.user_id,
+          full_name: p.profiles.full_name || 'Anonymous',
+          status: 'working' as const,
+          current_project: p.collaboration_sessions.session_name
+        }));
+        setOnlineUsers(users);
+      }
     };
 
-    simulateOnlineUsers();
+    loadOnlineUsers();
 
     return () => {
       supabase.removeChannel(activityChannel);

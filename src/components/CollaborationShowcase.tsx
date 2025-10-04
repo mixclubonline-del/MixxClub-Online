@@ -1,17 +1,44 @@
 import { useState, useEffect } from 'react';
 import { Music, Users, Zap, MessageCircle, Upload, Clock } from 'lucide-react';
-
-const mockActivities = [
-  { id: 1, type: 'upload', user: 'Ravenous Prime', action: 'uploaded new track', track: 'Dark Nights.wav', time: '2s ago', avatar: '🎤' },
-  { id: 2, type: 'comment', user: 'MixMaster AI', action: 'added mixing notes', track: 'Dark Nights.wav', time: '5s ago', avatar: '🎧' },
-  { id: 3, type: 'task', user: 'BeatCrafter', action: 'completed EQ task', track: 'Summer Vibes.mp3', time: '12s ago', avatar: '🎛️' },
-  { id: 4, type: 'achievement', user: 'VocalQueen', action: 'earned "Perfectionist" badge', track: null, time: '18s ago', avatar: '👑' },
-  { id: 5, type: 'collaboration', user: 'SoundWeaver', action: 'joined collaboration', track: 'Epic Drop.wav', time: '25s ago', avatar: '🔥' },
-];
+import { supabase } from '@/integrations/supabase/client';
 
 export const CollaborationShowcase = () => {
-  const [activities, setActivities] = useState(mockActivities);
-  const [activeUsers, setActiveUsers] = useState(47);
+  const [activities, setActivities] = useState<any[]>([]);
+  const [activeUsers, setActiveUsers] = useState(0);
+
+  useEffect(() => {
+    const loadData = async () => {
+      // Load recent activities
+      const { data: notifications } = await supabase
+        .from('notifications')
+        .select('*')
+        .in('type', ['upload', 'comment', 'project_update'])
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      if (notifications) {
+        setActivities(notifications.map((n: any, i: number) => ({
+          id: i + 1,
+          type: n.type,
+          user: n.metadata?.user_name || 'User',
+          action: n.message,
+          track: n.metadata?.track_name || 'Track',
+          time: new Date(n.created_at).toLocaleTimeString(),
+          avatar: '🎵'
+        })));
+      }
+
+      // Count active users
+      const { count } = await supabase
+        .from('session_participants')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_active', true);
+
+      setActiveUsers(count || 0);
+    };
+
+    loadData();
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {

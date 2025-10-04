@@ -515,7 +515,7 @@ const HybridDAW = () => {
               <p className="text-muted-foreground">
                 Please sign in to access the Hybrid AI DAW.
               </p>
-              <Button className="w-full" onClick={() => window.location.href = '/auth'}>
+              <Button className="w-full" onClick={() => { const a = document.createElement('a'); a.href = '/auth'; a.click(); }}>
                 Sign In
               </Button>
             </div>

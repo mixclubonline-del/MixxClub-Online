@@ -40,7 +40,12 @@ class AdminErrorBoundaryComponent extends Component<Props, State> {
     if (this.props.navigate) {
       this.props.navigate('/admin');
     } else {
-      window.location.href = '/admin';
+      const navigate = () => {
+        const a = document.createElement('a');
+        a.href = '/admin';
+        a.click();
+      };
+      navigate();
     }
   };
 

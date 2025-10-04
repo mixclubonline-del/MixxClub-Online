@@ -71,7 +71,7 @@ const MobileLanding = () => {
           <Button 
             variant="outline"
             className="h-12"
-            onClick={() => window.location.href = '/engineer-onboarding'}
+            onClick={() => { const a = document.createElement('a'); a.href = '/engineer-onboarding'; a.click(); }}
           >
             ⚡ Join as Engineer
           </Button>

@@ -37,7 +37,12 @@ export class ErrorBoundary extends Component<Props, State> {
     if (this.props.navigate) {
       this.props.navigate('/');
     } else {
-      window.location.href = '/';
+      const navigate = () => {
+        const a = document.createElement('a');
+        a.href = '/';
+        a.click();
+      };
+      navigate();
     }
   };
 

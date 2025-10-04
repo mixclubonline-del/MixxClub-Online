@@ -38,12 +38,7 @@ const StudioHub = ({ userRole }: StudioHubProps) => {
     nextLevelXp: 5000,
     streak: 7
   });
-  const [liveActivity, setLiveActivity] = useState<string[]>([
-    '🎵 Sarah just started mixing "Summer Vibes"',
-    '🌍 New engineer joined from Tokyo',
-    '✨ "Midnight Dreams" mastering complete',
-    '🔥 5 sessions active worldwide',
-  ]);
+  const [liveActivity, setLiveActivity] = useState<string[]>([]);
 
   useEffect(() => {
     if (user) {
@@ -70,8 +65,57 @@ const StudioHub = ({ userRole }: StudioHubProps) => {
   };
 
   const loadStats = async () => {
-    // Load real stats from database
-    // For now using mock data
+    try {
+      // Load active sessions count
+      const { count: sessionsCount } = await supabase
+        .from('collaboration_sessions')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'active');
+
+      // Load completed projects
+      const column = userRole === 'artist' ? 'client_id' : 'engineer_id';
+      const { count: projectsCount } = await supabase
+        .from('projects')
+        .select('*', { count: 'exact', head: true })
+        .eq(column, user?.id)
+        .eq('status', 'completed');
+
+      // Load online collaborators
+      const { count: collaboratorsCount } = await supabase
+        .from('session_participants')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_active', true);
+
+      // Load user profile for gamification
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('level, points')
+        .eq('id', user?.id)
+        .single();
+
+      // Load recent activity
+      const { data: notifications } = await supabase
+        .from('notifications')
+        .select('message, created_at')
+        .order('created_at', { ascending: false })
+        .limit(4);
+
+      setStats({
+        activeSessions: sessionsCount || 0,
+        completedProjects: projectsCount || 0,
+        totalCollaborators: collaboratorsCount || 0,
+        level: profile?.level || 1,
+        xp: profile?.points || 0,
+        nextLevelXp: ((profile?.level || 1) + 1) * 1000,
+        streak: 7 // TODO: Implement streak tracking
+      });
+
+      if (notifications) {
+        setLiveActivity(notifications.map(n => n.message));
+      }
+    } catch (error) {
+      console.error('Error loading stats:', error);
+    }
   };
 
   const actionCards = [

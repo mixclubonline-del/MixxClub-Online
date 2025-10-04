@@ -7,63 +7,28 @@ export const useLiveActivity = () => {
   const [filter, setFilter] = useState('all');
 
   useEffect(() => {
-    // Generate initial mock activities
-    const mockActivities = [
-      {
-        id: '1',
-        user: 'Sarah Chen',
-        avatar: null,
-        type: 'upload',
-        action: 'Uploaded new track for mixing',
-        projectName: 'Summer Vibes EP',
-        time: 'just now',
-        isLive: true
-      },
-      {
-        id: '2',
-        user: 'Mike Rodriguez',
-        avatar: null,
-        type: 'mix',
-        action: 'Completed mixing session',
-        projectName: 'Urban Beats',
-        time: '2 min ago',
-        isLive: false
-      },
-      {
-        id: '3',
-        user: 'Alex Kim',
-        avatar: null,
-        type: 'collaboration',
-        action: 'Started collaboration with engineer',
-        projectName: 'Acoustic Dreams',
-        time: '5 min ago',
-        isLive: true
-      },
-      {
-        id: '4',
-        user: 'Emma Wilson',
-        avatar: null,
-        type: 'achievement',
-        action: 'Unlocked "Speed Demon" achievement',
-        projectName: null,
-        time: '10 min ago',
-        isLive: false
-      },
-      {
-        id: '5',
-        user: 'James Taylor',
-        avatar: null,
-        type: 'session',
-        action: 'Joined live mixing session',
-        projectName: 'Rock Anthems',
-        time: '15 min ago',
-        isLive: true
+    // Load real activities from notifications
+    const loadActivities = async () => {
+      const { data } = await supabase
+        .from('notifications')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(10);
+      
+      if (data) {
+        setActivities(data.map((n: any) => ({
+          id: n.id,
+          type: n.type,
+          user: n.metadata?.user_name || 'User',
+          message: n.message,
+          timestamp: n.created_at
+        })));
       }
-    ];
+    };
 
-    setActivities(mockActivities);
+    loadActivities();
 
-    // Simulate real-time updates
+    // Subscribe to real-time updates
     const interval = setInterval(() => {
       const newActivity = {
         id: Date.now().toString(),
