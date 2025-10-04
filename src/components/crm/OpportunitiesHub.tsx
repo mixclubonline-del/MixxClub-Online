@@ -8,6 +8,7 @@ import {
   Music, TrendingUp, Award, Users, Play, Star
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useOpportunities, useOpportunityAction, useMatchAnalytics } from "@/hooks/useOpportunities";
 
 interface OpportunitiesHubProps {
   userRole: "client" | "engineer";
@@ -18,55 +19,23 @@ export const OpportunitiesHub = ({ userRole }: OpportunitiesHubProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [swipeDirection, setSwipeDirection] = useState<"left" | "right" | null>(null);
 
-  const opportunities = [
-    {
-      id: 1,
-      title: "Hip-Hop Track Mixing",
-      artist: "Jay Rivers",
-      avatar: "",
-      location: "New York, US",
-      budget: "$500-800",
-      matchScore: 95,
-      skills: ["Hip-Hop", "Mixing", "Mastering"],
-      description: "Looking for an experienced engineer for my upcoming album",
-      urgency: "High",
-      responseTime: "4 hours",
-      rating: 4.8
-    },
-    {
-      id: 2,
-      title: "EDM Mastering Project",
-      artist: "Luna Beats",
-      avatar: "",
-      location: "Berlin, DE",
-      budget: "$300-500",
-      matchScore: 88,
-      skills: ["EDM", "Mastering", "Sound Design"],
-      description: "Need professional mastering for 3 tracks",
-      urgency: "Medium",
-      responseTime: "12 hours",
-      rating: 4.9
-    },
-    {
-      id: 3,
-      title: "Acoustic Album Production",
-      artist: "Sarah Williams",
-      avatar: "",
-      location: "London, UK",
-      budget: "$1000-1500",
-      matchScore: 92,
-      skills: ["Acoustic", "Production", "Mixing"],
-      description: "Full album production with 10 tracks",
-      urgency: "Low",
-      responseTime: "24 hours",
-      rating: 5.0
-    }
-  ];
+  const { data: opportunities = [], isLoading } = useOpportunities(userRole as 'artist' | 'engineer');
+  const { data: analytics } = useMatchAnalytics(userRole as 'artist' | 'engineer');
+  const { mutate: performAction } = useOpportunityAction();
 
   const currentOpportunity = opportunities[currentIndex];
 
   const handleSwipe = (direction: "left" | "right") => {
+    if (!currentOpportunity) return;
+    
     setSwipeDirection(direction);
+    
+    // Perform database action
+    performAction({
+      opportunityId: currentOpportunity.id,
+      action: direction === 'right' ? 'interested' : 'pass',
+      userRole: userRole as 'artist' | 'engineer'
+    });
     
     setTimeout(() => {
       if (direction === "right") {
@@ -84,6 +53,27 @@ export const OpportunitiesHub = ({ userRole }: OpportunitiesHubProps) => {
       setSwipeDirection(null);
     }, 500);
   };
+
+  if (isLoading) {
+    return (
+      <div className="text-center py-12">
+        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto" />
+        <p className="mt-4 text-muted-foreground">Loading opportunities...</p>
+      </div>
+    );
+  }
+
+  if (!opportunities.length) {
+    return (
+      <Card className="p-12 text-center">
+        <Sparkles className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+        <h3 className="text-xl font-semibold mb-2">No Opportunities Available</h3>
+        <p className="text-muted-foreground">
+          Check back later for new {userRole === 'engineer' ? 'jobs' : 'collaborations'}!
+        </p>
+      </Card>
+    );
+  }
 
   const getUrgencyColor = (urgency: string) => {
     switch (urgency) {
@@ -110,17 +100,17 @@ export const OpportunitiesHub = ({ userRole }: OpportunitiesHubProps) => {
       <div className="grid grid-cols-3 gap-6">
         <Card className="p-6 text-center hover:shadow-lg transition-all duration-300 hover:scale-105">
           <TrendingUp className="w-8 h-8 mx-auto mb-3 text-green-500" />
-          <p className="text-3xl font-bold">24</p>
+          <p className="text-3xl font-bold">{analytics?.matches || 0}</p>
           <p className="text-sm text-muted-foreground">Matches</p>
         </Card>
         <Card className="p-6 text-center hover:shadow-lg transition-all duration-300 hover:scale-105">
           <Users className="w-8 h-8 mx-auto mb-3 text-blue-500" />
-          <p className="text-3xl font-bold">12</p>
+          <p className="text-3xl font-bold">{analytics?.activeChats || 0}</p>
           <p className="text-sm text-muted-foreground">Active Chats</p>
         </Card>
         <Card className="p-6 text-center hover:shadow-lg transition-all duration-300 hover:scale-105">
           <Award className="w-8 h-8 mx-auto mb-3 text-purple-500" />
-          <p className="text-3xl font-bold">8</p>
+          <p className="text-3xl font-bold">{analytics?.completed || 0}</p>
           <p className="text-sm text-muted-foreground">Completed</p>
         </Card>
       </div>
@@ -189,9 +179,9 @@ export const OpportunitiesHub = ({ userRole }: OpportunitiesHubProps) => {
             <div>
               <p className="text-sm text-muted-foreground mb-2">Required Skills:</p>
               <div className="flex gap-2 flex-wrap">
-                {currentOpportunity.skills.map((skill, index) => (
+                {Array.isArray(currentOpportunity.skills) && currentOpportunity.skills.map((skill, index) => (
                   <Badge key={index} variant="outline">
-                    {skill}
+                    {String(skill)}
                   </Badge>
                 ))}
               </div>

@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Sparkles, AlertTriangle, Clock, Play, Music, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { useAIProjectRecommendations } from '@/hooks/useAIProjectRecommendations';
 
 interface ProjectCardProps {
   project: any;
@@ -138,41 +139,30 @@ const ProjectCard = ({ project, index }: ProjectCardProps) => {
 };
 
 export const AIProjectRecommender = () => {
-  // Mock data - replace with real data from hooks
-  const projects = [
-    {
-      name: 'Summer Vibes EP',
-      description: 'Final mixing touches needed before deadline',
-      progress: 85,
-      urgency: 'high',
-      deadline: 'in 2 days',
-      healthScore: 78,
-      aiRecommended: true,
-      aiInsight: 'This project needs attention - only 15% left but approaching deadline',
-      link: '/artist-crm?tab=active-work'
-    },
-    {
-      name: 'Midnight Dreams',
-      description: 'Vocals recording session scheduled',
-      progress: 60,
-      urgency: 'medium',
-      deadline: 'in 5 days',
-      healthScore: 92,
-      aiRecommended: false,
-      aiInsight: 'Great progress! Keep up the momentum',
-      link: '/artist-crm?tab=active-work'
-    },
-    {
-      name: 'Urban Beat Collection',
-      description: 'Production phase - good pace',
-      progress: 35,
-      urgency: 'low',
-      deadline: 'in 2 weeks',
-      healthScore: 88,
-      aiRecommended: false,
-      link: '/artist-crm?tab=active-work'
-    }
-  ];
+  const navigate = useNavigate();
+  const { data: projects = [], isLoading } = useAIProjectRecommendations();
+
+  if (isLoading) {
+    return (
+      <Card className="p-6">
+        <div className="flex items-center justify-center py-8">
+          <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
+        </div>
+      </Card>
+    );
+  }
+
+  if (projects.length === 0) {
+    return (
+      <Card className="p-6 text-center">
+        <Sparkles className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+        <p className="text-muted-foreground">No active projects to recommend</p>
+        <Button className="mt-4" onClick={() => navigate('/artist-studio')}>
+          Start New Project
+        </Button>
+      </Card>
+    );
+  }
 
   return (
     <Card className="bg-background/50 backdrop-blur-sm border-primary/20">

@@ -2658,6 +2658,7 @@ export type Database = {
           portfolio_links: string[] | null
           rating_average: number | null
           remote_work_percentage: number | null
+          response_time_avg_hours: number | null
           rush_fee_percentage: number | null
           specialties: string[] | null
           tools_mastered: Json | null
@@ -2683,6 +2684,7 @@ export type Database = {
           portfolio_links?: string[] | null
           rating_average?: number | null
           remote_work_percentage?: number | null
+          response_time_avg_hours?: number | null
           rush_fee_percentage?: number | null
           specialties?: string[] | null
           tools_mastered?: Json | null
@@ -2708,6 +2710,7 @@ export type Database = {
           portfolio_links?: string[] | null
           rating_average?: number | null
           remote_work_percentage?: number | null
+          response_time_avg_hours?: number | null
           rush_fee_percentage?: number | null
           specialties?: string[] | null
           tools_mastered?: Json | null
@@ -3371,14 +3374,17 @@ export type Database = {
           genre: string | null
           id: string
           is_premium: boolean | null
+          location: string | null
           payment_status: string | null
           posting_fee: number | null
+          response_time_hours: number | null
           service_type: string
           status: string
           stems_prepared: boolean | null
           stripe_payment_intent_id: string | null
           title: string
           updated_at: string
+          urgency: string | null
         }
         Insert: {
           ai_analysis?: Json | null
@@ -3391,14 +3397,17 @@ export type Database = {
           genre?: string | null
           id?: string
           is_premium?: boolean | null
+          location?: string | null
           payment_status?: string | null
           posting_fee?: number | null
+          response_time_hours?: number | null
           service_type?: string
           status?: string
           stems_prepared?: boolean | null
           stripe_payment_intent_id?: string | null
           title: string
           updated_at?: string
+          urgency?: string | null
         }
         Update: {
           ai_analysis?: Json | null
@@ -3411,14 +3420,17 @@ export type Database = {
           genre?: string | null
           id?: string
           is_premium?: boolean | null
+          location?: string | null
           payment_status?: string | null
           posting_fee?: number | null
+          response_time_hours?: number | null
           service_type?: string
           status?: string
           stems_prepared?: boolean | null
           stripe_payment_intent_id?: string | null
           title?: string
           updated_at?: string
+          urgency?: string | null
         }
         Relationships: []
       }

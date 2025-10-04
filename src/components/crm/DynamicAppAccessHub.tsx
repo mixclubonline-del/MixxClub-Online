@@ -49,14 +49,66 @@ export const DynamicAppAccessHub = ({ userRole }: DynamicAppAccessHubProps) => {
   }, []);
 
   const fetchPlatformActivity = async () => {
-    setLoading(false);
-    // Use mock data for now to avoid TypeScript issues
-    setRecentActivity([]);
-    setPlatformStats({
-      activeEngineers: 47,
-      activeSessions: 12,
-      completedToday: 8
-    });
+    setLoading(true);
+    try {
+      const now = new Date();
+      const today = now.toISOString().split('T')[0];
+      
+      // Fetch real platform stats in parallel
+      const [activeSessions, completedProjects, activeParticipants] = await Promise.all([
+        supabase
+          .from('collaboration_sessions')
+          .select('*')
+          .eq('status', 'active'),
+        
+        supabase
+          .from('projects')
+          .select('*')
+          .eq('status', 'completed')
+          .gte('updated_at', today),
+        
+        supabase
+          .from('session_participants')
+          .select('user_id')
+          .eq('is_active', true)
+      ]);
+      
+      setPlatformStats({
+        activeEngineers: new Set(activeParticipants.data?.map(p => p.user_id)).size,
+        activeSessions: activeSessions.data?.length || 0,
+        completedToday: completedProjects.data?.length || 0
+      });
+      
+      // Fetch recent activity from notifications
+      const { data: recentNotifications } = await supabase
+        .from('notifications')
+        .select('*, related_id, related_type')
+        .eq('type', 'project_update')
+        .order('created_at', { ascending: false })
+        .limit(5);
+      
+      // Map to SimpleProject format
+      const activity = await Promise.all(
+        (recentNotifications || []).map(async (notif) => {
+          if (notif.related_type === 'project' && notif.related_id) {
+            const { data: project } = await supabase
+              .from('projects')
+              .select('id, title, status, created_at')
+              .eq('id', notif.related_id)
+              .single();
+            
+            return project as SimpleProject;
+          }
+          return null;
+        })
+      );
+      
+      setRecentActivity(activity.filter(Boolean) as SimpleProject[]);
+    } catch (error) {
+      console.error('Error fetching platform activity:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleQuickAction = (action: string, route: string) => {
