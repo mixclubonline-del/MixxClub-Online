@@ -21,7 +21,7 @@ interface MixingPaywallProps {
   onPurchaseComplete?: () => void;
 }
 
-export const MixingPaywall: React.FC<MixingPaywallProps> = ({ onPurchaseComplete }) => {
+export const MixingPackages: React.FC<MixingPaywallProps> = ({ onPurchaseComplete }) => {
   const [packages, setPackages] = useState<MixingPackage[]>([]);
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState<string | null>(null);

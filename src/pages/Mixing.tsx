@@ -22,35 +22,13 @@ import {
 import Navigation from "@/components/Navigation";
 import { AdvancedMixingStudio } from "@/components/mixing/AdvancedMixingStudio";
 import { AIAudioProcessor } from "@/components/mixing/AIAudioProcessor";
-import { MixingPaywall } from "@/components/mixing/MixingPaywall";
-import { useMixingAccess } from "@/hooks/useMixingAccess";
-import { useAuth } from "@/hooks/useAuth";
+import { MixingPackages } from "@/components/mixing/MixingPackages";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 const Mixing = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState("studio-standard");
-  const { user } = useAuth();
-  const { hasAccess, loading, refreshAccess } = useMixingAccess();
-
-  useEffect(() => {
-    // Check for Stripe success/cancel parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    const success = urlParams.get('success');
-    const canceled = urlParams.get('canceled');
-
-    if (success === 'true') {
-      toast.success('Payment successful! Your mixing package is now active.');
-      refreshAccess();
-      // Clean up URL
-      window.history.replaceState({}, document.title, '/mixing');
-    } else if (canceled === 'true') {
-      toast.error('Payment was canceled.');
-      // Clean up URL
-      window.history.replaceState({}, document.title, '/mixing');
-    }
-  }, [refreshAccess]);
 
   const mixingPresets = [
     { id: "studio-standard", name: "Studio Standard", description: "Balanced mix for all genres" },
@@ -88,48 +66,6 @@ const Mixing = () => {
     }
   ];
 
-  // Show sign-in prompt if not authenticated
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Card className="max-w-md w-full mx-4">
-          <CardHeader className="text-center">
-            <LogIn className="h-12 w-12 text-primary mx-auto mb-4" />
-            <CardTitle>Sign In Required</CardTitle>
-            <CardDescription>
-              Please sign in to access our professional mixing services.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button className="w-full" onClick={() => { const a = document.createElement('a'); a.href = '/auth'; a.click(); }}>
-              Sign In
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  // Show loading state
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  // Show paywall if user doesn't have access
-  if (!hasAccess) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
-        <div className="container mx-auto px-4 pt-24 pb-12">
-          <MixingPaywall onPurchaseComplete={refreshAccess} />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -249,8 +185,11 @@ const Mixing = () => {
           </div>
         </section>
 
+        {/* Pricing Section */}
+        <MixingPackages />
+
         {/* CTA Section */}
-        <section className="py-20">
+        <section className="py-20 bg-background">
           <div className="container px-6">
             <Card className="max-w-4xl mx-auto text-center">
               <CardContent className="pt-6">
@@ -262,7 +201,7 @@ const Mixing = () => {
                   <Link to="/auth?mode=signup">
                     <Button size="lg" className="gap-2">
                       <Headphones className="w-5 h-5" />
-                      Start Free Trial
+                      Get Started Free
                     </Button>
                   </Link>
                   <Button variant="outline" size="lg" className="gap-2" onClick={() => {

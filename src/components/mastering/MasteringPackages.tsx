@@ -20,7 +20,7 @@ interface MasteringPaywallProps {
   onAccessGranted?: () => void;
 }
 
-export const MasteringPaywall = ({ onAccessGranted }: MasteringPaywallProps) => {
+export const MasteringPackages = ({ onAccessGranted }: MasteringPaywallProps) => {
   const [packages, setPackages] = useState<MasteringPackage[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState<string | null>(null);

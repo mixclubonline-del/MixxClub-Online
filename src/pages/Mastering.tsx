@@ -24,32 +24,13 @@ import {
 import Navigation from "@/components/Navigation";
 import { Link, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import { MasteringPaywall } from "@/components/mastering/MasteringPaywall";
-import { useMasteringAccess } from "@/hooks/useMasteringAccess";
-import { useAuth } from "@/hooks/useAuth";
+import { MasteringPackages } from "@/components/mastering/MasteringPackages";
 
 const Mastering = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState("spotify");
   const [masteringProgress, setMasteringProgress] = useState(0);
-  const [searchParams] = useSearchParams();
-  const { user } = useAuth();
-  const { hasAccess, loading, subscription, refreshAccess } = useMasteringAccess();
 
-  useEffect(() => {
-    // Handle successful payment
-    const success = searchParams.get('success');
-    if (success === 'true') {
-      toast.success('Payment successful! Welcome to MixClub Mastering!');
-      refreshAccess();
-    }
-    
-    // Handle cancelled payment
-    const cancelled = searchParams.get('canceled');
-    if (cancelled === 'true') {
-      toast.info('Payment was cancelled. You can try again anytime.');
-    }
-  }, [searchParams, refreshAccess]);
 
   const platforms = [
     { id: "spotify", name: "Spotify", lufs: "-14 LUFS", description: "Optimized for streaming" },
@@ -106,11 +87,6 @@ const Mastering = () => {
   };
 
   const handleStartMastering = () => {
-    if (!hasAccess) {
-      toast.error('Please purchase a mastering package to start mastering');
-      return;
-    }
-
     setIsProcessing(true);
     setMasteringProgress(0);
     
@@ -127,54 +103,6 @@ const Mastering = () => {
     }, 100);
   };
 
-  // Show loading state
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
-        <div className="pt-20 flex items-center justify-center min-h-[50vh]">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading mastering access...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Show paywall if user doesn't have access
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
-        <div className="pt-24 pb-12">
-          <div className="container px-6 text-center py-20">
-            <Lock className="w-16 h-16 mx-auto mb-6 text-muted-foreground" />
-            <h1 className="text-3xl font-bold mb-4">Sign In Required</h1>
-            <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-              Please sign in to access our professional mastering suite.
-            </p>
-            <Link to="/auth">
-              <Button size="lg">
-                Sign In to Continue
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!hasAccess) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
-        <div className="pt-20">
-          <MasteringPaywall onAccessGranted={refreshAccess} />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -197,22 +125,6 @@ const Mastering = () => {
                 of reference tracks across all genres and platforms.
               </p>
               
-              {/* Subscription Status */}
-              {subscription && (
-                <Card className="max-w-md mx-auto mb-8 bg-primary/5 border-primary/20">
-                  <CardContent className="pt-4">
-                    <div className="text-center">
-                      <Badge className="mb-2">{subscription.mastering_packages.name} Plan</Badge>
-                      <p className="text-sm text-muted-foreground">
-                        {subscription.mastering_packages.track_limit === -1 
-                          ? 'Unlimited tracks' 
-                          : `${subscription.tracks_used}/${subscription.mastering_packages.track_limit} tracks used`
-                        }
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button size="lg" className="gap-2" onClick={handleStartMastering}>
@@ -410,8 +322,11 @@ const Mastering = () => {
           </div>
         </section>
 
+        {/* Pricing Section */}
+        <MasteringPackages />
+
         {/* CTA Section */}
-        <section className="py-20">
+        <section className="py-20 bg-background">
           <div className="container px-6">
             <Card className="max-w-4xl mx-auto text-center">
               <CardContent className="pt-6">
@@ -424,7 +339,7 @@ const Mastering = () => {
                   <Link to="/auth?mode=signup">
                     <Button size="lg" className="gap-2">
                       <Sparkles className="w-5 h-5" />
-                      Try Free Master
+                      Get Started Free
                     </Button>
                   </Link>
                   <Button variant="outline" size="lg" className="gap-2" onClick={() => {

@@ -42,6 +42,7 @@ const Navigation = () => {
       return [
         { to: "/mixing", label: "Mixing Magic" },
         { to: "/mastering", label: "Mastering Polish" },
+        { to: "/for-artists", label: "For Artists" },
         { to: "/for-engineers", label: "For Engineers" },
         { to: "/merch", label: "Merch Store", badge: "NEW" },
         { to: "/coming-soon", label: "Coming Soon" },
@@ -65,6 +66,7 @@ const Navigation = () => {
       { to: "/artist-crm", label: "Dashboard" },
       { to: "/mixing", label: "Mixing Magic" },
       { to: "/mastering", label: "Mastering Polish" },
+      { to: "/for-artists", label: "For Artists" },
       { to: "/distribution", label: "Distribution", featured: true },
       { to: "/merch", label: "Merch Store", badge: "NEW" },
       { to: "/coming-soon", label: "Coming Soon" },

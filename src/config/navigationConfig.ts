@@ -73,6 +73,13 @@ const navigationItems: NavItem[] = [
     category: 'Services',
   },
   {
+    label: 'For Artists',
+    path: '/for-artists',
+    icon: Music,
+    roles: ['artist', 'engineer', null],
+    category: 'Services',
+  },
+  {
     label: 'Distribution',
     path: '/distribution',
     icon: Share2,

@@ -25,7 +25,7 @@ import {
 import Navigation from "@/components/Navigation";
 import { Link, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import { MasteringPaywall } from "@/components/mastering/MasteringPaywall";
+import { MasteringPackages } from "@/components/mastering/MasteringPackages";
 import { MasteringChatbot } from "@/components/MasteringChatbot";
 import { useMasteringAccess } from "@/hooks/useMasteringAccess";
 import { useAuth } from "@/hooks/useAuth";
@@ -345,7 +345,7 @@ const MasteringShowcase = () => {
                 </Link>
               </div>
             ) : (
-              <MasteringPaywall onAccessGranted={refreshAccess} />
+              <MasteringPackages onAccessGranted={refreshAccess} />
             )}
           </div>
         </section>

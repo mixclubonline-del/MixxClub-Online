@@ -26,7 +26,7 @@ import {
 import Navigation from "@/components/Navigation";
 import { Link, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import { MixingPaywall } from "@/components/mixing/MixingPaywall";
+import { MixingPackages } from "@/components/mixing/MixingPackages";
 import { useMixingAccess } from "@/hooks/useMixingAccess";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -495,7 +495,7 @@ const MixingShowcase = () => {
                 </Link>
               </div>
             ) : (
-              <MixingPaywall onPurchaseComplete={refreshAccess} />
+              <MixingPackages onPurchaseComplete={refreshAccess} />
             )}
           </div>
         </section>

@@ -66,6 +66,7 @@ import OrderSuccess from "./pages/OrderSuccess";
 import Pricing from "./pages/Pricing";
 import Contact from "./pages/Contact";
 import About from "./pages/About";
+import ForArtists from "./pages/ForArtists";
 // Lazy load all admin pages for better performance
 const AdminUsers = React.lazy(() => import("./pages/AdminUsers"));
 const AdminAudio = React.lazy(() => import('./pages/AdminAudio'));
@@ -204,6 +205,7 @@ const AppContent = () => {
             <Route path="/admin/launch-dashboard" element={<AdminRoute section="Launch Dashboard"><AdminLaunchDashboard /></AdminRoute>} />
             <Route path="/admin/launch-readiness" element={<AdminRoute section="Launch Readiness"><AdminLaunchReadiness /></AdminRoute>} />
             <Route path="/presentation/share/:token" element={<PresentationShare />} />
+            <Route path="/for-artists" element={<ForArtists />} />
             <Route path="/for-engineers" element={<ForEngineers />} />
             <Route path="/engineers" element={<EngineerDirectory />} />
             <Route path="/engineer/:userId" element={<EngineerProfile />} />
