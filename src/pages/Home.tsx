@@ -1,21 +1,14 @@
 import { SEOHead } from "@/components/SEOHead";
 import { organizationSchema, serviceSchema } from "@/lib/seo-schema";
 import Navigation from "@/components/Navigation";
-import Hero from "@/components/Hero";
+import { PrimeHero } from "@/components/home/PrimeHero";
+import { AIShowcase } from "@/components/home/AIShowcase";
+import { CommunityMilestonesShowcase } from "@/components/home/CommunityMilestonesShowcase";
+import { UserJourneys } from "@/components/home/UserJourneys";
+import { AIMasteringCTA } from "@/components/home/AIMasteringCTA";
 import { ValueProposition } from "@/components/home/ValueProposition";
-import { BeforeAfterComparison } from "@/components/BeforeAfterComparison";
-import { InstantDemoSection } from "@/components/InstantDemoSection";
-import { PackageBuilder } from "@/components/home/PackageBuilder";
-import { SubscriptionCTA } from "@/components/home/SubscriptionCTA";
-import { LiveActivityFeed } from "@/components/home/LiveActivityFeed";
 import { TierShowcase } from "@/components/home/TierShowcase";
 import { RecentSuccesses } from "@/components/RecentSuccesses";
-import { ExitIntentPopup } from "@/components/home/ExitIntentPopup";
-import { LiveNotifications } from "@/components/home/LiveNotifications";
-import { ScarcityTimer } from "@/components/home/ScarcityTimer";
-import { EngineerAvailability } from "@/components/home/EngineerAvailability";
-import { ComparisonTable } from "@/components/home/ComparisonTable";
-import { BulkPricingSection } from "@/components/home/BulkPricingSection";
 import { useNavigate } from "react-router-dom";
 
 const Home = () => {
@@ -35,19 +28,12 @@ const Home = () => {
       
       <div className="min-h-screen flex flex-col">
         <Navigation />
-        <ExitIntentPopup />
-        <LiveNotifications />
-        <Hero />
-        <ScarcityTimer />
-        <BeforeAfterComparison />
-        <EngineerAvailability />
-        <InstantDemoSection />
+        <PrimeHero />
+        <AIShowcase />
+        <CommunityMilestonesShowcase />
+        <UserJourneys />
         <ValueProposition />
-        <ComparisonTable />
-        <PackageBuilder />
-        <BulkPricingSection />
-        <SubscriptionCTA />
-        <LiveActivityFeed />
+        <AIMasteringCTA />
         <TierShowcase />
         <RecentSuccesses />
         
