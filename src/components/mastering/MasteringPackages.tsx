@@ -63,7 +63,8 @@ export const MasteringPackages = ({ onAccessGranted }: MasteringPaywallProps) =>
 
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        toast.error('Please sign in to purchase a mastering package');
+        // Redirect to auth with current page as return URL
+        window.location.href = `/auth?redirect=${encodeURIComponent(window.location.pathname)}`;
         return;
       }
 

@@ -40,11 +40,8 @@ export const PackageRecommendation = ({
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
-        toast({
-          title: "Sign in required",
-          description: "Please sign in to purchase mastering credits",
-          variant: "destructive",
-        });
+        // Redirect to auth with chatbot page as return URL
+        window.location.href = '/auth?redirect=' + encodeURIComponent(window.location.pathname);
         return;
       }
 

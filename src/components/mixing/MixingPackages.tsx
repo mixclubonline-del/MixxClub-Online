@@ -57,13 +57,15 @@ export const MixingPackages: React.FC<MixingPaywallProps> = ({ onPurchaseComplet
   };
 
   const handlePurchase = async (packageId: string) => {
-    if (!user) {
-      toast.error('Please sign in to purchase a mixing package');
-      return;
-    }
-
     try {
       setPurchasing(packageId);
+      
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        // Redirect to auth with current page as return URL
+        window.location.href = `/auth?redirect=${encodeURIComponent(window.location.pathname)}`;
+        return;
+      }
 
       const { data, error } = await supabase.functions.invoke('create-mixing-checkout', {
         body: { packageId },

@@ -27,21 +27,18 @@ import { Link, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { MasteringPackages } from "@/components/mastering/MasteringPackages";
 import { MasteringChatbot } from "@/components/MasteringChatbot";
-import { useMasteringAccess } from "@/hooks/useMasteringAccess";
 import { useAuth } from "@/hooks/useAuth";
 
 const MasteringShowcase = () => {
   const [activeDemo, setActiveDemo] = useState(0);
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
-  const { hasAccess, loading, subscription, refreshAccess } = useMasteringAccess();
 
   useEffect(() => {
     // Handle successful payment
     const success = searchParams.get('success');
     if (success === 'true') {
       toast.success('Payment successful! Welcome to MixClub AI Mastering!');
-      refreshAccess();
     }
     
     // Handle cancelled payment
@@ -49,7 +46,7 @@ const MasteringShowcase = () => {
     if (cancelled === 'true') {
       toast.info('Payment was cancelled. You can try again anytime.');
     }
-  }, [searchParams, refreshAccess]);
+  }, [searchParams]);
 
   const demoSteps = [
     {
@@ -132,20 +129,6 @@ const MasteringShowcase = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Show loading state
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
-        <div className="pt-20 flex items-center justify-center min-h-[50vh]">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -172,23 +155,14 @@ const MasteringShowcase = () => {
                   </p>
                   
                   <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                    {hasAccess ? (
-                      <Link to="/artist-crm">
-                        <Button size="lg" className="gap-2 bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90">
-                          <Play className="w-5 h-5" />
-                          Go to My CRM
-                        </Button>
-                      </Link>
-                    ) : (
-                      <Button 
-                        size="lg" 
-                        className="gap-2 bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90"
-                        onClick={() => document.getElementById('packages')?.scrollIntoView({ behavior: 'smooth' })}
-                      >
-                        <Play className="w-5 h-5" />
-                        View Packages
-                      </Button>
-                    )}
+                    <Button 
+                      size="lg" 
+                      className="gap-2 bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90"
+                      onClick={() => document.getElementById('packages')?.scrollIntoView({ behavior: 'smooth' })}
+                    >
+                      <Play className="w-5 h-5" />
+                      View Packages
+                    </Button>
                     <Button variant="outline" size="lg" className="gap-2">
                       <Volume2 className="w-5 h-5" />
                       Listen to Examples
@@ -330,23 +304,7 @@ const MasteringShowcase = () => {
               </p>
             </div>
 
-            {!user ? (
-              <div className="text-center py-20">
-                <Lock className="w-16 h-16 mx-auto mb-6 text-muted-foreground" />
-                <h3 className="text-2xl font-bold mb-4">Sign In Required</h3>
-                <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-                  Please sign in to view our mastering packages and start creating professional masters.
-                </p>
-                <Link to="/auth">
-                  <Button size="lg" className="gap-2">
-                    <Headphones className="w-5 h-5" />
-                    Sign In to Continue
-                  </Button>
-                </Link>
-              </div>
-            ) : (
-              <MasteringPackages onAccessGranted={refreshAccess} />
-            )}
+            <MasteringPackages />
           </div>
         </section>
 

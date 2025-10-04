@@ -66,11 +66,8 @@ export function AddOnServices({ projectId, onPurchaseComplete }: AddOnServicesPr
       
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        toast({
-          title: "Authentication required",
-          description: "Please sign in to purchase",
-          variant: "destructive",
-        });
+        // Redirect to auth with current page as return URL
+        window.location.href = '/auth?redirect=' + encodeURIComponent(window.location.pathname);
         return;
       }
 

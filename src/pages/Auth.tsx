@@ -35,6 +35,7 @@ const Auth = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const mode = searchParams.get("mode") || "login";
+  const redirectPath = searchParams.get("redirect") || null;
   const { trackSignup, trackEvent } = useAnalytics();
   
   const [email, setEmail] = useState("");
@@ -243,9 +244,17 @@ const Auth = () => {
           trackSignup('email');
         }
 
-        toast.success("Account created! Redirecting to onboarding...");
-        // Redirect to role-specific onboarding
-        navigate(role === "engineer" ? "/onboarding/engineer" : "/onboarding/artist");
+        toast.success("Account created! Redirecting...");
+        
+        // If there's a redirect path, go there after a brief delay for profile setup
+        if (redirectPath) {
+          setTimeout(() => {
+            navigate(redirectPath);
+          }, 500);
+        } else {
+          // Otherwise go to role-specific onboarding
+          navigate(role === "engineer" ? "/onboarding/engineer" : "/onboarding/artist");
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
@@ -282,11 +291,16 @@ const Auth = () => {
 
           toast.success("Welcome back!");
           
-          // Redirect based on user role
-          if (profile?.role === 'engineer') {
-            navigate("/engineer-crm");
+          // Check if there's a redirect path
+          if (redirectPath) {
+            navigate(redirectPath);
           } else {
-            navigate("/artist-crm");
+            // Redirect based on user role
+            if (profile?.role === 'engineer') {
+              navigate("/engineer-crm");
+            } else {
+              navigate("/artist-crm");
+            }
           }
         } else {
           navigate("/dashboard");
