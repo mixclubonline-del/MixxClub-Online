@@ -6,13 +6,22 @@
  */
 
 export const FEATURE_FLAGS = {
-  // The Lab - AI Hybrid DAW Studio
-  // Enable this when ready to launch the AI Studio feature
-  THE_LAB_ENABLED: false,
+  // ===== PHASE 0: IMMEDIATE ROLLOUT =====
+  // Referral Program - Dual-sided incentives
+  REFERRAL_PROGRAM_ENABLED: true,
+  // AI Session Prep Showcase - Highlight AI analysis
+  AI_SESSION_PREP_SHOWCASE: true,
+  // Community Milestones on Homepage
+  COMMUNITY_MILESTONES_HOMEPAGE: true,
   
-  // ===== TIER 1: MIX BATTLES ARENA (100 users) =====
-  // Unlock: Advanced AI Matching Engine + Studio Partnership Beta
-  TIER_1_BATTLES_STUDIOS: false, // Auto-unlock at 100 users
+  // ===== COMMUNITY-UNLOCKED FEATURES =====
+  // Remote Collaboration - Unlocks at 250 users
+  REMOTE_COLLABORATION_ENABLED: false,
+  // Mix Battles Arena - Unlocks at 100 users
+  MIX_BATTLES_ARENA_ENABLED: false,
+  
+  // The Lab - AI Hybrid DAW Studio
+  THE_LAB_ENABLED: false,
   
   // ===== TIER 2: KNOWLEDGE CENTER (250 users) =====
   // Educational Content Hub - Video tutorials, courses, certifications

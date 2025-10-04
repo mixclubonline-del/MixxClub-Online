@@ -18,7 +18,7 @@ const BattleTournaments = () => {
   const joinTournament = useJoinTournament();
   const [activeTab, setActiveTab] = useState("upcoming");
 
-  const featureUnlocked = isFeatureEnabled('TIER_1_BATTLES_STUDIOS');
+  const featureUnlocked = isFeatureEnabled('MIX_BATTLES_ARENA_ENABLED');
 
   const handleJoin = (tournamentId: string) => {
     if (!user) {

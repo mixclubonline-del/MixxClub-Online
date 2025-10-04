@@ -23,7 +23,7 @@ const StudioDirectory = () => {
     maxRate,
   });
 
-  const featureUnlocked = isFeatureEnabled('TIER_1_BATTLES_STUDIOS');
+  const featureUnlocked = isFeatureEnabled('REMOTE_COLLABORATION_ENABLED');
 
   if (!featureUnlocked) {
     return (
