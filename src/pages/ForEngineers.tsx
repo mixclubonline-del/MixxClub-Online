@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Navigation from "@/components/Navigation";
 import { EngineerShowcaseSlideshow } from "@/components/EngineerShowcaseSlideshow";
+import { EngineerEarningsCTA } from "@/components/home/EngineerEarningsCTA";
 import { Link } from "react-router-dom";
 import { 
   Video, 
@@ -23,6 +24,8 @@ export default function ForEngineers() {
       <Navigation />
       
       <EngineerShowcaseSlideshow />
+      
+      <EngineerEarningsCTA />
       
       {/* Hero Section */}
       <section className="pt-24 pb-20 px-4">

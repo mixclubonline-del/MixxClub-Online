@@ -1,16 +1,13 @@
 import { SEOHead } from "@/components/SEOHead";
 import { organizationSchema, serviceSchema } from "@/lib/seo-schema";
 import Navigation from "@/components/Navigation";
-import { PrimeHero } from "@/components/home/PrimeHero";
-import { AIShowcase } from "@/components/home/AIShowcase";
+import { EnhancedHero } from "@/components/home/EnhancedHero";
+import { BedroomToBillboard } from "@/components/home/BedroomToBillboard";
+import { AIMasteringCTA } from "@/components/home/AIMasteringCTA";
 import { AISessionPrepShowcase } from "@/components/home/AISessionPrepShowcase";
 import { CommunityMilestonesShowcase } from "@/components/home/CommunityMilestonesShowcase";
-import { UserJourneys } from "@/components/home/UserJourneys";
-import { AIMasteringCTA } from "@/components/home/AIMasteringCTA";
-import { ValueProposition } from "@/components/home/ValueProposition";
 import { TierShowcase } from "@/components/home/TierShowcase";
-import { RecentSuccesses } from "@/components/RecentSuccesses";
-import { EngineerEarningsCTA } from "@/components/home/EngineerEarningsCTA";
+import { SimplePackagePreview } from "@/components/home/SimplePackagePreview";
 import { useNavigate } from "react-router-dom";
 
 const Home = () => {
@@ -30,16 +27,13 @@ const Home = () => {
       
       <div className="min-h-screen flex flex-col">
         <Navigation />
-        <PrimeHero />
-        <EngineerEarningsCTA />
-        <AISessionPrepShowcase />
-        <AIShowcase />
-        <CommunityMilestonesShowcase />
-        <UserJourneys />
-        <ValueProposition />
+        <EnhancedHero />
+        <BedroomToBillboard />
         <AIMasteringCTA />
+        <AISessionPrepShowcase />
+        <CommunityMilestonesShowcase />
         <TierShowcase />
-        <RecentSuccesses />
+        <SimplePackagePreview />
         
         {/* Footer */}
         <footer className="bg-muted/30 border-t mt-20">
