@@ -294,7 +294,7 @@ const Auth = () => {
       }
     } catch (err) {
       if (err instanceof z.ZodError) {
-        setError(err.errors[0].message);
+        setError(err.issues[0].message);
       } else {
         setError("An unexpected error occurred. Please try again.");
       }

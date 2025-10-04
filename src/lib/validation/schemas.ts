@@ -29,7 +29,7 @@ export const profileSchema = z.object({
     .url('Invalid URL format')
     .optional()
     .or(z.literal('')),
-  social_links: z.record(z.string().url('Invalid URL format')).optional(),
+  social_links: z.record(z.string(), z.string().url('Invalid URL format')).optional(),
 });
 
 // Message validation
