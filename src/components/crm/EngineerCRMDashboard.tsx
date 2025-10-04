@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Music, Search } from 'lucide-react';
-import { ProjectCard } from './ProjectCard';
+import { SessionQueueCard } from '@/components/engineer/SessionQueueCard';
+import { SessionPrepModal } from '@/components/engineer/SessionPrepModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
@@ -13,6 +14,8 @@ export const EngineerCRMDashboard = () => {
   const navigate = useNavigate();
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedProject, setSelectedProject] = useState<any>(null);
+  const [showPrepModal, setShowPrepModal] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -46,9 +49,19 @@ export const EngineerCRMDashboard = () => {
     }
   };
 
-  const handleStartSession = (projectId: string) => {
-    const project = projects.find(p => p.id === projectId);
-    toast.success(`Opening ${project?.title}`);
+  const handleStartSession = (project: any) => {
+    setSelectedProject(project);
+    setShowPrepModal(true);
+  };
+
+  const handleViewDetails = (project: any) => {
+    navigate(`/engineer-crm?tab=active-work&project=${project.id}`);
+  };
+
+  const getProjectStatus = (project: any): 'new' | 'in_progress' | 'delivered' => {
+    if (project.status === 'completed' || project.status === 'delivered') return 'delivered';
+    if (project.status === 'in_progress' || project.session_packages?.length > 0) return 'in_progress';
+    return 'new';
   };
 
   // Categorize projects
@@ -90,51 +103,87 @@ export const EngineerCRMDashboard = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {newSessions.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-success animate-pulse" />
-            <h2 className="text-xl font-bold">New Sessions</h2>
-            <span className="text-sm text-muted-foreground">({newSessions.length})</span>
+    <>
+      <div className="space-y-6">
+        {newSessions.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-success animate-pulse" />
+              <h2 className="text-xl font-bold">New Sessions</h2>
+              <span className="text-sm text-muted-foreground">({newSessions.length})</span>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {newSessions.map((project) => (
+                <SessionQueueCard
+                  key={project.id}
+                  project={project}
+                  aiAnalysis={project.ai_match_analysis?.[0]}
+                  onViewDetails={() => handleViewDetails(project)}
+                  onStartSession={() => handleStartSession(project)}
+                  status="new"
+                />
+              ))}
+            </div>
           </div>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {newSessions.map((project) => (
-              <ProjectCard key={project.id} project={project} onStartSession={handleStartSession} />
-            ))}
-          </div>
-        </div>
-      )}
+        )}
 
-      {inProgress.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-primary animate-pulse" />
-            <h2 className="text-xl font-bold">In Progress</h2>
-            <span className="text-sm text-muted-foreground">({inProgress.length})</span>
+        {inProgress.length > 0 && (
+          <div id="in-progress-section" className="space-y-3">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-primary animate-pulse" />
+              <h2 className="text-xl font-bold">In Progress</h2>
+              <span className="text-sm text-muted-foreground">({inProgress.length})</span>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {inProgress.map((project) => (
+                <SessionQueueCard
+                  key={project.id}
+                  project={project}
+                  onViewDetails={() => handleViewDetails(project)}
+                  onStartSession={() => handleStartSession(project)}
+                  status="in_progress"
+                />
+              ))}
+            </div>
           </div>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {inProgress.map((project) => (
-              <ProjectCard key={project.id} project={project} onStartSession={handleStartSession} />
-            ))}
-          </div>
-        </div>
-      )}
+        )}
 
-      {awaitingReview.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-accent animate-pulse" />
-            <h2 className="text-xl font-bold">Awaiting Artist Review</h2>
-            <span className="text-sm text-muted-foreground">({awaitingReview.length})</span>
+        {awaitingReview.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-accent animate-pulse" />
+              <h2 className="text-xl font-bold">Delivered</h2>
+              <span className="text-sm text-muted-foreground">({awaitingReview.length})</span>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {awaitingReview.map((project) => (
+                <SessionQueueCard
+                  key={project.id}
+                  project={project}
+                  onViewDetails={() => handleViewDetails(project)}
+                  onStartSession={() => handleStartSession(project)}
+                  status="delivered"
+                />
+              ))}
+            </div>
           </div>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {awaitingReview.map((project) => (
-              <ProjectCard key={project.id} project={project} onStartSession={handleStartSession} />
-            ))}
-          </div>
-        </div>
+        )}
+      </div>
+
+      {selectedProject && (
+        <SessionPrepModal
+          open={showPrepModal}
+          onClose={() => {
+            setShowPrepModal(false);
+            setSelectedProject(null);
+          }}
+          onStartSession={() => {
+            navigate(`/session/${selectedProject.id}`);
+          }}
+          project={selectedProject}
+          aiAnalysis={selectedProject.ai_match_analysis?.[0]}
+        />
       )}
-    </div>
+    </>
   );
 };

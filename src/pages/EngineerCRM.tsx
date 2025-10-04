@@ -29,12 +29,13 @@ import { DynamicAppAccessHub } from '@/components/crm/DynamicAppAccessHub';
 import { ActiveWorkHub } from '@/components/crm/ActiveWorkHub';
 import { DashboardHub } from '@/components/crm/DashboardHub';
 import { OpportunitiesHub } from '@/components/crm/OpportunitiesHub';
+import { EngineerCRMDashboard } from '@/components/crm/EngineerCRMDashboard';
 
 const EngineerCRM = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const currentTab = searchParams.get('tab') || 'dashboard';
+  const currentTab = searchParams.get('tab') || 'sessions';
   
   const [profile, setProfile] = useState<any>(null);
   const [tasks, setTasks] = useState<any[]>([]);
@@ -290,42 +291,52 @@ const EngineerCRM = () => {
     );
   }
 
-  const pendingTasks = tasks.filter(t => t.status === 'pending').length;
-  const inProgressTasks = tasks.filter(t => t.status === 'in_progress').length;
-  const completedTasks = tasks.filter(t => t.status === 'completed').length;
+  const newSessions = projects.filter(p => p.status === 'pending').length;
+  const inProgress = projects.filter(p => p.status === 'in_progress').length;
+  const delivered = projects.filter(p => p.status === 'completed' || p.status === 'delivered').length;
 
   const stats = [
     {
-      icon: <Clock className="w-4 h-4 text-yellow-500" />,
-      label: 'Queued',
-      value: pendingTasks,
-      color: 'bg-yellow-500/10'
+      icon: <Music className="w-4 h-4 text-success" />,
+      label: 'New Sessions',
+      value: newSessions,
+      color: 'bg-success/10'
     },
     {
-      icon: <AlertCircle className="w-4 h-4 text-blue-500" />,
+      icon: <Clock className="w-4 h-4 text-primary" />,
       label: 'In Progress',
-      value: inProgressTasks,
-      color: 'bg-blue-500/10'
-    },
-    {
-      icon: <CheckCircle className="w-4 h-4 text-green-500" />,
-      label: 'Completed',
-      value: completedTasks,
-      color: 'bg-green-500/10'
-    },
-    {
-      icon: <Music className="w-4 h-4 text-primary" />,
-      label: 'Sessions',
-      value: projects.length,
+      value: inProgress,
       color: 'bg-primary/10'
+    },
+    {
+      icon: <CheckCircle className="w-4 h-4 text-accent" />,
+      label: 'Delivered',
+      value: delivered,
+      color: 'bg-accent/10'
+    },
+    {
+      icon: <DollarSign className="w-4 h-4 text-primary-glow" />,
+      label: 'Total Earnings',
+      value: `$${earnings.total.toFixed(0)}`,
+      color: 'bg-primary-glow/10'
     },
   ];
 
   const quickActions = [
     {
-      label: 'Browse Jobs',
+      label: 'Find New Projects',
       icon: <Music className="w-4 h-4" />,
       onClick: () => navigate('/engineer-crm?tab=opportunities'),
+    },
+    {
+      label: 'View Active Sessions',
+      icon: <Clock className="w-4 h-4" />,
+      onClick: () => {
+        navigate('/engineer-crm?tab=sessions');
+        setTimeout(() => {
+          document.getElementById('in-progress-section')?.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      },
     },
     {
       label: 'View Earnings',
@@ -336,6 +347,9 @@ const EngineerCRM = () => {
 
   const renderContent = () => {
     switch (currentTab) {
+      case 'sessions':
+        return <EngineerCRMDashboard />;
+
       case 'active-work':
         return (
           <ActiveWorkHub 
