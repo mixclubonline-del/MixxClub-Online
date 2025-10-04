@@ -104,156 +104,86 @@ const Navigation = () => {
             </span>
           </Link>
 
-          {isHome ? (
-            <>
-              {/* Desktop Navigation */}
-              <div className="hidden md:flex items-center gap-8">
-                {user && <RealTimeNotifications userId={user.id} />}
-                
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.to}
-                    to={link.to}
-                    className={`relative text-foreground hover:text-primary transition-all duration-300 ${
-                      (link as any).featured ? 'font-bold' : 'font-medium'
-                    } ${
-                      isActiveRoute(link.to) ? 'text-primary' : ''
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      {link.label}
-                      {(link as any).badge && (
-                        <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-primary/20 text-primary border border-primary/30">
-                          {(link as any).badge}
-                        </span>
-                      )}
-                      {(link as any).featured && (
-                        <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-gradient-to-r from-primary via-[hsl(220_90%_60%)] to-[hsl(180_100%_50%)] text-foreground animate-pulse-glow shadow-glow-sm">
-                          NEW
-                        </span>
-                      )}
-                    </div>
-                    <span className={`absolute bottom-0 left-0 w-full h-0.5 ${
-                      (link as any).featured 
-                        ? 'bg-gradient-to-r from-primary via-[hsl(220_90%_60%)] to-[hsl(180_100%_50%)]' 
-                        : 'bg-primary'
-                    } transform transition-transform duration-300 ${
-                      isActiveRoute(link.to) ? 'scale-x-100' : 'scale-x-0 hover:scale-x-100'
-                    }`}></span>
-                  </Link>
-                ))}
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center gap-8">
+            {user && <RealTimeNotifications userId={user.id} />}
+            
+            {navLinks.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                className={`relative text-foreground hover:text-primary transition-all duration-300 ${
+                  (link as any).featured ? 'font-bold' : 'font-medium'
+                } ${
+                  isActiveRoute(link.to) ? 'text-primary' : ''
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  {link.label}
+                  {(link as any).badge && (
+                    <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-primary/20 text-primary border border-primary/30">
+                      {(link as any).badge}
+                    </span>
+                  )}
+                  {(link as any).featured && (
+                    <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-gradient-to-r from-primary via-[hsl(220_90%_60%)] to-[hsl(180_100%_50%)] text-foreground animate-pulse-glow shadow-glow-sm">
+                      NEW
+                    </span>
+                  )}
+                </div>
+                <span className={`absolute bottom-0 left-0 w-full h-0.5 ${
+                  (link as any).featured 
+                    ? 'bg-gradient-to-r from-primary via-[hsl(220_90%_60%)] to-[hsl(180_100%_50%)]' 
+                    : 'bg-primary'
+                } transform transition-transform duration-300 ${
+                  isActiveRoute(link.to) ? 'scale-x-100' : 'scale-x-0 hover:scale-x-100'
+                }`}></span>
+              </Link>
+            ))}
 
-                {user ? (
+            {user ? (
+              <Button 
+                onClick={signOut} 
+                variant="ghost" 
+                size="sm"
+                className="hover:bg-primary/10 hover:text-primary transition-all duration-300"
+              >
+                Sign Out
+              </Button>
+            ) : (
+              <>
+                <Link to="/auth">
                   <Button 
-                    onClick={signOut} 
                     variant="ghost" 
                     size="sm"
                     className="hover:bg-primary/10 hover:text-primary transition-all duration-300"
                   >
-                    Sign Out
+                    Login
                   </Button>
-                ) : (
-                  <>
-                    <Link to="/auth">
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        className="hover:bg-primary/10 hover:text-primary transition-all duration-300"
-                      >
-                        Login
-                      </Button>
-                    </Link>
-                    <Link to="/auth?mode=signup">
-                      <Button 
-                        size="sm" 
-                        className="gap-2 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/25"
-                      >
-                        <Sparkles className="w-4 h-4" />
-                        Start Free
-                      </Button>
-                    </Link>
-                  </>
-                )}
-              </div>
-
-              {/* Mobile Menu Button */}
-              <button
-                className="md:hidden p-2 rounded-lg hover:bg-primary/10 transition-all duration-300"
-                onClick={() => setIsOpen(!isOpen)}
-              >
-                <div className="relative w-6 h-6">
-                  <Menu className={`w-6 h-6 absolute transition-all duration-300 ${isOpen ? 'opacity-0 rotate-90' : 'opacity-100 rotate-0'}`} />
-                  <X className={`w-6 h-6 absolute transition-all duration-300 ${isOpen ? 'opacity-100 rotate-0' : 'opacity-0 -rotate-90'}`} />
-                </div>
-              </button>
-            </>
-          ) : (
-            <div className="flex items-center gap-4">
-              {user ? (
-                <>
-                  <RealTimeNotifications userId={user.id} />
-                  <Link to={userRole === 'engineer' ? "/engineer-crm" : "/artist-crm"}>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      className="hover:bg-primary/10 hover:text-primary transition-all duration-300"
-                    >
-                      Dashboard
-                    </Button>
-                  </Link>
-                   {isFeatureEnabled('THE_LAB_ENABLED') && (
-                     <Link to="/hybrid-daw">
-                       <Button 
-                         variant="ghost" 
-                         size="sm"
-                         className="hover:bg-primary/10 hover:text-primary transition-all duration-300"
-                       >
-                         The Lab
-                       </Button>
-                     </Link>
-                   )}
+                </Link>
+                <Link to="/auth?mode=signup">
                   <Button 
-                    onClick={signOut} 
-                    variant="outline" 
-                    size="sm"
-                    className="hover:bg-primary/10 hover:text-primary hover:border-primary transition-all duration-300"
+                    size="sm" 
+                    className="gap-2 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/25"
                   >
-                    Sign Out
+                    <Sparkles className="w-4 h-4" />
+                    Start Free
                   </Button>
-                </>
-              ) : (
-                <>
-                  <Link to="/">
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      className="hover:bg-primary/10 hover:text-primary transition-all duration-300"
-                    >
-                      Home
-                    </Button>
-                  </Link>
-                  <Link to="/auth">
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      className="hover:bg-primary/10 hover:text-primary transition-all duration-300"
-                    >
-                      Sign In
-                    </Button>
-                  </Link>
-                  <Link to="/auth?mode=signup">
-                    <Button 
-                      size="sm" 
-                      className="gap-2 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/25"
-                    >
-                      <Sparkles className="w-4 h-4" />
-                      Get Started
-                    </Button>
-                  </Link>
-                </>
-              )}
+                </Link>
+              </>
+            )}
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden p-2 rounded-lg hover:bg-primary/10 transition-all duration-300"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            <div className="relative w-6 h-6">
+              <Menu className={`w-6 h-6 absolute transition-all duration-300 ${isOpen ? 'opacity-0 rotate-90' : 'opacity-100 rotate-0'}`} />
+              <X className={`w-6 h-6 absolute transition-all duration-300 ${isOpen ? 'opacity-100 rotate-0' : 'opacity-0 -rotate-90'}`} />
             </div>
-          )}
+          </button>
         </div>
 
         {/* Mobile Menu */}
