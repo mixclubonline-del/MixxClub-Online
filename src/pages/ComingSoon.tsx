@@ -12,7 +12,89 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
 const featureData = [
-...
+  {
+    tier: 1,
+    milestone: 100,
+    title: "Mix Battles Arena",
+    features: [
+      {
+        flag: "TIER_1_BATTLES_STUDIOS" as keyof typeof FEATURE_FLAGS,
+        name: "Mix Battles & Studio Partnerships",
+        description: "Compete in mixing challenges and access exclusive studio partnership beta program",
+        icon: Music,
+      },
+    ],
+  },
+  {
+    tier: 2,
+    milestone: 250,
+    title: "Knowledge & Collaboration",
+    features: [
+      {
+        flag: "TIER_2_EDUCATION_HUB" as keyof typeof FEATURE_FLAGS,
+        name: "Educational Hub",
+        description: "Access comprehensive courses, tutorials, and certification programs",
+        icon: GraduationCap,
+      },
+    ],
+  },
+  {
+    tier: 3,
+    milestone: 500,
+    title: "Commerce & Expansion",
+    features: [
+      {
+        flag: "TIER_3_MARKETPLACE" as keyof typeof FEATURE_FLAGS,
+        name: "Marketplace",
+        description: "Buy and sell beats, samples, and production services",
+        icon: ShoppingBag,
+      },
+    ],
+  },
+  {
+    tier: 4,
+    milestone: 1000,
+    title: "Advanced Tools",
+    features: [
+      {
+        flag: "TIER_4_INTEGRATIONS" as keyof typeof FEATURE_FLAGS,
+        name: "Integrations Hub",
+        description: "Connect with your favorite DAWs and production tools",
+        icon: Plug,
+      },
+      {
+        flag: "TIER_4_AI_TOOLS" as keyof typeof FEATURE_FLAGS,
+        name: "AI Audio Intelligence",
+        description: "Advanced AI-powered mixing, mastering, and production assistance",
+        icon: Brain,
+      },
+      {
+        flag: "TIER_4_DISTRIBUTION" as keyof typeof FEATURE_FLAGS,
+        name: "Distribution Platform",
+        description: "Release your music to all major streaming platforms",
+        icon: Disc,
+      },
+      {
+        flag: "TIER_4_ANALYTICS" as keyof typeof FEATURE_FLAGS,
+        name: "Advanced Analytics",
+        description: "Deep insights into your music performance and audience",
+        icon: BarChart3,
+      },
+    ],
+  },
+  {
+    tier: 5,
+    milestone: 2500,
+    title: "Revenue & Growth",
+    features: [
+      {
+        flag: "TIER_5_REVENUE_SHARE" as keyof typeof FEATURE_FLAGS,
+        name: "Revenue Sharing System",
+        description: "Transparent revenue sharing and commission system for collaborators",
+        icon: DollarSign,
+      },
+    ],
+  },
 ];
 
 const ComingSoon = () => {
@@ -143,54 +225,6 @@ const ComingSoon = () => {
             </motion.div>
           ))}
 
-          {/* Distribution Hub Features */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-          >
-            <div className="mb-6">
-              <Badge variant="outline" className="mb-2">
-                Distribution Hub Expansion
-              </Badge>
-              <h2 className="text-3xl font-bold">Advanced Distribution Features</h2>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              {distributionFeatures.map((feature) => {
-                const Icon = feature.icon;
-                const isEnabled = FEATURE_FLAGS[feature.flag];
-                
-                return (
-                  <Card key={feature.name} className={isEnabled ? "border-primary" : ""}>
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="p-2 rounded-lg bg-primary/10">
-                            <Icon className="w-6 h-6 text-primary" />
-                          </div>
-                          <div>
-                            <CardTitle className="text-xl">{feature.name}</CardTitle>
-                          </div>
-                        </div>
-                        {isEnabled ? (
-                          <Badge variant="default">Live</Badge>
-                        ) : (
-                          <Badge variant="secondary">
-                            <Lock className="w-3 h-3 mr-1" />
-                            Coming Soon
-                          </Badge>
-                        )}
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-muted-foreground">{feature.description}</p>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          </motion.div>
         </div>
 
         {/* CTA Section */}
