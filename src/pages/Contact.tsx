@@ -7,6 +7,15 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Mail, Phone, MapPin, MessageSquare, Loader2 } from 'lucide-react';
+import { SEOHead } from '@/components/SEOHead';
+import { z } from 'zod';
+
+const contactSchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
+  email: z.string().trim().email("Invalid email address").max(255, "Email must be less than 255 characters"),
+  subject: z.string().trim().min(1, "Subject is required").max(200, "Subject must be less than 200 characters"),
+  message: z.string().trim().min(1, "Message is required").max(2000, "Message must be less than 2000 characters"),
+});
 
 export default function Contact() {
   const { toast } = useToast();
@@ -23,12 +32,15 @@ export default function Contact() {
     setLoading(true);
 
     try {
+      // Validate form data
+      const validatedData = contactSchema.parse(formData);
+
       // Store contact submission in database
       const { error } = await supabase.from('contact_submissions').insert({
-        name: formData.name,
-        email: formData.email,
-        subject: formData.subject,
-        message: formData.message,
+        name: validatedData.name,
+        email: validatedData.email,
+        subject: validatedData.subject,
+        message: validatedData.message,
       });
 
       if (error) throw error;
@@ -39,20 +51,36 @@ export default function Contact() {
       });
 
       setFormData({ name: '', email: '', subject: '', message: '' });
-    } catch (error) {
-      console.error('Contact form error:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to send message. Please try again.',
-        variant: 'destructive',
-      });
+    } catch (error: any) {
+      if (error.name === 'ZodError') {
+        const zodError = error as z.ZodError;
+        toast({
+          title: 'Validation Error',
+          description: zodError.issues[0].message,
+          variant: 'destructive',
+        });
+      } else {
+        console.error('Contact form error:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to send message. Please try again.',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-accent/5 py-16">
+    <>
+      <SEOHead
+        title="Contact Us - Get in Touch with MixClub Support"
+        description="Have questions about our audio mixing and mastering services? Contact MixClub's support team. We respond within 24 hours. Email, phone, and live chat available Mon-Fri 9am-6pm PST."
+        keywords="contact mixclub, audio engineering support, mixing help, customer service"
+      />
+      
+      <div className="min-h-screen bg-gradient-to-b from-background to-accent/5 py-16">
       <div className="container max-w-6xl mx-auto px-4">
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold mb-4">Get In Touch</h1>
@@ -187,5 +215,6 @@ export default function Contact() {
         </div>
       </div>
     </div>
+    </>
   );
 }

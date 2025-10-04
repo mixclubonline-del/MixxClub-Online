@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useNavigate } from 'react-router-dom';
 import { TrustBadges } from '@/components/TrustBadges';
+import { SEOHead } from '@/components/SEOHead';
+import { generateProductSchema } from '@/lib/seo-schema';
 
 const mixingPackages = [
   {
@@ -109,7 +111,20 @@ export default function Pricing() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-accent/5">
+    <>
+      <SEOHead
+        title="Pricing - Professional Mixing & Mastering Packages"
+        description="Transparent pricing for professional audio mixing and mastering services. Choose from Basic Mix ($150), Professional Mix ($300), or Premium Mix ($500). Single track mastering starts at $75."
+        keywords="mixing prices, mastering cost, audio engineering rates, mixing packages, mastering packages, professional mixing pricing"
+        schema={generateProductSchema({
+          name: "Professional Mix Package",
+          description: "Most popular mixing package with up to 15 tracks, 5 revision rounds, and priority support",
+          price: 300,
+          currency: "USD"
+        })}
+      />
+      
+      <div className="min-h-screen bg-gradient-to-b from-background to-accent/5">
       {/* Hero Section */}
       <div className="container max-w-6xl mx-auto px-4 py-16">
         <div className="text-center mb-12">
@@ -260,5 +275,6 @@ export default function Pricing() {
         </div>
       </div>
     </div>
+    </>
   );
 }

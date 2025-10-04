@@ -1,9 +1,19 @@
 import { Card } from '@/components/ui/card';
 import { Award, Users, Headphones, Zap } from 'lucide-react';
+import { SEOHead } from '@/components/SEOHead';
+import { organizationSchema } from '@/lib/seo-schema';
 
 export default function About() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-accent/5">
+    <>
+      <SEOHead
+        title="About Us - Professional Audio Engineering Platform"
+        description="Learn about MixClub's mission to democratize professional audio production. We connect 10,000+ artists with 500+ professional engineers worldwide. 50,000+ projects completed."
+        keywords="about mixclub, audio engineering company, music production platform, professional mixing team"
+        schema={organizationSchema}
+      />
+      
+      <div className="min-h-screen bg-gradient-to-b from-background to-accent/5">
       {/* Hero Section */}
       <div className="container max-w-6xl mx-auto px-4 py-16">
         <div className="text-center mb-16">
@@ -123,5 +133,6 @@ export default function About() {
         </div>
       </div>
     </div>
+    </>
   );
 }
