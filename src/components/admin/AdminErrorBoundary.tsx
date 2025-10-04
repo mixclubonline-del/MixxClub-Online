@@ -1,12 +1,13 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, RefreshCw, Home, Copy, ExternalLink } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 
 interface Props {
   children: ReactNode;
   section?: string;
+  navigate?: (path: string) => void;
 }
 
 interface State {
@@ -36,7 +37,11 @@ class AdminErrorBoundaryComponent extends Component<Props, State> {
   };
 
   private handleGoToDashboard = () => {
-    window.location.href = '/admin';
+    if (this.props.navigate) {
+      this.props.navigate('/admin');
+    } else {
+      window.location.href = '/admin';
+    }
   };
 
   private copyErrorDetails = () => {

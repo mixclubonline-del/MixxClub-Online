@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Navigation from "@/components/Navigation";
 import { FEATURE_FLAGS } from "@/config/featureFlags";
@@ -7,112 +9,16 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
 import { toast } from "sonner";
 
 const featureData = [
-  {
-    tier: 1,
-    milestone: 100,
-    title: "Mix Battles Arena",
-    features: [
-      {
-        flag: "TIER_1_BATTLES_STUDIOS" as keyof typeof FEATURE_FLAGS,
-        name: "Mix Battles & Studio Partnerships",
-        description: "Compete in mixing challenges and access exclusive studio partnership beta program",
-        icon: Music,
-      },
-    ],
-  },
-  {
-    tier: 2,
-    milestone: 250,
-    title: "Knowledge & Collaboration",
-    features: [
-      {
-        flag: "EDUCATION_HUB_ENABLED" as keyof typeof FEATURE_FLAGS,
-        name: "Education Hub",
-        description: "Access video tutorials, professional courses, and earn certifications",
-        icon: GraduationCap,
-      },
-      {
-        flag: "COLLABORATION_V2_ENABLED" as keyof typeof FEATURE_FLAGS,
-        name: "Collaboration 2.0",
-        description: "Voice commands, live AI suggestions, and enhanced real-time collaboration tools",
-        icon: Sparkles,
-      },
-    ],
-  },
-  {
-    tier: 3,
-    milestone: 500,
-    title: "Marketplace & Services",
-    features: [
-      {
-        flag: "MARKETPLACE_ENABLED" as keyof typeof FEATURE_FLAGS,
-        name: "Community Marketplace",
-        description: "Buy and sell sample libraries, presets, templates, and custom audio tools",
-        icon: ShoppingBag,
-      },
-      {
-        flag: "LABEL_SERVICES_ENABLED" as keyof typeof FEATURE_FLAGS,
-        name: "Label Services Integration",
-        description: "Connect with record labels and access professional A&R services",
-        icon: Disc,
-      },
-    ],
-  },
-  {
-    tier: 4,
-    milestone: 1000,
-    title: "Pro Tools & AI",
-    features: [
-      {
-        flag: "INTEGRATIONS_ENABLED" as keyof typeof FEATURE_FLAGS,
-        name: "Pro Integrations",
-        description: "DAW plugins, streaming platform integration, and API access",
-        icon: Plug,
-      },
-      {
-        flag: "AI_AUDIO_INTELLIGENCE_ENABLED" as keyof typeof FEATURE_FLAGS,
-        name: "AI Audio Intelligence",
-        description: "Advanced AI-powered audio analysis, processing, and creative tools",
-        icon: Brain,
-      },
-    ],
-  },
+...
 ];
 
-const distributionFeatures = [
-  {
-    flag: "DISTRIBUTION_WHITE_LABEL_ENABLED" as keyof typeof FEATURE_FLAGS,
-    name: "White-Label Distribution",
-    description: "Custom-branded distribution infrastructure for your releases",
-    icon: Disc,
-  },
-  {
-    flag: "DISTRIBUTION_ANALYTICS_ENABLED" as keyof typeof FEATURE_FLAGS,
-    name: "Enhanced Analytics",
-    description: "Deep insights into your music's performance across all platforms",
-    icon: BarChart3,
-  },
-  {
-    flag: "DISTRIBUTION_PLAYLIST_PITCHING_ENABLED" as keyof typeof FEATURE_FLAGS,
-    name: "Playlist Pitching",
-    description: "Professional playlist pitching service to get your music heard",
-    icon: Music,
-  },
-  {
-    flag: "DISTRIBUTION_REVENUE_SHARING_ENABLED" as keyof typeof FEATURE_FLAGS,
-    name: "Revenue Sharing",
-    description: "Transparent revenue sharing and commission system for collaborators",
-    icon: DollarSign,
-  },
-];
-
-export default function ComingSoon() {
+const ComingSoon = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
-  const currentUsers = 42; // This would come from your actual user count
+  const currentUsers = 42;
 
   const handleNotifyMe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -298,11 +204,13 @@ export default function ComingSoon() {
           <p className="text-lg text-muted-foreground mb-6 max-w-2xl mx-auto">
             Every new member brings us closer to unlocking these powerful tools. Join MixClub today and be part of the journey.
           </p>
-          <Button size="lg" onClick={() => window.location.href = "/auth"}>
+          <Button size="lg" onClick={() => navigate("/auth")}>
             Join MixClub Now
           </Button>
         </motion.div>
       </main>
     </div>
   );
-}
+};
+
+export default ComingSoon;

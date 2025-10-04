@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Card } from '@/components/ui/card';
@@ -40,6 +41,7 @@ interface OnlineUser {
 
 export const RealTimeCollaboration = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [activities, setActivities] = useState<Activity[]>([]);
   const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([]);
   const [newComment, setNewComment] = useState('');
@@ -212,7 +214,7 @@ export const RealTimeCollaboration = () => {
       
       if (error) throw error;
       toast.success("Session created!");
-      window.location.href = `/session/${session.id}`;
+      navigate(`/session/${session.id}`);
     } catch (error) {
       console.error('Error creating session:', error);
       toast.error("Failed to create session");

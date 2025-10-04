@@ -1,4 +1,5 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
@@ -6,6 +7,7 @@ import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
+  navigate?: (path: string) => void;
 }
 
 interface State {
@@ -32,7 +34,11 @@ export class ErrorBoundary extends Component<Props, State> {
   };
 
   private handleGoHome = () => {
-    window.location.href = '/';
+    if (this.props.navigate) {
+      this.props.navigate('/');
+    } else {
+      window.location.href = '/';
+    }
   };
 
   public render() {

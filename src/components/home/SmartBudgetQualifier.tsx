@@ -320,7 +320,7 @@ export const SmartBudgetQualifier = ({ open, onOpenChange }: SmartBudgetQualifie
                     Create Account to View All {matches.length} Matches
                   </Button>
                   <p className="text-center text-sm text-muted-foreground">
-                    Already have an account? <a href="/auth" className="text-primary hover:underline">Sign in</a>
+                    Already have an account? <button onClick={() => navigate('/auth')} className="text-primary hover:underline">Sign in</button>
                   </p>
                 </>
               )}

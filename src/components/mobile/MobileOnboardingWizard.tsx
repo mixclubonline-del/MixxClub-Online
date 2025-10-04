@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,6 +16,7 @@ interface MobileOnboardingWizardProps {
 }
 
 export const MobileOnboardingWizard = ({ open, onOpenChange }: MobileOnboardingWizardProps) => {
+  const navigate = useNavigate();
   const [step, setStep] = useState<'welcome' | 'service' | 'upload' | 'payment'>('welcome');
   const [projectTitle, setProjectTitle] = useState('');
   const [serviceType, setServiceType] = useState<'mix' | 'master' | 'ai-collab'>('mix');
@@ -138,7 +140,7 @@ export const MobileOnboardingWizard = ({ open, onOpenChange }: MobileOnboardingW
               <Button 
                 variant="outline" 
                 className="w-full h-14 text-lg"
-                onClick={() => window.location.href = '/engineer-onboarding'}
+                onClick={() => navigate('/engineer-onboarding')}
               >
                 <Zap className="mr-2 h-5 w-5" />
                 Join as Engineer
