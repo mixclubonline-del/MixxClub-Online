@@ -38,6 +38,7 @@ import ArtistStudio from "./pages/ArtistStudio";
 import EngineerStudio from "./pages/EngineerStudio";
 import { SessionManager } from "./components/studio/SessionManager";
 import SessionWorkspace from "./pages/SessionWorkspace";
+import { SessionWorkspacePage } from "./pages/SessionWorkspacePage";
 import Mixing from "./pages/Mixing";
 import Mastering from "./pages/Mastering";
 import MixingShowcase from "./pages/MixingShowcase";
@@ -167,7 +168,7 @@ const AppContent = () => {
         <Route path="/engineer-studio" element={<AppLayout><EngineerStudio /></AppLayout>} />
         <Route path="/studio/create-session" element={<AppLayout><SessionManager /></AppLayout>} />
         <Route path="/studio/join-session" element={<AppLayout><SessionManager /></AppLayout>} />
-        <Route path="/session/:sessionId" element={<AppLayout><SessionWorkspace /></AppLayout>} />
+        <Route path="/session/:sessionId" element={<AppLayout><SessionWorkspacePage /></AppLayout>} />
             <Route path="/mixing" element={<MixingShowcase />} />
             <Route path="/mastering" element={<MasteringShowcase />} />
             <Route path="/ai-mastering" element={<AIMastering />} />

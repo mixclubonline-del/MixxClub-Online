@@ -10,6 +10,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { IntelligentUpload } from "@/components/artist/IntelligentUpload";
 
 interface ActiveWorkHubProps {
   userRole: "client" | "engineer" | "admin";
@@ -315,16 +316,9 @@ export const ActiveWorkHub = ({ userRole, onStartSession, onUploadStems, onJoinS
           </div>
         </Card>
 
-        <Card 
-          className="group relative overflow-hidden cursor-pointer hover:scale-105 transition-all duration-300 bg-gradient-to-br from-blue-500/20 to-green-500/20 border-blue-500/30"
-          onClick={onUploadStems}
-        >
-          <div className="relative p-8">
-            <Upload className="w-10 h-10 mb-4 text-blue-400" />
-            <h3 className="font-semibold text-lg mb-2">Upload Stems</h3>
-            <p className="text-sm text-muted-foreground">Add new audio files</p>
-          </div>
-        </Card>
+        <div className="md:col-span-2">
+          <IntelligentUpload />
+        </div>
 
         <Card 
           className="group relative overflow-hidden cursor-pointer hover:scale-105 transition-all duration-300 bg-gradient-to-br from-pink-500/20 to-purple-500/20 border-pink-500/30"
