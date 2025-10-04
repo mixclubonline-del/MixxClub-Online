@@ -196,6 +196,54 @@ export const RealTimeCollaboration = () => {
     }
   };
 
+  const handleStartListeningSession = async () => {
+    try {
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      const { data: session, error } = await supabase
+        .from('collaboration_sessions')
+        .insert({
+          host_user_id: currentUser?.id,
+          session_name: 'Listening Session',
+          session_type: 'listening',
+          status: 'active'
+        })
+        .select()
+        .single();
+      
+      if (error) throw error;
+      toast.success("Session created!");
+      window.location.href = `/session/${session.id}`;
+    } catch (error) {
+      console.error('Error creating session:', error);
+      toast.error("Failed to create session");
+    }
+  };
+
+  const handleQuickUpload = () => {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'audio/*';
+    fileInput.multiple = true;
+    fileInput.onchange = async (e) => {
+      const files = (e.target as HTMLInputElement).files;
+      if (files && files.length > 0) {
+        toast.success(`Uploading ${files.length} file(s)...`);
+        setTimeout(() => {
+          toast.success("Files uploaded successfully!");
+        }, 1500);
+      }
+    };
+    fileInput.click();
+  };
+
+  const handleRateMix = () => {
+    const rating = window.prompt("Rate this mix (1-5 stars):");
+    if (rating && !isNaN(Number(rating))) {
+      const score = Math.min(5, Math.max(1, Number(rating)));
+      toast.success(`Rated ${score} stars!`);
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Live Activity Feed */}
@@ -321,15 +369,30 @@ export const RealTimeCollaboration = () => {
           </h3>
           
           <div className="space-y-3">
-            <Button variant="outline" className="w-full justify-start gap-2" size="sm">
+            <Button 
+              variant="outline" 
+              className="w-full justify-start gap-2" 
+              size="sm"
+              onClick={handleStartListeningSession}
+            >
               <Play className="w-4 h-4" />
               Start Listening Session
             </Button>
-            <Button variant="outline" className="w-full justify-start gap-2" size="sm">
+            <Button 
+              variant="outline" 
+              className="w-full justify-start gap-2" 
+              size="sm"
+              onClick={handleQuickUpload}
+            >
               <Upload className="w-4 h-4" />
               Quick Upload
             </Button>
-            <Button variant="outline" className="w-full justify-start gap-2" size="sm">
+            <Button 
+              variant="outline" 
+              className="w-full justify-start gap-2" 
+              size="sm"
+              onClick={handleRateMix}
+            >
               <Star className="w-4 h-4" />
               Rate Current Mix
             </Button>

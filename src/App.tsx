@@ -35,6 +35,8 @@ import ArtistDashboard from "./pages/ArtistDashboard";
 import EngineerDashboard from "./pages/EngineerDashboard";
 import ArtistStudio from "./pages/ArtistStudio";
 import EngineerStudio from "./pages/EngineerStudio";
+import { SessionManager } from "./components/studio/SessionManager";
+import SessionWorkspace from "./pages/SessionWorkspace";
 import Mixing from "./pages/Mixing";
 import Mastering from "./pages/Mastering";
 import MixingShowcase from "./pages/MixingShowcase";
@@ -162,6 +164,9 @@ const AppContent = () => {
         <Route path="/engineer-crm" element={<AppLayout><EngineerCRM /></AppLayout>} />
         <Route path="/artist-studio" element={<AppLayout><ArtistStudio /></AppLayout>} />
         <Route path="/engineer-studio" element={<AppLayout><EngineerStudio /></AppLayout>} />
+        <Route path="/studio/create-session" element={<AppLayout><SessionManager /></AppLayout>} />
+        <Route path="/studio/join-session" element={<AppLayout><SessionManager /></AppLayout>} />
+        <Route path="/session/:sessionId" element={<AppLayout><SessionWorkspace /></AppLayout>} />
             <Route path="/mixing" element={<MixingShowcase />} />
             <Route path="/mastering" element={<MasteringShowcase />} />
             <Route path="/mixing-studio" element={<Mixing />} />

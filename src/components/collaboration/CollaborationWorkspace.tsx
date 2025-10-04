@@ -9,6 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { 
   Mic, 
   MicOff, 
@@ -458,9 +459,11 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
   };
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] bg-gradient-to-br from-background via-muted/20 to-background">
-      {/* Left Sidebar - Collapsible */}
-      <div className="w-64 border-r bg-card/50 backdrop-blur-sm flex flex-col animate-slide-in-right">
+    <div className="h-[calc(100vh-8rem)] bg-gradient-to-br from-background via-muted/20 to-background">
+      <ResizablePanelGroup direction="horizontal">
+        {/* Left Sidebar - Resizable */}
+        <ResizablePanel defaultSize={20} minSize={15} maxSize={30}>
+          <div className="h-full border-r bg-card/50 backdrop-blur-sm flex flex-col animate-slide-in-right">
         <div className="p-4 border-b">
           <h3 className="font-semibold text-sm flex items-center gap-2">
             <Settings className="w-4 h-4 text-primary" />
@@ -621,10 +624,23 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
             </div>
           </div>
         </div>
-      </div>
+          </div>
+        </ResizablePanel>
 
-      {/* Right Sidebar - Collapsible */}
-      <div className="w-96 border-l bg-card/50 backdrop-blur-sm flex flex-col animate-slide-in-right">
+        <ResizableHandle withHandle />
+
+        {/* Main Workspace - Resizable */}
+        <ResizablePanel defaultSize={50} minSize={40}>
+          <div className="h-full flex flex-col">
+            {/* Content placeholder - main workspace */}
+          </div>
+        </ResizablePanel>
+
+        <ResizableHandle withHandle />
+
+        {/* Right Sidebar - Resizable */}
+        <ResizablePanel defaultSize={30} minSize={20} maxSize={40}>
+          <div className="h-full border-l bg-card/50 backdrop-blur-sm flex flex-col animate-slide-in-right">
         {/* Participants Section */}
         <div className="p-4 border-b">
           <h3 className="font-semibold text-sm flex items-center gap-2 mb-3">
@@ -768,7 +784,9 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
             </Button>
           </div>
         </div>
-      </div>
+          </div>
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </div>
   );
 };
