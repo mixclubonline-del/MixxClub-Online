@@ -7,7 +7,7 @@ declare global {
   }
 }
 
-export const GA_MEASUREMENT_ID = 'G-XXXXXXXXXX'; // Replace with actual GA4 ID
+export const GA_MEASUREMENT_ID = 'G-MDZ08YW3ZZ';
 
 // Initialize GA4
 export const initGA = () => {
