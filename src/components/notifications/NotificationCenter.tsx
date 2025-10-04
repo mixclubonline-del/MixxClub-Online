@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Bell, X, Check, Trash2, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -26,6 +27,7 @@ interface Notification {
 export function NotificationCenter() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [filter, setFilter] = useState<'all' | 'unread'>('all');
@@ -248,7 +250,11 @@ export function NotificationCenter() {
                                 size="sm"
                                 className="h-auto p-0 text-xs"
                                 onClick={() => {
-                                  window.location.href = notification.action_url!;
+                                  if (notification.action_url!.startsWith('http')) {
+                                    window.location.href = notification.action_url!;
+                                  } else {
+                                    navigate(notification.action_url!);
+                                  }
                                   markAsRead(notification.id);
                                 }}
                               >

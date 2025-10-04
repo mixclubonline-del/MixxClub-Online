@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { toast } from 'sonner';
@@ -20,6 +21,7 @@ export interface Notification {
 
 export const useNotifications = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -82,7 +84,13 @@ export const useNotifications = () => {
             description: newNotification.message,
             action: newNotification.action_url ? {
               label: 'View',
-              onClick: () => window.location.href = newNotification.action_url!
+              onClick: () => {
+                if (newNotification.action_url!.startsWith('http')) {
+                  window.location.href = newNotification.action_url!;
+                } else {
+                  navigate(newNotification.action_url!);
+                }
+              }
             } : undefined
           });
         }

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -40,6 +41,7 @@ export function MultiPaymentModal({
   engineerSplitPercent = 70
 }: MultiPaymentModalProps) {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [cardElement, setCardElement] = useState<any>(null);
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'paypal' | 'apple-google' | 'crypto'>('card');
@@ -152,14 +154,14 @@ export function MultiPaymentModal({
               await sendReceiptEmail(paymentIntent.id, 'Apple Pay / Google Pay');
               toast({ title: 'Success', description: 'Payment completed! Receipt downloaded and emailed.' });
               onOpenChange(false);
-              window.location.href = `/project/${projectId}`;
+              navigate(`/project/${projectId}`);
             }
           } else {
             generatePDFReceipt(paymentIntent.id, 'Apple Pay / Google Pay');
             await sendReceiptEmail(paymentIntent.id, 'Apple Pay / Google Pay');
             toast({ title: 'Success', description: 'Payment completed! Receipt downloaded and emailed.' });
             onOpenChange(false);
-            window.location.href = `/project/${projectId}`;
+            navigate(`/project/${projectId}`);
           }
         }
       } catch (error) {
@@ -209,7 +211,7 @@ export function MultiPaymentModal({
             
             toast({ title: 'Success', description: 'Payment completed! Receipt downloaded and emailed.' });
             onOpenChange(false);
-            window.location.href = `/project/${projectId}`;
+            navigate(`/project/${projectId}`);
           } catch (error) {
             console.error('PayPal capture error:', error);
             toast({ title: 'Error', description: 'Payment failed', variant: 'destructive' });
@@ -318,7 +320,7 @@ export function MultiPaymentModal({
         
         toast({ title: 'Success', description: 'Payment completed! Receipt downloaded and emailed.' });
         onOpenChange(false);
-        window.location.href = `/project/${projectId}`;
+        navigate(`/project/${projectId}`);
       }
     } catch (error) {
       console.error('Payment error:', error);
