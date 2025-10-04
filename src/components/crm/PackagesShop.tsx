@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Check, Sparkles, Music2, Zap } from 'lucide-react';
+import { Check, Sparkles, Music2, Zap, Users } from 'lucide-react';
 
 interface Package {
   id: string;
@@ -92,8 +92,14 @@ export function PackagesShop() {
   };
 
   const PackageCard = ({ pkg, type }: { pkg: Package; type: 'mixing' | 'mastering' }) => (
-    <Card className="border-2 hover:border-primary/50 transition-all">
-      <CardHeader>
+    <Card className="border-2 hover:border-primary/50 transition-all relative">
+      <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+        <Badge variant="secondary" className="gap-1 text-xs shadow-md">
+          <Users className="w-3 h-3" />
+          23 artists booked this week
+        </Badge>
+      </div>
+      <CardHeader className="pt-8">
         <div className="flex items-center justify-between mb-2">
           <Badge variant={pkg.track_limit === -1 ? 'default' : 'secondary'}>
             {pkg.track_limit === -1 ? 'Unlimited' : `${pkg.track_limit} Tracks`}

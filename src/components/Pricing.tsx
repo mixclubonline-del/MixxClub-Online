@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
+import { Check, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ComparisonTable } from "./home/ComparisonTable";
 import { BulkPricingSection } from "./home/BulkPricingSection";
@@ -26,6 +26,16 @@ const Pricing = () => {
             <div className="text-xs text-muted-foreground">
               Unlike fully automated services, you get human expertise + AI enhancement for guaranteed professional results
             </div>
+          </div>
+        </div>
+
+        {/* First-Time User Offer Banner */}
+        <div className="max-w-4xl mx-auto mb-8">
+          <div className="p-4 bg-gradient-to-r from-orange-500/10 to-primary/10 border border-orange-500/20 rounded-lg text-center">
+            <p className="text-sm font-medium flex items-center justify-center gap-2">
+              <Sparkles className="w-4 h-4 text-orange-500" />
+              Limited Time: First-time users get AI Session Prep FREE with any package
+            </p>
           </div>
         </div>
 

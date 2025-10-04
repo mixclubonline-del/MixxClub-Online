@@ -10,6 +10,7 @@ import { AIMasteringCTA } from "@/components/home/AIMasteringCTA";
 import { ValueProposition } from "@/components/home/ValueProposition";
 import { TierShowcase } from "@/components/home/TierShowcase";
 import { RecentSuccesses } from "@/components/RecentSuccesses";
+import { EngineerEarningsCTA } from "@/components/home/EngineerEarningsCTA";
 import { useNavigate } from "react-router-dom";
 
 const Home = () => {
@@ -30,6 +31,7 @@ const Home = () => {
       <div className="min-h-screen flex flex-col">
         <Navigation />
         <PrimeHero />
+        <EngineerEarningsCTA />
         <AISessionPrepShowcase />
         <AIShowcase />
         <CommunityMilestonesShowcase />

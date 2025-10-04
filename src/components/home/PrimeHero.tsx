@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { PrimeAvatar } from '@/components/prime/PrimeAvatar';
-import { ArrowRight, Play, Sparkles, Mic2, Headphones, Share2 } from 'lucide-react';
+import { ArrowRight, Play, Sparkles, Mic2, Headphones, Share2, Clock, DollarSign } from 'lucide-react';
 
 export const PrimeHero = () => {
   const navigate = useNavigate();
@@ -32,12 +33,16 @@ export const PrimeHero = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="flex items-center gap-3"
+              className="flex flex-wrap items-center gap-3"
             >
               <PrimeAvatar size="md" />
               <Badge variant="secondary" className="gap-2 py-1.5 px-4">
                 <Sparkles className="w-3 h-3" />
                 Powered by Prime AI
+              </Badge>
+              <Badge variant="destructive" className="gap-2 animate-pulse py-1.5 px-4">
+                <Clock className="w-3 h-3" />
+                Only 5 slots left this week
               </Badge>
             </motion.div>
 
@@ -76,16 +81,48 @@ export const PrimeHero = () => {
               </div>
             </div>
 
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button size="lg" onClick={() => navigate('/auth?signup=true')} className="gap-2 text-lg px-8 shadow-glow">
-                Get Started Free
-                <ArrowRight className="w-5 h-5" />
-              </Button>
-              <Button size="lg" variant="outline" onClick={() => setIsVideoPlaying(true)} className="gap-2 text-lg px-8">
-                <Play className="w-5 h-5" />
-                Watch Demo
-              </Button>
+            {/* CTAs and Pricing */}
+            <div className="flex flex-col lg:flex-row gap-6 items-start">
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button size="lg" onClick={() => navigate('/auth?signup=true')} className="gap-2 text-lg px-8 shadow-glow">
+                  Get Started Free
+                  <ArrowRight className="w-5 h-5" />
+                </Button>
+                <Button size="lg" variant="outline" onClick={() => setIsVideoPlaying(true)} className="gap-2 text-lg px-8">
+                  <Play className="w-5 h-5" />
+                  Watch Demo
+                </Button>
+              </div>
+
+              {/* Pricing Preview Card */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.5 }}
+              >
+                <Card className="p-6 bg-card/50 backdrop-blur border-primary/20 min-w-[280px]">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-semibold">Starting at</h3>
+                    <Badge variant="secondary" className="gap-1">
+                      <DollarSign className="w-3 h-3" />
+                      Limited Slots
+                    </Badge>
+                  </div>
+                  <div className="text-4xl font-bold text-primary mb-2">
+                    $29<span className="text-lg text-muted-foreground">/track</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Professional mixing + AI session prep
+                  </p>
+                  <Button 
+                    className="w-full" 
+                    variant="outline"
+                    onClick={() => navigate('/pricing')}
+                  >
+                    View All Plans →
+                  </Button>
+                </Card>
+              </motion.div>
             </div>
 
             {/* Quick Stats */}
