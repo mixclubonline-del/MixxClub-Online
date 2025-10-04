@@ -1189,6 +1189,7 @@ export type Database = {
           processing_status: string | null
           project_id: string
           sample_rate: number | null
+          stem_classification: string | null
           stem_type: string | null
           updated_at: string
           uploaded_by: string
@@ -1209,6 +1210,7 @@ export type Database = {
           processing_status?: string | null
           project_id: string
           sample_rate?: number | null
+          stem_classification?: string | null
           stem_type?: string | null
           updated_at?: string
           uploaded_by: string
@@ -1229,6 +1231,7 @@ export type Database = {
           processing_status?: string | null
           project_id?: string
           sample_rate?: number | null
+          stem_classification?: string | null
           stem_type?: string | null
           updated_at?: string
           uploaded_by?: string
@@ -2449,6 +2452,62 @@ export type Database = {
             columns: ["engineer_id"]
             isOneToOne: false
             referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      engineer_deliverables: {
+        Row: {
+          approved_at: string | null
+          created_at: string
+          delivery_type: string
+          engineer_id: string
+          file_name: string
+          file_path: string
+          file_size: number | null
+          id: string
+          notes: string | null
+          project_id: string
+          status: string
+          submitted_at: string | null
+          version_number: number
+        }
+        Insert: {
+          approved_at?: string | null
+          created_at?: string
+          delivery_type: string
+          engineer_id: string
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          id?: string
+          notes?: string | null
+          project_id: string
+          status?: string
+          submitted_at?: string | null
+          version_number?: number
+        }
+        Update: {
+          approved_at?: string | null
+          created_at?: string
+          delivery_type?: string
+          engineer_id?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          notes?: string | null
+          project_id?: string
+          status?: string
+          submitted_at?: string | null
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "engineer_deliverables_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
@@ -5548,8 +5607,10 @@ export type Database = {
           engineer_id: string | null
           estimated_completion_date: string | null
           id: string
+          latest_deliverable_id: string | null
           metadata: Json | null
           progress_percentage: number | null
+          session_package_id: string | null
           status: Database["public"]["Enums"]["project_status"]
           time_tracked_minutes: number | null
           title: string
@@ -5565,8 +5626,10 @@ export type Database = {
           engineer_id?: string | null
           estimated_completion_date?: string | null
           id?: string
+          latest_deliverable_id?: string | null
           metadata?: Json | null
           progress_percentage?: number | null
+          session_package_id?: string | null
           status?: Database["public"]["Enums"]["project_status"]
           time_tracked_minutes?: number | null
           title: string
@@ -5582,8 +5645,10 @@ export type Database = {
           engineer_id?: string | null
           estimated_completion_date?: string | null
           id?: string
+          latest_deliverable_id?: string | null
           metadata?: Json | null
           progress_percentage?: number | null
+          session_package_id?: string | null
           status?: Database["public"]["Enums"]["project_status"]
           time_tracked_minutes?: number | null
           title?: string
@@ -5616,6 +5681,20 @@ export type Database = {
             columns: ["engineer_id"]
             isOneToOne: false
             referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "projects_latest_deliverable_id_fkey"
+            columns: ["latest_deliverable_id"]
+            isOneToOne: false
+            referencedRelation: "engineer_deliverables"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "projects_session_package_id_fkey"
+            columns: ["session_package_id"]
+            isOneToOne: false
+            referencedRelation: "session_packages"
             referencedColumns: ["id"]
           },
         ]
@@ -5964,6 +6043,68 @@ export type Database = {
           },
         ]
       }
+      session_packages: {
+        Row: {
+          artist_id: string
+          bit_depth: number
+          created_at: string
+          daw_format: string
+          downloaded_at: string | null
+          engineer_id: string
+          expires_at: string | null
+          file_size: number | null
+          id: string
+          package_status: string
+          package_url: string | null
+          project_id: string
+          reference_tracks: Json | null
+          sample_rate: number
+          stem_count: number | null
+        }
+        Insert: {
+          artist_id: string
+          bit_depth: number
+          created_at?: string
+          daw_format: string
+          downloaded_at?: string | null
+          engineer_id: string
+          expires_at?: string | null
+          file_size?: number | null
+          id?: string
+          package_status?: string
+          package_url?: string | null
+          project_id: string
+          reference_tracks?: Json | null
+          sample_rate: number
+          stem_count?: number | null
+        }
+        Update: {
+          artist_id?: string
+          bit_depth?: number
+          created_at?: string
+          daw_format?: string
+          downloaded_at?: string | null
+          engineer_id?: string
+          expires_at?: string | null
+          file_size?: number | null
+          id?: string
+          package_status?: string
+          package_url?: string | null
+          project_id?: string
+          reference_tracks?: Json | null
+          sample_rate?: number
+          stem_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_packages_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       session_participants: {
         Row: {
           audio_input_enabled: boolean | null
@@ -6290,6 +6431,57 @@ export type Database = {
           shares_count?: number | null
         }
         Relationships: []
+      }
+      stem_organization: {
+        Row: {
+          audio_file_id: string
+          color_code: string | null
+          created_at: string
+          group_name: string | null
+          id: string
+          session_package_id: string
+          stem_name: string
+          stem_type: string | null
+          track_order: number | null
+        }
+        Insert: {
+          audio_file_id: string
+          color_code?: string | null
+          created_at?: string
+          group_name?: string | null
+          id?: string
+          session_package_id: string
+          stem_name: string
+          stem_type?: string | null
+          track_order?: number | null
+        }
+        Update: {
+          audio_file_id?: string
+          color_code?: string | null
+          created_at?: string
+          group_name?: string | null
+          id?: string
+          session_package_id?: string
+          stem_name?: string
+          stem_type?: string | null
+          track_order?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stem_organization_audio_file_id_fkey"
+            columns: ["audio_file_id"]
+            isOneToOne: false
+            referencedRelation: "audio_files"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stem_organization_session_package_id_fkey"
+            columns: ["session_package_id"]
+            isOneToOne: false
+            referencedRelation: "session_packages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       streaming_connections: {
         Row: {

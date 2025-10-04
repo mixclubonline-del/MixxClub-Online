@@ -117,6 +117,9 @@ verify_jwt = true
 [functions.verify-presentation-share]
 verify_jwt = false
 
+[functions.prepare-session-package]
+verify_jwt = true
+
 [functions.send-attorney-notification-email]
 verify_jwt = false
 

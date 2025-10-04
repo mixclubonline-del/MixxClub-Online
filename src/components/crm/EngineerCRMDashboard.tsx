@@ -35,9 +35,11 @@ export const EngineerCRMDashboard = () => {
         .select(`
           *,
           audio_files(count),
-          engineer:profiles!projects_engineer_id_fkey(full_name, avatar_url)
+          profiles:client_id(full_name, avatar_url),
+          session_packages(id, package_status, daw_format, expires_at),
+          engineer_deliverables(id, version_number, delivery_type, status)
         `)
-        .eq('client_id', user.id)
+        .eq('engineer_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;

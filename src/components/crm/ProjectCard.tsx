@@ -5,9 +5,12 @@ import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
-import { Music, Upload, Users, Download, Calendar, Clock } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Music, Upload, Users, Download, Calendar, Clock, Package } from 'lucide-react';
 import { AudioFileUpload } from './AudioFileUpload';
 import { BeforeAfterPlayer } from './BeforeAfterPlayer';
+import { SessionPackageBuilder } from '@/components/engineer/SessionPackageBuilder';
+import { EngineerDeliveryUpload } from '@/components/engineer/EngineerDeliveryUpload';
 import { format } from 'date-fns';
 
 interface ProjectCardProps {
@@ -34,6 +37,8 @@ interface ProjectCardProps {
 export const ProjectCard = ({ project, onStartSession, selected, onSelect }: ProjectCardProps) => {
   const [autoBounce, setAutoBounce] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
+  const [showPackageBuilder, setShowPackageBuilder] = useState(false);
+  const [showDeliveryUpload, setShowDeliveryUpload] = useState(false);
 
   const getStatusColor = (status: string) => {
     const colors = {
@@ -191,6 +196,32 @@ export const ProjectCard = ({ project, onStartSession, selected, onSelect }: Pro
           </div>
         )}
       </CardContent>
+
+      <Dialog open={showPackageBuilder} onOpenChange={setShowPackageBuilder}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Prepare DAW Session Package</DialogTitle>
+          </DialogHeader>
+          <SessionPackageBuilder
+            projectId={project.id}
+            projectTitle={project.title}
+            stemCount={project.audio_files?.length || 0}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showDeliveryUpload} onOpenChange={setShowDeliveryUpload}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Upload Completed Mix</DialogTitle>
+          </DialogHeader>
+          <EngineerDeliveryUpload
+            projectId={project.id}
+            projectTitle={project.title}
+            onUploadComplete={() => setShowDeliveryUpload(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
