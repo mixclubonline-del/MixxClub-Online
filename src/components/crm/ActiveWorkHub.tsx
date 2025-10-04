@@ -15,43 +15,225 @@ interface ActiveWorkHubProps {
   userRole: "client" | "engineer" | "admin";
   onStartSession?: () => void;
   onUploadStems?: () => void;
+  onJoinSession?: () => void;
+  onReviewApprove?: () => void;
 }
 
-export const ActiveWorkHub = ({ userRole, onStartSession, onUploadStems }: ActiveWorkHubProps) => {
+export const ActiveWorkHub = ({ userRole, onStartSession, onUploadStems, onJoinSession, onReviewApprove }: ActiveWorkHubProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [stats, setStats] = useState({
-    level: 12,
-    xp: 2450,
-    xpToNext: 3000,
-    streak: 7,
-    weeklyProgress: 68
+    level: 0,
+    xp: 0,
+    xpToNext: 1000,
+    streak: 0,
+    weeklyProgress: 0
   });
   const [liveActivities, setLiveActivities] = useState<any[]>([]);
   const [aiSuggestion, setAiSuggestion] = useState("");
+  const [activeSessionCount, setActiveSessionCount] = useState(0);
+  const [pendingReviewsCount, setPendingReviewsCount] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchLiveActivities();
-    generateAiSuggestion();
+    if (user) {
+      fetchUserStats();
+      fetchLiveActivities();
+      fetchActiveSessions();
+      fetchPendingReviews();
+      generateAiSuggestion();
+    }
   }, [user]);
 
-  const fetchLiveActivities = async () => {
-    const activities = [
-      { user: "Sarah M.", action: "completed a mix", time: "2m ago", icon: "CheckCircle" },
-      { user: "Tokyo Studio", action: "went live", time: "5m ago", icon: "Activity" },
-      { user: "Mike R.", action: "uploaded stems", time: "8m ago", icon: "Upload" }
-    ];
-    setLiveActivities(activities);
+  const fetchUserStats = async () => {
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('points, level')
+        .eq('id', user?.id)
+        .single();
+
+      if (profile) {
+        setStats(prev => ({
+          ...prev,
+          level: profile.level || 1,
+          xp: profile.points || 0,
+          xpToNext: (profile.level || 1) * 1000,
+        }));
+      }
+
+      // Fetch streak from engineer_streaks or create similar for artists
+      const { data: streakData } = await supabase
+        .from('engineer_streaks')
+        .select('current_streak')
+        .eq('engineer_id', user?.id)
+        .single();
+
+      if (streakData) {
+        setStats(prev => ({
+          ...prev,
+          streak: streakData.current_streak || 0
+        }));
+      }
+    } catch (error) {
+      console.error('Error fetching user stats:', error);
+    }
   };
 
-  const generateAiSuggestion = () => {
-    const suggestions = [
-      "Your vocals on 'Summer Dreams' need compression attention 🎵",
-      "Ready to book your next session? Top engineers available now!",
-      "Your project health score improved by 15% this week 📈",
-      "3 new job matches found based on your style!"
-    ];
-    setAiSuggestion(suggestions[Math.floor(Math.random() * suggestions.length)]);
+  const fetchLiveActivities = async () => {
+    try {
+      // Fetch recent collaboration sessions
+      const { data: sessions } = await supabase
+        .from('collaboration_sessions')
+        .select(`
+          id,
+          session_name,
+          status,
+          started_at,
+          host_user_id
+        `)
+        .eq('status', 'active')
+        .order('started_at', { ascending: false })
+        .limit(3);
+
+      // Fetch recent audio uploads
+      const { data: uploads } = await supabase
+        .from('audio_files')
+        .select(`
+          id,
+          file_name,
+          created_at,
+          uploaded_by
+        `)
+        .order('created_at', { ascending: false })
+        .limit(2);
+
+      // Get user profiles
+      const userIds = [
+        ...(sessions?.map(s => s.host_user_id) || []),
+        ...(uploads?.map(u => u.uploaded_by) || [])
+      ];
+
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, full_name')
+        .in('id', userIds);
+
+      const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
+
+      const activities: any[] = [];
+
+      sessions?.forEach(session => {
+        const host = profileMap.get(session.host_user_id);
+        activities.push({
+          user: host?.full_name || 'Unknown',
+          action: 'started a live session',
+          time: getTimeAgo(session.started_at),
+          icon: 'Activity'
+        });
+      });
+
+      uploads?.forEach(upload => {
+        const uploader = profileMap.get(upload.uploaded_by);
+        activities.push({
+          user: uploader?.full_name || 'Unknown',
+          action: 'uploaded stems',
+          time: getTimeAgo(upload.created_at),
+          icon: 'Upload'
+        });
+      });
+
+      setLiveActivities(activities.slice(0, 3));
+    } catch (error) {
+      console.error('Error fetching live activities:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchActiveSessions = async () => {
+    try {
+      const { count } = await supabase
+        .from('collaboration_sessions')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'active');
+
+      setActiveSessionCount(count || 0);
+    } catch (error) {
+      console.error('Error fetching active sessions:', error);
+    }
+  };
+
+  const fetchPendingReviews = async () => {
+    try {
+      if (userRole === 'client') {
+        // Artists see pending reviews they need to give
+        const { count } = await supabase
+          .from('projects')
+          .select('*', { count: 'exact', head: true })
+          .eq('client_id', user?.id)
+          .eq('status', 'completed')
+          .is('review_submitted', false);
+
+        setPendingReviewsCount(count || 0);
+      } else {
+        // Engineers don't have pending reviews to give
+        setPendingReviewsCount(0);
+      }
+    } catch (error) {
+      console.error('Error fetching pending reviews:', error);
+    }
+  };
+
+  const generateAiSuggestion = async () => {
+    try {
+      // Fetch user's recent projects for personalized suggestions
+      const { data: projects } = await supabase
+        .from('projects')
+        .select('title, status')
+        .eq(userRole === 'client' ? 'client_id' : 'engineer_id', user?.id)
+        .order('created_at', { ascending: false })
+        .limit(3);
+
+      if (projects && projects.length > 0) {
+        const inProgress = projects.filter(p => p.status === 'in_progress').length;
+        if (inProgress > 0) {
+          setAiSuggestion(`You have ${inProgress} project${inProgress > 1 ? 's' : ''} in progress. Keep the momentum going! 🎵`);
+          return;
+        }
+
+        const completed = projects.filter(p => p.status === 'completed').length;
+        if (completed > 0) {
+          setAiSuggestion(`Great work on completing ${completed} project${completed > 1 ? 's' : ''}! Ready to start a new one? 🚀`);
+          return;
+        }
+      }
+
+      const suggestions = [
+        "Ready to start your next session? Connect with top collaborators now!",
+        "Your creative journey is just beginning. Let's make some music! 🎵",
+        "Pro tip: Regular collaboration sessions boost your skills by 40%",
+        "New opportunities await! Check out the latest projects."
+      ];
+      setAiSuggestion(suggestions[Math.floor(Math.random() * suggestions.length)]);
+    } catch (error) {
+      console.error('Error generating AI suggestion:', error);
+      setAiSuggestion("Welcome to your creative hub! Let's make some music together.");
+    }
+  };
+
+  const getTimeAgo = (timestamp: string) => {
+    const now = new Date();
+    const past = new Date(timestamp);
+    const diffMs = now.getTime() - past.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    
+    if (diffMins < 1) return 'just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours}h ago`;
+    const diffDays = Math.floor(diffHours / 24);
+    return `${diffDays}d ago`;
   };
 
   const progressPercentage = (stats.xp / stats.xpToNext) * 100;
@@ -98,14 +280,19 @@ export const ActiveWorkHub = ({ userRole, onStartSession, onUploadStems }: Activ
 
         <Card 
           className="group relative overflow-hidden cursor-pointer hover:scale-105 transition-all duration-300 bg-gradient-to-br from-orange-500/20 to-red-500/20 border-orange-500/30"
+          onClick={onJoinSession}
         >
-          <div className="absolute top-2 right-2">
-            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-          </div>
+          {activeSessionCount > 0 && (
+            <div className="absolute top-2 right-2">
+              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+            </div>
+          )}
           <div className="relative p-8">
             <Users className="w-10 h-10 mb-4 text-orange-400" />
             <h3 className="font-semibold text-lg mb-2">Join Live Session</h3>
-            <p className="text-sm text-muted-foreground">3 active sessions now</p>
+            <p className="text-sm text-muted-foreground">
+              {activeSessionCount} active session{activeSessionCount !== 1 ? 's' : ''} now
+            </p>
           </div>
         </Card>
 
@@ -122,11 +309,14 @@ export const ActiveWorkHub = ({ userRole, onStartSession, onUploadStems }: Activ
 
         <Card 
           className="group relative overflow-hidden cursor-pointer hover:scale-105 transition-all duration-300 bg-gradient-to-br from-pink-500/20 to-purple-500/20 border-pink-500/30"
+          onClick={onReviewApprove}
         >
           <div className="relative p-8">
             <CheckCircle className="w-10 h-10 mb-4 text-pink-400" />
             <h3 className="font-semibold text-lg mb-2">Review & Approve</h3>
-            <p className="text-sm text-muted-foreground">2 pending reviews</p>
+            <p className="text-sm text-muted-foreground">
+              {pendingReviewsCount} pending review{pendingReviewsCount !== 1 ? 's' : ''}
+            </p>
           </div>
         </Card>
       </div>

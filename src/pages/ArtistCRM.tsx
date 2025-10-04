@@ -302,7 +302,21 @@ const ArtistCRM = () => {
         return <YourMatches />;
         
       case 'active-work':
-        return <ActiveWorkHub userRole="client" onStartSession={() => navigate('/artist-studio')} />;
+        return (
+          <ActiveWorkHub 
+            userRole="client" 
+            onStartSession={() => {
+              navigate('/artist-crm?tab=studio');
+              setTimeout(() => {
+                const createBtn = document.querySelector('[data-create-session]');
+                if (createBtn instanceof HTMLElement) createBtn.click();
+              }, 100);
+            }}
+            onUploadStems={() => navigate('/artist-crm?tab=studio')}
+            onJoinSession={() => navigate('/artist-crm?tab=studio')}
+            onReviewApprove={() => navigate('/artist-crm?tab=profile')}
+          />
+        );
 
       case 'opportunities':
         return <OpportunitiesHub userRole="client" />;
@@ -324,7 +338,10 @@ const ArtistCRM = () => {
                 
                 <div className="grid lg:grid-cols-3 gap-6">
                   <div className="lg:col-span-2">
-                    <SessionManager projectId={undefined} />
+                    <SessionManager 
+                      projectId={undefined} 
+                      onEnterSession={(sessionId) => setActiveSessionId(sessionId)}
+                    />
                   </div>
                   <div>
                     <RealTimeCollaboration />

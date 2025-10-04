@@ -37,9 +37,10 @@ interface Session {
 
 interface SessionManagerProps {
   projectId?: string;
+  onEnterSession?: (sessionId: string) => void;
 }
 
-const SessionManager: React.FC<SessionManagerProps> = ({ projectId }) => {
+const SessionManager: React.FC<SessionManagerProps> = ({ projectId, onEnterSession }) => {
   const { user } = useAuth();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [activeSessions, setActiveSessions] = useState<Session[]>([]);
@@ -569,7 +570,11 @@ const SessionManager: React.FC<SessionManagerProps> = ({ projectId }) => {
                       )}
                       
                       {session.status === 'active' && (
-                        <Button size="sm" variant="default">
+                        <Button 
+                          size="sm" 
+                          variant="default"
+                          onClick={() => onEnterSession?.(session.id)}
+                        >
                           Enter Session
                         </Button>
                       )}
