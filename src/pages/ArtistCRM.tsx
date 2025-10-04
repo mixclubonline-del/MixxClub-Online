@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -428,7 +429,7 @@ const ArtistCRM = () => {
   };
 
   return (
-    <>
+    <ErrorBoundary>
       <CRMLayout
         userType="artist"
         profile={profile}
@@ -438,7 +439,7 @@ const ArtistCRM = () => {
         {renderContent()}
       </CRMLayout>
       <ArtistCRMChatbot />
-    </>
+    </ErrorBoundary>
   );
 };
 

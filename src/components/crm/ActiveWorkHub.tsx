@@ -238,6 +238,25 @@ export const ActiveWorkHub = ({ userRole, onStartSession, onUploadStems, onJoinS
 
   const progressPercentage = (stats.xp / stats.xpToNext) * 100;
 
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        <Card className="p-4 animate-pulse">
+          <div className="h-20 bg-muted rounded" />
+        </Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[1, 2, 3, 4].map((i) => (
+            <Card key={i} className="p-8 animate-pulse">
+              <div className="h-10 w-10 bg-muted rounded mb-4" />
+              <div className="h-6 bg-muted rounded mb-2" />
+              <div className="h-4 bg-muted rounded w-3/4" />
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
       {/* Compact Status Bar */}
@@ -335,30 +354,38 @@ export const ActiveWorkHub = ({ userRole, onStartSession, onUploadStems, onJoinS
             </Badge>
           </div>
 
-          <div className="space-y-4">
-            {liveActivities.map((activity, index) => (
-              <div 
-                key={index}
-                className="flex items-center gap-4 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors animate-slide-up-fade"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                  {activity.icon === "CheckCircle" && <CheckCircle className="w-5 h-5 text-white" />}
-                  {activity.icon === "Activity" && <Activity className="w-5 h-5 text-white animate-pulse" />}
-                  {activity.icon === "Upload" && <Upload className="w-5 h-5 text-white" />}
+          {liveActivities.length === 0 ? (
+            <div className="text-center py-8">
+              <Activity className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+              <p className="text-muted-foreground">No recent activity</p>
+              <p className="text-sm text-muted-foreground">Start a session to see live updates!</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {liveActivities.map((activity, index) => (
+                <div 
+                  key={index}
+                  className="flex items-center gap-4 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors animate-slide-up-fade"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                    {activity.icon === "CheckCircle" && <CheckCircle className="w-5 h-5 text-white" />}
+                    {activity.icon === "Activity" && <Activity className="w-5 h-5 text-white animate-pulse" />}
+                    {activity.icon === "Upload" && <Upload className="w-5 h-5 text-white" />}
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm">
+                      <span className="font-medium">{activity.user}</span> {activity.action}
+                    </p>
+                    <p className="text-xs text-muted-foreground">{activity.time}</p>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <p className="text-sm">
-                    <span className="font-medium">{activity.user}</span> {activity.action}
-                  </p>
-                  <p className="text-xs text-muted-foreground">{activity.time}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
-          <Button variant="ghost" className="w-full mt-4">
-            View More Activity
+          <Button variant="ghost" className="w-full mt-4" onClick={fetchLiveActivities}>
+            Refresh Activity
           </Button>
         </Card>
 
