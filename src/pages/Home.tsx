@@ -3,6 +3,7 @@ import { organizationSchema, serviceSchema } from "@/lib/seo-schema";
 import Navigation from "@/components/Navigation";
 import { PrimeHero } from "@/components/home/PrimeHero";
 import { AIShowcase } from "@/components/home/AIShowcase";
+import { AISessionPrepShowcase } from "@/components/home/AISessionPrepShowcase";
 import { CommunityMilestonesShowcase } from "@/components/home/CommunityMilestonesShowcase";
 import { UserJourneys } from "@/components/home/UserJourneys";
 import { AIMasteringCTA } from "@/components/home/AIMasteringCTA";
@@ -29,6 +30,7 @@ const Home = () => {
       <div className="min-h-screen flex flex-col">
         <Navigation />
         <PrimeHero />
+        <AISessionPrepShowcase />
         <AIShowcase />
         <CommunityMilestonesShowcase />
         <UserJourneys />
