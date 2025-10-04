@@ -1,24 +1,18 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Music, Plus, TrendingUp, Users, Award } from 'lucide-react';
-import { ProjectCreationModal } from './ProjectCreationModal';
+import { Music, Search } from 'lucide-react';
 import { ProjectCard } from './ProjectCard';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 export const EngineerCRMDashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [projects, setProjects] = useState<any[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({
-    total: 0,
-    completed: 0,
-    inProgress: 0,
-    pending: 0
-  });
 
   useEffect(() => {
     if (user) {
@@ -43,16 +37,7 @@ export const EngineerCRMDashboard = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-
       setProjects(data || []);
-      
-      // Calculate stats
-      const total = data?.length || 0;
-      const completed = data?.filter(p => p.status === 'completed').length || 0;
-      const inProgress = data?.filter(p => p.status === 'in_progress').length || 0;
-      const pending = data?.filter(p => p.status === 'pending').length || 0;
-      
-      setStats({ total, completed, inProgress, pending });
     } catch (error: any) {
       console.error('Error fetching projects:', error);
       toast.error('Failed to load projects');
@@ -63,119 +48,93 @@ export const EngineerCRMDashboard = () => {
 
   const handleStartSession = (projectId: string) => {
     const project = projects.find(p => p.id === projectId);
-    toast.success(`Starting session for ${project?.title}`);
-    // Here you would typically navigate to the collaboration workspace
+    toast.success(`Opening ${project?.title}`);
   };
+
+  // Categorize projects
+  const newSessions = projects.filter(p => 
+    p.status === 'pending' && (!p.session_packages || p.session_packages.length === 0)
+  );
+  const inProgress = projects.filter(p => 
+    p.status === 'in_progress' || (p.status === 'pending' && p.session_packages?.length > 0)
+  );
+  const awaitingReview = projects.filter(p => 
+    p.status === 'review' || p.engineer_deliverables?.length > 0
+  );
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading projects...</p>
+          <p className="text-muted-foreground">Loading your sessions...</p>
         </div>
       </div>
     );
   }
 
+  if (projects.length === 0) {
+    return (
+      <Card className="p-12 text-center">
+        <Music className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+        <h3 className="text-xl font-semibold mb-2">No Active Sessions</h3>
+        <p className="text-muted-foreground mb-6">
+          Check the Opportunities tab to find new mixing projects
+        </p>
+        <Button onClick={() => navigate('/engineer-crm?tab=opportunities')}>
+          <Search className="w-4 h-4 mr-2" />
+          Browse Opportunities
+        </Button>
+      </Card>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-3xl font-bold">Projects Dashboard</h2>
-          <p className="text-muted-foreground">Manage your music projects and collaborate with engineers</p>
-        </div>
-        <Button onClick={() => setIsModalOpen(true)} className="gap-2">
-          <Plus className="w-4 h-4" />
-          New Project
-        </Button>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-lg bg-primary/10">
-                <Music className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <div className="text-2xl font-bold">{stats.total}</div>
-                <div className="text-sm text-muted-foreground">Total Projects</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-lg bg-green-500/10">
-                <TrendingUp className="w-6 h-6 text-green-500" />
-              </div>
-              <div>
-                <div className="text-2xl font-bold">{stats.completed}</div>
-                <div className="text-sm text-muted-foreground">Completed</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-lg bg-blue-500/10">
-                <Users className="w-6 h-6 text-blue-500" />
-              </div>
-              <div>
-                <div className="text-2xl font-bold">{stats.inProgress}</div>
-                <div className="text-sm text-muted-foreground">In Progress</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-lg bg-yellow-500/10">
-                <Award className="w-6 h-6 text-yellow-500" />
-              </div>
-              <div>
-                <div className="text-2xl font-bold">{stats.pending}</div>
-                <div className="text-sm text-muted-foreground">Pending</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Projects Grid */}
-      {projects.length === 0 ? (
-        <Card className="p-12 text-center">
-          <Music className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-          <h3 className="text-xl font-semibold mb-2">No projects yet</h3>
-          <p className="text-muted-foreground mb-6">Start your first project and let AI help you create amazing music</p>
-          <Button onClick={() => setIsModalOpen(true)}>Create Project</Button>
-        </Card>
-      ) : (
-        <div className="grid gap-6 md:grid-cols-2">
-          {projects.map((project) => (
-            <ProjectCard
-              key={project.id}
-              project={project}
-              onStartSession={handleStartSession}
-            />
-          ))}
+      {newSessions.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-success animate-pulse" />
+            <h2 className="text-xl font-bold">New Sessions</h2>
+            <span className="text-sm text-muted-foreground">({newSessions.length})</span>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {newSessions.map((project) => (
+              <ProjectCard key={project.id} project={project} onStartSession={handleStartSession} />
+            ))}
+          </div>
         </div>
       )}
 
-      <ProjectCreationModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onProjectCreated={fetchProjects}
-      />
+      {inProgress.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-primary animate-pulse" />
+            <h2 className="text-xl font-bold">In Progress</h2>
+            <span className="text-sm text-muted-foreground">({inProgress.length})</span>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {inProgress.map((project) => (
+              <ProjectCard key={project.id} project={project} onStartSession={handleStartSession} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {awaitingReview.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-accent animate-pulse" />
+            <h2 className="text-xl font-bold">Awaiting Artist Review</h2>
+            <span className="text-sm text-muted-foreground">({awaitingReview.length})</span>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {awaitingReview.map((project) => (
+              <ProjectCard key={project.id} project={project} onStartSession={handleStartSession} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

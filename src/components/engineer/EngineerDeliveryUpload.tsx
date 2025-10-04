@@ -14,12 +14,20 @@ interface EngineerDeliveryUploadProps {
 }
 
 const DELIVERY_TYPES = [
-  { value: 'rough_mix', label: 'Rough Mix' },
-  { value: 'final_mix', label: 'Final Mix' },
-  { value: 'master', label: 'Master' },
-  { value: 'stems_package', label: 'Stems Package' },
-  { value: 'revision', label: 'Revision' },
+  { value: 'rough_mix', label: '🎧 Rough Mix', description: 'Initial balance for artist review' },
+  { value: 'revision', label: '🔄 Revision', description: 'Updated mix based on feedback' },
+  { value: 'final_mix', label: '✨ Final Mix', description: 'Approved final version' },
+  { value: 'master', label: '🎵 Master', description: 'Mastered & ready for release' },
+  { value: 'stems_package', label: '📦 Stems Package', description: 'Individual track exports' },
 ];
+
+const NOTES_TEMPLATES = {
+  rough_mix: 'Please review the overall balance and let me know if you have any feedback on the direction.',
+  revision: 'Changes made:\n- \n- \n- ',
+  final_mix: 'Final mix completed per your specifications. Ready for your approval.',
+  master: 'Mastered to streaming standards (-14 LUFS). Ready for distribution.',
+  stems_package: 'Individual stems exported at the same settings as the final mix.',
+};
 
 export const EngineerDeliveryUpload = ({ 
   projectId, 
@@ -59,6 +67,14 @@ export const EngineerDeliveryUpload = ({
     }
   };
 
+  // Auto-fill notes template when delivery type changes
+  const handleDeliveryTypeChange = (value: string) => {
+    setDeliveryType(value);
+    if (!notes.trim()) {
+      setNotes(NOTES_TEMPLATES[value as keyof typeof NOTES_TEMPLATES] || '');
+    }
+  };
+
   const handleSubmit = async () => {
     if (!selectedFile) return;
 
@@ -78,7 +94,10 @@ export const EngineerDeliveryUpload = ({
   return (
     <Card className="p-6 space-y-6">
       <div>
-        <h3 className="text-lg font-semibold">Upload Completed Mix</h3>
+        <h3 className="text-lg font-semibold flex items-center gap-2">
+          <span className="text-2xl">📤</span>
+          Upload Mix for Review
+        </h3>
         <p className="text-sm text-muted-foreground">Project: {projectTitle}</p>
       </div>
 
@@ -128,15 +147,18 @@ export const EngineerDeliveryUpload = ({
       </div>
 
       <div>
-        <label className="text-sm font-medium mb-2 block">Delivery Type</label>
-        <Select value={deliveryType} onValueChange={setDeliveryType}>
-          <SelectTrigger>
+        <label className="text-sm font-medium mb-2 block">Mix Version</label>
+        <Select value={deliveryType} onValueChange={handleDeliveryTypeChange}>
+          <SelectTrigger className="h-12">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             {DELIVERY_TYPES.map(type => (
               <SelectItem key={type.value} value={type.value}>
-                {type.label}
+                <div className="flex flex-col items-start py-1">
+                  <span className="font-medium">{type.label}</span>
+                  <span className="text-xs text-muted-foreground">{type.description}</span>
+                </div>
               </SelectItem>
             ))}
           </SelectContent>
@@ -148,10 +170,37 @@ export const EngineerDeliveryUpload = ({
         <Textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          placeholder="Add any notes about this mix version..."
-          rows={4}
+          placeholder="What should the artist know about this version?"
+          rows={5}
+          className="resize-none"
         />
+        <p className="text-xs text-muted-foreground mt-1">
+          Be specific about changes made or areas that need feedback
+        </p>
       </div>
+
+      {/* Quality Check Preview */}
+      {selectedFile && (
+        <div className="rounded-lg border border-success/20 bg-success/5 p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-lg">✅</span>
+            <h4 className="font-semibold text-sm">Quality Check</h4>
+          </div>
+          <div className="space-y-1.5 text-sm text-muted-foreground">
+            <div className="flex items-center justify-between">
+              <span>File Format:</span>
+              <span className="text-foreground font-medium">{selectedFile.name.split('.').pop()?.toUpperCase()}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span>File Size:</span>
+              <span className="text-foreground font-medium">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</span>
+            </div>
+            <p className="text-xs pt-2 border-t border-success/20 mt-2">
+              💡 Artist will receive instant notification when upload completes
+            </p>
+          </div>
+        </div>
+      )}
 
       {isUploading && (
         <div className="space-y-2">

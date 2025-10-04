@@ -102,9 +102,9 @@ export const EngineerBusinessHub = () => {
   return (
     <div className="space-y-6">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold mb-2">Earnings Dashboard</h2>
+        <h2 className="text-2xl font-bold mb-2">Earnings & Payouts</h2>
         <p className="text-muted-foreground">
-          Track your income and manage payouts
+          View your earnings and request withdrawals
         </p>
       </div>
 
