@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { useSessionCleanup } from '@/hooks/useSessionCleanup';
+import { useRealTimePresence } from '@/hooks/useRealTimePresence';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -94,6 +96,18 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
   const localStreamRef = useRef<MediaStream>();
   const audioContextRef = useRef<AudioContext>();
   const chatContainerRef = useRef<HTMLDivElement>(null);
+
+  // Session cleanup hook
+  useSessionCleanup(sessionId);
+
+  // Real-time presence
+  const { onlineUsers, isConnected: presenceConnected } = useRealTimePresence(`session-${sessionId}`);
+
+  // Memoize active participants count
+  const activeParticipantsCount = useMemo(
+    () => participants.filter(p => p.is_active).length,
+    [participants]
+  );
 
   useEffect(() => {
     if (sessionId && user) {
@@ -490,6 +504,12 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
               <div className="w-2 h-2 bg-white rounded-full mr-1"></div>
               Live
             </Badge>
+            {presenceConnected && (
+              <Badge variant="outline" className="gap-1">
+                <Users className="w-3 h-3" />
+                {onlineUsers.length} online
+              </Badge>
+            )}
           </div>
           
           <div className="flex items-center gap-2">
@@ -530,7 +550,7 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
               </p>
               <div className="flex items-center justify-center gap-4">
                 <Card className="p-4 bg-muted/50">
-                  <div className="text-2xl font-bold text-primary">{participants.length}</div>
+                  <div className="text-2xl font-bold text-primary">{activeParticipantsCount}</div>
                   <div className="text-xs text-muted-foreground">Active Users</div>
                 </Card>
                 <Card className="p-4 bg-muted/50">
