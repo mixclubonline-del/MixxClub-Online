@@ -18,6 +18,8 @@ const AdminMarketplace = () => {
   const [syncing, setSyncing] = useState(false);
   const [productCount, setProductCount] = useState(0);
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
+  const [pendingStorefronts, setPendingStorefronts] = useState<any[]>([]);
+  const [totalSales, setTotalSales] = useState(0);
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -35,6 +37,8 @@ const AdminMarketplace = () => {
       setIsAdmin(true);
       setLoading(false);
       loadProductStats();
+      loadPendingStorefronts();
+      loadSalesStats();
     };
 
     checkAdmin();
@@ -51,6 +55,72 @@ const AdminMarketplace = () => {
       setProductCount(count || 0);
     } catch (error: any) {
       console.error('Error loading product stats:', error);
+    }
+  };
+
+  const loadPendingStorefronts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('artist_storefronts')
+        .select(`
+          *,
+          profiles (
+            full_name,
+            avatar_url
+          )
+        `)
+        .eq('is_approved', false)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setPendingStorefronts(data || []);
+    } catch (error: any) {
+      console.error('Error loading pending storefronts:', error);
+    }
+  };
+
+  const loadSalesStats = async () => {
+    try {
+      const { count, error } = await supabase
+        .from('merch_sales')
+        .select('*', { count: 'exact', head: true });
+
+      if (error) throw error;
+      setTotalSales(count || 0);
+    } catch (error: any) {
+      console.error('Error loading sales stats:', error);
+    }
+  };
+
+  const handleApproveStorefront = async (storefrontId: string) => {
+    try {
+      const { error } = await supabase
+        .from('artist_storefronts')
+        .update({ is_approved: true })
+        .eq('id', storefrontId);
+
+      if (error) throw error;
+      toast.success('Storefront approved!');
+      loadPendingStorefronts();
+    } catch (error: any) {
+      toast.error('Failed to approve storefront');
+      console.error(error);
+    }
+  };
+
+  const handleRejectStorefront = async (storefrontId: string) => {
+    try {
+      const { error } = await supabase
+        .from('artist_storefronts')
+        .delete()
+        .eq('id', storefrontId);
+
+      if (error) throw error;
+      toast.success('Storefront rejected');
+      loadPendingStorefronts();
+    } catch (error: any) {
+      toast.error('Failed to reject storefront');
+      console.error(error);
     }
   };
 
@@ -109,6 +179,56 @@ const AdminMarketplace = () => {
         {/* Merch Store Flowchart */}
         <MerchStoreFlowchart />
 
+        {pendingStorefronts.length > 0 && (
+          <Card className="border-yellow-500">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Badge variant="outline" className="bg-yellow-500/10">
+                  {pendingStorefronts.length} Pending
+                </Badge>
+                Artist Storefront Approvals
+              </CardTitle>
+              <CardDescription>Review and approve artist storefronts</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {pendingStorefronts.map((storefront) => (
+                  <div key={storefront.id} className="flex items-center justify-between border-b pb-4">
+                    <div className="flex items-center gap-3">
+                      <img 
+                        src={storefront.profiles?.avatar_url || '/placeholder.svg'} 
+                        alt={storefront.profiles?.full_name}
+                        className="h-12 w-12 rounded-full object-cover"
+                      />
+                      <div>
+                        <p className="font-medium">{storefront.profiles?.full_name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          /{storefront.storefront_slug}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleRejectStorefront(storefront.id)}
+                      >
+                        Reject
+                      </Button>
+                      <Button 
+                        size="sm"
+                        onClick={() => handleApproveStorefront(storefront.id)}
+                      >
+                        Approve
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <div className="grid gap-6 md:grid-cols-3 mb-6">
           <Card>
             <CardHeader>
@@ -146,13 +266,13 @@ const AdminMarketplace = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <DollarSign className="w-5 h-5" />
-                Revenue (Coming Soon)
+                Total Sales
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold">$0.00</p>
+              <p className="text-3xl font-bold">{totalSales}</p>
               <p className="text-sm text-muted-foreground mt-1">
-                Total merch sales
+                Merch orders placed
               </p>
             </CardContent>
           </Card>

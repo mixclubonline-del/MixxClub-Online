@@ -1045,6 +1045,57 @@ export type Database = {
         }
         Relationships: []
       }
+      artist_storefronts: {
+        Row: {
+          artist_id: string
+          banner_image_url: string | null
+          bio: string | null
+          commission_rate: number
+          created_at: string
+          id: string
+          is_approved: boolean
+          storefront_slug: string
+          updated_at: string
+        }
+        Insert: {
+          artist_id: string
+          banner_image_url?: string | null
+          bio?: string | null
+          commission_rate?: number
+          created_at?: string
+          id?: string
+          is_approved?: boolean
+          storefront_slug: string
+          updated_at?: string
+        }
+        Update: {
+          artist_id?: string
+          banner_image_url?: string | null
+          bio?: string | null
+          commission_rate?: number
+          created_at?: string
+          id?: string
+          is_approved?: boolean
+          storefront_slug?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artist_storefronts_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artist_storefronts_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: true
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       attorney_notifications: {
         Row: {
           attorney_email: string
@@ -4229,6 +4280,7 @@ export type Database = {
       }
       merch_products: {
         Row: {
+          artist_id: string | null
           created_at: string | null
           description: string | null
           id: string
@@ -4239,6 +4291,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          artist_id?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -4249,6 +4302,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          artist_id?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -4258,7 +4312,83 @@ export type Database = {
           thumbnail_url?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "merch_products_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artist_storefronts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      merch_sales: {
+        Row: {
+          artist_id: string | null
+          commission_amount: number
+          created_at: string
+          currency: string
+          customer_id: string | null
+          id: string
+          product_id: string
+          sale_amount: number
+          sale_date: string
+          variant_id: string
+        }
+        Insert: {
+          artist_id?: string | null
+          commission_amount?: number
+          created_at?: string
+          currency?: string
+          customer_id?: string | null
+          id?: string
+          product_id: string
+          sale_amount: number
+          sale_date?: string
+          variant_id: string
+        }
+        Update: {
+          artist_id?: string | null
+          commission_amount?: number
+          created_at?: string
+          currency?: string
+          customer_id?: string | null
+          id?: string
+          product_id?: string
+          sale_amount?: number
+          sale_date?: string
+          variant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "merch_sales_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artist_storefronts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "merch_sales_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "merch_sales_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "merch_sales_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "merch_products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       merch_variants: {
         Row: {

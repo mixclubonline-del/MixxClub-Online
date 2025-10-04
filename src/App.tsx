@@ -129,6 +129,8 @@ const PresentationShare = React.lazy(() => import('./pages/PresentationShare'));
 import { JobBoard } from './pages/JobBoard';
 import ProjectDetail from "./pages/ProjectDetail";
 import MerchStore from "./pages/MerchStore";
+import ArtistStorefront from "./pages/ArtistStorefront";
+import ArtistMerchManager from "./pages/ArtistMerchManager";
 import NotFound from "./pages/NotFound";
 import MobileHome from "./pages/MobileHome";
 import MobileLanding from "./pages/MobileLanding";
@@ -282,6 +284,8 @@ const AppContent = () => {
             
             {/* Merch Store */}
             <Route path="/merch" element={<AppLayout><MerchStore /></AppLayout>} />
+            <Route path="/merch/:username" element={<AppLayout><ArtistStorefront /></AppLayout>} />
+            <Route path="/artist/merch-manager" element={<AppLayout><ArtistMerchManager /></AppLayout>} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
