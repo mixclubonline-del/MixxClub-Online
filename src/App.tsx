@@ -14,6 +14,7 @@ import { AdminRoute } from "@/components/admin/AdminRoute";
 import { usePageTracking } from "@/hooks/useAnalytics";
 
 // Lazy load heavy components
+const MixClubHome = React.lazy(() => import("./pages/MixClubHome"));
 const Home = React.lazy(() => import("./pages/Home"));
 const ArtistCRM = React.lazy(() => import("./pages/ArtistCRM"));
 const EngineerCRM = React.lazy(() => import("./pages/EngineerCRM"));
@@ -152,8 +153,8 @@ const AppContent = () => {
       <MobileRouteGuard />
       <OfflineIndicator />
       <React.Suspense fallback={<DashboardSkeleton />}>
-        <Routes>
-                <Route path="/" element={<Home />} />
+      <Routes>
+        <Route path="/" element={<MixClubHome />} />
             <Route path="/mix-battles" element={<MixBattles />} />
             <Route path="/leaderboard" element={<CommunityLeaderboard />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
