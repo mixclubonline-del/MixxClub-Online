@@ -3,6 +3,7 @@ import { NetworkHero } from '@/components/mixclub/NetworkHero';
 import { FeatureHub } from '@/components/mixclub/FeatureHub';
 import { MissionSection } from '@/components/mixclub/MissionSection';
 import { CTASection } from '@/components/mixclub/CTASection';
+import GlobalHeader from '@/components/GlobalHeader';
 
 export default function MixClubHome() {
   return (
@@ -20,6 +21,7 @@ export default function MixClubHome() {
         {/* Animated background grid */}
         <div className="fixed inset-0 bg-[linear-gradient(to_right,hsl(235_40%_20%/0.1)_1px,transparent_1px),linear-gradient(to_bottom,hsl(235_40%_20%/0.1)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
         
+        <GlobalHeader />
         <NetworkHero />
         <MissionSection />
         <FeatureHub />
