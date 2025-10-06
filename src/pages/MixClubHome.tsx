@@ -4,6 +4,7 @@ import { FeatureHub } from '@/components/mixclub/FeatureHub';
 import { MissionSection } from '@/components/mixclub/MissionSection';
 import { CTASection } from '@/components/mixclub/CTASection';
 import GlobalHeader from '@/components/GlobalHeader';
+import EcosystemSection from '@/components/mixclub/EcosystemSection';
 
 export default function MixClubHome() {
   return (
@@ -24,6 +25,7 @@ export default function MixClubHome() {
         <GlobalHeader />
         <NetworkHero />
         <MissionSection />
+        <EcosystemSection />
         <FeatureHub />
         <CTASection />
       </div>
