@@ -27,6 +27,7 @@ const AIMastering = React.lazy(() => import("./pages/AIMastering"));
 import MixBattles from "./pages/MixBattles";
 import CommunityLeaderboard from "./pages/CommunityLeaderboard";
 import HowItWorks from "./pages/HowItWorks";
+import Network from "./pages/Network";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
 import ArtistOnboarding from "./pages/ArtistOnboarding";
@@ -155,6 +156,7 @@ const AppContent = () => {
       <React.Suspense fallback={<DashboardSkeleton />}>
       <Routes>
         <Route path="/" element={<MixClubHome />} />
+            <Route path="/network" element={<Network />} />
             <Route path="/mix-battles" element={<MixBattles />} />
             <Route path="/leaderboard" element={<CommunityLeaderboard />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
