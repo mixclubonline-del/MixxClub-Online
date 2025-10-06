@@ -130,6 +130,10 @@ export default {
           "50%": { transform: "scale(1.05)", filter: "brightness(1.2)" },
           "100%": { transform: "scale(1)", filter: "brightness(1)" },
         },
+        "glow-pulse": {
+          "0%, 100%": { opacity: "1", filter: "brightness(1)" },
+          "50%": { opacity: "0.85", filter: "brightness(1.2)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -147,6 +151,7 @@ export default {
         "shake-gentle": "shake-gentle 0.5s ease-in-out",
         "pulse-ring": "pulse-ring 1.5s ease-out infinite",
         bloom: "bloom 0.8s ease-in-out",
+        "glow-pulse": "glow-pulse 2s ease-in-out infinite",
       },
     },
   },
