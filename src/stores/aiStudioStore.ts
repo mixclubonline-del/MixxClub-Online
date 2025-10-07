@@ -76,14 +76,59 @@ interface AIStudioStore {
 }
 
 export const useAIStudioStore = create<AIStudioStore>((set) => ({
-  // Initial state
-  tracks: [],
+  // Initial state with demo tracks
+  tracks: [
+    {
+      id: 'track-1',
+      name: 'Vocals',
+      type: 'vocal',
+      volume: 0.8,
+      pan: 0,
+      mute: false,
+      solo: false,
+      peakLevel: 0,
+      rmsLevel: 0,
+    },
+    {
+      id: 'track-2',
+      name: 'Drums',
+      type: 'drums',
+      volume: 0.75,
+      pan: 0,
+      mute: false,
+      solo: false,
+      peakLevel: 0,
+      rmsLevel: 0,
+    },
+    {
+      id: 'track-3',
+      name: 'Bass',
+      type: 'bass',
+      volume: 0.7,
+      pan: 0,
+      mute: false,
+      solo: false,
+      peakLevel: 0,
+      rmsLevel: 0,
+    },
+    {
+      id: 'track-4',
+      name: 'Keys',
+      type: 'keys',
+      volume: 0.65,
+      pan: 0,
+      mute: false,
+      solo: false,
+      peakLevel: 0,
+      rmsLevel: 0,
+    },
+  ],
   selectedTrackId: null,
   effects: [],
   isPlaying: false,
   isRecording: false,
   currentTime: 0,
-  duration: 0,
+  duration: 180,
   tempo: 120,
   processing: {
     isProcessing: false,

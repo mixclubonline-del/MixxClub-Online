@@ -181,6 +181,33 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 235 40% 20%;
     --sidebar-ring: 265 85% 65%;
+
+    /* Modern Studio Theme - Flat & Dark */
+    --studio-black: 0 0% 4%;
+    --studio-panel: 0 0% 8%;
+    --studio-panel-raised: 0 0% 12%;
+    --studio-border: 0 0% 16%;
+    --studio-text: 0 0% 91%;
+    --studio-text-dim: 0 0% 50%;
+
+    /* Waveform Colors - Vibrant & Colorful */
+    --wave-vocal: 180 100% 50%;
+    --wave-drums: 300 100% 60%;
+    --wave-bass: 142 100% 45%;
+    --wave-keys: 38 100% 55%;
+    --wave-guitar: 0 100% 55%;
+    --wave-other: 195 100% 60%;
+
+    /* LED Colors for VU Meters */
+    --led-green: 142 100% 50%;
+    --led-yellow: 60 100% 50%;
+    --led-red: 0 100% 50%;
+    --led-blue: 195 100% 60%;
+    --led-off: 0 0% 10%;
+
+    /* Studio Accent - Cyan for selection */
+    --studio-accent: 180 100% 50%;
+    --studio-accent-glow: 180 100% 50%;
   }
 }
 
