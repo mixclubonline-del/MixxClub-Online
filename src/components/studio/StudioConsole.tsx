@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ChannelStrip } from './ChannelStrip';
 import { VUMeter } from './VUMeter';
 import { useAIStudioStore } from '@/stores/aiStudioStore';
@@ -209,5 +210,3 @@ export const StudioConsole = () => {
     </div>
   );
 };
-
-import { useState } from 'react';

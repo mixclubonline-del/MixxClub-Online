@@ -12,6 +12,8 @@ export interface Track {
   waveformData?: number[];
   peakLevel: number;
   rmsLevel: number;
+  analysis?: AudioAnalysis;
+  color?: string;
 }
 
 export interface EffectUnit {
@@ -27,6 +29,14 @@ export interface ProcessingState {
   isProcessing: boolean;
   progress: number;
   currentOperation: string;
+  error?: string;
+}
+
+export interface AudioAnalysis {
+  rms: number;
+  peak: number;
+  spectral: number[];
+  lufs: number;
 }
 
 interface AIStudioStore {

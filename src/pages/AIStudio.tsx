@@ -9,6 +9,7 @@ import { TransportControls } from "@/components/studio/TransportControls";
 import { WaveformTimeline } from "@/components/studio/WaveformTimeline";
 import { BrowserSidebar } from "@/components/studio/BrowserSidebar";
 import { InspectorSidebar } from "@/components/studio/InspectorSidebar";
+import { AudioEngine } from "@/components/studio/AudioEngine";
 import { useAIStudioStore } from "@/stores/aiStudioStore";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
@@ -130,6 +131,7 @@ export default function AIStudio() {
           background: 'var(--bg-workspace)',
         }}
       >
+        <AudioEngine />
         <GlobalHeader />
 
         {/* Transport Bar - Fixed at top */}

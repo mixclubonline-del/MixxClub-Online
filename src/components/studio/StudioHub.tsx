@@ -146,21 +146,21 @@ const StudioHub = ({ userRole }: StudioHubProps) => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background p-6">
+    <div className="min-h-screen p-6" style={{ background: 'var(--bg-workspace)' }}>
       {/* Gamification HUD */}
       <div className="max-w-7xl mx-auto mb-6 animate-fade-in">
-        <Card className="p-4 bg-gradient-to-r from-card/90 to-card/70 backdrop-blur-md border-primary/20">
+        <Card className="p-4 glass-studio border-[hsl(var(--studio-border)/0.5)] shadow-[var(--shadow-glass-lg)]">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-gradient-to-br from-primary to-primary-glow rounded-xl">
+              <div className="p-3 bg-gradient-primary rounded-xl shadow-[var(--shadow-glow)]">
                 <Award className="w-8 h-8 text-white" />
               </div>
               <div>
-                <h3 className="text-2xl font-bold flex items-center gap-2">
+                <h3 className="text-2xl font-bold flex items-center gap-2 text-[hsl(var(--studio-text))]">
                   Level {stats.level}
-                  <Sparkles className="w-5 h-5 text-primary animate-pulse" />
+                  <Sparkles className="w-5 h-5 text-[hsl(var(--studio-accent))] animate-pulse" />
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-[hsl(var(--studio-text-dim))]">
                   {stats.xp} / {stats.nextLevelXp} XP to Level {stats.level + 1}
                 </p>
               </div>
@@ -168,16 +168,16 @@ const StudioHub = ({ userRole }: StudioHubProps) => {
 
             <div className="flex items-center gap-6 flex-wrap">
               <div className="text-center">
-                <div className="text-2xl font-bold text-primary">{stats.streak}</div>
-                <div className="text-xs text-muted-foreground">Day Streak 🔥</div>
+                <div className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">{stats.streak}</div>
+                <div className="text-xs text-[hsl(var(--studio-text-dim))]">Day Streak 🔥</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-accent-cyan">{stats.completedProjects}</div>
-                <div className="text-xs text-muted-foreground">Completed</div>
+                <div className="text-2xl font-bold text-[hsl(var(--waveform-cyan))]">{stats.completedProjects}</div>
+                <div className="text-xs text-[hsl(var(--studio-text-dim))]">Completed</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-accent-blue">{stats.totalCollaborators}</div>
-                <div className="text-xs text-muted-foreground">Collaborators</div>
+                <div className="text-2xl font-bold text-[hsl(var(--waveform-blue))]">{stats.totalCollaborators}</div>
+                <div className="text-xs text-[hsl(var(--studio-text-dim))]">Collaborators</div>
               </div>
             </div>
           </div>
@@ -191,10 +191,10 @@ const StudioHub = ({ userRole }: StudioHubProps) => {
       <div className="max-w-7xl mx-auto">
         {/* Hero Section */}
         <div className="mb-8 text-center animate-scale-in">
-          <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-primary via-accent-cyan to-accent-blue bg-clip-text text-transparent">
+          <h1 className="text-5xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
             Studio Collaboration Hub
           </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-xl text-[hsl(var(--studio-text-dim))] max-w-2xl mx-auto">
             Connect with {userRole === 'artist' ? 'engineers' : 'artists'} worldwide. 
             Create music together in real-time. 🌍✨
           </p>
@@ -205,11 +205,11 @@ const StudioHub = ({ userRole }: StudioHubProps) => {
           {actionCards.map((card, index) => (
             <Card 
               key={index}
-              className="group bloom-hover cursor-pointer overflow-hidden animate-fade-in"
+              className="group glass-studio bloom-hover cursor-pointer overflow-hidden animate-fade-in border-[hsl(var(--studio-border)/0.5)] shadow-[var(--shadow-glass)] hover:shadow-[var(--shadow-glass-lg)]"
               style={{ animationDelay: `${index * 100}ms` }}
               onClick={card.action}
             >
-              <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} opacity-10 group-hover:opacity-20 transition-opacity`}></div>
+              <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} opacity-10 group-hover:opacity-25 transition-opacity`}></div>
               <div className="relative p-6">
                 <div className="mb-4 flex items-start justify-between">
                   <div className={`p-4 bg-gradient-to-br ${card.gradient} rounded-xl shadow-glow-sm`}>
@@ -232,13 +232,13 @@ const StudioHub = ({ userRole }: StudioHubProps) => {
 
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Live Activity Feed */}
-          <Card className="lg:col-span-2 p-6 animate-slide-up">
+          <Card className="lg:col-span-2 p-6 animate-slide-up glass-studio border-[hsl(var(--studio-border)/0.5)] shadow-[var(--shadow-glass)]">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold flex items-center gap-2">
-                <Radio className="w-5 h-5 text-green-500 pulse-live" />
+              <h3 className="text-xl font-bold flex items-center gap-2 text-[hsl(var(--studio-text))]">
+                <Radio className="w-5 h-5 text-[hsl(var(--led-green))] pulse-live" />
                 Live Activity
               </h3>
-              <Badge className="bg-green-500 text-white">
+              <Badge className="bg-[hsl(var(--led-green))] text-white shadow-[var(--shadow-glow-led-green)]">
                 <div className="w-2 h-2 bg-white rounded-full mr-1 animate-pulse"></div>
                 Live
               </Badge>
