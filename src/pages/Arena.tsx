@@ -1,11 +1,15 @@
 import { Helmet } from 'react-helmet-async';
 import GlobalHeader from '@/components/GlobalHeader';
-import AIActivityFeed from '@/components/dashboard/AIActivityFeed';
+import ActiveBattles from '@/components/arena-hub/ActiveBattles';
+import TournamentBracket from '@/components/arena-hub/TournamentBracket';
+import HallOfFame from '@/components/arena-hub/HallOfFame';
+import BattleSchedule from '@/components/arena-hub/BattleSchedule';
+import YourBattleStats from '@/components/arena-hub/YourBattleStats';
 import { usePrime } from '@/contexts/PrimeContext';
 import PrimeGlow from '@/components/prime/PrimeGlow';
 
 export default function Arena() {
-  const { accentColor, systemMode } = usePrime();
+  const { systemMode } = usePrime();
   
   return (
     <>
@@ -24,33 +28,31 @@ export default function Arena() {
           <PrimeGlow intensity={0.9}>
             <div className="text-center mb-12">
               <div className="text-6xl mb-4">⚔️</div>
-            <h1 className="text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-primary to-destructive">
-              Mixx Arena
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Battle arena for mix competitions. Compete, vote, and earn rewards based on your mixing skills.
-            </p>
-            <div className="text-sm font-mono text-accent-cyan mt-4">
-              PRIME STATUS: {systemMode.toUpperCase()}
+              <h1 className="text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-primary to-destructive">
+                Mixx Arena
+              </h1>
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+                Battle arena for mix competitions. Compete, vote, and earn rewards.
+              </p>
+              <div className="text-sm font-mono text-accent-cyan mt-4">
+                PRIME STATUS: {systemMode.toUpperCase()}
+              </div>
             </div>
-          </div>
           </PrimeGlow>
 
-          <div className="grid md:grid-cols-2 gap-8 mb-12">
-            <div className="p-8 rounded-xl bg-card/30 backdrop-blur-sm border border-white/5">
-              <h2 className="text-2xl font-semibold mb-4">Coming Soon</h2>
-              <ul className="space-y-3 text-muted-foreground">
-                <li>⚔️ Weekly mix battles</li>
-                <li>🗳️ Community voting system</li>
-                <li>🏆 Leaderboards & rankings</li>
-                <li>💰 Prize pools & rewards</li>
-                <li>🎖️ Battle badges & titles</li>
-              </ul>
+          <div className="space-y-8 mb-12">
+            <ActiveBattles />
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <TournamentBracket />
+              <BattleSchedule />
             </div>
 
-            <div className="p-8 rounded-xl bg-card/30 backdrop-blur-sm border border-white/5">
-              <h2 className="text-2xl font-semibold mb-4">Battle Matching</h2>
-              <AIActivityFeed />
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="md:col-span-2">
+                <HallOfFame />
+              </div>
+              <YourBattleStats />
             </div>
           </div>
 
