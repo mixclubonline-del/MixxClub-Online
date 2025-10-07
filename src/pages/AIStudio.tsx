@@ -3,6 +3,11 @@ import { Helmet } from 'react-helmet-async';
 import GlobalHeader from "@/components/GlobalHeader";
 import { usePrime } from "@/contexts/PrimeContext";
 import { useToast } from "@/hooks/use-toast";
+import { StudioConsole } from "@/components/studio/StudioConsole";
+import { HardwareRack } from "@/components/studio/HardwareRack";
+import { TransportControls } from "@/components/studio/TransportControls";
+import { useAIStudioStore } from "@/stores/aiStudioStore";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 function Panel({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -49,9 +54,18 @@ export default function AIStudio() {
   const { systemMode, userMood } = usePrime();
   const { toast } = useToast();
   const fileRef = useRef<HTMLInputElement | null>(null);
-  const [mix, setMix] = useState({ vocal: 65, drums: 55, bass: 58, keys: 48, width: 40, glue: 30 });
-  const [master, setMaster] = useState({ loudness: 65, clarity: 55, tone: 50 });
   const [uploadName, setUploadName] = useState<string | null>(null);
+  
+  const {
+    isPlaying,
+    currentTime,
+    duration,
+    tempo,
+    effects,
+    setPlaying,
+    setTempo,
+    updateEffect,
+  } = useAIStudioStore();
 
   const speak = (message: string) => {
     toast({ title: message });
@@ -141,106 +155,70 @@ export default function AIStudio() {
           )}
         </section>
 
-        {/* Panels */}
-        <section className="max-w-6xl mx-auto px-6 pb-24 grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* AI Mixer */}
-          <Panel title="AI Mixer">
-            <div className="grid grid-cols-2 gap-4">
-              <Range label="Vocals" value={mix.vocal} onChange={(v) => setMix((m) => ({ ...m, vocal: v }))} />
-              <Range label="Drums" value={mix.drums} onChange={(v) => setMix((m) => ({ ...m, drums: v }))} />
-              <Range label="Bass" value={mix.bass} onChange={(v) => setMix((m) => ({ ...m, bass: v }))} />
-              <Range label="Keys/Synths" value={mix.keys} onChange={(v) => setMix((m) => ({ ...m, keys: v }))} />
-              <Range label="Stereo Width" value={mix.width} onChange={(v) => setMix((m) => ({ ...m, width: v }))} />
-              <Range label="Glue (Bus Comp)" value={mix.glue} onChange={(v) => setMix((m) => ({ ...m, glue: v }))} />
-            </div>
-            <div className="mt-4 text-xs text-muted-foreground">
-              Prime Suggestion: raise **Vocals** +4 dB @ 3 kHz, reduce **Bass** -2 dB @ 120 Hz.
-            </div>
-          </Panel>
+        {/* Studio Interface */}
+        <section className="max-w-7xl mx-auto px-6 pb-24">
+          <Tabs defaultValue="console" className="w-full">
+            <TabsList className="grid w-full max-w-md mx-auto grid-cols-3 mb-6">
+              <TabsTrigger value="console">Console</TabsTrigger>
+              <TabsTrigger value="rack">Effects Rack</TabsTrigger>
+              <TabsTrigger value="insights">AI Insights</TabsTrigger>
+            </TabsList>
 
-          {/* Mastering Chain */}
-          <Panel title="AI Mastering Chain">
-            <div className="h-24 w-full rounded-lg bg-[hsl(var(--card)/0.8)] border border-[hsl(var(--border)/0.5)] relative overflow-hidden">
-              {/* faux waveform */}
-              <div className="absolute inset-0 flex items-end gap-[6px] px-3">
-                {Array.from({ length: 80 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="w-[3px] bg-[hsl(var(--primary))] animate-audio-wave"
-                    style={{ height: `${20 + ((i * 13) % 60)}%`, animationDelay: `${(i % 12) * 0.05}s` }}
-                  />
-                ))}
-              </div>
+            {/* Transport Controls */}
+            <div className="mb-6">
+              <TransportControls
+                isPlaying={isPlaying}
+                isRecording={false}
+                currentTime={currentTime}
+                duration={duration}
+                tempo={tempo}
+                onPlay={() => setPlaying(!isPlaying)}
+                onStop={() => setPlaying(false)}
+                onRecord={() => toast({ title: "Recording feature coming soon" })}
+                onTempoChange={setTempo}
+              />
             </div>
-            <div className="grid grid-cols-3 gap-4 mt-4">
-              <Range label="Loudness" value={master.loudness} onChange={(v) => setMaster((m) => ({ ...m, loudness: v }))} />
-              <Range label="Clarity" value={master.clarity} onChange={(v) => setMaster((m) => ({ ...m, clarity: v }))} />
-              <Range label="Tone Match" value={master.tone} onChange={(v) => setMaster((m) => ({ ...m, tone: v }))} />
-            </div>
-            <div className="mt-3 flex gap-3">
-              <button
-                onClick={() => speak("Prime: A/B preview engaged.")}
-                className="px-4 py-2 rounded-md bg-[hsl(var(--card))] border border-[hsl(var(--border)/0.6)] hover:bg-[hsl(var(--card)/0.9)] transition text-sm"
-              >
-                A/B Preview
-              </button>
-              <button
-                onClick={() => speak("Prime: Mastered preview rendered.")}
-                className="px-4 py-2 rounded-md bg-gradient-primary hover:bg-gradient-primary-hover transition text-sm"
-              >
-                Render Preview
-              </button>
-            </div>
-          </Panel>
 
-          {/* Prime Insights */}
-          <Panel title="Prime Insights">
-            <div className="text-sm text-[hsl(var(--foreground)/0.9)] leading-relaxed">
-              <p>• Vocal clarity target: +2.5 dB @ 3.2 kHz (Q 1.1)</p>
-              <p>• Transient control: fast attack on drum bus (3–5 ms)</p>
-              <p>• Stereo width: +8 % above 8 kHz, keep mono below 120 Hz</p>
-              <p className="mt-2 text-muted-foreground">
-                Tip: drag "Glue" to 35–45 % for tighter chorus sections.
-              </p>
-            </div>
-          </Panel>
+            <TabsContent value="console" className="mt-0">
+              <StudioConsole />
+            </TabsContent>
 
-          {/* Custom Plugin Rack */}
-          <Panel title="Custom Plugin Rack">
-            <div className="grid sm:grid-cols-3 gap-3">
-              {[
-                { name: "Vocal Cleanser", tag: "De-ess / De-noise" },
-                { name: "Analog Glue", tag: "Bus Comp" },
-                { name: "Air EQ", tag: "+10 kHz sheen" },
-                { name: "Tape Color", tag: "Sat / Warmth" },
-                { name: "Perfect Reverb", tag: "Plate/Hall" },
-                { name: "Wide Stereo", tag: "M/S width" },
-              ].map((p) => (
-                <button
-                  key={p.name}
-                  onClick={() => speak(`Prime: Loaded "${p.name}" to the chain.`)}
-                  className="bloom-hover rounded-xl p-4 text-left bg-[hsl(var(--card)/0.7)] border border-[hsl(var(--border)/0.5)]"
-                >
-                  <div className="text-sm font-semibold">{p.name}</div>
-                  <div className="text-[11px] text-muted-foreground">{p.tag}</div>
-                </button>
-              ))}
-            </div>
-            <div className="mt-4 flex gap-3">
-              <button
-                onClick={() => speak("Prime: Saved preset to your library.")}
-                className="px-4 py-2 rounded-md bg-[hsl(var(--card))] border border-[hsl(var(--border)/0.6)] hover:bg-[hsl(var(--card)/0.9)] transition text-sm"
-              >
-                Save Preset
-              </button>
-              <button
-                onClick={() => speak("Prime: Exporting settings for MixxPort.")}
-                className="px-4 py-2 rounded-md bg-gradient-ai-intelligence text-foreground hover:shadow-[var(--shadow-glow-blue)] transition text-sm"
-              >
-                Export to MixxPort
-              </button>
-            </div>
-          </Panel>
+            <TabsContent value="rack" className="mt-0">
+              <HardwareRack
+                effects={effects}
+                onAddEffect={() => toast({ title: "Effect browser coming soon" })}
+                onToggleEffect={(id) => {
+                  const effect = effects.find(e => e.id === id);
+                  if (effect) {
+                    updateEffect(id, { enabled: !effect.enabled });
+                  }
+                }}
+                onConfigureEffect={(id) => toast({ title: `Configure ${id}` })}
+                onUpdateParameter={(id, param, value) => {
+                  const effect = effects.find(e => e.id === id);
+                  if (effect) {
+                    updateEffect(id, {
+                      parameters: { ...effect.parameters, [param]: value }
+                    });
+                  }
+                }}
+                onRemoveEffect={() => {}}
+              />
+            </TabsContent>
+
+            <TabsContent value="insights" className="mt-0">
+              <Panel title="Prime Insights">
+                <div className="text-sm text-[hsl(var(--foreground)/0.9)] leading-relaxed">
+                  <p>• Vocal clarity target: +2.5 dB @ 3.2 kHz (Q 1.1)</p>
+                  <p>• Transient control: fast attack on drum bus (3–5 ms)</p>
+                  <p>• Stereo width: +8 % above 8 kHz, keep mono below 120 Hz</p>
+                  <p className="mt-2 text-muted-foreground">
+                    Tip: Upload audio files to get AI-powered analysis and suggestions.
+                  </p>
+                </div>
+              </Panel>
+            </TabsContent>
+          </Tabs>
         </section>
 
         {/* Footer console bar (subtle) */}
