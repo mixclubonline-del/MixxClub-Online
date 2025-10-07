@@ -54,13 +54,20 @@ export const VUMeter = ({
         </span>
       )}
       
-      <div className={cn(
-        'relative rounded overflow-hidden bg-[hsl(var(--studio-black))] border border-[hsl(var(--studio-border))]',
-        sizeClasses[size]
-      )}>
+      <div 
+        className={cn(
+          'relative rounded overflow-hidden',
+          sizeClasses[size]
+        )}
+        style={{
+          background: 'hsl(var(--studio-black))',
+          boxShadow: 'var(--shadow-recessed)',
+          border: '1px solid hsl(0 0% 0% / 0.6)',
+        }}
+      >
         {/* Segmented LEDs */}
         <div className={cn(
-          'absolute inset-0 flex gap-[1px] p-[1px]',
+          'absolute inset-0 flex gap-[0.5px] p-[2px]',
           vertical ? 'flex-col-reverse' : 'flex-row'
         )}>
           {Array.from({ length: segments }).map((_, i) => {
@@ -68,19 +75,25 @@ export const VUMeter = ({
             const isLit = normalizedLevel >= segmentPos;
             const isPeak = peakHold && Math.abs(peak - segmentPos) < 0.05;
             
+            const getSegmentShadow = () => {
+              if (!isLit && !isPeak) return 'inset 0 1px 2px hsl(0 0% 0% / 0.5)';
+              if (i > segments * 0.85) return 'var(--shadow-glow-led-red), inset 0 -1px 2px hsl(0 100% 30%)';
+              if (i > segments * 0.65) return 'var(--shadow-glow-led-yellow), inset 0 -1px 2px hsl(60 100% 30%)';
+              return 'var(--shadow-glow-led-green), inset 0 -1px 2px hsl(142 100% 30%)';
+            };
+            
             return (
               <div
                 key={i}
                 className={cn(
-                  'flex-1 transition-all duration-75',
+                  'flex-1 transition-all duration-75 rounded-[1px]',
                   isLit || isPeak 
                     ? getSegmentColor(i)
                     : 'bg-[hsl(var(--led-off))]'
                 )}
                 style={{
-                  boxShadow: isLit 
-                    ? `0 0 4px ${i > segments * 0.85 ? 'hsl(var(--led-red))' : i > segments * 0.65 ? 'hsl(var(--led-yellow))' : 'hsl(var(--led-green))'}`
-                    : 'none'
+                  boxShadow: getSegmentShadow(),
+                  border: isLit ? '0.5px solid rgba(255,255,255,0.2)' : '0.5px solid rgba(0,0,0,0.3)',
                 }}
               />
             );

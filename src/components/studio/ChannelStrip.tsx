@@ -76,12 +76,20 @@ export const ChannelStrip = ({
   return (
     <div
       className={cn(
-        'flex flex-col items-center gap-2 p-2 rounded bg-[hsl(var(--studio-panel))] border transition-all cursor-pointer',
+        'flex flex-col items-center gap-2 p-2 rounded cursor-pointer transition-all',
+        'w-16 h-[500px] relative',
         isSelected 
-          ? 'border-[hsl(var(--studio-accent))] shadow-[0_0_12px_hsl(var(--studio-accent-glow)/0.3)]' 
-          : 'border-[hsl(var(--studio-border))] hover:border-[hsl(var(--studio-panel-raised))]',
-        'w-16 h-[500px]'
+          ? 'border-[hsl(var(--studio-accent))]' 
+          : 'border-[hsl(var(--studio-border))] hover:border-[hsl(var(--studio-border))]'
       )}
+      style={{
+        background: 'var(--panel-gradient)',
+        boxShadow: isSelected 
+          ? 'var(--shadow-raised-lg), 0 0 20px hsl(var(--studio-accent) / 0.4)' 
+          : 'var(--shadow-raised)',
+        borderTop: '1px solid var(--border-highlight-top)',
+        borderBottom: '1px solid var(--border-highlight-bottom)',
+      }}
       onClick={onSelect}
       onMouseUp={() => {
         setIsDraggingFader(false);
@@ -111,9 +119,20 @@ export const ChannelStrip = ({
         {[1, 2, 3, 4].map((slot) => (
           <div
             key={slot}
-            className="h-3 rounded bg-[hsl(var(--studio-black))] border border-[hsl(var(--studio-border))] flex items-center justify-center"
+            className="h-3 rounded flex items-center justify-center"
+            style={{
+              background: 'hsl(var(--studio-black))',
+              boxShadow: 'var(--shadow-recessed)',
+              border: '1px solid hsl(0 0% 0% / 0.6)',
+            }}
           >
-            <div className="w-1 h-1 rounded-full bg-[hsl(var(--led-off))]" />
+            <div 
+              className="w-1 h-1 rounded-full"
+              style={{
+                background: 'hsl(var(--led-off))',
+                boxShadow: 'inset 0 1px 2px hsl(0 0% 0% / 0.5)',
+              }}
+            />
           </div>
         ))}
       </div>
@@ -134,14 +153,24 @@ export const ChannelStrip = ({
       {/* Pan knob */}
       <div className="flex flex-col items-center gap-0.5 w-full">
         <div 
-          className="relative w-10 h-10 rounded-full bg-[hsl(var(--studio-black))] border border-[hsl(var(--studio-border))] cursor-ew-resize"
+          className="relative w-10 h-10 rounded-full cursor-ew-resize"
+          style={{
+            background: 'var(--knob-gradient)',
+            boxShadow: 'var(--shadow-recessed), inset 0 1px 1px hsl(0 0% 30% / 0.3)',
+            border: '1px solid hsl(0 0% 0% / 0.5)',
+          }}
           onMouseDown={handlePanMouseDown}
           onMouseMove={handlePanMouseMove}
         >
+          {/* Center dot */}
+          <div className="absolute top-1/2 left-1/2 w-1.5 h-1.5 bg-[hsl(var(--studio-text-dim))] rounded-full -translate-x-1/2 -translate-y-1/2" />
+          {/* Indicator line */}
           <div 
-            className="absolute top-1/2 left-1/2 w-1 h-3 bg-[hsl(var(--studio-text))] rounded-full origin-bottom"
+            className="absolute top-1/2 left-1/2 w-0.5 h-3 rounded-full origin-bottom"
             style={{ 
               transform: `translate(-50%, -50%) rotate(${track.pan * 135}deg)`,
+              background: 'linear-gradient(180deg, hsl(var(--studio-text)), hsl(var(--studio-text-dim)))',
+              boxShadow: '0 0 4px hsl(var(--studio-text) / 0.5)',
             }}
           />
         </div>
@@ -169,24 +198,39 @@ export const ChannelStrip = ({
       {/* Fader */}
       <div className="flex-1 flex flex-col items-center w-full">
         <div 
-          className="relative h-full w-2 bg-[hsl(var(--studio-black))] border border-[hsl(var(--studio-border))] rounded cursor-ns-resize"
+          className="relative h-full w-3 rounded cursor-ns-resize"
+          style={{
+            background: 'var(--fader-gradient)',
+            boxShadow: 'var(--shadow-recessed-deep)',
+            border: '1px solid hsl(0 0% 0% / 0.6)',
+          }}
           onMouseDown={handleFaderMouseDown}
           onMouseMove={handleFaderMouseMove}
         >
+          {/* Fader rail highlight */}
+          <div className="absolute inset-y-0 left-0 w-px bg-[hsl(0_0%_18%/0.5)]" />
+          
+          {/* Fader cap */}
           <div
             className={cn(
-              'absolute left-1/2 -translate-x-1/2 w-6 h-4 rounded-sm',
-              'bg-[hsl(var(--studio-panel-raised))] border border-[hsl(var(--studio-border))]',
-              'shadow-sm transition-shadow',
-              isDraggingFader && 'shadow-[0_0_8px_hsl(var(--studio-accent-glow)/0.3)]'
+              'absolute left-1/2 -translate-x-1/2 w-7 h-5 rounded transition-all',
+              isDraggingFader && 'scale-110'
             )}
             style={{
               top: `${(1 - track.volume) * 100}%`,
               transform: 'translate(-50%, -50%)',
+              background: 'var(--fader-cap-gradient)',
+              boxShadow: isDraggingFader 
+                ? 'var(--shadow-raised-lg), 0 0 12px hsl(var(--studio-accent) / 0.4)' 
+                : 'var(--shadow-raised)',
+              borderTop: '1px solid hsl(0 0% 35%)',
+              borderBottom: '1px solid hsl(0 0% 5%)',
             }}
           >
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-0.5 h-2 bg-[hsl(var(--studio-text-dim))] rounded-full" />
+            {/* Cap detail lines */}
+            <div className="absolute inset-x-2 top-1/2 -translate-y-1/2 flex flex-col gap-0.5">
+              <div className="h-px bg-[hsl(0_0%_30%)]" />
+              <div className="h-px bg-[hsl(0_0%_10%)]" />
             </div>
           </div>
         </div>

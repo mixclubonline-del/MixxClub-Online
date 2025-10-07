@@ -35,7 +35,15 @@ export const StudioConsole = () => {
   };
 
   return (
-    <div className="bg-[hsl(var(--studio-panel))] rounded border border-[hsl(var(--studio-border))] p-4">
+    <div 
+      className="rounded p-4"
+      style={{
+        background: 'var(--panel-gradient)',
+        boxShadow: 'var(--shadow-raised)',
+        borderTop: '1px solid var(--border-highlight-top)',
+        borderBottom: '1px solid var(--border-highlight-bottom)',
+      }}
+    >
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-xs font-mono uppercase tracking-wider text-[hsl(var(--studio-text))]">
           Mixing Console
@@ -44,7 +52,13 @@ export const StudioConsole = () => {
           <span className="text-[9px] font-mono text-[hsl(var(--studio-text-dim))]">
             {tracks.length} Channels
           </span>
-          <div className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--led-green))] animate-pulse" />
+          <div 
+            className="w-1.5 h-1.5 rounded-full animate-pulse"
+            style={{
+              background: 'hsl(var(--led-green))',
+              boxShadow: 'var(--shadow-glow-led-green)',
+            }}
+          />
         </div>
       </div>
 
@@ -95,10 +109,16 @@ export const StudioConsole = () => {
         {tracks.length > 0 && (
           <div
             className={cn(
-              'flex flex-col items-center gap-2 p-2 rounded ml-2 border-2',
-              'bg-[hsl(var(--studio-panel-raised))] border-[hsl(var(--studio-accent))]',
+              'flex flex-col items-center gap-2 p-2 rounded ml-2',
               'w-20 h-[500px] flex-shrink-0'
             )}
+            style={{
+              background: 'var(--panel-gradient-raised)',
+              boxShadow: 'var(--shadow-raised-lg), 0 0 20px hsl(var(--studio-accent) / 0.3)',
+              borderTop: '2px solid hsl(var(--studio-accent))',
+              borderLeft: '1px solid var(--border-highlight-top)',
+              borderRight: '1px solid var(--border-highlight-bottom)',
+            }}
           >
             <div className="flex flex-col items-center gap-0.5">
               <span className="text-[10px] font-bold uppercase tracking-wider text-[hsl(var(--studio-accent))]">
@@ -128,23 +148,37 @@ export const StudioConsole = () => {
             {/* Master fader */}
             <div className="flex-1 flex flex-col items-center w-full">
               <div 
-                className="relative h-full w-3 bg-[hsl(var(--studio-black))] border-2 border-[hsl(var(--studio-accent))] rounded cursor-ns-resize"
+                className="relative h-full w-4 rounded cursor-ns-resize"
+                style={{
+                  background: 'var(--fader-gradient)',
+                  boxShadow: 'var(--shadow-recessed-deep)',
+                  border: '2px solid hsl(var(--studio-accent))',
+                }}
                 onMouseDown={handleMasterFaderMouseDown}
                 onMouseMove={handleMasterFaderMouseMove}
               >
+                {/* Fader rail highlight */}
+                <div className="absolute inset-y-0 left-0 w-px bg-[hsl(0_0%_18%/0.5)]" />
+                
+                {/* Master fader cap - larger and more prominent */}
                 <div
                   className={cn(
-                    'absolute left-1/2 -translate-x-1/2 w-8 h-5 rounded',
-                    'bg-[hsl(var(--studio-accent))] border border-[hsl(var(--studio-border))]',
-                    'shadow-[0_0_12px_hsl(var(--studio-accent-glow)/0.4)]'
+                    'absolute left-1/2 -translate-x-1/2 w-10 h-6 rounded transition-all',
+                    isDraggingMaster && 'scale-110'
                   )}
                   style={{
                     top: `${(1 - masterVolume) * 100}%`,
                     transform: 'translate(-50%, -50%)',
+                    background: 'linear-gradient(180deg, hsl(180 100% 55%), hsl(180 100% 45%))',
+                    boxShadow: 'var(--shadow-raised-lg), var(--shadow-glow-cyan)',
+                    borderTop: '1px solid hsl(180 100% 70%)',
+                    borderBottom: '1px solid hsl(180 100% 35%)',
                   }}
                 >
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-1 h-3 bg-black/30 rounded-full" />
+                  {/* Cap detail lines */}
+                  <div className="absolute inset-x-2 top-1/2 -translate-y-1/2 flex flex-col gap-0.5">
+                    <div className="h-px bg-white/20" />
+                    <div className="h-px bg-black/20" />
                   </div>
                 </div>
               </div>
@@ -155,11 +189,18 @@ export const StudioConsole = () => {
 
             {/* Output LED */}
             <div className="flex flex-col items-center gap-1">
-              <div className={cn(
-                'w-3 h-3 rounded-full',
-                masterPeakLevel > 0.95 ? 'bg-[hsl(var(--led-red))]' : 'bg-[hsl(var(--led-green))]',
-                'shadow-[0_0_8px_currentColor] animate-pulse'
-              )} />
+              <div 
+                className={cn(
+                  'w-3 h-3 rounded-full animate-pulse',
+                  masterPeakLevel > 0.95 ? 'bg-[hsl(var(--led-red))]' : 'bg-[hsl(var(--led-green))]'
+                )}
+                style={{
+                  boxShadow: masterPeakLevel > 0.95 
+                    ? 'var(--shadow-glow-led-red), inset 0 -1px 2px hsl(0 100% 30%)'
+                    : 'var(--shadow-glow-led-green), inset 0 -1px 2px hsl(142 100% 30%)',
+                  border: '0.5px solid rgba(255,255,255,0.3)',
+                }}
+              />
               <span className="text-[7px] text-[hsl(var(--studio-text-dim))]">OUT</span>
             </div>
           </div>
