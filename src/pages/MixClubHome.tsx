@@ -3,8 +3,7 @@ import { FeatureHub } from '@/components/mixclub/FeatureHub';
 import { MissionSection } from '@/components/mixclub/MissionSection';
 import { CTASection } from '@/components/mixclub/CTASection';
 import GlobalHeader from '@/components/GlobalHeader';
-import EcosystemSection from '@/components/mixclub/EcosystemSection';
-import HubDashboard from '@/components/dashboard/HubDashboard';
+import NeuralHub from '@/components/mixclub/NeuralHub';
 
 export default function MixClubHome() {
   return (
@@ -19,12 +18,8 @@ export default function MixClubHome() {
       </Helmet>
 
       <div className="min-h-screen bg-[#0a0a1a]">
-        {/* Subtle moving light field */}
-        <div className="fixed inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent-blue/5 animate-pulse-slow" />
-        
         <GlobalHeader />
-        <HubDashboard />
-        <EcosystemSection />
+        <NeuralHub />
         <MissionSection />
         <FeatureHub />
         <CTASection />
