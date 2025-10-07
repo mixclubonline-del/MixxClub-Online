@@ -17,6 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { Button } from "@/components/ui/button";
 import { Plug2, Upload } from "lucide-react";
+import { AudioAnalysisPanel } from "@/components/studio/AudioAnalysisPanel";
 
 function Panel({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -66,6 +67,8 @@ export default function AIStudio() {
   const [uploadName, setUploadName] = useState<string | null>(null);
   const [isPluginManagerOpen, setIsPluginManagerOpen] = useState(false);
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
+  const [latestAnalysis, setLatestAnalysis] = useState<any>(null);
+  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
   
   // Panel size state with localStorage persistence
   const [browserSize, setBrowserSize] = useState(() => {
@@ -108,6 +111,7 @@ export default function AIStudio() {
     setCurrentTime,
     updateEffect,
     updateTrack,
+    addTrack,
   } = useAIStudioStore();
 
   const speak = (message: string) => {
@@ -121,13 +125,113 @@ export default function AIStudio() {
     setTimeout(() => speak("Prime: Ready — apply recommendations when you're set."), 6200);
   };
 
-  const handleImportComplete = (file: any) => {
-    toast({
-      title: "Audio Imported",
-      description: `${file.fileName} added to studio`,
-    });
-    startAnalysis(file.fileName);
-    setIsImportDialogOpen(false);
+  const detectTrackType = (fileName: string, instruments: string[] = []): 'vocal' | 'drums' | 'bass' | 'keys' | 'guitar' | 'other' => {
+    const nameLower = fileName.toLowerCase();
+    const instrumentStr = instruments.join(' ').toLowerCase();
+    
+    if (nameLower.includes('vocal') || nameLower.includes('voice') || instrumentStr.includes('vocal')) return 'vocal';
+    if (nameLower.includes('drum') || nameLower.includes('kick') || nameLower.includes('808') || instrumentStr.includes('drum')) return 'drums';
+    if (nameLower.includes('bass') || instrumentStr.includes('bass')) return 'bass';
+    if (nameLower.includes('key') || nameLower.includes('piano') || instrumentStr.includes('piano') || instrumentStr.includes('synth')) return 'keys';
+    if (nameLower.includes('guitar') || instrumentStr.includes('guitar')) return 'guitar';
+    
+    return 'other';
+  };
+
+  const loadAudioBuffer = async (url: string): Promise<{ buffer: AudioBuffer; waveform: number[] }> => {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const response = await fetch(url);
+    const arrayBuffer = await response.arrayBuffer();
+    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+    
+    // Generate waveform data
+    const channelData = audioBuffer.getChannelData(0);
+    const waveform: number[] = [];
+    const peakSamples = 1000;
+    const samplesPerPeak = Math.floor(channelData.length / peakSamples);
+    
+    for (let i = 0; i < peakSamples; i++) {
+      let peak = 0;
+      for (let j = 0; j < samplesPerPeak; j++) {
+        const sample = Math.abs(channelData[i * samplesPerPeak + j] || 0);
+        peak = Math.max(peak, sample);
+      }
+      waveform.push(peak);
+    }
+    
+    return { buffer: audioBuffer, waveform };
+  };
+
+  const handleImportComplete = async (file: any) => {
+    setIsLoadingAudio(true);
+    
+    try {
+      // Determine track type
+      const trackType = detectTrackType(file.fileName, file.analysis?.instruments || []);
+      
+      // Generate unique track name
+      const baseName = file.fileName.replace(/\.[^/.]+$/, ''); // Remove extension
+      let trackName = baseName;
+      let counter = 2;
+      while (tracks.some(t => t.name === trackName)) {
+        trackName = `${baseName} (${counter})`;
+        counter++;
+      }
+      
+      // Load audio buffer and generate waveform
+      const { buffer, waveform } = await loadAudioBuffer(file.url);
+      
+      // Create new track
+      const newTrack = {
+        id: `track-${Date.now()}`,
+        name: trackName,
+        type: trackType,
+        volume: 0.8,
+        pan: 0,
+        mute: false,
+        solo: false,
+        peakLevel: 0,
+        rmsLevel: 0,
+        audioBuffer: buffer,
+        waveformData: waveform,
+        analysis: file.analysis,
+        color: `hsl(${Math.random() * 360}, 70%, 60%)`,
+      };
+      
+      // Add track to store
+      addTrack(newTrack);
+      
+      // Auto-configure session if first track
+      if (tracks.length === 0 && file.analysis?.bpm) {
+        setTempo(file.analysis.recommendations?.sessionBpm || file.analysis.bpm);
+      }
+      
+      // Store analysis for display
+      if (file.analysis) {
+        setLatestAnalysis({
+          ...file.analysis,
+          trackName: trackName
+        });
+      }
+      
+      toast({
+        title: "Track Added!",
+        description: `${trackName} (${trackType}) imported to Track ${tracks.length + 1}`,
+      });
+      
+      startAnalysis(trackName);
+      setIsImportDialogOpen(false);
+      
+    } catch (error) {
+      console.error('Error loading audio:', error);
+      toast({
+        title: "Import Error",
+        description: "Failed to load audio buffer. File may be corrupted.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoadingAudio(false);
+    }
   };
 
   return (
@@ -311,17 +415,24 @@ export default function AIStudio() {
                     />
                   </TabsContent>
 
-                  <TabsContent value="insights" className="flex-1 overflow-auto mt-0 px-4">
-                    <Panel title="Prime Insights">
-                      <div className="text-sm text-[hsl(var(--studio-text))] leading-relaxed">
-                        <p>• Vocal clarity target: +2.5 dB @ 3.2 kHz (Q 1.1)</p>
-                        <p>• Transient control: fast attack on drum bus (3–5 ms)</p>
-                        <p>• Stereo width: +8 % above 8 kHz, keep mono below 120 Hz</p>
-                        <p className="mt-2 text-[hsl(var(--studio-text-dim))]">
-                          Tip: Upload audio files to get AI-powered analysis and suggestions.
-                        </p>
-                      </div>
-                    </Panel>
+                  <TabsContent value="insights" className="flex-1 overflow-auto mt-0 px-4 py-4">
+                    {latestAnalysis ? (
+                      <AudioAnalysisPanel 
+                        analysis={latestAnalysis} 
+                        trackName={latestAnalysis.trackName}
+                      />
+                    ) : (
+                      <Panel title="Prime Insights">
+                        <div className="text-sm text-[hsl(var(--studio-text))] leading-relaxed">
+                          <p>• Vocal clarity target: +2.5 dB @ 3.2 kHz (Q 1.1)</p>
+                          <p>• Transient control: fast attack on drum bus (3–5 ms)</p>
+                          <p>• Stereo width: +8 % above 8 kHz, keep mono below 120 Hz</p>
+                          <p className="mt-2 text-[hsl(var(--studio-text-dim))]">
+                            Tip: Upload audio files to get AI-powered analysis and suggestions.
+                          </p>
+                        </div>
+                      </Panel>
+                    )}
                   </TabsContent>
                 </Tabs>
               </ResizablePanel>
