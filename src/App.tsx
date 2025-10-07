@@ -12,6 +12,9 @@ import { OfflineIndicator } from "@/components/mobile/OfflineIndicator";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AdminRoute } from "@/components/admin/AdminRoute";
 import { usePageTracking } from "@/hooks/useAnalytics";
+import { PrimeProvider } from "@/contexts/PrimeContext";
+import PrimeConsole from "@/components/prime/PrimeConsole";
+import PrimeStatusBar from "@/components/prime/PrimeStatusBar";
 
 // Lazy load heavy components
 const MixClubHome = React.lazy(() => import("./pages/MixClubHome"));
@@ -159,6 +162,8 @@ const AppContent = () => {
     <>
       <MobileRouteGuard />
       <OfflineIndicator />
+      <PrimeConsole />
+      <PrimeStatusBar />
       <React.Suspense fallback={<DashboardSkeleton />}>
       <Routes>
         <Route path="/" element={<MixClubHome />} />
@@ -317,13 +322,15 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <ErrorBoundary>
-            <AppContent />
-            <PersistentChatbot />
-            <PWAInstallPrompt />
-            <PerformanceMonitor />
-            <CookieConsent />
-          </ErrorBoundary>
+          <PrimeProvider>
+            <ErrorBoundary>
+              <AppContent />
+              <PersistentChatbot />
+              <PWAInstallPrompt />
+              <PerformanceMonitor />
+              <CookieConsent />
+            </ErrorBoundary>
+          </PrimeProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

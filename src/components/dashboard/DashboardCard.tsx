@@ -2,6 +2,8 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useAudioVisualization } from "@/hooks/useAudioVisualization";
 import { useState } from "react";
+import { usePrime } from "@/contexts/PrimeContext";
+import PrimeGlow from "@/components/prime/PrimeGlow";
 
 interface DashboardCardProps {
   icon: string;
@@ -29,6 +31,7 @@ export default function DashboardCard({
   delay = 0
 }: DashboardCardProps) {
   const { audioData } = useAudioVisualization();
+  const { accentColor } = usePrime();
   const [ripples, setRipples] = useState<Array<{ x: number; y: number; id: number }>>([]);
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -41,13 +44,14 @@ export default function DashboardCard({
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay }}
-      className="relative"
-    >
-      <Link to={route}>
+    <PrimeGlow intensity={0.5}>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay }}
+        className="relative"
+      >
+        <Link to={route}>
         <div 
           onClick={handleClick}
           className="relative group h-full p-6 rounded-xl bg-card/30 backdrop-blur-sm border border-white/5 hover:border-white/20 transition-all duration-300 overflow-hidden"
@@ -149,8 +153,9 @@ export default function DashboardCard({
           <div className="mt-4 text-sm font-medium text-foreground/80 group-hover:text-foreground transition-colors">
             Enter →
           </div>
-        </div>
-      </Link>
-    </motion.div>
+          </div>
+        </Link>
+      </motion.div>
+    </PrimeGlow>
   );
 }
