@@ -11,11 +11,12 @@ import { BrowserSidebar } from "@/components/studio/BrowserSidebar";
 import { InspectorSidebar } from "@/components/studio/InspectorSidebar";
 import { AudioEngine } from "@/components/studio/AudioEngine";
 import { PluginManager } from "@/components/plugins/PluginManager";
+import AudioImportDialog from "@/components/AudioImportDialog";
 import { useAIStudioStore } from "@/stores/aiStudioStore";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { Button } from "@/components/ui/button";
-import { Plug2 } from "lucide-react";
+import { Plug2, Upload } from "lucide-react";
 
 function Panel({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -64,6 +65,7 @@ export default function AIStudio() {
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [uploadName, setUploadName] = useState<string | null>(null);
   const [isPluginManagerOpen, setIsPluginManagerOpen] = useState(false);
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
   
   // Panel size state with localStorage persistence
   const [browserSize, setBrowserSize] = useState(() => {
@@ -117,6 +119,15 @@ export default function AIStudio() {
     setTimeout(() => speak("Prime: Detecting stems & spectral balance…"), 1800);
     setTimeout(() => speak("Prime: Suggesting mix improvements…"), 3800);
     setTimeout(() => speak("Prime: Ready — apply recommendations when you're set."), 6200);
+  };
+
+  const handleImportComplete = (file: any) => {
+    toast({
+      title: "Audio Imported",
+      description: `${file.fileName} added to studio`,
+    });
+    startAnalysis(file.fileName);
+    setIsImportDialogOpen(false);
   };
 
   return (
@@ -250,13 +261,22 @@ export default function AIStudio() {
                     <StudioConsole />
                   </TabsContent>
 
-                  <TabsContent value="rack" className="flex-1 overflow-auto mt-0 px-4 py-4">
+                   <TabsContent value="rack" className="flex-1 overflow-auto mt-0 px-4 py-4">
                     <div className="flex justify-between items-center mb-6">
                       <h3 className="text-lg font-semibold">Plugin Suite</h3>
-                      <Button onClick={() => setIsPluginManagerOpen(true)}>
-                        <Plug2 className="w-4 h-4 mr-2" />
-                        Open Plugin Manager
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline"
+                          onClick={() => setIsImportDialogOpen(true)}
+                        >
+                          <Upload className="w-4 h-4 mr-2" />
+                          Import Audio
+                        </Button>
+                        <Button onClick={() => setIsPluginManagerOpen(true)}>
+                          <Plug2 className="w-4 h-4 mr-2" />
+                          Plugin Manager
+                        </Button>
+                      </div>
                     </div>
                     <HardwareRack
                       effects={effects}
@@ -323,6 +343,15 @@ export default function AIStudio() {
           isOpen={isPluginManagerOpen} 
           onClose={() => setIsPluginManagerOpen(false)} 
         />
+
+        {/* Audio Import Dialog */}
+        {isImportDialogOpen && (
+          <AudioImportDialog
+            sessionId="ai-studio-default"
+            onImportComplete={handleImportComplete}
+            onClose={() => setIsImportDialogOpen(false)}
+          />
+        )}
       </main>
     </>
   );
