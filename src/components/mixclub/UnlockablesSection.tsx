@@ -3,82 +3,31 @@ import { Lock, Unlock, Users, Trophy, Sparkles, Zap, Crown, Rocket } from 'lucid
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { useCommunityMilestones } from '@/hooks/useCommunityMilestones';
 
-interface Milestone {
-  id: string;
-  title: string;
-  description: string;
-  target: number;
-  current: number;
-  unlocked: boolean;
-  icon: any;
-  reward: string;
-}
-
-const milestones: Milestone[] = [
-  {
-    id: '1',
-    title: 'Community Foundations',
-    description: 'Reach 100 active members',
-    target: 100,
-    current: 87,
-    unlocked: false,
-    icon: Users,
-    reward: 'Unlock Group Collaboration Rooms'
-  },
-  {
-    id: '2',
-    title: 'First 1000',
-    description: 'Welcome 1,000 artists & engineers',
-    target: 1000,
-    current: 234,
-    unlocked: false,
-    icon: Trophy,
-    reward: 'Unlock Advanced AI Mastering Tools'
-  },
-  {
-    id: '3',
-    title: 'Battle Ready',
-    description: 'Host 50 mix battles',
-    target: 50,
-    current: 12,
-    unlocked: false,
-    icon: Zap,
-    reward: 'Unlock Tournament Mode & Prize Pool'
-  },
-  {
-    id: '4',
-    title: 'Global Network',
-    description: 'Reach 5,000 community members',
-    target: 5000,
-    current: 234,
-    unlocked: false,
-    icon: Rocket,
-    reward: 'Unlock Regional Hubs & Local Events'
-  },
-  {
-    id: '5',
-    title: 'Industry Standard',
-    description: 'Complete 10,000 projects',
-    target: 10000,
-    current: 1456,
-    unlocked: false,
-    icon: Crown,
-    reward: 'Unlock Professional Certification Program'
-  },
-  {
-    id: '6',
-    title: 'AI Evolution',
-    description: '100,000 AI analyses completed',
-    target: 100000,
-    current: 8934,
-    unlocked: false,
-    icon: Sparkles,
-    reward: 'Unlock Prime 5.0 Beta Access'
-  }
-];
+// Icon mapping for milestone types
+const iconMap: Record<string, any> = {
+  Users,
+  Trophy,
+  Sparkles,
+  Zap,
+  Crown,
+  Rocket,
+};
 
 export const UnlockablesSection = () => {
+  const { data: milestones, isLoading } = useCommunityMilestones();
+
+  if (isLoading) {
+    return (
+      <section className="relative py-32 px-4 overflow-hidden">
+        <div className="max-w-7xl mx-auto text-center">
+          <p className="text-muted-foreground">Loading community milestones...</p>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="relative py-32 px-4 overflow-hidden">
       {/* Background effects */}
@@ -109,9 +58,9 @@ export const UnlockablesSection = () => {
 
         {/* Milestones Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {milestones.map((milestone, index) => {
-            const progress = (milestone.current / milestone.target) * 100;
-            const Icon = milestone.icon;
+          {(milestones || []).map((milestone, index) => {
+            const progress = milestone.progress_percentage;
+            const Icon = iconMap[milestone.icon_name || 'Trophy'] || Trophy;
             
             return (
               <motion.div
@@ -123,7 +72,7 @@ export const UnlockablesSection = () => {
                 whileHover={{ y: -5, scale: 1.02 }}
               >
                 <Card className={`relative p-6 glass border transition-all duration-300 ${
-                  milestone.unlocked 
+                  milestone.is_unlocked 
                     ? 'border-primary shadow-glow' 
                     : progress > 80 
                     ? 'border-primary/50' 
@@ -132,18 +81,18 @@ export const UnlockablesSection = () => {
                   {/* Status indicator */}
                   <div className="flex items-start justify-between mb-4">
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                      milestone.unlocked 
+                      milestone.is_unlocked 
                         ? 'bg-primary/20' 
                         : 'bg-muted'
                     }`}>
                       <Icon className={`w-6 h-6 ${
-                        milestone.unlocked 
+                        milestone.is_unlocked 
                           ? 'text-primary' 
                           : 'text-muted-foreground'
                       }`} />
                     </div>
                     
-                    {milestone.unlocked ? (
+                    {milestone.is_unlocked ? (
                       <Unlock className="w-5 h-5 text-primary" />
                     ) : (
                       <Lock className="w-5 h-5 text-muted-foreground" />
@@ -151,9 +100,9 @@ export const UnlockablesSection = () => {
                   </div>
 
                   {/* Content */}
-                  <h3 className="text-xl font-bold mb-2">{milestone.title}</h3>
+                  <h3 className="text-xl font-bold mb-2">{milestone.milestone_name}</h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    {milestone.description}
+                    {milestone.milestone_description}
                   </p>
 
                   {/* Progress */}
@@ -161,7 +110,7 @@ export const UnlockablesSection = () => {
                     <div className="flex justify-between text-xs">
                       <span className="text-muted-foreground">Progress</span>
                       <span className="font-semibold">
-                        {milestone.current.toLocaleString()} / {milestone.target.toLocaleString()}
+                        {milestone.current_value.toLocaleString()} / {milestone.target_value.toLocaleString()}
                       </span>
                     </div>
                     <Progress 
@@ -171,18 +120,20 @@ export const UnlockablesSection = () => {
                   </div>
 
                   {/* Reward */}
-                  <div className={`p-3 rounded-lg border ${
-                    milestone.unlocked 
-                      ? 'bg-primary/10 border-primary/30' 
-                      : 'bg-muted/50 border-border'
-                  }`}>
-                    <p className="text-xs font-medium">
-                      {milestone.unlocked ? '✓ Unlocked:' : '🔒 Unlocks:'} {milestone.reward}
-                    </p>
-                  </div>
+                  {milestone.reward_description && (
+                    <div className={`p-3 rounded-lg border ${
+                      milestone.is_unlocked 
+                        ? 'bg-primary/10 border-primary/30' 
+                        : 'bg-muted/50 border-border'
+                    }`}>
+                      <p className="text-xs font-medium">
+                        {milestone.is_unlocked ? '✓ Unlocked:' : '🔒 Unlocks:'} {milestone.reward_description}
+                      </p>
+                    </div>
+                  )}
 
                   {/* Pulse effect for near completion */}
-                  {!milestone.unlocked && progress > 80 && (
+                  {!milestone.is_unlocked && progress > 80 && (
                     <motion.div
                       className="absolute inset-0 rounded-lg border-2 border-primary/50"
                       animate={{
