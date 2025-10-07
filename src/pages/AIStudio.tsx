@@ -94,7 +94,12 @@ export default function AIStudio() {
         />
       </Helmet>
 
-      <main className="h-screen flex flex-col bg-[hsl(var(--studio-black))] text-[hsl(var(--studio-text))] overflow-hidden">
+      <main 
+        className="h-screen flex flex-col text-[hsl(var(--studio-text))] overflow-hidden"
+        style={{
+          background: 'var(--bg-workspace)',
+        }}
+      >
         <GlobalHeader />
 
         {/* Transport Bar - Fixed at top */}

@@ -57,14 +57,50 @@ export const WaveformTimeline = ({
   // Get color for track type
   const getTrackColor = (type: Track['type']) => {
     const colors: Record<Track['type'], string> = {
-      vocal: 'hsl(var(--wave-vocal))',
-      drums: 'hsl(var(--wave-drums))',
-      bass: 'hsl(var(--wave-bass))',
-      keys: 'hsl(var(--wave-keys))',
-      guitar: 'hsl(var(--wave-guitar))',
-      other: 'hsl(var(--wave-other))',
+      vocal: 'hsl(180, 100%, 50%)',
+      drums: 'hsl(300, 100%, 60%)',
+      bass: 'hsl(142, 100%, 45%)',
+      keys: 'hsl(38, 100%, 55%)',
+      guitar: 'hsl(0, 100%, 55%)',
+      other: 'hsl(195, 100%, 60%)',
     };
     return colors[type] || colors.other;
+  };
+
+  // Helper to convert HSL to RGB for gradient
+  const getRgbFromHsl = (hslString: string) => {
+    const match = hslString.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
+    if (!match) return { r: 255, g: 255, b: 255 };
+    
+    const h = parseInt(match[1]) / 360;
+    const s = parseInt(match[2]) / 100;
+    const l = parseInt(match[3]) / 100;
+    
+    let r, g, b;
+    if (s === 0) {
+      r = g = b = l;
+    } else {
+      const hue2rgb = (p: number, q: number, t: number) => {
+        if (t < 0) t += 1;
+        if (t > 1) t -= 1;
+        if (t < 1/6) return p + (q - p) * 6 * t;
+        if (t < 1/2) return q;
+        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+        return p;
+      };
+      
+      const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+      const p = 2 * l - q;
+      r = hue2rgb(p, q, h + 1/3);
+      g = hue2rgb(p, q, h);
+      b = hue2rgb(p, q, h - 1/3);
+    }
+    
+    return {
+      r: Math.round(r * 255),
+      g: Math.round(g * 255),
+      b: Math.round(b * 255)
+    };
   };
 
   // Draw waveforms on canvas
@@ -103,40 +139,73 @@ export const WaveformTimeline = ({
 
     // Draw tracks
     tracks.forEach((track, index) => {
-      const y = index * trackHeight;
-      const waveform = generateWaveform(track.type);
-      const color = getTrackColor(track.type);
+      const trackY = index * trackHeight;
+      const trackColor = getTrackColor(track.type);
       
       // Draw track background
-      if (hoveredTrack === track.id) {
-        ctx.fillStyle = 'hsl(var(--studio-panel-raised))';
-        ctx.fillRect(0, y, rect.width, trackHeight);
-      }
+      ctx.fillStyle = hoveredTrack === track.id 
+        ? 'hsl(220, 16%, 20%)' 
+        : 'hsl(220, 18%, 16%)';
+      ctx.fillRect(0, trackY, rect.width, trackHeight);
 
-      // Draw waveform
-      ctx.fillStyle = color;
-      ctx.globalAlpha = 0.6;
+      // Draw waveform with gradient fill
+      const waveformData = track.waveformData || generateWaveform(track.type);
+      const step = Math.max(1, Math.floor(waveformData.length / canvas.width));
       
-      const regionWidth = duration * pixelsPerSecond;
-      const stepWidth = regionWidth / waveform.length;
+      // Create gradient for waveform
+      const gradient = ctx.createLinearGradient(0, trackY, 0, trackY + trackHeight);
+      const rgb = getRgbFromHsl(trackColor);
+      gradient.addColorStop(0, `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.9)`);
+      gradient.addColorStop(0.5, `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.6)`);
+      gradient.addColorStop(1, `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.3)`);
       
-      for (let i = 0; i < waveform.length; i++) {
-        const x = i * stepWidth;
-        const amplitude = waveform[i];
-        const barHeight = (trackHeight * 0.6) * amplitude;
-        const barY = y + (trackHeight / 2) - (barHeight / 2);
-        
-        ctx.fillRect(x, barY, Math.max(2, stepWidth - 1), barHeight);
+      // Draw filled waveform
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.moveTo(0, trackY + trackHeight / 2);
+      
+      for (let x = 0; x < canvas.width; x++) {
+        const dataIndex = Math.floor(x * step);
+        const amplitude = waveformData[dataIndex] || 0;
+        const y = trackY + (trackHeight / 2) - (amplitude * trackHeight * 0.4);
+        ctx.lineTo(x, y);
       }
       
-      ctx.globalAlpha = 1;
+      for (let x = canvas.width - 1; x >= 0; x--) {
+        const dataIndex = Math.floor(x * step);
+        const amplitude = waveformData[dataIndex] || 0;
+        const y = trackY + (trackHeight / 2) + (amplitude * trackHeight * 0.4);
+        ctx.lineTo(x, y);
+      }
+      
+      ctx.closePath();
+      ctx.fill();
+      
+      // Add glow effect for peaks
+      ctx.shadowColor = trackColor;
+      ctx.shadowBlur = 8;
+      ctx.strokeStyle = trackColor;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      
+      for (let x = 0; x < canvas.width; x++) {
+        const dataIndex = Math.floor(x * step);
+        const amplitude = waveformData[dataIndex] || 0;
+        const y = trackY + (trackHeight / 2) - (amplitude * trackHeight * 0.4);
+        
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      
+      ctx.stroke();
+      ctx.shadowBlur = 0;
 
       // Draw track separator
-      ctx.strokeStyle = 'hsl(var(--studio-border))';
+      ctx.strokeStyle = 'hsl(220, 14%, 28%)';
       ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.moveTo(0, y + trackHeight);
-      ctx.lineTo(rect.width, y + trackHeight);
+      ctx.moveTo(0, trackY + trackHeight);
+      ctx.lineTo(rect.width, trackY + trackHeight);
       ctx.stroke();
     });
 
@@ -178,9 +247,21 @@ export const WaveformTimeline = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-[hsl(var(--studio-black))]">
+    <div 
+      className="flex flex-col h-full"
+      style={{
+        background: 'hsl(220, 20%, 14%)',
+      }}
+    >
       {/* Timeline Header */}
-      <div className="flex items-center justify-between px-4 py-2 bg-[hsl(var(--studio-panel))] border-b border-[hsl(var(--studio-border))]">
+      <div 
+        className="flex items-center justify-between px-4 py-2 border-b"
+        style={{
+          background: 'var(--panel-gradient)',
+          borderColor: 'hsl(220, 14%, 28%)',
+          boxShadow: 'var(--shadow-raised)',
+        }}
+      >
         <div className="flex items-center gap-4">
           <span className="text-xs font-mono text-[hsl(var(--studio-text-dim))] uppercase tracking-wider">
             Arrangement

@@ -9,6 +9,7 @@ export interface Track {
   mute: boolean;
   solo: boolean;
   audioBuffer?: AudioBuffer;
+  waveformData?: number[];
   peakLevel: number;
   rmsLevel: number;
 }

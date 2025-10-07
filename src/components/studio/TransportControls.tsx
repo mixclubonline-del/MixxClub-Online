@@ -33,33 +33,55 @@ export const TransportControls = ({
   };
 
   return (
-    <div className="w-full h-16 bg-[hsl(var(--studio-panel))] border-b border-[hsl(var(--studio-border))] flex items-center px-6 gap-8">
+    <div 
+      className="w-full h-16 border-b flex items-center px-6 gap-8"
+      style={{
+        background: 'var(--panel-gradient)',
+        borderColor: 'hsl(220, 14%, 28%)',
+        boxShadow: 'var(--shadow-raised)',
+      }}
+    >
       {/* Left Section - Playback Controls */}
       <div className="flex items-center gap-2">
         <button
           onClick={() => {}}
-          className="p-2 hover:bg-[hsl(var(--studio-panel-raised))] rounded transition"
+          className="p-2 rounded transition-all hover:scale-105"
+          style={{
+            background: 'var(--button-gradient)',
+            boxShadow: 'var(--shadow-raised)',
+          }}
           aria-label="Skip back"
         >
-          <SkipBack className="w-5 h-5 text-[hsl(var(--studio-text-dim))] hover:text-[hsl(var(--studio-text))]" />
+          <SkipBack className="w-5 h-5 text-[hsl(var(--studio-text-dim))]" />
         </button>
         
         <button
           onClick={onStop}
-          className="p-2 hover:bg-[hsl(var(--studio-panel-raised))] rounded transition"
+          className="p-2 rounded transition-all hover:scale-105"
+          style={{
+            background: 'var(--button-gradient)',
+            boxShadow: 'var(--shadow-raised)',
+          }}
           aria-label="Stop"
         >
-          <Square className="w-5 h-5 text-[hsl(var(--studio-text-dim))] hover:text-[hsl(var(--studio-text))]" />
+          <Square className="w-5 h-5 text-[hsl(var(--studio-text-dim))]" />
         </button>
         
         <button
           onClick={onPlay}
           className={cn(
-            "p-3 rounded-lg transition-all",
-            isPlaying
-              ? "bg-[hsl(var(--studio-accent))] text-black shadow-[0_0_20px_hsl(var(--studio-accent-glow)/0.4)]"
-              : "bg-[hsl(var(--studio-panel-raised))] text-[hsl(var(--studio-text))] hover:bg-[hsl(var(--studio-border))]"
+            "p-3 rounded-lg transition-all hover:scale-110",
+            isPlaying && "animate-pulse"
           )}
+          style={{
+            background: isPlaying 
+              ? 'linear-gradient(180deg, hsl(142 100% 55%), hsl(142 100% 45%))'
+              : 'var(--button-gradient)',
+            boxShadow: isPlaying 
+              ? 'var(--shadow-raised-lg), var(--shadow-glow-led-green)'
+              : 'var(--shadow-raised)',
+            color: isPlaying ? 'white' : 'hsl(var(--studio-text))',
+          }}
           aria-label={isPlaying ? "Pause" : "Play"}
         >
           {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6" />}
@@ -67,36 +89,57 @@ export const TransportControls = ({
 
         <button
           onClick={() => {}}
-          className="p-2 hover:bg-[hsl(var(--studio-panel-raised))] rounded transition"
+          className="p-2 rounded transition-all hover:scale-105"
+          style={{
+            background: 'var(--button-gradient)',
+            boxShadow: 'var(--shadow-raised)',
+          }}
           aria-label="Skip forward"
         >
-          <SkipForward className="w-5 h-5 text-[hsl(var(--studio-text-dim))] hover:text-[hsl(var(--studio-text))]" />
+          <SkipForward className="w-5 h-5 text-[hsl(var(--studio-text-dim))]" />
         </button>
 
         <button
           onClick={onRecord}
           className={cn(
-            "p-3 rounded-full transition-all",
-            isRecording
-              ? "bg-[hsl(var(--led-red))] text-white shadow-[0_0_20px_hsl(var(--led-red)/0.6)] animate-pulse"
-              : "bg-[hsl(var(--studio-panel-raised))] text-[hsl(var(--studio-text-dim))] hover:bg-[hsl(var(--studio-border))] hover:text-[hsl(var(--led-red))]"
+            "p-3 rounded-full transition-all hover:scale-110",
+            isRecording && "animate-pulse"
           )}
+          style={{
+            background: isRecording
+              ? 'linear-gradient(180deg, hsl(0 100% 60%), hsl(0 100% 50%))'
+              : 'var(--button-gradient)',
+            boxShadow: isRecording
+              ? 'var(--shadow-raised-lg), var(--shadow-glow-led-red)'
+              : 'var(--shadow-raised)',
+            color: isRecording ? 'white' : 'hsl(var(--studio-text-dim))',
+          }}
           aria-label={isRecording ? "Stop recording" : "Record"}
         >
           <Circle className="w-5 h-5" fill={isRecording ? "currentColor" : "none"} />
         </button>
 
         <button
-          className="p-2 hover:bg-[hsl(var(--studio-panel-raised))] rounded transition ml-2"
+          className="p-2 rounded transition-all ml-2 hover:scale-105"
+          style={{
+            background: 'var(--button-gradient)',
+            boxShadow: 'var(--shadow-raised)',
+          }}
           aria-label="Loop"
         >
-          <Repeat className="w-5 h-5 text-[hsl(var(--studio-text-dim))] hover:text-[hsl(var(--studio-text))]" />
+          <Repeat className="w-5 h-5 text-[hsl(var(--studio-text-dim))]" />
         </button>
       </div>
 
       {/* Center Section - Time Display */}
       <div className="flex-1 flex flex-col items-center justify-center">
-        <div className="font-mono text-3xl tabular-nums text-[hsl(var(--studio-text))] tracking-wider">
+        <div 
+          className="font-mono text-3xl tabular-nums tracking-wider"
+          style={{
+            color: 'hsl(var(--led-green))',
+            textShadow: '0 0 12px hsl(var(--led-green) / 0.6)',
+          }}
+        >
           {formatTime(currentTime)}
         </div>
         <div className="font-mono text-xs text-[hsl(var(--studio-text-dim))] tabular-nums">
@@ -112,7 +155,12 @@ export const TransportControls = ({
             type="number"
             value={tempo}
             onChange={(e) => onTempoChange(Number(e.target.value))}
-            className="w-14 px-2 py-1 bg-[hsl(var(--studio-black))] border border-[hsl(var(--studio-border))] rounded text-sm font-mono text-[hsl(var(--studio-text))] focus:outline-none focus:border-[hsl(var(--studio-accent))]"
+            className="w-14 px-2 py-1 rounded text-sm font-mono text-[hsl(var(--studio-text))] focus:outline-none"
+            style={{
+              background: 'hsl(220, 20%, 12%)',
+              border: '1px solid hsl(220, 14%, 28%)',
+              boxShadow: 'var(--shadow-recessed)',
+            }}
             min={40}
             max={240}
           />
@@ -130,10 +178,19 @@ export const TransportControls = ({
 
         <div className="flex items-center gap-2">
           <Activity className="w-4 h-4 text-[hsl(var(--studio-text-dim))]" />
-          <div className="w-20 h-2 bg-[hsl(var(--studio-black))] rounded-full overflow-hidden">
+          <div 
+            className="w-20 h-2 rounded-full overflow-hidden"
+            style={{
+              background: 'hsl(220, 20%, 12%)',
+              boxShadow: 'var(--shadow-recessed)',
+            }}
+          >
             <div 
-              className="h-full bg-gradient-to-r from-[hsl(var(--led-green))] to-[hsl(var(--led-yellow))] transition-all"
-              style={{ width: '35%' }}
+              className="h-full transition-all"
+              style={{ 
+                width: '35%',
+                background: 'linear-gradient(90deg, hsl(142 100% 50%), hsl(60 100% 50%))',
+              }}
             />
           </div>
           <span className="text-xs font-mono text-[hsl(var(--studio-text-dim))]">35%</span>

@@ -182,13 +182,13 @@ All colors MUST be HSL.
     --sidebar-border: 235 40% 20%;
     --sidebar-ring: 265 85% 65%;
 
-    /* Modern Studio Theme - Flat & Dark */
-    --studio-black: 0 0% 4%;
-    --studio-panel: 0 0% 8%;
-    --studio-panel-raised: 0 0% 12%;
-    --studio-border: 0 0% 16%;
-    --studio-text: 0 0% 91%;
-    --studio-text-dim: 0 0% 50%;
+    /* Modern Studio Theme - Rich & Inviting with Depth */
+    --studio-black: 220 20% 12%;
+    --studio-panel: 220 18% 18%;
+    --studio-panel-raised: 220 16% 24%;
+    --studio-border: 220 14% 32%;
+    --studio-text: 0 0% 98%;
+    --studio-text-dim: 220 8% 65%;
 
     /* Waveform Colors - Vibrant & Colorful */
     --wave-vocal: 180 100% 50%;
@@ -203,36 +203,40 @@ All colors MUST be HSL.
     --led-yellow: 60 100% 50%;
     --led-red: 0 100% 50%;
     --led-blue: 195 100% 60%;
-    --led-off: 0 0% 10%;
+    --led-off: 220 15% 18%;
 
-    /* Studio Accent - Cyan for selection */
+    /* Studio Accent - Vibrant Cyan for selection & interactive elements */
     --studio-accent: 180 100% 50%;
     --studio-accent-glow: 180 100% 50%;
+    --studio-accent-secondary: 265 85% 65%;
+    --studio-accent-warm: 38 100% 55%;
 
     /* 3D Depth & Shadow System */
-    --shadow-raised: 0 2px 8px hsl(0 0% 0% / 0.4), 0 1px 2px hsl(0 0% 0% / 0.3);
-    --shadow-raised-lg: 0 4px 16px hsl(0 0% 0% / 0.5), 0 2px 4px hsl(0 0% 0% / 0.4);
-    --shadow-recessed: inset 0 2px 6px hsl(0 0% 0% / 0.6), inset 0 1px 2px hsl(0 0% 0% / 0.4);
-    --shadow-recessed-deep: inset 0 3px 10px hsl(0 0% 0% / 0.8), inset 0 1px 3px hsl(0 0% 0% / 0.5);
-    --shadow-glow-led-green: 0 0 12px hsl(142 100% 50% / 0.8), 0 0 4px hsl(142 100% 50% / 0.6);
-    --shadow-glow-led-yellow: 0 0 12px hsl(60 100% 50% / 0.8), 0 0 4px hsl(60 100% 50% / 0.6);
-    --shadow-glow-led-red: 0 0 12px hsl(0 100% 50% / 0.8), 0 0 4px hsl(0 100% 50% / 0.6);
-    --shadow-glow-led-blue: 0 0 12px hsl(195 100% 60% / 0.8), 0 0 4px hsl(195 100% 60% / 0.6);
-    --shadow-glow-cyan: 0 0 16px hsl(180 100% 50% / 0.6), 0 0 6px hsl(180 100% 50% / 0.4);
+    --shadow-raised: 0 2px 8px hsl(220 30% 5% / 0.4), 0 1px 2px hsl(220 30% 5% / 0.3);
+    --shadow-raised-lg: 0 4px 16px hsl(220 30% 5% / 0.5), 0 2px 4px hsl(220 30% 5% / 0.4);
+    --shadow-recessed: inset 0 2px 6px hsl(220 30% 8% / 0.6), inset 0 1px 2px hsl(220 30% 5% / 0.4);
+    --shadow-recessed-deep: inset 0 3px 10px hsl(220 30% 5% / 0.8), inset 0 1px 3px hsl(220 30% 5% / 0.5);
+    --shadow-glow-led-green: 0 0 16px hsl(142 100% 50% / 0.8), 0 0 6px hsl(142 100% 50% / 0.6);
+    --shadow-glow-led-yellow: 0 0 16px hsl(60 100% 50% / 0.8), 0 0 6px hsl(60 100% 50% / 0.6);
+    --shadow-glow-led-red: 0 0 16px hsl(0 100% 50% / 0.8), 0 0 6px hsl(0 100% 50% / 0.6);
+    --shadow-glow-led-blue: 0 0 16px hsl(195 100% 60% / 0.8), 0 0 6px hsl(195 100% 60% / 0.6);
+    --shadow-glow-cyan: 0 0 20px hsl(180 100% 50% / 0.6), 0 0 8px hsl(180 100% 50% / 0.4);
+    --shadow-glow-purple: 0 0 20px hsl(265 85% 65% / 0.6), 0 0 8px hsl(265 85% 65% / 0.4);
 
-    /* Panel Gradients - Subtle depth */
-    --panel-gradient: linear-gradient(180deg, hsl(0 0% 10%), hsl(0 0% 8%));
-    --panel-gradient-raised: linear-gradient(180deg, hsl(0 0% 14%), hsl(0 0% 11%));
-    --panel-gradient-hover: linear-gradient(180deg, hsl(0 0% 16%), hsl(0 0% 13%));
+    /* Panel Gradients - Subtle depth with color hints */
+    --panel-gradient: linear-gradient(180deg, hsl(220 18% 20%), hsl(220 20% 16%));
+    --panel-gradient-raised: linear-gradient(180deg, hsl(220 16% 26%), hsl(220 18% 22%));
+    --panel-gradient-hover: linear-gradient(180deg, hsl(220 16% 28%), hsl(220 18% 24%));
     
-    /* Knob & Fader Gradients - 3D appearance */
-    --knob-gradient: radial-gradient(circle at 30% 30%, hsl(0 0% 22%), hsl(0 0% 12%), hsl(0 0% 8%));
-    --fader-gradient: linear-gradient(180deg, hsl(0 0% 18%), hsl(0 0% 12%), hsl(0 0% 10%));
-    --fader-cap-gradient: linear-gradient(180deg, hsl(0 0% 28%), hsl(0 0% 16%), hsl(0 0% 12%));
+    /* Knob & Fader Gradients - 3D appearance with warm highlights */
+    --knob-gradient: radial-gradient(circle at 30% 30%, hsl(220 14% 32%), hsl(220 16% 20%), hsl(220 18% 16%));
+    --fader-gradient: linear-gradient(180deg, hsl(220 16% 24%), hsl(220 18% 18%), hsl(220 20% 14%));
+    --fader-cap-gradient: linear-gradient(180deg, hsl(220 12% 36%), hsl(220 14% 24%), hsl(220 16% 20%));
     
-    /* Button Gradients */
-    --button-gradient: linear-gradient(180deg, hsl(0 0% 14%), hsl(0 0% 10%));
+    /* Button Gradients - Inviting colors */
+    --button-gradient: linear-gradient(180deg, hsl(220 14% 26%), hsl(220 16% 20%));
     --button-gradient-active: linear-gradient(180deg, hsl(180 100% 55%), hsl(180 100% 45%));
+    --button-gradient-warm: linear-gradient(180deg, hsl(38 100% 60%), hsl(38 100% 50%));
     
     /* Waveform Gradients - Colorful with depth */
     --wave-gradient-vocal: linear-gradient(180deg, hsl(180 100% 60%), hsl(180 100% 45%));
@@ -244,11 +248,14 @@ All colors MUST be HSL.
     
     /* Texture Variables */
     --bg-texture: url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-    --metal-texture: repeating-linear-gradient(90deg, hsl(0 0% 10%), hsl(0 0% 11%) 1px, hsl(0 0% 10%) 2px);
+    --metal-texture: repeating-linear-gradient(90deg, hsl(220 16% 18%), hsl(220 14% 20%) 1px, hsl(220 16% 18%) 2px);
     
-    /* Border Highlights - Top light, bottom shadow */
-    --border-highlight-top: hsl(0 0% 25% / 0.5);
-    --border-highlight-bottom: hsl(0 0% 0% / 0.5);
+    /* Border Highlights - Top light, bottom shadow with color */
+    --border-highlight-top: hsl(220 12% 40% / 0.3);
+    --border-highlight-bottom: hsl(220 30% 8% / 0.5);
+    
+    /* Background Gradient - Inviting workspace */
+    --bg-workspace: linear-gradient(135deg, hsl(220 20% 14%), hsl(230 18% 16%), hsl(220 20% 14%));
   }
 }
 
