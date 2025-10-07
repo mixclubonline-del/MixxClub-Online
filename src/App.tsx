@@ -22,6 +22,7 @@ const Home = React.lazy(() => import("./pages/Home"));
 
 // Keep IntroScene non-lazy since it's the landing page
 import IntroScene from "./pages/IntroScene";
+import NetworkHub from "./pages/NetworkHub";
 const ArtistCRM = React.lazy(() => import("./pages/ArtistCRM"));
 const EngineerCRM = React.lazy(() => import("./pages/EngineerCRM"));
 const AudioLab = React.lazy(() => import("./pages/AudioLab"));
@@ -170,7 +171,7 @@ const AppContent = () => {
       <React.Suspense fallback={<DashboardSkeleton />}>
       <Routes>
         <Route path="/" element={<IntroScene />} />
-            <Route path="/network" element={<MixClubHome />} />
+            <Route path="/network" element={<NetworkHub />} />
             <Route path="/artist" element={<Artist />} />
             <Route path="/engineer" element={<Engineer />} />
             <Route path="/ai-studio" element={<AIStudio />} />
