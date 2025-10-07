@@ -149,8 +149,28 @@ export default function AIStudio() {
         <AudioEngine />
         <GlobalHeader />
 
-        {/* Transport Bar - Fixed at top */}
-        <div className="flex-shrink-0 mt-16">
+        {/* Quick Actions Bar - Prominent Upload */}
+        <div className="flex-shrink-0 mt-16 px-6 py-3 border-b border-border/50 bg-card/50 backdrop-blur-sm">
+          <div className="flex items-center justify-between max-w-7xl mx-auto">
+            <div className="flex items-center gap-3">
+              <h2 className="text-sm font-semibold text-muted-foreground">Quick Start</h2>
+              <Button 
+                onClick={() => setIsImportDialogOpen(true)}
+                className="gap-2"
+                size="lg"
+              >
+                <Upload className="w-5 h-5" />
+                Import Audio to Begin
+              </Button>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span>{tracks.length} tracks loaded</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Transport Bar */}
+        <div className="flex-shrink-0">
           <TransportControls
             isPlaying={isPlaying}
             isRecording={false}
@@ -264,19 +284,10 @@ export default function AIStudio() {
                    <TabsContent value="rack" className="flex-1 overflow-auto mt-0 px-4 py-4">
                     <div className="flex justify-between items-center mb-6">
                       <h3 className="text-lg font-semibold">Plugin Suite</h3>
-                      <div className="flex gap-2">
-                        <Button 
-                          variant="outline"
-                          onClick={() => setIsImportDialogOpen(true)}
-                        >
-                          <Upload className="w-4 h-4 mr-2" />
-                          Import Audio
-                        </Button>
-                        <Button onClick={() => setIsPluginManagerOpen(true)}>
-                          <Plug2 className="w-4 h-4 mr-2" />
-                          Plugin Manager
-                        </Button>
-                      </div>
+                      <Button onClick={() => setIsPluginManagerOpen(true)}>
+                        <Plug2 className="w-4 h-4 mr-2" />
+                        Plugin Manager
+                      </Button>
                     </div>
                     <HardwareRack
                       effects={effects}
