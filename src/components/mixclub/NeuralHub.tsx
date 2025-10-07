@@ -1,200 +1,330 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { Music, Headphones, Brain, Activity, Swords, Users, Store, Shield } from 'lucide-react';
+import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import { 
+  Music, Headphones, Sparkles, Activity, 
+  Trophy, Users, ShoppingBag, Settings 
+} from "lucide-react";
 
 interface Node {
   id: string;
   label: string;
   route: string;
-  icon: typeof Music;
+  icon: any;
   angle: number;
   color: string;
-  activeUsers?: number;
-  features?: string[];
+  activeUsers: number;
+  features: string[];
+  bubbles: { x: number; y: number; size: number; delay: number }[];
 }
 
+// Generate random internal bubbles for each node
+const generateBubbles = () => {
+  const count = 3 + Math.floor(Math.random() * 3); // 3-5 bubbles
+  return Array.from({ length: count }, () => ({
+    x: 20 + Math.random() * 60, // 20-80% from left
+    y: 20 + Math.random() * 60, // 20-80% from top
+    size: 12 + Math.random() * 10, // 12-22px
+    delay: Math.random() * 2
+  }));
+};
+
+// Calculate color based on angle (blue on left, purple on right)
+const getNodeColor = (angle: number): string => {
+  // Normalize angle to 0-360
+  const normalizedAngle = ((angle % 360) + 360) % 360;
+  
+  // Left side (270-90 via 0): Blue tones
+  // Right side (90-270): Purple/magenta tones
+  if (normalizedAngle >= 270 || normalizedAngle <= 90) {
+    // Blue spectrum
+    const blueHue = 200 + (normalizedAngle <= 90 ? normalizedAngle : normalizedAngle - 360) * 0.2;
+    return `hsl(${blueHue}, 80%, 60%)`;
+  } else {
+    // Purple spectrum
+    const purpleHue = 260 + (normalizedAngle - 90) * 0.2;
+    return `hsl(${purpleHue}, 70%, 60%)`;
+  }
+};
+
 const nodes: Node[] = [
-  { id: 'artist', label: 'Artist Upload Hub', route: '/artist', icon: Music, angle: 0, color: 'hsl(var(--primary))', activeUsers: 42, features: ['Upload Tracks', 'Project Manager', 'Stem Splitter'] },
-  { id: 'engineer', label: 'Engineer Finder', route: '/engineer', icon: Headphones, angle: 45, color: 'hsl(var(--accent-blue))', activeUsers: 28, features: ['Find Engineers', 'Portfolio', 'Book Sessions'] },
-  { id: 'ai-studio', label: 'AI Studio', route: '/ai-studio', icon: Brain, angle: 90, color: 'hsl(var(--accent-cyan))', activeUsers: 156, features: ['AI Mixing', 'Auto-Master', 'Smart EQ'] },
-  { id: 'pulse', label: 'The Pulse', route: '/pulse', icon: Activity, angle: 135, color: 'hsl(var(--accent-magenta))', activeUsers: 89, features: ['Live Feed', 'Trends', 'Discoveries'] },
-  { id: 'arena', label: 'Mixx Arena', route: '/arena', icon: Swords, angle: 180, color: 'hsl(var(--accent))', activeUsers: 64, features: ['Mix Battles', 'Voting', 'Leaderboards'] },
-  { id: 'crowd', label: 'The Crowd', route: '/crowd', icon: Users, angle: 225, color: 'hsl(280 70% 60%)', activeUsers: 213, features: ['Community', 'Forums', 'Collaborations'] },
-  { id: 'marketplace', label: 'Marketplace', route: '/marketplace', icon: Store, angle: 270, color: 'hsl(320 70% 60%)', activeUsers: 37, features: ['Presets', 'Templates', 'Services'] },
-  { id: 'admin', label: 'Control Center', route: '/admin', icon: Shield, angle: 315, color: 'hsl(200 70% 60%)', activeUsers: 5, features: ['Analytics', 'Settings', 'Management'] },
+  { id: 'artist', label: 'Artist', route: '/artist', icon: Music, angle: 0, color: getNodeColor(0), activeUsers: 42, features: ['Upload Tracks', 'AI Mastering', 'Collaboration'], bubbles: generateBubbles() },
+  { id: 'engineer', label: 'Engineer', route: '/engineer', icon: Headphones, angle: 45, color: getNodeColor(45), activeUsers: 28, features: ['Mix Projects', 'Presets', 'Stem Access'], bubbles: generateBubbles() },
+  { id: 'ai-studio', label: 'AI Studio', route: '/ai-studio', icon: Sparkles, angle: 90, color: getNodeColor(90), activeUsers: 156, features: ['AI Mixing', 'Smart EQ', 'Auto-Master'], bubbles: generateBubbles() },
+  { id: 'pulse', label: 'The Pulse', route: '/pulse', icon: Activity, angle: 135, color: getNodeColor(135), activeUsers: 89, features: ['Live Feed', 'Trending', 'Discover'], bubbles: generateBubbles() },
+  { id: 'arena', label: 'Mixx Arena', route: '/arena', icon: Trophy, angle: 180, color: getNodeColor(180), activeUsers: 67, features: ['Competitions', 'Voting', 'Prizes'], bubbles: generateBubbles() },
+  { id: 'crowd', label: 'The Crowd', route: '/crowd', icon: Users, angle: 225, color: getNodeColor(225), activeUsers: 234, features: ['Community', 'Forums', 'Events'], bubbles: generateBubbles() },
+  { id: 'marketplace', label: 'Marketplace', route: '/marketplace', icon: ShoppingBag, angle: 270, color: getNodeColor(270), activeUsers: 45, features: ['Buy Presets', 'Sell Work', 'Licenses'], bubbles: generateBubbles() },
+  { id: 'admin', label: 'Admin', route: '/admin', icon: Settings, angle: 315, color: getNodeColor(315), activeUsers: 3, features: ['Dashboard', 'Analytics', 'Management'], bubbles: generateBubbles() },
 ];
 
 export default function NeuralHub() {
-  const [hoveredNode, setHoveredNode] = useState<string | null>(null);
-  const navigate = useNavigate();
-
-  const centerX = 50;
-  const centerY = 50;
-  const radius = 32;
-
+  const centerX = 50; // percentage
+  const centerY = 50; // percentage
+  const radius = 38; // percentage of viewport
+  
   return (
-    <section className="relative h-screen w-full overflow-hidden bg-[#0a0a1a]">
-      {/* Animated background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent-blue/10" />
-      
-      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+    <section className="relative min-h-screen w-full overflow-hidden bg-gradient-radial from-[#0f0a2a] via-[#1a0a2a] to-[#0a0a1a]">
+      {/* SVG Background with connections */}
+      <svg
+        className="absolute inset-0 w-full h-full"
+        xmlns="http://www.w3.org/2000/svg"
+      >
         <defs>
-          <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.3" />
-            <stop offset="100%" stopColor="hsl(var(--accent-blue))" stopOpacity="0.3" />
+          <radialGradient id="centerGlow" cx="50%" cy="50%">
+            <stop offset="0%" stopColor="rgba(139, 92, 246, 0.6)" />
+            <stop offset="50%" stopColor="rgba(139, 92, 246, 0.3)" />
+            <stop offset="100%" stopColor="rgba(139, 92, 246, 0)" />
+          </radialGradient>
+          <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="rgba(139, 92, 246, 0.6)" />
+            <stop offset="100%" stopColor="rgba(59, 130, 246, 0.6)" />
           </linearGradient>
         </defs>
-
-        {/* Connection lines */}
-        {nodes.map((node, idx) => {
-          const x = centerX + radius * Math.cos((node.angle * Math.PI) / 180);
-          const y = centerY + radius * Math.sin((node.angle * Math.PI) / 180);
-          
-          return (
-            <motion.line
-              key={`line-${node.id}`}
-              x1={centerX}
-              y1={centerY}
-              x2={x}
-              y2={y}
-              stroke="url(#lineGradient)"
-              strokeWidth="0.15"
-              initial={{ pathLength: 0, opacity: 0 }}
-              animate={{ pathLength: 1, opacity: hoveredNode === node.id ? 0.8 : 0.4 }}
-              transition={{ duration: 1, delay: idx * 0.1 }}
-            />
-          );
-        })}
-
-        {/* Satellite bubbles along connection lines */}
-        {nodes.map((node) => {
-          const nodeX = centerX + radius * Math.cos((node.angle * Math.PI) / 180);
-          const nodeY = centerY + radius * Math.sin((node.angle * Math.PI) / 180);
-          const satellites = node.activeUsers ? Math.min(Math.floor(node.activeUsers / 20), 3) : 0;
-          
-          return [...Array(satellites)].map((_, i) => {
-            const progress = 0.3 + (i * 0.2);
-            const satX = centerX + (nodeX - centerX) * progress;
-            const satY = centerY + (nodeY - centerY) * progress;
-            
-            return (
-              <motion.circle
-                key={`sat-${node.id}-${i}`}
-                cx={satX}
-                cy={satY}
-                r="0.4"
-                fill={node.color}
-                opacity="0.5"
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 0.5 }}
-                transition={{ duration: 0.5, delay: 1 + i * 0.1 }}
-              />
-            );
-          });
-        })}
-
-        {/* Center node */}
+        
+        {/* Central glow */}
         <motion.circle
-          cx={centerX}
-          cy={centerY}
-          r="4"
-          fill="url(#centerGradient)"
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.8 }}
+          cx={`${centerX}%`}
+          cy={`${centerY}%`}
+          r="12%"
+          fill="url(#centerGlow)"
+          animate={{
+            r: ["10%", "14%", "10%"],
+            opacity: [0.8, 1, 0.8]
+          }}
+          transition={{
+            duration: 4,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
         />
         
-        <defs>
-          <radialGradient id="centerGradient">
-            <stop offset="0%" stopColor="hsl(var(--primary))" />
-            <stop offset="100%" stopColor="hsl(var(--accent-blue))" />
-          </radialGradient>
-        </defs>
+        {/* Connection lines to nodes */}
+        {nodes.map((node) => {
+          const angleRad = (node.angle - 90) * (Math.PI / 180);
+          const nodeX = centerX + radius * Math.cos(angleRad);
+          const nodeY = centerY + radius * Math.sin(angleRad);
+          
+          return (
+            <g key={`connection-${node.id}`}>
+              {/* Main connection line - thicker */}
+              <motion.line
+                x1={`${centerX}%`}
+                y1={`${centerY}%`}
+                x2={`${nodeX}%`}
+                y2={`${nodeY}%`}
+                stroke={node.color}
+                strokeWidth="0.5"
+                opacity="0.4"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1, opacity: [0.4, 0.7, 0.4] }}
+                transition={{
+                  pathLength: { duration: 1.5, delay: node.angle * 0.01 },
+                  opacity: { duration: 3, repeat: Infinity, ease: "easeInOut" }
+                }}
+                filter={`drop-shadow(0 0 8px ${node.color})`}
+              />
+              
+              {/* Traveling light particles */}
+              {Array.from({ length: 3 }).map((_, i) => {
+                const progress = (i * 0.33);
+                
+                return (
+                  <motion.circle
+                    key={`particle-${node.id}-${i}`}
+                    cx={`${centerX}%`}
+                    cy={`${centerY}%`}
+                    r="0.4%"
+                    fill={node.color}
+                    opacity="0"
+                    animate={{
+                      cx: [`${centerX}%`, `${nodeX}%`],
+                      cy: [`${centerY}%`, `${nodeY}%`],
+                      opacity: [0, 1, 1, 0],
+                      r: ["0.3%", "0.6%", "0.3%"]
+                    }}
+                    transition={{
+                      duration: 3,
+                      delay: i * 1 + node.angle * 0.01,
+                      repeat: Infinity,
+                      ease: "linear"
+                    }}
+                  />
+                );
+              })}
+            </g>
+          );
+        })}
       </svg>
 
-      {/* Center label */}
-      <motion.div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none z-10"
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.8, delay: 0.3 }}
-      >
-        <h1 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent-blue))]">
-          MixClub Online
-        </h1>
-        <p className="text-sm text-muted-foreground mt-2">The Neural Network</p>
-      </motion.div>
-
-      {/* Node elements */}
-      {nodes.map((node, idx) => {
-        const x = 50 + 32 * Math.cos((node.angle * Math.PI) / 180);
-        const y = 50 + 32 * Math.sin((node.angle * Math.PI) / 180);
-        const isHovered = hoveredNode === node.id;
-
-        return (
-          <motion.div
-            key={node.id}
-            className="absolute pointer-events-auto cursor-pointer"
-            style={{
-              left: `${x}%`,
-              top: `${y}%`,
-              transform: 'translate(-50%, -50%)',
+      {/* Content Layer */}
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen">
+        {/* Center Hub - Larger and More Prominent */}
+        <motion.div
+          className="absolute"
+          style={{
+            left: `${centerX}%`,
+            top: `${centerY}%`,
+            transform: 'translate(-50%, -50%)'
+          }}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1 }}
+        >
+          <motion.div 
+            className="relative"
+            animate={{
+              filter: [
+                'drop-shadow(0 0 40px rgba(139, 92, 246, 0.6))',
+                'drop-shadow(0 0 80px rgba(139, 92, 246, 0.8))',
+                'drop-shadow(0 0 40px rgba(139, 92, 246, 0.6))'
+              ]
             }}
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: isHovered ? 1.15 : 1 }}
-            transition={{ duration: 0.6, delay: idx * 0.1 }}
-            onMouseEnter={() => setHoveredNode(node.id)}
-            onMouseLeave={() => setHoveredNode(null)}
-            onClick={() => navigate(node.route)}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
           >
-            {/* Node circle */}
-            <div className="relative">
-              <motion.div
-                className="w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center backdrop-blur-sm border-2"
-                style={{
-                  backgroundColor: isHovered ? node.color : `${node.color}22`,
-                  borderColor: node.color,
-                  boxShadow: isHovered ? `0 0 30px ${node.color}` : `0 0 10px ${node.color}66`,
-                }}
-                animate={{
-                  boxShadow: isHovered ? `0 0 40px ${node.color}` : `0 0 10px ${node.color}66`,
-                }}
-              >
-                <node.icon className="w-8 h-8 md:w-10 md:h-10" style={{ color: 'white' }} />
-              </motion.div>
-
-              {/* Info panel on hover */}
-              {isHovered && (
-                <motion.div
-                  className="absolute top-full mt-4 left-1/2 -translate-x-1/2 bg-background/95 backdrop-blur-md border border-border rounded-lg p-4 w-56 z-20"
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <h3 className="font-semibold text-sm mb-2">{node.label}</h3>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
-                    <Users className="w-3 h-3" />
-                    <span>{node.activeUsers} active</span>
-                  </div>
-                  {node.features && (
-                    <ul className="space-y-1">
-                      {node.features.map((feature, i) => (
-                        <li key={i} className="text-xs text-muted-foreground">• {feature}</li>
-                      ))}
-                    </ul>
-                  )}
-                </motion.div>
-              )}
-
-              {/* Label below node */}
-              <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 whitespace-nowrap">
-                <p className="text-xs font-medium text-foreground">{node.label}</p>
+            <div className="w-56 h-56 md:w-64 md:h-64 rounded-full bg-gradient-to-br from-[hsl(var(--primary))]/30 via-[hsl(var(--accent-blue))]/20 to-[hsl(var(--primary))]/30 backdrop-blur-xl border-2 border-[hsl(var(--primary))]/40 flex items-center justify-center">
+              <div className="text-center">
+                <h1 className="text-5xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[hsl(var(--primary))] via-[hsl(var(--accent-blue))] to-[hsl(var(--primary))] mb-2 drop-shadow-[0_0_20px_rgba(139,92,246,0.5)]">
+                  MixClub
+                </h1>
+                <p className="text-sm md:text-base text-[hsl(var(--primary))] font-mono tracking-wider drop-shadow-[0_0_10px_rgba(139,92,246,0.8)]">
+                  THE PRIME BRAIN
+                </p>
               </div>
             </div>
           </motion.div>
-        );
-      })}
+        </motion.div>
+
+        {/* Interactive Nodes - Much Larger with Glass Effect */}
+        {nodes.map((node) => {
+          const angleRad = (node.angle - 90) * (Math.PI / 180);
+          const nodeX = centerX + radius * Math.cos(angleRad);
+          const nodeY = centerY + radius * Math.sin(angleRad);
+          const Icon = node.icon;
+          
+          return (
+            <motion.div
+              key={node.id}
+              className="absolute group cursor-pointer"
+              style={{
+                left: `${nodeX}%`,
+                top: `${nodeY}%`,
+                transform: 'translate(-50%, -50%)'
+              }}
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{
+                duration: 0.6,
+                delay: node.angle * 0.005,
+                type: "spring",
+                stiffness: 200
+              }}
+              whileHover={{ 
+                scale: 1.2,
+                rotate: 2,
+                transition: { duration: 0.3 }
+              }}
+            >
+              <Link to={node.route}>
+                {/* Node Circle - Much Larger with Glassmorphism */}
+                <motion.div
+                  className="relative w-32 h-32 md:w-36 md:h-36 rounded-full flex items-center justify-center backdrop-blur-xl overflow-hidden"
+                  style={{
+                    border: `3px solid ${node.color}`,
+                    background: `radial-gradient(circle at 30% 30%, ${node.color}25, ${node.color}08, transparent)`,
+                  }}
+                  animate={{
+                    boxShadow: [
+                      `0 0 30px ${node.color}60, inset 0 0 30px ${node.color}20`,
+                      `0 0 50px ${node.color}80, inset 0 0 40px ${node.color}30`,
+                      `0 0 30px ${node.color}60, inset 0 0 30px ${node.color}20`
+                    ]
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                  whileHover={{
+                    boxShadow: `0 0 60px ${node.color}, inset 0 0 50px ${node.color}40`,
+                    borderColor: node.color,
+                    filter: 'brightness(1.3)'
+                  }}
+                >
+                  {/* Internal Bubble Clusters */}
+                  {node.bubbles.map((bubble, i) => (
+                    <motion.div
+                      key={`bubble-${i}`}
+                      className="absolute rounded-full"
+                      style={{
+                        left: `${bubble.x}%`,
+                        top: `${bubble.y}%`,
+                        width: `${bubble.size}px`,
+                        height: `${bubble.size}px`,
+                        background: `radial-gradient(circle at 30% 30%, ${node.color}60, ${node.color}20)`,
+                        border: `1px solid ${node.color}40`
+                      }}
+                      animate={{
+                        y: [0, -8, 0],
+                        x: [0, Math.random() * 6 - 3, 0],
+                        opacity: [0.4, 0.7, 0.4],
+                        scale: [1, 1.1, 1]
+                      }}
+                      transition={{
+                        duration: 4 + Math.random() * 2,
+                        delay: bubble.delay,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                    />
+                  ))}
+                  
+                  {/* Icon */}
+                  <Icon 
+                    className="w-12 h-12 md:w-14 md:h-14 relative z-10 group-hover:scale-110 transition-transform drop-shadow-[0_0_10px_currentColor]" 
+                    style={{ color: node.color }}
+                  />
+                </motion.div>
+                
+                {/* Label */}
+                <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                  <p 
+                    className="text-sm md:text-base font-bold drop-shadow-[0_0_8px_currentColor]" 
+                    style={{ color: node.color }}
+                  >
+                    {node.label}
+                  </p>
+                </div>
+                
+                {/* Info Panel on Hover */}
+                <motion.div
+                  className="absolute left-1/2 -translate-x-1/2 top-full mt-16 w-52 p-4 rounded-lg backdrop-blur-xl border opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-300 z-50"
+                  style={{
+                    background: `radial-gradient(circle at top, ${node.color}15, rgba(10, 10, 26, 0.95))`,
+                    borderColor: node.color,
+                    boxShadow: `0 0 40px ${node.color}40`
+                  }}
+                >
+                  <h3 className="font-bold mb-2 text-lg" style={{ color: node.color }}>
+                    {node.label}
+                  </h3>
+                  <ul className="text-xs text-muted-foreground space-y-1 mb-3">
+                    {node.features.map((feature, i) => (
+                      <li key={i}>• {feature}</li>
+                    ))}
+                  </ul>
+                  <div className="text-xs font-mono font-bold" style={{ color: node.color }}>
+                    {node.activeUsers} active users
+                  </div>
+                </motion.div>
+              </Link>
+            </motion.div>
+          );
+        })}
+      </div>
     </section>
   );
 }
