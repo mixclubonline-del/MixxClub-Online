@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { ChannelStrip } from './ChannelStrip';
 import { VUMeter } from './VUMeter';
 import { useAIStudioStore } from '@/stores/aiStudioStore';
@@ -15,33 +14,57 @@ export const StudioConsole = () => {
     setMasterVolume,
   } = useAIStudioStore();
 
+  const [isDraggingMaster, setIsDraggingMaster] = useState(false);
+
+  const handleMasterFaderMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    setIsDraggingMaster(true);
+    updateMasterFader(e);
+  };
+
+  const handleMasterFaderMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDraggingMaster) return;
+    updateMasterFader(e);
+  };
+
+  const updateMasterFader = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    const height = rect.height;
+    const newVolume = Math.max(0, Math.min(1, 1 - (y / height)));
+    setMasterVolume(newVolume);
+  };
+
   return (
-    <div className="glass rounded-2xl p-6 border border-[hsl(var(--border)/0.5)] shadow-[var(--shadow-glass)]">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">
+    <div className="bg-[hsl(var(--studio-panel))] rounded border border-[hsl(var(--studio-border))] p-4">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-xs font-mono uppercase tracking-wider text-[hsl(var(--studio-text))]">
           Mixing Console
         </h3>
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-mono text-muted-foreground">
+          <span className="text-[9px] font-mono text-[hsl(var(--studio-text-dim))]">
             {tracks.length} Channels
           </span>
-          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+          <div className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--led-green))] animate-pulse" />
         </div>
       </div>
 
-      <div className="flex gap-4 overflow-x-auto pb-4">
+      <div 
+        className="flex gap-2 overflow-x-auto pb-2"
+        onMouseUp={() => setIsDraggingMaster(false)}
+        onMouseLeave={() => setIsDraggingMaster(false)}
+      >
         {/* Channel strips */}
-        <div className="flex gap-3">
+        <div className="flex gap-2">
           {tracks.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 px-8 text-center">
-              <div className="w-16 h-16 rounded-full glass border border-[hsl(var(--border)/0.5)] flex items-center justify-center mb-3">
-                <span className="text-2xl">🎛️</span>
+            <div className="flex flex-col items-center justify-center py-16 px-12 text-center">
+              <div className="w-12 h-12 rounded bg-[hsl(var(--studio-panel-raised))] border border-[hsl(var(--studio-border))] flex items-center justify-center mb-2">
+                <span className="text-xl">🎛️</span>
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs text-[hsl(var(--studio-text-dim))]">
                 No tracks loaded
               </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Upload audio files to start mixing
+              <p className="text-[10px] text-[hsl(var(--studio-text-dim))] mt-1">
+                Upload audio to start mixing
               </p>
             </div>
           ) : (
@@ -70,28 +93,26 @@ export const StudioConsole = () => {
 
         {/* Master section */}
         {tracks.length > 0 && (
-          <motion.div
+          <div
             className={cn(
-              'flex flex-col items-center gap-3 p-4 rounded-lg ml-4',
-              'glass border-2 border-primary shadow-[var(--shadow-glow)]',
-              'w-24 h-[400px]'
+              'flex flex-col items-center gap-2 p-2 rounded ml-2 border-2',
+              'bg-[hsl(var(--studio-panel-raised))] border-[hsl(var(--studio-accent))]',
+              'w-20 h-[500px] flex-shrink-0'
             )}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
           >
-            <div className="flex flex-col items-center gap-1">
-              <span className="text-xs font-bold uppercase tracking-wider text-primary">
+            <div className="flex flex-col items-center gap-0.5">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[hsl(var(--studio-accent))]">
                 Master
               </span>
-              <span className="text-[8px] text-muted-foreground uppercase">
+              <span className="text-[7px] text-[hsl(var(--studio-text-dim))] uppercase">
                 Stereo Out
               </span>
             </div>
 
-            {/* Stereo VU meters */}
-            <div className="flex gap-2">
+            {/* Master VU meters */}
+            <div className="flex gap-1">
               <VUMeter 
-                level={masterPeakLevel * 0.9} 
+                level={masterPeakLevel * 0.95} 
                 size="sm"
                 label="L"
                 vertical
@@ -105,44 +126,47 @@ export const StudioConsole = () => {
             </div>
 
             {/* Master fader */}
-            <div className="flex-1 flex flex-col items-center justify-center">
-              <div className="relative h-32 w-1 bg-[hsl(var(--card))] border border-[hsl(var(--border)/0.5)] rounded-full">
-                <motion.div
+            <div className="flex-1 flex flex-col items-center w-full">
+              <div 
+                className="relative h-full w-3 bg-[hsl(var(--studio-black))] border-2 border-[hsl(var(--studio-accent))] rounded cursor-ns-resize"
+                onMouseDown={handleMasterFaderMouseDown}
+                onMouseMove={handleMasterFaderMouseMove}
+              >
+                <div
                   className={cn(
-                    'absolute left-1/2 -translate-x-1/2 w-8 h-6 rounded',
-                    'bg-gradient-to-b from-primary to-primary/80',
-                    'border border-[hsl(var(--border))]',
-                    'shadow-lg cursor-grab active:cursor-grabbing'
+                    'absolute left-1/2 -translate-x-1/2 w-8 h-5 rounded',
+                    'bg-[hsl(var(--studio-accent))] border border-[hsl(var(--studio-border))]',
+                    'shadow-[0_0_12px_hsl(var(--studio-accent-glow)/0.4)]'
                   )}
                   style={{
                     top: `${(1 - masterVolume) * 100}%`,
+                    transform: 'translate(-50%, -50%)',
                   }}
-                  drag="y"
-                  dragConstraints={{ top: 0, bottom: 0 }}
-                  dragElastic={0}
-                  onDrag={(_, info) => {
-                    const newVolume = Math.max(0, Math.min(1, 1 - ((info.point.y - 60) / 128)));
-                    setMasterVolume(newVolume);
-                  }}
-                />
+                >
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-1 h-3 bg-black/30 rounded-full" />
+                  </div>
+                </div>
               </div>
-              <span className="text-[10px] font-mono text-muted-foreground mt-2">
+              <span className="text-[8px] font-mono text-[hsl(var(--studio-text-dim))] mt-1">
                 {Math.round(masterVolume * 100)}
               </span>
             </div>
 
-            {/* Master output LED */}
+            {/* Output LED */}
             <div className="flex flex-col items-center gap-1">
               <div className={cn(
-                'w-4 h-4 rounded-full',
-                masterPeakLevel > 0.95 ? 'bg-red-500' : 'bg-green-500',
-                'shadow-[0_0_12px_currentColor] animate-pulse'
+                'w-3 h-3 rounded-full',
+                masterPeakLevel > 0.95 ? 'bg-[hsl(var(--led-red))]' : 'bg-[hsl(var(--led-green))]',
+                'shadow-[0_0_8px_currentColor] animate-pulse'
               )} />
-              <span className="text-[8px] text-muted-foreground">OUT</span>
+              <span className="text-[7px] text-[hsl(var(--studio-text-dim))]">OUT</span>
             </div>
-          </motion.div>
+          </div>
         )}
       </div>
     </div>
   );
 };
+
+import { useState } from 'react';

@@ -7,6 +7,8 @@ import { StudioConsole } from "@/components/studio/StudioConsole";
 import { HardwareRack } from "@/components/studio/HardwareRack";
 import { TransportControls } from "@/components/studio/TransportControls";
 import { WaveformTimeline } from "@/components/studio/WaveformTimeline";
+import { BrowserSidebar } from "@/components/studio/BrowserSidebar";
+import { InspectorSidebar } from "@/components/studio/InspectorSidebar";
 import { useAIStudioStore } from "@/stores/aiStudioStore";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -110,22 +112,27 @@ export default function AIStudio() {
           />
         </div>
 
-        {/* Main Studio Layout - Split View */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Timeline/Arrangement View - Top 60% */}
-          <div className="flex-[3] border-b border-[hsl(var(--studio-border))] overflow-hidden">
-            <WaveformTimeline
-              tracks={tracks}
-              currentTime={currentTime}
-              duration={duration}
-              isPlaying={isPlaying}
-              onTimeChange={setCurrentTime}
-              onTrackUpdate={updateTrack}
-            />
-          </div>
+        {/* Main Studio Layout - Split View with Sidebars */}
+        <div className="flex-1 flex overflow-hidden">
+          {/* Left Sidebar - Browser */}
+          <BrowserSidebar />
 
-          {/* Mixer/Console View - Bottom 40% */}
-          <div className="flex-[2] overflow-hidden">
+          {/* Center - Timeline & Mixer */}
+          <div className="flex-1 flex flex-col overflow-hidden">
+            {/* Timeline/Arrangement View - Top 60% */}
+            <div className="flex-[3] border-b border-[hsl(var(--studio-border))] overflow-hidden">
+              <WaveformTimeline
+                tracks={tracks}
+                currentTime={currentTime}
+                duration={duration}
+                isPlaying={isPlaying}
+                onTimeChange={setCurrentTime}
+                onTrackUpdate={updateTrack}
+              />
+            </div>
+
+            {/* Mixer/Console View - Bottom 40% */}
+            <div className="flex-[2] overflow-hidden">
             <Tabs defaultValue="console" className="h-full flex flex-col">
               <TabsList className="flex-shrink-0 w-full max-w-md mx-auto grid grid-cols-3 my-3 bg-[hsl(var(--studio-panel))]">
                 <TabsTrigger 
@@ -189,6 +196,10 @@ export default function AIStudio() {
               </TabsContent>
             </Tabs>
           </div>
+        </div>
+
+          {/* Right Sidebar - Inspector */}
+          <InspectorSidebar />
         </div>
       </main>
     </>

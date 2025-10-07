@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 interface VUMeterProps {
@@ -33,95 +32,73 @@ export const VUMeter = ({
   const dbValue = level > 0 ? 20 * Math.log10(level) : -60;
   const normalizedLevel = Math.max(0, Math.min(1, (dbValue + 60) / 60));
   
+  const segments = 20;
   const sizeClasses = {
-    sm: vertical ? 'h-16 w-2' : 'w-16 h-2',
-    md: vertical ? 'h-32 w-3' : 'w-32 h-3',
-    lg: vertical ? 'h-48 w-4' : 'w-48 h-4',
+    sm: vertical ? 'h-20 w-3' : 'w-20 h-3',
+    md: vertical ? 'h-32 w-4' : 'w-32 h-4',
+    lg: vertical ? 'h-48 w-5' : 'w-48 h-5',
   };
 
-  const getBarColor = (position: number) => {
-    if (position > 0.9) return 'bg-red-500';
-    if (position > 0.7) return 'bg-yellow-500';
-    return 'bg-green-500';
+  const getSegmentColor = (segmentIndex: number) => {
+    const position = segmentIndex / segments;
+    if (position > 0.85) return 'bg-[hsl(var(--led-red))]';
+    if (position > 0.65) return 'bg-[hsl(var(--led-yellow))]';
+    return 'bg-[hsl(var(--led-green))]';
   };
 
   return (
     <div className={cn('flex flex-col items-center gap-1', className)}>
       {label && (
-        <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
+        <span className="text-[8px] font-mono text-[hsl(var(--studio-text-dim))] uppercase tracking-wider">
           {label}
         </span>
       )}
       
       <div className={cn(
-        'relative rounded-full overflow-hidden',
-        'bg-[hsl(var(--card)/0.8)] border border-[hsl(var(--border)/0.5)]',
+        'relative rounded overflow-hidden bg-[hsl(var(--studio-black))] border border-[hsl(var(--studio-border))]',
         sizeClasses[size]
       )}>
-        {/* Background segments */}
+        {/* Segmented LEDs */}
         <div className={cn(
-          'absolute inset-0 flex',
+          'absolute inset-0 flex gap-[1px] p-[1px]',
           vertical ? 'flex-col-reverse' : 'flex-row'
         )}>
-          {Array.from({ length: 20 }).map((_, i) => {
-            const segmentPos = i / 20;
+          {Array.from({ length: segments }).map((_, i) => {
+            const segmentPos = i / segments;
+            const isLit = normalizedLevel >= segmentPos;
+            const isPeak = peakHold && Math.abs(peak - segmentPos) < 0.05;
+            
             return (
               <div
                 key={i}
                 className={cn(
-                  'flex-1',
-                  vertical ? 'border-t' : 'border-l',
-                  'border-[hsl(var(--border)/0.3)]'
+                  'flex-1 transition-all duration-75',
+                  isLit || isPeak 
+                    ? getSegmentColor(i)
+                    : 'bg-[hsl(var(--led-off))]'
                 )}
+                style={{
+                  boxShadow: isLit 
+                    ? `0 0 4px ${i > segments * 0.85 ? 'hsl(var(--led-red))' : i > segments * 0.65 ? 'hsl(var(--led-yellow))' : 'hsl(var(--led-green))'}`
+                    : 'none'
+                }}
               />
             );
           })}
         </div>
 
-        {/* Active level bar */}
-        <motion.div
-          className={cn(
-            'absolute',
-            vertical ? 'bottom-0 left-0 right-0' : 'left-0 top-0 bottom-0',
-            getBarColor(normalizedLevel),
-            'shadow-[var(--shadow-glow)]'
-          )}
-          style={{
-            [vertical ? 'height' : 'width']: `${normalizedLevel * 100}%`,
-          }}
-          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-        />
-
-        {/* Peak hold indicator */}
-        {peakHold && peak > 0 && (
-          <motion.div
-            className={cn(
-              'absolute bg-white',
-              vertical 
-                ? 'left-0 right-0 h-[2px]' 
-                : 'top-0 bottom-0 w-[2px]'
-            )}
-            style={{
-              [vertical ? 'bottom' : 'left']: `${(peak / 1) * 100}%`,
-            }}
-            initial={{ opacity: 1 }}
-            animate={{ opacity: [1, 0.5, 1] }}
-            transition={{ duration: 0.5, repeat: Infinity }}
-          />
-        )}
-
         {/* Clip indicator */}
         {normalizedLevel >= 0.95 && (
-          <div className="absolute inset-0 bg-red-500 opacity-50 animate-pulse" />
+          <div className="absolute top-0 left-0 right-0 h-1 bg-[hsl(var(--led-red))] animate-pulse shadow-[0_0_8px_hsl(var(--led-red))]" />
         )}
       </div>
 
       {/* dB value */}
       <span className={cn(
-        'font-mono text-muted-foreground tabular-nums',
-        size === 'sm' ? 'text-[8px]' : size === 'md' ? 'text-[10px]' : 'text-xs'
+        'font-mono text-[hsl(var(--studio-text-dim))] tabular-nums',
+        size === 'sm' ? 'text-[7px]' : size === 'md' ? 'text-[8px]' : 'text-[9px]'
       )}>
-        {dbValue > -60 ? `${dbValue.toFixed(1)}dB` : '-∞'}
+        {dbValue > -60 ? `${dbValue.toFixed(0)}` : '-∞'}
       </span>
     </div>
   );
