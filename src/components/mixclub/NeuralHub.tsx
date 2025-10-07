@@ -63,7 +63,7 @@ export default function NeuralHub() {
   const radius = 38; // percentage of viewport
   
   return (
-    <section className="relative min-h-screen w-full overflow-hidden bg-gradient-radial from-[#0f0a2a] via-[#1a0a2a] to-[#0a0a1a]">
+    <section className="relative h-[80vh] w-full overflow-hidden bg-gradient-radial from-[#0f0a2a] via-[#1a0a2a] to-[#0a0a1a]">
       {/* SVG Background with connections */}
       <svg
         className="absolute inset-0 w-full h-full"
@@ -157,7 +157,7 @@ export default function NeuralHub() {
       </svg>
 
       {/* Content Layer */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen">
+      <div className="relative z-10 flex flex-col items-center justify-center h-full">
         {/* Center Hub - Larger and More Prominent */}
         <motion.div
           className="absolute"
@@ -185,12 +185,12 @@ export default function NeuralHub() {
               ease: "easeInOut"
             }}
           >
-            <div className="w-56 h-56 md:w-64 md:h-64 rounded-full bg-gradient-to-br from-[hsl(var(--primary))]/30 via-[hsl(var(--accent-blue))]/20 to-[hsl(var(--primary))]/30 backdrop-blur-xl border-2 border-[hsl(var(--primary))]/40 flex items-center justify-center">
+            <div className="w-44 h-44 md:w-52 md:h-52 rounded-full bg-gradient-to-br from-[hsl(var(--primary))]/30 via-[hsl(var(--accent-blue))]/20 to-[hsl(var(--primary))]/30 backdrop-blur-xl border-2 border-[hsl(var(--primary))]/40 flex items-center justify-center">
               <div className="text-center">
-                <h1 className="text-5xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[hsl(var(--primary))] via-[hsl(var(--accent-blue))] to-[hsl(var(--primary))] mb-2 drop-shadow-[0_0_20px_rgba(139,92,246,0.5)]">
+                <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[hsl(var(--primary))] via-[hsl(var(--accent-blue))] to-[hsl(var(--primary))] mb-2 drop-shadow-[0_0_20px_rgba(139,92,246,0.5)]">
                   MixClub
                 </h1>
-                <p className="text-sm md:text-base text-[hsl(var(--primary))] font-mono tracking-wider drop-shadow-[0_0_10px_rgba(139,92,246,0.8)]">
+                <p className="text-xs md:text-sm text-[hsl(var(--primary))] font-mono tracking-wider drop-shadow-[0_0_10px_rgba(139,92,246,0.8)]">
                   THE PRIME BRAIN
                 </p>
               </div>
@@ -229,9 +229,9 @@ export default function NeuralHub() {
               }}
             >
               <Link to={node.route}>
-                {/* Node Circle - Much Larger with Glassmorphism */}
+                {/* Node Circle - Properly sized with Glassmorphism */}
                 <motion.div
-                  className="relative w-32 h-32 md:w-36 md:h-36 rounded-full flex items-center justify-center backdrop-blur-xl overflow-hidden"
+                  className="relative w-24 h-24 md:w-28 md:h-28 rounded-full flex items-center justify-center backdrop-blur-xl overflow-hidden"
                   style={{
                     border: `3px solid ${node.color}`,
                     background: `radial-gradient(circle at 30% 30%, ${node.color}25, ${node.color}08, transparent)`,
@@ -284,7 +284,7 @@ export default function NeuralHub() {
                   
                   {/* Icon */}
                   <Icon 
-                    className="w-12 h-12 md:w-14 md:h-14 relative z-10 group-hover:scale-110 transition-transform drop-shadow-[0_0_10px_currentColor]" 
+                    className="w-10 h-10 md:w-12 md:h-12 relative z-10 group-hover:scale-110 transition-transform drop-shadow-[0_0_10px_currentColor]" 
                     style={{ color: node.color }}
                   />
                 </motion.div>

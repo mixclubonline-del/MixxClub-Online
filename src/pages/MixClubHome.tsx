@@ -1,6 +1,8 @@
 import { Helmet } from 'react-helmet-async';
+import { HeroSection } from '@/components/mixclub/HeroSection';
 import { FeatureHub } from '@/components/mixclub/FeatureHub';
 import { MissionSection } from '@/components/mixclub/MissionSection';
+import { UnlockablesSection } from '@/components/mixclub/UnlockablesSection';
 import { CTASection } from '@/components/mixclub/CTASection';
 import GlobalHeader from '@/components/GlobalHeader';
 import NeuralHub from '@/components/mixclub/NeuralHub';
@@ -19,9 +21,11 @@ export default function MixClubHome() {
 
       <div className="min-h-screen bg-[#0a0a1a]">
         <GlobalHeader />
+        <HeroSection />
         <NeuralHub />
         <MissionSection />
         <FeatureHub />
+        <UnlockablesSection />
         <CTASection />
       </div>
     </>
