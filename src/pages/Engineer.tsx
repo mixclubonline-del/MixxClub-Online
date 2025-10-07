@@ -1,8 +1,12 @@
 import { Helmet } from 'react-helmet-async';
 import GlobalHeader from '@/components/GlobalHeader';
-import AIActivityFeed from '@/components/dashboard/AIActivityFeed';
 import { usePrime } from '@/contexts/PrimeContext';
 import PrimeGlow from '@/components/prime/PrimeGlow';
+import TopEngineersLeaderboard from '@/components/engineer-hub/TopEngineersLeaderboard';
+import AvailableProjects from '@/components/engineer-hub/AvailableProjects';
+import RecentDeliveries from '@/components/engineer-hub/RecentDeliveries';
+import EngineerSpotlight from '@/components/engineer-hub/EngineerSpotlight';
+import EarningsSnapshot from '@/components/engineer-hub/EarningsSnapshot';
 
 export default function Engineer() {
   const { accentColor, systemMode } = usePrime();
@@ -36,22 +40,32 @@ export default function Engineer() {
           </div>
           </PrimeGlow>
 
-          <div className="grid md:grid-cols-2 gap-8 mb-12">
-            <div className="p-8 rounded-xl bg-card/30 backdrop-blur-sm border border-white/5">
-              <h2 className="text-2xl font-semibold mb-4">Coming Soon</h2>
-              <ul className="space-y-3 text-muted-foreground">
-                <li>🎛️ Advanced mixing console</li>
-                <li>🤖 AI mastering assistance</li>
-                <li>📦 Project delivery system</li>
-                <li>⭐ Reputation & review system</li>
-                <li>💰 Earnings dashboard</li>
-              </ul>
+          <div className="space-y-8 mb-12">
+            <section>
+              <h2 className="text-2xl font-semibold mb-4">Your Earnings</h2>
+              <EarningsSnapshot />
+            </section>
+
+            <div className="grid md:grid-cols-2 gap-8">
+              <section>
+                <h2 className="text-2xl font-semibold mb-4">Top Engineers</h2>
+                <TopEngineersLeaderboard />
+              </section>
+              <section>
+                <h2 className="text-2xl font-semibold mb-4">Engineer Spotlight</h2>
+                <EngineerSpotlight />
+              </section>
             </div>
 
-            <div className="p-8 rounded-xl bg-card/30 backdrop-blur-sm border border-white/5">
-              <h2 className="text-2xl font-semibold mb-4">AI Activity</h2>
-              <AIActivityFeed />
-            </div>
+            <section>
+              <h2 className="text-2xl font-semibold mb-4">Available Projects</h2>
+              <AvailableProjects />
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-semibold mb-4">Recent Deliveries</h2>
+              <RecentDeliveries />
+            </section>
           </div>
 
           <div className="text-center">

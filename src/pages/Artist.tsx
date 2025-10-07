@@ -1,9 +1,12 @@
 import { Helmet } from 'react-helmet-async';
 import GlobalHeader from '@/components/GlobalHeader';
-import HubDashboard from '@/components/dashboard/HubDashboard';
-import AIActivityFeed from '@/components/dashboard/AIActivityFeed';
 import { usePrime } from '@/contexts/PrimeContext';
 import PrimeGlow from '@/components/prime/PrimeGlow';
+import FeaturedArtists from '@/components/artist-hub/FeaturedArtists';
+import LiveArtistFeed from '@/components/artist-hub/LiveArtistFeed';
+import TrendingTracks from '@/components/artist-hub/TrendingTracks';
+import OpenOpportunities from '@/components/artist-hub/OpenOpportunities';
+import ArtistStats from '@/components/artist-hub/ArtistStats';
 
 export default function Artist() {
   const { accentColor, systemMode } = usePrime();
@@ -37,22 +40,32 @@ export default function Artist() {
           </div>
           </PrimeGlow>
 
-          <div className="grid md:grid-cols-2 gap-8 mb-12">
-            <div className="p-8 rounded-xl bg-card/30 backdrop-blur-sm border border-white/5">
-              <h2 className="text-2xl font-semibold mb-4">Coming Soon</h2>
-              <ul className="space-y-3 text-muted-foreground">
-                <li>✨ Drag-and-drop track uploads</li>
-                <li>🤖 AI-powered frequency analysis</li>
-                <li>📊 Real-time mix feedback</li>
-                <li>🎯 Artist milestone tracking</li>
-                <li>💎 XP rewards & tier progression</li>
-              </ul>
+          <div className="space-y-8 mb-12">
+            <section>
+              <h2 className="text-2xl font-semibold mb-4">Featured Artists</h2>
+              <FeaturedArtists />
+            </section>
+
+            <div className="grid md:grid-cols-2 gap-8">
+              <section>
+                <h2 className="text-2xl font-semibold mb-4">Live Activity</h2>
+                <LiveArtistFeed />
+              </section>
+              <section>
+                <h2 className="text-2xl font-semibold mb-4">Open Opportunities</h2>
+                <OpenOpportunities />
+              </section>
             </div>
 
-            <div className="p-8 rounded-xl bg-card/30 backdrop-blur-sm border border-white/5">
-              <h2 className="text-2xl font-semibold mb-4">AI Activity</h2>
-              <AIActivityFeed />
-            </div>
+            <section>
+              <h2 className="text-2xl font-semibold mb-4">Trending Tracks</h2>
+              <TrendingTracks />
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-semibold mb-4">Platform Stats</h2>
+              <ArtistStats />
+            </section>
           </div>
 
           <div className="text-center">
