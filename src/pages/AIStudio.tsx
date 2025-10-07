@@ -10,9 +10,12 @@ import { WaveformTimeline } from "@/components/studio/WaveformTimeline";
 import { BrowserSidebar } from "@/components/studio/BrowserSidebar";
 import { InspectorSidebar } from "@/components/studio/InspectorSidebar";
 import { AudioEngine } from "@/components/studio/AudioEngine";
+import { PluginManager } from "@/components/plugins/PluginManager";
 import { useAIStudioStore } from "@/stores/aiStudioStore";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
+import { Button } from "@/components/ui/button";
+import { Plug2 } from "lucide-react";
 
 function Panel({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -60,6 +63,7 @@ export default function AIStudio() {
   const { toast } = useToast();
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [uploadName, setUploadName] = useState<string | null>(null);
+  const [isPluginManagerOpen, setIsPluginManagerOpen] = useState(false);
   
   // Panel size state with localStorage persistence
   const [browserSize, setBrowserSize] = useState(() => {
@@ -246,10 +250,17 @@ export default function AIStudio() {
                     <StudioConsole />
                   </TabsContent>
 
-                  <TabsContent value="rack" className="flex-1 overflow-auto mt-0 px-4">
+                  <TabsContent value="rack" className="flex-1 overflow-auto mt-0 px-4 py-4">
+                    <div className="flex justify-between items-center mb-6">
+                      <h3 className="text-lg font-semibold">Plugin Suite</h3>
+                      <Button onClick={() => setIsPluginManagerOpen(true)}>
+                        <Plug2 className="w-4 h-4 mr-2" />
+                        Open Plugin Manager
+                      </Button>
+                    </div>
                     <HardwareRack
                       effects={effects}
-                      onAddEffect={() => toast({ title: "Effect browser coming soon" })}
+                      onAddEffect={() => setIsPluginManagerOpen(true)}
                       onToggleEffect={(id) => {
                         const effect = effects.find(e => e.id === id);
                         if (effect) {
@@ -306,6 +317,12 @@ export default function AIStudio() {
             <InspectorSidebar />
           </ResizablePanel>
         </ResizablePanelGroup>
+
+        {/* Plugin Manager Dialog */}
+        <PluginManager 
+          isOpen={isPluginManagerOpen} 
+          onClose={() => setIsPluginManagerOpen(false)} 
+        />
       </main>
     </>
   );
