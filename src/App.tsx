@@ -28,6 +28,12 @@ import MixBattles from "./pages/MixBattles";
 import CommunityLeaderboard from "./pages/CommunityLeaderboard";
 import HowItWorks from "./pages/HowItWorks";
 import Network from "./pages/Network";
+import Artist from "./pages/Artist";
+import Engineer from "./pages/Engineer";
+import AIStudio from "./pages/AIStudio";
+import Pulse from "./pages/Pulse";
+import Arena from "./pages/Arena";
+import Crowd from "./pages/Crowd";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
 import ArtistOnboarding from "./pages/ArtistOnboarding";
@@ -157,6 +163,12 @@ const AppContent = () => {
       <Routes>
         <Route path="/" element={<MixClubHome />} />
             <Route path="/network" element={<Network />} />
+            <Route path="/artist" element={<Artist />} />
+            <Route path="/engineer" element={<Engineer />} />
+            <Route path="/ai-studio" element={<AIStudio />} />
+            <Route path="/pulse" element={<Pulse />} />
+            <Route path="/arena" element={<Arena />} />
+            <Route path="/crowd" element={<Crowd />} />
             <Route path="/mix-battles" element={<MixBattles />} />
             <Route path="/leaderboard" element={<CommunityLeaderboard />} />
             <Route path="/how-it-works" element={<HowItWorks />} />

@@ -1,10 +1,10 @@
 import { Helmet } from 'react-helmet-async';
-import { NetworkHero } from '@/components/mixclub/NetworkHero';
 import { FeatureHub } from '@/components/mixclub/FeatureHub';
 import { MissionSection } from '@/components/mixclub/MissionSection';
 import { CTASection } from '@/components/mixclub/CTASection';
 import GlobalHeader from '@/components/GlobalHeader';
 import EcosystemSection from '@/components/mixclub/EcosystemSection';
+import HubDashboard from '@/components/dashboard/HubDashboard';
 
 export default function MixClubHome() {
   return (
@@ -18,14 +18,14 @@ export default function MixClubHome() {
         <meta name="keywords" content="music mixing, AI mastering, audio engineering, music collaboration, mix battles, plugin presets" />
       </Helmet>
 
-      <div className="min-h-screen bg-gradient-to-b from-background via-[hsl(265_50%_10%)] to-background">
-        {/* Animated background grid */}
-        <div className="fixed inset-0 bg-[linear-gradient(to_right,hsl(235_40%_20%/0.1)_1px,transparent_1px),linear-gradient(to_bottom,hsl(235_40%_20%/0.1)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
+      <div className="min-h-screen bg-[#0a0a1a]">
+        {/* Subtle moving light field */}
+        <div className="fixed inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent-blue/5 animate-pulse-slow" />
         
         <GlobalHeader />
-        <NetworkHero />
-        <MissionSection />
+        <HubDashboard />
         <EcosystemSection />
+        <MissionSection />
         <FeatureHub />
         <CTASection />
       </div>

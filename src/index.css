@@ -276,6 +276,15 @@ All colors MUST be HSL.
     }
   }
 
+  @keyframes pulse-slow {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 0.5; }
+  }
+
+  .animate-pulse-slow {
+    animation: pulse-slow 8s ease-in-out infinite;
+  }
+
   @keyframes scale-in {
     0% {
       opacity: 0;
