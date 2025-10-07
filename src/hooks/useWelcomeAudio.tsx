@@ -19,7 +19,7 @@ export const useWelcomeAudio = (segmentCount: number) => {
   const audioContextRef = useRef<AudioContext | null>(null);
   const audioSegmentsRef = useRef<AudioSegment[]>([]);
   const gainNodeRef = useRef<GainNode | null>(null);
-  const audioDataRef = useRef<Uint8Array>(new Uint8Array(128));
+  const audioDataRef = useRef(new Uint8Array(new ArrayBuffer(128)));
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
   const fadeIntervalRef = useRef<NodeJS.Timeout | null>(null);
 

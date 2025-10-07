@@ -1,18 +1,25 @@
 import { motion } from 'framer-motion';
-import { Lock, Unlock, Users, Trophy, Sparkles, Zap, Crown, Rocket } from 'lucide-react';
+import { Lock, Unlock, Users, Trophy, Sparkles, Zap, Crown, Rocket, GraduationCap, ShoppingBag, Puzzle } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useCommunityMilestones } from '@/hooks/useCommunityMilestones';
 
-// Icon mapping for milestone types
+// Icon mapping for milestone types - handles various naming formats from database
 const iconMap: Record<string, any> = {
-  Users,
-  Trophy,
-  Sparkles,
-  Zap,
-  Crown,
-  Rocket,
+  'Users': Users,
+  'Trophy': Trophy,
+  'trophy': Trophy,
+  'Sparkles': Sparkles,
+  'Zap': Zap,
+  'Crown': Crown,
+  'Rocket': Rocket,
+  'GraduationCap': GraduationCap,
+  'graduation-cap': GraduationCap,
+  'ShoppingBag': ShoppingBag,
+  'store': ShoppingBag,
+  'Puzzle': Puzzle,
+  'plug': Puzzle,
 };
 
 export const UnlockablesSection = () => {
