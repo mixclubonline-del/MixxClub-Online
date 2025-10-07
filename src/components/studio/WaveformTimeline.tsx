@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Track } from '@/stores/aiStudioStore';
+import { TrackControls } from './TrackControls';
 
 interface WaveformTimelineProps {
   tracks: Track[];
@@ -11,6 +12,10 @@ interface WaveformTimelineProps {
   isPlaying: boolean;
   onTimeChange: (time: number) => void;
   onTrackUpdate: (id: string, updates: Partial<Track>) => void;
+  recordArmedTracks: Set<string>;
+  onToggleRecordArm: (trackId: string) => void;
+  onOpenTrackEffects: (trackId: string) => void;
+  onDeleteTrack: (trackId: string) => void;
 }
 
 export const WaveformTimeline = ({
@@ -20,6 +25,10 @@ export const WaveformTimeline = ({
   isPlaying,
   onTimeChange,
   onTrackUpdate,
+  recordArmedTracks,
+  onToggleRecordArm,
+  onOpenTrackEffects,
+  onDeleteTrack,
 }: WaveformTimelineProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -323,30 +332,14 @@ export const WaveformTimeline = ({
                 </span>
               </div>
               
-              <div className="flex items-center gap-1 ml-2">
-                <button
-                  onClick={() => onTrackUpdate(track.id, { solo: !track.solo })}
-                  className={cn(
-                    "w-5 h-5 text-[10px] font-bold rounded transition",
-                    track.solo
-                      ? "bg-[hsl(var(--led-yellow))] text-black"
-                      : "bg-[hsl(var(--studio-panel-raised))] text-[hsl(var(--studio-text-dim))] hover:text-[hsl(var(--studio-text))]"
-                  )}
-                >
-                  S
-                </button>
-                <button
-                  onClick={() => onTrackUpdate(track.id, { mute: !track.mute })}
-                  className={cn(
-                    "w-5 h-5 text-[10px] font-bold rounded transition",
-                    track.mute
-                      ? "bg-[hsl(var(--led-red))] text-white"
-                      : "bg-[hsl(var(--studio-panel-raised))] text-[hsl(var(--studio-text-dim))] hover:text-[hsl(var(--studio-text))]"
-                  )}
-                >
-                  M
-                </button>
-              </div>
+              <TrackControls
+                track={track}
+                isRecordArmed={recordArmedTracks.has(track.id)}
+                onToggleRecordArm={() => onToggleRecordArm(track.id)}
+                onOpenEffects={() => onOpenTrackEffects(track.id)}
+                onDelete={() => onDeleteTrack(track.id)}
+                onUpdate={(updates) => onTrackUpdate(track.id, updates)}
+              />
             </div>
           ))}
         </div>

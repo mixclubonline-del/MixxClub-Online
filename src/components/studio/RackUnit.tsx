@@ -8,13 +8,15 @@ interface RackUnitProps {
   onToggle: () => void;
   onConfigure: () => void;
   onParameterChange: (param: string, value: number) => void;
+  onRemove?: () => void;
 }
 
 export const RackUnit = ({ 
   effect, 
   onToggle, 
   onConfigure,
-  onParameterChange 
+  onParameterChange,
+  onRemove
 }: RackUnitProps) => {
   
   const unitColors: Record<string, string> = {

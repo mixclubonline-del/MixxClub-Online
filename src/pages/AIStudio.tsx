@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import { Helmet } from 'react-helmet-async';
 import GlobalHeader from "@/components/GlobalHeader";
 import { usePrime } from "@/contexts/PrimeContext";
@@ -12,12 +12,16 @@ import { InspectorSidebar } from "@/components/studio/InspectorSidebar";
 import { AudioEngine } from "@/components/studio/AudioEngine";
 import { PluginManager } from "@/components/plugins/PluginManager";
 import AudioImportDialog from "@/components/AudioImportDialog";
-import { useAIStudioStore } from "@/stores/aiStudioStore";
+import { useAIStudioStore, EffectUnit } from "@/stores/aiStudioStore";
+import { TrackEffectsDialog } from "@/components/studio/TrackEffectsDialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { Button } from "@/components/ui/button";
 import { Plug2, Upload } from "lucide-react";
 import { AudioAnalysisPanel } from "@/components/studio/AudioAnalysisPanel";
+import { useAudioPermissions } from "@/hooks/useAudioPermissions";
+import { audioEngine } from "@/services/audioEngine";
+import { toast as sonnerToast } from 'sonner';
 
 function Panel({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -69,6 +73,12 @@ export default function AIStudio() {
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
   const [latestAnalysis, setLatestAnalysis] = useState<any>(null);
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
+  const [recordArmedTracks, setRecordArmedTracks] = useState<Set<string>>(new Set());
+  const [selectedTrackForEffects, setSelectedTrackForEffects] = useState<string | null>(null);
+  const [trackEffects, setTrackEffects] = useState<Map<string, EffectUnit[]>>(new Map());
+  const playbackIntervalRef = useRef<number | null>(null);
+  
+  const { permissions, requestAudioPermissions, hasAudioAccess } = useAudioPermissions();
   
   // Panel size state with localStorage persistence
   const [browserSize, setBrowserSize] = useState(() => {
@@ -102,17 +112,31 @@ export default function AIStudio() {
   const {
     tracks,
     isPlaying,
+    isRecording,
     currentTime,
     duration,
     tempo,
     effects,
     setPlaying,
+    setRecording,
     setTempo,
     setCurrentTime,
     updateEffect,
     updateTrack,
     addTrack,
+    removeTrack,
   } = useAIStudioStore();
+
+  // Initialize audio engine for all tracks
+  useEffect(() => {
+    tracks.forEach((track) => {
+      if (track.audioBuffer) {
+        audioEngine.initTrack(track.id, track.audioBuffer);
+        audioEngine.setTrackVolume(track.id, track.volume);
+        audioEngine.setTrackPan(track.id, track.pan);
+      }
+    });
+  }, [tracks]);
 
   const speak = (message: string) => {
     toast({ title: message });
@@ -234,6 +258,145 @@ export default function AIStudio() {
     }
   };
 
+  const handlePlay = useCallback(async () => {
+    await audioEngine.resume();
+    
+    if (!isPlaying) {
+      // Start playback
+      tracks.forEach((track) => {
+        if (track.audioBuffer && !track.mute) {
+          const shouldPlay = !track.solo || tracks.some(t => t.solo);
+          const isSoloed = tracks.some(t => t.solo);
+          
+          if ((!isSoloed || track.solo) && shouldPlay) {
+            audioEngine.playTrack(track.id, track.audioBuffer, currentTime);
+            audioEngine.setTrackVolume(track.id, track.volume);
+            audioEngine.setTrackPan(track.id, track.pan);
+          }
+        }
+      });
+      
+      // Start playback position updater
+      const startTime = audioEngine.getCurrentTime() - currentTime;
+      playbackIntervalRef.current = window.setInterval(() => {
+        const elapsed = audioEngine.getCurrentTime() - startTime;
+        setCurrentTime(Math.min(elapsed, duration));
+        
+        if (elapsed >= duration) {
+          handleStop();
+        }
+      }, 50);
+      
+      setPlaying(true);
+    } else {
+      // Pause playback
+      tracks.forEach((track) => {
+        audioEngine.stopTrack(track.id);
+      });
+      
+      if (playbackIntervalRef.current) {
+        clearInterval(playbackIntervalRef.current);
+        playbackIntervalRef.current = null;
+      }
+      
+      setPlaying(false);
+    }
+  }, [isPlaying, tracks, currentTime, duration, setPlaying, setCurrentTime]);
+
+  const handleStop = useCallback(() => {
+    // Stop all tracks
+    tracks.forEach((track) => {
+      audioEngine.stopTrack(track.id);
+    });
+    
+    if (playbackIntervalRef.current) {
+      clearInterval(playbackIntervalRef.current);
+      playbackIntervalRef.current = null;
+    }
+    
+    setPlaying(false);
+    setCurrentTime(0);
+  }, [tracks, setPlaying, setCurrentTime]);
+
+  const handleRecord = useCallback(async () => {
+    if (!isRecording) {
+      // Start recording on armed tracks
+      if (recordArmedTracks.size === 0) {
+        sonnerToast.error('No tracks armed for recording', {
+          description: 'Arm at least one track by clicking the record button in the track header'
+        });
+        return;
+      }
+      
+      // Request audio permissions
+      if (!hasAudioAccess) {
+        const granted = await requestAudioPermissions();
+        if (!granted) return;
+      }
+      
+      // Start recording on armed tracks
+      recordArmedTracks.forEach((trackId) => {
+        if (permissions.stream) {
+          audioEngine.startRecording(trackId, permissions.stream);
+        }
+      });
+      
+      setRecording(true);
+      
+      // Auto-start playback
+      if (!isPlaying) {
+        handlePlay();
+      }
+      
+      sonnerToast.success('Recording started', {
+        description: `Recording on ${recordArmedTracks.size} track(s)`
+      });
+    } else {
+      // Stop recording
+      recordArmedTracks.forEach((trackId) => {
+        audioEngine.stopRecording(trackId);
+      });
+      
+      setRecording(false);
+      
+      sonnerToast.success('Recording stopped');
+    }
+  }, [isRecording, recordArmedTracks, hasAudioAccess, permissions.stream, isPlaying, setRecording, requestAudioPermissions, handlePlay]);
+
+  const handleToggleRecordArm = useCallback((trackId: string) => {
+    setRecordArmedTracks((prev) => {
+      const next = new Set(prev);
+      if (next.has(trackId)) {
+        next.delete(trackId);
+      } else {
+        next.add(trackId);
+      }
+      return next;
+    });
+  }, []);
+
+  const handleOpenTrackEffects = useCallback((trackId: string) => {
+    setSelectedTrackForEffects(trackId);
+  }, []);
+
+  const handleDeleteTrack = useCallback((trackId: string) => {
+    audioEngine.cleanupTrack(trackId);
+    removeTrack(trackId);
+    setRecordArmedTracks((prev) => {
+      const next = new Set(prev);
+      next.delete(trackId);
+      return next;
+    });
+    sonnerToast.success('Track deleted');
+  }, [removeTrack]);
+
+  const selectedTrack = selectedTrackForEffects 
+    ? tracks.find(t => t.id === selectedTrackForEffects) 
+    : null;
+  const selectedTrackEffects = selectedTrackForEffects 
+    ? trackEffects.get(selectedTrackForEffects) || [] 
+    : [];
+
   return (
     <>
       <Helmet>
@@ -273,17 +436,33 @@ export default function AIStudio() {
           </div>
         </div>
 
+        {/* Conditionally render dialog */}
+        {isImportDialogOpen && (
+          <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center">
+            <div className="relative bg-background rounded-lg shadow-lg max-w-4xl w-full max-h-[90vh] overflow-auto">
+              <AudioImportDialog
+                sessionId="studio-session"
+                onImportComplete={(file) => {
+                  handleImportComplete(file);
+                  setIsImportDialogOpen(false);
+                }}
+                onClose={() => setIsImportDialogOpen(false)}
+              />
+            </div>
+          </div>
+        )}
+
         {/* Transport Bar */}
         <div className="flex-shrink-0">
           <TransportControls
             isPlaying={isPlaying}
-            isRecording={false}
+            isRecording={isRecording}
             currentTime={currentTime}
             duration={duration}
             tempo={tempo}
-            onPlay={() => setPlaying(!isPlaying)}
-            onStop={() => setPlaying(false)}
-            onRecord={() => toast({ title: "Recording feature coming soon" })}
+            onPlay={handlePlay}
+            onStop={handleStop}
+            onRecord={handleRecord}
             onTempoChange={setTempo}
           />
         </div>
@@ -339,6 +518,10 @@ export default function AIStudio() {
                   isPlaying={isPlaying}
                   onTimeChange={setCurrentTime}
                   onTrackUpdate={updateTrack}
+                  recordArmedTracks={recordArmedTracks}
+                  onToggleRecordArm={handleToggleRecordArm}
+                  onOpenTrackEffects={handleOpenTrackEffects}
+                  onDeleteTrack={handleDeleteTrack}
                 />
               </ResizablePanel>
 
@@ -466,12 +649,36 @@ export default function AIStudio() {
           onClose={() => setIsPluginManagerOpen(false)} 
         />
 
-        {/* Audio Import Dialog */}
-        {isImportDialogOpen && (
-          <AudioImportDialog
-            sessionId="ai-studio-default"
-            onImportComplete={handleImportComplete}
-            onClose={() => setIsImportDialogOpen(false)}
+        {/* Track Effects Dialog */}
+        {selectedTrack && (
+          <TrackEffectsDialog
+            open={!!selectedTrackForEffects}
+            onOpenChange={(open) => !open && setSelectedTrackForEffects(null)}
+            trackName={selectedTrack.name}
+            effects={selectedTrackEffects}
+            onAddEffect={() => setIsPluginManagerOpen(true)}
+            onToggleEffect={(id) => {
+              const trackFx = trackEffects.get(selectedTrackForEffects!) || [];
+              const effect = trackFx.find(e => e.id === id);
+              if (effect) {
+                const updated = trackFx.map(e => 
+                  e.id === id ? { ...e, enabled: !e.enabled } : e
+                );
+                setTrackEffects(new Map(trackEffects).set(selectedTrackForEffects!, updated));
+              }
+            }}
+            onUpdateParameter={(id, param, value) => {
+              const trackFx = trackEffects.get(selectedTrackForEffects!) || [];
+              const updated = trackFx.map(e => 
+                e.id === id ? { ...e, parameters: { ...e.parameters, [param]: value } } : e
+              );
+              setTrackEffects(new Map(trackEffects).set(selectedTrackForEffects!, updated));
+            }}
+            onRemoveEffect={(id) => {
+              const trackFx = trackEffects.get(selectedTrackForEffects!) || [];
+              const updated = trackFx.filter(e => e.id !== id);
+              setTrackEffects(new Map(trackEffects).set(selectedTrackForEffects!, updated));
+            }}
           />
         )}
       </main>
