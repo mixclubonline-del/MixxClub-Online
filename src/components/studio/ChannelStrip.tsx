@@ -27,12 +27,12 @@ export const ChannelStrip = ({
 
   const getTrackColor = (type: Track['type']) => {
     const colors: Record<Track['type'], string> = {
-      vocal: 'hsl(var(--wave-vocal))',
-      drums: 'hsl(var(--wave-drums))',
-      bass: 'hsl(var(--wave-bass))',
-      keys: 'hsl(var(--wave-keys))',
-      guitar: 'hsl(var(--wave-guitar))',
-      other: 'hsl(var(--wave-other))',
+      vocal: 'hsl(185, 100%, 50%)',
+      drums: 'hsl(300, 90%, 65%)',
+      bass: 'hsl(270, 100%, 70%)',
+      keys: 'hsl(45, 95%, 55%)',
+      guitar: 'hsl(330, 90%, 60%)',
+      other: 'hsl(210, 100%, 55%)',
     };
     return colors[type] || colors.other;
   };
@@ -76,19 +76,20 @@ export const ChannelStrip = ({
   return (
     <div
       className={cn(
-        'flex flex-col items-center gap-2 p-2 rounded cursor-pointer transition-all',
+        'flex flex-col items-center gap-2 p-2 rounded-lg cursor-pointer transition-all glass-hover',
         'w-16 h-[500px] relative',
         isSelected 
-          ? 'border-[hsl(var(--studio-accent))]' 
-          : 'border-[hsl(var(--studio-border))] hover:border-[hsl(var(--studio-border))]'
+          ? 'border-2' 
+          : 'border'
       )}
       style={{
-        background: 'var(--panel-gradient)',
+        background: isSelected 
+          ? 'linear-gradient(135deg, hsl(var(--card) / 0.9), hsl(var(--card) / 0.75))'
+          : 'var(--panel-gradient)',
         boxShadow: isSelected 
-          ? 'var(--shadow-raised-lg), 0 0 20px hsl(var(--studio-accent) / 0.4)' 
-          : 'var(--shadow-raised)',
-        borderTop: '1px solid var(--border-highlight-top)',
-        borderBottom: '1px solid var(--border-highlight-bottom)',
+          ? 'var(--shadow-glass-lg), 0 0 25px hsl(var(--studio-accent) / 0.5)' 
+          : 'var(--shadow-glass)',
+        borderColor: isSelected ? 'hsl(var(--studio-accent))' : 'hsl(var(--studio-border) / 0.3)',
       }}
       onClick={onSelect}
       onMouseUp={() => {

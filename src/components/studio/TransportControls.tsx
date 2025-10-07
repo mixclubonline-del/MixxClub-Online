@@ -34,11 +34,9 @@ export const TransportControls = ({
 
   return (
     <div 
-      className="w-full h-16 border-b flex items-center px-6 gap-8"
+      className="w-full h-16 border-b flex items-center px-6 gap-8 glass-studio"
       style={{
-        background: 'var(--panel-gradient)',
-        borderColor: 'hsl(220, 14%, 28%)',
-        boxShadow: 'var(--shadow-raised)',
+        borderColor: 'hsl(var(--studio-border) / 0.4)',
       }}
     >
       {/* Left Section - Playback Controls */}
@@ -70,17 +68,18 @@ export const TransportControls = ({
         <button
           onClick={onPlay}
           className={cn(
-            "p-3 rounded-lg transition-all hover:scale-110",
+            "p-3 rounded-full transition-all hover:scale-110",
             isPlaying && "animate-pulse"
           )}
           style={{
             background: isPlaying 
-              ? 'linear-gradient(180deg, hsl(142 100% 55%), hsl(142 100% 45%))'
+              ? 'linear-gradient(135deg, hsl(var(--studio-accent)), hsl(var(--studio-accent-glow)))'
               : 'var(--button-gradient)',
             boxShadow: isPlaying 
-              ? 'var(--shadow-raised-lg), var(--shadow-glow-led-green)'
+              ? '0 0 30px hsl(var(--studio-accent) / 0.6), var(--shadow-raised-lg)'
               : 'var(--shadow-raised)',
-            color: isPlaying ? 'white' : 'hsl(var(--studio-text))',
+            color: 'white',
+            border: isPlaying ? '2px solid hsl(var(--studio-accent-glow))' : '1px solid hsl(var(--studio-border))',
           }}
           aria-label={isPlaying ? "Pause" : "Play"}
         >
@@ -107,12 +106,13 @@ export const TransportControls = ({
           )}
           style={{
             background: isRecording
-              ? 'linear-gradient(180deg, hsl(0 100% 60%), hsl(0 100% 50%))'
+              ? 'linear-gradient(135deg, hsl(0 100% 60%), hsl(0 100% 50%))'
               : 'var(--button-gradient)',
             boxShadow: isRecording
-              ? 'var(--shadow-raised-lg), var(--shadow-glow-led-red)'
+              ? '0 0 30px hsl(0 100% 50% / 0.6), var(--shadow-raised-lg)'
               : 'var(--shadow-raised)',
             color: isRecording ? 'white' : 'hsl(var(--studio-text-dim))',
+            border: isRecording ? '2px solid hsl(0 100% 70%)' : '1px solid hsl(var(--studio-border))',
           }}
           aria-label={isRecording ? "Stop recording" : "Record"}
         >

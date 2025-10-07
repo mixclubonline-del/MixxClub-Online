@@ -27,9 +27,20 @@ export const BrowserSidebar = () => {
   }
 
   return (
-    <div className="w-64 bg-[hsl(var(--studio-panel))] border-r border-[hsl(var(--studio-border))] flex flex-col">
+    <div 
+      className="w-64 border-r flex flex-col glass-studio"
+      style={{
+        borderColor: 'hsl(var(--studio-border) / 0.4)',
+      }}
+    >
       {/* Header */}
-      <div className="flex items-center justify-between p-3 border-b border-[hsl(var(--studio-border))]">
+      <div 
+        className="flex items-center justify-between p-3 border-b"
+        style={{
+          borderColor: 'hsl(var(--studio-border) / 0.3)',
+          background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), transparent)',
+        }}
+      >
         <span className="text-xs font-mono uppercase tracking-wider text-[hsl(var(--studio-text))]">
           Browser
         </span>
@@ -42,17 +53,22 @@ export const BrowserSidebar = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-[hsl(var(--studio-border))]">
+      <div className="flex border-b" style={{ borderColor: 'hsl(var(--studio-border) / 0.3)' }}>
         {(['tracks', 'sounds', 'presets'] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={cn(
-              'flex-1 py-2 text-[10px] font-mono uppercase transition',
+              'flex-1 py-2 text-[10px] font-mono uppercase transition-all',
               activeTab === tab
-                ? 'bg-[hsl(var(--studio-panel-raised))] text-[hsl(var(--studio-accent))] border-b-2 border-[hsl(var(--studio-accent))]'
+                ? 'text-[hsl(var(--studio-accent))]'
                 : 'text-[hsl(var(--studio-text-dim))] hover:text-[hsl(var(--studio-text))]'
             )}
+            style={activeTab === tab ? {
+              background: 'linear-gradient(135deg, hsl(var(--studio-accent) / 0.15), hsl(var(--studio-accent) / 0.05))',
+              borderBottom: '2px solid hsl(var(--studio-accent))',
+              boxShadow: '0 0 20px hsl(var(--studio-accent) / 0.3)',
+            } : {}}
           >
             {tab}
           </button>

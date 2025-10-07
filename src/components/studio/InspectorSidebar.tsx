@@ -29,9 +29,20 @@ export const InspectorSidebar = () => {
   }
 
   return (
-    <div className="w-80 bg-[hsl(var(--studio-panel))] border-l border-[hsl(var(--studio-border))] flex flex-col">
+    <div 
+      className="w-80 border-l flex flex-col glass-studio"
+      style={{
+        borderColor: 'hsl(var(--studio-border) / 0.4)',
+      }}
+    >
       {/* Header */}
-      <div className="flex items-center justify-between p-3 border-b border-[hsl(var(--studio-border))]">
+      <div 
+        className="flex items-center justify-between p-3 border-b"
+        style={{
+          borderColor: 'hsl(var(--studio-border) / 0.3)',
+          background: 'linear-gradient(135deg, transparent, hsl(var(--accent) / 0.08))',
+        }}
+      >
         <span className="text-xs font-mono uppercase tracking-wider text-[hsl(var(--studio-text))]">
           Inspector
         </span>
@@ -44,7 +55,7 @@ export const InspectorSidebar = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-[hsl(var(--studio-border))]">
+      <div className="flex border-b" style={{ borderColor: 'hsl(var(--studio-border) / 0.3)' }}>
         {([
           { id: 'inspector' as const, icon: Info, label: 'Track' },
           { id: 'effects' as const, icon: Sliders, label: 'FX' },
@@ -54,11 +65,16 @@ export const InspectorSidebar = () => {
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={cn(
-              'flex-1 py-2 text-[10px] font-mono uppercase transition flex items-center justify-center gap-1',
+              'flex-1 py-2 text-[10px] font-mono uppercase transition-all flex items-center justify-center gap-1',
               activeTab === tab.id
-                ? 'bg-[hsl(var(--studio-panel-raised))] text-[hsl(var(--studio-accent))] border-b-2 border-[hsl(var(--studio-accent))]'
+                ? 'text-[hsl(var(--studio-accent))]'
                 : 'text-[hsl(var(--studio-text-dim))] hover:text-[hsl(var(--studio-text))]'
             )}
+            style={activeTab === tab.id ? {
+              background: 'linear-gradient(135deg, hsl(var(--studio-accent) / 0.15), hsl(var(--studio-accent) / 0.05))',
+              borderBottom: '2px solid hsl(var(--studio-accent))',
+              boxShadow: '0 0 20px hsl(var(--studio-accent) / 0.3)',
+            } : {}}
           >
             <tab.icon className="w-3 h-3" />
             {tab.label}

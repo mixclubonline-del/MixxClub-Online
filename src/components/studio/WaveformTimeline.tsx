@@ -54,15 +54,15 @@ export const WaveformTimeline = ({
     return data;
   };
 
-  // Get color for track type
+  // Get color for track type - Purple to Cyan gradient spectrum
   const getTrackColor = (type: Track['type']) => {
     const colors: Record<Track['type'], string> = {
-      vocal: 'hsl(180, 100%, 50%)',
-      drums: 'hsl(300, 100%, 60%)',
-      bass: 'hsl(142, 100%, 45%)',
-      keys: 'hsl(38, 100%, 55%)',
-      guitar: 'hsl(0, 100%, 55%)',
-      other: 'hsl(195, 100%, 60%)',
+      vocal: 'hsl(185, 100%, 50%)',
+      drums: 'hsl(300, 90%, 65%)',
+      bass: 'hsl(270, 100%, 70%)',
+      keys: 'hsl(45, 95%, 55%)',
+      guitar: 'hsl(330, 90%, 60%)',
+      other: 'hsl(210, 100%, 55%)',
     };
     return colors[type] || colors.other;
   };
@@ -148,16 +148,16 @@ export const WaveformTimeline = ({
         : 'hsl(220, 18%, 16%)';
       ctx.fillRect(0, trackY, rect.width, trackHeight);
 
-      // Draw waveform with gradient fill
+      // Draw waveform with glass gradient fill
       const waveformData = track.waveformData || generateWaveform(track.type);
       const step = Math.max(1, Math.floor(waveformData.length / canvas.width));
       
-      // Create gradient for waveform
+      // Create glass gradient for waveform
       const gradient = ctx.createLinearGradient(0, trackY, 0, trackY + trackHeight);
       const rgb = getRgbFromHsl(trackColor);
-      gradient.addColorStop(0, `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.9)`);
-      gradient.addColorStop(0.5, `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.6)`);
-      gradient.addColorStop(1, `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.3)`);
+      gradient.addColorStop(0, `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.95)`);
+      gradient.addColorStop(0.4, `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.7)`);
+      gradient.addColorStop(1, `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.4)`);
       
       // Draw filled waveform
       ctx.fillStyle = gradient;
@@ -181,11 +181,11 @@ export const WaveformTimeline = ({
       ctx.closePath();
       ctx.fill();
       
-      // Add glow effect for peaks
+      // Add glass glow effect for peaks
       ctx.shadowColor = trackColor;
-      ctx.shadowBlur = 8;
+      ctx.shadowBlur = 12;
       ctx.strokeStyle = trackColor;
-      ctx.lineWidth = 1.5;
+      ctx.lineWidth = 2;
       ctx.beginPath();
       
       for (let x = 0; x < canvas.width; x++) {
