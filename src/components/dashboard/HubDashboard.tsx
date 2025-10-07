@@ -1,12 +1,15 @@
 import { motion } from "framer-motion";
 import { useAudioVisualization } from "@/hooks/useAudioVisualization";
+import { usePrime } from "@/contexts/PrimeContext";
+import PrimeGlow from "@/components/prime/PrimeGlow";
 
 export default function HubDashboard() {
   const { audioData, isPlaying, togglePlay } = useAudioVisualization();
+  const { accentColor, pulseRate } = usePrime();
 
   return (
     <section className="relative min-h-[70vh] flex flex-col items-center justify-center px-6 overflow-hidden">
-      {/* Breathing pulse background */}
+      {/* Breathing pulse background - connected to Prime */}
       <motion.div 
         className="absolute inset-0 bg-gradient-radial from-primary/10 via-transparent to-transparent"
         animate={{ 
@@ -14,32 +17,18 @@ export default function HubDashboard() {
           scale: [1, 1.05, 1]
         }}
         transition={{ 
-          duration: 3,
+          duration: pulseRate / 1000,
           repeat: Infinity,
           ease: "easeInOut"
         }}
       />
 
-      {/* Central infinity logo - placeholder for uploaded logo */}
-      <motion.div 
-        className="relative z-10 mb-8"
-        animate={{ 
-          filter: [
-            "drop-shadow(0 0 20px hsl(var(--primary)/0.5))",
-            "drop-shadow(0 0 40px hsl(var(--primary)/0.8))",
-            "drop-shadow(0 0 20px hsl(var(--primary)/0.5))"
-          ]
-        }}
-        transition={{ 
-          duration: 3,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-      >
+      {/* Central infinity logo - connected to Prime glow */}
+      <PrimeGlow className="relative z-10 mb-8">
         <div className="w-32 h-32 flex items-center justify-center text-6xl cursor-pointer" onClick={togglePlay}>
           ∞
         </div>
-      </motion.div>
+      </PrimeGlow>
 
       {/* Title */}
       <motion.h1 
