@@ -1,142 +1,148 @@
-import { useAIStudioStore } from '@/stores/aiStudioStore';
+import { Play, Pause, Square, SkipBack, Circle, Repeat, Shuffle, Music } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useAIStudioStore } from '@/stores/aiStudioStore';
+import { cn } from '@/lib/utils';
+import { useState } from 'react';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { 
-  Play, 
-  Pause, 
-  Square, 
-  SkipBack,
-  Circle,
-  Repeat,
-  Volume2
-} from 'lucide-react';
-import { Slider } from '@/components/ui/slider';
 
 export const TransportControls = () => {
-  const {
-    isPlaying,
+  const { 
+    isPlaying, 
     isRecording,
-    currentTime,
-    tempo,
-    masterVolume,
-    setPlaying,
+    setPlaying, 
     setRecording,
-    setCurrentTime,
-    setTempo,
-    setMasterVolume,
+    currentTime, 
+    setCurrentTime, 
+    tempo, 
+    setTempo
   } = useAIStudioStore();
 
-  const handlePlayPause = () => {
-    setPlaying(!isPlaying);
-  };
-
-  const handleStop = () => {
-    setPlaying(false);
-    setCurrentTime(0);
-  };
-
-  const handleRecord = () => {
-    setRecording(!isRecording);
-    if (!isRecording) {
-      setPlaying(true);
-    }
-  };
+  const [isEditingTempo, setIsEditingTempo] = useState(false);
+  const [tempoInput, setTempoInput] = useState(tempo.toString());
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     const ms = Math.floor((seconds % 1) * 100);
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}:${ms.toString().padStart(2, '0')}`;
+    return `${mins}:${secs.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`;
+  };
+
+  const handleTempoSubmit = () => {
+    const newTempo = parseInt(tempoInput);
+    if (newTempo >= 40 && newTempo <= 240) {
+      setTempo(newTempo);
+    } else {
+      setTempoInput(tempo.toString());
+    }
+    setIsEditingTempo(false);
   };
 
   return (
-    <div className="flex items-center justify-between gap-6 w-full">
-      {/* Transport Buttons */}
-      <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setCurrentTime(0)}
-          title="Skip to Start"
-        >
-          <SkipBack className="h-4 w-4" />
-        </Button>
-
-        <Button
-          variant={isPlaying ? "secondary" : "default"}
-          size="icon"
-          onClick={handlePlayPause}
-          className="h-10 w-10"
-          title={isPlaying ? "Pause" : "Play"}
-        >
-          {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
-        </Button>
-
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleStop}
-          title="Stop"
-        >
-          <Square className="h-4 w-4" />
-        </Button>
-
-        <Button
-          variant={isRecording ? "destructive" : "ghost"}
-          size="icon"
-          onClick={handleRecord}
-          className={isRecording ? "animate-pulse" : ""}
-          title={isRecording ? "Stop Recording" : "Record"}
-        >
-          <Circle className="h-4 w-4" fill={isRecording ? "currentColor" : "none"} />
-        </Button>
-
-        <Button
-          variant="ghost"
-          size="icon"
-          disabled
-          title="Loop (Coming Soon)"
-        >
-          <Repeat className="h-4 w-4 opacity-50" />
-        </Button>
-      </div>
-
+    <div className="flex items-center gap-1 justify-center">
+      {/* Return to Zero */}
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setCurrentTime(0)}
+        className="h-8 w-8 p-0"
+        title="Return to Zero"
+      >
+        <SkipBack className="h-4 w-4" />
+      </Button>
+      
+      {/* Record */}
+      <Button
+        variant={isRecording ? "destructive" : "ghost"}
+        size="sm"
+        onClick={() => setRecording(!isRecording)}
+        className={cn(
+          "h-8 w-8 p-0",
+          isRecording && "animate-pulse"
+        )}
+        title="Record"
+      >
+        <Circle className={cn("h-4 w-4", isRecording && "fill-current")} />
+      </Button>
+      
+      {/* Play/Pause */}
+      <Button
+        variant={isPlaying ? "default" : "ghost"}
+        size="sm"
+        onClick={() => setPlaying(!isPlaying)}
+        className="h-9 w-9 p-0"
+        title={isPlaying ? "Pause" : "Play"}
+      >
+        {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+      </Button>
+      
+      {/* Stop */}
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => {
+          setPlaying(false);
+          setRecording(false);
+        }}
+        className="h-8 w-8 p-0"
+        title="Stop"
+      >
+        <Square className="h-4 w-4" />
+      </Button>
+      
+      {/* Loop */}
+      <Button
+        variant="ghost"
+        size="sm"
+        disabled
+        className="h-8 w-8 p-0 opacity-50"
+        title="Loop (Coming Soon)"
+      >
+        <Repeat className="h-4 w-4" />
+      </Button>
+      
       {/* Time Display */}
-      <div className="flex items-center gap-2">
-        <span className="text-sm font-mono text-foreground tabular-nums min-w-[100px]">
+      <div 
+        className="flex items-center gap-2 px-3 h-8 rounded bg-[hsl(var(--studio-black))] border border-[hsl(var(--studio-border))]"
+      >
+        <Music className="h-3 w-3 text-[hsl(var(--studio-text-dim))]" />
+        <span className="text-xs font-mono text-[hsl(var(--studio-text))] tabular-nums">
           {formatTime(currentTime)}
         </span>
       </div>
-
+      
       {/* Tempo */}
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2">
-          <Label className="text-xs text-muted-foreground">BPM</Label>
+      <div className="flex items-center gap-1">
+        {isEditingTempo ? (
           <Input
             type="number"
-            value={tempo}
-            onChange={(e) => setTempo(Number(e.target.value))}
-            className="w-16 h-8 text-center"
+            value={tempoInput}
+            onChange={(e) => setTempoInput(e.target.value)}
+            onBlur={handleTempoSubmit}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleTempoSubmit();
+              if (e.key === 'Escape') {
+                setTempoInput(tempo.toString());
+                setIsEditingTempo(false);
+              }
+            }}
+            className="w-16 h-8 text-xs text-center"
+            autoFocus
             min={40}
             max={240}
           />
-        </div>
-      </div>
-
-      {/* Master Volume */}
-      <div className="flex items-center gap-2 min-w-[150px]">
-        <Volume2 className="h-4 w-4 text-muted-foreground" />
-        <Slider
-          value={[masterVolume * 100]}
-          onValueChange={([value]) => setMasterVolume(value / 100)}
-          max={100}
-          step={1}
-          className="flex-1"
-        />
-        <span className="text-xs text-muted-foreground w-8 text-right">
-          {Math.round(masterVolume * 100)}
-        </span>
+        ) : (
+          <button
+            onClick={() => setIsEditingTempo(true)}
+            className="px-3 h-8 rounded bg-[hsl(var(--studio-black))] border border-[hsl(var(--studio-border))] hover:border-[hsl(var(--studio-accent))] transition"
+          >
+            <span className="text-xs font-mono text-[hsl(var(--studio-text))] tabular-nums">
+              {tempo}
+            </span>
+            <span className="text-[10px] text-[hsl(var(--studio-text-dim))] ml-1">
+              BPM
+            </span>
+          </button>
+        )}
       </div>
     </div>
   );

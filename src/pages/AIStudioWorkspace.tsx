@@ -242,7 +242,7 @@ export default function AIStudioWorkspace() {
         <div 
           className={`border-r border-border transition-all duration-300 ${
             leftSidebarOpen ? 'w-80' : 'w-0'
-          } overflow-hidden`}
+          } overflow-hidden flex`}
         >
           <BrowserSidebar />
         </div>
