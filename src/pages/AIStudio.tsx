@@ -165,26 +165,79 @@ export default function AIStudio() {
 
   const loadAudioBuffer = async (url: string): Promise<{ buffer: AudioBuffer; waveform: number[] }> => {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const response = await fetch(url);
-    const arrayBuffer = await response.arrayBuffer();
-    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
     
-    // Generate waveform data
-    const channelData = audioBuffer.getChannelData(0);
-    const waveform: number[] = [];
-    const peakSamples = 1000;
-    const samplesPerPeak = Math.floor(channelData.length / peakSamples);
-    
-    for (let i = 0; i < peakSamples; i++) {
-      let peak = 0;
-      for (let j = 0; j < samplesPerPeak; j++) {
-        const sample = Math.abs(channelData[i * samplesPerPeak + j] || 0);
-        peak = Math.max(peak, sample);
+    try {
+      console.log('[AIStudio] Loading audio from:', url);
+      
+      // Fetch the audio file
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch audio: ${response.status} ${response.statusText}`);
       }
-      waveform.push(peak);
+      
+      // Get content type for validation
+      const contentType = response.headers.get('content-type');
+      console.log('[AIStudio] Audio content-type:', contentType);
+      
+      // Get array buffer
+      const arrayBuffer = await response.arrayBuffer();
+      console.log('[AIStudio] Audio buffer size:', arrayBuffer.byteLength, 'bytes');
+      
+      if (arrayBuffer.byteLength === 0) {
+        throw new Error('Audio file is empty');
+      }
+      
+      // Decode audio data
+      let audioBuffer: AudioBuffer;
+      try {
+        audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+        console.log('[AIStudio] Audio decoded successfully:', {
+          duration: audioBuffer.duration,
+          sampleRate: audioBuffer.sampleRate,
+          channels: audioBuffer.numberOfChannels
+        });
+      } catch (decodeError: any) {
+        console.error('[AIStudio] Audio decode error:', decodeError);
+        
+        // Provide specific error messages based on common issues
+        if (decodeError.name === 'EncodingError' || decodeError.message?.includes('codec')) {
+          throw new Error('Unsupported audio format. Please use WAV, MP3, AAC, or OGG files.');
+        } else if (arrayBuffer.byteLength < 1000) {
+          throw new Error('Audio file appears to be corrupted or incomplete.');
+        } else {
+          throw new Error(`Unable to decode audio: ${decodeError.message || 'Unknown format'}`);
+        }
+      }
+      
+      // Generate waveform data
+      const channelData = audioBuffer.getChannelData(0);
+      const waveform: number[] = [];
+      const peakSamples = 1000;
+      const samplesPerPeak = Math.floor(channelData.length / peakSamples);
+      
+      for (let i = 0; i < peakSamples; i++) {
+        let peak = 0;
+        for (let j = 0; j < samplesPerPeak; j++) {
+          const sample = Math.abs(channelData[i * samplesPerPeak + j] || 0);
+          peak = Math.max(peak, sample);
+        }
+        waveform.push(peak);
+      }
+      
+      console.log('[AIStudio] Waveform generated, peaks:', waveform.length);
+      return { buffer: audioBuffer, waveform };
+      
+    } catch (error: any) {
+      console.error('[AIStudio] loadAudioBuffer error:', error);
+      throw error;
+    } finally {
+      // Close the temporary audio context
+      try {
+        await audioContext.close();
+      } catch (e) {
+        console.warn('[AIStudio] Failed to close audio context:', e);
+      }
     }
-    
-    return { buffer: audioBuffer, waveform };
   };
 
   const handleImportComplete = async (file: any) => {
@@ -240,11 +293,31 @@ export default function AIStudio() {
       
       startAnalysis(trackName);
       
-    } catch (error) {
-      console.error('Error loading audio:', error);
-      sonnerToast.error('Import Error', {
-        description: 'Failed to load audio buffer. File may be corrupted.',
+    } catch (error: any) {
+      console.error('[AIStudio] Error in handleImportComplete:', error);
+      
+      // Provide helpful error message
+      const errorMessage = error.message || 'Unknown error occurred';
+      const isFormatError = errorMessage.includes('format') || errorMessage.includes('codec');
+      const isCorruptionError = errorMessage.includes('corrupt') || errorMessage.includes('empty');
+      
+      sonnerToast.error('Import Failed', {
+        description: errorMessage,
+        duration: 5000,
       });
+      
+      // Additional guidance based on error type
+      if (isFormatError) {
+        sonnerToast.info('Supported Formats', {
+          description: 'Try converting your file to WAV, MP3, AAC, or OGG format.',
+          duration: 7000,
+        });
+      } else if (isCorruptionError) {
+        sonnerToast.info('File Issue', {
+          description: 'The file may be incomplete or corrupted. Try re-exporting from your DAW.',
+          duration: 7000,
+        });
+      }
     } finally {
       setIsLoadingAudio(false);
     }
