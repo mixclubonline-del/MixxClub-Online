@@ -11,7 +11,7 @@ export default function IntroScene() {
     "PrimeBot: Initializing creative systems...",
     "Loading AI engines and neural mix modules...",
     "Syncing artists, engineers, and collaboration zones...",
-    "Welcome to MixClub Online.",
+    "Welcome to Mixxclub.",
   ];
 
   useEffect(() => {
@@ -60,7 +60,7 @@ export default function IntroScene() {
           </svg>
         </div>
 
-        <h1 className="text-5xl font-bold tracking-tight drop-shadow-glow mb-3">MixClub Online</h1>
+        <h1 className="text-5xl font-bold tracking-tight drop-shadow-glow mb-3">Mixxclub Online</h1>
         <p className="text-lg text-gray-300">Powered by Prime</p>
 
         {/* Subtle waveform pulse */}

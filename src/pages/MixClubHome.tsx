@@ -1,32 +1,20 @@
 import { Helmet } from 'react-helmet-async';
-import { HeroSection } from '@/components/mixclub/HeroSection';
-import { FeatureHub } from '@/components/mixclub/FeatureHub';
-import { MissionSection } from '@/components/mixclub/MissionSection';
-import { UnlockablesSection } from '@/components/mixclub/UnlockablesSection';
-import { CTASection } from '@/components/mixclub/CTASection';
-import GlobalHeader from '@/components/GlobalHeader';
 import NeuralHub from '@/components/mixclub/NeuralHub';
 
 export default function MixClubHome() {
   return (
     <>
       <Helmet>
-        <title>MixClub Online — The Future of Music Collaboration</title>
+        <title>Mixxclub — Music Collaboration Network</title>
         <meta 
           name="description" 
-          content="Transform home-recorded tracks into radio-ready songs. AI-driven music platform where artists and engineers collaborate, compete, and create together." 
+          content="The social hub for music creators. Connect with artists, engineers, and producers in a collaborative network." 
         />
-        <meta name="keywords" content="music mixing, AI mastering, audio engineering, music collaboration, mix battles, plugin presets" />
+        <meta name="keywords" content="music collaboration, social network, artists, engineers, music community" />
       </Helmet>
 
-      <div className="min-h-screen bg-[#0a0a1a]">
-        <GlobalHeader />
-        <HeroSection />
+      <div className="min-h-screen bg-[#0a0a1a] flex items-center justify-center">
         <NeuralHub />
-        <MissionSection />
-        <FeatureHub />
-        <UnlockablesSection />
-        <CTASection />
       </div>
     </>
   );

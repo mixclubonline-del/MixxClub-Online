@@ -32,24 +32,15 @@ export default function HubDashboard() {
 
       {/* Title */}
       <motion.h1 
-        className="text-5xl md:text-7xl font-bold text-center mb-2"
+        className="text-5xl md:text-7xl font-bold text-center mb-8"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
         <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-accent to-accent-blue">
-          MixClub Online
+          Mixxclub Online
         </span>
       </motion.h1>
-
-      <motion.p 
-        className="text-lg text-muted-foreground mb-8"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.4 }}
-      >
-        The Prime Brain
-      </motion.p>
 
       {/* Waveform visualization */}
       <motion.div 

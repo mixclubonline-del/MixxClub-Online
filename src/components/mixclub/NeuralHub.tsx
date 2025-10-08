@@ -187,12 +187,9 @@ export default function NeuralHub() {
           >
             <div className="w-44 h-44 md:w-52 md:h-52 rounded-full bg-gradient-to-br from-[hsl(var(--primary))]/30 via-[hsl(var(--accent-blue))]/20 to-[hsl(var(--primary))]/30 backdrop-blur-xl border-2 border-[hsl(var(--primary))]/40 flex items-center justify-center">
               <div className="text-center">
-                <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[hsl(var(--primary))] via-[hsl(var(--accent-blue))] to-[hsl(var(--primary))] mb-2 drop-shadow-[0_0_20px_rgba(139,92,246,0.5)]">
-                  MixClub
+                <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[hsl(var(--primary))] via-[hsl(var(--accent-blue))] to-[hsl(var(--primary))] drop-shadow-[0_0_20px_rgba(139,92,246,0.5)]">
+                  Mixxclub
                 </h1>
-                <p className="text-xs md:text-sm text-[hsl(var(--primary))] font-mono tracking-wider drop-shadow-[0_0_10px_rgba(139,92,246,0.8)]">
-                  THE PRIME BRAIN
-                </p>
               </div>
             </div>
           </motion.div>
