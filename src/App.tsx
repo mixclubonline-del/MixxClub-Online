@@ -165,8 +165,6 @@ const AppContent = () => {
     <>
       <MobileRouteGuard />
       <OfflineIndicator />
-      <PrimeConsole />
-      <PrimeStatusBar />
       <React.Suspense fallback={<DashboardSkeleton />}>
       <Routes>
         <Route path="/" element={<IntroScene />} />
