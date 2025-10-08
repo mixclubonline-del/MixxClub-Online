@@ -1,5 +1,29 @@
 project_id = "htvmkylgrrlaydhdbonl"
 
+[functions.stripe-webhook-mixx]
+verify_jwt = false
+
+[functions.checkout-create-session]
+verify_jwt = true
+
+[functions.mixport-upload]
+verify_jwt = true
+
+[functions.mixport-approve]
+verify_jwt = true
+
+[functions.projects-assign]
+verify_jwt = true
+
+[functions.projects-revision]
+verify_jwt = true
+
+[functions.points-redeem]
+verify_jwt = true
+
+[functions.referral-code]
+verify_jwt = true
+
 [functions.generate-trap-beat]
 verify_jwt = false
 
