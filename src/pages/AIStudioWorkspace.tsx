@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense, lazy } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -9,6 +9,7 @@ import { useSessionSync } from '@/hooks/useSessionSync';
 import { useStudioKeyboardShortcuts } from '@/hooks/useStudioKeyboardShortcuts';
 import { useTransportEngine } from '@/hooks/useTransportEngine';
 import { useToast } from '@/hooks/use-toast';
+import { useAudioFFT } from '@/hooks/useAudioFFT';
 
 // Studio Components
 import { StudioConsole } from '@/components/studio/StudioConsole';
@@ -24,7 +25,10 @@ import { PluginManager } from '@/components/studio/PluginManager';
 // UI Components
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Users, LogOut, Save, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Loader2, Users, LogOut, Save, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
+
+const AudioVisualizerScene = lazy(() => import('@/components/3d/r3f/AudioVisualizerScene').then(m => ({ default: m.AudioVisualizerScene })));
+const NeuralNetworkViz = lazy(() => import('@/components/3d/r3f/NeuralNetworkViz').then(m => ({ default: m.NeuralNetworkViz })));
 
 export default function AIStudioWorkspace() {
   const [searchParams] = useSearchParams();
@@ -40,10 +44,14 @@ export default function AIStudioWorkspace() {
   const [rightSidebarOpen, setRightSidebarOpen] = useState(true);
   const [rightPanelMode, setRightPanelMode] = useState<'inspector' | 'ai'>('inspector');
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [show3DVisualizer, setShow3DVisualizer] = useState(false);
 
   // Store access
   const { tracks, addTrack, isPlaying, setPlaying, currentTime, setCurrentTime, updateTrack, removeTrack, setRecording, isRecording } = useAIStudioStore();
   const { openPlugins, activePlugin } = usePluginStore();
+  
+  // Audio FFT for visualizations
+  const fftData = useAudioFFT(isPlaying);
 
   // Real-time collaboration
   const { onlineUsers, isConnected } = useRealTimePresence(sessionId || 'solo-session');
@@ -212,6 +220,16 @@ export default function AIStudioWorkspace() {
         </div>
 
         <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShow3DVisualizer(!show3DVisualizer)}
+            className="gap-2"
+          >
+            <Sparkles className="h-4 w-4" />
+            {show3DVisualizer ? 'Hide' : 'Show'} 3D Viz
+          </Button>
+          
           {isSaving && (
             <Badge variant="secondary" className="gap-2">
               <Loader2 className="h-3 w-3 animate-spin" />
@@ -266,6 +284,19 @@ export default function AIStudioWorkspace() {
 
         {/* Center - Timeline & Console */}
         <div className="flex-1 flex flex-col overflow-hidden">
+          {/* 3D Audio Visualizer - Toggleable */}
+          {show3DVisualizer && (
+            <div className="h-64 border-b border-border">
+              <Suspense fallback={<div className="w-full h-full bg-card animate-pulse" />}>
+                <AudioVisualizerScene 
+                  audioData={Array(16).fill(0).map((_, i) => fftData.frequencyData[i * 2] || 0)}
+                  frequencyData={fftData.frequencyData}
+                  className="w-full h-full"
+                />
+              </Suspense>
+            </div>
+          )}
+          
           {/* Timeline Area */}
           <div className="flex-1 overflow-hidden">
             <WaveformTimeline

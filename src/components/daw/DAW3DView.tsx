@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import * as THREE from "three";
 import type { Track } from "@/pages/HybridDAW";
+import { useAudioFFT } from "@/hooks/useAudioFFT";
 
 interface DAW3DViewProps {
   tracks: Track[];
@@ -33,11 +34,15 @@ const DAW3DView: React.FC<DAW3DViewProps> = ({
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const animationIdRef = useRef<number | null>(null);
   const trackMeshesRef = useRef<{ [trackId: string]: THREE.Group }>({});
+  const particleSystemsRef = useRef<THREE.Points[]>([]);
   
   const [cameraDistance, setCameraDistance] = useState(20);
   const [autoRotate, setAutoRotate] = useState(true);
   const [showWaveforms, setShowWaveforms] = useState(true);
   const [particlesEnabled, setParticlesEnabled] = useState(true);
+  
+  // Get real-time audio FFT data
+  const fftData = useAudioFFT(isPlaying);
 
   // Initialize 3D Scene
   useEffect(() => {
@@ -103,28 +108,29 @@ const DAW3DView: React.FC<DAW3DViewProps> = ({
     gridHelper.material.opacity = 0.2;
     scene.add(gridHelper);
 
-    // Particle system for ambiance
-    if (particlesEnabled) {
-      const particlesGeometry = new THREE.BufferGeometry();
-      const particlesCount = 500;
-      const posArray = new Float32Array(particlesCount * 3);
+      // Enhanced particle system with audio reactivity
+      if (particlesEnabled) {
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 1000;
+        const posArray = new Float32Array(particlesCount * 3);
 
-      for (let i = 0; i < particlesCount * 3; i++) {
-        posArray[i] = (Math.random() - 0.5) * 100;
+        for (let i = 0; i < particlesCount * 3; i++) {
+          posArray[i] = (Math.random() - 0.5) * 100;
+        }
+
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+
+        const particlesMaterial = new THREE.PointsMaterial({
+          size: 0.3,
+          color: 0x6366f1,
+          transparent: true,
+          opacity: 0.6
+        });
+
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
+        particleSystemsRef.current.push(particlesMesh);
       }
-
-      particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-
-      const particlesMaterial = new THREE.PointsMaterial({
-        size: 0.3,
-        color: 0x6366f1,
-        transparent: true,
-        opacity: 0.6
-      });
-
-      const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-      scene.add(particlesMesh);
-    }
 
     // Handle window resize
     const handleResize = () => {
@@ -150,11 +156,26 @@ const DAW3DView: React.FC<DAW3DViewProps> = ({
         camera.lookAt(0, 0, 0);
       }
 
-      // Animate track objects
+      // Animate track objects and particles
       Object.values(trackMeshesRef.current).forEach((trackGroup, index) => {
         if (isPlaying) {
           trackGroup.rotation.y += 0.01;
           trackGroup.position.y = Math.sin(Date.now() * 0.003 + index) * 0.5 + 2;
+        }
+      });
+      
+      // Animate particles with audio reactivity
+      particleSystemsRef.current.forEach((particles, index) => {
+        if (particles.geometry.attributes.position) {
+          const positions = particles.geometry.attributes.position.array as Float32Array;
+          const audioReactivity = fftData.amplitude * 10;
+          
+          for (let i = 0; i < positions.length; i += 3) {
+            positions[i + 1] += Math.sin(Date.now() * 0.001 + i) * 0.05 * (1 + audioReactivity);
+          }
+          
+          particles.geometry.attributes.position.needsUpdate = true;
+          particles.rotation.y += 0.0005;
         }
       });
 
