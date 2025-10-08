@@ -7,7 +7,6 @@ import GlobalHeader from '@/components/GlobalHeader';
 import StorySection from '@/components/mixclub/StorySection';
 import EcosystemVisualization from '@/components/mixclub/EcosystemVisualization';
 import AIDemo from '@/components/mixclub/AIDemo';
-import NeuralHub3D from '@/components/mixclub/NeuralHub3D';
 
 export default function MixClubHomepage2027() {
   const scrollToSection = (id: string) => {
@@ -394,26 +393,6 @@ export default function MixClubHomepage2027() {
           </div>
         </section>
 
-        {/* SECTION 7: Neural Hub Portal */}
-        <section id="hub" className="py-24 px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl md:text-6xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400">
-              Explore the MIXXCLUB Universe
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Enter the 3D hub and choose your path. Every node is a gateway to creativity.
-            </p>
-          </motion.div>
-
-          <div className="min-h-screen">
-            <NeuralHub3D />
-          </div>
-        </section>
 
         {/* SECTION 8: Final CTA */}
         <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
