@@ -1,5 +1,5 @@
 import { Helmet } from 'react-helmet-async';
-import NeuralHub from '@/components/mixclub/NeuralHub';
+import NeuralHub3D from '@/components/mixclub/NeuralHub3D';
 
 export default function MixClubHome() {
   return (
@@ -14,9 +14,7 @@ export default function MixClubHome() {
       </Helmet>
 
       <div className="min-h-screen overflow-y-auto overflow-x-hidden bg-[#0a0a1a]">
-        <div className="w-full py-8">
-          <NeuralHub />
-        </div>
+        <NeuralHub3D />
       </div>
     </>
   );

@@ -134,6 +134,14 @@ export default {
           "0%, 100%": { opacity: "1", filter: "brightness(1)" },
           "50%": { opacity: "0.85", filter: "brightness(1.2)" },
         },
+        chromatic: {
+          "0%, 100%": { filter: "hue-rotate(0deg)" },
+          "50%": { filter: "hue-rotate(90deg)" },
+        },
+        nebula: {
+          "0%, 100%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -152,6 +160,8 @@ export default {
         "pulse-ring": "pulse-ring 1.5s ease-out infinite",
         bloom: "bloom 0.8s ease-in-out",
         "glow-pulse": "glow-pulse 2s ease-in-out infinite",
+        chromatic: "chromatic 2s ease-in-out infinite",
+        nebula: "nebula 30s ease-in-out infinite",
       },
     },
   },
