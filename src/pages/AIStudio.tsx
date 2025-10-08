@@ -193,21 +193,16 @@ export default function AIStudio() {
       // Determine track type
       const trackType = detectTrackType(file.fileName, file.analysis?.instruments || []);
       
-      // Generate unique track name
-      const baseName = file.fileName.replace(/\.[^/.]+$/, ''); // Remove extension
-      let trackName = baseName;
-      let counter = 2;
-      while (tracks.some(t => t.name === trackName)) {
-        trackName = `${baseName} (${counter})`;
-        counter++;
-      }
+      // Sequential track naming: Track 1, Track 2, Track 3...
+      const trackNumber = tracks.length + 1;
+      const trackName = `Track ${trackNumber}`;
       
       // Load audio buffer and generate waveform
       const { buffer, waveform } = await loadAudioBuffer(file.url);
       
       // Create new track
       const newTrack = {
-        id: `track-${Date.now()}`,
+        id: `track-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         name: trackName,
         type: trackType,
         volume: 0.8,
@@ -238,20 +233,16 @@ export default function AIStudio() {
         });
       }
       
-      toast({
-        title: "Track Added!",
-        description: `${trackName} (${trackType}) imported to Track ${tracks.length + 1}`,
+      sonnerToast.success('Track Added!', {
+        description: `${file.fileName} → ${trackName} (${trackType})`,
       });
       
       startAnalysis(trackName);
-      setIsImportDialogOpen(false);
       
     } catch (error) {
       console.error('Error loading audio:', error);
-      toast({
-        title: "Import Error",
-        description: "Failed to load audio buffer. File may be corrupted.",
-        variant: "destructive"
+      sonnerToast.error('Import Error', {
+        description: 'Failed to load audio buffer. File may be corrupted.',
       });
     } finally {
       setIsLoadingAudio(false);

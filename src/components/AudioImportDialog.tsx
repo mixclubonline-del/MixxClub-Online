@@ -71,19 +71,27 @@ const AudioImportDialog: React.FC<AudioImportDialogProps> = ({
     }
   };
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
 
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFileImport(e.dataTransfer.files[0]);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      // Import all dropped files
+      const files = Array.from(e.dataTransfer.files);
+      for (const file of files) {
+        await handleFileImport(file);
+      }
     }
   };
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      handleFileImport(e.target.files[0]);
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      // Import all selected files
+      const files = Array.from(e.target.files);
+      for (const file of files) {
+        await handleFileImport(file);
+      }
     }
   };
 
@@ -203,10 +211,11 @@ const AudioImportDialog: React.FC<AudioImportDialogProps> = ({
             <input
               ref={fileInputRef}
               type="file"
-              accept="audio/*"
+              accept="audio/*,.mp3,.wav,.flac,.aac,.ogg,.m4a"
               onChange={handleFileSelect}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               disabled={isUploading}
+              multiple
             />
             
             <div className="space-y-4">
