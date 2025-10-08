@@ -22,10 +22,10 @@ export default function Feed() {
   return (
     <>
       <Helmet>
-        <title>The Inner Circle — Mixx Club</title>
+        <title>The Inner Circle — MIXXCLUB</title>
         <meta 
           name="description" 
-          content="Join the Mixx Club Inner Circle - compete, level up, and dominate the leaderboards with the most engaged music creators." 
+          content="Join the MIXXCLUB Inner Circle - compete, level up, and dominate the leaderboards with the most engaged music creators." 
         />
       </Helmet>
 
@@ -47,7 +47,7 @@ export default function Feed() {
               The Inner Circle
             </h1>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Where legends are made. Track your progress, compete in battles, and climb the ranks with Mixx Club's elite community.
+              Where legends are made. Track your progress, compete in battles, and climb the ranks with <span className="font-black tracking-wider text-primary">MIXXCLUB</span>'s elite community.
             </p>
           </motion.div>
 

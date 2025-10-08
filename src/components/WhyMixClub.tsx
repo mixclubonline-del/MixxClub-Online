@@ -47,8 +47,8 @@ const WhyMixClub = () => {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,hsl(var(--primary)/0.1),transparent_70%)]" />
       <div className="container px-6 relative z-10">
         <div className="text-center mb-12 animate-fade-in">
-          <Badge variant="outline" className="mb-4 border-primary text-primary">
-            Why Choose Mixxclub
+          <Badge variant="outline" className="mb-4 border-primary text-primary font-black tracking-wider">
+            Why Choose MIXXCLUB
           </Badge>
           <h2 className="text-4xl font-bold mb-4">
             We're Not Like{" "}

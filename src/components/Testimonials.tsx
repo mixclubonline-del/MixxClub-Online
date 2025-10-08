@@ -10,7 +10,7 @@ export const Testimonials = () => {
       role: "Hip-Hop Artist",
       location: "Atlanta, GA",
       rating: 5,
-      text: "Mixxclub transformed my bedroom recordings into radio-ready tracks. The engineer understood exactly what I wanted and the AI polish made everything pop. Got my EP done for under $500 - would've cost me $3K+ at a local studio.",
+      text: "MIXXCLUB transformed my bedroom recordings into radio-ready tracks. The engineer understood exactly what I wanted and the AI polish made everything pop. Got my EP done for under $500 - would've cost me $3K+ at a local studio.",
       track: "Lost in the City",
       initials: "MJ"
     },
@@ -19,7 +19,7 @@ export const Testimonials = () => {
       role: "Pop Singer-Songwriter",
       location: "Los Angeles, CA",
       rating: 5,
-      text: "As an independent artist, budget is everything. Mixxclub's pricing let me afford professional mixing for my whole album. The live collaboration feature is insane - I could hear changes in real-time and give instant feedback. Game changer.",
+      text: "As an independent artist, budget is everything. MIXXCLUB's pricing let me afford professional mixing for my whole album. The live collaboration feature is insane - I could hear changes in real-time and give instant feedback. Game changer.",
       track: "Midnight Dreams",
       initials: "SK"
     },
@@ -37,7 +37,7 @@ export const Testimonials = () => {
       role: "Rock Band Lead",
       location: "Nashville, TN",
       rating: 5,
-      text: "We recorded our debut album in our garage and honestly thought it sounded terrible. Mixxclub's engineers salvaged it and made it sound like we recorded in a million-dollar studio. The stems separation was clutch for getting clean mixes.",
+      text: "We recorded our debut album in our garage and honestly thought it sounded terrible. MIXXCLUB's engineers salvaged it and made it sound like we recorded in a million-dollar studio. The stems separation was clutch for getting clean mixes.",
       track: "Electric Storm",
       initials: "RM"
     },
@@ -75,7 +75,7 @@ export const Testimonials = () => {
             Artists Love Their Results
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Join 50,000+ independent artists who've elevated their sound with Mixxclub. Real reviews from real musicians.
+            Join 50,000+ independent artists who've elevated their sound with <span className="font-black text-primary tracking-wider">MIXXCLUB</span>. Real reviews from real musicians.
           </p>
         </div>
 
@@ -139,7 +139,7 @@ export const Testimonials = () => {
               ))}
             </div>
             <p className="text-sm">
-              <span className="font-semibold text-primary">50,000+</span> artists trust Mixxclub
+              <span className="font-semibold text-primary">50,000+</span> artists trust <span className="font-black tracking-wider text-primary">MIXXCLUB</span>
             </p>
           </div>
         </div>
