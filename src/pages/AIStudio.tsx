@@ -21,12 +21,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plug2, Upload, Users, Sparkles, Sliders } from "lucide-react";
+import { Plug2, Upload, Users, Sparkles, Sliders, Layers } from "lucide-react";
 import { AudioAnalysisPanel } from "@/components/studio/AudioAnalysisPanel";
 import { AIAssistantPanel } from "@/components/studio/AIAssistantPanel";
 import { useAudioPermissions } from "@/hooks/useAudioPermissions";
 import { audioEngine } from "@/services/audioEngine";
 import { toast as sonnerToast } from 'sonner';
+import { ReactiveWaveform } from "@/components/studio/ReactiveWaveform";
+import { PluginRack } from "@/components/studio/PluginRack";
+import { PrimeBotAssistant } from "@/components/studio/PrimeBotAssistant";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 function Panel({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -85,6 +89,10 @@ export default function AIStudio() {
   const playbackIntervalRef = useRef<number | null>(null);
   const [sessionId] = useState(() => `session-${Date.now()}`);
   const [activeRightPanel, setActiveRightPanel] = useState<'inspector' | 'collaborate' | 'ai-effects'>('inspector');
+  const [showPluginRack, setShowPluginRack] = useState(false);
+  const [activePluginColors, setActivePluginColors] = useState(["#A7B7FF", "#C5A3FF", "#FF70D0"]);
+  const [waveformPulse, setWaveformPulse] = useState(1.0);
+  const [primeBotMessage, setPrimeBotMessage] = useState<string | null>(null);
   
   const { permissions, requestAudioPermissions, hasAudioAccess } = useAudioPermissions();
   
@@ -476,6 +484,12 @@ export default function AIStudio() {
     ? trackEffects.get(selectedTrackForEffects) || [] 
     : [];
 
+  const handlePluginSelect = (plugin: any) => {
+    setPrimeBotMessage(plugin.description);
+    setActivePluginColors(plugin.colors);
+    setWaveformPulse(1.3);
+  };
+
   return (
     <>
       <Helmet>
@@ -499,8 +513,8 @@ export default function AIStudio() {
         <div className="flex-shrink-0 mt-16 px-6 py-3 border-b border-border/50 bg-card/50 backdrop-blur-sm">
           <div className="flex items-center justify-between max-w-7xl mx-auto">
             <div className="flex items-center gap-3">
-              <h2 className="text-sm font-semibold text-muted-foreground">
-                {tracks.length === 0 ? 'Quick Start' : 'Session'}
+              <h2 className="text-sm font-semibold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                {tracks.length === 0 ? 'PrimeBot 4.0 Studio' : 'Session Active'}
               </h2>
               <Button 
                 onClick={() => setIsImportDialogOpen(true)}
@@ -510,11 +524,22 @@ export default function AIStudio() {
                 <Upload className="w-4 h-4" />
                 {tracks.length === 0 ? 'Import Audio to Begin' : 'Add Track'}
               </Button>
+              <Button 
+                variant="outline"
+                onClick={() => setShowPluginRack(true)}
+                className="gap-2"
+              >
+                <Layers className="w-4 h-4" />
+                Plugin Rack
+              </Button>
             </div>
             <div className="flex items-center gap-4">
+              <Badge variant="outline" className="gap-2 text-purple-400 border-purple-400/30">
+                {tempo} BPM
+              </Badge>
               <Badge variant="outline" className="gap-2">
                 <Users className="w-3 h-3" />
-                Session: {sessionId.slice(-8)}
+                {sessionId.slice(-8)}
               </Badge>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <span>{tracks.length} {tracks.length === 1 ? 'track' : 'tracks'}</span>
@@ -522,6 +547,21 @@ export default function AIStudio() {
             </div>
           </div>
         </div>
+
+        {/* Reactive Waveform Overlay */}
+        {tracks.length > 0 && (
+          <div className="flex-shrink-0 px-6 py-4">
+            <ReactiveWaveform 
+              activeColors={activePluginColors}
+              pulseIntensity={waveformPulse}
+            />
+            {primeBotMessage && (
+              <div className="mt-2">
+                <PrimeBotAssistant activePlugin={primeBotMessage} />
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Conditionally render dialog */}
         {isImportDialogOpen && (
@@ -850,6 +890,18 @@ export default function AIStudio() {
             }}
           />
         )}
+
+        {/* Plugin Rack Dialog */}
+        <Dialog open={showPluginRack} onOpenChange={setShowPluginRack}>
+          <DialogContent className="max-w-6xl max-h-[90vh] overflow-auto bg-gradient-radial from-[#0a0618] via-[#04020b] to-[#04020b]">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                PrimeBot 4.0 Plugin Suite
+              </DialogTitle>
+            </DialogHeader>
+            <PluginRack onPluginSelect={handlePluginSelect} />
+          </DialogContent>
+        </Dialog>
       </main>
     </>
   );
