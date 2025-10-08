@@ -48,13 +48,12 @@ const getNodeColor = (angle: number): string => {
 
 const nodes: Node[] = [
   { id: 'artist', label: 'Artist', route: '/artist', icon: Music, angle: 0, color: getNodeColor(0), activeUsers: 42, features: ['Upload Tracks', 'AI Mastering', 'Collaboration'], bubbles: generateBubbles() },
-  { id: 'engineer', label: 'Engineer', route: '/engineer', icon: Headphones, angle: 45, color: getNodeColor(45), activeUsers: 28, features: ['Mix Projects', 'Presets', 'Stem Access'], bubbles: generateBubbles() },
-  { id: 'ai-studio', label: 'AI Studio', route: '/ai-studio', icon: Sparkles, angle: 90, color: getNodeColor(90), activeUsers: 156, features: ['AI Mixing', 'Smart EQ', 'Auto-Master'], bubbles: generateBubbles() },
-  { id: 'pulse', label: 'The Pulse', route: '/pulse', icon: Activity, angle: 135, color: getNodeColor(135), activeUsers: 89, features: ['Live Feed', 'Trending', 'Discover'], bubbles: generateBubbles() },
-  { id: 'arena', label: 'Mixx Arena', route: '/arena', icon: Trophy, angle: 180, color: getNodeColor(180), activeUsers: 67, features: ['Competitions', 'Voting', 'Prizes'], bubbles: generateBubbles() },
-  { id: 'crowd', label: 'The Crowd', route: '/crowd', icon: Users, angle: 225, color: getNodeColor(225), activeUsers: 234, features: ['Community', 'Forums', 'Events'], bubbles: generateBubbles() },
-  { id: 'marketplace', label: 'Marketplace', route: '/marketplace', icon: ShoppingBag, angle: 270, color: getNodeColor(270), activeUsers: 45, features: ['Buy Presets', 'Sell Work', 'Licenses'], bubbles: generateBubbles() },
-  { id: 'admin', label: 'Admin', route: '/admin', icon: Settings, angle: 315, color: getNodeColor(315), activeUsers: 3, features: ['Dashboard', 'Analytics', 'Management'], bubbles: generateBubbles() },
+  { id: 'engineer', label: 'Engineer', route: '/engineer', icon: Headphones, angle: 51.43, color: getNodeColor(51.43), activeUsers: 28, features: ['Mix Projects', 'Presets', 'Stem Access'], bubbles: generateBubbles() },
+  { id: 'ai-studio', label: 'AI Studio', route: '/ai-studio', icon: Sparkles, angle: 102.86, color: getNodeColor(102.86), activeUsers: 156, features: ['AI Mixing', 'Smart EQ', 'Auto-Master'], bubbles: generateBubbles() },
+  { id: 'pulse', label: 'The Pulse', route: '/pulse', icon: Activity, angle: 154.29, color: getNodeColor(154.29), activeUsers: 89, features: ['Live Feed', 'Trending', 'Discover'], bubbles: generateBubbles() },
+  { id: 'arena', label: 'Mixx Arena', route: '/arena', icon: Trophy, angle: 205.71, color: getNodeColor(205.71), activeUsers: 67, features: ['Competitions', 'Voting', 'Prizes'], bubbles: generateBubbles() },
+  { id: 'crowd', label: 'The Crowd', route: '/crowd', icon: Users, angle: 257.14, color: getNodeColor(257.14), activeUsers: 234, features: ['Community', 'Forums', 'Events'], bubbles: generateBubbles() },
+  { id: 'marketplace', label: 'Marketplace', route: '/marketplace', icon: ShoppingBag, angle: 308.57, color: getNodeColor(308.57), activeUsers: 45, features: ['Buy Presets', 'Sell Work', 'Licenses'], bubbles: generateBubbles() },
 ];
 
 export default function NeuralHub() {
