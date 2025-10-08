@@ -1,1021 +1,776 @@
-import React, { useRef, useState, useEffect, useCallback } from "react";
-import { Helmet } from 'react-helmet-async';
-import GlobalHeader from "@/components/GlobalHeader";
-import { usePrime } from "@/contexts/PrimeContext";
-import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/useAuth";
-import { StudioConsole } from "@/components/studio/StudioConsole";
-import { HardwareRack } from "@/components/studio/HardwareRack";
-import { TransportControls } from "@/components/studio/TransportControls";
-import { WaveformTimeline } from "@/components/studio/WaveformTimeline";
-import { BrowserSidebar } from "@/components/studio/BrowserSidebar";
-import { InspectorSidebar } from "@/components/studio/InspectorSidebar";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>MixxClub Studio – Preview Launch</title>
+<style>
+  /* =========================
+     THEME & ROOT VARIABLES
+     ========================= */
+  :root{ --mcx-white:#e9ecff; --mcx-bg:#0b0f16; --mcx-card:#111828; --edge:rgba(255,255,255,.08);
+         --mcx-mag:#D06BFF; --mcx-cyan:#70E6FF; --text-dim:rgba(233,236,255,.75);
+         --theme-glow1:#A76BFF; --theme-glow2:#70E6FF; --parx:0; --pary:0; }
+  :root[data-theme="light"]{ --mcx-bg:#f6f7fb; --mcx-card:rgba(255,255,255,.58); --mcx-white:#0a0e18;
+         --text-dim:rgba(10,14,24,.65); --edge:rgba(10,14,24,.08);
+         --theme-glow1:#8A6BFF; --theme-glow2:#A5E6FF; }
+  html,body{height:100%; margin:0; font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, "Plus Jakarta Sans", Arial, sans-serif; color:var(--mcx-white); background:var(--mcx-bg);
+    transition: background-color 1s ease, color 1s ease; }
+  .mcx-root{min-height:100%; display:flex; flex-direction:column;
+    background:
+      radial-gradient(1000px 500px at 70% -10%, color-mix(in oklab, var(--mcx-mag) 25%, transparent), transparent 70%),
+      radial-gradient(900px 600px at 10% 110%, color-mix(in oklab, var(--mcx-cyan) 20%, transparent), transparent 60%),
+      var(--mcx-bg);
+  }
+  .mcx-top{display:flex; align-items:center; gap:12px; padding:16px 18px; position:sticky; top:0; z-index:20;
+    background:linear-gradient(180deg, rgba(0,0,0,.32), rgba(0,0,0,0)); backdrop-filter: blur(6px);}
+  .mcx-title{font-weight:700; letter-spacing:.5px;}
+  .mcx-sub{color:var(--text-dim); font-size:12px;}
+  .spacer{flex:1}
 
-import { PluginManager } from "@/components/plugins/PluginManager";
-import AudioImportDialog from "@/components/AudioImportDialog";
-import DAWCollaboration from "@/components/daw/DAWCollaboration";
-import DAWEffectsPanel from "@/components/daw/DAWEffectsPanel";
-import { useAIStudioStore, EffectUnit } from "@/stores/aiStudioStore";
-import { TrackEffectsDialog } from "@/components/studio/TrackEffectsDialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Plug2, Upload, Users, Sparkles, Sliders, Layers } from "lucide-react";
-import { AudioAnalysisPanel } from "@/components/studio/AudioAnalysisPanel";
-import { AIAssistantPanel } from "@/components/studio/AIAssistantPanel";
-import { useAudioPermissions } from "@/hooks/useAudioPermissions";
-import { audioEngine } from "@/services/audioEngine";
-import { toast as sonnerToast } from 'sonner';
-import { ReactiveWaveform } from "@/components/studio/ReactiveWaveform";
-import { PluginRack } from "@/components/studio/PluginRack";
-import { PrimeBotAssistant } from "@/components/studio/PrimeBotAssistant";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+  /* Buttons */
+  .mcx-btn{border:1px solid var(--edge); background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
+    color:var(--mcx-white); border-radius:12px; padding:8px 12px; cursor:pointer; outline:none;
+    transition:box-shadow .4s ease, background .4s ease, transform .12s ease;}
+  .mcx-btn:hover{box-shadow:0 0 16px color-mix(in srgb, var(--theme-glow1) 25%, transparent);}
+  .mcx-btn:active{transform:scale(.96);}
+  #themeCycle{position:relative; overflow:hidden;}
+  #themeCycle::after{content:""; position:absolute; inset:-1px; border-radius:inherit;
+    background: radial-gradient(circle at 30% 30%, var(--theme-glow1), var(--theme-glow2));
+    opacity:0; filter:blur(6px); transition:opacity .6s ease;}
+  #themeCycle.active::after{opacity:.35;}
 
-function Panel({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="glass rounded-2xl p-6 shadow-[var(--shadow-glass)] hover:shadow-[var(--shadow-glass-lg)] transition">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold tracking-wide text-[hsl(var(--foreground)/0.9)]">
-          {title}
-        </h3>
-        <span className="h-2 w-2 rounded-full bg-[hsl(var(--primary))] pulse-live" />
-      </div>
-      <div className="mt-4">{children}</div>
+  /* Power-up flash */
+  @keyframes mcxPowerFlash { 0%{opacity:0} 10%{opacity:1} 50%{opacity:.4} 100%{opacity:0}}
+  .mcx-power-flash{position:fixed; inset:0; pointer-events:none; z-index:9999;
+    background: radial-gradient(circle at 50% 50%,
+      color-mix(in srgb, var(--theme-glow1) 40%, transparent) 0%,
+      color-mix(in srgb, var(--theme-glow2) 35%, transparent) 35%, transparent 70%);
+    mix-blend-mode:screen; filter:blur(60px); animation:mcxPowerFlash 1s ease forwards;}
+
+  /* Layout */
+  .mcx-grid{display:grid; grid-template-columns: 360px 1fr 380px; gap:16px; padding:16px; align-items:start;}
+  .mcx-card{background:linear-gradient(180deg,var(--mcx-card), color-mix(in srgb, var(--mcx-card) 60%, transparent));
+    border:1px solid var(--edge); border-radius:16px; padding:14px; box-shadow:0 0 24px rgba(0,0,0,.2);}
+  .mcx-card h3{margin:0 0 6px 0; font-size:14px; letter-spacing:.6px; text-transform:uppercase; color:var(--mcx-white);}
+  .row{display:flex; gap:14px; flex-wrap:wrap;}
+  .sep{height:1px; background:linear-gradient(90deg, transparent, var(--edge), transparent); margin:10px 0;}
+
+  /* Knob + value */
+  .knob{width:72px; display:flex; flex-direction:column; align-items:center; gap:6px;}
+  .k-canvas{width:64px; height:64px; display:block;}
+  .k-label{font-size:11px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.06em;}
+  .k-val{font-variant-numeric:tabular-nums; font-size:12px; opacity:.85;}
+
+  /* Smooth toggle */
+  .toggle{display:flex; align-items:center; gap:8px;}
+  .tgl{width:46px; height:26px; background:rgba(255,255,255,.08); border:1px solid var(--edge); border-radius:99px; position:relative; cursor:pointer; transition:background .25s ease, box-shadow .25s ease;}
+  .tgl::after{content:""; position:absolute; top:2px; left:2px; width:22px; height:22px; background:linear-gradient(180deg, rgba(255,255,255,.9), rgba(255,255,255,.6));
+    border-radius:50%; transition:transform .25s cubic-bezier(.25,.1,.25,1), box-shadow .25s;}
+  .tgl.active{background:linear-gradient(90deg, color-mix(in srgb, var(--theme-glow1) 40%, transparent), color-mix(in srgb, var(--theme-glow2) 40%, transparent)); box-shadow:0 0 18px color-mix(in srgb, var(--theme-glow2) 25%, transparent);}
+  .tgl.active::after{transform:translateX(20px); box-shadow:0 0 12px color-mix(in srgb, var(--theme-glow2) 40%, transparent);}
+  .tgl-label{font-size:12px; color:var(--text-dim);}
+
+  /* MixxPort */
+  .drop{border:1px dashed var(--edge); border-radius:12px; padding:16px; text-align:center; color:var(--text-dim);}
+  .drop.hover{background:rgba(255,255,255,.06);}
+  .filelist{margin-top:10px; max-height:160px; overflow:auto; font-size:12px;}
+  .fileitem{display:flex; justify-content:space-between; padding:6px 8px; border-radius:8px; background:rgba(255,255,255,.04); margin-bottom:6px;}
+
+  /* Version panel */
+  .ver-list{max-height:220px; overflow:auto;}
+  .ver-row{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px; background:rgba(255,255,255,.05); border-radius:10px; margin-bottom:8px; font-size:12px;}
+  .ver-row .actions{display:flex; gap:8px;}
+
+  /* Meters */
+  .meters{display:flex; gap:10px; align-items:flex-end; height:68px;}
+  .bar{flex:1; background:rgba(255,255,255,.06); border:1px solid var(--edge); border-radius:8px; position:relative; overflow:hidden;}
+  .bar .fill{position:absolute; bottom:0; left:0; right:0; height:20%; background:linear-gradient(180deg, var(--theme-glow1), var(--theme-glow2)); transition:height .1s linear;}
+  .bar .label{position:absolute; top:4px; left:6px; font-size:11px; color:var(--text-dim);}
+
+  /* Ripple overlay */
+  .ripple-layer{position:fixed; inset:0; pointer-events:none; z-index:5; mix-blend-mode:screen; opacity:.22; display:none;}
+  .ripple-layer.active{display:block;}
+  .ripple-layer::before{content:""; position:absolute; inset:-20%; background:
+    radial-gradient(800px 400px at 10% 120%, color-mix(in srgb, var(--theme-glow1) 25%, transparent), transparent 60%),
+    radial-gradient(900px 500px at 90% -10%, color-mix(in srgb, var(--theme-glow2) 22%, transparent), transparent 65%);
+    filter:blur(30px); opacity:.9; animation:drift 4s ease-in-out infinite alternate;}
+  @keyframes drift{from{transform:translate(-10px,8px)} to{transform:translate(10px,-8px)}}
+
+  /* Prime placeholder (MixxBot orb muted) */
+  .orb{position:fixed; right:20px; bottom:20px; width:72px; height:72px; border-radius:50%;
+    background:radial-gradient(circle at 35% 35%, color-mix(in srgb, var(--theme-glow2) 60%, transparent), color-mix(in srgb, var(--theme-glow1) 40%, transparent) 60%, transparent 70%);
+    box-shadow:0 0 28px color-mix(in srgb, var(--theme-glow2) 35%, transparent);
+    opacity:.85; animation:orbBreath 1.2s ease-in-out infinite; filter:saturate(1.2) blur(.2px);}
+  @keyframes orbBreath{0%{transform:scale(.98)} 50%{transform:scale(1.02)} 100%{transform:scale(.98)}}
+
+  /* Tiny helpers */
+  .muted{opacity:.6}
+</style>
+</head>
+<body>
+  <div class="mcx-root">
+    <div class="mcx-top">
+      <div class="mcx-title">MixxClub Studio <span class="mcx-sub">Preview Launch</span></div>
+      <div class="spacer"></div>
+      <button class="mcx-btn" id="themeCycle" title="Theme">🌀 Auto</button>
+      <button class="mcx-btn" id="rippleBtn" title="Ripple Mode">Ripple: Off</button>
     </div>
-  );
-}
 
-function Range({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: number;
-  onChange: (v: number) => void;
-}) {
-  return (
-    <div className="mb-4">
-      <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
-        <span>{label}</span>
-        <span>{value}%</span>
+    <div class="mcx-grid">
+      <!-- LEFT: MixxPort (Upload / Transport) -->
+      <div class="mcx-card" id="mixxport">
+        <h3>MixxPort</h3>
+        <div class="drop" id="drop">Drop audio here or click to select</div>
+        <input type="file" id="fileInput" accept="audio/*" hidden />
+        <div class="filelist" id="fileList"></div>
+        <div class="sep"></div>
+        <div class="row">
+          <div class="knob" data-plugin="Port" data-param="gain" data-min="0" data-max="2" data-step="0.01">
+            <canvas class="k-canvas"></canvas><div class="k-label">Input</div><div class="k-val">1.00</div>
+          </div>
+          <div class="knob" data-plugin="Port" data-param="width" data-min="-1" data-max="1" data-step="0.01">
+            <canvas class="k-canvas"></canvas><div class="k-label">Width</div><div class="k-val">0.00</div>
+          </div>
+          <div class="toggle">
+            <div class="tgl" id="normalizeTgl"></div><div class="tgl-label">Normalize</div>
+          </div>
+        </div>
+        <div class="sep"></div>
+        <div class="meters">
+          <div class="bar"><div class="label">RMS</div><div class="fill" id="rmsFill"></div></div>
+          <div class="bar"><div class="label">Peak</div><div class="fill" id="peakFill"></div></div>
+          <div class="bar"><div class="label">LU-ish</div><div class="fill" id="lufsFill"></div></div>
+        </div>
       </div>
-      <input
-        type="range"
-        min={0}
-        max={100}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full accent-[hsl(var(--primary))]"
-      />
-    </div>
-  );
-}
 
-export default function AIStudio() {
-  const { systemMode, userMood } = usePrime();
-  const { toast } = useToast();
-  const { user } = useAuth();
-  const fileRef = useRef<HTMLInputElement | null>(null);
-  const [uploadName, setUploadName] = useState<string | null>(null);
-  const [isPluginManagerOpen, setIsPluginManagerOpen] = useState(false);
-  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
-  const [latestAnalysis, setLatestAnalysis] = useState<any>(null);
-  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
-  const [recordArmedTracks, setRecordArmedTracks] = useState<Set<string>>(new Set());
-  const [selectedTrackForEffects, setSelectedTrackForEffects] = useState<string | null>(null);
-  const [trackEffects, setTrackEffects] = useState<Map<string, EffectUnit[]>>(new Map());
-  const playbackIntervalRef = useRef<number | null>(null);
-  const [sessionId] = useState(() => `session-${Date.now()}`);
-  const [activeRightPanel, setActiveRightPanel] = useState<'inspector' | 'collaborate' | 'ai-effects'>('inspector');
-  const [showPluginRack, setShowPluginRack] = useState(false);
-  const [activePluginColors, setActivePluginColors] = useState(["#A7B7FF", "#C5A3FF", "#FF70D0"]);
-  const [waveformPulse, setWaveformPulse] = useState(1.0);
-  const [primeBotMessage, setPrimeBotMessage] = useState<string | null>(null);
-  
-  const { permissions, requestAudioPermissions, hasAudioAccess } = useAudioPermissions();
-  
-  // Panel size state with localStorage persistence
-  const [browserSize, setBrowserSize] = useState(() => {
-    const saved = localStorage.getItem('mixclub-browser-panel-size');
-    return saved ? parseFloat(saved) : 20;
-  });
-  
-  const [inspectorSize, setInspectorSize] = useState(() => {
-    const saved = localStorage.getItem('mixclub-inspector-panel-size');
-    return saved ? parseFloat(saved) : 24;
-  });
-  
-  const [timelineSize, setTimelineSize] = useState(() => {
-    const saved = localStorage.getItem('mixclub-timeline-console-split');
-    return saved ? parseFloat(saved) : 60;
-  });
-
-  // Save panel sizes to localStorage
-  useEffect(() => {
-    localStorage.setItem('mixclub-browser-panel-size', browserSize.toString());
-  }, [browserSize]);
-
-  useEffect(() => {
-    localStorage.setItem('mixclub-inspector-panel-size', inspectorSize.toString());
-  }, [inspectorSize]);
-
-  useEffect(() => {
-    localStorage.setItem('mixclub-timeline-console-split', timelineSize.toString());
-  }, [timelineSize]);
-  
-  const {
-    tracks,
-    isPlaying,
-    isRecording,
-    currentTime,
-    duration,
-    tempo,
-    effects,
-    setPlaying,
-    setRecording,
-    setTempo,
-    setCurrentTime,
-    updateEffect,
-    updateTrack,
-    addTrack,
-    removeTrack,
-  } = useAIStudioStore();
-
-  const masterVolume = useAIStudioStore((state) => state.masterVolume);
-  const masterPeakLevel = useAIStudioStore((state) => state.masterPeakLevel);
-  const updateMasterLevels = useAIStudioStore((state) => state.updateMasterLevels);
-  const setDuration = useAIStudioStore((state) => state.setDuration);
-
-  // Sync master volume to audio engine
-  useEffect(() => {
-    audioEngine.setMasterVolume(masterVolume);
-  }, [masterVolume]);
-
-  // Sync track parameters (volume, pan) to audio engine when they change
-  useEffect(() => {
-    tracks.forEach((track) => {
-      audioEngine.setTrackVolume(track.id, track.volume);
-      audioEngine.setTrackPan(track.id, track.pan);
-    });
-  }, [tracks]);
-
-  // Real-time metering loop - runs during playback
-  useEffect(() => {
-    if (!isPlaying) return;
-
-    const meteringInterval = setInterval(() => {
-      let maxPeak = 0;
-
-      tracks.forEach((track) => {
-        if (!track.mute) {
-          const levels = audioEngine.getTrackLevels(track.id);
-          const trackPeak = levels.peak * track.volume;
-          const trackRms = levels.rms * track.volume;
-          
-          maxPeak = Math.max(maxPeak, trackPeak);
-          
-          updateTrack(track.id, {
-            peakLevel: trackPeak,
-            rmsLevel: trackRms
-          });
-        }
-      });
-
-      updateMasterLevels(maxPeak);
-      
-      // Update waveform pulse based on audio level
-      setWaveformPulse(0.5 + (maxPeak * 0.5));
-    }, 1000 / 60); // 60fps metering
-
-    return () => clearInterval(meteringInterval);
-  }, [isPlaying, tracks, updateTrack, updateMasterLevels]);
-
-
-  const speak = (message: string) => {
-    toast({ title: message });
-  };
-
-  const startAnalysis = (name: string) => {
-    speak(`Prime: Analyzing "${name}"…`);
-    setTimeout(() => speak("Prime: Detecting stems & spectral balance…"), 1800);
-    setTimeout(() => speak("Prime: Suggesting mix improvements…"), 3800);
-    setTimeout(() => speak("Prime: Ready — apply recommendations when you're set."), 6200);
-  };
-
-  const detectTrackType = (fileName: string, instruments: string[] = []): 'vocal' | 'drums' | 'bass' | 'keys' | 'guitar' | 'other' => {
-    const nameLower = fileName.toLowerCase();
-    const instrumentStr = instruments.join(' ').toLowerCase();
-    
-    if (nameLower.includes('vocal') || nameLower.includes('voice') || instrumentStr.includes('vocal')) return 'vocal';
-    if (nameLower.includes('drum') || nameLower.includes('kick') || nameLower.includes('808') || instrumentStr.includes('drum')) return 'drums';
-    if (nameLower.includes('bass') || instrumentStr.includes('bass')) return 'bass';
-    if (nameLower.includes('key') || nameLower.includes('piano') || instrumentStr.includes('piano') || instrumentStr.includes('synth')) return 'keys';
-    if (nameLower.includes('guitar') || instrumentStr.includes('guitar')) return 'guitar';
-    
-    return 'other';
-  };
-
-  const loadAudioBuffer = async (url: string): Promise<{ buffer: AudioBuffer; waveform: number[] }> => {
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    
-    try {
-      console.log('[AIStudio] Loading audio from:', url);
-      
-      // Fetch the audio file
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch audio: ${response.status} ${response.statusText}`);
-      }
-      
-      // Get content type for validation
-      const contentType = response.headers.get('content-type');
-      console.log('[AIStudio] Audio content-type:', contentType);
-      
-      // Get array buffer
-      const arrayBuffer = await response.arrayBuffer();
-      console.log('[AIStudio] Audio buffer size:', arrayBuffer.byteLength, 'bytes');
-      
-      if (arrayBuffer.byteLength === 0) {
-        throw new Error('Audio file is empty');
-      }
-      
-      // Decode audio data
-      let audioBuffer: AudioBuffer;
-      try {
-        audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-        console.log('[AIStudio] Audio decoded successfully:', {
-          duration: audioBuffer.duration,
-          sampleRate: audioBuffer.sampleRate,
-          channels: audioBuffer.numberOfChannels
-        });
-      } catch (decodeError: any) {
-        console.error('[AIStudio] Audio decode error:', decodeError);
-        
-        // Provide specific error messages based on common issues
-        if (decodeError.name === 'EncodingError' || decodeError.message?.includes('codec')) {
-          throw new Error('Unsupported audio format. Please use WAV, MP3, AAC, or OGG files.');
-        } else if (arrayBuffer.byteLength < 1000) {
-          throw new Error('Audio file appears to be corrupted or incomplete.');
-        } else {
-          throw new Error(`Unable to decode audio: ${decodeError.message || 'Unknown format'}`);
-        }
-      }
-      
-      // Generate waveform data
-      const channelData = audioBuffer.getChannelData(0);
-      const waveform: number[] = [];
-      const peakSamples = 1000;
-      const samplesPerPeak = Math.floor(channelData.length / peakSamples);
-      
-      for (let i = 0; i < peakSamples; i++) {
-        let peak = 0;
-        for (let j = 0; j < samplesPerPeak; j++) {
-          const sample = Math.abs(channelData[i * samplesPerPeak + j] || 0);
-          peak = Math.max(peak, sample);
-        }
-        waveform.push(peak);
-      }
-      
-      console.log('[AIStudio] Waveform generated, peaks:', waveform.length);
-      return { buffer: audioBuffer, waveform };
-      
-    } catch (error: any) {
-      console.error('[AIStudio] loadAudioBuffer error:', error);
-      throw error;
-    } finally {
-      // Close the temporary audio context
-      try {
-        await audioContext.close();
-      } catch (e) {
-        console.warn('[AIStudio] Failed to close audio context:', e);
-      }
-    }
-  };
-
-  const loadAudioFromBlob = async (blob: Blob): Promise<{ buffer: AudioBuffer; waveform: number[] }> => {
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    try {
-      console.log('[AIStudio] Loading audio from Blob...');
-      const arrayBuffer = await blob.arrayBuffer();
-      if (arrayBuffer.byteLength === 0) {
-        throw new Error('Audio file is empty');
-      }
-      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-      const channelData = audioBuffer.getChannelData(0);
-      const waveform: number[] = [];
-      const peakSamples = 1000;
-      const samplesPerPeak = Math.floor(channelData.length / peakSamples);
-      for (let i = 0; i < peakSamples; i++) {
-        let peak = 0;
-        for (let j = 0; j < samplesPerPeak; j++) {
-          const sample = Math.abs(channelData[i * samplesPerPeak + j] || 0);
-          peak = Math.max(peak, sample);
-        }
-        waveform.push(peak);
-      }
-      return { buffer: audioBuffer, waveform };
-    } catch (error) {
-      console.error('[AIStudio] loadAudioFromBlob error:', error);
-      throw error;
-    } finally {
-      try { await audioContext.close(); } catch {}
-    }
-  };
-
-  const handleImportComplete = async (file: any) => {
-    console.log('[AIStudio] handleImportComplete called with file:', {
-      fileName: file.fileName,
-      hasUrl: !!file.url,
-      url: file.url,
-      fileSize: file.fileSize
-    });
-    
-    setIsLoadingAudio(true);
-    
-    try {
-      // Validate file data (URL or Blob)
-      if (!file.url && !file.blob) {
-        throw new Error('Audio data missing. Please try uploading again.');
-      }
-      
-      // Determine track type
-      const trackType = detectTrackType(file.fileName, file.analysis?.instruments || []);
-      
-      // Sequential track naming: Track 1, Track 2, Track 3...
-      const trackNumber = tracks.length + 1;
-      const trackName = `Track ${trackNumber}`;
-      
-      console.log('[AIStudio] Loading audio buffer from source...');
-      // Load audio buffer and generate waveform
-      const { buffer, waveform } = file.blob
-        ? await loadAudioFromBlob(file.blob as Blob)
-        : await loadAudioBuffer(file.url as string);
-      console.log('[AIStudio] Audio buffer loaded successfully:', {
-        duration: buffer.duration,
-        channels: buffer.numberOfChannels,
-        sampleRate: buffer.sampleRate
-      });
-      
-      // Create new track with initial region spanning full audio
-      const trackId = `track-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-      const initialRegion = {
-        id: `region-${trackId}-initial`,
-        trackId,
-        startTime: 0,
-        duration: buffer.duration,
-        sourceStartOffset: 0,
-        fadeIn: { duration: 0, curve: 'linear' as const },
-        fadeOut: { duration: 0, curve: 'linear' as const },
-        gain: 1.0,
-      };
-      
-      const newTrack = {
-        id: trackId,
-        name: trackName,
-        type: trackType,
-        volume: 0.8,
-        pan: 0,
-        mute: false,
-        solo: false,
-        peakLevel: 0,
-        rmsLevel: 0,
-        audioBuffer: buffer,
-        waveformData: waveform,
-        analysis: file.analysis,
-        color: `hsl(${Math.random() * 360}, 70%, 60%)`,
-        regions: [initialRegion],
-        effects: [],
-        sends: {},
-      };
-      
-      console.log('[AIStudio] Adding track to store:', trackName);
-      // Add track to store
-      addTrack(newTrack);
-
-      // Initialize audio engine for this track
-      audioEngine.initTrack(trackId, buffer);
-      audioEngine.setTrackVolume(trackId, 0.8);
-      audioEngine.setTrackPan(trackId, 0);
-
-      // Update session duration to longest track
-      const currentDuration = useAIStudioStore.getState().duration;
-      if (buffer.duration > currentDuration) {
-        setDuration(buffer.duration);
-      }
-      
-      // Auto-configure session if first track
-      if (tracks.length === 0 && file.analysis?.bpm) {
-        setTempo(file.analysis.recommendations?.sessionBpm || file.analysis.bpm);
-      }
-      
-      // Store analysis for display
-      if (file.analysis) {
-        setLatestAnalysis({
-          ...file.analysis,
-          trackName: trackName
-        });
-      }
-      
-      sonnerToast.success('Track Added!', {
-        description: `${file.fileName} → ${trackName} (${trackType})`,
-      });
-      
-      console.log('[AIStudio] Track added successfully. Total tracks:', tracks.length + 1);
-      startAnalysis(trackName);
-      setIsImportDialogOpen(false);
-      
-    } catch (error: any) {
-      console.error('[AIStudio] Error in handleImportComplete:', error);
-      
-      // Provide helpful error message
-      const errorMessage = error.message || 'Unknown error occurred';
-      const isFormatError = errorMessage.includes('format') || errorMessage.includes('codec');
-      const isCorruptionError = errorMessage.includes('corrupt') || errorMessage.includes('empty');
-      
-      sonnerToast.error('Import Failed', {
-        description: errorMessage,
-        duration: 5000,
-      });
-      
-      // Additional guidance based on error type
-      if (isFormatError) {
-        sonnerToast.info('Supported Formats', {
-          description: 'Try converting your file to WAV, MP3, AAC, or OGG format.',
-          duration: 7000,
-        });
-      } else if (isCorruptionError) {
-        sonnerToast.info('File Issue', {
-          description: 'The file may be incomplete or corrupted. Try re-exporting from your DAW.',
-          duration: 7000,
-        });
-      }
-    } finally {
-      setIsLoadingAudio(false);
-    }
-  };
-
-  const handlePlay = useCallback(async () => {
-    await audioEngine.resume();
-    
-    if (!isPlaying) {
-      // Start playback
-      tracks.forEach((track) => {
-        if (track.audioBuffer && !track.mute) {
-          const shouldPlay = !track.solo || tracks.some(t => t.solo);
-          const isSoloed = tracks.some(t => t.solo);
-          
-          if ((!isSoloed || track.solo) && shouldPlay) {
-            audioEngine.playTrack(track.id, track.audioBuffer, currentTime);
-            audioEngine.setTrackVolume(track.id, track.volume);
-            audioEngine.setTrackPan(track.id, track.pan);
-          }
-        }
-      });
-      
-      // Start playback position updater
-      const startTime = audioEngine.getCurrentTime() - currentTime;
-      playbackIntervalRef.current = window.setInterval(() => {
-        const elapsed = audioEngine.getCurrentTime() - startTime;
-        setCurrentTime(Math.min(elapsed, duration));
-        
-        if (elapsed >= duration) {
-          handleStop();
-        }
-      }, 50);
-      
-      setPlaying(true);
-    } else {
-      // Pause playback
-      tracks.forEach((track) => {
-        audioEngine.stopTrack(track.id);
-      });
-      
-      if (playbackIntervalRef.current) {
-        clearInterval(playbackIntervalRef.current);
-        playbackIntervalRef.current = null;
-      }
-      
-      setPlaying(false);
-    }
-  }, [isPlaying, tracks, currentTime, duration, setPlaying, setCurrentTime]);
-
-  const handleStop = useCallback(() => {
-    // Stop all tracks
-    tracks.forEach((track) => {
-      audioEngine.stopTrack(track.id);
-    });
-    
-    if (playbackIntervalRef.current) {
-      clearInterval(playbackIntervalRef.current);
-      playbackIntervalRef.current = null;
-    }
-    
-    setPlaying(false);
-    setCurrentTime(0);
-  }, [tracks, setPlaying, setCurrentTime]);
-
-  const handleRecord = useCallback(async () => {
-    if (!isRecording) {
-      // Start recording on armed tracks
-      if (recordArmedTracks.size === 0) {
-        sonnerToast.error('No tracks armed for recording', {
-          description: 'Arm at least one track by clicking the record button in the track header'
-        });
-        return;
-      }
-      
-      // Request audio permissions
-      if (!hasAudioAccess) {
-        const granted = await requestAudioPermissions();
-        if (!granted) return;
-      }
-      
-      // Start recording on armed tracks
-      recordArmedTracks.forEach((trackId) => {
-        if (permissions.stream) {
-          audioEngine.startRecording(trackId, permissions.stream);
-        }
-      });
-      
-      setRecording(true);
-      
-      // Auto-start playback
-      if (!isPlaying) {
-        handlePlay();
-      }
-      
-      sonnerToast.success('Recording started', {
-        description: `Recording on ${recordArmedTracks.size} track(s)`
-      });
-    } else {
-      // Stop recording
-      recordArmedTracks.forEach((trackId) => {
-        audioEngine.stopRecording(trackId);
-      });
-      
-      setRecording(false);
-      
-      sonnerToast.success('Recording stopped');
-    }
-  }, [isRecording, recordArmedTracks, hasAudioAccess, permissions.stream, isPlaying, setRecording, requestAudioPermissions, handlePlay]);
-
-  const handleToggleRecordArm = useCallback((trackId: string) => {
-    setRecordArmedTracks((prev) => {
-      const next = new Set(prev);
-      if (next.has(trackId)) {
-        next.delete(trackId);
-      } else {
-        next.add(trackId);
-      }
-      return next;
-    });
-  }, []);
-
-  const handleOpenTrackEffects = useCallback((trackId: string) => {
-    setSelectedTrackForEffects(trackId);
-  }, []);
-
-  const handleDeleteTrack = useCallback((trackId: string) => {
-    audioEngine.cleanupTrack(trackId);
-    removeTrack(trackId);
-    setRecordArmedTracks((prev) => {
-      const next = new Set(prev);
-      next.delete(trackId);
-      return next;
-    });
-    sonnerToast.success('Track deleted');
-  }, [removeTrack]);
-
-  const selectedTrack = selectedTrackForEffects 
-    ? tracks.find(t => t.id === selectedTrackForEffects) 
-    : null;
-  const selectedTrackEffects = selectedTrackForEffects 
-    ? trackEffects.get(selectedTrackForEffects) || [] 
-    : [];
-
-  const handlePluginSelect = (plugin: any) => {
-    setPrimeBotMessage(plugin.description);
-    setActivePluginColors(plugin.colors);
-    setWaveformPulse(1.3);
-  };
-
-  return (
-    <>
-      <Helmet>
-        <title>AI Studio — MixClub Online</title>
-        <meta 
-          name="description" 
-          content="Intelligent creative suite for music production. Upload, analyze, and enhance with AI-powered mixing and mastering." 
-        />
-      </Helmet>
-
-      <main 
-        className="h-screen flex flex-col text-[hsl(var(--studio-text))] overflow-hidden"
-        style={{
-          background: 'var(--bg-workspace)',
-        }}
-      >
-        
-        <GlobalHeader />
-
-        {/* Quick Actions Bar - Prominent Upload */}
-        <div className="flex-shrink-0 mt-16 px-6 py-3 border-b border-border/50 bg-card/50 backdrop-blur-sm">
-          <div className="flex items-center justify-between max-w-7xl mx-auto">
-            <div className="flex items-center gap-3">
-              <h2 className="text-sm font-semibold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                {tracks.length === 0 ? 'PrimeBot 4.0 Studio' : 'Session Active'}
-              </h2>
-              <Button 
-                onClick={() => setIsImportDialogOpen(true)}
-                className="gap-2"
-                size={tracks.length === 0 ? "lg" : "default"}
-              >
-                <Upload className="w-4 h-4" />
-                {tracks.length === 0 ? 'Import Audio to Begin' : 'Add Track'}
-              </Button>
-              <Button 
-                variant="outline"
-                onClick={() => setShowPluginRack(true)}
-                className="gap-2"
-              >
-                <Layers className="w-4 h-4" />
-                Plugin Rack
-              </Button>
+      <!-- CENTER: Core Rack (EQ / Comp / Vintage) -->
+      <div class="mcx-card">
+        <h3>Core Rack</h3>
+        <div class="row">
+          <!-- EQ -->
+          <div>
+            <div class="mcx-sub">EQ (Band)</div>
+            <div class="row">
+              <div class="knob" data-plugin="EQ" data-param="freq" data-min="20" data-max="20000" data-step="1">
+                <canvas class="k-canvas"></canvas><div class="k-label">Freq</div><div class="k-val">1000 Hz</div>
+              </div>
+              <div class="knob" data-plugin="EQ" data-param="gain" data-min="-15" data-max="15" data-step="0.1">
+                <canvas class="k-canvas"></canvas><div class="k-label">Gain</div><div class="k-val">0.0 dB</div>
+              </div>
+              <div class="knob" data-plugin="EQ" data-param="q" data-min="0.1" data-max="18" data-step="0.1">
+                <canvas class="k-canvas"></canvas><div class="k-label">Q</div><div class="k-val">1.0</div>
+              </div>
             </div>
-            <div className="flex items-center gap-4">
-              <Badge variant="outline" className="gap-2 text-purple-400 border-purple-400/30">
-                {tempo} BPM
-              </Badge>
-              <Badge variant="outline" className="gap-2">
-                <Users className="w-3 h-3" />
-                {sessionId.slice(-8)}
-              </Badge>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <span>{tracks.length} {tracks.length === 1 ? 'track' : 'tracks'}</span>
+          </div>
+          <!-- Comp -->
+          <div>
+            <div class="mcx-sub">Glue (Comp)</div>
+            <div class="row">
+              <div class="knob" data-plugin="Comp" data-param="threshold" data-min="-60" data-max="0" data-step="0.1">
+                <canvas class="k-canvas"></canvas><div class="k-label">Thresh</div><div class="k-val">-24.0 dB</div>
+              </div>
+              <div class="knob" data-plugin="Comp" data-param="ratio" data-min="1" data-max="20" data-step="0.1">
+                <canvas class="k-canvas"></canvas><div class="k-label">Ratio</div><div class="k-val">2.0:1</div>
+              </div>
+              <div class="knob" data-plugin="Comp" data-param="attack" data-min="0.001" data-max="1" data-step="0.001">
+                <canvas class="k-canvas"></canvas><div class="k-label">Attack</div><div class="k-val">0.025 s</div>
+              </div>
+              <div class="knob" data-plugin="Comp" data-param="release" data-min="0.01" data-max="1" data-step="0.001">
+                <canvas class="k-canvas"></canvas><div class="k-label">Release</div><div class="k-val">0.100 s</div>
+              </div>
+            </div>
+          </div>
+          <!-- Vintage -->
+          <div>
+            <div class="mcx-sub">Vintage (Drive)</div>
+            <div class="row">
+              <div class="knob" data-plugin="Vintage" data-param="drive" data-min="0" data-max="1" data-step="0.01">
+                <canvas class="k-canvas"></canvas><div class="k-label">Drive</div><div class="k-val">0.00</div>
+              </div>
+              <div class="knob" data-plugin="Vintage" data-param="tone" data-min="-6" data-max="6" data-step="0.1">
+                <canvas class="k-canvas"></canvas><div class="k-label">Tone</div><div class="k-val">0.0 dB</div>
               </div>
             </div>
           </div>
         </div>
-
-        {/* Reactive Waveform Overlay */}
-        {tracks.length > 0 && (
-          <div className="flex-shrink-0 px-6 py-4">
-                <ReactiveWaveform 
-                  activeColors={activePluginColors}
-                  pulseIntensity={waveformPulse}
-                  isPlaying={isPlaying}
-                  audioLevel={masterPeakLevel}
-                />
-            {primeBotMessage && (
-              <div className="mt-2">
-                <PrimeBotAssistant activePlugin={primeBotMessage} />
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Conditionally render dialog */}
-        {isImportDialogOpen && (
-          <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center">
-            <div className="relative bg-background rounded-lg shadow-lg max-w-4xl w-full max-h-[90vh] overflow-auto">
-              <AudioImportDialog
-                sessionId="studio-session"
-                onImportComplete={(file) => {
-                  handleImportComplete(file);
-                }}
-                onClose={() => setIsImportDialogOpen(false)}
-              />
+        <div class="sep"></div>
+        <!-- Send/Return -->
+        <div class="row">
+          <div>
+            <div class="mcx-sub">Reverb Send</div>
+            <div class="knob" data-plugin="Send" data-param="revSend" data-min="0" data-max="1" data-step="0.01">
+              <canvas class="k-canvas"></canvas><div class="k-label">Amount</div><div class="k-val">0.00</div>
             </div>
           </div>
-        )}
-
-        {/* Transport Bar */}
-        <div className="flex-shrink-0">
-          <TransportControls
-            isPlaying={isPlaying}
-            isRecording={isRecording}
-            currentTime={currentTime}
-            duration={duration}
-            tempo={tempo}
-            onPlay={handlePlay}
-            onStop={handleStop}
-            onRecord={handleRecord}
-            onTempoChange={setTempo}
-          />
+          <div>
+            <div class="mcx-sub">Delay Send</div>
+            <div class="knob" data-plugin="Send" data-param="dlySend" data-min="0" data-max="1" data-step="0.01">
+              <canvas class="k-canvas"></canvas><div class="k-label">Amount</div><div class="k-val">0.00</div>
+            </div>
+          </div>
         </div>
+      </div>
 
-        {/* Main Studio Layout - Resizable Panels */}
-        <ResizablePanelGroup 
-          direction="horizontal" 
-          className="flex-1"
-          onLayout={(sizes) => {
-            if (sizes[0]) setBrowserSize(sizes[0]);
-            if (sizes[2]) setInspectorSize(sizes[2]);
-          }}
-        >
-          {/* Left Sidebar - Browser (Resizable) */}
-          <ResizablePanel 
-            defaultSize={browserSize} 
-            minSize={15} 
-            maxSize={30}
-            id="browser"
-          >
-            <BrowserSidebar />
-          </ResizablePanel>
+      <!-- RIGHT: Master & Versions -->
+      <div class="mcx-card">
+        <h3>Master Bus</h3>
+        <div class="row">
+          <div class="knob" data-plugin="Master" data-param="output" data-min="0" data-max="2" data-step="0.01">
+            <canvas class="k-canvas"></canvas><div class="k-label">Output</div><div class="k-val">1.00</div>
+          </div>
+          <div class="knob" data-plugin="Master" data-param="ceiling" data-min="-1" data-max="0" data-step="0.01">
+            <canvas class="k-canvas"></canvas><div class="k-label">Ceiling</div><div class="k-val">-0.2 dB</div>
+          </div>
+          <div class="knob" data-plugin="Master" data-param="target" data-min="-18" data-max="-8" data-step="0.1">
+            <canvas class="k-canvas"></canvas><div class="k-label">LU Target</div><div class="k-val">-14.0</div>
+          </div>
+        </div>
+        <div class="row" style="margin-top:6px;">
+          <div class="toggle">
+            <div class="tgl active" id="autoGainTgl"></div><div class="tgl-label">Auto-Gain</div>
+          </div>
+          <div class="toggle">
+            <div class="tgl" id="switchyTgl"></div><div class="tgl-label">Power</div>
+          </div>
+        </div>
+        <div class="sep"></div>
+        <div class="row">
+          <div class="toggle">
+            <div class="tgl" id="rippleCycle"></div><div class="tgl-label">Ripple Mode (tap)</div>
+          </div>
+        </div>
+        <div class="sep"></div>
+        <h3>Versions</h3>
+        <div class="row">
+          <button class="mcx-btn" id="saveVersionBtn">Save Version</button>
+          <button class="mcx-btn" id="restoreLastBtn">Restore Last</button>
+        </div>
+        <div class="ver-list" id="verList"></div>
+      </div>
+    </div>
 
-          {/* Glass Resize Handle */}
-          <ResizableHandle 
-            withHandle
-            className="w-1 hover:w-2 transition-all"
-            style={{
-              background: 'linear-gradient(90deg, hsl(var(--primary) / 0.2), hsl(var(--accent) / 0.2))',
-              backdropFilter: 'blur(8px)',
-            }}
-          />
+    <div class="ripple-layer" id="rippleLayer"></div>
+    <div class="orb muted" title="MixxBot (muted for this preview)"></div>
+  </div>
 
-          {/* Center - Timeline & Console (Vertical Split) */}
-          <ResizablePanel defaultSize={100 - browserSize - inspectorSize} minSize={40}>
-            <ResizablePanelGroup 
-              direction="vertical"
-              onLayout={(sizes) => {
-                if (sizes[0]) setTimelineSize(sizes[0]);
-              }}
-            >
-              {/* Timeline/Arrangement View - Top */}
-              <ResizablePanel 
-                defaultSize={timelineSize} 
-                minSize={40} 
-                maxSize={75}
-                id="timeline"
-              >
-                <WaveformTimeline
-                  tracks={tracks}
-                  currentTime={currentTime}
-                  duration={duration}
-                  isPlaying={isPlaying}
-                  onTimeChange={setCurrentTime}
-                  onTrackUpdate={updateTrack}
-                  recordArmedTracks={recordArmedTracks}
-                  onToggleRecordArm={handleToggleRecordArm}
-                  onOpenTrackEffects={handleOpenTrackEffects}
-                  onDeleteTrack={handleDeleteTrack}
-                />
-              </ResizablePanel>
+<script>
+/* ===========================================================
+   MixxClub Studio – Preview Runtime
+   Everything is self-contained and launches on load.
+   Supabase hooks are optional; localStorage works out-of-box.
+   =========================================================== */
 
-              {/* Glass Resize Handle - Horizontal */}
-              <ResizableHandle 
-                withHandle
-                className="h-1 hover:h-2 transition-all"
-                style={{
-                  background: 'linear-gradient(180deg, hsl(var(--primary) / 0.2), hsl(var(--accent) / 0.2))',
-                  backdropFilter: 'blur(8px)',
-                }}
-              />
+/* ---------- 0) Utilities ---------- */
+const clamp = (v,min,max)=>Math.max(min,Math.min(max,v));
+const lerp = (a,b,t)=>a+(b-a)*t;
+const now = ()=>performance.now();
 
-              {/* Mixer/Console View - Bottom */}
-              <ResizablePanel 
-                defaultSize={100 - timelineSize} 
-                minSize={25} 
-                maxSize={60}
-                id="console"
-              >
-                <Tabs defaultValue="console" className="h-full flex flex-col">
-                  <TabsList className="flex-shrink-0 w-full max-w-md mx-auto grid grid-cols-3 my-3 bg-[hsl(var(--studio-panel))]">
-                    <TabsTrigger 
-                      value="console"
-                      className="data-[state=active]:bg-[hsl(var(--studio-panel-raised))] data-[state=active]:text-[hsl(var(--studio-accent))]"
-                    >
-                      Console
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="rack"
-                      className="data-[state=active]:bg-[hsl(var(--studio-panel-raised))] data-[state=active]:text-[hsl(var(--studio-accent))]"
-                    >
-                      Effects
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="insights"
-                      className="data-[state=active]:bg-[hsl(var(--studio-panel-raised))] data-[state=active]:text-[hsl(var(--studio-accent))]"
-                    >
-                      Insights
-                    </TabsTrigger>
-                  </TabsList>
+/* ---------- 1) Sandboxed MixxCore (Event Bus + State) ---------- */
+const MixxCore = (() => {
+  const events = new EventTarget();
+  const state = {
+    userRole: 'artist',
+    projectID: 'local-demo',
+    version: 1,
+    theme: 'auto',
+    rippleMode: 0, // 0 off, 1 local, 2 global
+    params: {
+      Port:{gain:1, width:0, normalize:false},
+      EQ:{freq:1000, gain:0, q:1},
+      Comp:{threshold:-24, ratio:2, attack:.025, release:.1},
+      Vintage:{drive:0, tone:0},
+      Send:{revSend:0, dlySend:0},
+      Master:{output:1, ceiling:-0.2, target:-14, autoGain:true, power:false}
+    }
+  };
+  const meters = {rms:-24, peak:-24, lufs:-24};
+  const system = {ctx:null, nodes:{}};
+  return {events,state,meters,system};
+})();
 
-                  <TabsContent value="console" className="flex-1 overflow-auto mt-0 px-4">
-                    <StudioConsole />
-                  </TabsContent>
+/* ---------- 2) Telemetry Collector ---------- */
+const mixxTelemetry = (() => {
+  const BUFFER_LIMIT = 50, SEND_INTERVAL = 500;
+  let telemetryBuffer = [], lastSend = 0;
+  function emit(plugin, params={}, metrics={}) {
+    const packet = { plugin, type:'telemetry', params, metrics, timestamp: Date.now() };
+    telemetryBuffer.push(packet); if (telemetryBuffer.length>BUFFER_LIMIT) telemetryBuffer.shift();
+    const t = Date.now(); if (t-lastSend>SEND_INTERVAL) { lastSend=t;
+      MixxCore.events.dispatchEvent(new CustomEvent('mixxbot:telemetry',{detail:packet}));
+    }
+  }
+  return { emit, getBuffer:()=>telemetryBuffer, clear:()=>telemetryBuffer=[] };
+})();
 
-                   <TabsContent value="rack" className="flex-1 overflow-auto mt-0 px-4 py-4">
-                    <div className="flex justify-between items-center mb-6">
-                      <h3 className="text-lg font-semibold">Plugin Suite</h3>
-                      <Button onClick={() => setIsPluginManagerOpen(true)}>
-                        <Plug2 className="w-4 h-4 mr-2" />
-                        Plugin Manager
-                      </Button>
-                    </div>
-                    <HardwareRack
-                      effects={effects}
-                      onAddEffect={() => setIsPluginManagerOpen(true)}
-                      onToggleEffect={(id) => {
-                        const effect = effects.find(e => e.id === id);
-                        if (effect) {
-                          updateEffect(id, { enabled: !effect.enabled });
-                        }
-                      }}
-                      onConfigureEffect={(id) => toast({ title: `Configure ${id}` })}
-                      onUpdateParameter={(id, param, value) => {
-                        const effect = effects.find(e => e.id === id);
-                        if (effect) {
-                          updateEffect(id, {
-                            parameters: { ...effect.parameters, [param]: value }
-                          });
-                        }
-                      }}
-                      onRemoveEffect={() => {}}
-                    />
-                  </TabsContent>
+/* ---------- 3) Theme Cycle + Power Flash ---------- */
+(function ThemeSystem(){
+  const btn = document.getElementById('themeCycle');
+  const root = document.documentElement;
+  const modes = ['auto','dark','light'];
+  function prefersDark(){ return window.matchMedia('(prefers-color-scheme: dark)').matches; }
+  function apply(mode){
+    let theme = mode; if (mode==='auto') theme = prefersDark() ? 'dark' : 'light';
+    root.setAttribute('data-theme', theme);
+    localStorage.setItem('mixx_theme', mode);
+    btn.textContent = (mode==='auto'?'🌀 Auto':(theme==='dark'?'🌙 Dark':'☀️ Light'));
+    btn.classList.toggle('active', mode!=='auto');
+    // flash
+    const flash = document.createElement('div'); flash.className='mcx-power-flash';
+    document.body.appendChild(flash); setTimeout(()=>flash.remove(), 1200);
+  }
+  const saved = localStorage.getItem('mixx_theme') || 'auto'; apply(saved);
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{ if(localStorage.getItem('mixx_theme')==='auto') apply('auto'); });
+  btn.addEventListener('click', ()=>{ const cur = localStorage.getItem('mixx_theme')||'auto';
+    const next = modes[(modes.indexOf(cur)+1)%modes.length]; apply(next); });
+})();
 
-                   <TabsContent value="insights" className="flex-1 overflow-auto mt-0 px-4 py-4">
-                    <div className="grid gap-4 h-full">
-                      {latestAnalysis && (
-                        <AudioAnalysisPanel 
-                          analysis={latestAnalysis} 
-                          trackName={latestAnalysis.trackName}
-                        />
-                      )}
-                      <AIAssistantPanel />
-                    </div>
-                  </TabsContent>
-                </Tabs>
-              </ResizablePanel>
-            </ResizablePanelGroup>
-          </ResizablePanel>
+/* ---------- 4) Ripple Mode ---------- */
+(function Ripple(){
+  const btn = document.getElementById('rippleBtn');
+  const tgl = document.getElementById('rippleCycle');
+  const layer = document.getElementById('rippleLayer');
+  function label(){ return ['Ripple: Off','Ripple: Local','Ripple: Global'][MixxCore.state.rippleMode]; }
+  function apply(){
+    btn.textContent = label();
+    tgl.classList.toggle('active', MixxCore.state.rippleMode>0);
+    layer.classList.toggle('active', MixxCore.state.rippleMode===2);
+  }
+  btn.addEventListener('click', ()=>{ MixxCore.state.rippleMode = (MixxCore.state.rippleMode+1)%3; apply(); });
+  tgl.addEventListener('click', ()=>{ MixxCore.state.rippleMode = (MixxCore.state.rippleMode+1)%3; apply(); });
+  apply();
+})();
 
-          {/* Glass Resize Handle */}
-          <ResizableHandle 
-            withHandle
-            className="w-1 hover:w-2 transition-all"
-            style={{
-              background: 'linear-gradient(90deg, hsl(var(--accent) / 0.2), hsl(var(--primary) / 0.2))',
-              backdropFilter: 'blur(8px)',
-            }}
-          />
+/* ---------- 5) Audio Graph ---------- */
+async function ensureAudio(){
+  if (MixxCore.system.ctx) return MixxCore.system.ctx;
+  const ctx = new (window.AudioContext||window.webkitAudioContext)();
+  const nodes = {};
+  // Port
+  nodes.portGain = ctx.createGain(); nodes.portGain.gain.value = MixxCore.state.params.Port.gain;
+  nodes.panner = ctx.createStereoPanner(); nodes.panner.pan.value = MixxCore.state.params.Port.width;
 
-          {/* Right Sidebar - Multi-Function Panel (Resizable) */}
-          <ResizablePanel 
-            defaultSize={inspectorSize} 
-            minSize={18} 
-            maxSize={35}
-            id="inspector"
-          >
-            <div className="h-full flex flex-col bg-[hsl(var(--studio-panel))]">
-              {/* Panel Tab Switcher */}
-              <div className="flex-shrink-0 border-b border-border/30">
-                <div className="flex items-center gap-1 p-2">
-                  <Button
-                    variant={activeRightPanel === 'inspector' ? 'default' : 'ghost'}
-                    size="sm"
-                    onClick={() => setActiveRightPanel('inspector')}
-                    className="flex-1 gap-2 text-xs"
-                  >
-                    <Sparkles className="w-3 h-3" />
-                    Inspector
-                  </Button>
-                  <Button
-                    variant={activeRightPanel === 'collaborate' ? 'default' : 'ghost'}
-                    size="sm"
-                    onClick={() => setActiveRightPanel('collaborate')}
-                    className="flex-1 gap-2 text-xs"
-                  >
-                    <Users className="w-3 h-3" />
-                    Collab
-                  </Button>
-                  <Button
-                    variant={activeRightPanel === 'ai-effects' ? 'default' : 'ghost'}
-                    size="sm"
-                    onClick={() => setActiveRightPanel('ai-effects')}
-                    className="flex-1 gap-2 text-xs"
-                  >
-                    <Sliders className="w-3 h-3" />
-                    AI FX
-                  </Button>
-                </div>
-              </div>
+  // EQ (single peaking)
+  nodes.eq = ctx.createBiquadFilter(); nodes.eq.type = 'peaking';
+  nodes.eq.frequency.value = MixxCore.state.params.EQ.freq;
+  nodes.eq.gain.value = MixxCore.state.params.EQ.gain;
+  nodes.eq.Q.value = MixxCore.state.params.EQ.q;
 
-              {/* Panel Content */}
-              <div className="flex-1 overflow-hidden">
-                {activeRightPanel === 'inspector' && (
-                  <InspectorSidebar />
-                )}
+  // Comp
+  nodes.comp = ctx.createDynamicsCompressor();
+  const C = MixxCore.state.params.Comp;
+  nodes.comp.threshold.value = C.threshold;
+  nodes.comp.ratio.value = C.ratio;
+  nodes.comp.attack.value = C.attack;
+  nodes.comp.release.value = C.release;
 
-                {activeRightPanel === 'collaborate' && (
-                  <DAWCollaboration
-                    sessionId={sessionId}
-                    userId={user?.id || 'guest'}
-                    userName={user?.user_metadata?.full_name || 'Guest User'}
-                    onTrackUpdate={(trackData) => {
-                      sonnerToast.info('Track Updated', {
-                        description: 'A collaborator made changes'
-                      });
-                    }}
-                    onEffectChange={(trackId, effectData) => {
-                      sonnerToast.info('Effect Modified', {
-                        description: 'A collaborator adjusted an effect'
-                      });
-                    }}
-                  />
-                )}
+  // Vintage (waveshaper + tone tilt)
+  nodes.driveGain = ctx.createGain();
+  nodes.shaper = ctx.createWaveShaper();
+  nodes.tone = ctx.createBiquadFilter(); nodes.tone.type='peaking'; nodes.tone.frequency.value=3000; nodes.tone.Q.value=0.7;
 
-                {activeRightPanel === 'ai-effects' && (
-                  <div className="h-full overflow-auto p-4">
-                    <div className="mb-4">
-                      <Badge variant="outline" className="gap-2">
-                        <Sparkles className="w-3 h-3" />
-                        AI Composition Tools
-                      </Badge>
-                      <p className="text-xs text-muted-foreground mt-2">
-                        Intelligent effects that adapt to your music
-                      </p>
-                    </div>
-                    <DAWEffectsPanel
-                      tracks={tracks.map(t => ({
-                        id: t.id,
-                        name: t.name,
-                        type: t.type,
-                        color: t.color || `hsl(${Math.random() * 360}, 70%, 60%)`,
-                        regions: [],
-                        solo: t.solo,
-                        mute: t.mute,
-                        volume: t.volume,
-                        effects: {},
-                        automation: []
-                      }))}
-                      onTracksChange={(updatedTracks) => {
-                        sonnerToast.success('AI Effects Updated', {
-                          description: 'Effects have been applied to your tracks'
-                        });
-                      }}
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
-          </ResizablePanel>
-        </ResizablePanelGroup>
+  function updateShaper(amount){
+    const k = amount*100; const n = 8192; const curve = new Float32Array(n);
+    for (let i=0;i<n;i++){ const x = i*2/n-1; curve[i] = (1+k)*x/(1+k*Math.abs(x)); }
+    nodes.shaper.curve = curve; nodes.shaper.oversample='4x';
+  }
+  updateShaper(MixxCore.state.params.Vintage.drive);
 
-        {/* Plugin Manager Dialog */}
-        <PluginManager 
-          isOpen={isPluginManagerOpen} 
-          onClose={() => setIsPluginManagerOpen(false)} 
-        />
+  // Sends
+  nodes.split = ctx.createGain();
+  nodes.revSend = ctx.createGain(); nodes.revSend.gain.value = MixxCore.state.params.Send.revSend;
+  nodes.dlySend = ctx.createGain(); nodes.dlySend.gain.value = MixxCore.state.params.Send.dlySend;
+  nodes.merge = ctx.createGain();
 
-        {/* Track Effects Dialog */}
-        {selectedTrack && (
-          <TrackEffectsDialog
-            open={!!selectedTrackForEffects}
-            onOpenChange={(open) => !open && setSelectedTrackForEffects(null)}
-            trackName={selectedTrack.name}
-            effects={selectedTrackEffects}
-            onAddEffect={() => setIsPluginManagerOpen(true)}
-            onToggleEffect={(id) => {
-              const trackFx = trackEffects.get(selectedTrackForEffects!) || [];
-              const effect = trackFx.find(e => e.id === id);
-              if (effect) {
-                const updated = trackFx.map(e => 
-                  e.id === id ? { ...e, enabled: !e.enabled } : e
-                );
-                setTrackEffects(new Map(trackEffects).set(selectedTrackForEffects!, updated));
-              }
-            }}
-            onUpdateParameter={(id, param, value) => {
-              const trackFx = trackEffects.get(selectedTrackForEffects!) || [];
-              const updated = trackFx.map(e => 
-                e.id === id ? { ...e, parameters: { ...e.parameters, [param]: value } } : e
-              );
-              setTrackEffects(new Map(trackEffects).set(selectedTrackForEffects!, updated));
-            }}
-            onRemoveEffect={(id) => {
-              const trackFx = trackEffects.get(selectedTrackForEffects!) || [];
-              const updated = trackFx.filter(e => e.id !== id);
-              setTrackEffects(new Map(trackEffects).set(selectedTrackForEffects!, updated));
-            }}
-          />
-        )}
+  // Reverb
+  nodes.reverb = ctx.createConvolver(); nodes.revGain = ctx.createGain(); nodes.revGain.gain.value=.6;
+  // simple generated IR
+  function makeIR(seconds=2, decay=3){
+    const rate = ctx.sampleRate, len = rate*seconds, buf = ctx.createBuffer(2,len,rate);
+    for(let ch=0; ch<2; ch++){
+      const d=buf.getChannelData(ch);
+      for(let i=0;i<len;i++){ d[i] = (Math.random()*2-1)*Math.pow(1-i/len, decay); }
+    }
+    return buf;
+  }
+  nodes.reverb.buffer = makeIR(2.2, 2.8);
 
-        {/* Plugin Rack Dialog */}
-        <Dialog open={showPluginRack} onOpenChange={setShowPluginRack}>
-          <DialogContent className="max-w-6xl max-h-[90vh] overflow-auto bg-gradient-radial from-[#0a0618] via-[#04020b] to-[#04020b]">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                PrimeBot 4.0 Plugin Suite
-              </DialogTitle>
-            </DialogHeader>
-            <PluginRack onPluginSelect={handlePluginSelect} />
-          </DialogContent>
-        </Dialog>
-      </main>
-    </>
-  );
+  // Delay
+  nodes.delay = ctx.createDelay(1.0); nodes.delay.delayTime.value=.35;
+  nodes.fb = ctx.createGain(); nodes.fb.gain.value=.35; nodes.dlyGain = ctx.createGain(); nodes.dlyGain.gain.value=.6;
+  nodes.delay.connect(nodes.fb).connect(nodes.delay);
+
+  // Master
+  nodes.masterGain = ctx.createGain(); nodes.masterGain.gain.value = MixxCore.state.params.Master.output;
+  nodes.softClip = ctx.createWaveShaper();
+  (function updateSoftClip(ceilDb){
+    const ceil = Math.pow(10, ceilDb/20); const n=8192, c=new Float32Array(n);
+    for(let i=0;i<n;i++){ const x=i*2/n-1; c[i] = Math.tanh(x/ceil)*ceil; } nodes.softClip.curve=c;
+  })(MixxCore.state.params.Master.ceiling);
+
+  // Analyser
+  nodes.an = ctx.createAnalyser(); nodes.an.fftSize=2048;
+
+  // Build routing: source -> port -> eq -> comp -> drive -> tone -> split -> merge -> softclip -> master -> an -> out
+  nodes.portGain.connect(nodes.panner).connect(nodes.eq).connect(nodes.comp).connect(nodes.driveGain).connect(nodes.shaper).connect(nodes.tone).connect(nodes.split);
+  // dry to merge
+  nodes.split.connect(nodes.merge);
+  // sends
+  nodes.split.connect(nodes.revSend).connect(nodes.reverb).connect(nodes.revGain).connect(nodes.merge);
+  nodes.split.connect(nodes.dlySend).connect(nodes.delay).connect(nodes.dlyGain).connect(nodes.merge);
+  // delay feedback already connected
+
+  nodes.merge.connect(nodes.softClip).connect(nodes.masterGain).connect(nodes.an).connect(ctx.destination);
+
+  MixxCore.system.ctx = ctx; MixxCore.system.nodes = nodes;
+  return ctx;
 }
+
+/* ---------- 6) MixxPort: upload & playback ---------- */
+(function MixxPort(){
+  const drop = document.getElementById('drop');
+  const fileInput = document.getElementById('fileInput');
+  const list = document.getElementById('fileList');
+  const normalizeTgl = document.getElementById('normalizeTgl');
+  let sourceNode = null;
+  let currentBuffer = null;
+
+  const openPicker = ()=>fileInput.click();
+  drop.addEventListener('click', openPicker);
+  drop.addEventListener('dragover', e=>{e.preventDefault(); drop.classList.add('hover');});
+  drop.addEventListener('dragleave', ()=>drop.classList.remove('hover'));
+  drop.addEventListener('drop', async e=>{
+    e.preventDefault(); drop.classList.remove('hover');
+    const f = e.dataTransfer.files?.[0]; if (f) await handleFile(f);
+  });
+  fileInput.addEventListener('change', async e=>{
+    const f = e.target.files?.[0]; if (f) await handleFile(f);
+  });
+
+  async function handleFile(file){
+    await ensureAudio();
+    const ctx = MixxCore.system.ctx;
+    const arr = await file.arrayBuffer();
+    const buf = await ctx.decodeAudioData(arr);
+    currentBuffer = buf;
+
+    // stop old source
+    sourceNode?.stop?.(0);
+    sourceNode = ctx.createBufferSource();
+    sourceNode.buffer = buf; sourceNode.loop = true;
+
+    // peak detect for normalize preview
+    let peak = 0; for (let ch=0; ch<buf.numberOfChannels; ch++){
+      const d = buf.getChannelData(ch); for (let i=0;i<d.length;i++) peak = Math.max(peak, Math.abs(d[i]));
+    }
+    const normalGain = peak>0 ? 1/peak : 1;
+    if (MixxCore.state.params.Port.normalize) MixxCore.system.nodes.portGain.gain.value = normalGain * MixxCore.state.params.Port.gain;
+
+    sourceNode.connect(MixxCore.system.nodes.portGain);
+    if (ctx.state === 'suspended') await ctx.resume();
+    sourceNode.start();
+
+    appendFileRow(file.name, normalGain);
+    MixxCore.events.dispatchEvent(new CustomEvent('mixxFileChange',{detail:{type:'audio', name:file.name}}));
+  }
+
+  function appendFileRow(name, ng){
+    const row = document.createElement('div'); row.className='fileitem';
+    row.innerHTML = `<span>${name}</span><span>${MixxCore.state.params.Port.normalize?`Norm x${ng.toFixed(2)}`:'—'}</span>`;
+    list.prepend(row);
+  }
+
+  // normalize toggle
+  normalizeTgl.addEventListener('click', ()=>{
+    normalizeTgl.classList.toggle('active');
+    MixxCore.state.params.Port.normalize = normalizeTgl.classList.contains('active');
+    if (currentBuffer){
+      // re-evaluate gain
+      let peak=0; for (let ch=0; ch<currentBuffer.numberOfChannels; ch++){
+        const d=currentBuffer.getChannelData(ch); for(let i=0;i<d.length;i++) peak = Math.max(peak, Math.abs(d[i]));
+      }
+      const normalGain = peak>0 ? 1/peak : 1;
+      const base = MixxCore.state.params.Port.gain;
+      MixxCore.system.nodes.portGain.gain.cancelScheduledValues(0);
+      MixxCore.system.nodes.portGain.gain.linearRampToValueAtTime((MixxCore.state.params.Port.normalize? normalGain*base : base), MixxCore.system.ctx.currentTime+.05);
+    }
+  });
+})();
+
+/* ---------- 7) Universal Rotary Knob ---------- */
+(function Knobs(){
+  const PIX = Math.PI;
+  const els = [...document.querySelectorAll('.knob')];
+  els.forEach(el=>{
+    const cv = el.querySelector('.k-canvas'); const ctx = cv.getContext('2d');
+    const valEl = el.querySelector('.k-val');
+    const plugin = el.dataset.plugin, param = el.dataset.param;
+    const min = parseFloat(el.dataset.min), max = parseFloat(el.dataset.max);
+    const step = parseFloat(el.dataset.step) || 0.01;
+    const arc = 270 * (Math.PI/180); const start = - (arc/2), end = arc/2;
+
+    // initial value from state
+    let v = MixxCore.state.params[plugin]?.[param] ?? 0;
+    let dragging=false, lastY=0, vel=0, lastT=0;
+
+    function format(v){
+      if (param==='freq') return `${Math.round(v)} Hz`;
+      if (param==='gain'||param==='tone') return `${v.toFixed(1)} dB`;
+      if (param==='q') return v.toFixed(1);
+      if (param==='threshold') return `${v.toFixed(1)} dB`;
+      if (param==='ratio') return `${v.toFixed(1)}:1`;
+      if (param==='attack'||param==='release') return `${v.toFixed(3)} s`;
+      if (param==='target') return v.toFixed(1);
+      return v.toFixed(2);
+    }
+
+    function draw(){
+      const w=cv.width, h=cv.height, r=w/2 - 4; ctx.clearRect(0,0,w,h);
+      ctx.save(); ctx.translate(w/2,h/2);
+
+      // track
+      ctx.beginPath(); ctx.lineWidth=10; ctx.strokeStyle='rgba(255,255,255,.08)';
+      ctx.arc(0,0,r,start,end); ctx.stroke();
+
+      // value
+      const t = (v-min)/(max-min); const ang = start + t*arc;
+      const grad = ctx.createConicGradient(start,0,0);
+      grad.addColorStop(0, getComputedStyle(document.documentElement).getPropertyValue('--theme-glow1') || '#D06BFF');
+      grad.addColorStop(1, getComputedStyle(document.documentElement).getPropertyValue('--theme-glow2') || '#70E6FF');
+      ctx.beginPath(); ctx.lineWidth=10; ctx.strokeStyle=grad;
+      ctx.arc(0,0,r,start,ang); ctx.stroke();
+
+      // pointer
+      ctx.save(); ctx.rotate(ang);
+      ctx.beginPath(); ctx.lineWidth=3; ctx.strokeStyle='rgba(255,255,255,.9)';
+      ctx.moveTo(0, -r+4); ctx.lineTo(0, -r+16); ctx.stroke(); ctx.restore();
+
+      // center glow
+      ctx.beginPath(); ctx.fillStyle='rgba(255,255,255,.08)'; ctx.arc(0,0,20,0,2*Math.PI); ctx.fill();
+      ctx.restore();
+      valEl.textContent = format(v);
+    }
+
+    function applyDSP(val){
+      // state
+      MixxCore.state.params[plugin][param] = val;
+      // DSP mapping
+      const N = MixxCore.system.nodes; if (!N) return;
+      if (plugin==='Port' && param==='gain') N.portGain.gain.linearRampToValueAtTime(val, N.an.context.currentTime+.05);
+      if (plugin==='Port' && param==='width') N.panner.pan.linearRampToValueAtTime(val, N.an.context.currentTime+.05);
+
+      if (plugin==='EQ' && param==='freq') N.eq.frequency.linearRampToValueAtTime(val, N.an.context.currentTime+.05);
+      if (plugin==='EQ' && param==='gain') N.eq.gain.linearRampToValueAtTime(val, N.an.context.currentTime+.05);
+      if (plugin==='EQ' && param==='q') N.eq.Q.linearRampToValueAtTime(val, N.an.context.currentTime+.05);
+
+      if (plugin==='Comp' && param==='threshold') N.comp.threshold.linearRampToValueAtTime(val, N.an.context.currentTime+.05);
+      if (plugin==='Comp' && param==='ratio') N.comp.ratio.value = val;
+      if (plugin==='Comp' && param==='attack') N.comp.attack.linearRampToValueAtTime(val, N.an.context.currentTime+.05);
+      if (plugin==='Comp' && param==='release') N.comp.release.linearRampToValueAtTime(val, N.an.context.currentTime+.05);
+
+      if (plugin==='Vintage' && param==='drive'){ // update waveshaper
+        const k = val*100; const n=8192, c=new Float32Array(n);
+        for(let i=0;i<n;i++){ const x=i*2/n-1; c[i] = (1+k)*x/(1+k*Math.abs(x)); } N.shaper.curve=c;
+      }
+      if (plugin==='Vintage' && param==='tone') N.tone.gain.linearRampToValueAtTime(val, N.an.context.currentTime+.05);
+
+      if (plugin==='Send' && param==='revSend') N.revSend.gain.linearRampToValueAtTime(val, N.an.context.currentTime+.05);
+      if (plugin==='Send' && param==='dlySend') N.dlySend.gain.linearRampToValueAtTime(val, N.an.context.currentTime+.05);
+
+      if (plugin==='Master' && param==='output') N.masterGain.gain.linearRampToValueAtTime(val, N.an.context.currentTime+.05);
+      if (plugin==='Master' && param==='ceiling'){ const ceil = Math.pow(10, val/20); const n=8192, c=new Float32Array(n);
+        for(let i=0;i<n;i++){ const x=i*2/n-1; c[i] = Math.tanh(x/ceil)*ceil; } N.softClip.curve=c;
+      }
+      if (plugin==='Master' && param==='target'){ /* used by AGC below */ }
+
+      // telemetry
+      mixxTelemetry.emit(plugin, {...MixxCore.state.params[plugin]}, {...MixxCore.meters});
+    }
+
+    // pointer → value map
+    function onDown(e){ dragging=true; lastY=(e.touches?e.touches[0].clientY:e.clientY); lastT=now(); e.preventDefault(); }
+    function onMove(e){
+      if(!dragging) return; const y=(e.touches?e.touches[0].clientY:e.clientY); const t=now();
+      const dy = lastY - y; const dt = Math.max(1, t-lastT);
+      const sens = (e.shiftKey? 0.2 : 1);
+      let nv = clamp(v + (max-min)*dy/600 * sens, min, max);
+      // quantize to step
+      nv = Math.round(nv/step)*step;
+      vel = (nv - v) / dt; v = nv; lastY=y; lastT=t;
+      applyDSP(v); draw();
+    }
+    function onUp(){ dragging=false; /* inertia visual only */ }
+
+    cv.addEventListener('mousedown', onDown); cv.addEventListener('touchstart', onDown, {passive:false});
+    window.addEventListener('mousemove', onMove, {passive:false}); window.addEventListener('touchmove', onMove, {passive:false});
+    window.addEventListener('mouseup', onUp); window.addEventListener('touchend', onUp);
+
+    // dblclick reset
+    cv.addEventListener('dblclick', ()=>{ let def = (min+max)/2;
+      if (param==='gain'||param==='output'||param==='revSend'||param==='dlySend') def=1;
+      if (param==='width'||param==='tone'||param==='EQ.gain'||param==='Vintage.tone'||param==='gain') def=0;
+      if (param==='freq') def=1000;
+      if (param==='q') def=1;
+      if (param==='threshold') def=-24;
+      if (param==='ratio') def=2;
+      if (param==='attack') def=.025;
+      if (param==='release') def=.1;
+      if (param==='ceiling') def=-0.2;
+      if (param==='target') def=-14;
+      v=clamp(def,min,max); applyDSP(v); draw();
+    });
+
+    draw();
+  });
+})();
+
+/* ---------- 8) Toggles: Power, Auto-Gain ---------- */
+(function Toggles(){
+  ensureAudio(); // prime context
+  const N = ()=>MixxCore.system.nodes;
+  const autoGain = document.getElementById('autoGainTgl');
+  const power = document.getElementById('switchyTgl');
+
+  autoGain.addEventListener('click', ()=>{
+    autoGain.classList.toggle('active');
+    MixxCore.state.params.Master.autoGain = autoGain.classList.contains('active');
+  });
+
+  power.addEventListener('click', ()=>{
+    power.classList.toggle('active');
+    MixxCore.state.params.Master.power = power.classList.contains('active');
+    // visual flash already handled by theme button; here we can soft fade master
+    if (N()){
+      const g = N().masterGain.gain; const ctx = N().an.context;
+      g.cancelScheduledValues(0);
+      g.linearRampToValueAtTime(MixxCore.state.params.Master.power? MixxCore.state.params.Master.output : 0, ctx.currentTime + .2);
+    }
+  });
+})();
+
+/* ---------- 9) Meters + pseudo-LUFS ---------- */
+(function MeterLoop(){
+  let last = 0; function tick(ts){
+    if (ts-last < 33) { requestAnimationFrame(tick); return; } last = ts;
+    const N = MixxCore.system.nodes; if(!N) { requestAnimationFrame(tick); return; }
+    // compute RMS/Peak quickly
+    const buf = new Uint8Array(N.an.frequencyBinCount); N.an.getByteTimeDomainData(buf);
+    let sum=0, pk=0; for (let i=0;i<buf.length;i++){ const x = (buf[i]-128)/128; sum += x*x; pk = Math.max(pk, Math.abs(x)); }
+    const rms = Math.sqrt(sum/buf.length); const rmsDb = 20*Math.log10(rms+1e-6);
+    const peakDb = 20*Math.log10(pk+1e-6);
+    // rough LU-ish target estimator
+    const lufs = rmsDb + 3.5; // simple offset to approximate perceived loudness
+
+    MixxCore.meters.rms = rmsDb; MixxCore.meters.peak = peakDb; MixxCore.meters.lufs = lufs;
+
+    // Auto-Gain towards target (-14)
+    const M = MixxCore.state.params.Master;
+    if (M.autoGain && M.power){
+      const diff = (M.target - lufs); // if lufs higher than target, diff negative
+      const desired = clamp(M.output * Math.pow(10, diff/20), 0, 2);
+      const g = N.masterGain.gain; g.linearRampToValueAtTime(desired, N.an.context.currentTime + .08);
+    }
+
+    // UI bars
+    const rmsFill = document.getElementById('rmsFill'), peakFill = document.getElementById('peakFill'), luFill = document.getElementById('lufsFill');
+    const pct = v=>clamp((v+60)/60, 0, 1); // map -60..0 dB
+    rmsFill.style.height = (pct(rmsDb)*100).toFixed(1)+'%';
+    peakFill.style.height = (pct(peakDb)*100).toFixed(1)+'%';
+    luFill.style.height = (pct(lufs)*100).toFixed(1)+'%';
+
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+
+/* ---------- 10) Autosave / Recall / Versions (localStorage + hooks) ---------- */
+(function Persistence(){
+  const KEY = 'mixx_project_state';
+  function saveSnapshot(label='Autosave'){
+    const snap = {
+      ts: Date.now(),
+      label,
+      project_id: MixxCore.state.projectID,
+      version: ++MixxCore.state.version,
+      plugin_states: JSON.parse(JSON.stringify(MixxCore.state.params)),
+      meters: {...MixxCore.meters}
+    };
+    const arr = JSON.parse(localStorage.getItem(KEY) || '[]'); arr.unshift(snap);
+    localStorage.setItem(KEY, JSON.stringify(arr.slice(0,50)));
+    renderVersions(); return snap;
+  }
+  function loadLatest(){
+    const arr = JSON.parse(localStorage.getItem(KEY) || '[]');
+    if (!arr.length) return;
+    applySnapshot(arr[0]);
+  }
+  function applySnapshot(snap){
+    MixxCore.state.params = JSON.parse(JSON.stringify(snap.plugin_states));
+    // animate knobs visually by reassigning values through state + DSP
+    const N = MixxCore.system.nodes; if (!N) return;
+    // Apply each mapped param (reuse DSP mapping by dispatching synthetic changes)
+    for (const [plugin, obj] of Object.entries(MixxCore.state.params)){
+      for (const [param, val] of Object.entries(obj)){
+        // directly call same DSP mapper via event (simplified)
+        // (Reuse of knob code would require refs; we just set DSP targets here)
+        if (plugin==='Port' && param==='gain') N.portGain.gain.setTargetAtTime(val, N.an.context.currentTime, .08);
+        if (plugin==='Port' && param==='width') N.panner.pan.setTargetAtTime(val, N.an.context.currentTime, .08);
+        if (plugin==='EQ' && param==='freq') N.eq.frequency.setTargetAtTime(val, N.an.context.currentTime, .08);
+        if (plugin==='EQ' && param==='gain') N.eq.gain.setTargetAtTime(val, N.an.context.currentTime, .08);
+        if (plugin==='EQ' && param==='q') N.eq.Q.setTargetAtTime(val, N.an.context.currentTime, .08);
+        if (plugin==='Comp' && param==='threshold') N.comp.threshold.setTargetAtTime(val, N.an.context.currentTime, .08);
+        if (plugin==='Comp' && param==='ratio') N.comp.ratio.value = val;
+        if (plugin==='Comp' && param==='attack') N.comp.attack.setTargetAtTime(val, N.an.context.currentTime, .08);
+        if (plugin==='Comp' && param==='release') N.comp.release.setTargetAtTime(val, N.an.context.currentTime, .08);
+        if (plugin==='Vintage' && param==='drive'){ const k = val*100; const n=8192, c=new Float32Array(n);
+          for(let i=0;i<n;i++){ const x=i*2/n-1; c[i] = (1+k)*x/(1+k*Math.abs(x)); } N.shaper.curve=c; }
+        if (plugin==='Vintage' && param==='tone') N.tone.gain.setTargetAtTime(val, N.an.context.currentTime, .08);
+        if (plugin==='Send' && param==='revSend') N.revSend.gain.setTargetAtTime(val, N.an.context.currentTime, .08);
+        if (plugin==='Send' && param==='dlySend') N.dlySend.gain.setTargetAtTime(val, N.an.context.currentTime, .08);
+        if (plugin==='Master' && param==='output') N.masterGain.gain.setTargetAtTime(val, N.an.context.currentTime, .08);
+        if (plugin==='Master' && param==='ceiling'){ const ceil = Math.pow(10, val/20); const n=8192, c=new Float32Array(n);
+          for(let i=0;i<n;i++){ const x=i*2/n-1; c[i] = Math.tanh(x/ceil)*ceil; } N.softClip.curve=c; }
+      }
+    }
+  }
+  function renderVersions(){
+    const verList = document.getElementById('verList');
+    const arr = JSON.parse(localStorage.getItem(KEY) || '[]');
+    verList.innerHTML='';
+    arr.slice(0,12).forEach(s=>{
+      const row = document.createElement('div'); row.className='ver-row';
+      const time = new Date(s.ts).toLocaleTimeString();
+      row.innerHTML = `<div>v${s.version} · ${s.label} <span class="mcx-sub">(${time})</span></div>
+                       <div class="actions">
+                         <button class="mcx-btn mini" data-ver="${s.version}">Restore</button>
+                       </div>`;
+      row.querySelector('button').addEventListener('click', ()=>{
+        applySnapshot(s); saveSnapshot(`Restored v${s.version}`); // create new head
+      });
+      verList.appendChild(row);
+    });
+  }
+  // Schedule autosave every 60s while active
+  setInterval(()=>saveSnapshot('Autosave'), 60000);
+
+  document.getElementById('saveVersionBtn').addEventListener('click', ()=>saveSnapshot('Manual Save'));
+  document.getElementById('restoreLastBtn').addEventListener('click', ()=>{
+    const arr = JSON.parse(localStorage.getItem(KEY) || '[]'); if (arr[1]) { applySnapshot(arr[1]); saveSnapshot(`Restored v${arr[1].version}`); }
+  });
+
+  // initial
+  ensureAudio().then(loadLatest);
+  renderVersions();
+
+  // Expose minimal hooks to replace with Supabase later
+  window.MIXX_SUPABASE = {
+    pushSnapshot: (snap)=>{/* replace with RPC */},
+    onStatus: (cb)=>{/* subscribe to realtime and call cb(payload) */}
+  };
+})();
+
+/* ---------- 11) Kick context on first gesture ---------- */
+window.addEventListener('click', ()=>ensureAudio(), {once:true});
+</script>
+</body>
+</html>
