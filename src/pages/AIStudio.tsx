@@ -334,6 +334,7 @@ export default function AIStudio() {
       
       console.log('[AIStudio] Track added successfully. Total tracks:', tracks.length + 1);
       startAnalysis(trackName);
+      setIsImportDialogOpen(false);
       
     } catch (error: any) {
       console.error('[AIStudio] Error in handleImportComplete:', error);
@@ -362,7 +363,6 @@ export default function AIStudio() {
       }
     } finally {
       setIsLoadingAudio(false);
-      setIsImportDialogOpen(false);
     }
   };
 

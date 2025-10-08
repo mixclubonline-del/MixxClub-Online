@@ -300,7 +300,7 @@ const AudioImportDialog: React.FC<AudioImportDialogProps> = ({
                         size="sm"
                         onClick={() => {
                           onImportComplete(file);
-                          onClose(); // Close dialog after adding to session
+                          // Parent will close dialog after successful import
                         }}
                         className="gap-2"
                       >

@@ -110,12 +110,12 @@ export function useAudioImport(sessionId: string): UseAudioImportReturn {
     return null;
   }, []);
 
-  // Cleanup created object URLs when the hook consumer unmounts
+  // Cleanup previously created object URLs when the hook consumer unmounts
+  // NOTE: We intentionally avoid revoking here to prevent race conditions when
+  // parents close the dialog right after clicking "Add to Session".
+  // URLs will be revoked when files are explicitly deleted.
   useEffect(() => {
     return () => {
-      revokeOnUnmount.current.forEach((u) => {
-        try { URL.revokeObjectURL(u); } catch {}
-      });
       revokeOnUnmount.current = [];
     };
   }, []);
