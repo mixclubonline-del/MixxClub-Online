@@ -67,7 +67,7 @@ import StudioDirectory from "./pages/StudioDirectory";
 import EducationalHub from "./pages/EducationalHub";
 import CourseViewer from "./pages/CourseViewer";
 import MyCertifications from "./pages/MyCertifications";
-import Marketplace from "./pages/Marketplace";
+const Marketplace = React.lazy(() => import("./pages/Marketplace"));
 import LabelServices from "./pages/LabelServices";
 import Integrations from "./pages/Integrations";
 import AIAudioIntelligence from "./pages/AIAudioIntelligence";

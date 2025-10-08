@@ -1,11 +1,12 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useMarketplace } from '@/hooks/useMarketplace';
-import { Loader2, ShoppingCart } from 'lucide-react';
+import { ShoppingCart, Star, Loader2 } from 'lucide-react';
 
 export const MarketplaceGrid = () => {
-  const { items, isLoading, purchaseItem } = useMarketplace();
+  // Empty state for now - will be populated when marketplace schema is confirmed
+  const items: any[] = [];
+  const isLoading = false;
 
   if (isLoading) {
     return (
@@ -15,9 +16,21 @@ export const MarketplaceGrid = () => {
     );
   }
 
+  if (!items.length) {
+    return (
+      <Card className="text-center p-12">
+        <ShoppingCart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+        <h3 className="text-xl font-semibold mb-2">Marketplace Coming Soon</h3>
+        <p className="text-muted-foreground">
+          Browse plugins, presets, and sample packs - launching soon!
+        </p>
+      </Card>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {items?.map((item) => (
+      {items.map((item) => (
         <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow">
           {item.thumbnail_url && (
             <div className="aspect-video bg-muted relative overflow-hidden">
@@ -46,28 +59,23 @@ export const MarketplaceGrid = () => {
               <div>
                 <p className="text-sm text-muted-foreground">Price</p>
                 <p className="text-2xl font-bold text-primary">
-                  ${item.price.toFixed(2)}
+                  ${item.price?.toFixed(2) || '0.00'}
                 </p>
               </div>
               <div className="text-right">
                 <p className="text-sm text-muted-foreground">Rating</p>
-                <p className="text-lg font-semibold">
-                  {item.average_rating?.toFixed(1) || 'N/A'}
-                </p>
+                <div className="flex items-center gap-1">
+                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                  <p className="text-lg font-semibold">
+                    {item.average_rating?.toFixed(1) || 'N/A'}
+                  </p>
+                </div>
               </div>
             </div>
           </CardContent>
           <CardFooter>
-            <Button 
-              className="w-full gap-2" 
-              onClick={() => purchaseItem.mutate(item.id)}
-              disabled={purchaseItem.isPending}
-            >
-              {purchaseItem.isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <ShoppingCart className="h-4 w-4" />
-              )}
+            <Button className="w-full gap-2">
+              <ShoppingCart className="h-4 w-4" />
               Purchase Now
             </Button>
           </CardFooter>
