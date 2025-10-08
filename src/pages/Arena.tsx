@@ -7,6 +7,8 @@ import BattleSchedule from '@/components/arena-hub/BattleSchedule';
 import YourBattleStats from '@/components/arena-hub/YourBattleStats';
 import { usePrime } from '@/contexts/PrimeContext';
 import PrimeGlow from '@/components/prime/PrimeGlow';
+import { HubBreadcrumb } from '@/components/ui/hub-breadcrumb';
+import { HubRecommendations } from '@/components/ui/hub-recommendations';
 
 export default function Arena() {
   const { systemMode } = usePrime();
@@ -25,6 +27,8 @@ export default function Arena() {
         <GlobalHeader />
         
         <main className="max-w-7xl mx-auto px-6 py-16">
+          <HubBreadcrumb items={[{ label: 'Arena' }]} />
+          
           <PrimeGlow intensity={0.9}>
             <div className="text-center mb-12">
               <div className="text-6xl mb-4">⚔️</div>
@@ -56,9 +60,11 @@ export default function Arena() {
             </div>
           </div>
 
-          <div className="text-center">
+          <HubRecommendations excludeHref="/arena" />
+
+          <div className="text-center mt-12">
             <a 
-              href="/network" 
+              href="/" 
               className="inline-block px-8 py-4 rounded-full bg-gradient-to-r from-primary to-destructive text-foreground hover:shadow-[0_0_30px_hsl(var(--primary)/0.5)] transition-all font-medium"
             >
               ← Back to Hub

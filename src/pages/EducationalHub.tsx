@@ -10,6 +10,8 @@ import { BookOpen, GraduationCap, Clock, Star, Lock, Sparkles, Users } from "luc
 import { useCourses } from "@/hooks/useCourses";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isFeatureEnabled } from "@/config/featureFlags";
+import { HubBreadcrumb } from "@/components/ui/hub-breadcrumb";
+import { HubRecommendations } from "@/components/ui/hub-recommendations";
 
 const EducationalHub = () => {
   const navigate = useNavigate();
@@ -63,6 +65,8 @@ const EducationalHub = () => {
       <Navigation />
       
       <div className="container mx-auto px-4 py-8">
+        <HubBreadcrumb items={[{ label: 'Learn' }]} />
+        
         {/* Header */}
         <div className="text-center mb-12">
           <Badge variant="secondary" className="mb-2">
@@ -232,6 +236,17 @@ const EducationalHub = () => {
             ))}
           </div>
         )}
+
+        <HubRecommendations excludeHref="/education" />
+
+        <div className="text-center mt-12">
+          <a 
+            href="/" 
+            className="inline-block px-8 py-4 rounded-full bg-gradient-to-r from-accent-blue to-accent-cyan text-foreground hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] transition-all font-medium"
+          >
+            ← Back to Hub
+          </a>
+        </div>
       </div>
     </div>
   );

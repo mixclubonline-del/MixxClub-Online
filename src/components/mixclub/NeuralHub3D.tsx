@@ -6,6 +6,7 @@ import ConnectionPath from './ConnectionPath';
 import ParticleField from './ParticleField';
 import { useMouseParallax } from '@/hooks/useMouseParallax';
 import { LucideIcon } from 'lucide-react';
+import { trackEvent } from '@/lib/analytics';
 
 interface Node {
   id: string;
@@ -21,7 +22,7 @@ const nodes: Node[] = [
   {
     id: 'artist',
     label: 'Artist',
-    route: '/artist-hub',
+    route: '/artist',
     icon: Mic2,
     angle: 0,
     color: '#6366f1',
@@ -30,7 +31,7 @@ const nodes: Node[] = [
   {
     id: 'engineer',
     label: 'Engineer',
-    route: '/engineer-hub',
+    route: '/engineer',
     icon: Headphones,
     angle: 45,
     color: '#8b5cf6',
@@ -84,7 +85,7 @@ const nodes: Node[] = [
   {
     id: 'learn',
     label: 'Learn',
-    route: '/learn',
+    route: '/education',
     icon: Lightbulb,
     angle: 315,
     color: '#22c55e',
@@ -196,7 +197,11 @@ export default function NeuralHub3D() {
           const scale = 1 + (Math.sin(index * 0.5) * 0.1); // Size variation
           
           return (
-            <Link key={node.id} to={node.route}>
+            <Link 
+              key={node.id} 
+              to={node.route}
+              onClick={() => trackEvent('hub_node_click', 'navigation', node.label)}
+            >
               <motion.div
                 className="absolute cursor-pointer group"
                 style={{

@@ -41,6 +41,7 @@ import Pulse from "./pages/Pulse";
 import Arena from "./pages/Arena";
 import Crowd from "./pages/Crowd";
 import Feed from "./pages/Feed";
+import Radio from "./pages/Radio";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
 import ArtistOnboarding from "./pages/ArtistOnboarding";
@@ -177,6 +178,7 @@ const AppContent = () => {
             <Route path="/arena" element={<Arena />} />
             <Route path="/crowd" element={<Crowd />} />
             <Route path="/feed" element={<Feed />} />
+            <Route path="/radio" element={<Radio />} />
             <Route path="/mix-battles" element={<MixBattles />} />
             <Route path="/leaderboard" element={<CommunityLeaderboard />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
