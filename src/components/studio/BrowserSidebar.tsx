@@ -147,9 +147,44 @@ export const BrowserSidebar = () => {
 
         {activeTab === 'sounds' && (
           <div className="p-3">
-            <p className="text-xs text-[hsl(var(--studio-text-dim))] text-center py-8">
-              Sound library coming soon
-            </p>
+            <h4 className="text-xs font-mono uppercase text-[hsl(var(--studio-text))] mb-3">
+              Mixx Plugins
+            </h4>
+            <div className="space-y-1">
+              {[
+                { id: 'mixx-port', name: 'MixxPort', desc: 'Audio Upload Hub', icon: '🎵' },
+                { id: 'mixx-eq', name: 'MixxEQ', desc: '6-Band Parametric', icon: '🎛️' },
+                { id: 'mixx-comp', name: 'MixxComp', desc: 'Dynamics Processor', icon: '📊' },
+                { id: 'mixx-reverb', name: 'MixxReverb', desc: 'Spatial Processor', icon: '🌊' },
+                { id: 'mixx-delay', name: 'MixxDelay', desc: 'Temporal Processor', icon: '⏱️' },
+                { id: 'mixx-voice', name: 'MixxVoice', desc: 'AI Vocal Coach', icon: '🎤' },
+                { id: 'mixx-clip', name: 'MixxClip', desc: 'Limiter & Clipper', icon: '⚡' },
+                { id: 'mixx-fx', name: 'MixxFX', desc: 'Creative Effects', icon: '✨' },
+                { id: 'mixx-vintage', name: 'MixxVintage', desc: 'Tape & Vinyl', icon: '📻' },
+                { id: 'mixx-master', name: 'MixxMaster', desc: 'Mastering Suite', icon: '🎚️' },
+              ].map((plugin) => (
+                <button
+                  key={plugin.id}
+                  onClick={() => {
+                    const { openPlugin } = require('@/stores/pluginStore').usePluginStore.getState();
+                    openPlugin(plugin.id);
+                  }}
+                  className="w-full p-2 rounded bg-[hsl(var(--studio-black))] border border-[hsl(var(--studio-border))] hover:border-[hsl(var(--studio-accent))] transition text-left"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">{plugin.icon}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-[hsl(var(--studio-text))] font-medium">
+                        {plugin.name}
+                      </p>
+                      <p className="text-[9px] text-[hsl(var(--studio-text-dim))]">
+                        {plugin.desc}
+                      </p>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
         )}
 

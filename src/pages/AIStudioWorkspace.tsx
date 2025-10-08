@@ -41,7 +41,7 @@ export default function AIStudioWorkspace() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   // Store access
-  const { tracks, addTrack, setPlaying, setCurrentTime } = useAIStudioStore();
+  const { tracks, addTrack, isPlaying, setPlaying, currentTime, setCurrentTime, updateTrack, removeTrack } = useAIStudioStore();
   const { openPlugins } = usePluginStore();
 
   // Real-time collaboration
@@ -260,58 +260,19 @@ export default function AIStudioWorkspace() {
         {/* Center - Timeline & Console */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Timeline Area */}
-          <div className="flex-1 overflow-hidden relative bg-muted/20">
-            <div className="h-full flex items-center justify-center">
-              {tracks.length === 0 ? (
-                <div className="text-center space-y-4">
-                  <p className="text-lg text-muted-foreground">
-                    Drop audio files or start recording to begin
-                  </p>
-                  <PrimeBotAssistant 
-                    message="Ready to help you create amazing music!"
-                  />
-                </div>
-              ) : (
-                <div className="w-full h-full p-4">
-                  <div className="space-y-2">
-                    {tracks.map((track) => (
-                      <div key={track.id} className="bg-card p-4 rounded-lg border border-border">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h3 className="font-medium text-foreground">{track.name}</h3>
-                            <p className="text-sm text-muted-foreground">
-                              {track.type} • Volume: {Math.round(track.volume * 100)}%
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Button
-                              variant={track.mute ? "destructive" : "ghost"}
-                              size="sm"
-                              onClick={() => {
-                                const updateTrack = useAIStudioStore.getState().updateTrack;
-                                updateTrack(track.id, { mute: !track.mute });
-                              }}
-                            >
-                              {track.mute ? 'Unmute' : 'Mute'}
-                            </Button>
-                            <Button
-                              variant={track.solo ? "secondary" : "ghost"}
-                              size="sm"
-                              onClick={() => {
-                                const updateTrack = useAIStudioStore.getState().updateTrack;
-                                updateTrack(track.id, { solo: !track.solo });
-                              }}
-                            >
-                              {track.solo ? 'Unsolo' : 'Solo'}
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+          <div className="flex-1 overflow-hidden">
+            <WaveformTimeline
+              tracks={tracks}
+              currentTime={currentTime}
+              duration={180}
+              isPlaying={isPlaying}
+              onTimeChange={setCurrentTime}
+              onTrackUpdate={updateTrack}
+              recordArmedTracks={new Set()}
+              onToggleRecordArm={() => {}}
+              onOpenTrackEffects={() => {}}
+              onDeleteTrack={removeTrack}
+            />
           </div>
 
           {/* Console Area */}

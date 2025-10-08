@@ -5,9 +5,17 @@ import { MixxReverb } from '@/components/plugins/MixxReverb';
 import { MixxDelay } from '@/components/plugins/MixxDelay';
 import { MixxMaster } from '@/components/plugins/MixxMaster';
 import { MixxVintage } from '@/components/plugins/MixxVintage';
+import { MixxPort } from '@/components/plugins/MixxPort';
+import { MixxVoice } from '@/components/plugins/MixxVoice';
+import { MixxClip } from '@/components/plugins/MixxClip';
+import { MixxFX } from '@/components/plugins/MixxFX';
 
 export const PluginManager = () => {
   const { openPlugins, closePlugin } = usePluginStore();
+
+  const handleAudioLoaded = (file: File, analysis: any) => {
+    console.log('Audio loaded:', file.name, analysis);
+  };
 
   return (
     <>
@@ -16,6 +24,8 @@ export const PluginManager = () => {
         const onClose = () => closePlugin(pluginId);
 
         switch (pluginId) {
+          case 'mixx-port':
+            return <MixxPort key={pluginId} isOpen={isOpen} onClose={onClose} onAudioLoaded={handleAudioLoaded} />;
           case 'mixx-eq':
             return <MixxEQ key={pluginId} isOpen={isOpen} onClose={onClose} />;
           case 'mixx-comp':
@@ -28,6 +38,12 @@ export const PluginManager = () => {
             return <MixxMaster key={pluginId} isOpen={isOpen} onClose={onClose} />;
           case 'mixx-vintage':
             return <MixxVintage key={pluginId} isOpen={isOpen} onClose={onClose} />;
+          case 'mixx-voice':
+            return <MixxVoice key={pluginId} isOpen={isOpen} onClose={onClose} />;
+          case 'mixx-clip':
+            return <MixxClip key={pluginId} isOpen={isOpen} onClose={onClose} />;
+          case 'mixx-fx':
+            return <MixxFX key={pluginId} isOpen={isOpen} onClose={onClose} />;
           default:
             return null;
         }
