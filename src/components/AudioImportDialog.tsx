@@ -300,10 +300,7 @@ const AudioImportDialog: React.FC<AudioImportDialogProps> = ({
                         size="sm"
                         onClick={() => {
                           onImportComplete(file);
-                          toast({
-                            title: "Track Added!",
-                            description: `${file.fileName} added to session`,
-                          });
+                          onClose(); // Close dialog after adding to session
                         }}
                         className="gap-2"
                       >
