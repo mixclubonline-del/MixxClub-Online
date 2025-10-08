@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -32,12 +32,16 @@ import DAWEffectsPanel from "@/components/daw/DAWEffectsPanel";
 import DAWGamification from "@/components/daw/DAWGamification";
 import AudioImportDialog from "@/components/AudioImportDialog";
 import StemSeparationWindow from "@/components/studio/StemSeparationWindow";
+import { NeuralNetworkViz } from "@/components/3d/r3f/NeuralNetworkViz";
+import { AudioVisualizerScene } from "@/components/3d/r3f/AudioVisualizerScene";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useAudioPermissions } from "@/hooks/useAudioPermissions";
+import { useAudioFFT } from "@/hooks/useAudioFFT";
 import Navigation from "@/components/Navigation";
 import { supabase } from "@/integrations/supabase/client";
 import { useRealTimePresence } from "@/hooks/useRealTimePresence";
+import { loadAudioFromSupabase, getAudioUrl } from "@/utils/audioLoader";
 
 export interface Track {
   id: string;
@@ -105,6 +109,7 @@ const HybridDAW = () => {
   const [activePanel, setActivePanel] = useState<'timeline' | 'mixer' | 'effects' | 'collab' | 'achievements'>('timeline');
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [showStemSeparationDialog, setShowStemSeparationDialog] = useState(false);
+  const [show3DVisualizer, setShow3DVisualizer] = useState(false);
   
   // Collaboration State
   const [collaborators, setCollaborators] = useState<CollaborationUser[]>([]);
@@ -118,6 +123,10 @@ const HybridDAW = () => {
   const animationFrameRef = useRef<number | null>(null);
   const startTimeRef = useRef<number>(0);
   const pauseTimeRef = useRef<number>(0);
+  const audioBufferCacheRef = useRef<Map<string, AudioBuffer>>(new Map());
+  
+  // Get real-time audio FFT data
+  const fftData = useAudioFFT(isPlaying);
   
   // Gamification State
   const [achievements, setAchievements] = useState<Array<{ id: string; title: string; description: string; unlocked: boolean }>>([
@@ -377,22 +386,66 @@ const HybridDAW = () => {
     }
   };
 
-  // Play audio from blob or URL
+  // Play audio from blob or URL with Supabase support
   const playAudioRegion = async (region: AudioRegion, trackVolume: number = 0.8, trackMute: boolean = false) => {
     if (!audioContextRef.current || trackMute) return;
 
     try {
       let audioBuffer: AudioBuffer;
       
-      if (region.blob) {
-        const arrayBuffer = await region.blob.arrayBuffer();
-        audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
-      } else if (region.url) {
-        const response = await fetch(region.url);
-        const arrayBuffer = await response.arrayBuffer();
-        audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
+      // Check cache first
+      const cacheKey = region.url || region.id;
+      if (audioBufferCacheRef.current.has(cacheKey)) {
+        audioBuffer = audioBufferCacheRef.current.get(cacheKey)!;
       } else {
-        return;
+        // Load audio based on source type
+        if (region.blob) {
+          const arrayBuffer = await region.blob.arrayBuffer();
+          audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
+        } else if (region.url) {
+          // Check if it's a Supabase storage URL
+          const isSupabaseStorage = region.url.includes('/storage/v1/object/') || 
+                                      region.url.includes('audio-files/') || 
+                                      region.url.includes('project-files/');
+          
+          if (isSupabaseStorage) {
+            // Extract bucket and path from URL
+            const urlParts = region.url.split('/');
+            const bucketIndex = urlParts.findIndex(part => part === 'audio-files' || part === 'project-files' || part === 'session-packages');
+            
+            if (bucketIndex !== -1) {
+              const bucket = urlParts[bucketIndex];
+              const path = urlParts.slice(bucketIndex + 1).join('/');
+              
+              try {
+                const audioData = await loadAudioFromSupabase(bucket, path, audioContextRef.current);
+                audioBuffer = audioData.buffer;
+              } catch (supabaseError) {
+                console.warn('Supabase load failed, trying public URL:', supabaseError);
+                // Fallback to public URL
+                const publicUrl = await getAudioUrl(bucket, path);
+                const response = await fetch(publicUrl);
+                const arrayBuffer = await response.arrayBuffer();
+                audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
+              }
+            } else {
+              // Generic Supabase URL, try direct fetch
+              const response = await fetch(region.url);
+              const arrayBuffer = await response.arrayBuffer();
+              audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
+            }
+          } else {
+            // Regular HTTP URL
+            const response = await fetch(region.url);
+            const arrayBuffer = await response.arrayBuffer();
+            audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
+          }
+        } else {
+          return;
+        }
+        
+        // Cache the decoded buffer
+        audioBufferCacheRef.current.set(cacheKey, audioBuffer);
       }
 
       const source = audioContextRef.current.createBufferSource();
@@ -418,6 +471,11 @@ const HybridDAW = () => {
       }
     } catch (error) {
       console.error('Error playing audio region:', error);
+      toast({
+        title: "Playback Error",
+        description: "Failed to load or play audio file",
+        variant: "destructive"
+      });
     }
   };
 
@@ -668,7 +726,14 @@ const HybridDAW = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col overflow-hidden">
+    <div className="min-h-screen bg-background text-foreground flex flex-col overflow-hidden relative">
+      {/* 3D Neural Network Background */}
+      <div className="fixed inset-0 opacity-20 pointer-events-none z-0">
+        <Suspense fallback={null}>
+          <NeuralNetworkViz isProcessing={isPlaying} className="w-full h-full" />
+        </Suspense>
+      </div>
+      
       <Navigation />
       
       {/* Modern Glassmorphic Top Toolbar */}
@@ -801,6 +866,16 @@ const HybridDAW = () => {
             >
               <Sparkles className="w-4 h-4" />
               <span className="text-xs font-semibold">SEPARATE STEMS</span>
+            </Button>
+            
+            <Button 
+              variant={show3DVisualizer ? 'default' : 'ghost'} 
+              size="sm"
+              onClick={() => setShow3DVisualizer(!show3DVisualizer)}
+              className="gap-2"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span className="text-xs">VISUALIZER</span>
             </Button>
             
             <div className="w-px h-8 bg-border/50" />
@@ -990,13 +1065,14 @@ const HybridDAW = () => {
                 onStopRecording={stopRecording}
                 isRecording={isRecording}
               />
-            ) : (
-              <DAW3DView 
-                tracks={tracks}
-                isPlaying={isPlaying}
-                currentTime={currentTime}
-              />
-            )}
+          ) : (
+            <DAW3DView 
+              tracks={tracks}
+              isPlaying={isPlaying}
+              currentTime={currentTime}
+              fftData={fftData}
+            />
+          )}
           </div>
 
           {/* Modern Bottom Panel */}

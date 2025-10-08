@@ -15,18 +15,28 @@ import {
 } from "lucide-react";
 import * as THREE from "three";
 import type { Track } from "@/pages/HybridDAW";
-import { useAudioFFT } from "@/hooks/useAudioFFT";
+
+interface FFTData {
+  frequencyData: number[];
+  timeDomainData: number[];
+  bass: number;
+  mid: number;
+  treble: number;
+  amplitude: number;
+}
 
 interface DAW3DViewProps {
   tracks: Track[];
   isPlaying: boolean;
   currentTime: number;
+  fftData: FFTData;
 }
 
 const DAW3DView: React.FC<DAW3DViewProps> = ({
   tracks,
   isPlaying,
-  currentTime
+  currentTime,
+  fftData
 }) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -40,9 +50,6 @@ const DAW3DView: React.FC<DAW3DViewProps> = ({
   const [autoRotate, setAutoRotate] = useState(true);
   const [showWaveforms, setShowWaveforms] = useState(true);
   const [particlesEnabled, setParticlesEnabled] = useState(true);
-  
-  // Get real-time audio FFT data
-  const fftData = useAudioFFT(isPlaying);
 
   // Initialize 3D Scene
   useEffect(() => {
