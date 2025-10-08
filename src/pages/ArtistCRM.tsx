@@ -7,7 +7,7 @@ import { useServiceAccess } from '@/hooks/useServiceAccess';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Music, Plus, TrendingUp, Award, Upload, Sparkles, Lock, DollarSign } from 'lucide-react';
+import { Music, Plus, TrendingUp, Award, Upload, Sparkles, Lock, DollarSign, Headphones } from 'lucide-react';
 import { CRMLayout } from '@/components/crm/CRMLayout';
 import { EngineerCRMDashboard } from '@/components/crm/EngineerCRMDashboard';
 import { AdvancedMixingStudio } from '@/components/mixing/AdvancedMixingStudio';
@@ -281,10 +281,15 @@ const ArtistCRM = () => {
 
   const quickActions = [
     {
+      label: 'Open Studio',
+      icon: <Headphones className="w-4 h-4" />,
+      onClick: () => navigate('/artist-crm?tab=studio'),
+      variant: 'default' as const,
+    },
+    {
       label: 'New Project',
       icon: <Plus className="w-4 h-4" />,
       onClick: () => navigate('/artist-crm?tab=active-work'),
-      variant: 'default' as const,
     },
     {
       label: 'Book Session',
