@@ -29,6 +29,7 @@ import DAW3DView from "@/components/daw/DAW3DView";
 import DAWEffectsPanel from "@/components/daw/DAWEffectsPanel";
 import DAWGamification from "@/components/daw/DAWGamification";
 import AudioImportDialog from "@/components/AudioImportDialog";
+import StemSeparationWindow from "@/components/studio/StemSeparationWindow";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useAudioPermissions } from "@/hooks/useAudioPermissions";
@@ -89,6 +90,7 @@ const HybridDAW = () => {
   const [view, setView] = useState<'2d' | '3d'>('2d');
   const [activePanel, setActivePanel] = useState<'timeline' | 'mixer' | 'effects' | 'collab' | 'achievements'>('timeline');
   const [showImportDialog, setShowImportDialog] = useState(false);
+  const [showStemSeparationDialog, setShowStemSeparationDialog] = useState(false);
   
   // Collaboration State
   const [collaborators, setCollaborators] = useState<CollaborationUser[]>([]);
@@ -503,6 +505,55 @@ const HybridDAW = () => {
     });
   };
 
+  // Handle Processed Stems
+  const handleStemsProcessed = (stems: Array<{
+    stemType: string;
+    stemName: string;
+    filePath: string;
+  }>) => {
+    // Close the dialog
+    setShowStemSeparationDialog(false);
+    
+    // Create a new track for each stem
+    stems.forEach((stem, index) => {
+      const stemColors: Record<string, string> = {
+        'vocals': 'hsl(280, 70%, 75%)',
+        'drums': 'hsl(0, 70%, 65%)',
+        'bass': 'hsl(220, 100%, 70%)',
+        'other': 'hsl(140, 60%, 65%)',
+        'piano': 'hsl(40, 80%, 70%)',
+        'guitar': 'hsl(30, 70%, 65%)',
+      };
+
+      const newTrack: Track = {
+        id: `stem-track-${Date.now()}-${index}`,
+        name: stem.stemName,
+        color: stemColors[stem.stemType.toLowerCase()] || 'hsl(262, 83%, 58%)',
+        regions: [{
+          id: `stem-region-${Date.now()}-${index}`,
+          start: 0,
+          end: 0, // Will be set when audio loads
+          url: stem.filePath,
+          gain: 1,
+          fadeIn: 0,
+          fadeOut: 0
+        }],
+        solo: false,
+        mute: false,
+        volume: 0.8,
+        effects: {},
+        automation: []
+      };
+      
+      setTracks(prev => [...prev, newTrack]);
+    });
+    
+    toast({
+      title: "Stems Imported!",
+      description: `${stems.length} stems added to your project`,
+    });
+  };
+
   if (!user) {
     return (
       <div className="min-h-screen bg-background">
@@ -633,6 +684,16 @@ const HybridDAW = () => {
             >
               <Upload className="w-4 h-4" />
               <span className="text-xs font-semibold">IMPORT</span>
+            </Button>
+            
+            <Button 
+              variant="glass" 
+              size="sm"
+              onClick={() => setShowStemSeparationDialog(true)}
+              className="gap-2"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span className="text-xs font-semibold">SEPARATE STEMS</span>
             </Button>
             
             <div className="w-px h-8 bg-border/50" />
@@ -903,6 +964,14 @@ const HybridDAW = () => {
           sessionId={`session-${user?.id || 'anonymous'}`}
           onImportComplete={handleImportedAudio}
           onClose={() => setShowImportDialog(false)}
+        />
+      )}
+
+      {/* Stem Separation Dialog */}
+      {showStemSeparationDialog && (
+        <StemSeparationWindow
+          onClose={() => setShowStemSeparationDialog(false)}
+          onStemsProcessed={handleStemsProcessed}
         />
       )}
     </div>

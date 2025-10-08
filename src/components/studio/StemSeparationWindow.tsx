@@ -21,9 +21,14 @@ import { cn } from '@/lib/utils';
 
 interface StemSeparationWindowProps {
   onClose?: () => void;
+  onStemsProcessed?: (stems: Array<{
+    stemType: string;
+    stemName: string;
+    filePath: string;
+  }>) => void;
 }
 
-const StemSeparationWindow = ({ onClose }: StemSeparationWindowProps) => {
+const StemSeparationWindow = ({ onClose, onStemsProcessed }: StemSeparationWindowProps) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedTier, setSelectedTier] = useState<'free_4stem' | 'credit_9stem'>('free_4stem');
   const [dragActive, setDragActive] = useState(false);
@@ -44,6 +49,18 @@ const StemSeparationWindow = ({ onClose }: StemSeparationWindowProps) => {
     fetchCredits();
     checkFreeTier();
   }, [fetchCredits, checkFreeTier]);
+
+  // Call onStemsProcessed when stems are ready
+  useEffect(() => {
+    if (currentJob?.status === 'completed' && currentJob?.stem_paths && onStemsProcessed) {
+      const stemsData = currentJob.stem_paths.map(stem => ({
+        stemType: stem.name.split('_')[0] || 'other',
+        stemName: stem.displayName,
+        filePath: stem.path
+      }));
+      onStemsProcessed(stemsData);
+    }
+  }, [currentJob, onStemsProcessed]);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
