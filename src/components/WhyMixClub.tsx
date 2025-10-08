@@ -48,7 +48,7 @@ const WhyMixClub = () => {
       <div className="container px-6 relative z-10">
         <div className="text-center mb-12 animate-fade-in">
           <Badge variant="outline" className="mb-4 border-primary text-primary">
-            Why Choose MixClub
+            Why Choose Mixxclub
           </Badge>
           <h2 className="text-4xl font-bold mb-4">
             We're Not Like{" "}

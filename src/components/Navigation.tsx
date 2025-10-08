@@ -100,7 +100,7 @@ const Navigation = () => {
               />
             </div>
             <span className="font-bold text-xl bg-gradient-to-r from-white via-white/80 via-purple-300 to-primary bg-clip-text text-transparent bg-[length:200%_auto] animate-[gradient-shift_3s_ease-in-out_infinite] group-hover:animate-[gradient-shift_1s_ease-in-out_infinite] transition-all duration-300">
-              MixClub
+              Mixxclub
             </span>
           </Link>
 

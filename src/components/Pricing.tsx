@@ -248,7 +248,7 @@ const Pricing = () => {
         <div className="max-w-4xl mx-auto">
           <Card className="border-primary/30 bg-gradient-to-r from-primary/5 to-primary/10">
             <CardHeader>
-              <CardTitle className="text-2xl text-center">Why MixClub Beats the Competition</CardTitle>
+              <CardTitle className="text-2xl text-center">Why Mixxclub Beats the Competition</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid md:grid-cols-2 gap-6">
@@ -274,7 +274,7 @@ const Pricing = () => {
                   </ul>
                 </div>
                 <div className="space-y-4">
-                  <h4 className="font-semibold text-lg">🎯 MixClub</h4>
+                  <h4 className="font-semibold text-lg">🎯 Mixxclub</h4>
                   <ul className="space-y-2 text-sm">
                     <li className="flex items-center gap-2">
                       <span className="text-green-500">✅</span>
