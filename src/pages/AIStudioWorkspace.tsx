@@ -7,6 +7,7 @@ import { usePluginStore } from '@/stores/pluginStore';
 import { useRealTimePresence } from '@/hooks/useRealTimePresence';
 import { useSessionSync } from '@/hooks/useSessionSync';
 import { useStudioKeyboardShortcuts } from '@/hooks/useStudioKeyboardShortcuts';
+import { useTransportEngine } from '@/hooks/useTransportEngine';
 import { useToast } from '@/hooks/use-toast';
 
 // Studio Components
@@ -49,6 +50,9 @@ export default function AIStudioWorkspace() {
   
   // Auto-save and sync
   useSessionSync(sessionId);
+  
+  // Transport playback engine
+  useTransportEngine();
   
   // Keyboard shortcuts
   useStudioKeyboardShortcuts();

@@ -26,7 +26,7 @@ export const TransportControls = () => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     const ms = Math.floor((seconds % 1) * 100);
-    return `${mins}:${secs.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`;
   };
 
   const handleTempoSubmit = () => {
@@ -84,6 +84,7 @@ export const TransportControls = () => {
         onClick={() => {
           setPlaying(false);
           setRecording(false);
+          setCurrentTime(0);
         }}
         className="h-8 w-8 p-0"
         title="Stop"
