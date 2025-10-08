@@ -39,7 +39,7 @@ export const SessionManager = () => {
         .insert({
           host_user_id: user.id,
           session_name: sessionName,
-          session_type: 'collaboration',
+          session_type: 'mixing',
           status: 'active'
         })
         .select()
