@@ -10,7 +10,7 @@ import { TransportControls } from "@/components/studio/TransportControls";
 import { WaveformTimeline } from "@/components/studio/WaveformTimeline";
 import { BrowserSidebar } from "@/components/studio/BrowserSidebar";
 import { InspectorSidebar } from "@/components/studio/InspectorSidebar";
-import { AudioEngine } from "@/components/studio/AudioEngine";
+
 import { PluginManager } from "@/components/plugins/PluginManager";
 import AudioImportDialog from "@/components/AudioImportDialog";
 import DAWCollaboration from "@/components/daw/DAWCollaboration";
@@ -143,23 +143,57 @@ export default function AIStudio() {
     removeTrack,
   } = useAIStudioStore();
 
-  // Initialize audio engine for all tracks
+  const masterVolume = useAIStudioStore((state) => state.masterVolume);
+  const masterPeakLevel = useAIStudioStore((state) => state.masterPeakLevel);
+  const updateMasterLevels = useAIStudioStore((state) => state.updateMasterLevels);
+  const setDuration = useAIStudioStore((state) => (duration: number) => {
+    useAIStudioStore.setState({ duration });
+  });
+
+  // Sync master volume to audio engine
+  useEffect(() => {
+    audioEngine.setMasterVolume(masterVolume);
+  }, [masterVolume]);
+
+  // Sync track parameters (volume, pan) to audio engine when they change
   useEffect(() => {
     tracks.forEach((track) => {
-      if (track.audioBuffer) {
-        audioEngine.initTrack(track.id, track.audioBuffer);
-        audioEngine.setTrackVolume(track.id, track.volume);
-        audioEngine.setTrackPan(track.id, track.pan);
-      }
+      audioEngine.setTrackVolume(track.id, track.volume);
+      audioEngine.setTrackPan(track.id, track.pan);
     });
   }, [tracks]);
 
-  // Listen for add track request from console
+  // Real-time metering loop - runs during playback
   useEffect(() => {
-    const handleOpenImport = () => setIsImportDialogOpen(true);
-    document.addEventListener('open-import-dialog', handleOpenImport);
-    return () => document.removeEventListener('open-import-dialog', handleOpenImport);
-  }, []);
+    if (!isPlaying) return;
+
+    const meteringInterval = setInterval(() => {
+      let maxPeak = 0;
+
+      tracks.forEach((track) => {
+        if (!track.mute) {
+          const levels = audioEngine.getTrackLevels(track.id);
+          const trackPeak = levels.peak * track.volume;
+          const trackRms = levels.rms * track.volume;
+          
+          maxPeak = Math.max(maxPeak, trackPeak);
+          
+          updateTrack(track.id, {
+            peakLevel: trackPeak,
+            rmsLevel: trackRms
+          });
+        }
+      });
+
+      updateMasterLevels(maxPeak);
+      
+      // Update waveform pulse based on audio level
+      setWaveformPulse(0.5 + (maxPeak * 0.5));
+    }, 1000 / 60); // 60fps metering
+
+    return () => clearInterval(meteringInterval);
+  }, [isPlaying, tracks, updateTrack, updateMasterLevels]);
+
 
   const speak = (message: string) => {
     toast({ title: message });
@@ -327,8 +361,9 @@ export default function AIStudio() {
       });
       
       // Create new track
+      const trackId = `track-${Date.now()}-${Math.random().toString(36).slice(2)}`;
       const newTrack = {
-        id: `track-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        id: trackId,
         name: trackName,
         type: trackType,
         volume: 0.8,
@@ -346,6 +381,17 @@ export default function AIStudio() {
       console.log('[AIStudio] Adding track to store:', trackName);
       // Add track to store
       addTrack(newTrack);
+
+      // Initialize audio engine for this track
+      audioEngine.initTrack(trackId, buffer);
+      audioEngine.setTrackVolume(trackId, 0.8);
+      audioEngine.setTrackPan(trackId, 0);
+
+      // Update session duration to longest track
+      const currentDuration = useAIStudioStore.getState().duration;
+      if (buffer.duration > currentDuration) {
+        setDuration(buffer.duration);
+      }
       
       // Auto-configure session if first track
       if (tracks.length === 0 && file.analysis?.bpm) {
@@ -559,7 +605,7 @@ export default function AIStudio() {
           background: 'var(--bg-workspace)',
         }}
       >
-        <AudioEngine />
+        
         <GlobalHeader />
 
         {/* Quick Actions Bar - Prominent Upload */}
