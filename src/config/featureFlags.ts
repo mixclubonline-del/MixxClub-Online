@@ -37,9 +37,9 @@ export const FEATURE_FLAGS = {
   
   // ===== TIER 4: PRO INTEGRATIONS (1000 users) =====
   // API & Integration Framework - DAW plugins, streaming platforms
-  INTEGRATIONS_ENABLED: false,
+  INTEGRATIONS_ENABLED: true,
   // Advanced AI Audio Intelligence
-  AI_AUDIO_INTELLIGENCE_ENABLED: false,
+  AI_AUDIO_INTELLIGENCE_ENABLED: true,
   
   // ===== DISTRIBUTION HUB PHASES =====
   // Phase 1: Affiliate partnerships (LIVE - already implemented)
@@ -48,8 +48,8 @@ export const FEATURE_FLAGS = {
   DISTRIBUTION_WHITE_LABEL_ENABLED: false,
   
   // Phase 3: Enhanced Analytics & Playlist Pitching
-  DISTRIBUTION_ANALYTICS_ENABLED: false,
-  DISTRIBUTION_PLAYLIST_PITCHING_ENABLED: false,
+  DISTRIBUTION_ANALYTICS_ENABLED: true,
+  DISTRIBUTION_PLAYLIST_PITCHING_ENABLED: true,
   
   // Phase 4: Revenue Sharing & Commission System
   DISTRIBUTION_REVENUE_SHARING_ENABLED: false,

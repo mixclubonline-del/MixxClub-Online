@@ -71,6 +71,8 @@ const Marketplace = React.lazy(() => import("./pages/Marketplace"));
 import LabelServices from "./pages/LabelServices";
 import EducationHub from "./pages/EducationHub";
 import RevenueAnalytics from "./pages/RevenueAnalytics";
+import IntegrationsHub from "./pages/IntegrationsHub";
+import DistributionAnalytics from "./pages/DistributionAnalytics";
 import Integrations from "./pages/Integrations";
 import AIAudioIntelligence from "./pages/AIAudioIntelligence";
 import DistributionHub from "./pages/DistributionHub";
@@ -313,8 +315,9 @@ const AppContent = () => {
             <Route path="/revenue-analytics" element={<RevenueAnalytics />} />
             
             {/* Tier 4 Features */}
-            <Route path="/integrations" element={<Integrations />} />
+            <Route path="/integrations" element={<IntegrationsHub />} />
             <Route path="/ai-audio-intelligence" element={<AIAudioIntelligence />} />
+            <Route path="/distribution-analytics" element={<DistributionAnalytics />} />
             <Route path="/distribution" element={<AppLayout><DistributionHub /></AppLayout>} />
             
             {/* Merch Store */}
