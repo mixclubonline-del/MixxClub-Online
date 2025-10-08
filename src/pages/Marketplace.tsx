@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useMarketplaceItems, useMarketplaceCategories } from "@/hooks/useMarketplace";
+import { useMarketplace } from "@/hooks/useMarketplace";
 import { isFeatureEnabled } from "@/config/featureFlags";
 import { Lock, Search, ShoppingCart, Star, Download } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -20,12 +20,7 @@ const Marketplace = () => {
   const [selectedType, setSelectedType] = useState<string>("all");
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>();
 
-  const { data: categories, isLoading: categoriesLoading } = useMarketplaceCategories();
-  const { data: items, isLoading: itemsLoading } = useMarketplaceItems({
-    type: selectedType !== "all" ? selectedType : undefined,
-    category: selectedCategory,
-    search: searchQuery,
-  });
+  const { items, isLoading: itemsLoading } = useMarketplace();
 
   const isUnlocked = isFeatureEnabled("MARKETPLACE_ENABLED");
 
@@ -97,33 +92,6 @@ const Marketplace = () => {
             </TabsList>
           </Tabs>
 
-          {categoriesLoading ? (
-            <div className="flex gap-2">
-              {[1, 2, 3, 4].map((i) => (
-                <Skeleton key={i} className="h-8 w-24" />
-              ))}
-            </div>
-          ) : (
-            <div className="flex flex-wrap gap-2">
-              <Button
-                variant={!selectedCategory ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedCategory(undefined)}
-              >
-                All Categories
-              </Button>
-              {categories?.map((category) => (
-                <Button
-                  key={category.id}
-                  variant={selectedCategory === category.id ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedCategory(category.id)}
-                >
-                  {category.category_name}
-                </Button>
-              ))}
-            </div>
-          )}
         </div>
 
         {/* Items Grid */}
@@ -185,9 +153,6 @@ const Marketplace = () => {
                         {item.item_description}
                       </p>
                     </div>
-                    {item.featured && (
-                      <Badge variant="secondary" className="ml-2">Featured</Badge>
-                    )}
                   </div>
 
                   <div className="flex items-center gap-2 mb-3">
@@ -198,17 +163,13 @@ const Marketplace = () => {
                       </span>
                     </div>
                     <span className="text-sm text-muted-foreground">
-                      ({item.total_reviews} reviews)
-                    </span>
-                    <span className="text-sm text-muted-foreground ml-auto flex items-center gap-1">
-                      <Download className="h-3 w-3" />
-                      {item.download_count}
+                      
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between">
                     <span className="text-2xl font-bold">
-                      {item.is_free ? "Free" : `$${item.price.toFixed(2)}`}
+                      ${item.price?.toFixed(2) || '0.00'}
                     </span>
                     <Button
                       onClick={() => navigate(`/marketplace/${item.id}`)}

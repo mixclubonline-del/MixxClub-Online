@@ -2348,6 +2348,59 @@ export type Database = {
         }
         Relationships: []
       }
+      disputes: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          metadata: Json | null
+          project_id: string
+          raised_by: string
+          reason: string
+          resolution: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          project_id: string
+          raised_by: string
+          reason: string
+          resolution?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          project_id?: string
+          raised_by?: string
+          reason?: string
+          resolution?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "disputes_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       distribution_analytics: {
         Row: {
           created_at: string | null
@@ -5307,6 +5360,42 @@ export type Database = {
           },
         ]
       }
+      points_ledger: {
+        Row: {
+          created_at: string | null
+          description: string
+          id: string
+          metadata: Json | null
+          points_delta: number
+          related_id: string | null
+          related_type: string | null
+          transaction_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          id?: string
+          metadata?: Json | null
+          points_delta: number
+          related_id?: string | null
+          related_type?: string | null
+          transaction_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          id?: string
+          metadata?: Json | null
+          points_delta?: number
+          related_id?: string | null
+          related_type?: string | null
+          transaction_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       presentation_shares: {
         Row: {
           access_count: number | null
@@ -5371,6 +5460,7 @@ export type Database = {
           points: number | null
           role: Database["public"]["Enums"]["user_role"] | null
           stripe_connect_account_id: string | null
+          stripe_connect_id: string | null
           updated_at: string | null
         }
         Insert: {
@@ -5385,6 +5475,7 @@ export type Database = {
           points?: number | null
           role?: Database["public"]["Enums"]["user_role"] | null
           stripe_connect_account_id?: string | null
+          stripe_connect_id?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -5399,6 +5490,7 @@ export type Database = {
           points?: number | null
           role?: Database["public"]["Enums"]["user_role"] | null
           stripe_connect_account_id?: string | null
+          stripe_connect_id?: string | null
           updated_at?: string | null
         }
         Relationships: []
