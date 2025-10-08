@@ -25,12 +25,12 @@ export const AIAssistantPanel = () => {
     setIsLoading(true);
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-studio-assistant`,
+        'https://htvmkylgrrlaydhdbonl.supabase.co/functions/v1/ai-studio-assistant',
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0dm1reWxncnJsYXlkaGRib25sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkwMTUwODIsImV4cCI6MjA3NDU5MTA4Mn0.peKF6_Gf15ZJCrwlnS2Kizy0tOkJ_9BJxXcs1TGM5Cc',
           },
           body: JSON.stringify({
             type,
