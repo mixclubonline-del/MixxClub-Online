@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { VUMeter } from './VUMeter';
+import { EnhancedVUMeter } from './EnhancedVUMeter';
 import { SendSection } from './SendSection';
 import { EffectBrowser } from './EffectBrowser';
 import { cn } from '@/lib/utils';
@@ -229,19 +229,23 @@ export const ChannelStrip = ({
         </div>
       </div>
 
-      {/* VU Meters - Dual L/R compact */}
+      {/* Enhanced VU Meters - Dual L/R compact with RMS */}
       <div className="flex gap-0.5">
-        <VUMeter 
+        <EnhancedVUMeter 
           level={track.peakLevel * 0.95} 
           size="sm"
           label="L"
           vertical
+          showRMS={false}
+          showPeakDb={false}
         />
-        <VUMeter 
+        <EnhancedVUMeter 
           level={track.peakLevel} 
           size="sm"
           label="R"
           vertical
+          showRMS={false}
+          showPeakDb={false}
         />
       </div>
 

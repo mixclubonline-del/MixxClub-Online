@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Plus, Sliders } from 'lucide-react';
+import { motion, AnimatePresence, Reorder } from 'framer-motion';
+import { X, Plus, Sliders, FolderOpen } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/dialog';
 import { EffectUnit } from '@/stores/aiStudioStore';
 import { RackUnit } from './RackUnit';
+import { PresetManager } from './PresetManager';
 import { cn } from '@/lib/utils';
 
 interface TrackEffectsDialogProps {
@@ -20,6 +21,7 @@ interface TrackEffectsDialogProps {
   onToggleEffect: (id: string) => void;
   onUpdateParameter: (id: string, param: string, value: number) => void;
   onRemoveEffect: (id: string) => void;
+  onReorderEffects?: (effectIds: string[]) => void;
 }
 
 export const TrackEffectsDialog = ({
@@ -31,7 +33,17 @@ export const TrackEffectsDialog = ({
   onToggleEffect,
   onUpdateParameter,
   onRemoveEffect,
+  onReorderEffects,
 }: TrackEffectsDialogProps) => {
+  const [presetManagerOpen, setPresetManagerOpen] = useState(false);
+  const [selectedEffectForPreset, setSelectedEffectForPreset] = useState<EffectUnit | null>(null);
+  
+  const handleReorder = (newOrder: EffectUnit[]) => {
+    if (onReorderEffects) {
+      onReorderEffects(newOrder.map(e => e.id));
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl bg-[hsl(var(--studio-black))] border-[hsl(var(--studio-border))]">
@@ -83,22 +95,50 @@ export const TrackEffectsDialog = ({
                   </p>
                 </motion.div>
               ) : (
-                effects.map((effect) => (
-                  <RackUnit
-                    key={effect.id}
-                    effect={effect}
-                    onToggle={() => onToggleEffect(effect.id)}
-                    onConfigure={() => {}}
-                    onParameterChange={(param, value) =>
-                      onUpdateParameter(effect.id, param, value)
-                    }
-                    onRemove={() => onRemoveEffect(effect.id)}
-                  />
-                ))
+                <Reorder.Group axis="y" values={effects} onReorder={handleReorder}>
+                  {effects.map((effect) => (
+                    <Reorder.Item key={effect.id} value={effect}>
+                      <div className="mb-3">
+                        <RackUnit
+                          effect={effect}
+                          onToggle={() => onToggleEffect(effect.id)}
+                          onConfigure={() => {
+                            setSelectedEffectForPreset(effect);
+                            setPresetManagerOpen(true);
+                          }}
+                          onParameterChange={(param, value) =>
+                            onUpdateParameter(effect.id, param, value)
+                          }
+                          onRemove={() => onRemoveEffect(effect.id)}
+                          isDraggable={true}
+                          showMeters={true}
+                        />
+                      </div>
+                    </Reorder.Item>
+                  ))}
+                </Reorder.Group>
               )}
             </AnimatePresence>
           </div>
         </div>
+
+        {/* Preset Manager */}
+        {selectedEffectForPreset && (
+          <PresetManager
+            effectType={selectedEffectForPreset.type}
+            currentParameters={selectedEffectForPreset.parameters}
+            onLoadPreset={(params) => {
+              Object.entries(params).forEach(([param, value]) => {
+                onUpdateParameter(selectedEffectForPreset.id, param, value);
+              });
+            }}
+            isOpen={presetManagerOpen}
+            onClose={() => {
+              setPresetManagerOpen(false);
+              setSelectedEffectForPreset(null);
+            }}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );

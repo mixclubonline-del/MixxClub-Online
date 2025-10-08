@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ChannelStrip } from './ChannelStrip';
-import { VUMeter } from './VUMeter';
+import { EnhancedVUMeter } from './EnhancedVUMeter';
+import { CPUMonitor } from './CPUMonitor';
 import { useAIStudioStore } from '@/stores/aiStudioStore';
 import { cn } from '@/lib/utils';
 
@@ -51,7 +52,8 @@ export const StudioConsole = () => {
         <h3 className="text-xs font-mono uppercase tracking-wider text-[hsl(var(--studio-text))]">
           Mixing Console
         </h3>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <CPUMonitor />
           <span className="text-[9px] font-mono text-[hsl(var(--studio-text-dim))]">
             {tracks.length} Channels
           </span>
@@ -137,19 +139,25 @@ export const StudioConsole = () => {
               </span>
             </div>
 
-            {/* Master VU meters */}
+            {/* Master Enhanced VU meters with LUFS */}
             <div className="flex gap-1">
-              <VUMeter 
+              <EnhancedVUMeter 
                 level={masterPeakLevel * 0.95} 
-                size="sm"
+                size="lg"
                 label="L"
                 vertical
+                showRMS={true}
+                showLUFS={true}
+                showPeakDb={true}
               />
-              <VUMeter 
+              <EnhancedVUMeter 
                 level={masterPeakLevel} 
-                size="sm"
+                size="lg"
                 label="R"
                 vertical
+                showRMS={true}
+                showLUFS={true}
+                showPeakDb={true}
               />
             </div>
 
