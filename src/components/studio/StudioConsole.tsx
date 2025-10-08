@@ -13,6 +13,8 @@ export const StudioConsole = () => {
     setSelectedTrack,
     updateTrack,
     setMasterVolume,
+    addTrackEffect,
+    updateTrackSend,
   } = useAIStudioStore();
 
   const [isDraggingMaster, setIsDraggingMaster] = useState(false);
@@ -98,6 +100,8 @@ export const StudioConsole = () => {
                 onPanChange={(pan) => 
                   updateTrack(track.id, { pan })
                 }
+                onAddTrackEffect={addTrackEffect}
+                onUpdateTrackSend={updateTrackSend}
                 onMuteToggle={() => 
                   updateTrack(track.id, { mute: !track.mute })
                 }

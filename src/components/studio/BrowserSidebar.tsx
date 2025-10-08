@@ -101,6 +101,8 @@ export const BrowserSidebar = () => {
                     peakLevel: 0,
                     rmsLevel: 0,
                     regions: [],
+                    effects: [],
+                    sends: {},
                   };
                   addTrack(newTrack);
                 }}

@@ -27,6 +27,8 @@ export interface Track {
   analysis?: AudioAnalysis;
   color?: string;
   regions: AudioRegion[];
+  effects: EffectUnit[];
+  sends: { [busId: string]: { amount: number; preFader: boolean } };
 }
 
 export interface EffectUnit {
@@ -95,6 +97,14 @@ interface AIStudioStore {
   removeEffect: (id: string) => void;
   updateEffect: (id: string, updates: Partial<EffectUnit>) => void;
   reorderEffect: (id: string, newPosition: number) => void;
+  
+  // Track effect actions
+  addTrackEffect: (trackId: string, effect: EffectUnit) => void;
+  removeTrackEffect: (trackId: string, effectId: string) => void;
+  updateTrackEffect: (trackId: string, effectId: string, updates: Partial<EffectUnit>) => void;
+  
+  // Send actions
+  updateTrackSend: (trackId: string, busId: string, amount: number, preFader?: boolean) => void;
   
   setPlaying: (playing: boolean) => void;
   setRecording: (recording: boolean) => void;
@@ -289,4 +299,40 @@ export const useAIStudioStore = create<AIStudioStore>((set, get) => ({
   setScrollMode: (mode) => set({ scrollMode: mode }),
   setSnapEnabled: (enabled) => set({ snapEnabled: enabled }),
   setSnapMode: (mode) => set({ snapMode: mode }),
+  
+  // Track effect actions
+  addTrackEffect: (trackId, effect) => set((state) => ({
+    tracks: state.tracks.map((t) => 
+      t.id === trackId ? { ...t, effects: [...t.effects, effect] } : t
+    ),
+  })),
+  
+  removeTrackEffect: (trackId, effectId) => set((state) => ({
+    tracks: state.tracks.map((t) => 
+      t.id === trackId ? { ...t, effects: t.effects.filter(e => e.id !== effectId) } : t
+    ),
+  })),
+  
+  updateTrackEffect: (trackId, effectId, updates) => set((state) => ({
+    tracks: state.tracks.map((t) => 
+      t.id === trackId 
+        ? { ...t, effects: t.effects.map(e => e.id === effectId ? { ...e, ...updates } : e) }
+        : t
+    ),
+  })),
+  
+  // Send actions
+  updateTrackSend: (trackId, busId, amount, preFader = false) => set((state) => ({
+    tracks: state.tracks.map((t) => 
+      t.id === trackId 
+        ? { 
+            ...t, 
+            sends: { 
+              ...t.sends, 
+              [busId]: { amount, preFader } 
+            } 
+          }
+        : t
+    ),
+  })),
 }));

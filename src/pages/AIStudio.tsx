@@ -386,6 +386,8 @@ export default function AIStudio() {
         analysis: file.analysis,
         color: `hsl(${Math.random() * 360}, 70%, 60%)`,
         regions: [initialRegion],
+        effects: [],
+        sends: {},
       };
       
       console.log('[AIStudio] Adding track to store:', trackName);

@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { VUMeter } from './VUMeter';
+import { SendSection } from './SendSection';
+import { EffectBrowser } from './EffectBrowser';
 import { cn } from '@/lib/utils';
-import { Track } from '@/stores/aiStudioStore';
+import { Track, EffectUnit } from '@/stores/aiStudioStore';
+import { audioEngine } from '@/services/audioEngine';
 
 interface ChannelStripProps {
   track: Track;
@@ -11,6 +14,8 @@ interface ChannelStripProps {
   onPanChange: (pan: number) => void;
   onMuteToggle: () => void;
   onSoloToggle: () => void;
+  onAddTrackEffect: (trackId: string, effect: EffectUnit) => void;
+  onUpdateTrackSend: (trackId: string, busId: string, amount: number, preFader?: boolean) => void;
 }
 
 export const ChannelStrip = ({
@@ -21,9 +26,13 @@ export const ChannelStrip = ({
   onPanChange,
   onMuteToggle,
   onSoloToggle,
+  onAddTrackEffect,
+  onUpdateTrackSend,
 }: ChannelStripProps) => {
   const [isDraggingFader, setIsDraggingFader] = useState(false);
   const [isDraggingPan, setIsDraggingPan] = useState(false);
+  const [effectBrowserOpen, setEffectBrowserOpen] = useState(false);
+  const [selectedInsertSlot, setSelectedInsertSlot] = useState<number | null>(null);
 
   const getTrackColor = (type: Track['type']) => {
     const colors: Record<Track['type'], string> = {
@@ -73,6 +82,47 @@ export const ChannelStrip = ({
     onPanChange(Math.max(-1, Math.min(1, newPan)));
   };
 
+  const handleInsertSlotClick = (slot: number) => {
+    setSelectedInsertSlot(slot);
+    setEffectBrowserOpen(true);
+  };
+
+  const handleAddEffect = (effectType: EffectUnit['type']) => {
+    // Filter out 'mixxtune' for now
+    if (effectType === 'mixxtune') return;
+    
+    const effect: EffectUnit = {
+      id: `effect-${Date.now()}`,
+      name: effectType.toUpperCase(),
+      type: effectType,
+      enabled: true,
+      parameters: getDefaultParameters(effectType),
+      rackPosition: track.effects.length,
+    };
+    
+    onAddTrackEffect(track.id, effect);
+    audioEngine.insertEffect(track.id, effect.id, effectType as 'eq' | 'compressor' | 'reverb' | 'delay' | 'saturator' | 'limiter');
+  };
+
+  const getDefaultParameters = (type: EffectUnit['type']): Record<string, number> => {
+    switch (type) {
+      case 'eq':
+        return { band1: 0.5, band2: 0.5, band3: 0.5, band4: 0.5 };
+      case 'compressor':
+        return { threshold: 0.6, ratio: 0.3, attack: 0.2, release: 0.4, makeup: 0.5 };
+      case 'reverb':
+        return { mix: 0.3, decay: 0.5, damping: 0.5 };
+      case 'delay':
+        return { time: 0.375, feedback: 0.4, mix: 0.3, filter: 0.6 };
+      case 'saturator':
+        return { drive: 0.5, warmth: 0.5, output: 0.8 };
+      case 'limiter':
+        return { threshold: 0.9, release: 0.5, ceiling: 0.95 };
+      default:
+        return {};
+    }
+  };
+
   return (
     <div
       className={cn(
@@ -112,28 +162,46 @@ export const ChannelStrip = ({
         </span>
       </div>
 
-      {/* Insert slots (2 compact slots) */}
+      {/* Insert slots (2 compact slots) - Now clickable */}
       <div className="flex flex-col gap-0.5 w-full">
-        {[1, 2].map((slot) => (
-          <div
-            key={slot}
-            className="h-2 rounded flex items-center justify-center"
-            style={{
-              background: 'hsl(var(--studio-black))',
-              boxShadow: 'var(--shadow-recessed)',
-              border: '1px solid hsl(0 0% 0% / 0.6)',
-            }}
-          >
-            <div 
-              className="w-0.5 h-0.5 rounded-full"
-              style={{
-                background: 'hsl(var(--led-off))',
-                boxShadow: 'inset 0 1px 2px hsl(0 0% 0% / 0.5)',
+        {[1, 2].map((slot) => {
+          const hasEffect = track.effects[slot - 1];
+          return (
+            <button
+              key={slot}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleInsertSlotClick(slot);
               }}
-            />
-          </div>
-        ))}
+              className="h-2 rounded flex items-center justify-center cursor-pointer hover:border-[hsl(var(--studio-accent))] transition-colors"
+              style={{
+                background: 'hsl(var(--studio-black))',
+                boxShadow: 'var(--shadow-recessed)',
+                border: '1px solid hsl(0 0% 0% / 0.6)',
+              }}
+            >
+              <div 
+                className="w-0.5 h-0.5 rounded-full"
+                style={{
+                  background: hasEffect ? 'hsl(var(--led-green))' : 'hsl(var(--led-off))',
+                  boxShadow: hasEffect ? 'var(--shadow-glow-led-green)' : 'inset 0 1px 2px hsl(0 0% 0% / 0.5)',
+                }}
+              />
+            </button>
+          );
+        })}
       </div>
+
+      {/* Send controls */}
+      <SendSection
+        trackId={track.id}
+        sends={track.sends || {}}
+        onSendChange={(busId, amount) => onUpdateTrackSend(track.id, busId, amount)}
+        onSendModeToggle={(busId) => {
+          const current = track.sends?.[busId];
+          onUpdateTrackSend(track.id, busId, current?.amount || 0, !current?.preFader);
+        }}
+      />
 
       {/* Pan knob - smaller */}
       <div className="flex flex-col items-center gap-0.5 w-full">
@@ -251,6 +319,14 @@ export const ChannelStrip = ({
           S
         </button>
       </div>
+
+      {/* Effect Browser Dialog */}
+      <EffectBrowser
+        isOpen={effectBrowserOpen}
+        onClose={() => setEffectBrowserOpen(false)}
+        onSelectEffect={handleAddEffect}
+        trackId={track.id}
+      />
     </div>
   );
 };
