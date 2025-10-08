@@ -13,13 +13,15 @@ import { StudioMixerConsole } from '@/components/studio/StudioMixerConsole';
 import { TrackListPanel } from '@/components/studio/TrackListPanel';
 import { DropZoneOverlay } from '@/components/studio/DropZoneOverlay';
 import { RecordingIndicator } from '@/components/studio/RecordingIndicator';
+import { StudioDebugPanel } from '@/components/studio/StudioDebugPanel';
 import AudioImportDialog from '@/components/AudioImportDialog';
 import { useAIStudioStore, Track, AudioRegion } from '@/stores/aiStudioStore';
 import { generateWaveformPeaks } from '@/lib/waveform/professionalRenderer';
+import { performanceMonitor, measureAsync } from '@/utils/performanceMonitor';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { loadAudioFromSupabase, getAudioUrl, buildWaveformPeaks } from '@/utils/audioLoader';
-import { Play, Pause, Square, Beaker } from 'lucide-react';
+import { Play, Pause, Square, Beaker, Bug } from 'lucide-react';
 
 const MixxStudio = () => {
   const { user } = useAuth();
@@ -48,6 +50,7 @@ const MixxStudio = () => {
   // Local State
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [showDropZone, setShowDropZone] = useState(false);
+  const [showDebugPanel, setShowDebugPanel] = useState(false);
   
   // Audio Engine Refs
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -330,78 +333,86 @@ const MixxStudio = () => {
   const handleImportedAudio = async (importedFile: any) => {
     if (!audioContextRef.current) return;
 
-    try {
-      // Load audio file
-      let audioBuffer: AudioBuffer;
-      
-      if (importedFile.blob) {
-        const arrayBuffer = await importedFile.blob.arrayBuffer();
-        audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
-      } else if (importedFile.url) {
-        const response = await fetch(importedFile.url);
-        const arrayBuffer = await response.arrayBuffer();
-        audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
-      } else {
-        throw new Error('No audio source available');
+    await measureAsync('fileImport', async () => {
+      try {
+        // Load audio file
+        let audioBuffer: AudioBuffer;
+        
+        await measureAsync('audioDecoding', async () => {
+          if (importedFile.blob) {
+            const arrayBuffer = await importedFile.blob.arrayBuffer();
+            audioBuffer = await audioContextRef.current!.decodeAudioData(arrayBuffer);
+          } else if (importedFile.url) {
+            const response = await fetch(importedFile.url);
+            const arrayBuffer = await response.arrayBuffer();
+            audioBuffer = await audioContextRef.current!.decodeAudioData(arrayBuffer);
+          } else {
+            throw new Error('No audio source available');
+          }
+        });
+
+        // Generate waveform peaks
+        const waveformPeaks = await measureAsync('waveformRender', async () => {
+          return generateWaveformPeaks(audioBuffer!, 2000);
+        });
+
+        await measureAsync('trackAdd', async () => {
+          // Create new track
+          const newTrack: Track = {
+            id: `track-${Date.now()}`,
+            name: importedFile.fileName,
+            type: 'other',
+            color: 'hsl(42, 100%, 70%)',
+            volume: 0.8,
+            pan: 0,
+            mute: false,
+            solo: false,
+            audioBuffer: audioBuffer!,
+            waveformData: waveformPeaks,
+            peakLevel: 0,
+            rmsLevel: 0,
+            regions: [],
+            effects: [],
+            sends: {}
+          };
+
+          addTrack(newTrack);
+
+          // Add region
+          const newRegion: AudioRegion = {
+            id: `region-${Date.now()}`,
+            trackId: newTrack.id,
+            startTime: 0,
+            duration: audioBuffer!.duration,
+            sourceStartOffset: 0,
+            fadeIn: { duration: 0.1, curve: 'linear' },
+            fadeOut: { duration: 0.1, curve: 'linear' },
+            gain: 1
+          };
+
+          addRegion(newTrack.id, newRegion);
+
+          // Update session duration
+          if (audioBuffer!.duration > duration) {
+            setDuration(audioBuffer!.duration);
+          }
+        });
+
+        setShowImportDialog(false);
+
+        toast({
+          title: "Track Added",
+          description: `${importedFile.fileName} imported successfully`,
+        });
+      } catch (error) {
+        console.error('Import error:', error);
+        toast({
+          title: "Import Error",
+          description: "Failed to import audio file",
+          variant: "destructive"
+        });
       }
-
-      // Generate waveform peaks using professional renderer
-      const waveformPeaks = generateWaveformPeaks(audioBuffer, 2000);
-
-      // Create new track
-      const newTrack: Track = {
-        id: `track-${Date.now()}`,
-        name: importedFile.fileName,
-        type: 'other',
-        color: 'hsl(42, 100%, 70%)',
-        volume: 0.8,
-        pan: 0,
-        mute: false,
-        solo: false,
-        audioBuffer,
-        waveformData: waveformPeaks,
-        peakLevel: 0,
-        rmsLevel: 0,
-        regions: [],
-        effects: [],
-        sends: {}
-      };
-
-      addTrack(newTrack);
-
-      // Add region
-      const newRegion: AudioRegion = {
-        id: `region-${Date.now()}`,
-        trackId: newTrack.id,
-        startTime: 0,
-        duration: audioBuffer.duration,
-        sourceStartOffset: 0,
-        fadeIn: { duration: 0.1, curve: 'linear' },
-        fadeOut: { duration: 0.1, curve: 'linear' },
-        gain: 1
-      };
-
-      addRegion(newTrack.id, newRegion);
-
-      // Update session duration
-      if (audioBuffer.duration > duration) {
-        setDuration(audioBuffer.duration);
-      }
-
-      setShowImportDialog(false);
-
-      toast({
-        title: "Track Added",
-        description: `${importedFile.fileName} imported successfully`,
-      });
-    } catch (error) {
-      console.error('Import error:', error);
-      toast({
-        title: "Import Error",
-        description: "Failed to import audio file",
-        variant: "destructive"
-      });
-    }
+    });
   };
 
   // Handle Drop Zone Files
@@ -466,15 +477,26 @@ const MixxStudio = () => {
             </div>
 
             {/* Open Lab Button */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/hybrid-daw')}
-              className="gap-2 text-muted-foreground hover:text-primary"
-            >
-              <Beaker className="w-4 h-4" />
-              Open Lab (HybridDAW)
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowDebugPanel(!showDebugPanel)}
+                className="gap-2 text-muted-foreground hover:text-primary"
+              >
+                <Bug className="w-4 h-4" />
+                Debug
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/hybrid-daw')}
+                className="gap-2 text-muted-foreground hover:text-primary"
+              >
+                <Beaker className="w-4 h-4" />
+                Open Lab
+              </Button>
+            </div>
           </div>
 
           {/* Timeline with Real Waveforms */}
@@ -517,6 +539,12 @@ const MixxStudio = () => {
         <RecordingIndicator 
           isRecording={isRecording}
           trackName={tracks.find(t => t.regions.some(r => r.trackId))?.name}
+        />
+
+        {/* Debug Panel */}
+        <StudioDebugPanel 
+          visible={showDebugPanel}
+          onClose={() => setShowDebugPanel(false)}
         />
       </div>
     </StudioStateProvider>

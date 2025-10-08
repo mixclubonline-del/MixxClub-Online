@@ -15,7 +15,8 @@ import {
   Music,
   Sparkles,
   Radio,
-  Clock
+  Clock,
+  Beaker
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -121,12 +122,22 @@ const StudioHub = ({ userRole }: StudioHubProps) => {
 
   const actionCards = [
     {
-      title: 'Start New Session',
-      description: 'Create a new collaboration session',
+      title: 'Open MixxStudio',
+      description: 'Professional production DAW',
       icon: Play,
       gradient: 'from-primary via-primary-glow to-accent-cyan',
-      action: () => navigate('/studio/create-session'),
-      stats: `${stats.activeSessions} active`
+      action: () => navigate('/mixx-studio'),
+      stats: 'Production Ready',
+      badge: 'New'
+    },
+    {
+      title: 'Open Lab (HybridDAW)',
+      description: 'Experimental features & testing',
+      icon: Zap,
+      gradient: 'from-warning via-destructive to-primary',
+      action: () => navigate('/hybrid-daw'),
+      stats: 'Beta',
+      badge: 'Experimental'
     },
     {
       title: 'Join Session',
@@ -212,13 +223,20 @@ const StudioHub = ({ userRole }: StudioHubProps) => {
             >
               <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} opacity-10 group-hover:opacity-25 transition-opacity`}></div>
               <div className="relative p-6">
-                <div className="mb-4 flex items-start justify-between">
+                  <div className="mb-4 flex items-start justify-between">
                   <div className={`p-4 bg-gradient-to-br ${card.gradient} rounded-xl shadow-glow-sm`}>
                     <card.icon className="w-8 h-8 text-white" />
                   </div>
-                  <Badge variant="secondary" className="text-xs">
-                    {card.stats}
-                  </Badge>
+                  <div className="flex flex-col gap-1">
+                    {(card as any).badge && (
+                      <Badge variant="default" className="text-xs">
+                        {(card as any).badge}
+                      </Badge>
+                    )}
+                    <Badge variant="secondary" className="text-xs">
+                      {card.stats}
+                    </Badge>
+                  </div>
                 </div>
                 <h3 className="text-xl font-bold mb-2">{card.title}</h3>
                 <p className="text-sm text-muted-foreground mb-4">{card.description}</p>
