@@ -16,9 +16,9 @@ export const FEATURE_FLAGS = {
   
   // ===== COMMUNITY-UNLOCKED FEATURES =====
   // Remote Collaboration - Unlocks at 250 users
-  REMOTE_COLLABORATION_ENABLED: false,
+  REMOTE_COLLABORATION_ENABLED: true,
   // Mix Battles Arena - Unlocks at 100 users
-  MIX_BATTLES_ARENA_ENABLED: false,
+  MIX_BATTLES_ARENA_ENABLED: true,
   
   // The Lab - AI Hybrid DAW Studio
   THE_LAB_ENABLED: false,

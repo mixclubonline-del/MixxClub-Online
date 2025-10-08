@@ -25,43 +25,57 @@ serve(async (req) => {
       throw new Error('Unauthorized');
     }
 
-    const { package_id, deal_name, start_date, end_date, advance_amount } = await req.json();
+    const { 
+      session_name, 
+      session_type, 
+      is_public, 
+      max_participants,
+      project_id 
+    } = await req.json();
 
-    const { data: pkg, error: pkgError } = await supabaseClient
-      .from('label_packages')
-      .select('*')
-      .eq('id', package_id)
-      .single();
-
-    if (pkgError) throw pkgError;
-
-    const { data: deal, error } = await supabaseClient
-      .from('label_deals')
+    // Create remote session
+    const { data: session, error: sessionError } = await supabaseClient
+      .from('remote_sessions')
       .insert({
-        artist_id: user.id,
-        package_id,
-        deal_name,
-        start_date,
-        end_date,
-        total_value: pkg.price,
-        advance_amount: advance_amount || 0,
-        royalty_percentage: pkg.royalty_split,
-        status: 'pending'
+        host_id: user.id,
+        session_name,
+        session_type,
+        is_public: is_public ?? false,
+        max_participants: max_participants ?? 8,
+        project_id,
+        status: 'active',
+        webrtc_room_id: crypto.randomUUID()
       })
       .select()
       .single();
 
-    if (error) throw error;
+    if (sessionError) throw sessionError;
+
+    // Add host as first participant
+    await supabaseClient
+      .from('remote_participants')
+      .insert({
+        session_id: session.id,
+        user_id: user.id,
+        role: 'host',
+        is_active: true
+      });
 
     return new Response(
-      JSON.stringify(deal),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+      JSON.stringify(session),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      }
     );
   } catch (error) {
     console.error('Error:', error);
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 500,
+      }
     );
   }
 });

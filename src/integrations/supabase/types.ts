@@ -1436,6 +1436,103 @@ export type Database = {
           },
         ]
       }
+      battle_submission_votes: {
+        Row: {
+          categories: Json | null
+          created_at: string | null
+          feedback: string | null
+          id: string
+          submission_id: string
+          vote_score: number
+          voter_id: string
+        }
+        Insert: {
+          categories?: Json | null
+          created_at?: string | null
+          feedback?: string | null
+          id?: string
+          submission_id: string
+          vote_score: number
+          voter_id: string
+        }
+        Update: {
+          categories?: Json | null
+          created_at?: string | null
+          feedback?: string | null
+          id?: string
+          submission_id?: string
+          vote_score?: number
+          voter_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "battle_submission_votes_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "battle_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      battle_submissions: {
+        Row: {
+          audio_url: string
+          battle_id: string
+          description: string | null
+          disqualification_reason: string | null
+          id: string
+          is_disqualified: boolean | null
+          metadata: Json | null
+          rank: number | null
+          score: number | null
+          submission_name: string
+          submitted_at: string | null
+          technical_notes: string | null
+          user_id: string
+          votes_count: number | null
+        }
+        Insert: {
+          audio_url: string
+          battle_id: string
+          description?: string | null
+          disqualification_reason?: string | null
+          id?: string
+          is_disqualified?: boolean | null
+          metadata?: Json | null
+          rank?: number | null
+          score?: number | null
+          submission_name: string
+          submitted_at?: string | null
+          technical_notes?: string | null
+          user_id: string
+          votes_count?: number | null
+        }
+        Update: {
+          audio_url?: string
+          battle_id?: string
+          description?: string | null
+          disqualification_reason?: string | null
+          id?: string
+          is_disqualified?: boolean | null
+          metadata?: Json | null
+          rank?: number | null
+          score?: number | null
+          submission_name?: string
+          submitted_at?: string | null
+          technical_notes?: string | null
+          user_id?: string
+          votes_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "battle_submissions_battle_id_fkey"
+            columns: ["battle_id"]
+            isOneToOne: false
+            referencedRelation: "mix_battles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       battle_tournaments: {
         Row: {
           bracket_data: Json | null
@@ -3638,6 +3735,163 @@ export type Database = {
         }
         Relationships: []
       }
+      label_deals: {
+        Row: {
+          advance_amount: number | null
+          artist_id: string
+          contract_url: string | null
+          created_at: string | null
+          deal_name: string
+          end_date: string | null
+          id: string
+          metadata: Json | null
+          package_id: string
+          releases_count: number | null
+          royalty_percentage: number
+          signed_at: string | null
+          start_date: string
+          status: string
+          total_value: number
+          updated_at: string | null
+        }
+        Insert: {
+          advance_amount?: number | null
+          artist_id: string
+          contract_url?: string | null
+          created_at?: string | null
+          deal_name: string
+          end_date?: string | null
+          id?: string
+          metadata?: Json | null
+          package_id: string
+          releases_count?: number | null
+          royalty_percentage: number
+          signed_at?: string | null
+          start_date: string
+          status?: string
+          total_value: number
+          updated_at?: string | null
+        }
+        Update: {
+          advance_amount?: number | null
+          artist_id?: string
+          contract_url?: string | null
+          created_at?: string | null
+          deal_name?: string
+          end_date?: string | null
+          id?: string
+          metadata?: Json | null
+          package_id?: string
+          releases_count?: number | null
+          royalty_percentage?: number
+          signed_at?: string | null
+          start_date?: string
+          status?: string
+          total_value?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "label_deals_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "label_packages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      label_milestones: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          current_value: number | null
+          deal_id: string
+          due_date: string | null
+          id: string
+          metadata: Json | null
+          milestone_name: string
+          milestone_type: string
+          status: string | null
+          target_value: number | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          current_value?: number | null
+          deal_id: string
+          due_date?: string | null
+          id?: string
+          metadata?: Json | null
+          milestone_name: string
+          milestone_type: string
+          status?: string | null
+          target_value?: number | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          current_value?: number | null
+          deal_id?: string
+          due_date?: string | null
+          id?: string
+          metadata?: Json | null
+          milestone_name?: string
+          milestone_type?: string
+          status?: string | null
+          target_value?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "label_milestones_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "label_deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      label_packages: {
+        Row: {
+          contract_duration_months: number | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          package_name: string
+          package_type: string
+          price: number
+          royalty_split: number | null
+          services_included: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          contract_duration_months?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          package_name: string
+          package_type: string
+          price: number
+          royalty_split?: number | null
+          services_included?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          contract_duration_months?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          package_name?: string
+          package_type?: string
+          price?: number
+          royalty_split?: number | null
+          services_included?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       label_partnerships: {
         Row: {
           contact_email: string | null
@@ -4615,6 +4869,78 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      mix_battles: {
+        Row: {
+          battle_name: string
+          battle_type: string
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          difficulty: string | null
+          entry_fee: number | null
+          genre: string | null
+          id: string
+          max_participants: number | null
+          metadata: Json | null
+          prize_pool: number | null
+          reference_mix_url: string | null
+          rules: Json | null
+          start_date: string
+          status: string
+          stems_url: string | null
+          submission_deadline: string
+          updated_at: string | null
+          voting_deadline: string
+          winner_id: string | null
+        }
+        Insert: {
+          battle_name: string
+          battle_type: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          difficulty?: string | null
+          entry_fee?: number | null
+          genre?: string | null
+          id?: string
+          max_participants?: number | null
+          metadata?: Json | null
+          prize_pool?: number | null
+          reference_mix_url?: string | null
+          rules?: Json | null
+          start_date: string
+          status?: string
+          stems_url?: string | null
+          submission_deadline: string
+          updated_at?: string | null
+          voting_deadline: string
+          winner_id?: string | null
+        }
+        Update: {
+          battle_name?: string
+          battle_type?: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          difficulty?: string | null
+          entry_fee?: number | null
+          genre?: string | null
+          id?: string
+          max_participants?: number | null
+          metadata?: Json | null
+          prize_pool?: number | null
+          reference_mix_url?: string | null
+          rules?: Json | null
+          start_date?: string
+          status?: string
+          stems_url?: string | null
+          submission_deadline?: string
+          updated_at?: string | null
+          voting_deadline?: string
+          winner_id?: string | null
+        }
+        Relationships: []
       }
       mixing_packages: {
         Row: {
@@ -5989,6 +6315,94 @@ export type Database = {
         }
         Relationships: []
       }
+      remote_chat: {
+        Row: {
+          created_at: string | null
+          file_url: string | null
+          id: string
+          message: string
+          message_type: string | null
+          session_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          file_url?: string | null
+          id?: string
+          message: string
+          message_type?: string | null
+          session_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          file_url?: string | null
+          id?: string
+          message?: string
+          message_type?: string | null
+          session_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "remote_chat_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "remote_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      remote_participants: {
+        Row: {
+          audio_enabled: boolean | null
+          connection_quality: string | null
+          id: string
+          is_active: boolean | null
+          joined_at: string | null
+          left_at: string | null
+          role: string
+          screen_sharing: boolean | null
+          session_id: string
+          user_id: string
+          video_enabled: boolean | null
+        }
+        Insert: {
+          audio_enabled?: boolean | null
+          connection_quality?: string | null
+          id?: string
+          is_active?: boolean | null
+          joined_at?: string | null
+          left_at?: string | null
+          role?: string
+          screen_sharing?: boolean | null
+          session_id: string
+          user_id: string
+          video_enabled?: boolean | null
+        }
+        Update: {
+          audio_enabled?: boolean | null
+          connection_quality?: string | null
+          id?: string
+          is_active?: boolean | null
+          joined_at?: string | null
+          left_at?: string | null
+          role?: string
+          screen_sharing?: boolean | null
+          session_id?: string
+          user_id?: string
+          video_enabled?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "remote_participants_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "remote_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       remote_session_analytics: {
         Row: {
           client_satisfaction: number | null
@@ -6040,6 +6454,65 @@ export type Database = {
             columns: ["session_id"]
             isOneToOne: false
             referencedRelation: "collaboration_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      remote_sessions: {
+        Row: {
+          created_at: string | null
+          ended_at: string | null
+          host_id: string
+          id: string
+          is_public: boolean | null
+          max_participants: number | null
+          metadata: Json | null
+          project_id: string | null
+          session_name: string
+          session_type: string
+          started_at: string | null
+          status: string
+          updated_at: string | null
+          webrtc_room_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          ended_at?: string | null
+          host_id: string
+          id?: string
+          is_public?: boolean | null
+          max_participants?: number | null
+          metadata?: Json | null
+          project_id?: string | null
+          session_name: string
+          session_type: string
+          started_at?: string | null
+          status?: string
+          updated_at?: string | null
+          webrtc_room_id: string
+        }
+        Update: {
+          created_at?: string | null
+          ended_at?: string | null
+          host_id?: string
+          id?: string
+          is_public?: boolean | null
+          max_participants?: number | null
+          metadata?: Json | null
+          project_id?: string | null
+          session_name?: string
+          session_type?: string
+          started_at?: string | null
+          status?: string
+          updated_at?: string | null
+          webrtc_room_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "remote_sessions_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
