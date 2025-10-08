@@ -41,8 +41,8 @@ export default function AIStudioWorkspace() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   // Store access
-  const { tracks, addTrack, isPlaying, setPlaying, currentTime, setCurrentTime, updateTrack, removeTrack } = useAIStudioStore();
-  const { openPlugins } = usePluginStore();
+  const { tracks, addTrack, isPlaying, setPlaying, currentTime, setCurrentTime, updateTrack, removeTrack, setRecording, isRecording } = useAIStudioStore();
+  const { openPlugins, activePlugin } = usePluginStore();
 
   // Real-time collaboration
   const { onlineUsers, isConnected } = useRealTimePresence(sessionId || 'solo-session');
@@ -52,6 +52,9 @@ export default function AIStudioWorkspace() {
   
   // Keyboard shortcuts
   useStudioKeyboardShortcuts();
+
+  // Show PrimeBot when plugin is active
+  const showPrimeBot = activePlugin && openPlugins.length > 0;
 
   // Load session data
   useEffect(() => {
@@ -328,6 +331,13 @@ export default function AIStudioWorkspace() {
 
       {/* Plugin Windows Manager */}
       <PluginManager />
+
+      {/* PrimeBot Assistant Overlay */}
+      {showPrimeBot && (
+        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none">
+          <PrimeBotAssistant activePlugin={activePlugin} />
+        </div>
+      )}
     </div>
   );
 }
