@@ -25,7 +25,7 @@ export const FEATURE_FLAGS = {
   
   // ===== TIER 2: KNOWLEDGE CENTER (250 users) =====
   // Educational Content Hub - Video tutorials, courses, certifications
-  EDUCATION_HUB_ENABLED: false,
+  EDUCATION_HUB_ENABLED: true,
   // Advanced Collaboration 2.0 - Voice commands, live AI suggestions
   COLLABORATION_V2_ENABLED: false,
   
@@ -33,7 +33,7 @@ export const FEATURE_FLAGS = {
   // Marketplace Expansion - Sample libraries, presets, templates
   MARKETPLACE_ENABLED: true,
   // Label Services Integration
-  LABEL_SERVICES_ENABLED: false,
+  LABEL_SERVICES_ENABLED: true,
   
   // ===== TIER 4: PRO INTEGRATIONS (1000 users) =====
   // API & Integration Framework - DAW plugins, streaming platforms

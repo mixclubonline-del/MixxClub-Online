@@ -69,6 +69,8 @@ import CourseViewer from "./pages/CourseViewer";
 import MyCertifications from "./pages/MyCertifications";
 const Marketplace = React.lazy(() => import("./pages/Marketplace"));
 import LabelServices from "./pages/LabelServices";
+import EducationHub from "./pages/EducationHub";
+import RevenueAnalytics from "./pages/RevenueAnalytics";
 import Integrations from "./pages/Integrations";
 import AIAudioIntelligence from "./pages/AIAudioIntelligence";
 import DistributionHub from "./pages/DistributionHub";
@@ -307,6 +309,8 @@ const AppContent = () => {
             {/* Tier 3 Features */}
             <Route path="/marketplace" element={<Marketplace />} />
             <Route path="/label-services" element={<LabelServices />} />
+            <Route path="/education-hub" element={<EducationHub />} />
+            <Route path="/revenue-analytics" element={<RevenueAnalytics />} />
             
             {/* Tier 4 Features */}
             <Route path="/integrations" element={<Integrations />} />
