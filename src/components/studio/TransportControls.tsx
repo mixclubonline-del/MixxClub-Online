@@ -1,200 +1,142 @@
-import { Play, Pause, Square, Circle, SkipBack, SkipForward, Repeat, Activity } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useAIStudioStore } from '@/stores/aiStudioStore';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { 
+  Play, 
+  Pause, 
+  Square, 
+  SkipBack,
+  Circle,
+  Repeat,
+  Volume2
+} from 'lucide-react';
+import { Slider } from '@/components/ui/slider';
 
-interface TransportControlsProps {
-  isPlaying: boolean;
-  isRecording: boolean;
-  currentTime: number;
-  duration: number;
-  tempo: number;
-  onPlay: () => void;
-  onStop: () => void;
-  onRecord: () => void;
-  onTempoChange: (tempo: number) => void;
-}
+export const TransportControls = () => {
+  const {
+    isPlaying,
+    isRecording,
+    currentTime,
+    tempo,
+    masterVolume,
+    setPlaying,
+    setRecording,
+    setCurrentTime,
+    setTempo,
+    setMasterVolume,
+  } = useAIStudioStore();
 
-export const TransportControls = ({
-  isPlaying,
-  isRecording,
-  currentTime,
-  duration,
-  tempo,
-  onPlay,
-  onStop,
-  onRecord,
-  onTempoChange,
-}: TransportControlsProps) => {
-  
+  const handlePlayPause = () => {
+    setPlaying(!isPlaying);
+  };
+
+  const handleStop = () => {
+    setPlaying(false);
+    setCurrentTime(0);
+  };
+
+  const handleRecord = () => {
+    setRecording(!isRecording);
+    if (!isRecording) {
+      setPlaying(true);
+    }
+  };
+
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     const ms = Math.floor((seconds % 1) * 100);
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}:${ms.toString().padStart(2, '0')}`;
   };
 
   return (
-    <div 
-      className="w-full h-16 border-b flex items-center px-6 gap-8 glass-studio"
-      style={{
-        borderColor: 'hsl(var(--studio-border) / 0.4)',
-      }}
-    >
-      {/* Left Section - Playback Controls */}
+    <div className="flex items-center justify-between gap-6 w-full">
+      {/* Transport Buttons */}
       <div className="flex items-center gap-2">
-        <button
-          onClick={() => {}}
-          className="p-2 rounded transition-all hover:scale-105"
-          style={{
-            background: 'var(--button-gradient)',
-            boxShadow: 'var(--shadow-raised)',
-          }}
-          aria-label="Skip back"
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setCurrentTime(0)}
+          title="Skip to Start"
         >
-          <SkipBack className="w-5 h-5 text-[hsl(var(--studio-text-dim))]" />
-        </button>
-        
-        <button
-          onClick={onStop}
-          className="p-2 rounded transition-all hover:scale-105"
-          style={{
-            background: 'var(--button-gradient)',
-            boxShadow: 'var(--shadow-raised)',
-          }}
-          aria-label="Stop"
-        >
-          <Square className="w-5 h-5 text-[hsl(var(--studio-text-dim))]" />
-        </button>
-        
-        <button
-          onClick={onPlay}
-          className={cn(
-            "p-3 rounded-full transition-all hover:scale-110",
-            isPlaying && "animate-pulse"
-          )}
-          style={{
-            background: isPlaying 
-              ? 'linear-gradient(135deg, hsl(var(--studio-accent)), hsl(var(--studio-accent-glow)))'
-              : 'var(--button-gradient)',
-            boxShadow: isPlaying 
-              ? '0 0 30px hsl(var(--studio-accent) / 0.6), var(--shadow-raised-lg)'
-              : 'var(--shadow-raised)',
-            color: 'white',
-            border: isPlaying ? '2px solid hsl(var(--studio-accent-glow))' : '1px solid hsl(var(--studio-border))',
-          }}
-          aria-label={isPlaying ? "Pause" : "Play"}
-        >
-          {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6" />}
-        </button>
+          <SkipBack className="h-4 w-4" />
+        </Button>
 
-        <button
-          onClick={() => {}}
-          className="p-2 rounded transition-all hover:scale-105"
-          style={{
-            background: 'var(--button-gradient)',
-            boxShadow: 'var(--shadow-raised)',
-          }}
-          aria-label="Skip forward"
+        <Button
+          variant={isPlaying ? "secondary" : "default"}
+          size="icon"
+          onClick={handlePlayPause}
+          className="h-10 w-10"
+          title={isPlaying ? "Pause" : "Play"}
         >
-          <SkipForward className="w-5 h-5 text-[hsl(var(--studio-text-dim))]" />
-        </button>
+          {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+        </Button>
 
-        <button
-          onClick={onRecord}
-          className={cn(
-            "p-3 rounded-full transition-all hover:scale-110",
-            isRecording && "animate-pulse"
-          )}
-          style={{
-            background: isRecording
-              ? 'linear-gradient(135deg, hsl(0 100% 60%), hsl(0 100% 50%))'
-              : 'var(--button-gradient)',
-            boxShadow: isRecording
-              ? '0 0 30px hsl(0 100% 50% / 0.6), var(--shadow-raised-lg)'
-              : 'var(--shadow-raised)',
-            color: isRecording ? 'white' : 'hsl(var(--studio-text-dim))',
-            border: isRecording ? '2px solid hsl(0 100% 70%)' : '1px solid hsl(var(--studio-border))',
-          }}
-          aria-label={isRecording ? "Stop recording" : "Record"}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleStop}
+          title="Stop"
         >
-          <Circle className="w-5 h-5" fill={isRecording ? "currentColor" : "none"} />
-        </button>
+          <Square className="h-4 w-4" />
+        </Button>
 
-        <button
-          className="p-2 rounded transition-all ml-2 hover:scale-105"
-          style={{
-            background: 'var(--button-gradient)',
-            boxShadow: 'var(--shadow-raised)',
-          }}
-          aria-label="Loop"
+        <Button
+          variant={isRecording ? "destructive" : "ghost"}
+          size="icon"
+          onClick={handleRecord}
+          className={isRecording ? "animate-pulse" : ""}
+          title={isRecording ? "Stop Recording" : "Record"}
         >
-          <Repeat className="w-5 h-5 text-[hsl(var(--studio-text-dim))]" />
-        </button>
+          <Circle className="h-4 w-4" fill={isRecording ? "currentColor" : "none"} />
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="icon"
+          disabled
+          title="Loop (Coming Soon)"
+        >
+          <Repeat className="h-4 w-4 opacity-50" />
+        </Button>
       </div>
 
-      {/* Center Section - Time Display */}
-      <div className="flex-1 flex flex-col items-center justify-center">
-        <div 
-          className="font-mono text-3xl tabular-nums tracking-wider"
-          style={{
-            color: 'hsl(var(--led-green))',
-            textShadow: '0 0 12px hsl(var(--led-green) / 0.6)',
-          }}
-        >
+      {/* Time Display */}
+      <div className="flex items-center gap-2">
+        <span className="text-sm font-mono text-foreground tabular-nums min-w-[100px]">
           {formatTime(currentTime)}
-        </div>
-        <div className="font-mono text-xs text-[hsl(var(--studio-text-dim))] tabular-nums">
-          {formatTime(duration)}
-        </div>
+        </span>
       </div>
 
-      {/* Right Section - Session Info */}
-      <div className="flex items-center gap-6">
+      {/* Tempo */}
+      <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-mono text-[hsl(var(--studio-text-dim))] uppercase">BPM</span>
-          <input
+          <Label className="text-xs text-muted-foreground">BPM</Label>
+          <Input
             type="number"
             value={tempo}
-            onChange={(e) => onTempoChange(Number(e.target.value))}
-            className="w-14 px-2 py-1 rounded text-sm font-mono text-[hsl(var(--studio-text))] focus:outline-none"
-            style={{
-              background: 'hsl(220, 20%, 12%)',
-              border: '1px solid hsl(220, 14%, 28%)',
-              boxShadow: 'var(--shadow-recessed)',
-            }}
+            onChange={(e) => setTempo(Number(e.target.value))}
+            className="w-16 h-8 text-center"
             min={40}
             max={240}
           />
         </div>
+      </div>
 
-        <div className="text-xs font-mono text-[hsl(var(--studio-text-dim))]">
-          <span className="uppercase">Key</span>
-          <span className="ml-2 text-[hsl(var(--studio-text))]">C Major</span>
-        </div>
-
-        <div className="text-xs font-mono text-[hsl(var(--studio-text-dim))]">
-          <span className="uppercase">SR</span>
-          <span className="ml-2 text-[hsl(var(--studio-text))]">48kHz</span>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Activity className="w-4 h-4 text-[hsl(var(--studio-text-dim))]" />
-          <div 
-            className="w-20 h-2 rounded-full overflow-hidden"
-            style={{
-              background: 'hsl(220, 20%, 12%)',
-              boxShadow: 'var(--shadow-recessed)',
-            }}
-          >
-            <div 
-              className="h-full transition-all"
-              style={{ 
-                width: '35%',
-                background: 'linear-gradient(90deg, hsl(142 100% 50%), hsl(60 100% 50%))',
-              }}
-            />
-          </div>
-          <span className="text-xs font-mono text-[hsl(var(--studio-text-dim))]">35%</span>
-        </div>
+      {/* Master Volume */}
+      <div className="flex items-center gap-2 min-w-[150px]">
+        <Volume2 className="h-4 w-4 text-muted-foreground" />
+        <Slider
+          value={[masterVolume * 100]}
+          onValueChange={([value]) => setMasterVolume(value / 100)}
+          max={100}
+          step={1}
+          className="flex-1"
+        />
+        <span className="text-xs text-muted-foreground w-8 text-right">
+          {Math.round(masterVolume * 100)}
+        </span>
       </div>
     </div>
   );

@@ -26,7 +26,8 @@ import IntroScene from "./pages/IntroScene";
 const ArtistCRM = React.lazy(() => import("./pages/ArtistCRM"));
 const EngineerCRM = React.lazy(() => import("./pages/EngineerCRM"));
 const AudioLab = React.lazy(() => import("./pages/AudioLab"));
-const HybridDAW = React.lazy(() => import("./pages/HybridDAW"));
+import HybridDAW from './pages/HybridDAW';
+import AIStudioWorkspace from './pages/AIStudioWorkspace';
 const Admin = React.lazy(() => import("./pages/Admin"));
 const AIMastering = React.lazy(() => import("./pages/AIMastering"));
 
@@ -205,6 +206,7 @@ const AppContent = () => {
             <Route path="/mixing-studio" element={<Mixing />} />
             <Route path="/mastering-studio" element={<Mastering />} />
             <Route path="/hybrid-daw" element={<AppLayout><HybridDAW /></AppLayout>} />
+            <Route path="/ai-studio-workspace" element={<AppLayout><AIStudioWorkspace /></AppLayout>} />
             <Route path="/jobs" element={<AppLayout><JobBoard /></AppLayout>} />
             <Route path="/admin" element={<AdminRoute section="Admin Dashboard"><Admin /></AdminRoute>} />
             <Route path="/admin/users" element={<AdminRoute section="Users"><AdminUsers /></AdminRoute>} />
