@@ -14,7 +14,7 @@ import {
   Trash2,
   Download 
 } from "lucide-react";
-import { useAudioImport } from "@/hooks/useAudioImport";
+import { useAudioImport } from "@/hooks/useAudioImport.ts";
 import { useToast } from "@/hooks/use-toast";
 
 interface ImportedAudioFile {
@@ -26,6 +26,7 @@ interface ImportedAudioFile {
   sampleRate?: number;
   channels?: number;
   url?: string;
+  blob?: Blob;
 }
 
 interface AudioImportDialogProps {

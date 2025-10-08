@@ -15,6 +15,7 @@ export interface ImportedAudioFile {
   channels?: number;
   url?: string; // object URL
   analysis?: any; // optional analysis payload
+  blob?: Blob; // original blob for reliable decoding
 }
 
 interface UseAudioImportReturn {
@@ -68,6 +69,7 @@ export function useAudioImport(sessionId: string): UseAudioImportReturn {
         filePath: `/local/${file.name}`,
         fileSize: file.size,
         url,
+        blob: file,
         ...meta,
       };
 

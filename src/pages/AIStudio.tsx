@@ -262,6 +262,36 @@ export default function AIStudio() {
     }
   };
 
+  const loadAudioFromBlob = async (blob: Blob): Promise<{ buffer: AudioBuffer; waveform: number[] }> => {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    try {
+      console.log('[AIStudio] Loading audio from Blob...');
+      const arrayBuffer = await blob.arrayBuffer();
+      if (arrayBuffer.byteLength === 0) {
+        throw new Error('Audio file is empty');
+      }
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+      const channelData = audioBuffer.getChannelData(0);
+      const waveform: number[] = [];
+      const peakSamples = 1000;
+      const samplesPerPeak = Math.floor(channelData.length / peakSamples);
+      for (let i = 0; i < peakSamples; i++) {
+        let peak = 0;
+        for (let j = 0; j < samplesPerPeak; j++) {
+          const sample = Math.abs(channelData[i * samplesPerPeak + j] || 0);
+          peak = Math.max(peak, sample);
+        }
+        waveform.push(peak);
+      }
+      return { buffer: audioBuffer, waveform };
+    } catch (error) {
+      console.error('[AIStudio] loadAudioFromBlob error:', error);
+      throw error;
+    } finally {
+      try { await audioContext.close(); } catch {}
+    }
+  };
+
   const handleImportComplete = async (file: any) => {
     console.log('[AIStudio] handleImportComplete called with file:', {
       fileName: file.fileName,
@@ -273,9 +303,9 @@ export default function AIStudio() {
     setIsLoadingAudio(true);
     
     try {
-      // Validate file has URL
-      if (!file.url) {
-        throw new Error('Audio file URL is missing. Please try uploading again.');
+      // Validate file data (URL or Blob)
+      if (!file.url && !file.blob) {
+        throw new Error('Audio data missing. Please try uploading again.');
       }
       
       // Determine track type
@@ -285,9 +315,11 @@ export default function AIStudio() {
       const trackNumber = tracks.length + 1;
       const trackName = `Track ${trackNumber}`;
       
-      console.log('[AIStudio] Loading audio buffer from URL...');
+      console.log('[AIStudio] Loading audio buffer from source...');
       // Load audio buffer and generate waveform
-      const { buffer, waveform } = await loadAudioBuffer(file.url);
+      const { buffer, waveform } = file.blob
+        ? await loadAudioFromBlob(file.blob as Blob)
+        : await loadAudioBuffer(file.url as string);
       console.log('[AIStudio] Audio buffer loaded successfully:', {
         duration: buffer.duration,
         channels: buffer.numberOfChannels,
