@@ -263,9 +263,21 @@ export default function AIStudio() {
   };
 
   const handleImportComplete = async (file: any) => {
+    console.log('[AIStudio] handleImportComplete called with file:', {
+      fileName: file.fileName,
+      hasUrl: !!file.url,
+      url: file.url,
+      fileSize: file.fileSize
+    });
+    
     setIsLoadingAudio(true);
     
     try {
+      // Validate file has URL
+      if (!file.url) {
+        throw new Error('Audio file URL is missing. Please try uploading again.');
+      }
+      
       // Determine track type
       const trackType = detectTrackType(file.fileName, file.analysis?.instruments || []);
       
@@ -273,8 +285,14 @@ export default function AIStudio() {
       const trackNumber = tracks.length + 1;
       const trackName = `Track ${trackNumber}`;
       
+      console.log('[AIStudio] Loading audio buffer from URL...');
       // Load audio buffer and generate waveform
       const { buffer, waveform } = await loadAudioBuffer(file.url);
+      console.log('[AIStudio] Audio buffer loaded successfully:', {
+        duration: buffer.duration,
+        channels: buffer.numberOfChannels,
+        sampleRate: buffer.sampleRate
+      });
       
       // Create new track
       const newTrack = {
@@ -293,6 +311,7 @@ export default function AIStudio() {
         color: `hsl(${Math.random() * 360}, 70%, 60%)`,
       };
       
+      console.log('[AIStudio] Adding track to store:', trackName);
       // Add track to store
       addTrack(newTrack);
       
@@ -313,6 +332,7 @@ export default function AIStudio() {
         description: `${file.fileName} → ${trackName} (${trackType})`,
       });
       
+      console.log('[AIStudio] Track added successfully. Total tracks:', tracks.length + 1);
       startAnalysis(trackName);
       
     } catch (error: any) {
@@ -342,6 +362,7 @@ export default function AIStudio() {
       }
     } finally {
       setIsLoadingAudio(false);
+      setIsImportDialogOpen(false);
     }
   };
 
