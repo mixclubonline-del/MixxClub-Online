@@ -144,11 +144,8 @@ export default function AIStudio() {
   } = useAIStudioStore();
 
   const masterVolume = useAIStudioStore((state) => state.masterVolume);
-  const masterPeakLevel = useAIStudioStore((state) => state.masterPeakLevel);
   const updateMasterLevels = useAIStudioStore((state) => state.updateMasterLevels);
-  const setDuration = useAIStudioStore((state) => (duration: number) => {
-    useAIStudioStore.setState({ duration });
-  });
+  const setDuration = useAIStudioStore((state) => state.setDuration);
 
   // Sync master volume to audio engine
   useEffect(() => {

@@ -78,6 +78,7 @@ interface AIStudioStore {
   setPlaying: (playing: boolean) => void;
   setRecording: (recording: boolean) => void;
   setCurrentTime: (time: number) => void;
+  setDuration: (duration: number) => void;
   setTempo: (tempo: number) => void;
   
   setProcessing: (processing: Partial<ProcessingState>) => void;
@@ -147,6 +148,7 @@ export const useAIStudioStore = create<AIStudioStore>((set) => ({
   setPlaying: (playing) => set({ isPlaying: playing }),
   setRecording: (recording) => set({ isRecording: recording }),
   setCurrentTime: (time) => set({ currentTime: time }),
+  setDuration: (duration) => set({ duration }),
   setTempo: (tempo) => set({ tempo }),
   
   setProcessing: (processing) => set((state) => ({
