@@ -12,8 +12,10 @@ import { StudioPrimeBot } from '@/components/studio/StudioPrimeBot';
 import { StudioMixerConsole } from '@/components/studio/StudioMixerConsole';
 import { TrackListPanel } from '@/components/studio/TrackListPanel';
 import { DropZoneOverlay } from '@/components/studio/DropZoneOverlay';
+import { RecordingIndicator } from '@/components/studio/RecordingIndicator';
 import AudioImportDialog from '@/components/AudioImportDialog';
 import { useAIStudioStore, Track, AudioRegion } from '@/stores/aiStudioStore';
+import { generateWaveformPeaks } from '@/lib/waveform/professionalRenderer';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { loadAudioFromSupabase, getAudioUrl, buildWaveformPeaks } from '@/utils/audioLoader';
@@ -149,7 +151,7 @@ const MixxStudio = () => {
         // Decode audio to get duration and waveform
         const arrayBuffer = await blob.arrayBuffer();
         const audioBuffer = await audioContextRef.current!.decodeAudioData(arrayBuffer);
-        const waveformPeaks = buildWaveformPeaks(audioBuffer, 200);
+        const waveformPeaks = generateWaveformPeaks(audioBuffer, 2000);
         
         const newRegion: AudioRegion = {
           id: `region-${Date.now()}`,
@@ -343,8 +345,8 @@ const MixxStudio = () => {
         throw new Error('No audio source available');
       }
 
-      // Generate waveform peaks
-      const waveformPeaks = buildWaveformPeaks(audioBuffer, 200);
+      // Generate waveform peaks using professional renderer
+      const waveformPeaks = generateWaveformPeaks(audioBuffer, 2000);
 
       // Create new track
       const newTrack: Track = {
@@ -510,6 +512,12 @@ const MixxStudio = () => {
             onClose={() => setShowDropZone(false)}
           />
         )}
+
+        {/* Recording Indicator */}
+        <RecordingIndicator 
+          isRecording={isRecording}
+          trackName={tracks.find(t => t.regions.some(r => r.trackId))?.name}
+        />
       </div>
     </StudioStateProvider>
   );

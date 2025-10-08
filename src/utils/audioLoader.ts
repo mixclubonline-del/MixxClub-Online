@@ -41,6 +41,7 @@ export async function loadAudioFromSupabase(
 
 /**
  * Build waveform peaks from audio buffer for visualization
+ * @deprecated Use generateWaveformPeaks from @/lib/waveform/professionalRenderer instead
  */
 export function buildWaveformPeaks(
   audioBuffer: AudioBuffer,

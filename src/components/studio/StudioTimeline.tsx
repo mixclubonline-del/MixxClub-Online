@@ -5,6 +5,7 @@ import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { Eye, EyeOff, AudioLines } from 'lucide-react';
 import { useAIStudioStore } from '@/stores/aiStudioStore';
+import { EnhancedTrackLane } from './EnhancedTrackLane';
 
 const TRACK_HEIGHT = 80;
 
@@ -102,16 +103,14 @@ export const StudioTimeline = () => {
             tracks.map((track) => (
               <div key={track.id} className="border-b border-border/20 relative transition-all duration-300 hover:bg-muted/5" style={{ height: `${trackHeight}px` }} onClick={handleTimelineClick}>
                 {timeMarkers.map((marker) => (<div key={marker} className="absolute top-0 bottom-0 border-l border-border/10" style={{ left: `${marker * pixelsPerSecond}px` }} />))}
-                {track.regions.map((region) => {
-                  const regionWidth = region.duration * pixelsPerSecond;
-                  return (
-                    <div key={region.id} className="absolute top-2 bottom-2 rounded-lg cursor-pointer transition-all duration-300 hover:scale-105 group ring-1 ring-white/10 hover:ring-primary/50" style={{ left: `${region.startTime * pixelsPerSecond}px`, width: `${regionWidth}px`, background: `linear-gradient(135deg, ${track.color}, ${track.color}90)`, border: `1px solid ${track.color}40` }}>
-                      <div className="h-full flex flex-col justify-center px-2 relative overflow-hidden">
-                        {track.waveformData && showWaveforms ? generateWaveformCanvas(track, regionWidth) : (<div className="flex items-center justify-center h-full"><span className="text-xs text-white/90 font-semibold drop-shadow">♪ Audio</span></div>)}
-                      </div>
-                    </div>
-                  );
-                })}
+                <EnhancedTrackLane
+                  track={track}
+                  zoom={zoom}
+                  trackHeight={trackHeight}
+                  currentTime={currentTime}
+                  showWaveforms={showWaveforms}
+                  pixelsPerSecond={pixelsPerSecond}
+                />
               </div>
             ))
           )}
