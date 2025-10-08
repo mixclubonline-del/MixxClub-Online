@@ -21,7 +21,25 @@ verify_jwt = true
 [functions.points-redeem]
 verify_jwt = true
 
+[functions.points-cashout]
+verify_jwt = true
+
 [functions.referral-code]
+verify_jwt = true
+
+[functions.stripe-connect-onboard]
+verify_jwt = true
+
+[functions.marketplace-create-item]
+verify_jwt = true
+
+[functions.marketplace-purchase]
+verify_jwt = true
+
+[functions.dispute-create]
+verify_jwt = true
+
+[functions.dispute-resolve]
 verify_jwt = true
 
 [functions.generate-trap-beat]
