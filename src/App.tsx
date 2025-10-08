@@ -30,6 +30,7 @@ import HybridDAW from './pages/HybridDAW';
 import AIStudioWorkspace from './pages/AIStudioWorkspace';
 import MixxStudio from './pages/MixxStudio';
 import MixxMasterStudio from './pages/MixxMasterStudio';
+import TestingDashboard from './pages/TestingDashboard';
 const Admin = React.lazy(() => import("./pages/Admin"));
 const AIMastering = React.lazy(() => import("./pages/AIMastering"));
 
@@ -217,6 +218,7 @@ const AppContent = () => {
             <Route path="/mixx-studio" element={<MixxStudio />} />
             <Route path="/mixxmaster-studio" element={<AppLayout><MixxMasterStudio /></AppLayout>} />
             <Route path="/ai-studio-workspace" element={<AppLayout><AIStudioWorkspace /></AppLayout>} />
+            <Route path="/testing" element={<TestingDashboard />} />
             <Route path="/jobs" element={<AppLayout><JobBoard /></AppLayout>} />
             <Route path="/admin" element={<AdminRoute section="Admin Dashboard"><Admin /></AdminRoute>} />
             <Route path="/admin/users" element={<AdminRoute section="Users"><AdminUsers /></AdminRoute>} />

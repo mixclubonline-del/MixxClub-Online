@@ -21,7 +21,7 @@ import { performanceMonitor, measureAsync } from '@/utils/performanceMonitor';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { loadAudioFromSupabase, getAudioUrl, buildWaveformPeaks } from '@/utils/audioLoader';
-import { Play, Pause, Square, Beaker, Bug } from 'lucide-react';
+import { Play, Pause, Square, Beaker, Bug, TestTube } from 'lucide-react';
 
 const MixxStudio = () => {
   const { user } = useAuth();
@@ -486,6 +486,15 @@ const MixxStudio = () => {
               >
                 <Bug className="w-4 h-4" />
                 Debug
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/testing')}
+                className="gap-2 text-muted-foreground hover:text-primary"
+              >
+                <TestTube className="w-4 h-4" />
+                Run Tests
               </Button>
               <Button
                 variant="ghost"
