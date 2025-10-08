@@ -71,8 +71,22 @@ export const RackUnit = ({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
     >
+      {/* Rack Ears with Screws */}
+      <div className="absolute top-0 left-0 w-6 h-full bg-gradient-to-r from-studio-panel-raised/50 to-transparent pointer-events-none rounded-l-lg">
+        <div className="absolute top-2 left-1.5 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-muted/80 to-studio-black" 
+             style={{ boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.8), 0 1px 1px rgba(255,255,255,0.1)' }} />
+        <div className="absolute bottom-2 left-1.5 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-muted/80 to-studio-black" 
+             style={{ boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.8), 0 1px 1px rgba(255,255,255,0.1)' }} />
+      </div>
+      <div className="absolute top-0 right-0 w-6 h-full bg-gradient-to-l from-studio-panel-raised/50 to-transparent pointer-events-none rounded-r-lg">
+        <div className="absolute top-2 right-1.5 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-muted/80 to-studio-black" 
+             style={{ boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.8), 0 1px 1px rgba(255,255,255,0.1)' }} />
+        <div className="absolute bottom-2 right-1.5 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-muted/80 to-studio-black" 
+             style={{ boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.8), 0 1px 1px rgba(255,255,255,0.1)' }} />
+      </div>
+
       {/* Rack unit faceplate */}
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-3 pl-4">
         {/* Drag handle */}
         {isDraggable && (
           <div className="cursor-grab active:cursor-grabbing p-1 -ml-1">
@@ -84,9 +98,10 @@ export const RackUnit = ({
         <div className="flex items-center gap-2">
           <div className="flex flex-col gap-1">
             <div className={cn(
-              'w-2 h-2 rounded-full',
-              ledColor,
-              effect.enabled && 'animate-pulse shadow-[0_0_8px_currentColor]'
+              'w-2 h-2 rounded-full transition-all duration-300',
+              effect.enabled 
+                ? 'bg-led-green shadow-[0_0_8px_hsl(var(--led-green)),0_0_16px_hsl(var(--led-green))] animate-led-glow' 
+                : 'bg-led-dim-green opacity-40'
             )} />
           </div>
           <div>

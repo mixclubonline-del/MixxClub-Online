@@ -204,6 +204,10 @@ All colors MUST be HSL.
     --led-red: 0 100% 50%;
     --led-blue: 195 100% 60%;
     --led-off: 220 15% 18%;
+    --led-dim-green: 142 100% 35%;
+    --led-dim-yellow: 60 100% 35%;
+    --led-dim-red: 0 100% 35%;
+    --led-dim-blue: 195 100% 35%;
 
     /* Glass Studio Accents - Cyan for UI, Purple for effects */
     --studio-accent: 185 100% 50%;
@@ -249,6 +253,8 @@ All colors MUST be HSL.
     /* Texture Variables */
     --bg-texture: url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
     --metal-texture: repeating-linear-gradient(90deg, hsl(220 16% 18%), hsl(220 14% 20%) 1px, hsl(220 16% 18%) 2px);
+    --rack-rail: linear-gradient(90deg, hsl(220 15% 12%), hsl(220 20% 18%), hsl(220 15% 12%));
+    --screw-head: radial-gradient(circle, hsl(220 20% 25%), hsl(220 15% 18%), hsl(220 10% 12%));
     
     /* Border Highlights - Top light, bottom shadow with color */
     --border-highlight-top: hsl(220 12% 40% / 0.3);
@@ -258,6 +264,18 @@ All colors MUST be HSL.
     --bg-workspace: radial-gradient(ellipse at top, hsl(235 40% 8%), hsl(225 50% 5%)), 
                      radial-gradient(ellipse at bottom right, hsl(270 40% 8% / 0.3), transparent 50%),
                      radial-gradient(ellipse at bottom left, hsl(185 40% 8% / 0.2), transparent 50%);
+    
+    /* Hardware Rack Aesthetics */
+    --rack-unit-bg: linear-gradient(135deg, hsl(230 30% 14%), hsl(230 35% 10%));
+    --rack-ear-gradient: linear-gradient(180deg, hsl(220 18% 20%), hsl(220 15% 14%), hsl(220 12% 10%));
+    --shadow-rack-inset: inset 0 2px 4px hsl(220 30% 5% / 0.6), inset 0 -2px 4px hsl(220 20% 20% / 0.2);
+    --shadow-rack-raised: 0 4px 12px hsl(220 30% 5% / 0.5), 0 1px 3px hsl(220 30% 5% / 0.3);
+    --shadow-screw: inset 0 1px 2px hsl(220 30% 5% / 0.8), 0 1px 1px hsl(220 20% 25% / 0.3);
+    
+    /* Touch-friendly Mobile Sizing */
+    --touch-target-min: 44px;
+    --mobile-knob-size: 72px;
+    --mobile-fader-width: 48px;
   }
 }
 
@@ -360,6 +378,49 @@ All colors MUST be HSL.
 
   .animate-pulse-slow {
     animation: pulse-slow 8s ease-in-out infinite;
+  }
+
+  @keyframes led-pulse {
+    0%, 100% { 
+      opacity: 1;
+      filter: brightness(1);
+    }
+    50% { 
+      opacity: 0.7;
+      filter: brightness(0.8);
+    }
+  }
+
+  @keyframes led-glow {
+    0%, 100% { 
+      box-shadow: 0 0 8px currentColor, 0 0 16px currentColor;
+    }
+    50% { 
+      box-shadow: 0 0 12px currentColor, 0 0 24px currentColor;
+    }
+  }
+
+  @keyframes record-pulse {
+    0%, 100% { 
+      transform: scale(1);
+      box-shadow: 0 0 20px hsl(0 100% 50% / 0.5);
+    }
+    50% { 
+      transform: scale(1.1);
+      box-shadow: 0 0 40px hsl(0 100% 50% / 0.8);
+    }
+  }
+
+  .animate-led-pulse {
+    animation: led-pulse 2s ease-in-out infinite;
+  }
+
+  .animate-led-glow {
+    animation: led-glow 1.5s ease-in-out infinite;
+  }
+
+  .animate-record-pulse {
+    animation: record-pulse 1s ease-in-out infinite;
   }
 
   @keyframes scale-in {
