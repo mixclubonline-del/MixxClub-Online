@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Headphones, Sliders, Zap, Trophy, Music, ShoppingBag, Users } from 'lucide-react';
+import { ArrowRight, Headphones, Sliders, Zap, Trophy, Music, ShoppingBag, Users, Database, Sparkles, GitBranch } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import GlobalHeader from '@/components/GlobalHeader';
 import StorySection from '@/components/mixclub/StorySection';
@@ -326,6 +326,56 @@ export default function MixClubHomepage2027() {
                 </div>
               </motion.div>
             </div>
+
+            {/* MixxMaster Studio Highlight */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.4 }}
+              className="mt-12 relative group"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-cyan-500/20 blur-3xl rounded-3xl" />
+              <div className="relative p-12 rounded-3xl backdrop-blur-xl border-2 border-gradient-to-r from-purple-500/50 via-pink-500/50 to-cyan-500/50 bg-card/80">
+                <div className="flex items-center justify-center mb-6">
+                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-500/30 to-cyan-500/30 flex items-center justify-center">
+                    <Sparkles size={40} className="text-white" />
+                  </div>
+                </div>
+                <h3 className="text-4xl font-bold text-center mb-4 bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 text-transparent bg-clip-text">
+                  MixxMaster Studio
+                </h3>
+                <p className="text-xl text-center text-muted-foreground mb-8 max-w-3xl mx-auto">
+                  Universal session container for cross-DAW collaboration. Work seamlessly across Pro Tools, Logic, Ableton, and more with AI-powered analysis and version control.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                  <div className="text-center">
+                    <Database className="h-8 w-8 mx-auto mb-2 text-purple-400" />
+                    <p className="font-semibold mb-1">Universal Format</p>
+                    <p className="text-sm text-muted-foreground">Cross-DAW compatibility</p>
+                  </div>
+                  <div className="text-center">
+                    <Sparkles className="h-8 w-8 mx-auto mb-2 text-pink-400" />
+                    <p className="font-semibold mb-1">AI Analysis</p>
+                    <p className="text-sm text-muted-foreground">Intelligent mixing suggestions</p>
+                  </div>
+                  <div className="text-center">
+                    <GitBranch className="h-8 w-8 mx-auto mb-2 text-cyan-400" />
+                    <p className="font-semibold mb-1">Version Control</p>
+                    <p className="text-sm text-muted-foreground">Track every change</p>
+                  </div>
+                </div>
+                <div className="flex justify-center">
+                  <Button asChild size="lg" className="text-lg px-8 bg-gradient-to-r from-purple-600 via-pink-600 to-cyan-600 hover:from-purple-700 hover:via-pink-700 hover:to-cyan-700">
+                    <Link to="/mixxmaster-studio" className="flex items-center gap-2">
+                      <Sparkles className="h-5 w-5" />
+                      Open MixxMaster Studio
+                      <ArrowRight className="h-5 w-5" />
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
           </div>
         </section>
 

@@ -3,7 +3,14 @@ import { usePrime } from "@/contexts/PrimeContext";
 import { useAuth } from "@/hooks/useAuth";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { User } from "lucide-react";
+import { User, Menu, Sparkles } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function GlobalHeader() {
   const { systemMode, accentColor, networkAwareness } = usePrime();
@@ -29,6 +36,35 @@ export default function GlobalHeader() {
             PRIME: {systemMode.toUpperCase()} • {networkAwareness.activeUsers} ONLINE
           </span>
         </motion.div>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm">
+              <Menu size={16} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuItem asChild>
+              <Link to="/mixxmaster-studio" className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4" />
+                MixxMaster Studio
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/hybrid-daw">Hybrid DAW</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/ai-studio">AI Studio</Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link to="/mix-battles">Mix Battles</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/jobs">Job Board</Link>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         {user ? (
           <Button asChild variant="outline" size="sm">

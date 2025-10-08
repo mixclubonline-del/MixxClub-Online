@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SessionBrowser } from '@/components/mixxmaster/SessionBrowser';
 import { RealtimeCollaboration } from '@/components/mixxmaster/RealtimeCollaboration';
+import { RealtimePresence } from '@/components/mixxmaster/RealtimePresence';
+import { MixxMasterImport } from '@/components/mixxmaster/MixxMasterImport';
 import { AISuggestions } from '@/components/mixxmaster/AISuggestions';
 import { VersionComparator } from '@/components/mixxmaster/VersionComparator';
 import { PluginChainTemplates } from '@/components/mixxmaster/PluginChainTemplates';
 import { Badge } from '@/components/ui/badge';
-import { Sparkles, GitBranch, Layers, Database } from 'lucide-react';
+import { Sparkles, GitBranch, Layers, Database, Upload } from 'lucide-react';
 
 export default function MixxMasterStudio() {
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
@@ -46,10 +48,14 @@ export default function MixxMasterStudio() {
 
         {/* Main Content */}
         <Tabs defaultValue="sessions" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="sessions">
               <Database className="h-4 w-4 mr-2" />
               Sessions
+            </TabsTrigger>
+            <TabsTrigger value="import">
+              <Upload className="h-4 w-4 mr-2" />
+              Import
             </TabsTrigger>
             <TabsTrigger value="ai" disabled={!selectedSessionId}>
               <Sparkles className="h-4 w-4 mr-2" />
@@ -70,11 +76,20 @@ export default function MixxMasterStudio() {
               <div className="lg:col-span-2">
                 <SessionBrowser onSessionSelect={setSelectedSessionId} />
               </div>
-              {selectedSessionId && (
-                <div>
-                  <RealtimeCollaboration sessionId={selectedSessionId} />
-                </div>
-              )}
+              <div className="space-y-6">
+                {selectedSessionId && (
+                  <>
+                    <RealtimePresence sessionId={selectedSessionId} />
+                    <RealtimeCollaboration sessionId={selectedSessionId} />
+                  </>
+                )}
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="import" className="space-y-6">
+            <div className="max-w-2xl mx-auto">
+              <MixxMasterImport onImportComplete={setSelectedSessionId} />
             </div>
           </TabsContent>
 
