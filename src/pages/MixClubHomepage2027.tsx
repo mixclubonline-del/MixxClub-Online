@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Headphones, Sliders, Zap, Trophy, Music, ShoppingBag } from 'lucide-react';
+import { ArrowRight, Headphones, Sliders, Zap, Trophy, Music, ShoppingBag, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import GlobalHeader from '@/components/GlobalHeader';
 import StorySection from '@/components/mixclub/StorySection';
@@ -231,8 +231,8 @@ export default function MixClubHomepage2027() {
                       <span>Milestone Tracker (progress + feedback)</span>
                     </li>
                   </ul>
-                  <Button className="w-full bg-purple-600 hover:bg-purple-700">
-                    Try the AI Studio →
+                  <Button asChild className="w-full bg-purple-600 hover:bg-purple-700">
+                    <Link to="/artist">Try the AI Studio →</Link>
                   </Button>
                 </div>
               </motion.div>
@@ -272,8 +272,8 @@ export default function MixClubHomepage2027() {
                       <span>Access to battles, community ratings, and unlockables</span>
                     </li>
                   </ul>
-                  <Button className="w-full bg-cyan-600 hover:bg-cyan-700">
-                    Join as an Engineer →
+                  <Button asChild className="w-full bg-cyan-600 hover:bg-cyan-700">
+                    <Link to="/engineer">Join as an Engineer →</Link>
                   </Button>
                 </div>
               </motion.div>
@@ -320,8 +320,8 @@ export default function MixClubHomepage2027() {
                       />
                     </div>
                   </div>
-                  <Button className="w-full bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700">
-                    See It In Action →
+                  <Button asChild className="w-full bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700">
+                    <Link to="/hub">See It In Action →</Link>
                   </Button>
                 </div>
               </motion.div>
@@ -353,27 +353,28 @@ export default function MixClubHomepage2027() {
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {[
-                { icon: Trophy, title: 'Mix Battles', desc: 'Compete with engineers worldwide. Leaderboards, ratings, and recognition.' },
-                { icon: Music, title: 'Listening Parties', desc: 'Experience new releases together. Vote, discuss, and discover.' },
-                { icon: Zap, title: 'Unlockable Plugins', desc: 'Earn XP to unlock exclusive AI-powered mixing tools.' },
-                { icon: ShoppingBag, title: 'Merch Store', desc: 'Rep your favorite engineers and artists with exclusive gear.' },
-                { icon: Zap, title: 'PrimeBot Network', desc: 'Our AI learns from every project, getting smarter with your input.' },
-                { icon: Headphones, title: 'Creator Collective', desc: 'Connect with like-minded artists and engineers in your genre.' },
+                { icon: Trophy, title: 'Mix Battles', desc: 'Compete with engineers worldwide. Leaderboards, ratings, and recognition.', link: '/arena' },
+                { icon: Music, title: 'Listening Parties', desc: 'Experience new releases together. Vote, discuss, and discover.', link: '/radio' },
+                { icon: Zap, title: 'Unlockable Plugins', desc: 'Earn XP to unlock exclusive AI-powered mixing tools.', link: '/marketplace' },
+                { icon: ShoppingBag, title: 'Merch Store', desc: 'Rep your favorite engineers and artists with exclusive gear.', link: '/merch' },
+                { icon: Zap, title: 'PrimeBot Network', desc: 'Our AI learns from every project, getting smarter with your input.', link: '/ai-studio' },
+                { icon: Users, title: 'Creator Collective', desc: 'Connect with like-minded artists and engineers in your genre.', link: '/network' },
               ].map((item, i) => {
                 const Icon = item.icon;
                 return (
-                  <motion.div
-                    key={item.title}
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.1 }}
-                    className="p-6 rounded-2xl backdrop-blur-xl border border-primary/20 bg-card/50 hover:border-primary/40 transition-all"
-                  >
-                    <Icon size={32} className="text-primary mb-4" />
-                    <h3 className="text-xl font-bold mb-2">{item.title}</h3>
-                    <p className="text-sm text-muted-foreground">{item.desc}</p>
-                  </motion.div>
+                  <Link key={item.title} to={item.link}>
+                    <motion.div
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.1 }}
+                      className="p-6 rounded-2xl backdrop-blur-xl border border-primary/20 bg-card/50 hover:border-primary/40 transition-all cursor-pointer h-full"
+                    >
+                      <Icon size={32} className="text-primary mb-4" />
+                      <h3 className="text-xl font-bold mb-2">{item.title}</h3>
+                      <p className="text-sm text-muted-foreground">{item.desc}</p>
+                    </motion.div>
+                  </Link>
                 );
               })}
             </div>
