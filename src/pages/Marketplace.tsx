@@ -1,16 +1,49 @@
 import Navigation from "@/components/Navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { MarketplaceGrid } from "@/components/marketplace/MarketplaceGrid";
 import { PointsBalance } from "@/components/points/PointsBalance";
 import { PointsLedger } from "@/components/points/PointsLedger";
+import { useMarketplace } from "@/hooks/useMarketplace";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ShoppingCart, Coins, Scale, Package } from "lucide-react";
+import { ShoppingCart, Coins, Scale, Package, Plus } from "lucide-react";
 import { isFeatureEnabled } from "@/config/featureFlags";
+import { useState } from "react";
 
 const Marketplace = () => {
+  const { createItem } = useMarketplace();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    item_type: 'sample_pack',
+    item_name: '',
+    item_description: '',
+    price: 0,
+    thumbnail_url: '',
+    file_url: ''
+  });
+
   const isUnlocked = isFeatureEnabled("MARKETPLACE_ENABLED");
+
+  const handleSubmit = () => {
+    createItem.mutate(formData, {
+      onSuccess: () => {
+        setDialogOpen(false);
+        setFormData({
+          item_type: 'sample_pack',
+          item_name: '',
+          item_description: '',
+          price: 0,
+          thumbnail_url: '',
+          file_url: ''
+        });
+      }
+    });
+  };
 
   if (!isUnlocked) {
     return (
@@ -43,11 +76,93 @@ const Marketplace = () => {
       <Navigation />
       
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Marketplace</h1>
-          <p className="text-muted-foreground">
-            Discover plugins, presets, and sounds from the community
-          </p>
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-4xl font-bold mb-2">Marketplace</h1>
+            <p className="text-muted-foreground">
+              Discover plugins, presets, and sounds from the community
+            </p>
+          </div>
+
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button size="lg" className="gap-2">
+                <Plus className="h-4 w-4" />
+                List Item
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>List New Item</DialogTitle>
+                <DialogDescription>
+                  Create a listing for your plugin, preset, or sample pack
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="item_type">Item Type</Label>
+                    <Select 
+                      value={formData.item_type}
+                      onValueChange={(value) => setFormData({ ...formData, item_type: value })}
+                    >
+                      <SelectTrigger id="item_type">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="plugin">Plugin</SelectItem>
+                        <SelectItem value="preset">Preset</SelectItem>
+                        <SelectItem value="sample_pack">Sample Pack</SelectItem>
+                        <SelectItem value="template">Template</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="price">Price (USD)</Label>
+                    <Input
+                      id="price"
+                      type="number"
+                      step="0.01"
+                      value={formData.price}
+                      onChange={(e) => setFormData({ 
+                        ...formData, 
+                        price: parseFloat(e.target.value) || 0 
+                      })}
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="item_name">Item Name</Label>
+                  <Input
+                    id="item_name"
+                    value={formData.item_name}
+                    onChange={(e) => setFormData({ ...formData, item_name: e.target.value })}
+                    placeholder="Epic Reverb Plugin"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="item_description">Description</Label>
+                  <Textarea
+                    id="item_description"
+                    value={formData.item_description}
+                    onChange={(e) => setFormData({ ...formData, item_description: e.target.value })}
+                    placeholder="Describe your item..."
+                    rows={3}
+                  />
+                </div>
+                
+                <Button 
+                  onClick={handleSubmit} 
+                  disabled={!formData.item_name || formData.price < 0}
+                  className="w-full"
+                >
+                  Create Listing
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
 
         <Tabs defaultValue="browse" className="space-y-6">

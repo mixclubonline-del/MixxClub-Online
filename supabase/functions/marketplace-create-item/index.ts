@@ -25,17 +25,31 @@ serve(async (req) => {
       throw new Error('Unauthorized');
     }
 
-    const { kind, name, priceCents, splitCreatorPercent = 70 } = await req.json();
+    const { 
+      item_type, 
+      item_name, 
+      item_description,
+      price, 
+      thumbnail_url,
+      file_url 
+    } = await req.json();
 
     const { data, error } = await supabaseClient
       .from('marketplace_items')
       .insert({
-        owner_id: user.id,
-        kind,
-        name,
-        price_cents: priceCents,
-        split_creator_percent: splitCreatorPercent,
-        active: true
+        seller_id: user.id,
+        item_type,
+        item_name,
+        item_description,
+        price,
+        thumbnail_url,
+        file_path: file_url,
+        is_published: true,
+        is_free: price === 0,
+        average_rating: 0,
+        total_reviews: 0,
+        download_count: 0,
+        total_sales: 0
       })
       .select()
       .single();

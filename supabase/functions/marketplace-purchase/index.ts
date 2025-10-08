@@ -26,14 +26,14 @@ serve(async (req) => {
       throw new Error('Unauthorized');
     }
 
-    const { itemId } = await req.json();
+    const { item_id } = await req.json();
 
     // Get marketplace item
     const { data: item, error: itemError } = await supabaseClient
       .from('marketplace_items')
       .select('*')
-      .eq('id', itemId)
-      .eq('active', true)
+      .eq('id', item_id)
+      .eq('is_published', true)
       .single();
 
     if (itemError || !item) {
@@ -45,30 +45,35 @@ serve(async (req) => {
     });
 
     // Get or create customer
-    const { data: profile } = await supabaseClient
+    const { data: sellerProfile } = await supabaseClient
       .from('profiles')
       .select('stripe_customer_id, stripe_connect_id')
-      .eq('id', item.owner_id)
+      .eq('id', item.seller_id)
       .single();
 
     let customerId: string;
     const { data: buyerProfile } = await supabaseClient
       .from('profiles')
-      .select('stripe_customer_id')
+      .select('stripe_customer_id, email')
       .eq('id', user.id)
       .single();
 
     if (!buyerProfile?.stripe_customer_id) {
-      const customer = await stripe.customers.create({ email: user.email });
+      const customer = await stripe.customers.create({ 
+        email: user.email || buyerProfile?.email 
+      });
       customerId = customer.id;
-      await supabaseClient.from('profiles').update({ stripe_customer_id: customerId }).eq('id', user.id);
+      await supabaseClient
+        .from('profiles')
+        .update({ stripe_customer_id: customerId })
+        .eq('id', user.id);
     } else {
       customerId = buyerProfile.stripe_customer_id;
     }
 
-    // Calculate splits
-    const creatorAmount = Math.floor(item.price_cents * (item.split_creator_percent / 100));
-    const platformAmount = item.price_cents - creatorAmount;
+    // Calculate platform fee (20%)
+    const priceInCents = Math.round(item.price * 100);
+    const platformFee = Math.floor(priceInCents * 0.20);
 
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
@@ -76,29 +81,45 @@ serve(async (req) => {
       line_items: [{
         price_data: {
           currency: 'usd',
-          product_data: { name: item.name },
-          unit_amount: item.price_cents,
+          product_data: { 
+            name: item.item_name,
+            description: item.item_description || undefined,
+            images: item.thumbnail_url ? [item.thumbnail_url] : undefined
+          },
+          unit_amount: priceInCents,
         },
         quantity: 1,
       }],
       mode: 'payment',
-      success_url: `${req.headers.get('origin')}/marketplace?purchase=success`,
+      success_url: `${req.headers.get('origin')}/marketplace?purchase=success&item=${item_id}`,
       cancel_url: `${req.headers.get('origin')}/marketplace?purchase=cancelled`,
-      payment_intent_data: profile?.stripe_connect_id ? {
-        application_fee_amount: platformAmount,
+      payment_intent_data: sellerProfile?.stripe_connect_id ? {
+        application_fee_amount: platformFee,
         transfer_data: {
-          destination: profile.stripe_connect_id,
+          destination: sellerProfile.stripe_connect_id,
         },
       } : undefined,
       metadata: {
-        itemId,
-        buyerId: user.id,
-        ownerId: item.owner_id
+        item_id,
+        buyer_id: user.id,
+        seller_id: item.seller_id
       }
     });
 
+    // Create purchase record
+    await supabaseClient
+      .from('marketplace_purchases')
+      .insert({
+        item_id,
+        buyer_id: user.id,
+        seller_id: item.seller_id,
+        purchase_price: item.price,
+        stripe_session_id: session.id,
+        status: 'pending'
+      });
+
     return new Response(
-      JSON.stringify({ sessionId: session.id, url: session.url }),
+      JSON.stringify({ checkout_url: session.url }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
