@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import GlobalHeader from "@/components/GlobalHeader";
 import { usePrime } from "@/contexts/PrimeContext";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { StudioConsole } from "@/components/studio/StudioConsole";
 import { HardwareRack } from "@/components/studio/HardwareRack";
 import { TransportControls } from "@/components/studio/TransportControls";
@@ -12,12 +13,15 @@ import { InspectorSidebar } from "@/components/studio/InspectorSidebar";
 import { AudioEngine } from "@/components/studio/AudioEngine";
 import { PluginManager } from "@/components/plugins/PluginManager";
 import AudioImportDialog from "@/components/AudioImportDialog";
+import DAWCollaboration from "@/components/daw/DAWCollaboration";
+import DAWEffectsPanel from "@/components/daw/DAWEffectsPanel";
 import { useAIStudioStore, EffectUnit } from "@/stores/aiStudioStore";
 import { TrackEffectsDialog } from "@/components/studio/TrackEffectsDialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { Button } from "@/components/ui/button";
-import { Plug2, Upload } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Plug2, Upload, Users, Sparkles, Sliders } from "lucide-react";
 import { AudioAnalysisPanel } from "@/components/studio/AudioAnalysisPanel";
 import { AIAssistantPanel } from "@/components/studio/AIAssistantPanel";
 import { useAudioPermissions } from "@/hooks/useAudioPermissions";
@@ -68,6 +72,7 @@ function Range({
 export default function AIStudio() {
   const { systemMode, userMood } = usePrime();
   const { toast } = useToast();
+  const { user } = useAuth();
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [uploadName, setUploadName] = useState<string | null>(null);
   const [isPluginManagerOpen, setIsPluginManagerOpen] = useState(false);
@@ -78,6 +83,8 @@ export default function AIStudio() {
   const [selectedTrackForEffects, setSelectedTrackForEffects] = useState<string | null>(null);
   const [trackEffects, setTrackEffects] = useState<Map<string, EffectUnit[]>>(new Map());
   const playbackIntervalRef = useRef<number | null>(null);
+  const [sessionId] = useState(() => `session-${Date.now()}`);
+  const [activeRightPanel, setActiveRightPanel] = useState<'inspector' | 'collaborate' | 'ai-effects'>('inspector');
   
   const { permissions, requestAudioPermissions, hasAudioAccess } = useAudioPermissions();
   
@@ -504,8 +511,14 @@ export default function AIStudio() {
                 {tracks.length === 0 ? 'Import Audio to Begin' : 'Add Track'}
               </Button>
             </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span>{tracks.length} {tracks.length === 1 ? 'track' : 'tracks'}</span>
+            <div className="flex items-center gap-4">
+              <Badge variant="outline" className="gap-2">
+                <Users className="w-3 h-3" />
+                Session: {sessionId.slice(-8)}
+              </Badge>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span>{tracks.length} {tracks.length === 1 ? 'track' : 'tracks'}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -697,14 +710,105 @@ export default function AIStudio() {
             }}
           />
 
-          {/* Right Sidebar - Inspector (Resizable) */}
+          {/* Right Sidebar - Multi-Function Panel (Resizable) */}
           <ResizablePanel 
             defaultSize={inspectorSize} 
             minSize={18} 
             maxSize={35}
             id="inspector"
           >
-            <InspectorSidebar />
+            <div className="h-full flex flex-col bg-[hsl(var(--studio-panel))]">
+              {/* Panel Tab Switcher */}
+              <div className="flex-shrink-0 border-b border-border/30">
+                <div className="flex items-center gap-1 p-2">
+                  <Button
+                    variant={activeRightPanel === 'inspector' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setActiveRightPanel('inspector')}
+                    className="flex-1 gap-2 text-xs"
+                  >
+                    <Sparkles className="w-3 h-3" />
+                    Inspector
+                  </Button>
+                  <Button
+                    variant={activeRightPanel === 'collaborate' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setActiveRightPanel('collaborate')}
+                    className="flex-1 gap-2 text-xs"
+                  >
+                    <Users className="w-3 h-3" />
+                    Collab
+                  </Button>
+                  <Button
+                    variant={activeRightPanel === 'ai-effects' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setActiveRightPanel('ai-effects')}
+                    className="flex-1 gap-2 text-xs"
+                  >
+                    <Sliders className="w-3 h-3" />
+                    AI FX
+                  </Button>
+                </div>
+              </div>
+
+              {/* Panel Content */}
+              <div className="flex-1 overflow-hidden">
+                {activeRightPanel === 'inspector' && (
+                  <InspectorSidebar />
+                )}
+
+                {activeRightPanel === 'collaborate' && (
+                  <DAWCollaboration
+                    sessionId={sessionId}
+                    userId={user?.id || 'guest'}
+                    userName={user?.user_metadata?.full_name || 'Guest User'}
+                    onTrackUpdate={(trackData) => {
+                      sonnerToast.info('Track Updated', {
+                        description: 'A collaborator made changes'
+                      });
+                    }}
+                    onEffectChange={(trackId, effectData) => {
+                      sonnerToast.info('Effect Modified', {
+                        description: 'A collaborator adjusted an effect'
+                      });
+                    }}
+                  />
+                )}
+
+                {activeRightPanel === 'ai-effects' && (
+                  <div className="h-full overflow-auto p-4">
+                    <div className="mb-4">
+                      <Badge variant="outline" className="gap-2">
+                        <Sparkles className="w-3 h-3" />
+                        AI Composition Tools
+                      </Badge>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Intelligent effects that adapt to your music
+                      </p>
+                    </div>
+                    <DAWEffectsPanel
+                      tracks={tracks.map(t => ({
+                        id: t.id,
+                        name: t.name,
+                        type: t.type,
+                        color: t.color || `hsl(${Math.random() * 360}, 70%, 60%)`,
+                        regions: [],
+                        solo: t.solo,
+                        mute: t.mute,
+                        volume: t.volume,
+                        effects: {},
+                        automation: []
+                      }))}
+                      onTracksChange={(updatedTracks) => {
+                        sonnerToast.success('AI Effects Updated', {
+                          description: 'Effects have been applied to your tracks'
+                        });
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
           </ResizablePanel>
         </ResizablePanelGroup>
 

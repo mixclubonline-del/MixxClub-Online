@@ -23,6 +23,7 @@ import { toast } from 'sonner';
 
 interface StudioHubProps {
   userRole: 'artist' | 'engineer';
+  onTrackSelect?: (trackId: string | null) => void;
 }
 
 const StudioHub = ({ userRole }: StudioHubProps) => {
