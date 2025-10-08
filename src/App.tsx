@@ -75,6 +75,8 @@ import IntegrationsHub from "./pages/IntegrationsHub";
 import DistributionAnalytics from "./pages/DistributionAnalytics";
 import Integrations from "./pages/Integrations";
 import AIAudioIntelligence from "./pages/AIAudioIntelligence";
+const LiveStudio = React.lazy(() => import("./pages/LiveStudio"));
+const SocialFeed = React.lazy(() => import("./pages/SocialFeed"));
 import DistributionHub from "./pages/DistributionHub";
 import ForEngineers from "./pages/ForEngineers";
 import EngineerDirectory from "./pages/EngineerDirectory";
@@ -317,7 +319,10 @@ const AppContent = () => {
             {/* Tier 4 Features */}
             <Route path="/integrations" element={<IntegrationsHub />} />
             <Route path="/ai-audio-intelligence" element={<AIAudioIntelligence />} />
-            <Route path="/distribution-analytics" element={<DistributionAnalytics />} />
+              <Route path="/distribution-analytics" element={<DistributionAnalytics />} />
+              <Route path="/live-studio" element={<LiveStudio />} />
+              <Route path="/marketplace" element={<Marketplace />} />
+              <Route path="/social-feed" element={<SocialFeed />} />
             <Route path="/distribution" element={<AppLayout><DistributionHub /></AppLayout>} />
             
             {/* Merch Store */}

@@ -41,6 +41,12 @@ export const FEATURE_FLAGS = {
   // Advanced AI Audio Intelligence
   AI_AUDIO_INTELLIGENCE_ENABLED: true,
   
+  // ===== TIER 5: COLLABORATION & SOCIAL (1500 users) =====
+  // Live Studio Sessions - Real-time collaboration
+  LIVE_STUDIO_ENABLED: true,
+  // Social Feed & Networking
+  SOCIAL_FEED_ENABLED: true,
+  
   // ===== DISTRIBUTION HUB PHASES =====
   // Phase 1: Affiliate partnerships (LIVE - already implemented)
   

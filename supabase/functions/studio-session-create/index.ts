@@ -25,49 +25,43 @@ serve(async (req) => {
       throw new Error('Unauthorized');
     }
 
-    const { listing_id } = await req.json();
+    const { 
+      session_name, 
+      session_type, 
+      is_public, 
+      max_participants,
+      project_id 
+    } = await req.json();
 
-    // Get listing details
-    const { data: listing, error: listingError } = await supabaseClient
-      .from('marketplace_listings')
-      .select('*')
-      .eq('id', listing_id)
-      .single();
-
-    if (listingError) throw listingError;
-    if (!listing) throw new Error('Listing not found');
-
-    // Calculate commission (15%)
-    const commissionRate = 0.15;
-    const commissionAmount = listing.price * commissionRate;
-    const sellerEarnings = listing.price - commissionAmount;
-
-    // Create purchase record
-    const { data: purchase, error: purchaseError } = await supabaseClient
-      .from('marketplace_purchases')
+    const { data, error } = await supabaseClient
+      .from('studio_sessions')
       .insert({
-        listing_id,
-        buyer_id: user.id,
-        seller_id: listing.seller_id,
-        amount: listing.price,
-        commission_amount: commissionAmount,
-        seller_earnings: sellerEarnings,
-        payment_status: listing.is_free ? 'completed' : 'pending',
-        download_url: listing.file_url
+        host_id: user.id,
+        session_name,
+        session_type,
+        is_public: is_public ?? false,
+        max_participants: max_participants ?? 8,
+        project_id,
+        status: 'active',
+        webrtc_room_id: crypto.randomUUID()
       })
       .select()
       .single();
 
-    if (purchaseError) throw purchaseError;
+    if (error) throw error;
 
-    // Update download count
+    // Add host as first participant
     await supabaseClient
-      .from('marketplace_listings')
-      .update({ download_count: listing.download_count + 1 })
-      .eq('id', listing_id);
+      .from('studio_participants')
+      .insert({
+        session_id: data.id,
+        user_id: user.id,
+        role: 'host',
+        is_active: true
+      });
 
     return new Response(
-      JSON.stringify(purchase),
+      JSON.stringify(data),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
