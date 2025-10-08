@@ -1,0 +1,46 @@
+{
+  "zones": [
+    {
+      "id": "menu-bar",
+      "x": 0,
+      "y": 0,
+      "width": 1920,
+      "height": 80
+    },
+    {
+      "id": "waveform-strip",
+      "x": 200,
+      "y": 150,
+      "width": 1520,
+      "height": 200
+    },
+    {
+      "id": "ai-mixer",
+      "x": 100,
+      "y": 400,
+      "width": 350,
+      "height": 300
+    },
+    {
+      "id": "mixxport",
+      "x": 1450,
+      "y": 400,
+      "width": 350,
+      "height": 300
+    },
+    {
+      "id": "primebot-4",
+      "x": 850,
+      "y": 500,
+      "width": 220,
+      "height": 220
+    },
+    {
+      "id": "mixer-console",
+      "x": 600,
+      "y": 750,
+      "width": 720,
+      "height": 250
+    }
+  ]
+}
