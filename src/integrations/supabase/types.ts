@@ -2347,6 +2347,36 @@ export type Database = {
         }
         Relationships: []
       }
+      daw_plugin_mappings: {
+        Row: {
+          created_at: string | null
+          daw_platform: string
+          id: string
+          native_plugin_id: string
+          parameter_mappings: Json
+          plugin_name: string
+          plugin_type: string
+        }
+        Insert: {
+          created_at?: string | null
+          daw_platform: string
+          id?: string
+          native_plugin_id: string
+          parameter_mappings: Json
+          plugin_name: string
+          plugin_type: string
+        }
+        Update: {
+          created_at?: string | null
+          daw_platform?: string
+          id?: string
+          native_plugin_id?: string
+          parameter_mappings?: Json
+          plugin_name?: string
+          plugin_type?: string
+        }
+        Relationships: []
+      }
       deployment_logs: {
         Row: {
           completed_at: string | null
@@ -4981,6 +5011,203 @@ export type Database = {
         }
         Relationships: []
       }
+      mixxmaster_ai_metadata: {
+        Row: {
+          analysis_version: string
+          confidence_score: number | null
+          created_at: string | null
+          emotion_analysis: Json | null
+          id: string
+          mixing_suggestions: Json[] | null
+          plugin_recommendations: Json | null
+          processing_time_ms: number | null
+          session_id: string
+          spectral_analysis: Json | null
+          tonal_analysis: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          analysis_version?: string
+          confidence_score?: number | null
+          created_at?: string | null
+          emotion_analysis?: Json | null
+          id?: string
+          mixing_suggestions?: Json[] | null
+          plugin_recommendations?: Json | null
+          processing_time_ms?: number | null
+          session_id: string
+          spectral_analysis?: Json | null
+          tonal_analysis?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          analysis_version?: string
+          confidence_score?: number | null
+          created_at?: string | null
+          emotion_analysis?: Json | null
+          id?: string
+          mixing_suggestions?: Json[] | null
+          plugin_recommendations?: Json | null
+          processing_time_ms?: number | null
+          session_id?: string
+          spectral_analysis?: Json | null
+          tonal_analysis?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mixxmaster_ai_metadata_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "mixxmaster_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mixxmaster_sessions: {
+        Row: {
+          checksum: string
+          created_at: string
+          created_by: string | null
+          format_version: string
+          id: string
+          is_legacy_migration: boolean | null
+          manifest_data: Json
+          project_id: string
+          storage_mode: string
+          updated_at: string
+        }
+        Insert: {
+          checksum: string
+          created_at?: string
+          created_by?: string | null
+          format_version?: string
+          id?: string
+          is_legacy_migration?: boolean | null
+          manifest_data: Json
+          project_id: string
+          storage_mode?: string
+          updated_at?: string
+        }
+        Update: {
+          checksum?: string
+          created_at?: string
+          created_by?: string | null
+          format_version?: string
+          id?: string
+          is_legacy_migration?: boolean | null
+          manifest_data?: Json
+          project_id?: string
+          storage_mode?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mixxmaster_sessions_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mixxmaster_stems: {
+        Row: {
+          bit_depth: number | null
+          channels: number | null
+          created_at: string | null
+          duration_seconds: number | null
+          file_size: number | null
+          id: string
+          sample_rate: number | null
+          session_id: string
+          stem_category: string
+          stem_name: string
+          storage_path: string
+          waveform_data: Json | null
+        }
+        Insert: {
+          bit_depth?: number | null
+          channels?: number | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          file_size?: number | null
+          id?: string
+          sample_rate?: number | null
+          session_id: string
+          stem_category: string
+          stem_name: string
+          storage_path: string
+          waveform_data?: Json | null
+        }
+        Update: {
+          bit_depth?: number | null
+          channels?: number | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          file_size?: number | null
+          id?: string
+          sample_rate?: number | null
+          session_id?: string
+          stem_category?: string
+          stem_name?: string
+          storage_path?: string
+          waveform_data?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mixxmaster_stems_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "mixxmaster_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mixxmaster_versions: {
+        Row: {
+          changes_summary: string | null
+          created_at: string | null
+          diff_data: Json | null
+          engineer_id: string | null
+          engineer_signature: string | null
+          id: string
+          manifest_snapshot: Json
+          session_id: string
+          version_number: number
+        }
+        Insert: {
+          changes_summary?: string | null
+          created_at?: string | null
+          diff_data?: Json | null
+          engineer_id?: string | null
+          engineer_signature?: string | null
+          id?: string
+          manifest_snapshot: Json
+          session_id: string
+          version_number: number
+        }
+        Update: {
+          changes_summary?: string | null
+          created_at?: string | null
+          diff_data?: Json | null
+          engineer_id?: string | null
+          engineer_signature?: string | null
+          id?: string
+          manifest_snapshot?: Json
+          session_id?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mixxmaster_versions_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "mixxmaster_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       monthly_awards: {
         Row: {
           award_category: string
@@ -5685,6 +5912,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      plugin_chain_templates: {
+        Row: {
+          category: string
+          created_at: string | null
+          creator_id: string
+          description: string | null
+          downloads_count: number | null
+          id: string
+          is_public: boolean | null
+          plugin_chain: Json
+          price: number | null
+          rating_average: number | null
+          template_name: string
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          creator_id: string
+          description?: string | null
+          downloads_count?: number | null
+          id?: string
+          is_public?: boolean | null
+          plugin_chain: Json
+          price?: number | null
+          rating_average?: number | null
+          template_name: string
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          creator_id?: string
+          description?: string | null
+          downloads_count?: number | null
+          id?: string
+          is_public?: boolean | null
+          plugin_chain?: Json
+          price?: number | null
+          rating_average?: number | null
+          template_name?: string
+        }
+        Relationships: []
       }
       points_ledger: {
         Row: {
