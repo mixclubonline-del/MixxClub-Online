@@ -1,5 +1,5 @@
 import { Helmet } from 'react-helmet-async';
-import { useState } from 'react';
+import { useState, Suspense, lazy } from 'react';
 import GlobalHeader from '@/components/GlobalHeader';
 import { usePrime } from '@/contexts/PrimeContext';
 import PrimeGlow from '@/components/prime/PrimeGlow';
@@ -10,6 +10,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Play, Pause, Radio as RadioIcon, MessageSquare, Calendar, TrendingUp } from 'lucide-react';
 import { trackEvent } from '@/lib/analytics';
+import { SplineBackground } from '@/components/3d/spline/SplineBackground';
+import { useAudioFFT } from '@/hooks/useAudioFFT';
+
+const VinylPlayerScene = lazy(() => import('@/components/3d/r3f/VinylPlayerScene').then(m => ({ default: m.VinylPlayerScene })));
+const AudioVisualizerScene = lazy(() => import('@/components/3d/r3f/AudioVisualizerScene').then(m => ({ default: m.AudioVisualizerScene })));
 
 const genres = [
   { id: 'hip-hop', name: 'Hip-Hop', listeners: 1247, color: 'from-orange-500 to-red-600' },
@@ -36,6 +41,7 @@ export default function Radio() {
   const { systemMode } = usePrime();
   const [isPlaying, setIsPlaying] = useState(false);
   const [selectedGenre, setSelectedGenre] = useState(genres[0]);
+  const fftData = useAudioFFT(isPlaying);
 
   const handlePlayPause = () => {
     setIsPlaying(!isPlaying);
@@ -58,10 +64,14 @@ export default function Radio() {
         <meta name="keywords" content="music radio, live streaming, DJ sets, electronic music, hip-hop radio" />
       </Helmet>
 
-      <div className="min-h-screen bg-[#0a0a1a]">
+      <div className="min-h-screen bg-[#0a0a1a] relative overflow-hidden">
+        <SplineBackground 
+          scene="https://prod.spline.design/Xqw7yqfqzKP01SoH/scene.splinecode"
+          className="opacity-30"
+        />
         <GlobalHeader />
         
-        <main className="max-w-7xl mx-auto px-6 py-16">
+        <main className="max-w-7xl mx-auto px-6 py-16 relative z-10">
           <HubBreadcrumb items={[{ label: 'Radio' }]} />
           
           <PrimeGlow intensity={0.85}>
@@ -79,8 +89,26 @@ export default function Radio() {
             </div>
           </PrimeGlow>
 
-          {/* Live Player */}
-          <Card className="mb-8 bg-gradient-to-br from-card/50 to-card border-accent-purple/30 shadow-[0_0_50px_rgba(168,85,247,0.2)]">
+          {/* 3D Vinyl Player */}
+          <div className="mb-8 h-[400px] rounded-xl overflow-hidden border border-accent-purple/30 shadow-[0_0_50px_rgba(168,85,247,0.2)]">
+            <Suspense fallback={<div className="w-full h-full bg-card animate-pulse" />}>
+              <VinylPlayerScene isPlaying={isPlaying} className="w-full h-full" />
+            </Suspense>
+          </div>
+
+          {/* Audio Visualizer */}
+          <div className="mb-8 h-[300px] rounded-xl overflow-hidden border border-accent-cyan/30">
+            <Suspense fallback={<div className="w-full h-full bg-card animate-pulse" />}>
+              <AudioVisualizerScene 
+                audioData={Array(16).fill(0).map((_, i) => fftData.frequencyData[i * 2] || 0)}
+                frequencyData={fftData.frequencyData}
+                className="w-full h-full"
+              />
+            </Suspense>
+          </div>
+
+          {/* Live Player Controls */}
+          <Card className="mb-8 bg-gradient-to-br from-card/80 to-card/60 backdrop-blur-xl border-accent-purple/30 shadow-[0_0_50px_rgba(168,85,247,0.2)]">
             <CardContent className="p-8">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-4">

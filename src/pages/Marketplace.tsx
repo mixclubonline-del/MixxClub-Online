@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, Suspense, lazy } from "react";
 import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +10,9 @@ import { useMarketplaceItems, useMarketplaceCategories } from "@/hooks/useMarket
 import { isFeatureEnabled } from "@/config/featureFlags";
 import { Lock, Search, ShoppingCart, Star, Download } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SplineBackground } from '@/components/3d/spline/SplineBackground';
+
+const Product3DCard = lazy(() => import('@/components/3d/r3f/Product3DCard').then(m => ({ default: m.Product3DCard })));
 
 const Marketplace = () => {
   const navigate = useNavigate();
@@ -57,10 +60,14 @@ const Marketplace = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      <SplineBackground 
+        scene="https://prod.spline.design/Xqw7yqfqzKP01SoH/scene.splinecode"
+        className="opacity-10"
+      />
       <Navigation />
       
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 relative z-10">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">Community Marketplace</h1>
           <p className="text-muted-foreground">
@@ -134,21 +141,42 @@ const Marketplace = () => {
           </div>
         ) : items && items.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {items.map((item) => (
-              <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                <CardHeader className="p-0">
-                  {item.thumbnail_url ? (
-                    <img
-                      src={item.thumbnail_url}
-                      alt={item.item_name}
-                      className="w-full h-48 object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-48 bg-muted flex items-center justify-center">
-                      <ShoppingCart className="h-12 w-12 text-muted-foreground" />
-                    </div>
-                  )}
-                </CardHeader>
+            {items.map((item) => {
+              const productType = item.item_type === 'sample_pack' ? 'vinyl' : 
+                                 item.item_type === 'preset' ? 'cassette' : 'plugin';
+              
+              return (
+                <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow group">
+                  <CardHeader className="p-0 relative">
+                    {item.thumbnail_url ? (
+                      <div className="relative">
+                        <img
+                          src={item.thumbnail_url}
+                          alt={item.item_name}
+                          className="w-full h-48 object-cover"
+                        />
+                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Suspense fallback={<div className="w-full h-full bg-card/80" />}>
+                            <Product3DCard 
+                              type={productType}
+                              color="#8b5cf6"
+                              className="w-full h-full"
+                            />
+                          </Suspense>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="w-full h-48 bg-muted flex items-center justify-center relative">
+                        <Suspense fallback={<ShoppingCart className="h-12 w-12 text-muted-foreground" />}>
+                          <Product3DCard 
+                            type={productType}
+                            color="#8b5cf6"
+                            className="w-full h-full absolute inset-0"
+                          />
+                        </Suspense>
+                      </div>
+                    )}
+                  </CardHeader>
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex-1">
@@ -190,7 +218,8 @@ const Marketplace = () => {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            );
+          })}
           </div>
         ) : (
           <Card className="text-center p-12">

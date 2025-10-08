@@ -1,4 +1,5 @@
 import { Helmet } from 'react-helmet-async';
+import { Suspense, lazy } from 'react';
 import GlobalHeader from '@/components/GlobalHeader';
 import ActiveBattles from '@/components/arena-hub/ActiveBattles';
 import TournamentBracket from '@/components/arena-hub/TournamentBracket';
@@ -9,6 +10,9 @@ import { usePrime } from '@/contexts/PrimeContext';
 import PrimeGlow from '@/components/prime/PrimeGlow';
 import { HubBreadcrumb } from '@/components/ui/hub-breadcrumb';
 import { HubRecommendations } from '@/components/ui/hub-recommendations';
+import { SplineBackground } from '@/components/3d/spline/SplineBackground';
+
+const BattleArenaScene = lazy(() => import('@/components/3d/r3f/BattleArenaScene').then(m => ({ default: m.BattleArenaScene })));
 
 export default function Arena() {
   const { systemMode } = usePrime();
@@ -23,11 +27,22 @@ export default function Arena() {
         />
       </Helmet>
 
-      <div className="min-h-screen bg-[#0a0a1a]">
+      <div className="min-h-screen bg-[#0a0a1a] relative overflow-hidden">
+        <SplineBackground 
+          scene="https://prod.spline.design/Xqw7yqfqzKP01SoH/scene.splinecode"
+          className="opacity-20"
+        />
         <GlobalHeader />
         
-        <main className="max-w-7xl mx-auto px-6 py-16">
+        <main className="max-w-7xl mx-auto px-6 py-16 relative z-10">
           <HubBreadcrumb items={[{ label: 'Arena' }]} />
+          
+          {/* 3D Battle Arena */}
+          <div className="mb-12 h-[400px] rounded-xl overflow-hidden border border-primary/30 shadow-[0_0_50px_rgba(168,85,247,0.3)]">
+            <Suspense fallback={<div className="w-full h-full bg-card animate-pulse flex items-center justify-center"><span className="text-4xl">⚔️</span></div>}>
+              <BattleArenaScene className="w-full h-full" />
+            </Suspense>
+          </div>
           
           <PrimeGlow intensity={0.9}>
             <div className="text-center mb-12">
