@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
@@ -20,7 +21,8 @@ import {
   Trophy,
   Gamepad2,
   Download,
-  Upload
+  Upload,
+  LogOut
 } from "lucide-react";
 import EnhancedDAWTimeline from "@/components/daw/EnhancedDAWTimeline";
 import DAWMixerPanel from "@/components/daw/DAWMixerPanel";
@@ -34,6 +36,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useAudioPermissions } from "@/hooks/useAudioPermissions";
 import Navigation from "@/components/Navigation";
+import { supabase } from "@/integrations/supabase/client";
+import { useRealTimePresence } from "@/hooks/useRealTimePresence";
 
 export interface Track {
   id: string;
@@ -76,7 +80,17 @@ export interface CollaborationUser {
 const HybridDAW = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { permissions, requestAudioPermissions, hasAudioAccess, isRequesting } = useAudioPermissions();
+  
+  // Session State
+  const sessionId = searchParams.get('session');
+  const [sessionData, setSessionData] = useState<any>(null);
+  const [isLoadingSession, setIsLoadingSession] = useState(!!sessionId);
+  
+  // Real-time presence for collaboration
+  const { onlineUsers } = useRealTimePresence(sessionId ? `session:${sessionId}` : 'daw:standalone');
   
   // Core DAW State
   const [tracks, setTracks] = useState<Track[]>([]);
@@ -112,6 +126,74 @@ const HybridDAW = () => {
     { id: 'collab-master', title: 'Team Player', description: 'Collaborate with another user', unlocked: false },
     { id: 'effect-wizard', title: 'Effect Master', description: 'Apply 5 different effects', unlocked: false },
   ]);
+
+  // Load session data if session ID exists
+  useEffect(() => {
+    if (!sessionId || !user) return;
+
+    const loadSessionData = async () => {
+      setIsLoadingSession(true);
+      try {
+        // Load session details
+        const { data: session, error: sessionError } = await supabase
+          .from('collaboration_sessions')
+          .select('*, session_participants(*)')
+          .eq('id', sessionId)
+          .single();
+
+        if (sessionError) throw sessionError;
+
+        setSessionData(session);
+        setIsCollabConnected(true);
+
+        // Load audio files for this session
+        const { data: audioFiles, error: filesError } = await supabase
+          .from('audio_files')
+          .select('*')
+          .eq('project_id', sessionId);
+
+        if (!filesError && audioFiles) {
+          // Convert audio files to tracks
+          const loadedTracks: Track[] = audioFiles.map(file => ({
+            id: file.id,
+            name: file.file_name,
+            color: 'hsl(262, 83%, 58%)',
+            regions: [{
+              id: `region-${file.id}`,
+              start: 0,
+              end: file.duration_seconds || 10,
+              url: file.file_path,
+              gain: 1,
+              fadeIn: 0,
+              fadeOut: 0
+            }],
+            solo: false,
+            mute: false,
+            volume: 0.8,
+            effects: {},
+            automation: []
+          }));
+          setTracks(loadedTracks);
+        }
+
+        toast({
+          title: "Session Loaded",
+          description: `Connected to ${session.session_name}`,
+        });
+      } catch (error) {
+        console.error('Error loading session:', error);
+        toast({
+          title: "Session Load Error",
+          description: "Failed to load session data",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoadingSession(false);
+      }
+    };
+
+    loadSessionData();
+  }, [sessionId, user, toast]);
 
   // Initialize Audio Context
   useEffect(() => {
@@ -554,6 +636,15 @@ const HybridDAW = () => {
     });
   };
 
+  // Leave session handler
+  const handleLeaveSession = () => {
+    if (sessionData?.host_user_id === user?.id) {
+      navigate('/artist');
+    } else {
+      navigate('/engineer');
+    }
+  };
+
   if (!user) {
     return (
       <div className="min-h-screen bg-background">
@@ -583,8 +674,24 @@ const HybridDAW = () => {
       {/* Modern Glassmorphic Top Toolbar */}
       <div className="pt-24 glass border-b border-border/50 shadow-glass animate-slide-up">
         <div className="px-6 py-3 flex items-center justify-between">
-          {/* Left - Transport Controls */}
+          {/* Left - Session Info & Transport Controls */}
           <div className="flex items-center gap-3">
+            {sessionId && sessionData && (
+              <>
+                <div className="flex items-center gap-2 glass-hover px-4 py-2 rounded-lg border border-primary/30">
+                  <Users className="w-4 h-4 text-primary" />
+                  <div>
+                    <div className="text-xs font-bold">{sessionData.session_name}</div>
+                    <div className="text-xs text-muted-foreground">{onlineUsers.length} online</div>
+                  </div>
+                </div>
+                <Button variant="outline" size="sm" onClick={handleLeaveSession} className="gap-2">
+                  <LogOut className="w-4 h-4" />
+                  <span className="text-xs">Leave Session</span>
+                </Button>
+                <div className="w-px h-8 bg-border/50" />
+              </>
+            )}
             <Button variant="glass" size="sm" className="text-xs font-semibold">
               FILE
             </Button>

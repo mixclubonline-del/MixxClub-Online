@@ -40,7 +40,7 @@ export const SessionManager = () => {
       if (error) throw error;
 
       toast.success("Session created successfully!");
-      navigate(`/session/${session.id}`);
+      navigate(`/hybrid-daw?session=${session.id}`);
     } catch (error) {
       console.error('Error creating session:', error);
       toast.error("Failed to create session");
@@ -77,7 +77,7 @@ export const SessionManager = () => {
         });
 
       toast.success("Joined session successfully!");
-      navigate(`/session/${session.id}`);
+      navigate(`/hybrid-daw?session=${session.id}`);
     } catch (error) {
       console.error('Error joining session:', error);
       toast.error("Session not found or inactive");
