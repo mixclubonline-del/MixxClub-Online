@@ -69,18 +69,21 @@ export const StudioConsole = () => {
         onMouseLeave={() => setIsDraggingMaster(false)}
       >
         {/* Channel strips */}
-        <div className="flex gap-2">
+        <div className="flex gap-1.5">
           {tracks.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 px-12 text-center">
-              <div className="w-12 h-12 rounded bg-[hsl(var(--studio-panel-raised))] border border-[hsl(var(--studio-border))] flex items-center justify-center mb-2">
-                <span className="text-xl">🎛️</span>
+            <div className="flex flex-col items-center justify-center py-12 px-8 text-center">
+              <div className="w-10 h-10 rounded bg-[hsl(var(--studio-panel-raised))] border border-[hsl(var(--studio-border))] flex items-center justify-center mb-2">
+                <span className="text-lg">🎛️</span>
               </div>
-              <p className="text-xs text-[hsl(var(--studio-text-dim))]">
+              <p className="text-xs text-[hsl(var(--studio-text-dim))] mb-2">
                 No tracks loaded
               </p>
-              <p className="text-[10px] text-[hsl(var(--studio-text-dim))] mt-1">
-                Upload audio to start mixing
-              </p>
+              <button
+                onClick={() => document.dispatchEvent(new CustomEvent('open-import-dialog'))}
+                className="px-3 py-1.5 rounded bg-[hsl(var(--studio-accent))] text-white text-xs font-medium hover:opacity-90 transition-opacity"
+              >
+                Add Track
+              </button>
             </div>
           ) : (
             tracks.map((track) => (
@@ -106,12 +109,12 @@ export const StudioConsole = () => {
           )}
         </div>
 
-        {/* Master section */}
+        {/* Master section - also more compact */}
         {tracks.length > 0 && (
           <div
             className={cn(
-              'flex flex-col items-center gap-2 p-2 rounded ml-2',
-              'w-20 h-[500px] flex-shrink-0'
+              'flex flex-col items-center gap-1.5 p-1.5 rounded ml-2',
+              'w-16 h-[360px] flex-shrink-0'
             )}
             style={{
               background: 'var(--panel-gradient-raised)',

@@ -139,6 +139,13 @@ export default function AIStudio() {
     });
   }, [tracks]);
 
+  // Listen for add track request from console
+  useEffect(() => {
+    const handleOpenImport = () => setIsImportDialogOpen(true);
+    document.addEventListener('open-import-dialog', handleOpenImport);
+    return () => document.removeEventListener('open-import-dialog', handleOpenImport);
+  }, []);
+
   const speak = (message: string) => {
     toast({ title: message });
   };
@@ -485,18 +492,20 @@ export default function AIStudio() {
         <div className="flex-shrink-0 mt-16 px-6 py-3 border-b border-border/50 bg-card/50 backdrop-blur-sm">
           <div className="flex items-center justify-between max-w-7xl mx-auto">
             <div className="flex items-center gap-3">
-              <h2 className="text-sm font-semibold text-muted-foreground">Quick Start</h2>
+              <h2 className="text-sm font-semibold text-muted-foreground">
+                {tracks.length === 0 ? 'Quick Start' : 'Session'}
+              </h2>
               <Button 
                 onClick={() => setIsImportDialogOpen(true)}
                 className="gap-2"
-                size="lg"
+                size={tracks.length === 0 ? "lg" : "default"}
               >
-                <Upload className="w-5 h-5" />
-                Import Audio to Begin
+                <Upload className="w-4 h-4" />
+                {tracks.length === 0 ? 'Import Audio to Begin' : 'Add Track'}
               </Button>
             </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span>{tracks.length} tracks loaded</span>
+              <span>{tracks.length} {tracks.length === 1 ? 'track' : 'tracks'}</span>
             </div>
           </div>
         </div>

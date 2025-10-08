@@ -76,8 +76,8 @@ export const ChannelStrip = ({
   return (
     <div
       className={cn(
-        'flex flex-col items-center gap-2 p-2 rounded-lg cursor-pointer transition-all glass-hover',
-        'w-16 h-[500px] relative',
+        'flex flex-col items-center gap-1.5 p-1.5 rounded-lg cursor-pointer transition-all glass-hover',
+        'w-12 h-[360px] relative',
         isSelected 
           ? 'border-2' 
           : 'border'
@@ -104,23 +104,20 @@ export const ChannelStrip = ({
       {/* Track name & type */}
       <div className="flex flex-col items-center gap-0.5 w-full">
         <div 
-          className="w-2 h-2 rounded-full flex-shrink-0"
+          className="w-1.5 h-1.5 rounded-full flex-shrink-0"
           style={{ backgroundColor: getTrackColor(track.type) }}
         />
-        <span className="text-[9px] font-medium text-[hsl(var(--studio-text))] truncate w-full text-center">
+        <span className="text-[8px] font-medium text-[hsl(var(--studio-text))] truncate w-full text-center leading-tight">
           {track.name}
-        </span>
-        <span className="text-[7px] text-[hsl(var(--studio-text-dim))] uppercase">
-          {track.type}
         </span>
       </div>
 
-      {/* Insert slots (4 slots) */}
+      {/* Insert slots (2 compact slots) */}
       <div className="flex flex-col gap-0.5 w-full">
-        {[1, 2, 3, 4].map((slot) => (
+        {[1, 2].map((slot) => (
           <div
             key={slot}
-            className="h-3 rounded flex items-center justify-center"
+            className="h-2 rounded flex items-center justify-center"
             style={{
               background: 'hsl(var(--studio-black))',
               boxShadow: 'var(--shadow-recessed)',
@@ -128,7 +125,7 @@ export const ChannelStrip = ({
             }}
           >
             <div 
-              className="w-1 h-1 rounded-full"
+              className="w-0.5 h-0.5 rounded-full"
               style={{
                 background: 'hsl(var(--led-off))',
                 boxShadow: 'inset 0 1px 2px hsl(0 0% 0% / 0.5)',
@@ -138,23 +135,10 @@ export const ChannelStrip = ({
         ))}
       </div>
 
-      {/* Mini EQ graph placeholder */}
-      <div className="w-full h-6 bg-[hsl(var(--studio-black))] border border-[hsl(var(--studio-border))] rounded relative overflow-hidden">
-        <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-          <path
-            d="M 0 80 Q 25 60, 50 50 T 100 40"
-            stroke={getTrackColor(track.type)}
-            strokeWidth="2"
-            fill="none"
-            opacity="0.4"
-          />
-        </svg>
-      </div>
-
-      {/* Pan knob */}
+      {/* Pan knob - smaller */}
       <div className="flex flex-col items-center gap-0.5 w-full">
         <div 
-          className="relative w-10 h-10 rounded-full cursor-ew-resize"
+          className="relative w-7 h-7 rounded-full cursor-ew-resize"
           style={{
             background: 'var(--knob-gradient)',
             boxShadow: 'var(--shadow-recessed), inset 0 1px 1px hsl(0 0% 30% / 0.3)',
@@ -164,10 +148,10 @@ export const ChannelStrip = ({
           onMouseMove={handlePanMouseMove}
         >
           {/* Center dot */}
-          <div className="absolute top-1/2 left-1/2 w-1.5 h-1.5 bg-[hsl(var(--studio-text-dim))] rounded-full -translate-x-1/2 -translate-y-1/2" />
+          <div className="absolute top-1/2 left-1/2 w-1 h-1 bg-[hsl(var(--studio-text-dim))] rounded-full -translate-x-1/2 -translate-y-1/2" />
           {/* Indicator line */}
           <div 
-            className="absolute top-1/2 left-1/2 w-0.5 h-3 rounded-full origin-bottom"
+            className="absolute top-1/2 left-1/2 w-0.5 h-2 rounded-full origin-bottom"
             style={{ 
               transform: `translate(-50%, -50%) rotate(${track.pan * 135}deg)`,
               background: 'linear-gradient(180deg, hsl(var(--studio-text)), hsl(var(--studio-text-dim)))',
@@ -175,13 +159,10 @@ export const ChannelStrip = ({
             }}
           />
         </div>
-        <span className="text-[7px] font-mono text-[hsl(var(--studio-text-dim))]">
-          {track.pan === 0 ? 'C' : track.pan > 0 ? `R${Math.round(Math.abs(track.pan) * 50)}` : `L${Math.round(Math.abs(track.pan) * 50)}`}
-        </span>
       </div>
 
-      {/* VU Meters - Dual L/R */}
-      <div className="flex gap-1">
+      {/* VU Meters - Dual L/R compact */}
+      <div className="flex gap-0.5">
         <VUMeter 
           level={track.peakLevel * 0.95} 
           size="sm"
@@ -196,10 +177,10 @@ export const ChannelStrip = ({
         />
       </div>
 
-      {/* Fader */}
+      {/* Fader - more compact */}
       <div className="flex-1 flex flex-col items-center w-full">
         <div 
-          className="relative h-full w-3 rounded cursor-ns-resize"
+          className="relative h-full w-2 rounded cursor-ns-resize"
           style={{
             background: 'var(--fader-gradient)',
             boxShadow: 'var(--shadow-recessed-deep)',
@@ -211,10 +192,10 @@ export const ChannelStrip = ({
           {/* Fader rail highlight */}
           <div className="absolute inset-y-0 left-0 w-px bg-[hsl(0_0%_18%/0.5)]" />
           
-          {/* Fader cap */}
+          {/* Fader cap - smaller */}
           <div
             className={cn(
-              'absolute left-1/2 -translate-x-1/2 w-7 h-5 rounded transition-all',
+              'absolute left-1/2 -translate-x-1/2 w-5 h-3 rounded transition-all',
               isDraggingFader && 'scale-110'
             )}
             style={{
@@ -228,19 +209,18 @@ export const ChannelStrip = ({
               borderBottom: '1px solid hsl(0 0% 5%)',
             }}
           >
-            {/* Cap detail lines */}
-            <div className="absolute inset-x-2 top-1/2 -translate-y-1/2 flex flex-col gap-0.5">
+            {/* Cap detail line */}
+            <div className="absolute inset-x-1 top-1/2 -translate-y-1/2">
               <div className="h-px bg-[hsl(0_0%_30%)]" />
-              <div className="h-px bg-[hsl(0_0%_10%)]" />
             </div>
           </div>
         </div>
-        <span className="text-[7px] font-mono text-[hsl(var(--studio-text-dim))] mt-1">
+        <span className="text-[7px] font-mono text-[hsl(var(--studio-text-dim))] mt-0.5">
           {Math.round(track.volume * 100)}
         </span>
       </div>
 
-      {/* M/S/R buttons */}
+      {/* M/S/R buttons - more compact */}
       <div className="flex flex-col gap-0.5 w-full">
         <button
           onClick={(e) => {
@@ -248,7 +228,7 @@ export const ChannelStrip = ({
             onMuteToggle();
           }}
           className={cn(
-            'h-5 rounded text-[9px] font-bold transition-all',
+            'h-4 rounded text-[8px] font-bold transition-all',
             track.mute
               ? 'bg-[hsl(var(--led-red))] text-white shadow-[0_0_6px_hsl(var(--led-red))]'
               : 'bg-[hsl(var(--studio-panel-raised))] text-[hsl(var(--studio-text-dim))] hover:text-[hsl(var(--studio-text))]'
@@ -262,7 +242,7 @@ export const ChannelStrip = ({
             onSoloToggle();
           }}
           className={cn(
-            'h-5 rounded text-[9px] font-bold transition-all',
+            'h-4 rounded text-[8px] font-bold transition-all',
             track.solo
               ? 'bg-[hsl(var(--led-yellow))] text-black shadow-[0_0_6px_hsl(var(--led-yellow))]'
               : 'bg-[hsl(var(--studio-panel-raised))] text-[hsl(var(--studio-text-dim))] hover:text-[hsl(var(--studio-text))]'
@@ -270,16 +250,6 @@ export const ChannelStrip = ({
         >
           S
         </button>
-        <button
-          className="h-5 rounded text-[9px] font-bold bg-[hsl(var(--studio-panel-raised))] text-[hsl(var(--studio-text-dim))] hover:text-[hsl(var(--led-red))] transition-all"
-        >
-          R
-        </button>
-      </div>
-
-      {/* Channel number */}
-      <div className="text-[7px] font-mono text-[hsl(var(--studio-text-dim))]">
-        {track.id.split('-')[1]}
       </div>
     </div>
   );
