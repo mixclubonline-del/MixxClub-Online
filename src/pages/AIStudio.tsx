@@ -144,6 +144,7 @@ export default function AIStudio() {
   } = useAIStudioStore();
 
   const masterVolume = useAIStudioStore((state) => state.masterVolume);
+  const masterPeakLevel = useAIStudioStore((state) => state.masterPeakLevel);
   const updateMasterLevels = useAIStudioStore((state) => state.updateMasterLevels);
   const setDuration = useAIStudioStore((state) => state.setDuration);
 
@@ -357,8 +358,19 @@ export default function AIStudio() {
         sampleRate: buffer.sampleRate
       });
       
-      // Create new track
+      // Create new track with initial region spanning full audio
       const trackId = `track-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      const initialRegion = {
+        id: `region-${trackId}-initial`,
+        trackId,
+        startTime: 0,
+        duration: buffer.duration,
+        sourceStartOffset: 0,
+        fadeIn: { duration: 0, curve: 'linear' as const },
+        fadeOut: { duration: 0, curve: 'linear' as const },
+        gain: 1.0,
+      };
+      
       const newTrack = {
         id: trackId,
         name: trackName,
@@ -373,6 +385,7 @@ export default function AIStudio() {
         waveformData: waveform,
         analysis: file.analysis,
         color: `hsl(${Math.random() * 360}, 70%, 60%)`,
+        regions: [initialRegion],
       };
       
       console.log('[AIStudio] Adding track to store:', trackName);
@@ -647,10 +660,12 @@ export default function AIStudio() {
         {/* Reactive Waveform Overlay */}
         {tracks.length > 0 && (
           <div className="flex-shrink-0 px-6 py-4">
-            <ReactiveWaveform 
-              activeColors={activePluginColors}
-              pulseIntensity={waveformPulse}
-            />
+                <ReactiveWaveform 
+                  activeColors={activePluginColors}
+                  pulseIntensity={waveformPulse}
+                  isPlaying={isPlaying}
+                  audioLevel={masterPeakLevel}
+                />
             {primeBotMessage && (
               <div className="mt-2">
                 <PrimeBotAssistant activePlugin={primeBotMessage} />

@@ -3,11 +3,15 @@ import { useEffect, useRef, useState } from 'react';
 interface ReactiveWaveformProps {
   activeColors?: string[];
   pulseIntensity?: number;
+  isPlaying?: boolean;
+  audioLevel?: number; // 0-1 from actual audio peak
 }
 
 export const ReactiveWaveform = ({ 
   activeColors = ["#A7B7FF", "#C5A3FF", "#FF70D0"],
-  pulseIntensity: externalPulse = 1.0
+  pulseIntensity: externalPulse = 1.0,
+  isPlaying = false,
+  audioLevel = 0
 }: ReactiveWaveformProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [phase, setPhase] = useState(0);
@@ -15,8 +19,10 @@ export const ReactiveWaveform = ({
   const animationRef = useRef<number>();
 
   useEffect(() => {
-    setPulseIntensity(externalPulse);
-  }, [externalPulse]);
+    if (isPlaying) {
+      setPulseIntensity(Math.max(1.0, audioLevel * 3.0));
+    }
+  }, [isPlaying, audioLevel]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -59,8 +65,11 @@ export const ReactiveWaveform = ({
         ctx.fillRect(x, mid - barH / 2, barW * 0.8, barH);
       }
       
-      setPhase(prev => prev + 0.04);
-      setPulseIntensity(prev => Math.max(1.0, prev - 0.01));
+      // Only update phase when playing
+      if (isPlaying) {
+        setPhase(prev => prev + 0.04);
+        setPulseIntensity(prev => Math.max(1.0, prev - 0.01));
+      }
       animationRef.current = requestAnimationFrame(draw);
     };
 
@@ -72,7 +81,7 @@ export const ReactiveWaveform = ({
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [activeColors, phase, pulseIntensity]);
+  }, [activeColors, phase, pulseIntensity, isPlaying]);
 
   return (
     <div className="w-full h-[180px] rounded-xl bg-gradient-to-br from-purple-950/30 to-indigo-950/50 shadow-[inset_0_0_30px_rgba(163,125,255,0.1)] overflow-hidden">

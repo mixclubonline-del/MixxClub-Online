@@ -100,6 +100,7 @@ export const BrowserSidebar = () => {
                     solo: false,
                     peakLevel: 0,
                     rmsLevel: 0,
+                    regions: [],
                   };
                   addTrack(newTrack);
                 }}

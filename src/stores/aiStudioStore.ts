@@ -1,5 +1,17 @@
 import { create } from 'zustand';
 
+export interface AudioRegion {
+  id: string;
+  trackId: string;
+  startTime: number;
+  duration: number;
+  sourceStartOffset: number;
+  fadeIn: { duration: number; curve: 'linear' | 'exponential' | 'logarithmic' };
+  fadeOut: { duration: number; curve: 'linear' | 'exponential' | 'logarithmic' };
+  gain: number;
+  color?: string;
+}
+
 export interface Track {
   id: string;
   name: string;
@@ -14,6 +26,7 @@ export interface Track {
   rmsLevel: number;
   analysis?: AudioAnalysis;
   color?: string;
+  regions: AudioRegion[];
 }
 
 export interface EffectUnit {
@@ -43,6 +56,14 @@ interface AIStudioStore {
   // Tracks
   tracks: Track[];
   selectedTrackId: string | null;
+  
+  // Regions & Selection
+  selectedRegions: Set<string>;
+  
+  // Arrangement View
+  scrollMode: 'none' | 'page' | 'continuous';
+  snapEnabled: boolean;
+  snapMode: 'bars' | 'beats' | 'quarter' | 'eighth' | 'sixteenth';
   
   // Effects
   effects: EffectUnit[];
@@ -85,12 +106,32 @@ interface AIStudioStore {
   setViewMode: (mode: 'studio' | 'console' | '3d' | 'compact') => void;
   setMasterVolume: (volume: number) => void;
   updateMasterLevels: (peak: number) => void;
+  
+  // Region actions
+  addRegion: (trackId: string, region: AudioRegion) => void;
+  removeRegion: (regionId: string) => void;
+  updateRegion: (regionId: string, updates: Partial<AudioRegion>) => void;
+  splitRegion: (regionId: string, splitTime: number) => void;
+  duplicateRegion: (regionId: string) => void;
+  
+  // Selection actions
+  selectRegion: (regionId: string, multiSelect?: boolean) => void;
+  clearSelection: () => void;
+  
+  // Arrangement actions
+  setScrollMode: (mode: 'none' | 'page' | 'continuous') => void;
+  setSnapEnabled: (enabled: boolean) => void;
+  setSnapMode: (mode: 'bars' | 'beats' | 'quarter' | 'eighth' | 'sixteenth') => void;
 }
 
-export const useAIStudioStore = create<AIStudioStore>((set) => ({
+export const useAIStudioStore = create<AIStudioStore>((set, get) => ({
   // Initial state - blank session
   tracks: [],
   selectedTrackId: null,
+  selectedRegions: new Set<string>(),
+  scrollMode: 'continuous',
+  snapEnabled: true,
+  snapMode: 'beats',
   effects: [],
   isPlaying: false,
   isRecording: false,
@@ -158,4 +199,94 @@ export const useAIStudioStore = create<AIStudioStore>((set) => ({
   setViewMode: (mode) => set({ viewMode: mode }),
   setMasterVolume: (volume) => set({ masterVolume: volume }),
   updateMasterLevels: (peak) => set({ masterPeakLevel: peak }),
+  
+  // Region actions
+  addRegion: (trackId, region) => set((state) => ({
+    tracks: state.tracks.map((t) => 
+      t.id === trackId ? { ...t, regions: [...t.regions, region] } : t
+    ),
+  })),
+  
+  removeRegion: (regionId) => set((state) => ({
+    tracks: state.tracks.map((t) => ({
+      ...t,
+      regions: t.regions.filter((r) => r.id !== regionId),
+    })),
+    selectedRegions: new Set(Array.from(state.selectedRegions).filter(id => id !== regionId)),
+  })),
+  
+  updateRegion: (regionId, updates) => set((state) => ({
+    tracks: state.tracks.map((t) => ({
+      ...t,
+      regions: t.regions.map((r) => (r.id === regionId ? { ...r, ...updates } : r)),
+    })),
+  })),
+  
+  splitRegion: (regionId, splitTime) => set((state) => {
+    const tracks = state.tracks.map((track) => {
+      const regionIndex = track.regions.findIndex((r) => r.id === regionId);
+      if (regionIndex === -1) return track;
+      
+      const region = track.regions[regionIndex];
+      const relativeTime = splitTime - region.startTime;
+      
+      if (relativeTime <= 0 || relativeTime >= region.duration) return track;
+      
+      const leftRegion: AudioRegion = {
+        ...region,
+        id: `${regionId}-left`,
+        duration: relativeTime,
+      };
+      
+      const rightRegion: AudioRegion = {
+        ...region,
+        id: `${regionId}-right`,
+        startTime: splitTime,
+        sourceStartOffset: region.sourceStartOffset + relativeTime,
+        duration: region.duration - relativeTime,
+      };
+      
+      const newRegions = [...track.regions];
+      newRegions.splice(regionIndex, 1, leftRegion, rightRegion);
+      
+      return { ...track, regions: newRegions };
+    });
+    
+    return { tracks };
+  }),
+  
+  duplicateRegion: (regionId) => set((state) => {
+    const tracks = state.tracks.map((track) => {
+      const region = track.regions.find((r) => r.id === regionId);
+      if (!region) return track;
+      
+      const newRegion: AudioRegion = {
+        ...region,
+        id: `region-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        startTime: region.startTime + region.duration + 0.1,
+      };
+      
+      return { ...track, regions: [...track.regions, newRegion] };
+    });
+    
+    return { tracks };
+  }),
+  
+  // Selection actions
+  selectRegion: (regionId, multiSelect = false) => set((state) => {
+    const newSelection = new Set(multiSelect ? state.selectedRegions : []);
+    if (newSelection.has(regionId)) {
+      newSelection.delete(regionId);
+    } else {
+      newSelection.add(regionId);
+    }
+    return { selectedRegions: newSelection };
+  }),
+  
+  clearSelection: () => set({ selectedRegions: new Set() }),
+  
+  // Arrangement actions
+  setScrollMode: (mode) => set({ scrollMode: mode }),
+  setSnapEnabled: (enabled) => set({ snapEnabled: enabled }),
+  setSnapMode: (mode) => set({ snapMode: mode }),
 }));

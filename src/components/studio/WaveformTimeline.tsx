@@ -1,9 +1,12 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
+import { ZoomIn, ZoomOut, Maximize2, Magnet, ArrowRightFromLine, Navigation } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Track } from '@/stores/aiStudioStore';
+import { Track, AudioRegion, useAIStudioStore } from '@/stores/aiStudioStore';
 import { TrackControls } from './TrackControls';
+import { RegionContextMenu } from './RegionContextMenu';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 interface WaveformTimelineProps {
   tracks: Track[];
@@ -32,12 +35,28 @@ export const WaveformTimeline = ({
 }: WaveformTimelineProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState(1);
   const [trackHeight, setTrackHeight] = useState(80);
   const [hoveredTrack, setHoveredTrack] = useState<string | null>(null);
+  const [hoveredRegion, setHoveredRegion] = useState<string | null>(null);
 
   const trackHeaderWidth = 180;
   const pixelsPerSecond = 100 * zoom;
+  
+  // Get store actions
+  const scrollMode = useAIStudioStore((state) => state.scrollMode);
+  const snapEnabled = useAIStudioStore((state) => state.snapEnabled);
+  const snapMode = useAIStudioStore((state) => state.snapMode);
+  const selectedRegions = useAIStudioStore((state) => state.selectedRegions);
+  const setScrollMode = useAIStudioStore((state) => state.setScrollMode);
+  const setSnapEnabled = useAIStudioStore((state) => state.setSnapEnabled);
+  const selectRegion = useAIStudioStore((state) => state.selectRegion);
+  const clearSelection = useAIStudioStore((state) => state.clearSelection);
+  const splitRegion = useAIStudioStore((state) => state.splitRegion);
+  const duplicateRegion = useAIStudioStore((state) => state.duplicateRegion);
+  const removeRegion = useAIStudioStore((state) => state.removeRegion);
+  const updateRegion = useAIStudioStore((state) => state.updateRegion);
 
   // Generate simplified waveform data
   const generateWaveform = (type: Track['type']) => {
@@ -112,7 +131,28 @@ export const WaveformTimeline = ({
     };
   };
 
-  // Draw waveforms on canvas
+  // Auto-scroll to follow playhead
+  useEffect(() => {
+    if (!isPlaying || scrollMode === 'none' || !scrollContainerRef.current) return;
+    
+    const container = scrollContainerRef.current;
+    const playheadX = currentTime * pixelsPerSecond;
+    const containerWidth = container.clientWidth;
+    const scrollLeft = container.scrollLeft;
+    
+    if (scrollMode === 'continuous') {
+      // Keep playhead centered
+      const targetScroll = playheadX - containerWidth / 2;
+      container.scrollTo({ left: Math.max(0, targetScroll), behavior: 'smooth' });
+    } else if (scrollMode === 'page') {
+      // Jump scroll when playhead reaches 80% of visible area
+      if (playheadX > scrollLeft + containerWidth * 0.8) {
+        container.scrollTo({ left: playheadX - containerWidth * 0.2, behavior: 'smooth' });
+      }
+    }
+  }, [currentTime, isPlaying, scrollMode, pixelsPerSecond]);
+  
+  // Draw waveforms and regions on canvas
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -146,7 +186,7 @@ export const WaveformTimeline = ({
       ctx.stroke();
     }
 
-    // Draw tracks
+    // Draw tracks and regions
     tracks.forEach((track, index) => {
       const trackY = index * trackHeight;
       const trackColor = getTrackColor(track.type);
@@ -157,57 +197,75 @@ export const WaveformTimeline = ({
         : 'hsl(220, 18%, 16%)';
       ctx.fillRect(0, trackY, rect.width, trackHeight);
 
-      // Draw waveform with glass gradient fill
-      const waveformData = track.waveformData || generateWaveform(track.type);
-      const step = Math.max(1, Math.floor(waveformData.length / canvas.width));
-      
-      // Create glass gradient for waveform
-      const gradient = ctx.createLinearGradient(0, trackY, 0, trackY + trackHeight);
-      const rgb = getRgbFromHsl(trackColor);
-      gradient.addColorStop(0, `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.95)`);
-      gradient.addColorStop(0.4, `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.7)`);
-      gradient.addColorStop(1, `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.4)`);
-      
-      // Draw filled waveform
-      ctx.fillStyle = gradient;
-      ctx.beginPath();
-      ctx.moveTo(0, trackY + trackHeight / 2);
-      
-      for (let x = 0; x < canvas.width; x++) {
-        const dataIndex = Math.floor(x * step);
-        const amplitude = waveformData[dataIndex] || 0;
-        const y = trackY + (trackHeight / 2) - (amplitude * trackHeight * 0.4);
-        ctx.lineTo(x, y);
-      }
-      
-      for (let x = canvas.width - 1; x >= 0; x--) {
-        const dataIndex = Math.floor(x * step);
-        const amplitude = waveformData[dataIndex] || 0;
-        const y = trackY + (trackHeight / 2) + (amplitude * trackHeight * 0.4);
-        ctx.lineTo(x, y);
-      }
-      
-      ctx.closePath();
-      ctx.fill();
-      
-      // Add glass glow effect for peaks
-      ctx.shadowColor = trackColor;
-      ctx.shadowBlur = 12;
-      ctx.strokeStyle = trackColor;
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      
-      for (let x = 0; x < canvas.width; x++) {
-        const dataIndex = Math.floor(x * step);
-        const amplitude = waveformData[dataIndex] || 0;
-        const y = trackY + (trackHeight / 2) - (amplitude * trackHeight * 0.4);
+      // Draw regions
+      track.regions.forEach((region) => {
+        const regionX = region.startTime * pixelsPerSecond;
+        const regionWidth = region.duration * pixelsPerSecond;
+        const isSelected = selectedRegions.has(region.id);
+        const isHovered = hoveredRegion === region.id;
         
-        if (x === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      }
-      
-      ctx.stroke();
-      ctx.shadowBlur = 0;
+        // Region background
+        ctx.fillStyle = isSelected 
+          ? 'hsl(220, 20%, 30%)' 
+          : isHovered 
+          ? 'hsl(220, 18%, 24%)' 
+          : 'hsl(220, 18%, 20%)';
+        ctx.fillRect(regionX, trackY + 4, regionWidth, trackHeight - 8);
+        
+        // Draw waveform within region bounds
+        const waveformData = track.waveformData || generateWaveform(track.type);
+        const gradient = ctx.createLinearGradient(regionX, trackY, regionX, trackY + trackHeight);
+        const rgb = getRgbFromHsl(trackColor);
+        gradient.addColorStop(0, `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.8)`);
+        gradient.addColorStop(0.4, `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.6)`);
+        gradient.addColorStop(1, `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.3)`);
+        
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.moveTo(regionX, trackY + trackHeight / 2);
+        
+        const regionSamples = Math.floor(regionWidth);
+        for (let x = 0; x < regionSamples; x++) {
+          const dataIndex = Math.floor(((region.sourceStartOffset * pixelsPerSecond + x) / (duration * pixelsPerSecond)) * waveformData.length);
+          const amplitude = (waveformData[dataIndex] || 0) * region.gain;
+          const y = trackY + (trackHeight / 2) - (amplitude * (trackHeight - 8) * 0.3);
+          ctx.lineTo(regionX + x, y);
+        }
+        
+        for (let x = regionSamples - 1; x >= 0; x--) {
+          const dataIndex = Math.floor(((region.sourceStartOffset * pixelsPerSecond + x) / (duration * pixelsPerSecond)) * waveformData.length);
+          const amplitude = (waveformData[dataIndex] || 0) * region.gain;
+          const y = trackY + (trackHeight / 2) + (amplitude * (trackHeight - 8) * 0.3);
+          ctx.lineTo(regionX + x, y);
+        }
+        
+        ctx.closePath();
+        ctx.fill();
+        
+        // Fade in/out overlays
+        if (region.fadeIn.duration > 0) {
+          const fadeWidth = region.fadeIn.duration * pixelsPerSecond;
+          const fadeGrad = ctx.createLinearGradient(regionX, 0, regionX + fadeWidth, 0);
+          fadeGrad.addColorStop(0, 'rgba(0, 0, 0, 0.5)');
+          fadeGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+          ctx.fillStyle = fadeGrad;
+          ctx.fillRect(regionX, trackY + 4, fadeWidth, trackHeight - 8);
+        }
+        
+        if (region.fadeOut.duration > 0) {
+          const fadeWidth = region.fadeOut.duration * pixelsPerSecond;
+          const fadeGrad = ctx.createLinearGradient(regionX + regionWidth - fadeWidth, 0, regionX + regionWidth, 0);
+          fadeGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+          fadeGrad.addColorStop(1, 'rgba(0, 0, 0, 0.5)');
+          ctx.fillStyle = fadeGrad;
+          ctx.fillRect(regionX + regionWidth - fadeWidth, trackY + 4, fadeWidth, trackHeight - 8);
+        }
+        
+        // Region border
+        ctx.strokeStyle = isSelected ? 'hsl(var(--studio-accent))' : trackColor;
+        ctx.lineWidth = isSelected ? 2 : 1;
+        ctx.strokeRect(regionX, trackY + 4, regionWidth, trackHeight - 8);
+      });
 
       // Draw track separator
       ctx.strokeStyle = 'hsl(220, 14%, 28%)';
@@ -228,7 +286,39 @@ export const WaveformTimeline = ({
       ctx.lineTo(playheadX, rect.height);
       ctx.stroke();
     }
-  }, [tracks, currentTime, duration, zoom, trackHeight, pixelsPerSecond, hoveredTrack]);
+  }, [tracks, currentTime, duration, zoom, trackHeight, pixelsPerSecond, hoveredTrack, hoveredRegion, selectedRegions]);
+
+  // Handle region selection
+  const handleRegionClick = useCallback((regionId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const multiSelect = e.metaKey || e.ctrlKey;
+    selectRegion(regionId, multiSelect);
+  }, [selectRegion]);
+  
+  // Handle keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (selectedRegions.size === 0) return;
+      
+      if (e.key === 's' || e.key === 'S') {
+        // Split selected regions at playhead
+        selectedRegions.forEach(regionId => splitRegion(regionId, currentTime));
+      } else if ((e.metaKey || e.ctrlKey) && e.key === 'd') {
+        e.preventDefault();
+        // Duplicate selected regions
+        selectedRegions.forEach(regionId => duplicateRegion(regionId));
+      } else if (e.key === 'Delete' || e.key === 'Backspace') {
+        // Delete selected regions
+        selectedRegions.forEach(regionId => removeRegion(regionId));
+        clearSelection();
+      } else if (e.key === 'Escape') {
+        clearSelection();
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedRegions, currentTime, splitRegion, duplicateRegion, removeRegion, clearSelection]);
 
   // Handle click to seek
   const handleTimelineClick = (e: React.MouseEvent) => {
@@ -236,22 +326,52 @@ export const WaveformTimeline = ({
     if (!rect) return;
     
     const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    // Check if clicking on a region
+    const trackIndex = Math.floor(y / trackHeight);
+    if (trackIndex >= 0 && trackIndex < tracks.length) {
+      const track = tracks[trackIndex];
+      const clickTime = x / pixelsPerSecond;
+      
+      const clickedRegion = track.regions.find(r => 
+        clickTime >= r.startTime && clickTime <= r.startTime + r.duration
+      );
+      
+      if (clickedRegion) {
+        handleRegionClick(clickedRegion.id, e);
+        return;
+      }
+    }
+    
+    // Otherwise seek
     const time = x / pixelsPerSecond;
     onTimeChange(Math.max(0, Math.min(duration, time)));
+    clearSelection();
   };
 
-  // Handle track hover
+  // Handle track and region hover
   const handleMouseMove = (e: React.MouseEvent) => {
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
     
+    const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     const trackIndex = Math.floor(y / trackHeight);
     
     if (trackIndex >= 0 && trackIndex < tracks.length) {
-      setHoveredTrack(tracks[trackIndex].id);
+      const track = tracks[trackIndex];
+      setHoveredTrack(track.id);
+      
+      // Check if hovering over a region
+      const hoverTime = x / pixelsPerSecond;
+      const hovered = track.regions.find(r => 
+        hoverTime >= r.startTime && hoverTime <= r.startTime + r.duration
+      );
+      setHoveredRegion(hovered?.id || null);
     } else {
       setHoveredTrack(null);
+      setHoveredRegion(null);
     }
   };
 
@@ -291,6 +411,28 @@ export const WaveformTimeline = ({
             >
               <ZoomIn className="w-4 h-4 text-[hsl(var(--studio-text-dim))]" />
             </button>
+          </div>
+          
+          <div className="flex items-center gap-2 ml-4">
+            <Button
+              variant={snapEnabled ? "default" : "outline"}
+              size="sm"
+              onClick={() => setSnapEnabled(!snapEnabled)}
+              className="h-7"
+            >
+              <Magnet className="w-3 h-3 mr-1" />
+              Snap
+            </Button>
+            
+            <Button
+              variant={scrollMode === 'continuous' ? "default" : "outline"}
+              size="sm"
+              onClick={() => setScrollMode(scrollMode === 'continuous' ? 'none' : 'continuous')}
+              className="h-7"
+            >
+              <Navigation className="w-3 h-3 mr-1" />
+              Follow
+            </Button>
           </div>
         </div>
         
@@ -345,14 +487,20 @@ export const WaveformTimeline = ({
         </div>
 
         {/* Timeline Canvas */}
-        <div className="flex-1 overflow-x-auto overflow-y-hidden" ref={timelineRef}>
+        <div className="flex-1 overflow-x-auto overflow-y-hidden" ref={scrollContainerRef}>
           <canvas
             ref={canvasRef}
             className="w-full cursor-crosshair"
-            style={{ height: tracks.length * trackHeight }}
+            style={{ 
+              height: tracks.length * trackHeight,
+              minWidth: Math.max(800, duration * pixelsPerSecond)
+            }}
             onClick={handleTimelineClick}
             onMouseMove={handleMouseMove}
-            onMouseLeave={() => setHoveredTrack(null)}
+            onMouseLeave={() => {
+              setHoveredTrack(null);
+              setHoveredRegion(null);
+            }}
           />
         </div>
       </div>
