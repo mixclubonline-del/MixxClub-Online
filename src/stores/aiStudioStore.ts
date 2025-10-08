@@ -97,6 +97,9 @@ interface AIStudioStore {
   // Transport
   isPlaying: boolean;
   isRecording: boolean;
+  loopEnabled: boolean;
+  loopStart: number;
+  loopEnd: number;
   currentTime: number;
   duration: number;
   tempo: number;
@@ -140,6 +143,8 @@ interface AIStudioStore {
   
   setPlaying: (playing: boolean) => void;
   setRecording: (recording: boolean) => void;
+  setLoopEnabled: (enabled: boolean) => void;
+  setLoopRange: (start: number, end: number) => void;
   setCurrentTime: (time: number) => void;
   setDuration: (duration: number) => void;
   setTempo: (tempo: number) => void;
@@ -193,6 +198,9 @@ export const useAIStudioStore = create<AIStudioStore>((set, get) => ({
   effects: [],
   isPlaying: false,
   isRecording: false,
+  loopEnabled: false,
+  loopStart: 0,
+  loopEnd: 180,
   currentTime: 0,
   duration: 180,
   tempo: 120,
@@ -250,6 +258,8 @@ export const useAIStudioStore = create<AIStudioStore>((set, get) => ({
   
   setPlaying: (playing) => set({ isPlaying: playing }),
   setRecording: (recording) => set({ isRecording: recording }),
+  setLoopEnabled: (enabled) => set({ loopEnabled: enabled }),
+  setLoopRange: (start, end) => set({ loopStart: start, loopEnd: end }),
   setCurrentTime: (time) => set({ currentTime: time }),
   setDuration: (duration) => set({ duration }),
   setTempo: (tempo) => set({ tempo }),

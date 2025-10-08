@@ -9,8 +9,10 @@ export const TransportControls = () => {
   const { 
     isPlaying, 
     isRecording,
+    loopEnabled,
     setPlaying, 
     setRecording,
+    setLoopEnabled,
     currentTime, 
     setCurrentTime, 
     tempo, 
@@ -91,11 +93,11 @@ export const TransportControls = () => {
       
       {/* Loop */}
       <Button
-        variant="ghost"
+        variant={loopEnabled ? "default" : "ghost"}
         size="sm"
-        disabled
-        className="h-8 w-8 p-0 opacity-50"
-        title="Loop (Coming Soon)"
+        onClick={() => setLoopEnabled(!loopEnabled)}
+        className="h-8 w-8 p-0"
+        title="Loop"
       >
         <Repeat className="h-4 w-4" />
       </Button>
