@@ -14,7 +14,12 @@ interface MixxMasterSession {
   updated_at: string;
 }
 
-export const SessionBrowser = ({ projectId }: { projectId?: string }) => {
+interface SessionBrowserProps {
+  projectId?: string;
+  onSessionSelect?: (sessionId: string) => void;
+}
+
+export const SessionBrowser = ({ projectId, onSessionSelect }: SessionBrowserProps) => {
   const [sessions, setSessions] = useState<MixxMasterSession[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -123,10 +128,12 @@ export const SessionBrowser = ({ projectId }: { projectId?: string }) => {
                 </div>
 
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm">
-                    <Eye className="w-4 h-4 mr-1" />
-                    View
-                  </Button>
+                  {onSessionSelect && (
+                    <Button variant="outline" size="sm" onClick={() => onSessionSelect(session.id)}>
+                      <Eye className="w-4 h-4 mr-1" />
+                      Open
+                    </Button>
+                  )}
                   <Button onClick={() => handleExport(session.id)} size="sm">
                     <Download className="w-4 h-4 mr-1" />
                     Export
