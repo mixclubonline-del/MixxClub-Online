@@ -17,6 +17,7 @@ import { MixxClip } from './MixxClip';
 import { MixxFX } from './MixxFX';
 import { MixxVintage } from './MixxVintage';
 import { PrimeBot } from './PrimeBot';
+import { MixxTunePlugin } from '@/components/studio/MixxTunePlugin';
 
 interface PluginManagerProps {
   isOpen: boolean;
@@ -120,6 +121,13 @@ export const PluginManager: React.FC<PluginManagerProps> = ({ isOpen, onClose })
         isOpen={activePluginWindows['prime-bot'] || false} 
         onClose={() => handleClosePluginWindow('prime-bot')}
       />
+      {activePluginWindows['mixxtune'] && (
+        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+          <div className="relative max-w-2xl w-full">
+            <MixxTunePlugin onClose={() => handleClosePluginWindow('mixxtune')} />
+          </div>
+        </div>
+      )}
     </>
   );
 };

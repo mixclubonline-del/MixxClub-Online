@@ -19,6 +19,7 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/componen
 import { Button } from "@/components/ui/button";
 import { Plug2, Upload } from "lucide-react";
 import { AudioAnalysisPanel } from "@/components/studio/AudioAnalysisPanel";
+import { AIAssistantPanel } from "@/components/studio/AIAssistantPanel";
 import { useAudioPermissions } from "@/hooks/useAudioPermissions";
 import { audioEngine } from "@/services/audioEngine";
 import { toast as sonnerToast } from 'sonner';
@@ -588,24 +589,16 @@ export default function AIStudio() {
                     />
                   </TabsContent>
 
-                  <TabsContent value="insights" className="flex-1 overflow-auto mt-0 px-4 py-4">
-                    {latestAnalysis ? (
-                      <AudioAnalysisPanel 
-                        analysis={latestAnalysis} 
-                        trackName={latestAnalysis.trackName}
-                      />
-                    ) : (
-                      <Panel title="Prime Insights">
-                        <div className="text-sm text-[hsl(var(--studio-text))] leading-relaxed">
-                          <p>• Vocal clarity target: +2.5 dB @ 3.2 kHz (Q 1.1)</p>
-                          <p>• Transient control: fast attack on drum bus (3–5 ms)</p>
-                          <p>• Stereo width: +8 % above 8 kHz, keep mono below 120 Hz</p>
-                          <p className="mt-2 text-[hsl(var(--studio-text-dim))]">
-                            Tip: Upload audio files to get AI-powered analysis and suggestions.
-                          </p>
-                        </div>
-                      </Panel>
-                    )}
+                   <TabsContent value="insights" className="flex-1 overflow-auto mt-0 px-4 py-4">
+                    <div className="grid gap-4 h-full">
+                      {latestAnalysis && (
+                        <AudioAnalysisPanel 
+                          analysis={latestAnalysis} 
+                          trackName={latestAnalysis.trackName}
+                        />
+                      )}
+                      <AIAssistantPanel />
+                    </div>
                   </TabsContent>
                 </Tabs>
               </ResizablePanel>

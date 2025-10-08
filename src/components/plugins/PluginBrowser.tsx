@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Sliders, Waves, Sparkles, Mic, Zap, Disc, Brain } from 'lucide-react';
+import { Plus, Sliders, Waves, Sparkles, Mic, Zap, Disc, Brain, Music } from 'lucide-react';
 import { usePluginStore } from '@/stores/pluginStore';
 
 interface PluginBrowserProps {
@@ -65,6 +65,14 @@ const AVAILABLE_PLUGINS = [
     icon: Mic,
     description: 'AI vocal coach & pitch correction',
     color: 'from-pink-500/20 to-pink-600/20',
+  },
+  {
+    id: 'mixxtune',
+    name: 'MixxTune',
+    category: 'Voice',
+    icon: Music,
+    description: 'Pro auto-tune & pitch correction',
+    color: 'from-purple-500/20 to-purple-600/20',
   },
   {
     id: 'mixx-clip',

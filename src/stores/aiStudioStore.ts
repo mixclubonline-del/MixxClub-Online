@@ -19,7 +19,7 @@ export interface Track {
 export interface EffectUnit {
   id: string;
   name: string;
-  type: 'eq' | 'compressor' | 'reverb' | 'delay' | 'limiter' | 'saturator';
+  type: 'eq' | 'compressor' | 'reverb' | 'delay' | 'limiter' | 'saturator' | 'mixxtune';
   enabled: boolean;
   parameters: Record<string, number>;
   rackPosition: number;
