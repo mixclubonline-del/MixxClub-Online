@@ -7,9 +7,11 @@ import { usePluginStore } from '@/stores/pluginStore';
 import { useRealTimePresence } from '@/hooks/useRealTimePresence';
 import { useSessionSync } from '@/hooks/useSessionSync';
 import { useStudioKeyboardShortcuts } from '@/hooks/useStudioKeyboardShortcuts';
-import { useTransportEngine } from '@/hooks/useTransportEngine';
+import { useAudioEngine } from '@/hooks/useAudioEngine';
+import { useAudioPlaybackSync } from '@/hooks/useAudioPlaybackSync';
 import { useToast } from '@/hooks/use-toast';
 import { useAudioFFT } from '@/hooks/useAudioFFT';
+import { loadAudioFromSupabase } from '@/utils/audioLoader';
 
 // Studio Components
 import { StudioConsole } from '@/components/studio/StudioConsole';
@@ -47,8 +49,27 @@ export default function AIStudioWorkspace() {
   const [show3DVisualizer, setShow3DVisualizer] = useState(false);
 
   // Store access
-  const { tracks, addTrack, isPlaying, setPlaying, currentTime, setCurrentTime, updateTrack, removeTrack, setRecording, isRecording } = useAIStudioStore();
+  const { 
+    tracks, 
+    addTrack, 
+    isPlaying, 
+    setPlaying, 
+    currentTime, 
+    setCurrentTime, 
+    updateTrack, 
+    removeTrack, 
+    setRecording, 
+    isRecording,
+    duration,
+    setDuration,
+  } = useAIStudioStore();
   const { openPlugins, activePlugin } = usePluginStore();
+  
+  // Audio engine for playback
+  const { audioContext, isInitialized } = useAudioEngine();
+  
+  // Audio playback synchronization
+  const { setTrackBuffer } = useAudioPlaybackSync(audioContext);
   
   // Audio FFT for visualizations
   const fftData = useAudioFFT(isPlaying);
@@ -58,9 +79,6 @@ export default function AIStudioWorkspace() {
   
   // Auto-save and sync
   useSessionSync(sessionId);
-  
-  // Transport playback engine
-  useTransportEngine();
   
   // Keyboard shortcuts
   useStudioKeyboardShortcuts();
@@ -96,24 +114,63 @@ export default function AIStudioWorkspace() {
 
         if (filesError) throw filesError;
 
-        // Convert audio files to tracks
-        audioFiles?.forEach((file, index) => {
-          addTrack({
-            id: file.id,
-            name: file.file_name,
-            type: (file.stem_type as any) || 'other',
-            volume: 0.75,
-            pan: 0,
-            mute: false,
-            solo: false,
-            peakLevel: 0,
-            rmsLevel: 0,
-            color: `hsl(${(index * 60) % 360}, 70%, 50%)`,
-            regions: [],
-            effects: [],
-            sends: {},
-          });
-        });
+        // Load audio buffers and generate waveform data
+        let maxDuration = 0;
+        
+        for (const file of audioFiles || []) {
+          try {
+            // Load and decode audio from Supabase
+            const audioData = await loadAudioFromSupabase(
+              'audio-files',
+              file.file_path,
+              audioContext!
+            );
+
+            // Store buffer for playback
+            setTrackBuffer(file.id, audioData.buffer);
+
+            // Track max duration
+            if (audioData.duration > maxDuration) {
+              maxDuration = audioData.duration;
+            }
+
+            // Add track with real waveform data
+            addTrack({
+              id: file.id,
+              name: file.file_name,
+              type: (file.stem_type as any) || 'other',
+              volume: 0.75,
+              pan: 0,
+              mute: false,
+              solo: false,
+              peakLevel: 0,
+              rmsLevel: 0,
+              color: `hsl(${(audioFiles.indexOf(file) * 60) % 360}, 70%, 50%)`,
+              regions: [
+                {
+                  id: `region-${file.id}`,
+                  trackId: file.id,
+                  startTime: 0,
+                  duration: audioData.duration,
+                  sourceStartOffset: 0,
+                  gain: 1,
+                  fadeIn: { duration: 0, curve: 'linear' },
+                  fadeOut: { duration: 0, curve: 'linear' },
+                },
+              ],
+              waveformData: audioData.waveformPeaks,
+              effects: [],
+              sends: {},
+            });
+          } catch (loadError) {
+            console.error(`Failed to load audio for ${file.file_name}:`, loadError);
+          }
+        }
+
+        // Set overall duration
+        if (maxDuration > 0) {
+          setDuration(maxDuration);
+        }
 
         toast({
           title: "Session Loaded",
@@ -133,7 +190,7 @@ export default function AIStudioWorkspace() {
     };
 
     loadSession();
-  }, [sessionId, user, addTrack, toast]);
+  }, [sessionId, user, addTrack, audioContext, isInitialized, setTrackBuffer, setDuration, toast]);
 
   // Handle window resize
   useEffect(() => {
