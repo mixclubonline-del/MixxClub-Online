@@ -18,6 +18,7 @@ import PrimeStatusBar from "@/components/prime/PrimeStatusBar";
 
 // Lazy load heavy components
 const MixClubHome = React.lazy(() => import("./pages/MixClubHome"));
+const MixClubHomepage2027 = React.lazy(() => import("./pages/MixClubHomepage2027"));
 const Home = React.lazy(() => import("./pages/Home"));
 
 // Keep IntroScene non-lazy since it's the landing page
@@ -169,8 +170,9 @@ const AppContent = () => {
       <OfflineIndicator />
       <React.Suspense fallback={<DashboardSkeleton />}>
       <Routes>
-        <Route path="/" element={<MixClubHome />} />
-            <Route path="/network" element={<MixClubHome />} />
+        <Route path="/" element={<MixClubHomepage2027 />} />
+            <Route path="/hub" element={<MixClubHome />} />
+            <Route path="/network" element={<Network />} />
             <Route path="/artist" element={<Artist />} />
             <Route path="/engineer" element={<Engineer />} />
             <Route path="/ai-studio" element={<AIStudio />} />
