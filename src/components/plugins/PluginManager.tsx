@@ -11,7 +11,7 @@ import { MixxEQ } from './MixxEQ';
 import { MixxComp } from './MixxComp';
 import { MixxReverb } from './MixxReverb';
 import { MixxDelay } from './MixxDelay';
-import { MixxMaster } from './MixxMaster';
+import { MixxMaster } from './MixxMasterPlugin';
 import { MixxVoice } from './MixxVoice';
 import { MixxClip } from './MixxClip';
 import { MixxFX } from './MixxFX';

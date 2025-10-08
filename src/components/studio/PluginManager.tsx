@@ -3,7 +3,7 @@ import { MixxEQ } from '@/components/plugins/MixxEQ';
 import { MixxComp } from '@/components/plugins/MixxComp';
 import { MixxReverb } from '@/components/plugins/MixxReverb';
 import { MixxDelay } from '@/components/plugins/MixxDelay';
-import { MixxMaster } from '@/components/plugins/MixxMaster';
+import { MixxMaster } from '@/components/plugins/MixxMasterPlugin';
 import { MixxVintage } from '@/components/plugins/MixxVintage';
 import { MixxPort } from '@/components/plugins/MixxPort';
 import { MixxVoice } from '@/components/plugins/MixxVoice';
