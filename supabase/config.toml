@@ -191,3 +191,15 @@ verify_jwt = false
 
 [functions.separate-stems]
 verify_jwt = true
+
+[functions.mixxmaster-create]
+verify_jwt = true
+
+[functions.mixxmaster-parse]
+verify_jwt = true
+
+[functions.mixxmaster-export]
+verify_jwt = true
+
+[functions.primebot-analyze]
+verify_jwt = false

@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -63,7 +63,7 @@ serve(async (req) => {
       },
       mixing_suggestions: [
         {
-          id: crypto.randomUUID(),
+          id: globalThis.crypto.randomUUID(),
           category: 'eq',
           priority: 'high',
           title: 'Reduce Low-Mid Build-up',
@@ -73,7 +73,7 @@ serve(async (req) => {
           confidence_score: 0.85,
         },
         {
-          id: crypto.randomUUID(),
+          id: globalThis.crypto.randomUUID(),
           category: 'compression',
           priority: 'medium',
           title: 'Add Vocal Compression',

@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -34,9 +34,9 @@ serve(async (req) => {
 
     const encoder = new TextEncoder();
     const data = encoder.encode(JSON.stringify(manifestCopy));
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashBuffer = await globalThis.crypto.subtle.digest('SHA-256', data);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const calculatedChecksum = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    const calculatedChecksum = hashArray.map((b: number) => b.toString(16).padStart(2, '0')).join('');
 
     if (providedChecksum !== calculatedChecksum) {
       return new Response(
@@ -70,11 +70,11 @@ serve(async (req) => {
     };
 
     // Compare stems
-    const oldStems = Object.values(oldManifest.audio).flat();
-    const newStems = Object.values(manifest.audio).flat();
+    const oldStems = Object.values(oldManifest.audio || {}).flat();
+    const newStems = Object.values(manifest.audio || {}).flat();
     
-    newStems.forEach(newStem => {
-      const oldStem = oldStems.find(s => s.id === newStem.id);
+    newStems.forEach((newStem: any) => {
+      const oldStem = oldStems.find((s: any) => s.id === newStem.id);
       if (!oldStem) {
         diff.added.push(`Stem: ${newStem.name}`);
       } else if (JSON.stringify(oldStem) !== JSON.stringify(newStem)) {
@@ -82,8 +82,8 @@ serve(async (req) => {
       }
     });
 
-    oldStems.forEach(oldStem => {
-      const newStem = newStems.find(s => s.id === oldStem.id);
+    oldStems.forEach((oldStem: any) => {
+      const newStem = newStems.find((s: any) => s.id === oldStem.id);
       if (!newStem) {
         diff.removed.push(`Stem: ${oldStem.name}`);
       }

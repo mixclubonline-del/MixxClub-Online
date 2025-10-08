@@ -3,14 +3,10 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "jsxImportSource": "react",
-    "types": [
-      "npm:@types/node@20.11.30"
-    ],
     "lib": ["ESNext", "DOM", "DOM.Iterable"]
   },
   "imports": {
     "std/": "https://deno.land/std@0.190.0/",
-    "@supabase/supabase-js": "npm:@supabase/supabase-js@2.45.0",
-    "@types/node": "npm:@types/node@20.11.30"
+    "@supabase/supabase-js": "npm:@supabase/supabase-js@2.45.0"
   }
 }

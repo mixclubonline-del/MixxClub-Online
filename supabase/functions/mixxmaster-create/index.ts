@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -53,7 +53,7 @@ serve(async (req) => {
     // Create manifest
     const manifest = {
       version: '1.0',
-      sessionId: crypto.randomUUID(),
+      sessionId: globalThis.crypto.randomUUID(),
       projectId: project_id,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -81,9 +81,9 @@ serve(async (req) => {
     const manifestStr = JSON.stringify(manifest);
     const encoder = new TextEncoder();
     const data = encoder.encode(manifestStr);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashBuffer = await globalThis.crypto.subtle.digest('SHA-256', data);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
-    manifest.checksum = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    manifest.checksum = hashArray.map((b: number) => b.toString(16).padStart(2, '0')).join('');
 
     // Create MixxMaster session
     const { data: session, error: sessionError } = await supabaseClient
