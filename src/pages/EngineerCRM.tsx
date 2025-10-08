@@ -13,6 +13,7 @@ import EnhancedCRM from '@/components/crm/EnhancedCRM';
 import SessionManager from '@/components/collaboration/SessionManager';
 import CollaborationWorkspace from '@/components/collaboration/CollaborationWorkspace';
 import { RealTimeCollaboration } from '@/components/RealTimeCollaboration';
+import StudioHub from '@/components/studio/StudioHub';
 import { toast } from 'sonner';
 import { JobPool } from '@/components/JobPool';
 import { EarningsOverview } from '@/components/engineer/EarningsOverview';
@@ -379,24 +380,10 @@ const EngineerCRM = () => {
                 onLeaveSession={() => setActiveSessionId(null)}
               />
             ) : (
-              <>
-                <div className="mb-6">
-                  <h2 className="text-2xl font-bold mb-2">Studio Collaboration</h2>
-                  <p className="text-muted-foreground">Start or join live sessions with artists</p>
-                </div>
-                
-                <div className="grid lg:grid-cols-3 gap-6">
-                  <div className="lg:col-span-2">
-                    <SessionManager 
-                      projectId={undefined} 
-                      onEnterSession={(sessionId) => setActiveSessionId(sessionId)}
-                    />
-                  </div>
-                  <div>
-                    <RealTimeCollaboration />
-                  </div>
-                </div>
-              </>
+              <StudioHub 
+                userRole="engineer"
+                onTrackSelect={() => {}}
+              />
             )}
           </div>
         );

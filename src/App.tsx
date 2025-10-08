@@ -4,7 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { queryClient } from "@/lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { PWAInstallPrompt } from "@/components/mobile/PWAInstallPrompt";
 import { MobileRouteGuard } from "@/components/mobile/MobileRouteGuard";
@@ -190,8 +190,8 @@ const AppContent = () => {
             <Route path="/engineer-dashboard" element={<EngineerDashboard />} />
         <Route path="/artist-crm" element={<AppLayout><ArtistCRM /></AppLayout>} />
         <Route path="/engineer-crm" element={<AppLayout><EngineerCRM /></AppLayout>} />
-        <Route path="/artist-studio" element={<AppLayout><ArtistStudio /></AppLayout>} />
-        <Route path="/engineer-studio" element={<AppLayout><EngineerStudio /></AppLayout>} />
+        <Route path="/artist-studio" element={<Navigate to="/artist-crm?tab=studio" replace />} />
+        <Route path="/engineer-studio" element={<Navigate to="/engineer-crm?tab=studio" replace />} />
         <Route path="/studio/create-session" element={<AppLayout><SessionManager /></AppLayout>} />
         <Route path="/studio/join-session" element={<AppLayout><SessionManager /></AppLayout>} />
         <Route path="/session/:sessionId" element={<AppLayout><SessionWorkspacePage /></AppLayout>} />

@@ -26,6 +26,7 @@ import ProfileInsights from '@/components/crm/ProfileInsights';
 import SessionManager from '@/components/collaboration/SessionManager';
 import CollaborationWorkspace from '@/components/collaboration/CollaborationWorkspace';
 import { RealTimeCollaboration } from '@/components/RealTimeCollaboration';
+import StudioHub from '@/components/studio/StudioHub';
 import { ArtistCRMChatbot } from '@/components/crm/ArtistCRMChatbot';
 import { ArtistCRMSlideshow } from '@/components/crm/ArtistCRMSlideshow';
 import { ArtistAssistantIntro } from '@/components/crm/ArtistAssistantIntro';
@@ -331,24 +332,10 @@ const ArtistCRM = () => {
                 onLeaveSession={() => setActiveSessionId(null)}
               />
             ) : (
-              <>
-                <div className="mb-6">
-                  <h2 className="text-2xl font-bold mb-2">Studio Collaboration</h2>
-                  <p className="text-muted-foreground">Connect with your engineer in real-time</p>
-                </div>
-                
-                <div className="grid lg:grid-cols-3 gap-6">
-                  <div className="lg:col-span-2">
-                    <SessionManager 
-                      projectId={undefined} 
-                      onEnterSession={(sessionId) => setActiveSessionId(sessionId)}
-                    />
-                  </div>
-                  <div>
-                    <RealTimeCollaboration />
-                  </div>
-                </div>
-              </>
+              <StudioHub 
+                userRole="artist"
+                onTrackSelect={() => {}}
+              />
             )}
           </div>
         );
