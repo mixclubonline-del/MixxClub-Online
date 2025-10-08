@@ -14,6 +14,9 @@ import { MonthlyAwards } from '@/components/gamification/MonthlyAwards';
 import { useLiveActivity } from '@/hooks/useLiveActivity';
 import { LiveActivityStream } from '@/components/community/LiveActivityStream';
 import { Users, Trophy, Target, Flame } from 'lucide-react';
+import { Suspense, lazy } from 'react';
+
+const Interactive3DShowcase = lazy(() => import('@/components/3d/r3f/Interactive3DShowcase').then(m => ({ default: m.Interactive3DShowcase })));
 
 export default function Feed() {
   const { user } = useAuth();
@@ -124,8 +127,31 @@ export default function Feed() {
             </motion.div>
           )}
 
+          {/* Interactive 3D Showcase */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 }}
+          >
+            <Card className="p-6 bg-gradient-to-br from-card/50 to-card border-primary/30">
+              <h3 className="text-xl font-bold mb-4">Community Spotlight</h3>
+              <div className="h-[400px] rounded-lg overflow-hidden border border-primary/20">
+                <Suspense fallback={
+                  <div className="w-full h-full bg-gradient-to-b from-background to-muted animate-pulse flex items-center justify-center">
+                    <Trophy className="w-12 h-12 text-muted-foreground animate-spin" />
+                  </div>
+                }>
+                  <Interactive3DShowcase className="w-full h-full" />
+                </Suspense>
+              </div>
+              <p className="text-sm text-muted-foreground mt-3 text-center">
+                Drag to interact • Scroll to zoom • Click to engage
+              </p>
+            </Card>
+          </motion.div>
+
           {/* Battle Arena Section */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
