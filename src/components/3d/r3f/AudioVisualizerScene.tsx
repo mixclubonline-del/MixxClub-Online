@@ -1,9 +1,7 @@
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
-import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import { WaveformSphere3D } from '../audio/WaveformSphere3D';
 import { FrequencyBars3D } from '../audio/FrequencyBars3D';
-import { use3DQuality } from '@/hooks/use3DQuality';
 
 interface AudioVisualizerSceneProps {
   audioData: number[];
@@ -16,8 +14,6 @@ export const AudioVisualizerScene = ({
   frequencyData,
   className = '' 
 }: AudioVisualizerSceneProps) => {
-  const { quality } = use3DQuality();
-
   return (
     <div className={className}>
       <Canvas>
@@ -30,12 +26,6 @@ export const AudioVisualizerScene = ({
 
         <WaveformSphere3D audioData={audioData} />
         <FrequencyBars3D frequencyData={frequencyData} />
-
-        {quality === 'high' && (
-          <EffectComposer>
-            <Bloom intensity={0.5} luminanceThreshold={0.3} />
-          </EffectComposer>
-        )}
       </Canvas>
     </div>
   );
