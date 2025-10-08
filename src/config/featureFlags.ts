@@ -31,7 +31,7 @@ export const FEATURE_FLAGS = {
   
   // ===== TIER 3: COMMUNITY MARKETPLACE (500 users) =====
   // Marketplace Expansion - Sample libraries, presets, templates
-  MARKETPLACE_ENABLED: false,
+  MARKETPLACE_ENABLED: true,
   // Label Services Integration
   LABEL_SERVICES_ENABLED: false,
   
