@@ -444,7 +444,6 @@ export default function AIStudio() {
                 sessionId="studio-session"
                 onImportComplete={(file) => {
                   handleImportComplete(file);
-                  setIsImportDialogOpen(false);
                 }}
                 onClose={() => setIsImportDialogOpen(false)}
               />
