@@ -2164,6 +2164,47 @@ export type Database = {
           },
         ]
       }
+      credit_transactions: {
+        Row: {
+          amount: number
+          created_at: string | null
+          description: string | null
+          id: string
+          metadata: Json | null
+          separation_job_id: string | null
+          transaction_type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          separation_job_id?: string | null
+          transaction_type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          separation_job_id?: string | null
+          transaction_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_transactions_separation_job_id_fkey"
+            columns: ["separation_job_id"]
+            isOneToOne: false
+            referencedRelation: "stem_separation_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       daw_imported_files: {
         Row: {
           bit_depth: number | null
@@ -6613,6 +6654,98 @@ export type Database = {
           },
         ]
       }
+      stem_separation_jobs: {
+        Row: {
+          audio_file_id: string | null
+          completed_at: string | null
+          created_at: string | null
+          credits_used: number | null
+          error_message: string | null
+          id: string
+          metadata: Json | null
+          original_file_path: string
+          progress: number | null
+          started_at: string | null
+          status: Database["public"]["Enums"]["stem_separation_status"]
+          stem_paths: Json | null
+          stems_count: number
+          tier: Database["public"]["Enums"]["stem_tier"]
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          audio_file_id?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          credits_used?: number | null
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          original_file_path: string
+          progress?: number | null
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["stem_separation_status"]
+          stem_paths?: Json | null
+          stems_count: number
+          tier: Database["public"]["Enums"]["stem_tier"]
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          audio_file_id?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          credits_used?: number | null
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          original_file_path?: string
+          progress?: number | null
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["stem_separation_status"]
+          stem_paths?: Json | null
+          stems_count?: number
+          tier?: Database["public"]["Enums"]["stem_tier"]
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stem_separation_jobs_audio_file_id_fkey"
+            columns: ["audio_file_id"]
+            isOneToOne: false
+            referencedRelation: "audio_files"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stem_separation_limits: {
+        Row: {
+          created_at: string | null
+          free_separations_used: number | null
+          id: string
+          last_free_separation: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          free_separations_used?: number | null
+          id?: string
+          last_free_separation?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          free_separations_used?: number | null
+          id?: string
+          last_free_separation?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       streaming_connections: {
         Row: {
           analytics_data: Json | null
@@ -6951,6 +7084,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_credits: {
+        Row: {
+          created_at: string | null
+          credits_balance: number
+          id: string
+          last_monthly_refill: string | null
+          monthly_credits: number | null
+          total_credits_purchased: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          credits_balance?: number
+          id?: string
+          last_monthly_refill?: string | null
+          monthly_credits?: number | null
+          total_credits_purchased?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          credits_balance?: number
+          id?: string
+          last_monthly_refill?: string | null
+          monthly_credits?: number | null
+          total_credits_purchased?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       user_distribution_subscriptions: {
         Row: {
@@ -7500,6 +7666,10 @@ export type Database = {
         }
         Returns: string
       }
+      add_credits: {
+        Args: { p_amount: number; p_description?: string; p_user_id: string }
+        Returns: number
+      }
       award_points: {
         Args: { points_to_add: number; user_id: string }
         Returns: undefined
@@ -7528,6 +7698,14 @@ export type Database = {
       check_and_award_badges: {
         Args: { p_engineer_id: string }
         Returns: undefined
+      }
+      check_free_tier_available: {
+        Args: { p_user_id: string }
+        Returns: boolean
+      }
+      check_user_credits: {
+        Args: { p_required_credits: number; p_user_id: string }
+        Returns: boolean
       }
       cleanup_old_audit_logs: {
         Args: { days_to_keep?: number }
@@ -7575,6 +7753,15 @@ export type Database = {
           p_user_id: string
         }
         Returns: string
+      }
+      deduct_credits: {
+        Args: {
+          p_amount: number
+          p_description?: string
+          p_job_id?: string
+          p_user_id: string
+        }
+        Returns: number
       }
       get_community_milestones_status: {
         Args: Record<PropertyKey, never>
@@ -7682,6 +7869,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      use_free_tier: {
+        Args: { p_job_id: string; p_user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       badge_rarity: "common" | "rare" | "epic" | "legendary"
@@ -7693,6 +7884,13 @@ export type Database = {
         | "revision"
         | "completed"
         | "cancelled"
+      stem_separation_status:
+        | "pending"
+        | "processing"
+        | "completed"
+        | "failed"
+        | "cancelled"
+      stem_tier: "free_4stem" | "credit_9stem"
       user_role: "client" | "engineer" | "admin"
     }
     CompositeTypes: {
@@ -7831,6 +8029,14 @@ export const Constants = {
         "completed",
         "cancelled",
       ],
+      stem_separation_status: [
+        "pending",
+        "processing",
+        "completed",
+        "failed",
+        "cancelled",
+      ],
+      stem_tier: ["free_4stem", "credit_9stem"],
       user_role: ["client", "engineer", "admin"],
     },
   },

@@ -146,3 +146,6 @@ verify_jwt = false
 
 [functions.analyze-melody]
 verify_jwt = false
+
+[functions.separate-stems]
+verify_jwt = true
