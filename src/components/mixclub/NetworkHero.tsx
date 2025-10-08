@@ -25,7 +25,7 @@ export const NetworkHero = () => {
             MixClub Online
           </h1>
           <p className="text-2xl md:text-4xl text-foreground/90 font-light mb-8">
-            The Prime Brain
+            The Social Hub
           </p>
           <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto mb-12">
             From Bedroom to Billboard. AI Meets Human Creativity.

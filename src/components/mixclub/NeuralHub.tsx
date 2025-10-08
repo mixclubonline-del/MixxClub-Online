@@ -157,42 +157,45 @@ export default function NeuralHub() {
 
       {/* Content Layer */}
       <div className="relative z-10 flex flex-col items-center justify-center h-full">
-        {/* Center Hub - Larger and More Prominent */}
-        <motion.div
-          className="absolute"
-          style={{
-            left: `${centerX}%`,
-            top: `${centerY}%`,
-            transform: 'translate(-50%, -50%)'
-          }}
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1 }}
-        >
-          <motion.div 
-            className="relative"
-            animate={{
-              filter: [
-                'drop-shadow(0 0 40px rgba(139, 92, 246, 0.6))',
-                'drop-shadow(0 0 80px rgba(139, 92, 246, 0.8))',
-                'drop-shadow(0 0 40px rgba(139, 92, 246, 0.6))'
-              ]
+        {/* Center Hub - Larger and More Prominent - Clickable to Social Feed */}
+        <Link to="/feed">
+          <motion.div
+            className="absolute cursor-pointer"
+            style={{
+              left: `${centerX}%`,
+              top: `${centerY}%`,
+              transform: 'translate(-50%, -50%)'
             }}
-            transition={{
-              duration: 4,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1 }}
+            whileHover={{ scale: 1.05 }}
           >
-            <div className="w-44 h-44 md:w-52 md:h-52 rounded-full bg-gradient-to-br from-[hsl(var(--primary))]/30 via-[hsl(var(--accent-blue))]/20 to-[hsl(var(--primary))]/30 backdrop-blur-xl border-2 border-[hsl(var(--primary))]/40 flex items-center justify-center">
-              <div className="text-center">
-                <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[hsl(var(--primary))] via-[hsl(var(--accent-blue))] to-[hsl(var(--primary))] drop-shadow-[0_0_20px_rgba(139,92,246,0.5)]">
-                  Mixxclub
-                </h1>
+            <motion.div 
+              className="relative"
+              animate={{
+                filter: [
+                  'drop-shadow(0 0 40px rgba(139, 92, 246, 0.6))',
+                  'drop-shadow(0 0 80px rgba(139, 92, 246, 0.8))',
+                  'drop-shadow(0 0 40px rgba(139, 92, 246, 0.6))'
+                ]
+              }}
+              transition={{
+                duration: 4,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
+              <div className="w-44 h-44 md:w-52 md:h-52 rounded-full bg-gradient-to-br from-[hsl(var(--primary))]/30 via-[hsl(var(--accent-blue))]/20 to-[hsl(var(--primary))]/30 backdrop-blur-xl border-2 border-[hsl(var(--primary))]/40 flex items-center justify-center">
+                <div className="text-center">
+                  <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[hsl(var(--primary))] via-[hsl(var(--accent-blue))] to-[hsl(var(--primary))] drop-shadow-[0_0_20px_rgba(139,92,246,0.5)]">
+                    Mixxclub
+                  </h1>
+                </div>
               </div>
-            </div>
+            </motion.div>
           </motion.div>
-        </motion.div>
+        </Link>
 
         {/* Interactive Nodes - Much Larger with Glass Effect */}
         {nodes.map((node) => {
