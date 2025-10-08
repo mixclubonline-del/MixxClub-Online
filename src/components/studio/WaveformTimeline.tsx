@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { ZoomIn, ZoomOut, Maximize2, Magnet, ArrowRightFromLine, Navigation } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Track, AudioRegion, useAIStudioStore } from '@/stores/aiStudioStore';
-import { TrackControls } from './TrackControls';
 import { RegionContextMenu } from './RegionContextMenu';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -474,14 +473,7 @@ export const WaveformTimeline = ({
                 </span>
               </div>
               
-              <TrackControls
-                track={track}
-                isRecordArmed={recordArmedTracks.has(track.id)}
-                onToggleRecordArm={() => onToggleRecordArm(track.id)}
-                onOpenEffects={() => onOpenTrackEffects(track.id)}
-                onDelete={() => onDeleteTrack(track.id)}
-                onUpdate={(updates) => onTrackUpdate(track.id, updates)}
-              />
+              {/* Track controls removed - using new TrackControls component in StudioTimeline */}
             </div>
           ))}
         </div>

@@ -1,110 +1,104 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Circle, Settings, Trash2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Track } from '@/stores/aiStudioStore';
+import { Button } from '@/components/ui/button';
+import { Plus, Music, Mic } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useAIStudioStore, Track } from '@/stores/aiStudioStore';
+import { FileUploadZone } from './FileUploadZone';
+import { toast } from 'sonner';
 
-interface TrackControlsProps {
-  track: Track;
-  isRecordArmed?: boolean;
-  onToggleRecordArm: () => void;
-  onOpenEffects: () => void;
-  onDelete: () => void;
-  onUpdate: (updates: Partial<Track>) => void;
-}
+export const TrackControls = () => {
+  const { addTrack } = useAIStudioStore();
+  const [showUpload, setShowUpload] = useState(false);
 
-export const TrackControls = ({
-  track,
-  isRecordArmed = false,
-  onToggleRecordArm,
-  onOpenEffects,
-  onDelete,
-  onUpdate,
-}: TrackControlsProps) => {
-  const [showVolumeSlider, setShowVolumeSlider] = useState(false);
+  const handleAddTrack = (type: Track['type']) => {
+    const newTrack: Track = {
+      id: `track-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+      name: `${type.charAt(0).toUpperCase() + type.slice(1)} ${Date.now()}`,
+      type,
+      volume: 0.8,
+      pan: 0,
+      mute: false,
+      solo: false,
+      peakLevel: 0,
+      rmsLevel: 0,
+      regions: [],
+      effects: [],
+      sends: {},
+      color: generateTrackColor(type),
+    };
+
+    addTrack(newTrack);
+    toast.success(`Added ${type} track`);
+  };
+
+  const handleAudioUpload = () => {
+    setShowUpload(true);
+  };
 
   return (
-    <div className="flex items-center gap-2">
-      {/* Record Arm Button */}
-      <motion.button
-        onClick={onToggleRecordArm}
-        className={cn(
-          'w-6 h-6 rounded-full flex items-center justify-center transition-all',
-          isRecordArmed
-            ? 'bg-[hsl(0,100%,60%)] shadow-[0_0_12px_hsl(0,100%,60%/0.6)]'
-            : 'bg-[hsl(var(--studio-panel-raised))] hover:bg-[hsl(var(--studio-panel))]'
-        )}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        title="Record Arm"
-      >
-        <Circle
-          className={cn('w-3 h-3', isRecordArmed ? 'text-white' : 'text-[hsl(var(--studio-text-dim))]')}
-          fill={isRecordArmed ? 'currentColor' : 'none'}
-        />
-      </motion.button>
-
-      {/* Solo Button */}
-      <button
-        onClick={() => onUpdate({ solo: !track.solo })}
-        className={cn(
-          'w-6 h-6 text-[10px] font-bold rounded transition-all',
-          track.solo
-            ? 'bg-[hsl(var(--led-yellow))] text-black shadow-[0_0_8px_hsl(var(--led-yellow)/0.6)]'
-            : 'bg-[hsl(var(--studio-panel-raised))] text-[hsl(var(--studio-text-dim))] hover:text-[hsl(var(--studio-text))]'
-        )}
-        title="Solo"
-      >
-        S
-      </button>
-
-      {/* Mute Button */}
-      <button
-        onClick={() => onUpdate({ mute: !track.mute })}
-        className={cn(
-          'w-6 h-6 text-[10px] font-bold rounded transition-all',
-          track.mute
-            ? 'bg-[hsl(var(--led-red))] text-white shadow-[0_0_8px_hsl(var(--led-red)/0.6)]'
-            : 'bg-[hsl(var(--studio-panel-raised))] text-[hsl(var(--studio-text-dim))] hover:text-[hsl(var(--studio-text))]'
-        )}
-        title="Mute"
-      >
-        M
-      </button>
-
-      {/* Track Menu */}
+    <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button
-            className="w-6 h-6 rounded flex items-center justify-center bg-[hsl(var(--studio-panel-raised))] hover:bg-[hsl(var(--studio-panel))] transition-all"
-            title="Track Settings"
-          >
-            <Settings className="w-3 h-3 text-[hsl(var(--studio-text-dim))]" />
-          </button>
+          <Button size="sm" className="gap-2">
+            <Plus className="w-4 h-4" />
+            Add Track
+          </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="bg-[hsl(var(--studio-panel))] border-[hsl(var(--studio-border))]">
-          <DropdownMenuItem
-            onClick={onOpenEffects}
-            className="text-[hsl(var(--studio-text))] hover:bg-[hsl(var(--studio-panel-raised))]"
-          >
-            <Settings className="w-4 h-4 mr-2" />
-            Effects & Plugins
+        <DropdownMenuContent>
+          <DropdownMenuItem onClick={() => handleAddTrack('vocal')}>
+            <Mic className="w-4 h-4 mr-2" />
+            Vocal Track
           </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={onDelete}
-            className="text-[hsl(var(--led-red))] hover:bg-[hsl(var(--studio-panel-raised))]"
-          >
-            <Trash2 className="w-4 h-4 mr-2" />
-            Delete Track
+          <DropdownMenuItem onClick={() => handleAddTrack('drums')}>
+            <Music className="w-4 h-4 mr-2" />
+            Drums Track
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => handleAddTrack('bass')}>
+            <Music className="w-4 h-4 mr-2" />
+            Bass Track
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => handleAddTrack('guitar')}>
+            <Music className="w-4 h-4 mr-2" />
+            Guitar Track
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => handleAddTrack('keys')}>
+            <Music className="w-4 h-4 mr-2" />
+            Keys Track
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => handleAddTrack('other')}>
+            <Music className="w-4 h-4 mr-2" />
+            Audio Track
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-    </div>
+
+      <Button size="sm" variant="outline" onClick={handleAudioUpload} className="gap-2">
+        <Music className="w-4 h-4" />
+        Upload Audio
+      </Button>
+
+      <FileUploadZone 
+        open={showUpload} 
+        onClose={() => setShowUpload(false)} 
+      />
+    </>
   );
 };
+
+function generateTrackColor(type: Track['type']): string {
+  const colors: Record<Track['type'], string> = {
+    vocal: 'hsl(280, 70%, 50%)',
+    drums: 'hsl(0, 70%, 50%)',
+    bass: 'hsl(260, 70%, 50%)',
+    guitar: 'hsl(30, 70%, 50%)',
+    keys: 'hsl(180, 70%, 50%)',
+    other: 'hsl(200, 70%, 50%)',
+  };
+  
+  return colors[type];
+}
