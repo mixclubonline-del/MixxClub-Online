@@ -29,6 +29,11 @@ export interface Track {
   regions: AudioRegion[];
   effects: EffectUnit[];
   sends: { [busId: string]: { amount: number; preFader: boolean } };
+  frozen?: boolean;
+  frozenBuffer?: AudioBuffer;
+  busGroupId?: string;
+  vcaGroupIds?: string[];
+  latency?: number; // in ms
 }
 
 export interface EffectUnit {
@@ -52,6 +57,25 @@ export interface AudioAnalysis {
   peak: number;
   spectral: number[];
   lufs: number;
+}
+
+export interface BusGroup {
+  id: string;
+  name: string;
+  color: string;
+  trackIds: string[];
+  volume: number;
+  mute: boolean;
+  solo: boolean;
+  effects: EffectUnit[];
+}
+
+export interface VCAGroup {
+  id: string;
+  name: string;
+  trackIds: string[];
+  color: string;
+  value: number; // -1 to 1 offset
 }
 
 interface AIStudioStore {
@@ -86,6 +110,14 @@ interface AIStudioStore {
   // Master
   masterVolume: number;
   masterPeakLevel: number;
+  
+  // Groups
+  busGroups: BusGroup[];
+  vcaGroups: VCAGroup[];
+  
+  // Performance
+  totalLatency: number;
+  latencyCompensation: boolean;
   
   // Actions
   addTrack: (track: Track) => void;
@@ -132,6 +164,22 @@ interface AIStudioStore {
   setScrollMode: (mode: 'none' | 'page' | 'continuous') => void;
   setSnapEnabled: (enabled: boolean) => void;
   setSnapMode: (mode: 'bars' | 'beats' | 'quarter' | 'eighth' | 'sixteenth') => void;
+  
+  // Group actions
+  createBusGroup: (name: string, trackIds: string[]) => void;
+  createVCAGroup: (name: string, trackIds: string[]) => void;
+  updateBusGroup: (groupId: string, updates: Partial<BusGroup>) => void;
+  updateVCAGroup: (groupId: string, value: number) => void;
+  deleteBusGroup: (groupId: string) => void;
+  deleteVCAGroup: (groupId: string) => void;
+  
+  // Freeze actions
+  freezeTrack: (trackId: string) => Promise<void>;
+  unfreezeTrack: (trackId: string) => void;
+  
+  // Latency actions
+  calculateTotalLatency: () => number;
+  setLatencyCompensation: (enabled: boolean) => void;
 }
 
 export const useAIStudioStore = create<AIStudioStore>((set, get) => ({
@@ -156,6 +204,10 @@ export const useAIStudioStore = create<AIStudioStore>((set, get) => ({
   viewMode: 'studio',
   masterVolume: 0.8,
   masterPeakLevel: 0,
+  busGroups: [],
+  vcaGroups: [],
+  totalLatency: 0,
+  latencyCompensation: true,
   
   // Actions
   addTrack: (track) => set((state) => ({
@@ -335,4 +387,100 @@ export const useAIStudioStore = create<AIStudioStore>((set, get) => ({
         : t
     ),
   })),
+  
+  // Group actions
+  createBusGroup: (name, trackIds) => set((state) => ({
+    busGroups: [
+      ...state.busGroups,
+      {
+        id: `bus-${Date.now()}`,
+        name,
+        color: `hsl(${Math.random() * 360}, 70%, 50%)`,
+        trackIds,
+        volume: 0.8,
+        mute: false,
+        solo: false,
+        effects: [],
+      },
+    ],
+  })),
+  
+  createVCAGroup: (name, trackIds) => set((state) => ({
+    vcaGroups: [
+      ...state.vcaGroups,
+      {
+        id: `vca-${Date.now()}`,
+        name,
+        trackIds,
+        color: `hsl(${Math.random() * 360}, 70%, 50%)`,
+        value: 0,
+      },
+    ],
+  })),
+  
+  updateBusGroup: (groupId, updates) => set((state) => ({
+    busGroups: state.busGroups.map(g => g.id === groupId ? { ...g, ...updates } : g),
+  })),
+  
+  updateVCAGroup: (groupId, value) => set((state) => {
+    const group = state.vcaGroups.find(g => g.id === groupId);
+    if (!group) return state;
+    
+    return {
+      vcaGroups: state.vcaGroups.map(g => g.id === groupId ? { ...g, value } : g),
+      tracks: state.tracks.map(t => 
+        group.trackIds.includes(t.id)
+          ? { ...t, volume: Math.max(0, Math.min(1, t.volume + value)) }
+          : t
+      ),
+    };
+  }),
+  
+  deleteBusGroup: (groupId) => set((state) => ({
+    busGroups: state.busGroups.filter(g => g.id !== groupId),
+    tracks: state.tracks.map(t => ({ ...t, busGroupId: t.busGroupId === groupId ? undefined : t.busGroupId })),
+  })),
+  
+  deleteVCAGroup: (groupId) => set((state) => ({
+    vcaGroups: state.vcaGroups.filter(g => g.id !== groupId),
+  })),
+  
+  // Freeze actions
+  freezeTrack: async (trackId) => {
+    const state = get();
+    const track = state.tracks.find(t => t.id === trackId);
+    if (!track || !track.audioBuffer) return;
+    
+    // In real implementation: render track with effects to new buffer
+    // For now, just use existing buffer as frozen buffer
+    set({
+      tracks: state.tracks.map(t => 
+        t.id === trackId
+          ? { ...t, frozen: true, frozenBuffer: track.audioBuffer }
+          : t
+      ),
+    });
+  },
+  
+  unfreezeTrack: (trackId) => set((state) => ({
+    tracks: state.tracks.map(t => 
+      t.id === trackId
+        ? { ...t, frozen: false, frozenBuffer: undefined }
+        : t
+    ),
+  })),
+  
+  // Latency actions
+  calculateTotalLatency: () => {
+    const state = get();
+    const maxLatency = state.tracks.reduce((max, track) => {
+      const trackLatency = track.effects.length * 2.5; // Estimate 2.5ms per effect
+      return Math.max(max, trackLatency);
+    }, 0);
+    
+    set({ totalLatency: maxLatency });
+    return maxLatency;
+  },
+  
+  setLatencyCompensation: (enabled) => set({ latencyCompensation: enabled }),
 }));

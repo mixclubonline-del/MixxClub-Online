@@ -2,6 +2,10 @@ import { useState } from 'react';
 import { ChannelStrip } from './ChannelStrip';
 import { EnhancedVUMeter } from './EnhancedVUMeter';
 import { CPUMonitor } from './CPUMonitor';
+import { LatencyMonitor } from './LatencyMonitor';
+import { GroupManager } from './GroupManager';
+import { FreezeDialog } from './FreezeDialog';
+import { Button } from '@/components/ui/button';
 import { useAIStudioStore } from '@/stores/aiStudioStore';
 import { cn } from '@/lib/utils';
 
@@ -11,14 +15,28 @@ export const StudioConsole = () => {
     selectedTrackId,
     masterVolume,
     masterPeakLevel,
+    busGroups,
+    vcaGroups,
+    totalLatency,
+    latencyCompensation,
     setSelectedTrack,
     updateTrack,
     setMasterVolume,
     addTrackEffect,
     updateTrackSend,
+    createBusGroup,
+    createVCAGroup,
+    deleteBusGroup,
+    deleteVCAGroup,
+    freezeTrack,
+    unfreezeTrack,
+    calculateTotalLatency,
   } = useAIStudioStore();
 
   const [isDraggingMaster, setIsDraggingMaster] = useState(false);
+  const [groupManagerOpen, setGroupManagerOpen] = useState(false);
+  const [freezeDialogOpen, setFreezeDialogOpen] = useState(false);
+  const [selectedFreezeTrackId, setSelectedFreezeTrackId] = useState<string | null>(null);
 
   const handleMasterFaderMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     setIsDraggingMaster(true);
@@ -38,6 +56,21 @@ export const StudioConsole = () => {
     setMasterVolume(newVolume);
   };
 
+  const handleFreezeTrack = (trackId: string) => {
+    setSelectedFreezeTrackId(trackId);
+    setFreezeDialogOpen(true);
+  };
+
+  const handleDeleteGroup = (groupId: string, type: 'bus' | 'vca') => {
+    if (type === 'bus') {
+      deleteBusGroup(groupId);
+    } else {
+      deleteVCAGroup(groupId);
+    }
+  };
+
+  const selectedFreezeTrack = tracks.find(t => t.id === selectedFreezeTrackId);
+
   return (
     <div 
       className="rounded p-4"
@@ -54,6 +87,18 @@ export const StudioConsole = () => {
         </h3>
         <div className="flex items-center gap-3">
           <CPUMonitor />
+          <LatencyMonitor 
+            totalLatency={totalLatency} 
+            compensated={latencyCompensation}
+          />
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setGroupManagerOpen(true)}
+            className="text-xs"
+          >
+            Groups
+          </Button>
           <span className="text-[9px] font-mono text-[hsl(var(--studio-text-dim))]">
             {tracks.length} Channels
           </span>
@@ -222,6 +267,42 @@ export const StudioConsole = () => {
           </div>
         )}
       </div>
+
+      {/* Group Manager Dialog */}
+      <GroupManager
+        tracks={tracks}
+        busGroups={busGroups}
+        vcaGroups={vcaGroups}
+        onCreateBusGroup={createBusGroup}
+        onCreateVCAGroup={createVCAGroup}
+        onDeleteGroup={handleDeleteGroup}
+        isOpen={groupManagerOpen}
+        onClose={() => setGroupManagerOpen(false)}
+      />
+
+      {/* Freeze Track Dialog */}
+      {selectedFreezeTrack && (
+        <FreezeDialog
+          trackName={selectedFreezeTrack.name}
+          effectsCount={selectedFreezeTrack.effects.length}
+          isOpen={freezeDialogOpen}
+          onClose={() => {
+            setFreezeDialogOpen(false);
+            setSelectedFreezeTrackId(null);
+          }}
+          onFreeze={async () => {
+            if (selectedFreezeTrackId) {
+              await freezeTrack(selectedFreezeTrackId);
+            }
+          }}
+          onUnfreeze={() => {
+            if (selectedFreezeTrackId) {
+              unfreezeTrack(selectedFreezeTrackId);
+            }
+          }}
+          isFrozen={selectedFreezeTrack.frozen || false}
+        />
+      )}
     </div>
   );
 };

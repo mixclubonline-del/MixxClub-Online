@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 
 interface Preset {
   id: string;
@@ -54,12 +54,17 @@ export const PresetManager = ({
   const [userPresets, setUserPresets] = useState<Preset[]>([]);
   const [newPresetName, setNewPresetName] = useState('');
   const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const { toast } = useToast();
 
   const factoryPresets = FACTORY_PRESETS[effectType] || [];
 
   const handleSavePreset = () => {
     if (!newPresetName.trim()) {
-      toast.error('Please enter a preset name');
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please enter a preset name",
+      });
       return;
     }
 
@@ -73,18 +78,27 @@ export const PresetManager = ({
     setUserPresets([...userPresets, newPreset]);
     setNewPresetName('');
     setShowSaveDialog(false);
-    toast.success(`Preset "${newPresetName}" saved`);
+    toast({
+      title: "Success",
+      description: `Preset "${newPresetName}" saved`,
+    });
   };
 
   const handleLoadPreset = (preset: Preset) => {
     onLoadPreset(preset.parameters);
-    toast.success(`Loaded "${preset.name}"`);
+    toast({
+      title: "Success",
+      description: `Loaded "${preset.name}"`,
+    });
     onClose();
   };
 
   const handleDeletePreset = (presetId: string) => {
     setUserPresets(userPresets.filter(p => p.id !== presetId));
-    toast.success('Preset deleted');
+    toast({
+      title: "Success",
+      description: "Preset deleted",
+    });
   };
 
   const handleDuplicatePreset = (preset: Preset) => {
@@ -95,7 +109,10 @@ export const PresetManager = ({
       createdAt: new Date().toISOString(),
     };
     setUserPresets([...userPresets, duplicate]);
-    toast.success('Preset duplicated');
+    toast({
+      title: "Success",
+      description: "Preset duplicated",
+    });
   };
 
   return (
