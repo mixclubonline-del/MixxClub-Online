@@ -1,221 +1,162 @@
-import { useState, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Upload, FileText, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { Progress } from '@/components/ui/progress';
+import { Upload, FileCheck, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { MixxMasterValidator } from '@/lib/mixxmaster/validator';
+import { toast } from 'sonner';
+
+interface ImportProgress {
+  stage: 'idle' | 'uploading' | 'parsing' | 'validating' | 'complete' | 'error';
+  progress: number;
+  message: string;
+  sessionId?: string;
+}
 
 interface MixxMasterImportProps {
-  projectId?: string;
   onImportComplete?: (sessionId: string) => void;
 }
 
-export const MixxMasterImport = ({ projectId, onImportComplete }: MixxMasterImportProps) => {
+export function MixxMasterImport({ onImportComplete }: MixxMasterImportProps = {}) {
   const [file, setFile] = useState<File | null>(null);
-  const [engineerSignature, setEngineerSignature] = useState('');
-  const [changesSummary, setChangesSummary] = useState('');
-  const [importing, setImporting] = useState(false);
-  const [validationStatus, setValidationStatus] = useState<'idle' | 'validating' | 'valid' | 'invalid'>('idle');
-  const [validationError, setValidationError] = useState<string>('');
-  const { toast } = useToast();
+  const [progress, setProgress] = useState<ImportProgress>({
+    stage: 'idle',
+    progress: 0,
+    message: 'Select a .mixxmaster file to import'
+  });
 
-  const handleFileSelect = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = event.target.files?.[0];
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
 
-    setFile(selectedFile);
-    setValidationStatus('validating');
-    setValidationError('');
-
-    try {
-      const text = await selectedFile.text();
-      const manifest = JSON.parse(text);
-
-      // Validate manifest structure
-      const isValid = MixxMasterValidator.validateManifest(manifest);
-      
-      if (isValid) {
-        // Verify checksum
-        const checksumValid = await MixxMasterValidator.verifyChecksum(
-          manifest,
-          manifest.checksum
-        );
-
-        if (checksumValid) {
-          setValidationStatus('valid');
-          toast({
-            title: 'Validation Passed',
-            description: 'MixxMaster file is valid and ready to import',
-          });
-        } else {
-          setValidationStatus('invalid');
-          setValidationError('Checksum verification failed - file may be corrupted');
-          toast({
-            title: 'Validation Failed',
-            description: 'Checksum verification failed',
-            variant: 'destructive',
-          });
-        }
-      }
-    } catch (error) {
-      setValidationStatus('invalid');
-      setValidationError(error instanceof Error ? error.message : 'Invalid file format');
-      toast({
-        title: 'Validation Failed',
-        description: 'Invalid MixxMaster file format',
-        variant: 'destructive',
-      });
+    if (!selectedFile.name.endsWith('.mixxmaster')) {
+      toast.error('Please select a .mixxmaster file');
+      return;
     }
-  }, [toast]);
+
+    setFile(selectedFile);
+    setProgress({
+      stage: 'idle',
+      progress: 0,
+      message: `Ready to import: ${selectedFile.name}`
+    });
+  };
 
   const handleImport = async () => {
-    if (!file || validationStatus !== 'valid') return;
+    if (!file) return;
 
-    setImporting(true);
     try {
-      const text = await file.text();
-      const manifest = JSON.parse(text);
+      setProgress({ stage: 'uploading', progress: 10, message: 'Uploading file...' });
+      
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) throw new Error('Not authenticated');
 
-      // Import via edge function
-      const { data, error } = await supabase.functions.invoke('mixxmaster-parse', {
-        body: {
-          session_id: manifest.sessionId,
-          manifest,
-          engineer_signature: engineerSignature,
-          changes_summary: changesSummary || 'Imported from .mixxmaster file',
-        },
+      const fileName = `${Date.now()}-${file.name}`;
+      const filePath = `${user.user.id}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('session-packages')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      setProgress({ stage: 'uploading', progress: 40, message: 'File uploaded successfully' });
+      setProgress({ stage: 'parsing', progress: 50, message: 'Parsing session data...' });
+
+      const { data: parseData, error: parseError } = await supabase.functions.invoke(
+        'mixxmaster-parse',
+        { body: { filePath } }
+      );
+
+      if (parseError) throw parseError;
+
+      setProgress({ stage: 'parsing', progress: 70, message: 'Session parsed successfully' });
+      setProgress({ stage: 'validating', progress: 80, message: 'Validating session...' });
+
+      if (!parseData.sessionId) throw new Error('Invalid session data');
+
+      setProgress({ stage: 'validating', progress: 90, message: 'Validation complete' });
+      setProgress({
+        stage: 'complete',
+        progress: 100,
+        message: 'Import complete!',
+        sessionId: parseData.sessionId
       });
 
-      if (error) throw error;
-
-      toast({
-        title: 'Import Successful',
-        description: `Session imported as version ${data.version_number}`,
-      });
-
-      if (onImportComplete && data.session_id) {
-        onImportComplete(data.session_id);
-      }
-
-      // Reset form
-      setFile(null);
-      setEngineerSignature('');
-      setChangesSummary('');
-      setValidationStatus('idle');
-    } catch (error) {
+      onImportComplete?.(parseData.sessionId);
+      toast.success('Session imported successfully');
+    } catch (error: any) {
       console.error('Import error:', error);
-      toast({
-        title: 'Import Failed',
-        description: error instanceof Error ? error.message : 'Failed to import session',
-        variant: 'destructive',
+      setProgress({
+        stage: 'error',
+        progress: 0,
+        message: error.message || 'Import failed'
       });
-    } finally {
-      setImporting(false);
+      toast.error('Failed to import session');
+    }
+  };
+
+  const getStageIcon = () => {
+    switch (progress.stage) {
+      case 'complete':
+        return <FileCheck className="h-8 w-8 text-success" />;
+      case 'error':
+        return <AlertCircle className="h-8 w-8 text-destructive" />;
+      default:
+        return <Upload className="h-8 w-8 text-primary" />;
     }
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Upload className="h-5 w-5" />
-          Import MixxMaster Session
-        </CardTitle>
+        <CardTitle>Import MixxMaster Session</CardTitle>
+        <CardDescription>
+          Upload a .mixxmaster file to import and continue working on a session
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="mixxmaster-file">Select .mixxmaster File</Label>
-          <div className="flex gap-2">
-            <Input
-              id="mixxmaster-file"
-              type="file"
-              accept=".mixxmaster,.json"
-              onChange={handleFileSelect}
-              disabled={importing}
-            />
-            {validationStatus === 'validating' && (
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-            )}
-            {validationStatus === 'valid' && (
-              <CheckCircle className="h-5 w-5 text-green-500" />
-            )}
-            {validationStatus === 'invalid' && (
-              <AlertCircle className="h-5 w-5 text-destructive" />
-            )}
-          </div>
-          {validationError && (
-            <p className="text-sm text-destructive">{validationError}</p>
-          )}
+        <div className="flex items-center justify-center p-8 border-2 border-dashed rounded-lg">
+          {getStageIcon()}
         </div>
 
-        {file && validationStatus === 'valid' && (
-          <>
-            <div className="p-4 rounded-lg border bg-muted/50">
-              <div className="flex items-start gap-3">
-                <FileText className="h-5 w-5 text-muted-foreground mt-0.5" />
-                <div className="flex-1 space-y-1">
-                  <p className="font-medium">{file.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {(file.size / 1024).toFixed(2)} KB
-                  </p>
-                </div>
-              </div>
-            </div>
+        <Input
+          type="file"
+          accept=".mixxmaster"
+          onChange={handleFileChange}
+          disabled={progress.stage === 'uploading' || progress.stage === 'parsing' || progress.stage === 'validating'}
+        />
 
-            <div className="space-y-2">
-              <Label htmlFor="engineer-signature">Engineer Signature (Optional)</Label>
-              <Input
-                id="engineer-signature"
-                placeholder="Your signature..."
-                value={engineerSignature}
-                onChange={(e) => setEngineerSignature(e.target.value)}
-                disabled={importing}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="changes-summary">Changes Summary</Label>
-              <Textarea
-                id="changes-summary"
-                placeholder="Describe the changes in this version..."
-                value={changesSummary}
-                onChange={(e) => setChangesSummary(e.target.value)}
-                disabled={importing}
-                rows={3}
-              />
-            </div>
-
-            <Button
-              onClick={handleImport}
-              disabled={importing}
-              className="w-full"
-            >
-              {importing ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Importing...
-                </>
-              ) : (
-                <>
-                  <Upload className="h-4 w-4 mr-2" />
-                  Import Session
-                </>
-              )}
-            </Button>
-          </>
+        {progress.progress > 0 && progress.stage !== 'idle' && (
+          <div className="space-y-2">
+            <Progress value={progress.progress} />
+            <p className="text-sm text-muted-foreground text-center">
+              {progress.message}
+            </p>
+          </div>
         )}
 
-        {validationStatus === 'idle' && (
-          <div className="text-center py-8 text-muted-foreground">
-            <Upload className="h-12 w-12 mx-auto mb-3 opacity-50" />
-            <p>Select a .mixxmaster file to begin</p>
-          </div>
+        <Button
+          onClick={handleImport}
+          disabled={!file || progress.stage === 'uploading' || progress.stage === 'parsing' || progress.stage === 'validating'}
+          className="w-full"
+        >
+          {progress.stage === 'uploading' || progress.stage === 'parsing' || progress.stage === 'validating'
+            ? 'Importing...'
+            : 'Import Session'}
+        </Button>
+
+        {progress.stage === 'complete' && progress.sessionId && (
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => window.location.href = `/mixxmaster/session/${progress.sessionId}`}
+          >
+            Open Session
+          </Button>
         )}
       </CardContent>
     </Card>
   );
-};
+}

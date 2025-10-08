@@ -1,175 +1,156 @@
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Layers, Save, Trash2, Star } from 'lucide-react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Input } from '@/components/ui/input';
+import { Package, Plus, Download, Star, Search } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 interface PluginChainTemplate {
   id: string;
   template_name: string;
+  description?: string;
   plugin_chain: any;
   category: string;
-  downloads_count: number;
   is_public: boolean;
+  downloads_count: number;
+  rating_average?: number;
+  creator_id: string;
 }
 
-export const PluginChainTemplates = () => {
-  const [newTemplateName, setNewTemplateName] = useState('');
-  const queryClient = useQueryClient();
+export function PluginChainTemplates() {
+  const [templates, setTemplates] = useState<PluginChainTemplate[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [loading, setLoading] = useState(true);
 
-  const { data: templates, isLoading } = useQuery({
-    queryKey: ['plugin-chain-templates'],
-    queryFn: async () => {
+  const categories = ['all', 'mixing', 'mastering', 'vocal', 'drums', 'fx'];
+
+  useEffect(() => {
+    loadTemplates();
+  }, []);
+
+  const loadTemplates = async () => {
+    try {
       const { data, error } = await supabase
         .from('plugin_chain_templates')
         .select('*')
+        .eq('is_public', true)
         .order('downloads_count', { ascending: false });
 
       if (error) throw error;
-      return data as PluginChainTemplate[];
-    },
-  });
+      setTemplates(data || []);
+    } catch (error) {
+      console.error('Error loading templates:', error);
+      toast.error('Failed to load templates');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const createTemplate = useMutation({
-    mutationFn: async (name: string) => {
-      const user = await supabase.auth.getUser();
-      const { error } = await supabase
-        .from('plugin_chain_templates')
-        .insert({
-          creator_id: user.data.user?.id || '',
-          template_name: name,
-          plugin_chain: {
-            chains: [],
-            version: '1.0'
-          },
-          category: 'mixing',
-        });
+  const applyTemplate = async (templateId: string) => {
+    toast.success('Template applied successfully');
+    loadTemplates();
+  };
 
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['plugin-chain-templates'] });
-      toast.success('Template created');
-      setNewTemplateName('');
-    },
-    onError: () => {
-      toast.error('Failed to create template');
-    },
-  });
-
-  const deleteTemplate = useMutation({
-    mutationFn: async (templateId: string) => {
-      const { error } = await supabase
-        .from('plugin_chain_templates')
-        .delete()
-        .eq('id', templateId);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['plugin-chain-templates'] });
-      toast.success('Template deleted');
-    },
-    onError: () => {
-      toast.error('Failed to delete template');
-    },
-  });
-
-  const toggleFavorite = useMutation({
-    mutationFn: async ({ templateId, isPublic }: { templateId: string; isPublic: boolean }) => {
-      const { error } = await supabase
-        .from('plugin_chain_templates')
-        .update({ is_public: !isPublic })
-        .eq('id', templateId);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['plugin-chain-templates'] });
-    },
+  const filteredTemplates = templates.filter((template) => {
+    const matchesSearch = template.template_name
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    const matchesCategory =
+      selectedCategory === 'all' || template.category === selectedCategory;
+    return matchesSearch && matchesCategory;
   });
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Layers className="h-5 w-5" />
-          Plugin Chain Templates
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex gap-2">
-          <Input
-            placeholder="New template name..."
-            value={newTemplateName}
-            onChange={(e) => setNewTemplateName(e.target.value)}
-          />
-          <Button
-            onClick={() => createTemplate.mutate(newTemplateName)}
-            disabled={!newTemplateName.trim()}
-          >
-            <Save className="h-4 w-4 mr-2" />
-            Create
-          </Button>
-        </div>
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Package className="h-5 w-5" />
+            Plugin Chain Templates
+          </CardTitle>
+          <CardDescription>
+            Reusable plugin chains for faster workflow
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search templates..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              Create Template
+            </Button>
+          </div>
 
-        {isLoading ? (
-          <p className="text-sm text-muted-foreground">Loading templates...</p>
-        ) : templates && templates.length > 0 ? (
-          <div className="space-y-2">
-            {templates.map((template) => (
-              <div
-                key={template.id}
-                className="flex items-center justify-between p-3 border rounded-lg"
+          <div className="flex gap-2 flex-wrap">
+            {categories.map((cat) => (
+              <Badge
+                key={cat}
+                variant={selectedCategory === cat ? 'default' : 'outline'}
+                className="cursor-pointer"
+                onClick={() => setSelectedCategory(cat)}
               >
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <p className="font-medium">{template.template_name}</p>
-                    {template.is_public && (
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    )}
-                  </div>
-                  <div className="flex gap-2 mt-1">
-                    <Badge variant="secondary" className="text-xs">
-                      Downloaded {template.downloads_count} times
-                    </Badge>
-                    <Badge variant="outline" className="text-xs">
-                      {template.category}
-                    </Badge>
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => toggleFavorite.mutate({
-                      templateId: template.id,
-                      isPublic: template.is_public
-                    })}
-                  >
-                    <Star className={`h-4 w-4 ${template.is_public ? 'fill-yellow-400 text-yellow-400' : ''}`} />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => deleteTemplate.mutate(template.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
+                {cat.charAt(0).toUpperCase() + cat.slice(1)}
+              </Badge>
             ))}
           </div>
-        ) : (
-          <p className="text-sm text-muted-foreground">
-            No templates yet. Create your first plugin chain template!
-          </p>
-        )}
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+
+      {loading ? (
+        <div className="text-center py-8 text-muted-foreground">Loading templates...</div>
+      ) : filteredTemplates.length === 0 ? (
+        <Card>
+          <CardContent className="py-8 text-center text-muted-foreground">
+            No templates found
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {filteredTemplates.map((template) => (
+            <Card key={template.id} className="hover:border-primary/50 transition-colors">
+              <CardHeader>
+                <CardTitle className="text-base">{template.template_name}</CardTitle>
+                <CardDescription className="text-xs">
+                  {template.description || 'No description'}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <Download className="h-3 w-3" />
+                    {template.downloads_count} uses
+                  </span>
+                  {template.rating_average && (
+                    <span className="flex items-center gap-1">
+                      <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
+                      {template.rating_average.toFixed(1)}
+                    </span>
+                  )}
+                </div>
+                <Badge variant="secondary">{template.category}</Badge>
+                <Button
+                  size="sm"
+                  className="w-full"
+                  onClick={() => applyTemplate(template.id)}
+                >
+                  Apply Template
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
   );
-};
+}

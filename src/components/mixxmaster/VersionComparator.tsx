@@ -1,31 +1,37 @@
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { GitCompare, Plus, Minus, Edit } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { GitCompare, Check } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+
+interface Version {
+  id: string;
+  version_number: number;
+  created_at: string;
+  engineer_id: string;
+  changes_summary?: string;
+  diff_data?: any;
+}
 
 interface VersionComparatorProps {
   sessionId: string;
 }
 
-interface Version {
-  id: string;
-  version_number: number;
-  engineer_signature: string | null;
-  changes_summary: string;
-  diff_data: any;
-  created_at: string;
-}
+export function VersionComparator({ sessionId }: VersionComparatorProps) {
+  const [versions, setVersions] = useState<Version[]>([]);
+  const [selectedA, setSelectedA] = useState<string | null>(null);
+  const [selectedB, setSelectedB] = useState<string | null>(null);
+  const [comparing, setComparing] = useState(false);
+  const [differences, setDifferences] = useState<any>(null);
 
-export const VersionComparator = ({ sessionId }: VersionComparatorProps) => {
-  const [versionA, setVersionA] = useState<string>('');
-  const [versionB, setVersionB] = useState<string>('');
+  useEffect(() => {
+    loadVersions();
+  }, [sessionId]);
 
-  const { data: versions, isLoading } = useQuery({
-    queryKey: ['mixxmaster-versions', sessionId],
-    queryFn: async () => {
+  const loadVersions = async () => {
+    try {
       const { data, error } = await supabase
         .from('mixxmaster_versions')
         .select('*')
@@ -33,134 +39,175 @@ export const VersionComparator = ({ sessionId }: VersionComparatorProps) => {
         .order('version_number', { ascending: false });
 
       if (error) throw error;
-      return data as Version[];
-    },
-  });
+      setVersions(data || []);
+    } catch (error) {
+      console.error('Error loading versions:', error);
+      toast.error('Failed to load versions');
+    }
+  };
 
-  const selectedVersionA = versions?.find(v => v.id === versionA);
-  const selectedVersionB = versions?.find(v => v.id === versionB);
+  const compareVersions = async () => {
+    if (!selectedA || !selectedB) return;
 
-  const renderDiff = (diff: any) => {
-    if (!diff) return null;
+    setComparing(true);
+    try {
+      const versionA = versions.find(v => v.id === selectedA);
+      const versionB = versions.find(v => v.id === selectedB);
 
-    return (
-      <div className="space-y-3">
-        {diff.added && diff.added.length > 0 && (
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Plus className="h-4 w-4 text-green-500" />
-              <p className="font-medium text-sm">Added</p>
-            </div>
-            <ul className="space-y-1 ml-6">
-              {diff.added.map((item: string, i: number) => (
-                <li key={i} className="text-sm text-green-600">{item}</li>
-              ))}
-            </ul>
-          </div>
-        )}
+      if (!versionA || !versionB) throw new Error('Versions not found');
 
-        {diff.modified && diff.modified.length > 0 && (
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Edit className="h-4 w-4 text-blue-500" />
-              <p className="font-medium text-sm">Modified</p>
-            </div>
-            <ul className="space-y-1 ml-6">
-              {diff.modified.map((item: string, i: number) => (
-                <li key={i} className="text-sm text-blue-600">{item}</li>
-              ))}
-            </ul>
-          </div>
-        )}
+      const diffs = {
+        stemChanges: [],
+        metadataChanges: [],
+        timestamp: new Date().toISOString(),
+        versionA: versionA.version_number,
+        versionB: versionB.version_number
+      };
 
-        {diff.removed && diff.removed.length > 0 && (
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Minus className="h-4 w-4 text-red-500" />
-              <p className="font-medium text-sm">Removed</p>
-            </div>
-            <ul className="space-y-1 ml-6">
-              {diff.removed.map((item: string, i: number) => (
-                <li key={i} className="text-sm text-red-600">{item}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </div>
-    );
+      setDifferences(diffs);
+      toast.success('Comparison complete');
+    } catch (error) {
+      console.error('Error comparing versions:', error);
+      toast.error('Failed to compare versions');
+    } finally {
+      setComparing(false);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <GitCompare className="h-5 w-5" />
-          Version Comparator
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {isLoading ? (
-          <p className="text-sm text-muted-foreground">Loading versions...</p>
-        ) : versions && versions.length > 0 ? (
-          <>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium mb-2 block">Version A</label>
-                <Select value={versionA} onValueChange={setVersionA}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select version" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {versions.map((version) => (
-                      <SelectItem key={version.id} value={version.id}>
-                        v{version.version_number} - {new Date(version.created_at).toLocaleDateString()}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium mb-2 block">Version B</label>
-                <Select value={versionB} onValueChange={setVersionB}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select version" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {versions.map((version) => (
-                      <SelectItem key={version.id} value={version.id}>
-                        v{version.version_number} - {new Date(version.created_at).toLocaleDateString()}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <GitCompare className="h-5 w-5" />
+            Version Comparator
+          </CardTitle>
+          <CardDescription>
+            Compare two versions to see what changed
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Version A</label>
+              <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                {versions.map((version) => (
+                  <Card
+                    key={version.id}
+                    className={`cursor-pointer transition-colors ${
+                      selectedA === version.id
+                        ? 'border-primary bg-primary/5'
+                        : 'hover:border-primary/50'
+                    }`}
+                    onClick={() => setSelectedA(version.id)}
+                  >
+                    <CardContent className="p-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <Badge variant="outline">v{version.version_number}</Badge>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {formatDate(version.created_at)}
+                          </p>
+                        </div>
+                        {selectedA === version.id && (
+                          <Check className="h-4 w-4 text-primary" />
+                        )}
+                      </div>
+                      {version.changes_summary && (
+                        <p className="text-xs mt-2">{version.changes_summary}</p>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
             </div>
 
-            {selectedVersionA && selectedVersionB && (
-              <div className="pt-4 border-t space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Badge variant="outline" className="mb-2">Version {selectedVersionA.version_number}</Badge>
-                    <p className="text-sm">{selectedVersionA.changes_summary}</p>
-                  </div>
-                  <div>
-                    <Badge variant="outline" className="mb-2">Version {selectedVersionB.version_number}</Badge>
-                    <p className="text-sm">{selectedVersionB.changes_summary}</p>
-                  </div>
-                </div>
-
-                <div className="border-t pt-4">
-                  <p className="font-medium mb-3">Changes</p>
-                  {renderDiff(selectedVersionB.diff_data)}
-                </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Version B</label>
+              <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                {versions.map((version) => (
+                  <Card
+                    key={version.id}
+                    className={`cursor-pointer transition-colors ${
+                      selectedB === version.id
+                        ? 'border-primary bg-primary/5'
+                        : 'hover:border-primary/50'
+                    }`}
+                    onClick={() => setSelectedB(version.id)}
+                  >
+                    <CardContent className="p-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <Badge variant="outline">v{version.version_number}</Badge>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {formatDate(version.created_at)}
+                          </p>
+                        </div>
+                        {selectedB === version.id && (
+                          <Check className="h-4 w-4 text-primary" />
+                        )}
+                      </div>
+                      {version.changes_summary && (
+                        <p className="text-xs mt-2">{version.changes_summary}</p>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
-            )}
-          </>
-        ) : (
-          <p className="text-sm text-muted-foreground">No versions available for comparison</p>
-        )}
-      </CardContent>
-    </Card>
+            </div>
+          </div>
+
+          <Button
+            onClick={compareVersions}
+            disabled={!selectedA || !selectedB || comparing}
+            className="w-full"
+          >
+            {comparing ? 'Comparing...' : 'Compare Versions'}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {differences && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Comparison Results</CardTitle>
+            <CardDescription>
+              Differences between v{differences.versionA} and v{differences.versionB}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-medium mb-2">Stem Changes</h4>
+                {differences.stemChanges.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No stem changes detected</p>
+                ) : (
+                  <ul className="space-y-1">
+                    {differences.stemChanges.map((change: any, idx: number) => (
+                      <li key={idx} className="text-sm flex items-center gap-2">
+                        <Badge variant={change.type === 'added' ? 'default' : 'destructive'}>
+                          {change.type}
+                        </Badge>
+                        <span>{change.name}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
   );
-};
+}

@@ -1,121 +1,115 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Users, Circle } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { supabase } from '@/integrations/supabase/client';
+import { RealtimeChannel } from '@supabase/supabase-js';
 
 interface PresenceUser {
   userId: string;
   userName: string;
-  joinedAt: string;
-  isActive: boolean;
+  cursor?: { x: number; y: number };
+  color: string;
 }
 
 interface RealtimePresenceProps {
   sessionId: string;
+  showCursors?: boolean;
 }
 
-export const RealtimePresence = ({ sessionId }: RealtimePresenceProps) => {
-  const [presenceUsers, setPresenceUsers] = useState<PresenceUser[]>([]);
-  const [currentUser, setCurrentUser] = useState<string | null>(null);
+const COLORS = [
+  'hsl(var(--primary))',
+  'hsl(220, 70%, 50%)',
+  'hsl(280, 70%, 50%)',
+  'hsl(340, 70%, 50%)',
+  'hsl(40, 70%, 50%)',
+  'hsl(160, 70%, 50%)'
+];
+
+export function RealtimePresence({ sessionId, showCursors = true }: RealtimePresenceProps) {
+  const [users, setUsers] = useState<PresenceUser[]>([]);
+  const [channel, setChannel] = useState<RealtimeChannel | null>(null);
 
   useEffect(() => {
-    const initPresence = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      
-      setCurrentUser(user.id);
+    setupPresence();
 
-      // Create channel for presence
-      const channel = supabase.channel(`mixxmaster:${sessionId}`, {
-        config: {
-          presence: {
-            key: user.id,
-          },
-        },
-      });
-
-      // Track presence state
-      channel
-        .on('presence', { event: 'sync' }, () => {
-          const state = channel.presenceState();
-          const users: PresenceUser[] = [];
-
-          Object.keys(state).forEach((userId) => {
-            const presences = state[userId] as any[];
-            if (presences.length > 0) {
-              const presence = presences[0];
-              users.push({
-                userId,
-                userName: presence.userName || 'Anonymous',
-                joinedAt: presence.joinedAt,
-                isActive: true,
-              });
-            }
-          });
-
-          setPresenceUsers(users);
-        })
-        .on('presence', { event: 'join' }, ({ key, newPresences }) => {
-          console.log('User joined:', key, newPresences);
-        })
-        .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
-          console.log('User left:', key, leftPresences);
-        })
-        .subscribe(async (status) => {
-          if (status === 'SUBSCRIBED') {
-            // Track current user's presence
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('full_name')
-              .eq('id', user.id)
-              .single();
-
-            await channel.track({
-              userId: user.id,
-              userName: profile?.full_name || 'Anonymous User',
-              joinedAt: new Date().toISOString(),
-            });
-          }
-        });
-
-      return () => {
-        channel.unsubscribe();
-      };
+    return () => {
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
     };
-
-    initPresence();
   }, [sessionId]);
 
-  if (presenceUsers.length === 0) {
-    return null;
-  }
+  const setupPresence = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const userColor = COLORS[Math.floor(Math.random() * COLORS.length)];
+
+    const newChannel = supabase.channel(`presence:${sessionId}`, {
+      config: {
+        presence: { key: user.id }
+      }
+    });
+
+    newChannel
+      .on('presence', { event: 'sync' }, () => {
+        const state = newChannel.presenceState();
+        const presenceUsers = Object.entries(state).flatMap(([key, presences]) =>
+          presences.map((p: any) => ({
+            userId: p.user_id,
+            userName: p.user_name || 'Anonymous',
+            cursor: p.cursor,
+            color: p.color || COLORS[0]
+          }))
+        );
+        setUsers(presenceUsers);
+      });
+
+    newChannel.subscribe(async (status) => {
+      if (status === 'SUBSCRIBED') {
+        await newChannel.track({
+          user_id: user.id,
+          user_name: user.email?.split('@')[0] || 'Anonymous',
+          color: userColor,
+          cursor: null,
+          online_at: new Date().toISOString()
+        });
+      }
+    });
+
+    setChannel(newChannel);
+  };
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
   return (
-    <div className="flex items-center gap-2 p-3 rounded-lg border bg-card">
-      <Users className="h-4 w-4 text-muted-foreground" />
-      <div className="flex items-center gap-2">
-        {presenceUsers.slice(0, 5).map((user) => (
-          <div key={user.userId} className="relative">
-            <Avatar className="h-8 w-8">
-              <AvatarFallback className="text-xs">
-                {user.userName.slice(0, 2).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            {user.isActive && (
-              <Circle className="absolute bottom-0 right-0 h-2.5 w-2.5 fill-green-500 text-green-500" />
-            )}
-          </div>
+    <div className="flex -space-x-2">
+      <TooltipProvider>
+        {users.map((user) => (
+          <Tooltip key={user.userId}>
+            <TooltipTrigger>
+              <Avatar
+                className="border-2 hover:z-10 transition-transform hover:scale-110"
+                style={{ borderColor: user.color }}
+              >
+                <AvatarFallback style={{ backgroundColor: user.color }}>
+                  {getInitials(user.userName)}
+                </AvatarFallback>
+              </Avatar>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{user.userName}</p>
+            </TooltipContent>
+          </Tooltip>
         ))}
-        {presenceUsers.length > 5 && (
-          <Badge variant="secondary" className="ml-1">
-            +{presenceUsers.length - 5}
-          </Badge>
-        )}
-      </div>
-      <span className="text-sm text-muted-foreground ml-auto">
-        {presenceUsers.length} {presenceUsers.length === 1 ? 'user' : 'users'} online
-      </span>
+      </TooltipProvider>
     </div>
   );
-};
+}
