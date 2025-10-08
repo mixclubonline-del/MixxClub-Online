@@ -52,6 +52,7 @@
     "@react-three/postprocessing": "^3.0.4",
     "@react-three/xr": "^6.6.27",
     "@splinetool/react-spline": "^4.1.0",
+    "@splinetool/runtime": "^1.10.76",
     "@stripe/react-stripe-js": "^5.0.0",
     "@stripe/stripe-js": "^8.0.0",
     "@supabase/supabase-js": "^2.58.0",
