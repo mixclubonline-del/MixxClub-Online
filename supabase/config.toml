@@ -143,3 +143,6 @@ verify_jwt = true
 
 [functions.ai-studio-assistant]
 verify_jwt = false
+
+[functions.analyze-melody]
+verify_jwt = false

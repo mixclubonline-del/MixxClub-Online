@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Waves, Zap, Settings2, Power } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Waves, Zap, Settings2, Power, Brain, Activity } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -45,6 +45,15 @@ export const MixxTunePlugin = ({ onClose, onParameterChange }: MixxTunePluginPro
     formantCorrection: true,
     breathControl: 50,
   });
+
+  const [melodyAnalysis, setMelodyAnalysis] = useState<{
+    pattern: string;
+    description: string;
+    styleNotes: string;
+    isAnalyzing: boolean;
+  } | null>(null);
+
+  const [aiAdaptive, setAiAdaptive] = useState(true);
 
   const updateParam = <K extends keyof MixxTuneParams>(key: K, value: MixxTuneParams[K]) => {
     const updated = { ...params, [key]: value };
@@ -271,16 +280,106 @@ export const MixxTunePlugin = ({ onClose, onParameterChange }: MixxTunePluginPro
         </div>
       </div>
 
+      {/* AI Adaptive Toggle */}
+      <div className="mt-6">
+        <button
+          onClick={() => setAiAdaptive(!aiAdaptive)}
+          className={cn(
+            'w-full p-4 rounded-lg transition-all border-2',
+            aiAdaptive
+              ? 'bg-gradient-to-r from-[hsl(var(--studio-accent)/0.2)] to-[hsl(var(--studio-accent)/0.1)] border-[hsl(var(--studio-accent))]'
+              : 'bg-[hsl(var(--studio-panel-raised))] border-[hsl(var(--studio-border))]'
+          )}
+        >
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <Brain className={cn(
+                "w-5 h-5",
+                aiAdaptive ? "text-[hsl(var(--studio-accent))]" : "text-[hsl(var(--studio-text-dim))]"
+              )} />
+              <span className={cn(
+                "font-semibold",
+                aiAdaptive ? "text-[hsl(var(--studio-text))]" : "text-[hsl(var(--studio-text-dim))]"
+              )}>
+                AI Melody Adaptation
+              </span>
+            </div>
+            <div className={cn(
+              "px-2 py-1 rounded text-xs font-mono",
+              aiAdaptive 
+                ? "bg-[hsl(var(--led-green))] text-white" 
+                : "bg-[hsl(var(--studio-border))] text-[hsl(var(--studio-text-dim))]"
+            )}>
+              {aiAdaptive ? 'ACTIVE' : 'OFF'}
+            </div>
+          </div>
+          <p className="text-xs text-left text-[hsl(var(--studio-text-dim))]">
+            {aiAdaptive 
+              ? 'Real-time melody analysis adapts correction to vocal performance style'
+              : 'Static key/scale correction only (click to enable AI)'}
+          </p>
+        </button>
+      </div>
+
+      {/* Melody Analysis Display */}
+      <AnimatePresence>
+        {aiAdaptive && melodyAnalysis && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="mt-4 p-4 bg-[hsl(var(--studio-panel-raised))] rounded-lg border border-[hsl(var(--studio-accent)/0.3)]"
+          >
+            <div className="flex items-center gap-2 mb-3">
+              <Activity className="w-4 h-4 text-[hsl(var(--studio-accent))] animate-pulse" />
+              <span className="text-sm font-semibold text-[hsl(var(--studio-text))]">
+                Live Melody Analysis
+              </span>
+            </div>
+            
+            <div className="space-y-2 text-xs">
+              <div>
+                <span className="text-[hsl(var(--studio-text-dim))]">Pattern:</span>
+                <span className="ml-2 text-[hsl(var(--studio-accent))] font-mono">
+                  {melodyAnalysis.pattern}
+                </span>
+              </div>
+              <div>
+                <span className="text-[hsl(var(--studio-text-dim))]">Context:</span>
+                <p className="mt-1 text-[hsl(var(--studio-text))]">
+                  {melodyAnalysis.description}
+                </p>
+              </div>
+              {melodyAnalysis.styleNotes && (
+                <div>
+                  <span className="text-[hsl(var(--studio-text-dim))]">Style Notes:</span>
+                  <p className="mt-1 text-[hsl(var(--studio-text))]">
+                    {melodyAnalysis.styleNotes}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {melodyAnalysis.isAnalyzing && (
+              <div className="mt-3 flex items-center gap-2 text-xs text-[hsl(var(--studio-accent))]">
+                <div className="w-2 h-2 rounded-full bg-[hsl(var(--studio-accent))] animate-pulse" />
+                Analyzing melody...
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Algorithm Info */}
-      <div className="mt-6 p-3 bg-[hsl(var(--studio-panel-raised))] rounded-lg border border-[hsl(var(--studio-border))]">
+      <div className="mt-4 p-3 bg-[hsl(var(--studio-panel-raised))] rounded-lg border border-[hsl(var(--studio-border))]">
         <div className="flex items-start gap-2">
           <div className="w-2 h-2 rounded-full bg-[hsl(var(--led-green))] mt-1 animate-pulse" />
           <div className="text-xs text-[hsl(var(--studio-text-dim))]">
-            <span className="text-[hsl(var(--studio-accent))] font-semibold">Algorithm:</span> YIN-Enhanced Autocorrelation
+            <span className="text-[hsl(var(--studio-accent))] font-semibold">Algorithm:</span> YIN + Gemini 2.5 Flash
             <br />
             <span className="text-[hsl(var(--studio-accent))] font-semibold">Latency:</span> {params.lowLatency ? '1.8ms' : '5.2ms'} @ 48kHz
             <br />
-            <span className="text-[hsl(var(--studio-accent))] font-semibold">Mode:</span> Hip-Hop/R&B Optimized
+            <span className="text-[hsl(var(--studio-accent))] font-semibold">Mode:</span> AI-Enhanced {aiAdaptive ? '(Melody-Aware)' : '(Key/Scale Only)'}
           </div>
         </div>
       </div>

@@ -12,6 +12,11 @@ export interface PitchCorrectionParams {
   scale: string;
   humanize: number; // 0-1
   formantCorrection: boolean;
+  melodyContext?: {
+    correctionStrength: number;
+    speedFactor: number;
+    humanizeFactor: number;
+  };
 }
 
 // Musical scale frequencies (Hz) relative to A4=440Hz
@@ -139,18 +144,30 @@ export class PitchCorrectionEngine {
     const targetPitch = this.getTargetFrequency(detectedPitch, params);
     const pitchRatio = targetPitch / detectedPitch;
     
-    // Apply correction based on correction amount
-    const actualRatio = 1 + (pitchRatio - 1) * params.correction;
+    // Apply melody context if available (AI-enhanced correction)
+    let correctionAmount = params.correction;
+    let speedAmount = params.speed;
+    let humanizeAmount = params.humanize;
+    
+    if (params.melodyContext) {
+      // AI adapts correction based on melodic context
+      correctionAmount *= params.melodyContext.correctionStrength;
+      speedAmount *= params.melodyContext.speedFactor;
+      humanizeAmount = Math.max(humanizeAmount, params.melodyContext.humanizeFactor);
+    }
+    
+    // Apply correction based on (potentially AI-adjusted) correction amount
+    const actualRatio = 1 + (pitchRatio - 1) * correctionAmount;
     
     // Humanize: add subtle random variations
     let finalRatio = actualRatio;
-    if (params.humanize > 0) {
-      const variation = (Math.random() - 0.5) * 0.01 * params.humanize;
+    if (humanizeAmount > 0) {
+      const variation = (Math.random() - 0.5) * 0.01 * humanizeAmount;
       finalRatio *= (1 + variation);
     }
     
     // Speed affects how quickly correction is applied
-    const smoothing = 1 - params.speed;
+    const smoothing = 1 - speedAmount;
     
     // Simple pitch shifting via sample rate modification
     // In production, this would use a phase vocoder or granular synthesis
