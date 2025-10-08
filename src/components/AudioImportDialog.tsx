@@ -98,11 +98,16 @@ const AudioImportDialog: React.FC<AudioImportDialogProps> = ({
   const handleFileImport = async (file: File) => {
     try {
       const importedFile = await importAudioFile(file);
-      onImportComplete(importedFile);
       
-      // Refresh the imported files list
+      // Refresh the imported files list first
       const updatedFiles = await getImportedFiles();
       setImportedFiles(updatedFiles);
+      
+      // Show success message
+      toast({
+        title: "File uploaded!",
+        description: `${file.name} is ready. Click "Add to Session" to use it.`,
+      });
       
       // Reset file input
       if (fileInputRef.current) {
@@ -291,12 +296,19 @@ const AudioImportDialog: React.FC<AudioImportDialogProps> = ({
                       </Button>
                       
                       <Button
-                        variant="ghost"
+                        variant="default"
                         size="sm"
-                        onClick={() => onImportComplete(file)}
-                        className="hover:bg-primary/10"
+                        onClick={() => {
+                          onImportComplete(file);
+                          toast({
+                            title: "Track Added!",
+                            description: `${file.fileName} added to session`,
+                          });
+                        }}
+                        className="gap-2"
                       >
                         <Download className="w-4 h-4" />
+                        Add to Session
                       </Button>
                       
                       <Button
