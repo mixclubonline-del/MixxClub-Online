@@ -91,7 +91,7 @@ export function GetStartedWizard({ open, onOpenChange }: GetStartedWizardProps) 
         </div>
 
         <div className="text-center text-sm text-muted-foreground pt-4 border-t">
-          Choose any option to get started with Mixxclub
+          Choose any option to get started with MixClub
         </div>
       </DialogContent>
     </Dialog>

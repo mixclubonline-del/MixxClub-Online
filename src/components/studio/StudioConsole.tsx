@@ -127,13 +127,12 @@ export const StudioConsole = () => {
               <p className="text-xs text-[hsl(var(--studio-text-dim))] mb-2">
                 No tracks loaded
               </p>
-              <Button
-                variant="default"
-                size="sm"
-                className="text-xs"
+              <button
+                onClick={() => document.dispatchEvent(new CustomEvent('open-import-dialog'))}
+                className="px-3 py-1.5 rounded bg-[hsl(var(--studio-accent))] text-white text-xs font-medium hover:opacity-90 transition-opacity"
               >
                 Add Track
-              </Button>
+              </button>
             </div>
           ) : (
             tracks.map((track) => (

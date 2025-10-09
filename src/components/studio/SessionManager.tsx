@@ -24,38 +24,26 @@ export const SessionManager = () => {
       return;
     }
 
-    if (!user) {
-      toast.error("You must be logged in to create a session");
-      navigate('/auth');
-      return;
-    }
-
     setIsCreating(true);
     try {
-      console.log('Creating session with user:', user.id);
-      
       const { data: session, error } = await supabase
         .from('collaboration_sessions')
         .insert({
-          host_user_id: user.id,
+          host_user_id: user?.id,
           session_name: sessionName,
-          session_type: 'mixing',
+          session_type: 'collaboration',
           status: 'active'
         })
         .select()
         .single();
 
-      if (error) {
-        console.error('Session creation error details:', error);
-        throw error;
-      }
+      if (error) throw error;
 
-      console.log('Session created successfully:', session);
       toast.success("Session created successfully!");
-      navigate(`/hybrid-daw?session=${session.id}`);
-    } catch (error: any) {
+      navigate(`/session/${session.id}`);
+    } catch (error) {
       console.error('Error creating session:', error);
-      toast.error(error.message || "Failed to create session. Please check your connection and try again.");
+      toast.error("Failed to create session");
     } finally {
       setIsCreating(false);
     }
@@ -89,7 +77,7 @@ export const SessionManager = () => {
         });
 
       toast.success("Joined session successfully!");
-      navigate(`/hybrid-daw?session=${session.id}`);
+      navigate(`/session/${session.id}`);
     } catch (error) {
       console.error('Error joining session:', error);
       toast.error("Session not found or inactive");

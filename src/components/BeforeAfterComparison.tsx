@@ -137,11 +137,11 @@ export function BeforeAfterComparison() {
             <h2 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tighter mb-6 leading-[1.05]">
               <span className="block mb-2 text-muted-foreground">Before</span>
               <span className="bg-gradient-to-r from-muted-foreground via-muted to-muted-foreground bg-clip-text text-transparent">
-                MIXXCLUB
+                Mix Club
               </span>
               <span className="block my-3 text-2xl md:text-3xl text-muted-foreground/60">vs</span>
               <span className="bg-gradient-to-r from-primary via-[hsl(220_90%_60%)] to-[hsl(180_100%_50%)] bg-clip-text text-transparent drop-shadow-[0_0_40px_hsl(262_83%_58%/0.5)]">
-                After MIXXCLUB
+                After Mix Club
               </span>
             </h2>
             
@@ -168,7 +168,7 @@ export function BeforeAfterComparison() {
                 <div className="flex items-center justify-between mb-4">
                   <div className="space-y-3">
                     <div className="inline-block px-4 py-2 rounded-full bg-muted border border-muted-foreground/20">
-                      <span className="text-xs md:text-sm font-bold text-muted-foreground uppercase tracking-wider">Before MIXXCLUB</span>
+                      <span className="text-xs md:text-sm font-bold text-muted-foreground uppercase tracking-wider">Before Mix Club</span>
                     </div>
                     <h3 className="text-2xl md:text-3xl font-black text-muted-foreground">Struggling Alone</h3>
                   </div>
@@ -219,7 +219,7 @@ export function BeforeAfterComparison() {
                 <div className="flex items-center justify-between mb-4">
                   <div className="space-y-3">
                     <div className="inline-block px-4 py-2 rounded-full bg-primary/20 border border-primary/40 shadow-glow-sm">
-                      <span className="text-xs md:text-sm font-bold text-primary uppercase tracking-wider">After MIXXCLUB</span>
+                      <span className="text-xs md:text-sm font-bold text-primary uppercase tracking-wider">After Mix Club</span>
                     </div>
                     <h3 className="text-2xl md:text-3xl font-black bg-gradient-to-r from-primary via-[hsl(220_90%_60%)] to-[hsl(180_100%_50%)] bg-clip-text text-transparent">
                       Thriving Together
@@ -280,7 +280,7 @@ export function BeforeAfterComparison() {
                       <span className={`font-bold ${
                         activeTrack === 'before' ? 'text-muted-foreground' : 'text-primary'
                       }`}>
-                        {activeTrack === 'before' ? 'BEFORE MIXXCLUB' : 'AFTER MIXXCLUB'}
+                        {activeTrack === 'before' ? 'BEFORE MIX CLUB' : 'AFTER MIX CLUB'}
                       </span>
                     </p>
                   </div>
@@ -313,7 +313,7 @@ export function BeforeAfterComparison() {
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
                   <ArrowLeftRight className="w-6 h-6 mr-3 group-hover:rotate-180 transition-transform duration-500" />
                   <span className="relative">
-                    Switch to {activeTrack === 'before' ? 'AFTER MIXXCLUB' : 'BEFORE MIXXCLUB'}
+                    Switch to {activeTrack === 'before' ? 'AFTER MIX CLUB' : 'BEFORE MIX CLUB'}
                   </span>
                 </Button>
 

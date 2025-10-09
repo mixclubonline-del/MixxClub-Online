@@ -18,7 +18,6 @@ import PrimeStatusBar from "@/components/prime/PrimeStatusBar";
 
 // Lazy load heavy components
 const MixClubHome = React.lazy(() => import("./pages/MixClubHome"));
-const MixClubHomepage2027 = React.lazy(() => import("./pages/MixClubHomepage2027"));
 const Home = React.lazy(() => import("./pages/Home"));
 
 // Keep IntroScene non-lazy since it's the landing page
@@ -26,11 +25,7 @@ import IntroScene from "./pages/IntroScene";
 const ArtistCRM = React.lazy(() => import("./pages/ArtistCRM"));
 const EngineerCRM = React.lazy(() => import("./pages/EngineerCRM"));
 const AudioLab = React.lazy(() => import("./pages/AudioLab"));
-import HybridDAW from './pages/HybridDAW';
-import AIStudioWorkspace from './pages/AIStudioWorkspace';
-import MixxStudio from './pages/MixxStudio';
-import MixxMasterStudio from './pages/MixxMasterStudio';
-import TestingDashboard from './pages/TestingDashboard';
+const HybridDAW = React.lazy(() => import("./pages/HybridDAW"));
 const Admin = React.lazy(() => import("./pages/Admin"));
 const AIMastering = React.lazy(() => import("./pages/AIMastering"));
 
@@ -45,8 +40,6 @@ import AIStudio from "./pages/AIStudio";
 import Pulse from "./pages/Pulse";
 import Arena from "./pages/Arena";
 import Crowd from "./pages/Crowd";
-import Feed from "./pages/Feed";
-import Radio from "./pages/Radio";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
 import ArtistOnboarding from "./pages/ArtistOnboarding";
@@ -69,16 +62,10 @@ import StudioDirectory from "./pages/StudioDirectory";
 import EducationalHub from "./pages/EducationalHub";
 import CourseViewer from "./pages/CourseViewer";
 import MyCertifications from "./pages/MyCertifications";
-const Marketplace = React.lazy(() => import("./pages/Marketplace"));
+import Marketplace from "./pages/Marketplace";
 import LabelServices from "./pages/LabelServices";
-import EducationHub from "./pages/EducationHub";
-import RevenueAnalytics from "./pages/RevenueAnalytics";
-import IntegrationsHub from "./pages/IntegrationsHub";
-import DistributionAnalytics from "./pages/DistributionAnalytics";
 import Integrations from "./pages/Integrations";
 import AIAudioIntelligence from "./pages/AIAudioIntelligence";
-const LiveStudio = React.lazy(() => import("./pages/LiveStudio"));
-const SocialFeed = React.lazy(() => import("./pages/SocialFeed"));
 import DistributionHub from "./pages/DistributionHub";
 import ForEngineers from "./pages/ForEngineers";
 import EngineerDirectory from "./pages/EngineerDirectory";
@@ -178,19 +165,18 @@ const AppContent = () => {
     <>
       <MobileRouteGuard />
       <OfflineIndicator />
+      <PrimeConsole />
+      <PrimeStatusBar />
       <React.Suspense fallback={<DashboardSkeleton />}>
       <Routes>
-        <Route path="/" element={<MixClubHomepage2027 />} />
-            <Route path="/hub" element={<MixClubHome />} />
-            <Route path="/network" element={<Network />} />
+        <Route path="/" element={<IntroScene />} />
+            <Route path="/network" element={<MixClubHome />} />
             <Route path="/artist" element={<Artist />} />
             <Route path="/engineer" element={<Engineer />} />
             <Route path="/ai-studio" element={<AIStudio />} />
             <Route path="/pulse" element={<Pulse />} />
             <Route path="/arena" element={<Arena />} />
             <Route path="/crowd" element={<Crowd />} />
-            <Route path="/feed" element={<Feed />} />
-            <Route path="/radio" element={<Radio />} />
             <Route path="/mix-battles" element={<MixBattles />} />
             <Route path="/leaderboard" element={<CommunityLeaderboard />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
@@ -215,10 +201,6 @@ const AppContent = () => {
             <Route path="/mixing-studio" element={<Mixing />} />
             <Route path="/mastering-studio" element={<Mastering />} />
             <Route path="/hybrid-daw" element={<AppLayout><HybridDAW /></AppLayout>} />
-            <Route path="/mixx-studio" element={<MixxStudio />} />
-            <Route path="/mixxmaster-studio" element={<AppLayout><MixxMasterStudio /></AppLayout>} />
-            <Route path="/ai-studio-workspace" element={<AppLayout><AIStudioWorkspace /></AppLayout>} />
-            <Route path="/testing" element={<TestingDashboard />} />
             <Route path="/jobs" element={<AppLayout><JobBoard /></AppLayout>} />
             <Route path="/admin" element={<AdminRoute section="Admin Dashboard"><Admin /></AdminRoute>} />
             <Route path="/admin/users" element={<AdminRoute section="Users"><AdminUsers /></AdminRoute>} />
@@ -317,16 +299,10 @@ const AppContent = () => {
             {/* Tier 3 Features */}
             <Route path="/marketplace" element={<Marketplace />} />
             <Route path="/label-services" element={<LabelServices />} />
-            <Route path="/education-hub" element={<EducationHub />} />
-            <Route path="/revenue-analytics" element={<RevenueAnalytics />} />
             
             {/* Tier 4 Features */}
-            <Route path="/integrations" element={<IntegrationsHub />} />
+            <Route path="/integrations" element={<Integrations />} />
             <Route path="/ai-audio-intelligence" element={<AIAudioIntelligence />} />
-              <Route path="/distribution-analytics" element={<DistributionAnalytics />} />
-              <Route path="/live-studio" element={<LiveStudio />} />
-              <Route path="/marketplace" element={<Marketplace />} />
-              <Route path="/social-feed" element={<SocialFeed />} />
             <Route path="/distribution" element={<AppLayout><DistributionHub /></AppLayout>} />
             
             {/* Merch Store */}

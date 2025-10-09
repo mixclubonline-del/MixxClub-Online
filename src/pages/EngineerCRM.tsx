@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { CheckCircle, Clock, AlertCircle, Music, Plus, Upload, Award, TrendingUp, DollarSign, Headphones } from 'lucide-react';
+import { CheckCircle, Clock, AlertCircle, Music, Plus, Upload, Award, TrendingUp, DollarSign } from 'lucide-react';
 import { CRMLayout } from '@/components/crm/CRMLayout';
 import EnhancedCRM from '@/components/crm/EnhancedCRM';
 import SessionManager from '@/components/collaboration/SessionManager';
@@ -31,11 +31,6 @@ import { ActiveWorkHub } from '@/components/crm/ActiveWorkHub';
 import { DashboardHub } from '@/components/crm/DashboardHub';
 import { OpportunitiesHub } from '@/components/crm/OpportunitiesHub';
 import { EngineerCRMDashboard } from '@/components/crm/EngineerCRMDashboard';
-import { Profile3DSection } from '@/components/crm/dashboard/Profile3DSection';
-import { Suspense, lazy } from 'react';
-
-const MixingConsole3D = lazy(() => import('@/components/3d/r3f/MixingConsole3D').then(m => ({ default: m.MixingConsole3D })));
-const Stats3DChart = lazy(() => import('@/components/3d/r3f/Stats3DChart').then(m => ({ default: m.Stats3DChart })));
 
 const EngineerCRM = () => {
   const { user } = useAuth();
@@ -330,12 +325,6 @@ const EngineerCRM = () => {
 
   const quickActions = [
     {
-      label: 'Open Studio',
-      icon: <Headphones className="w-4 h-4" />,
-      onClick: () => navigate('/engineer-crm?tab=studio'),
-      variant: 'default' as const,
-    },
-    {
       label: 'Find New Projects',
       icon: <Music className="w-4 h-4" />,
       onClick: () => navigate('/engineer-crm?tab=opportunities'),
@@ -463,51 +452,7 @@ const EngineerCRM = () => {
         );
 
       default:
-        return (
-          <div className="space-y-6">
-            {/* 3D Profile & Stats Section */}
-            <Suspense fallback={
-              <Card className="p-6 bg-gradient-to-br from-card/50 to-card animate-pulse">
-                <div className="h-[300px] bg-muted rounded-lg" />
-              </Card>
-            }>
-              <Profile3DSection 
-                userName={profile?.full_name || user?.email || 'Engineer'}
-                stats={[
-                  { label: 'Projects', value: projects.length, color: '#8b5cf6' },
-                  { label: 'Earnings', value: Math.round(earnings.total), color: '#06b6d4' },
-                  { label: 'Rating', value: Math.round((profile?.rating_average || 0) * 20), color: '#f59e0b' },
-                ]}
-              />
-            </Suspense>
-
-            {/* Main Dashboard */}
-            <DashboardHub />
-            
-            {/* 3D Mixing Console Preview */}
-            <Suspense fallback={
-              <Card className="p-6 bg-gradient-to-br from-card/50 to-card animate-pulse">
-                <div className="h-[400px] bg-muted rounded-lg" />
-              </Card>
-            }>
-              <Card className="p-6 bg-gradient-to-br from-card/50 to-card border-accent-blue/30">
-                <h3 className="text-lg font-bold mb-4">Your Virtual Mixing Console</h3>
-                <MixingConsole3D 
-                  tracks={[
-                    { id: '1', level: 0.8, color: '#8b5cf6', label: 'Master' },
-                    { id: '2', level: 0.7, color: '#06b6d4', label: 'Vocals' },
-                    { id: '3', level: 0.75, color: '#f59e0b', label: 'Drums' },
-                    { id: '4', level: 0.65, color: '#ec4899', label: 'Bass' },
-                  ]}
-                  className="h-[400px] rounded-lg overflow-hidden border border-accent-blue/20"
-                />
-                <p className="text-xs text-muted-foreground mt-2 text-center">
-                  Drag to rotate • Scroll to zoom
-                </p>
-              </Card>
-            </Suspense>
-          </div>
-        );
+        return <DashboardHub />;
     }
   };
 

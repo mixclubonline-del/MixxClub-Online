@@ -85,80 +85,42 @@ export const PluginKnob: React.FC<PluginKnobProps> = ({
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.98 }}
       >
-        {/* Outer glow ring for AI suggestions */}
-        {aiSuggested && (
-          <div className="absolute -inset-2 rounded-full bg-gradient-to-br from-primary/30 to-accent/30 blur-md animate-pulse" />
-        )}
-        
-        {/* Knob background with 3D depth */}
-        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[hsl(230_25%_30%)] via-[hsl(230_30%_18%)] to-[hsl(230_35%_12%)] 
-          border border-white/10 shadow-[0_4px_16px_hsl(220_30%_5%/0.5),inset_0_1px_2px_hsl(0_0%_100%/0.05)]">
-          
-          {/* Gradient ring track */}
-          <svg className="absolute inset-0 w-full h-full -rotate-90 opacity-40">
-            <circle
-              cx="50%"
-              cy="50%"
-              r="42%"
-              fill="none"
-              stroke="url(#gradient-track)"
-              strokeWidth="2"
-              strokeDasharray="1, 4"
-              className="opacity-30"
-            />
-            <defs>
-              <linearGradient id="gradient-track" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="hsl(270 100% 70%)" />
-                <stop offset="100%" stopColor="hsl(185 100% 50%)" />
-              </linearGradient>
-            </defs>
-          </svg>
-          
-          {/* Value arc with gradient */}
+        {/* Knob background */}
+        <div className={`absolute inset-0 rounded-full bg-gradient-to-br from-white/10 to-white/5 
+          border border-white/20 shadow-lg ${aiSuggested ? 'ring-2 ring-primary/50 ring-offset-2 ring-offset-background' : ''}`}>
+          {/* Value arc */}
           <svg className="absolute inset-0 w-full h-full -rotate-90">
             <circle
               cx="50%"
               cy="50%"
-              r="42%"
+              r="40%"
               fill="none"
-              stroke="url(#gradient-value)"
+              stroke="hsl(var(--primary))"
               strokeWidth="3"
               strokeDasharray={`${normalizedValue * 251}, 251`}
-              strokeLinecap="round"
-              className="drop-shadow-[0_0_8px_hsl(185_100%_50%/0.8)]"
+              className="opacity-60"
             />
-            <defs>
-              <linearGradient id="gradient-value" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="hsl(270 100% 70%)" />
-                <stop offset="50%" stopColor="hsl(300 90% 65%)" />
-                <stop offset="100%" stopColor="hsl(185 100% 50%)" />
-              </linearGradient>
-            </defs>
           </svg>
           
-          {/* Inner knob with rotation indicator */}
+          {/* Knob indicator */}
           <motion.div
-            className="absolute inset-[18%] rounded-full bg-gradient-to-br from-[hsl(230_20%_35%)] via-[hsl(230_25%_22%)] to-[hsl(230_30%_16%)]
-              shadow-[inset_0_2px_6px_hsl(220_30%_8%/0.6),inset_0_1px_2px_hsl(220_30%_5%/0.4)]"
+            className="absolute inset-[15%] rounded-full bg-gradient-to-br from-white/20 to-white/5"
             style={{ rotate: rotation }}
           >
-            {/* Indicator line with glow */}
-            <div className="absolute top-1 left-1/2 -translate-x-1/2 w-1 h-3 rounded-full 
-              bg-gradient-to-b from-[hsl(185_100%_50%)] to-[hsl(185_100%_40%)]
-              shadow-[0_0_8px_hsl(185_100%_50%/0.8),0_0_4px_hsl(185_100%_50%/0.6)]" />
+            <div className="absolute top-1 left-1/2 -translate-x-1/2 w-0.5 h-2 bg-primary rounded-full shadow-glow" />
           </motion.div>
           
-          {/* Center highlight */}
+          {/* Center dot */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-1.5 h-1.5 rounded-full bg-white/30 shadow-inner" />
+            <div className="w-1 h-1 rounded-full bg-white/40" />
           </div>
         </div>
       </motion.div>
       
       {/* Label and value */}
       <div className="text-center space-y-0.5">
-        <div className="text-xs text-muted-foreground uppercase tracking-wider font-medium">{label}</div>
-        <div className={`text-sm font-mono font-semibold ${aiSuggested ? 'text-[hsl(185_100%_50%)]' : 'text-foreground'}`}>
+        <div className="text-xs text-muted-foreground uppercase tracking-wider">{label}</div>
+        <div className={`text-sm font-mono font-medium ${aiSuggested ? 'text-primary' : 'text-foreground'}`}>
           {displayVal}
         </div>
       </div>

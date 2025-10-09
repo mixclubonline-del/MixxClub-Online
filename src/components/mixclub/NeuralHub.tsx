@@ -48,12 +48,13 @@ const getNodeColor = (angle: number): string => {
 
 const nodes: Node[] = [
   { id: 'artist', label: 'Artist', route: '/artist', icon: Music, angle: 0, color: getNodeColor(0), activeUsers: 42, features: ['Upload Tracks', 'AI Mastering', 'Collaboration'], bubbles: generateBubbles() },
-  { id: 'engineer', label: 'Engineer', route: '/engineer', icon: Headphones, angle: 51.43, color: getNodeColor(51.43), activeUsers: 28, features: ['Mix Projects', 'Presets', 'Stem Access'], bubbles: generateBubbles() },
-  { id: 'ai-studio', label: 'AI Studio', route: '/ai-studio', icon: Sparkles, angle: 102.86, color: getNodeColor(102.86), activeUsers: 156, features: ['AI Mixing', 'Smart EQ', 'Auto-Master'], bubbles: generateBubbles() },
-  { id: 'pulse', label: 'The Pulse', route: '/pulse', icon: Activity, angle: 154.29, color: getNodeColor(154.29), activeUsers: 89, features: ['Live Feed', 'Trending', 'Discover'], bubbles: generateBubbles() },
-  { id: 'arena', label: 'Mixx Arena', route: '/arena', icon: Trophy, angle: 205.71, color: getNodeColor(205.71), activeUsers: 67, features: ['Competitions', 'Voting', 'Prizes'], bubbles: generateBubbles() },
-  { id: 'crowd', label: 'The Crowd', route: '/crowd', icon: Users, angle: 257.14, color: getNodeColor(257.14), activeUsers: 234, features: ['Community', 'Forums', 'Events'], bubbles: generateBubbles() },
-  { id: 'marketplace', label: 'Marketplace', route: '/marketplace', icon: ShoppingBag, angle: 308.57, color: getNodeColor(308.57), activeUsers: 45, features: ['Buy Presets', 'Sell Work', 'Licenses'], bubbles: generateBubbles() },
+  { id: 'engineer', label: 'Engineer', route: '/engineer', icon: Headphones, angle: 45, color: getNodeColor(45), activeUsers: 28, features: ['Mix Projects', 'Presets', 'Stem Access'], bubbles: generateBubbles() },
+  { id: 'ai-studio', label: 'AI Studio', route: '/ai-studio', icon: Sparkles, angle: 90, color: getNodeColor(90), activeUsers: 156, features: ['AI Mixing', 'Smart EQ', 'Auto-Master'], bubbles: generateBubbles() },
+  { id: 'pulse', label: 'The Pulse', route: '/pulse', icon: Activity, angle: 135, color: getNodeColor(135), activeUsers: 89, features: ['Live Feed', 'Trending', 'Discover'], bubbles: generateBubbles() },
+  { id: 'arena', label: 'Mixx Arena', route: '/arena', icon: Trophy, angle: 180, color: getNodeColor(180), activeUsers: 67, features: ['Competitions', 'Voting', 'Prizes'], bubbles: generateBubbles() },
+  { id: 'crowd', label: 'The Crowd', route: '/crowd', icon: Users, angle: 225, color: getNodeColor(225), activeUsers: 234, features: ['Community', 'Forums', 'Events'], bubbles: generateBubbles() },
+  { id: 'marketplace', label: 'Marketplace', route: '/marketplace', icon: ShoppingBag, angle: 270, color: getNodeColor(270), activeUsers: 45, features: ['Buy Presets', 'Sell Work', 'Licenses'], bubbles: generateBubbles() },
+  { id: 'admin', label: 'Admin', route: '/admin', icon: Settings, angle: 315, color: getNodeColor(315), activeUsers: 3, features: ['Dashboard', 'Analytics', 'Management'], bubbles: generateBubbles() },
 ];
 
 export default function NeuralHub() {
@@ -157,45 +158,42 @@ export default function NeuralHub() {
 
       {/* Content Layer */}
       <div className="relative z-10 flex flex-col items-center justify-center h-full">
-        {/* Center Hub - Larger and More Prominent - Clickable to Social Feed */}
-        <Link to="/feed">
-          <motion.div
-            className="absolute cursor-pointer"
-            style={{
-              left: `${centerX}%`,
-              top: `${centerY}%`,
-              transform: 'translate(-50%, -50%)'
+        {/* Center Hub - Larger and More Prominent */}
+        <motion.div
+          className="absolute"
+          style={{
+            left: `${centerX}%`,
+            top: `${centerY}%`,
+            transform: 'translate(-50%, -50%)'
+          }}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1 }}
+        >
+          <motion.div 
+            className="relative"
+            animate={{
+              filter: [
+                'drop-shadow(0 0 40px rgba(139, 92, 246, 0.6))',
+                'drop-shadow(0 0 80px rgba(139, 92, 246, 0.8))',
+                'drop-shadow(0 0 40px rgba(139, 92, 246, 0.6))'
+              ]
             }}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1 }}
-            whileHover={{ scale: 1.05 }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
           >
-            <motion.div 
-              className="relative"
-              animate={{
-                filter: [
-                  'drop-shadow(0 0 40px rgba(139, 92, 246, 0.6))',
-                  'drop-shadow(0 0 80px rgba(139, 92, 246, 0.8))',
-                  'drop-shadow(0 0 40px rgba(139, 92, 246, 0.6))'
-                ]
-              }}
-              transition={{
-                duration: 4,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-            >
-              <div className="w-44 h-44 md:w-52 md:h-52 rounded-full bg-gradient-to-br from-[hsl(var(--primary))]/30 via-[hsl(var(--accent-blue))]/20 to-[hsl(var(--primary))]/30 backdrop-blur-xl border-2 border-[hsl(var(--primary))]/40 flex items-center justify-center">
-                <div className="text-center">
-                  <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[hsl(var(--primary))] via-[hsl(var(--accent-blue))] to-[hsl(var(--primary))] drop-shadow-[0_0_20px_rgba(139,92,246,0.5)]">
-                    Mixxclub
-                  </h1>
-                </div>
+            <div className="w-44 h-44 md:w-52 md:h-52 rounded-full bg-gradient-to-br from-[hsl(var(--primary))]/30 via-[hsl(var(--accent-blue))]/20 to-[hsl(var(--primary))]/30 backdrop-blur-xl border-2 border-[hsl(var(--primary))]/40 flex items-center justify-center">
+              <div className="text-center">
+                <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[hsl(var(--primary))] via-[hsl(var(--accent-blue))] to-[hsl(var(--primary))] drop-shadow-[0_0_20px_rgba(139,92,246,0.5)]">
+                  Mixxclub
+                </h1>
               </div>
-            </motion.div>
+            </div>
           </motion.div>
-        </Link>
+        </motion.div>
 
         {/* Interactive Nodes - Much Larger with Glass Effect */}
         {nodes.map((node) => {

@@ -1,47 +1,5 @@
 project_id = "htvmkylgrrlaydhdbonl"
 
-[functions.stripe-webhook-mixx]
-verify_jwt = false
-
-[functions.checkout-create-session]
-verify_jwt = true
-
-[functions.mixport-upload]
-verify_jwt = true
-
-[functions.mixport-approve]
-verify_jwt = true
-
-[functions.projects-assign]
-verify_jwt = true
-
-[functions.projects-revision]
-verify_jwt = true
-
-[functions.points-redeem]
-verify_jwt = true
-
-[functions.points-cashout]
-verify_jwt = true
-
-[functions.referral-code]
-verify_jwt = true
-
-[functions.stripe-connect-onboard]
-verify_jwt = true
-
-[functions.marketplace-create-item]
-verify_jwt = true
-
-[functions.marketplace-purchase]
-verify_jwt = true
-
-[functions.dispute-create]
-verify_jwt = true
-
-[functions.dispute-resolve]
-verify_jwt = true
-
 [functions.generate-trap-beat]
 verify_jwt = false
 
@@ -191,15 +149,3 @@ verify_jwt = false
 
 [functions.separate-stems]
 verify_jwt = true
-
-[functions.mixxmaster-create]
-verify_jwt = true
-
-[functions.mixxmaster-parse]
-verify_jwt = true
-
-[functions.mixxmaster-export]
-verify_jwt = true
-
-[functions.primebot-analyze]
-verify_jwt = false

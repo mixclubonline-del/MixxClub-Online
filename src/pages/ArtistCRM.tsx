@@ -7,7 +7,7 @@ import { useServiceAccess } from '@/hooks/useServiceAccess';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Music, Plus, TrendingUp, Award, Upload, Sparkles, Lock, DollarSign, Headphones } from 'lucide-react';
+import { Music, Plus, TrendingUp, Award, Upload, Sparkles, Lock, DollarSign } from 'lucide-react';
 import { CRMLayout } from '@/components/crm/CRMLayout';
 import { EngineerCRMDashboard } from '@/components/crm/EngineerCRMDashboard';
 import { AdvancedMixingStudio } from '@/components/mixing/AdvancedMixingStudio';
@@ -36,12 +36,6 @@ import { ActiveWorkHub } from '@/components/crm/ActiveWorkHub';
 import { DashboardHub } from '@/components/crm/DashboardHub';
 import { OpportunitiesHub } from '@/components/crm/OpportunitiesHub';
 import { YourMatches } from '@/components/crm/YourMatches';
-import { Profile3DSection } from '@/components/crm/dashboard/Profile3DSection';
-import { Interactive3DShowcase } from '@/components/3d/r3f/Interactive3DShowcase';
-import { Suspense, lazy } from 'react';
-
-const Stats3DChart = lazy(() => import('@/components/3d/r3f/Stats3DChart').then(m => ({ default: m.Stats3DChart })));
-const Globe3D = lazy(() => import('@/components/3d/r3f/Globe3D').then(m => ({ default: m.Globe3D })));
 
 const ArtistCRM = () => {
   const { user } = useAuth();
@@ -287,15 +281,10 @@ const ArtistCRM = () => {
 
   const quickActions = [
     {
-      label: 'Open Studio',
-      icon: <Headphones className="w-4 h-4" />,
-      onClick: () => navigate('/artist-crm?tab=studio'),
-      variant: 'default' as const,
-    },
-    {
       label: 'New Project',
       icon: <Plus className="w-4 h-4" />,
       onClick: () => navigate('/artist-crm?tab=active-work'),
+      variant: 'default' as const,
     },
     {
       label: 'Book Session',
@@ -422,43 +411,7 @@ const ArtistCRM = () => {
         );
 
       default:
-        return (
-          <div className="space-y-6">
-            {/* 3D Profile & Stats Section */}
-            <Suspense fallback={
-              <Card className="p-6 bg-gradient-to-br from-card/50 to-card animate-pulse">
-                <div className="h-[300px] bg-muted rounded-lg" />
-              </Card>
-            }>
-              <Profile3DSection 
-                userName={profile?.full_name || user?.email || 'Artist'}
-                stats={[
-                  { label: 'Sessions', value: projects.length, color: '#8b5cf6' },
-                  { label: 'Released', value: projects.filter(p => p.status === 'completed').length, color: '#06b6d4' },
-                  { label: 'In Progress', value: projects.filter(p => p.status === 'in_progress').length, color: '#f59e0b' },
-                ]}
-              />
-            </Suspense>
-
-            {/* Main Dashboard */}
-            <DashboardHub />
-            
-            {/* Interactive 3D Showcase */}
-            <Suspense fallback={
-              <Card className="p-6 bg-gradient-to-br from-card/50 to-card animate-pulse">
-                <div className="h-[400px] bg-muted rounded-lg" />
-              </Card>
-            }>
-              <Card className="p-6 bg-gradient-to-br from-card/50 to-card border-primary/30">
-                <h3 className="text-lg font-bold mb-4">Interactive Studio</h3>
-                <Interactive3DShowcase className="h-[400px] rounded-lg overflow-hidden border border-primary/20" />
-                <p className="text-xs text-muted-foreground mt-2 text-center">
-                  Drag to interact • Scroll to zoom
-                </p>
-              </Card>
-            </Suspense>
-          </div>
-        );
+        return <DashboardHub />;
     }
   };
 

@@ -1,5 +1,4 @@
-import { useState, useRef, useEffect, Suspense } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
@@ -21,8 +20,7 @@ import {
   Trophy,
   Gamepad2,
   Download,
-  Upload,
-  LogOut
+  Upload
 } from "lucide-react";
 import EnhancedDAWTimeline from "@/components/daw/EnhancedDAWTimeline";
 import DAWMixerPanel from "@/components/daw/DAWMixerPanel";
@@ -32,16 +30,10 @@ import DAWEffectsPanel from "@/components/daw/DAWEffectsPanel";
 import DAWGamification from "@/components/daw/DAWGamification";
 import AudioImportDialog from "@/components/AudioImportDialog";
 import StemSeparationWindow from "@/components/studio/StemSeparationWindow";
-import { NeuralNetworkViz } from "@/components/3d/r3f/NeuralNetworkViz";
-import { AudioVisualizerScene } from "@/components/3d/r3f/AudioVisualizerScene";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useAudioPermissions } from "@/hooks/useAudioPermissions";
-import { useAudioFFT } from "@/hooks/useAudioFFT";
 import Navigation from "@/components/Navigation";
-import { supabase } from "@/integrations/supabase/client";
-import { useRealTimePresence } from "@/hooks/useRealTimePresence";
-import { loadAudioFromSupabase, getAudioUrl } from "@/utils/audioLoader";
 
 export interface Track {
   id: string;
@@ -84,17 +76,7 @@ export interface CollaborationUser {
 const HybridDAW = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const { permissions, requestAudioPermissions, hasAudioAccess, isRequesting } = useAudioPermissions();
-  
-  // Session State
-  const sessionId = searchParams.get('session');
-  const [sessionData, setSessionData] = useState<any>(null);
-  const [isLoadingSession, setIsLoadingSession] = useState(!!sessionId);
-  
-  // Real-time presence for collaboration
-  const { onlineUsers } = useRealTimePresence(sessionId ? `session:${sessionId}` : 'daw:standalone');
   
   // Core DAW State
   const [tracks, setTracks] = useState<Track[]>([]);
@@ -109,7 +91,6 @@ const HybridDAW = () => {
   const [activePanel, setActivePanel] = useState<'timeline' | 'mixer' | 'effects' | 'collab' | 'achievements'>('timeline');
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [showStemSeparationDialog, setShowStemSeparationDialog] = useState(false);
-  const [show3DVisualizer, setShow3DVisualizer] = useState(false);
   
   // Collaboration State
   const [collaborators, setCollaborators] = useState<CollaborationUser[]>([]);
@@ -123,10 +104,6 @@ const HybridDAW = () => {
   const animationFrameRef = useRef<number | null>(null);
   const startTimeRef = useRef<number>(0);
   const pauseTimeRef = useRef<number>(0);
-  const audioBufferCacheRef = useRef<Map<string, AudioBuffer>>(new Map());
-  
-  // Get real-time audio FFT data
-  const fftData = useAudioFFT(isPlaying);
   
   // Gamification State
   const [achievements, setAchievements] = useState<Array<{ id: string; title: string; description: string; unlocked: boolean }>>([
@@ -135,74 +112,6 @@ const HybridDAW = () => {
     { id: 'collab-master', title: 'Team Player', description: 'Collaborate with another user', unlocked: false },
     { id: 'effect-wizard', title: 'Effect Master', description: 'Apply 5 different effects', unlocked: false },
   ]);
-
-  // Load session data if session ID exists
-  useEffect(() => {
-    if (!sessionId || !user) return;
-
-    const loadSessionData = async () => {
-      setIsLoadingSession(true);
-      try {
-        // Load session details
-        const { data: session, error: sessionError } = await supabase
-          .from('collaboration_sessions')
-          .select('*, session_participants(*)')
-          .eq('id', sessionId)
-          .single();
-
-        if (sessionError) throw sessionError;
-
-        setSessionData(session);
-        setIsCollabConnected(true);
-
-        // Load audio files for this session
-        const { data: audioFiles, error: filesError } = await supabase
-          .from('audio_files')
-          .select('*')
-          .eq('project_id', sessionId);
-
-        if (!filesError && audioFiles) {
-          // Convert audio files to tracks
-          const loadedTracks: Track[] = audioFiles.map(file => ({
-            id: file.id,
-            name: file.file_name,
-            color: 'hsl(262, 83%, 58%)',
-            regions: [{
-              id: `region-${file.id}`,
-              start: 0,
-              end: file.duration_seconds || 10,
-              url: file.file_path,
-              gain: 1,
-              fadeIn: 0,
-              fadeOut: 0
-            }],
-            solo: false,
-            mute: false,
-            volume: 0.8,
-            effects: {},
-            automation: []
-          }));
-          setTracks(loadedTracks);
-        }
-
-        toast({
-          title: "Session Loaded",
-          description: `Connected to ${session.session_name}`,
-        });
-      } catch (error) {
-        console.error('Error loading session:', error);
-        toast({
-          title: "Session Load Error",
-          description: "Failed to load session data",
-          variant: "destructive"
-        });
-      } finally {
-        setIsLoadingSession(false);
-      }
-    };
-
-    loadSessionData();
-  }, [sessionId, user, toast]);
 
   // Initialize Audio Context
   useEffect(() => {
@@ -386,66 +295,22 @@ const HybridDAW = () => {
     }
   };
 
-  // Play audio from blob or URL with Supabase support
+  // Play audio from blob or URL
   const playAudioRegion = async (region: AudioRegion, trackVolume: number = 0.8, trackMute: boolean = false) => {
     if (!audioContextRef.current || trackMute) return;
 
     try {
       let audioBuffer: AudioBuffer;
       
-      // Check cache first
-      const cacheKey = region.url || region.id;
-      if (audioBufferCacheRef.current.has(cacheKey)) {
-        audioBuffer = audioBufferCacheRef.current.get(cacheKey)!;
+      if (region.blob) {
+        const arrayBuffer = await region.blob.arrayBuffer();
+        audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
+      } else if (region.url) {
+        const response = await fetch(region.url);
+        const arrayBuffer = await response.arrayBuffer();
+        audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
       } else {
-        // Load audio based on source type
-        if (region.blob) {
-          const arrayBuffer = await region.blob.arrayBuffer();
-          audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
-        } else if (region.url) {
-          // Check if it's a Supabase storage URL
-          const isSupabaseStorage = region.url.includes('/storage/v1/object/') || 
-                                      region.url.includes('audio-files/') || 
-                                      region.url.includes('project-files/');
-          
-          if (isSupabaseStorage) {
-            // Extract bucket and path from URL
-            const urlParts = region.url.split('/');
-            const bucketIndex = urlParts.findIndex(part => part === 'audio-files' || part === 'project-files' || part === 'session-packages');
-            
-            if (bucketIndex !== -1) {
-              const bucket = urlParts[bucketIndex];
-              const path = urlParts.slice(bucketIndex + 1).join('/');
-              
-              try {
-                const audioData = await loadAudioFromSupabase(bucket, path, audioContextRef.current);
-                audioBuffer = audioData.buffer;
-              } catch (supabaseError) {
-                console.warn('Supabase load failed, trying public URL:', supabaseError);
-                // Fallback to public URL
-                const publicUrl = await getAudioUrl(bucket, path);
-                const response = await fetch(publicUrl);
-                const arrayBuffer = await response.arrayBuffer();
-                audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
-              }
-            } else {
-              // Generic Supabase URL, try direct fetch
-              const response = await fetch(region.url);
-              const arrayBuffer = await response.arrayBuffer();
-              audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
-            }
-          } else {
-            // Regular HTTP URL
-            const response = await fetch(region.url);
-            const arrayBuffer = await response.arrayBuffer();
-            audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
-          }
-        } else {
-          return;
-        }
-        
-        // Cache the decoded buffer
-        audioBufferCacheRef.current.set(cacheKey, audioBuffer);
+        return;
       }
 
       const source = audioContextRef.current.createBufferSource();
@@ -471,11 +336,6 @@ const HybridDAW = () => {
       }
     } catch (error) {
       console.error('Error playing audio region:', error);
-      toast({
-        title: "Playback Error",
-        description: "Failed to load or play audio file",
-        variant: "destructive"
-      });
     }
   };
 
@@ -694,15 +554,6 @@ const HybridDAW = () => {
     });
   };
 
-  // Leave session handler
-  const handleLeaveSession = () => {
-    if (sessionData?.host_user_id === user?.id) {
-      navigate('/artist');
-    } else {
-      navigate('/engineer');
-    }
-  };
-
   if (!user) {
     return (
       <div className="min-h-screen bg-background">
@@ -726,37 +577,14 @@ const HybridDAW = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col overflow-hidden relative">
-      {/* 3D Neural Network Background */}
-      <div className="fixed inset-0 opacity-20 pointer-events-none z-0">
-        <Suspense fallback={null}>
-          <NeuralNetworkViz isProcessing={isPlaying} className="w-full h-full" />
-        </Suspense>
-      </div>
-      
+    <div className="min-h-screen bg-background text-foreground flex flex-col overflow-hidden">
       <Navigation />
       
       {/* Modern Glassmorphic Top Toolbar */}
       <div className="pt-24 glass border-b border-border/50 shadow-glass animate-slide-up">
         <div className="px-6 py-3 flex items-center justify-between">
-          {/* Left - Session Info & Transport Controls */}
+          {/* Left - Transport Controls */}
           <div className="flex items-center gap-3">
-            {sessionId && sessionData && (
-              <>
-                <div className="flex items-center gap-2 glass-hover px-4 py-2 rounded-lg border border-primary/30">
-                  <Users className="w-4 h-4 text-primary" />
-                  <div>
-                    <div className="text-xs font-bold">{sessionData.session_name}</div>
-                    <div className="text-xs text-muted-foreground">{onlineUsers.length} online</div>
-                  </div>
-                </div>
-                <Button variant="outline" size="sm" onClick={handleLeaveSession} className="gap-2">
-                  <LogOut className="w-4 h-4" />
-                  <span className="text-xs">Leave Session</span>
-                </Button>
-                <div className="w-px h-8 bg-border/50" />
-              </>
-            )}
             <Button variant="glass" size="sm" className="text-xs font-semibold">
               FILE
             </Button>
@@ -866,16 +694,6 @@ const HybridDAW = () => {
             >
               <Sparkles className="w-4 h-4" />
               <span className="text-xs font-semibold">SEPARATE STEMS</span>
-            </Button>
-            
-            <Button 
-              variant={show3DVisualizer ? 'default' : 'ghost'} 
-              size="sm"
-              onClick={() => setShow3DVisualizer(!show3DVisualizer)}
-              className="gap-2"
-            >
-              <Sparkles className="w-4 h-4" />
-              <span className="text-xs">VISUALIZER</span>
             </Button>
             
             <div className="w-px h-8 bg-border/50" />
@@ -1065,14 +883,13 @@ const HybridDAW = () => {
                 onStopRecording={stopRecording}
                 isRecording={isRecording}
               />
-          ) : (
-            <DAW3DView 
-              tracks={tracks}
-              isPlaying={isPlaying}
-              currentTime={currentTime}
-              fftData={fftData}
-            />
-          )}
+            ) : (
+              <DAW3DView 
+                tracks={tracks}
+                isPlaying={isPlaying}
+                currentTime={currentTime}
+              />
+            )}
           </div>
 
           {/* Modern Bottom Panel */}
