@@ -89,10 +89,7 @@ const HybridDAW = () => {
   const audioContextRef = useRef<AudioContext | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const playbackSourcesRef = useRef<Map<string, AudioBufferSourceNode>>(new Map());
-  const animationFrameRef = useRef<number | null>(null);
-  const startTimeRef = useRef<number>(0);
-  const pauseTimeRef = useRef<number>(0);
+  // Removed manual playback refs - using audioEngine only
   
   // Gamification State
   const [achievements, setAchievements] = useState<Array<{ id: string; title: string; description: string; unlocked: boolean }>>([
@@ -200,19 +197,6 @@ const HybridDAW = () => {
     
     return () => {
       // Cleanup on unmount
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-      
-      playbackSourcesRef.current.forEach(source => {
-        try {
-          source.stop();
-        } catch (e) {
-          // Source might already be stopped
-        }
-      });
-      playbackSourcesRef.current.clear();
-      
       if (audioContextRef.current) {
         audioContextRef.current.close();
       }
@@ -345,9 +329,11 @@ const HybridDAW = () => {
           )
         );
 
+        // Recording automatically added to track with audioBuffer
+        // audioEngine will play it when user clicks play
         toast({
           title: "Recording Complete",
-          description: "Audio recorded successfully!",
+          description: "Recording added to timeline and ready to play",
         });
       };
 
@@ -385,149 +371,30 @@ const HybridDAW = () => {
     }
   };
 
-  // Update playback time
-  const updatePlaybackTime = () => {
-    if (isPlaying && audioContextRef.current) {
-      const elapsed = audioContextRef.current.currentTime - startTimeRef.current + pauseTimeRef.current;
-      setCurrentTime(elapsed);
-      animationFrameRef.current = requestAnimationFrame(updatePlaybackTime);
-    }
-  };
+  // ============================================================================
+  // PLAYBACK FUNCTIONS (Using audioEngine)
+  // ============================================================================
 
-  // Play audio from pre-decoded buffer
-  const playAudioRegion = (
-    track: Track,
-    region: AudioRegion,
-    trackVolume: number,
-    trackMute: boolean
-  ) => {
-    if (!audioContextRef.current || trackMute || !track.audioBuffer) {
-      console.warn('[Playback] Skipped:', 
-        !audioContextRef.current ? 'No context' : 
-        !track.audioBuffer ? 'No buffer' : 'Muted'
-      );
-      return;
-    }
-
-    try {
-      // Create nodes
-      const source = audioContextRef.current.createBufferSource();
-      const gainNode = audioContextRef.current.createGain();
-      
-      // Use pre-decoded buffer - INSTANT! No fetch, no decode!
-      source.buffer = track.audioBuffer;
-      gainNode.gain.value = (region.gain || 1) * trackVolume * masterVolume;
-      
-      // Connect graph
-      source.connect(gainNode);
-      gainNode.connect(audioContextRef.current.destination);
-      
-      // Apply fade in
-      if (region.fadeIn && region.fadeIn.duration > 0) {
-        const now = audioContextRef.current.currentTime;
-        gainNode.gain.setValueAtTime(0, now);
-        gainNode.gain.linearRampToValueAtTime(
-          gainNode.gain.value,
-          now + region.fadeIn.duration
-        );
-      }
-      
-      // Calculate playback range
-      const sourceStart = (region.sourceStartOffset || 0) + Math.max(0, currentTime - region.startTime);
-      const duration = Math.min(
-        (region.duration || track.audioBuffer.duration) - (currentTime - region.startTime),
-        track.audioBuffer.duration - sourceStart
-      );
-      
-      if (duration > 0 && sourceStart < track.audioBuffer.duration) {
-        source.start(0, sourceStart, duration);
-        playbackSourcesRef.current.set(region.id, source);
-        
-        source.onended = () => {
-          playbackSourcesRef.current.delete(region.id);
-        };
-        
-        console.log('[Playback] Started:', track.name, `${sourceStart.toFixed(2)}s for ${duration.toFixed(2)}s`);
-      }
-      
-    } catch (error) {
-      console.error('[Playback] Error:', error);
-    }
-  };
-
-  // Play/Pause Transport
-  const togglePlayback = async () => {
-    if (!audioContextRef.current) {
-      toast({
-        title: "Audio Error",
-        description: "Audio system not initialized",
-        variant: "destructive"
-      });
-      return;
-    }
-
+  /**
+   * Toggle playback - now uses audioEngine
+   */
+  const handlePlayPause = async () => {
     if (isPlaying) {
-      // Pause playback
       setIsPlaying(false);
-      pauseTimeRef.current = currentTime;
-      
-      // Stop all current audio sources
-      playbackSourcesRef.current.forEach(source => {
-        try {
-          source.stop();
-        } catch (e) {
-          // Source might already be stopped
-        }
-      });
-      playbackSourcesRef.current.clear();
-      
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
+      // audioEngine.pause() called by useAudioEngineBridge
     } else {
-      // Resume/start playback
-      if (audioContextRef.current.state === 'suspended') {
-        await audioContextRef.current.resume();
-      }
-      
       setIsPlaying(true);
-      startTimeRef.current = audioContextRef.current.currentTime;
-      
-      // Play all audio regions that should be playing at current time
-      const soloTracks = tracks.filter(track => track.solo);
-      const tracksToPlay = soloTracks.length > 0 ? soloTracks : tracks.filter(track => !track.mute);
-      
-      tracksToPlay.forEach(track => {
-        track.regions?.forEach(region => {
-          if (currentTime >= region.startTime && currentTime < region.startTime + region.duration) {
-            playAudioRegion(track, region, track.volume, track.mute);
-          }
-        });
-      });
-      
-      updatePlaybackTime();
+      // audioEngine.play(currentTime) called by useAudioEngineBridge
     }
   };
 
-  // Stop Transport
-  const stopPlayback = () => {
+  /**
+   * Stop playback and reset to beginning
+   */
+  const handleStop = () => {
     setIsPlaying(false);
     setCurrentTime(0);
-    pauseTimeRef.current = 0;
-    
-    // Stop all audio sources
-    playbackSourcesRef.current.forEach(source => {
-      try {
-        source.stop();
-      } catch (e) {
-        // Source might already be stopped
-      }
-    });
-    playbackSourcesRef.current.clear();
-    
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current);
-    }
+    // audioEngine.stop() called by useAudioEngineBridge
   };
 
   // Handle imported audio file with automatic BPM detection
@@ -632,22 +499,7 @@ const HybridDAW = () => {
   // Seek to time position
   const seekToTime = (time: number) => {
     setCurrentTime(time);
-    pauseTimeRef.current = time;
-    
-    if (isPlaying) {
-      // Stop current playback and restart from new position
-      playbackSourcesRef.current.forEach(source => {
-        try {
-          source.stop();
-        } catch (e) {
-          // Source might already be stopped
-        }
-      });
-      playbackSourcesRef.current.clear();
-      
-      // Restart playback from new position
-      setTimeout(() => togglePlayback().then(() => togglePlayback()), 50);
-    }
+    // audioEngine will handle the seek via useAudioEngineBridge
   };
 
   // Export Project
@@ -789,7 +641,7 @@ const HybridDAW = () => {
               <Button
                 variant="glow"
                 size="icon"
-                onClick={togglePlayback}
+                onClick={handlePlayPause}
                 className="relative overflow-hidden group"
               >
                 {isPlaying ? 
@@ -804,7 +656,7 @@ const HybridDAW = () => {
               <Button
                 variant="outline"
                 size="icon"
-                onClick={stopPlayback}
+                onClick={handleStop}
                 className="hover:scale-110"
               >
                 <Square className="w-4 h-4" />

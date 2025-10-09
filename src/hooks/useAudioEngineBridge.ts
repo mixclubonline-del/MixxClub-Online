@@ -21,6 +21,7 @@ export function useAudioEngineBridge() {
   // ===== Store selectors (keep them granular to avoid rerenders) =====
   const tracks = useAIStudioStore((s) => s.tracks);
   const isPlaying = useAIStudioStore((s) => s.isPlaying);
+  const currentTime = useAIStudioStore((s) => s.currentTime);
   const masterVolume = useAIStudioStore((s) => s.masterVolume);
   const setPlaying = useAIStudioStore((s) => s.setPlaying);
   const updateTrack = useAIStudioStore((s) => s.updateTrack);
@@ -56,6 +57,12 @@ export function useAudioEngineBridge() {
         });
 
         console.log('[AudioEngineBridge] Track created, bufferSource:', !!g.bufferSource);
+        
+        // ✅ Verify buffer was attached
+        if (t.audioBuffer && !g.bufferSource) {
+          console.warn('[AudioEngineBridge] Buffer not attached, forcing attach');
+          audioEngine.attachBufferSource(g, t.audioBuffer);
+        }
 
         // Initial params
         audioEngine.setTrackGain(g.id, t.volume ?? 0.85);
@@ -108,8 +115,12 @@ export function useAudioEngineBridge() {
       // Buffer changes (e.g., user imported/replaced audio)
       if (t.audioBuffer) {
         const graph = audioEngine.tracks.get(t.id);
-        if (graph?.bufferSource?.buffer !== t.audioBuffer) {
-          audioEngine.attachBufferSource(graph!, t.audioBuffer);
+        if (graph) {
+          // Check if buffer changed or missing
+          if (!graph.bufferSource?.buffer || graph.bufferSource.buffer !== t.audioBuffer) {
+            console.log('[AudioEngineBridge] Attaching/updating buffer for', t.name);
+            audioEngine.attachBufferSource(graph, t.audioBuffer);
+          }
         }
       }
 
@@ -154,20 +165,42 @@ export function useAudioEngineBridge() {
   // ===== Transport: follow store.isPlaying =====
   useEffect(() => {
     (async () => {
-      console.log('[AudioEngineBridge] isPlaying changed:', isPlaying);
-      console.log('[AudioEngineBridge] Tracks in store:', tracks.length);
-      console.log('[AudioEngineBridge] Tracks in engine:', audioEngine.tracks.size);
-      
       await audioEngine.resume();
       if (isPlaying) {
-        console.log('[AudioEngineBridge] Calling audioEngine.play()');
-        audioEngine.play();
+        console.log('[AudioEngineBridge] Playing from', currentTime.toFixed(3), 's');
+        audioEngine.stop(); // Stop any previous playback
+        audioEngine.play(currentTime); // Start from current position
       } else {
-        console.log('[AudioEngineBridge] Calling audioEngine.pause()');
         audioEngine.pause();
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPlaying]); // DO NOT include currentTime here to avoid seek loops
+
+  // ===== Seek detection (when currentTime changes while paused) =====
+  const lastTimeRef = useRef(0);
+  useEffect(() => {
+    if (!isPlaying && Math.abs(currentTime - lastTimeRef.current) > 0.1) {
+      // User seeked while paused
+      console.log('[AudioEngineBridge] Seek detected:', currentTime.toFixed(3), 's');
+      audioEngine.pausedAt = currentTime; // Update engine's pause position
+    }
+    lastTimeRef.current = currentTime;
+  }, [currentTime, isPlaying]);
+
+  // ===== Sync playback position back to store (when playing) =====
+  useEffect(() => {
+    if (!isPlaying) return;
+    
+    let raf = 0;
+    const syncPosition = () => {
+      const pos = audioEngine.getPlaybackPosition();
+      useAIStudioStore.getState().setCurrentTime(pos);
+      raf = requestAnimationFrame(syncPosition);
+    };
+    
+    raf = requestAnimationFrame(syncPosition);
+    return () => cancelAnimationFrame(raf);
   }, [isPlaying]);
 
   // ===== RAF Metering Loop (per-track + master) =====

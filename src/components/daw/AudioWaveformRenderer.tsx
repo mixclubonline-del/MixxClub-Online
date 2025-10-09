@@ -29,7 +29,7 @@ export const AudioWaveformRenderer = ({
     const canvas = canvasRef.current;
     if (!canvas || !waveformData || waveformData.length === 0) return;
     
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { alpha: false }); // Disable alpha for performance
     if (!ctx) return;
     
     // High DPI rendering
@@ -38,33 +38,27 @@ export const AudioWaveformRenderer = ({
     canvas.height = height * dpr;
     ctx.scale(dpr, dpr);
     
-    // Clear canvas
-    ctx.clearRect(0, 0, width, height);
+    // Clear with solid background (no transparency)
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, width, height);
     
     const centerY = height / 2;
     const maxAmplitude = height / 2 - 4;
     
-    // Calculate visible samples based on zoom and offset
+    // Smart sampling based on zoom
     const samplesPerPixel = Math.max(1, Math.ceil(waveformData.length / width / zoom));
     const startSample = Math.floor(startOffset * samplesPerPixel);
-    const samplesVisible = Math.min(
-      waveformData.length - startSample,
-      width * samplesPerPixel
-    );
     
-    // Draw waveform bars
-    const barWidth = Math.max(1, width / (samplesVisible / samplesPerPixel));
+    // Calculate bar width based on samples per pixel
+    const barWidth = Math.max(1, width / (waveformData.length / samplesPerPixel));
     
     for (let x = 0; x < width; x++) {
       const sampleIndex = startSample + Math.floor(x * samplesPerPixel);
-      
       if (sampleIndex >= waveformData.length) break;
       
-      // Get peak value for this pixel (average multiple samples if needed)
+      // Peak detection across sample window
       let peakValue = 0;
-      const samplesToAverage = Math.ceil(samplesPerPixel);
-      
-      for (let j = 0; j < samplesToAverage; j++) {
+      for (let j = 0; j < samplesPerPixel; j++) {
         const idx = sampleIndex + j;
         if (idx < waveformData.length) {
           peakValue = Math.max(peakValue, Math.abs(waveformData[idx]));
@@ -74,9 +68,9 @@ export const AudioWaveformRenderer = ({
       const barHeight = peakValue * maxAmplitude;
       const xPos = x * barWidth;
       
-      // Color played vs unplayed portions
+      // Gradient for played vs unplayed
       const isPlayed = x / width < progress;
-      ctx.fillStyle = isPlayed ? color : `${color}60`; // 60 = ~38% opacity
+      ctx.fillStyle = isPlayed ? color : `${color}60`;
       
       // Draw symmetric bar
       ctx.fillRect(
@@ -87,7 +81,7 @@ export const AudioWaveformRenderer = ({
       );
     }
     
-    // Draw center line
+    // Center line
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
     ctx.lineWidth = 1;
     ctx.beginPath();

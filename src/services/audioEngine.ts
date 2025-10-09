@@ -73,7 +73,7 @@ class AudioEngine {
 
   // global clock helpers
   private startedAt = 0;
-  private pausedAt = 0;
+  pausedAt = 0; // Public for seek detection
   private playing = false;
 
   constructor() {
@@ -363,53 +363,48 @@ class AudioEngine {
   }
 
   /** Play/Stop convenience for buffer sources (non-destructive to live inputs) */
-  play(atTime?: number) {
+  play(offsetSec: number = 0) {
     if (this.playing) {
       console.log('[AudioEngine] Already playing');
       return;
     }
     
-    console.log('[AudioEngine] play() called, tracks:', this.tracks.size);
-    const when = atTime ?? this.ctx.currentTime;
+    const when = this.ctx.currentTime;
     let playedCount = 0;
     
     for (const t of this.tracks.values()) {
-      console.log('[AudioEngine] Track:', t.name, 'hasBufferSource:', !!t.bufferSource, 'hasBuffer:', !!t.bufferSource?.buffer);
-      
       if (t.bufferSource) {
-        // re-create src to allow retrigger
         const buf = t.bufferSource.buffer;
-        if (!buf) {
-          console.log('[AudioEngine] Track has no buffer:', t.name);
-          continue;
-        }
+        if (!buf) continue;
+        
+        // Re-create source for retrigger
         this.attachBufferSource(t, buf);
-        t.bufferSource!.start(when, this.pausedAt);
+        
+        // START FROM OFFSET (seeking support!)
+        t.bufferSource!.start(when, offsetSec);
         playedCount++;
-        console.log('[AudioEngine] Started playback for:', t.name);
-      } else {
-        console.log('[AudioEngine] Track has no bufferSource:', t.name);
       }
     }
     
-    console.log('[AudioEngine] Started', playedCount, 'tracks');
-    this.startedAt = when - this.pausedAt;
+    console.log('[AudioEngine] Started', playedCount, 'tracks from', offsetSec.toFixed(3), 's');
+    this.startedAt = when - offsetSec; // Correct timing for getPlaybackPosition()
+    this.pausedAt = offsetSec;
     this.playing = true;
   }
 
   pause() {
     if (!this.playing) return;
     const now = this.ctx.currentTime;
-    this.pausedAt = now - this.startedAt;
+    this.pausedAt = now - this.startedAt; // Save exact position
+    
     for (const t of this.tracks.values()) {
       try {
         t.bufferSource?.stop();
       } catch {}
       t.bufferSource?.disconnect();
-      // keep state; reattach on next play()
+      // Keep buffer reference for resume
       if (t.bufferSource?.buffer) {
-        const buf = t.bufferSource.buffer;
-        this.attachBufferSource(t, buf);
+        this.attachBufferSource(t, t.bufferSource.buffer);
       }
     }
     this.playing = false;
@@ -417,11 +412,13 @@ class AudioEngine {
 
   stop() {
     for (const t of this.tracks.values()) {
-      try {
-        t.bufferSource?.stop();
+      try { 
+        t.bufferSource?.stop(); 
       } catch {}
       t.bufferSource?.disconnect();
-      if (t.bufferSource?.buffer) this.attachBufferSource(t, t.bufferSource.buffer);
+      if (t.bufferSource?.buffer) {
+        this.attachBufferSource(t, t.bufferSource.buffer);
+      }
     }
     this.startedAt = 0;
     this.pausedAt = 0;
