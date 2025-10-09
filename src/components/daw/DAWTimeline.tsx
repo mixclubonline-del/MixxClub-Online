@@ -43,8 +43,17 @@ const DAWTimeline: React.FC<DAWTimelineProps> = ({
   const [zoom, setZoom] = useState(1);
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
   
-  // Generate time markers
-  const timeMarkers = Array.from({ length: 20 }, (_, i) => i);
+  // Calculate dynamic duration based on tracks
+  const duration = Math.max(
+    60, // Minimum 60 seconds
+    ...tracks.flatMap(track => 
+      track.regions.map(region => region.end)
+    ),
+    currentTime + 30 // Always show 30s ahead of playhead
+  );
+  
+  // Generate time markers dynamically based on duration
+  const timeMarkers = Array.from({ length: Math.ceil(duration) }, (_, i) => i);
   const pixelsPerSecond = 50 * zoom;
   
   // Handle track solo

@@ -6,9 +6,14 @@ import { Track, AudioRegion, useAIStudioStore } from '@/stores/aiStudioStore';
 import { TrackControls } from './TrackControls';
 import { RegionContextMenu } from './RegionContextMenu';
 import { MusicalRuler } from './MusicalRuler';
+import { ToolPalette } from './ToolPalette';
+import { TimeSelection } from './TimeSelection';
+import { RegionHandle } from './RegionHandle';
+import { FadeHandle } from './FadeHandle';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useMusicalQuantization } from '@/hooks/useMusicalQuantization';
+import { useRegionDrag } from '@/hooks/useRegionDrag';
 import { TransientDetector, Transient } from '@/audio/analysis/TransientDetector';
 import { ZeroCrossingDetector } from '@/audio/analysis/ZeroCrossingDetector';
 import { TransientMarkers } from './TransientMarkers';
@@ -71,6 +76,8 @@ export const WaveformTimeline = ({
   const setRippleMode = useAIStudioStore((state) => state.setRippleMode);
   const selectRegion = useAIStudioStore((state) => state.selectRegion);
   const clearSelection = useAIStudioStore((state) => state.clearSelection);
+  const calculateSessionDuration = useAIStudioStore((state) => state.calculateSessionDuration);
+  const setTimeSelection = useAIStudioStore((state) => state.setTimeSelection);
   const splitRegion = useAIStudioStore((state) => state.splitRegion);
   const duplicateRegion = useAIStudioStore((state) => state.duplicateRegion);
   const removeRegion = useAIStudioStore((state) => state.removeRegion);
@@ -80,6 +87,16 @@ export const WaveformTimeline = ({
   const { quantizeTime, getSnapLabel } = useMusicalQuantization();
   const { cursorState, updateCursor, resetCursor } = useSmartCursor();
   const { deleteRegionWithRipple } = useRippleEdit();
+  const { isDragging, dragRegionId, ghostPosition, startDrag, onDrag, endDrag } = useRegionDrag(pixelsPerSecond);
+
+  // Time selection state
+  const [isSelectingTime, setIsSelectingTime] = useState(false);
+  const [timeSelectionStart, setTimeSelectionStart] = useState(0);
+
+  // Calculate duration dynamically when tracks change
+  useEffect(() => {
+    calculateSessionDuration();
+  }, [tracks, calculateSessionDuration]);
 
   // Detect transients when tracks load
   useEffect(() => {
@@ -255,6 +272,20 @@ export const WaveformTimeline = ({
     ctx.fillStyle = 'hsl(var(--studio-black))';
     ctx.fillRect(0, 0, rect.width, rect.height);
 
+    // Draw prominent ZERO marker
+    ctx.strokeStyle = 'hsl(180, 100%, 50%)';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(0, rect.height);
+    ctx.stroke();
+    
+    // Draw zero glow
+    ctx.shadowColor = 'hsl(180, 100%, 50%)';
+    ctx.shadowBlur = 10;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
     ctx.strokeStyle = 'hsl(var(--studio-border))';
     ctx.lineWidth = 1;
     
@@ -429,6 +460,12 @@ export const WaveformTimeline = ({
     const y = e.clientY - rect.top;
     const trackIndex = Math.floor(y / trackHeight);
     
+    // Handle region drag
+    if (isDragging) {
+      onDrag(x);
+      return;
+    }
+    
     if (trackIndex >= 0 && trackIndex < tracks.length) {
       const track = tracks[trackIndex];
       setHoveredTrack(track.id);
@@ -444,11 +481,21 @@ export const WaveformTimeline = ({
     }
   };
 
+  const handleMouseUp = () => {
+    if (isDragging) {
+      endDrag();
+    }
+  };
+
   return (
     <div 
       className="flex flex-col h-full"
       style={{ background: 'hsl(220, 20%, 14%)' }}
+      onMouseUp={handleMouseUp}
     >
+      {/* Tool Palette */}
+      <ToolPalette />
+      
       {/* Timeline Header */}
       <div 
         className="flex items-center justify-between px-3 py-1.5 border-b"
@@ -584,11 +631,124 @@ export const WaveformTimeline = ({
               ref={canvasRef}
               onClick={handleTimelineClick}
               onMouseMove={handleMouseMove}
+              onMouseDown={(e) => {
+                const rect = canvasRef.current?.getBoundingClientRect();
+                if (!rect) return;
+                
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const trackIndex = Math.floor(y / trackHeight);
+                
+                if (trackIndex >= 0 && trackIndex < tracks.length) {
+                  const track = tracks[trackIndex];
+                  const clickTime = x / pixelsPerSecond;
+                  
+                  const clickedRegion = track.regions.find(r => 
+                    clickTime >= r.startTime && clickTime <= r.startTime + r.duration
+                  );
+                  
+                  if (clickedRegion && !e.altKey) {
+                    startDrag(clickedRegion.id, x, clickedRegion.startTime);
+                    e.stopPropagation();
+                  }
+                }
+              }}
               style={{
                 width: duration * pixelsPerSecond,
                 height: tracks.length * trackHeight,
                 display: 'block',
               }}
+            />
+
+            {/* Region Handles and Fade Handles Overlay */}
+            {tracks.map((track, trackIndex) =>
+              track.regions.map((region) => {
+                const regionX = region.startTime * pixelsPerSecond;
+                const regionWidth = region.duration * pixelsPerSecond;
+                const regionY = trackIndex * trackHeight;
+                
+                return (
+                  <div key={`handles-${region.id}`}>
+                    <RegionHandle
+                      regionId={region.id}
+                      position="start"
+                      regionX={regionX}
+                      regionY={regionY}
+                      regionWidth={regionWidth}
+                      regionHeight={trackHeight}
+                      pixelsPerSecond={pixelsPerSecond}
+                      currentStartTime={region.startTime}
+                      currentDuration={region.duration}
+                    />
+                    <RegionHandle
+                      regionId={region.id}
+                      position="end"
+                      regionX={regionX}
+                      regionY={regionY}
+                      regionWidth={regionWidth}
+                      regionHeight={trackHeight}
+                      pixelsPerSecond={pixelsPerSecond}
+                      currentStartTime={region.startTime}
+                      currentDuration={region.duration}
+                    />
+                    <FadeHandle
+                      regionId={region.id}
+                      type="in"
+                      regionX={regionX}
+                      regionY={regionY}
+                      regionWidth={regionWidth}
+                      regionHeight={trackHeight}
+                      pixelsPerSecond={pixelsPerSecond}
+                      currentFade={region.fadeIn}
+                      maxDuration={region.duration}
+                    />
+                    <FadeHandle
+                      regionId={region.id}
+                      type="out"
+                      regionX={regionX}
+                      regionY={regionY}
+                      regionWidth={regionWidth}
+                      regionHeight={trackHeight}
+                      pixelsPerSecond={pixelsPerSecond}
+                      currentFade={region.fadeOut}
+                      maxDuration={region.duration}
+                    />
+                  </div>
+                );
+              })
+            )}
+
+            {/* Ghost preview for dragging */}
+            {isDragging && ghostPosition !== null && dragRegionId && (
+              <div
+                className="absolute pointer-events-none border-2 border-dashed border-[hsl(var(--studio-accent))] rounded"
+                style={{
+                  left: ghostPosition * pixelsPerSecond,
+                  top: (() => {
+                    for (let i = 0; i < tracks.length; i++) {
+                      if (tracks[i].regions.some(r => r.id === dragRegionId)) {
+                        return i * trackHeight + 4;
+                      }
+                    }
+                    return 0;
+                  })(),
+                  width: (() => {
+                    for (const track of tracks) {
+                      const region = track.regions.find(r => r.id === dragRegionId);
+                      if (region) return region.duration * pixelsPerSecond;
+                    }
+                    return 0;
+                  })(),
+                  height: trackHeight - 8,
+                  background: 'hsl(var(--studio-accent) / 0.2)',
+                }}
+              />
+            )}
+            
+            {/* Time Selection Overlay */}
+            <TimeSelection
+              pixelsPerSecond={pixelsPerSecond}
+              height={tracks.length * trackHeight}
             />
 
             {/* Transient Markers Overlay */}

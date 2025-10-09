@@ -45,6 +45,19 @@ export const MusicalRuler = ({
     ctx.fillStyle = 'hsl(220, 18%, 18%)';
     ctx.fillRect(0, 0, rect.width, rect.height);
 
+    // Draw prominent ZERO marker
+    ctx.fillStyle = 'hsl(180, 100%, 50%)';
+    ctx.fillRect(0, 0, 3, rect.height);
+    ctx.font = 'bold 12px monospace';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText('0', 6, 4);
+    
+    // Draw zero time label
+    ctx.font = '10px monospace';
+    ctx.fillStyle = 'hsl(180, 80%, 60%)';
+    ctx.fillText('0:00.000', 6, 18);
+
     // Draw ruler markings
     const totalBars = Math.ceil(duration / secondsPerBar);
     
@@ -66,9 +79,15 @@ export const MusicalRuler = ({
       ctx.lineTo(barX, rect.height);
       ctx.stroke();
 
-      // Draw bar number
+      // Draw bar number and time
       ctx.fillStyle = 'hsl(220, 14%, 70%)';
+      ctx.font = 'bold 10px monospace';
       ctx.fillText(`${bar + 1}`, barX + 4, 4);
+      
+      // Show bar:beat:tick format
+      ctx.font = '9px monospace';
+      ctx.fillStyle = 'hsl(220, 14%, 55%)';
+      ctx.fillText(`${bar + 1}.1.000`, barX + 4, 16);
 
       // Draw beat subdivisions
       for (let beat = 1; beat < 4; beat++) {

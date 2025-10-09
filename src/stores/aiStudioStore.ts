@@ -87,6 +87,7 @@ interface AIStudioStore {
   
   // Regions & Selection
   selectedRegions: Set<string>;
+  timeSelection: { start: number; end: number } | null;
   
   // Arrangement View
   scrollMode: 'none' | 'page' | 'continuous';
@@ -102,6 +103,7 @@ interface AIStudioStore {
   isRecording: boolean;
   currentTime: number;
   duration: number;
+  sessionEndTime: number; // User-configurable session end
   tempo: number;
   
   // Processing
@@ -166,6 +168,11 @@ interface AIStudioStore {
   // Selection actions
   selectRegion: (regionId: string, multiSelect?: boolean) => void;
   clearSelection: () => void;
+  setTimeSelection: (selection: { start: number; end: number } | null) => void;
+  
+  // Dynamic timeline
+  calculateSessionDuration: () => number;
+  setSessionEndTime: (time: number) => void;
   
   // Arrangement actions
   setScrollMode: (mode: 'none' | 'page' | 'continuous') => void;
@@ -195,6 +202,7 @@ export const useAIStudioStore = create<AIStudioStore>((set, get) => ({
   tracks: [],
   selectedTrackId: null,
   selectedRegions: new Set<string>(),
+  timeSelection: null,
   scrollMode: 'continuous',
   snapEnabled: true,
   snapMode: 'beats',
@@ -203,7 +211,8 @@ export const useAIStudioStore = create<AIStudioStore>((set, get) => ({
   isPlaying: false,
   isRecording: false,
   currentTime: 0,
-  duration: 180,
+  duration: 60, // Initial minimum
+  sessionEndTime: 60,
   tempo: 120,
   processing: {
     isProcessing: false,
@@ -422,6 +431,37 @@ export const useAIStudioStore = create<AIStudioStore>((set, get) => ({
   }),
   
   clearSelection: () => set({ selectedRegions: new Set() }),
+  
+  setTimeSelection: (selection) => set({ timeSelection: selection }),
+  
+  // Dynamic timeline calculation
+  calculateSessionDuration: () => {
+    const state = get();
+    if (state.tracks.length === 0) return Math.max(60, state.sessionEndTime);
+    
+    let lastRegionEnd = 0;
+    state.tracks.forEach(track => {
+      track.regions.forEach(region => {
+        const regionEnd = region.startTime + region.duration;
+        lastRegionEnd = Math.max(lastRegionEnd, regionEnd);
+      });
+    });
+    
+    // Add 30 seconds tail room, respect session end time, ensure minimum 60s
+    const calculatedDuration = Math.max(
+      60,
+      lastRegionEnd + 30,
+      state.sessionEndTime
+    );
+    
+    set({ duration: calculatedDuration });
+    return calculatedDuration;
+  },
+  
+  setSessionEndTime: (time) => {
+    set({ sessionEndTime: time });
+    get().calculateSessionDuration();
+  },
   
   // Arrangement actions
   setScrollMode: (mode) => set({ scrollMode: mode }),
