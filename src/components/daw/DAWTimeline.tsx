@@ -47,7 +47,7 @@ const DAWTimeline: React.FC<DAWTimelineProps> = ({
   const duration = Math.max(
     60, // Minimum 60 seconds
     ...tracks.flatMap(track => 
-      track.regions.map(region => region.end)
+      track.regions?.map(region => region.startTime + region.duration) || []
     ),
     currentTime + 30 // Always show 30s ahead of playhead
   );
@@ -184,12 +184,12 @@ const DAWTimeline: React.FC<DAWTimelineProps> = ({
                   variant="ghost"
                   size="sm"
                   onClick={
-                    track.isRecording 
+                    track.armed 
                       ? onStopRecording 
                       : () => onStartRecording(track.id)
                   }
                   className={`h-6 w-8 text-xs p-0 ${
-                    track.isRecording 
+                    track.armed 
                       ? 'bg-destructive text-destructive-foreground animate-pulse' 
                       : ''
                   }`}
@@ -266,7 +266,7 @@ const DAWTimeline: React.FC<DAWTimelineProps> = ({
                 ))}
 
                 {/* Audio Regions */}
-                {track.regions.map((region) => (
+                {track.regions?.map((region) => (
                   <div
                     key={region.id}
                     className={`absolute top-2 bottom-2 rounded-md cursor-pointer transition-all duration-200 hover:opacity-80 ${
@@ -275,8 +275,8 @@ const DAWTimeline: React.FC<DAWTimelineProps> = ({
                         : ''
                     }`}
                     style={{
-                      left: `${region.start * pixelsPerSecond}px`,
-                      width: `${(region.end - region.start) * pixelsPerSecond}px`,
+                      left: `${region.startTime * pixelsPerSecond}px`,
+                      width: `${region.duration * pixelsPerSecond}px`,
                       backgroundColor: track.color,
                       opacity: 0.7
                     }}
@@ -296,7 +296,7 @@ const DAWTimeline: React.FC<DAWTimelineProps> = ({
                 ))}
 
                 {/* Recording Indicator */}
-                {track.isRecording && (
+                {track.armed && (
                   <div 
                     className="absolute top-2 bottom-2 bg-destructive/70 rounded-md animate-pulse"
                     style={{

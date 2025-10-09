@@ -222,7 +222,7 @@ const DAW3DView: React.FC<DAW3DViewProps> = ({
       // Add regions as smaller cubes
       track.regions.forEach((region, regionIndex) => {
         const regionGeometry = new THREE.BoxGeometry(
-          (region.end - region.start) * 0.5, 
+          region.duration * 0.5, 
           0.5, 
           1
         );
@@ -233,7 +233,7 @@ const DAW3DView: React.FC<DAW3DViewProps> = ({
         });
         const regionMesh = new THREE.Mesh(regionGeometry, regionMaterial);
         regionMesh.position.set(
-          region.start * 0.1 - 2,
+          region.startTime * 0.1 - 2,
           0.8,
           regionIndex * 0.2 - 0.5
         );

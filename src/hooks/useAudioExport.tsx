@@ -52,13 +52,13 @@ export const useAudioExport = () => {
         tracks: tracks.map(track => ({
           id: track.id,
           name: track.name,
-          regions: track.regions.map(region => ({
+          regions: track.regions?.map(region => ({
             id: region.id,
-            audioData: region.blob ? [] : [], // Simplified for now - TODO: implement blob conversion
-            start: region.start,
-            end: region.end,
+            audioData: region.audioBuffer ? [] : [], // Simplified for now - TODO: implement buffer conversion
+            startTime: region.startTime,
+            duration: region.duration,
             gain: region.gain
-          })),
+          })) || [],
           effects: track.effects,
           volume: track.volume,
           mute: track.mute,

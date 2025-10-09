@@ -170,7 +170,7 @@ const DAWMixerPanel: React.FC<DAWMixerPanelProps> = ({
               {/* AI Effects Buttons */}
               <div className="grid grid-cols-2 gap-1 mb-2">
                 <Button
-                  variant={track.effects.reverb ? "default" : "outline"}
+                  variant={(track.effects || []).some(e => e.type === 'reverb') ? "default" : "outline"}
                   size="sm"
                   onClick={(e) => {
                     e.stopPropagation();
@@ -181,56 +181,55 @@ const DAWMixerPanel: React.FC<DAWMixerPanelProps> = ({
                   Rev
                 </Button>
                 <Button
-                  variant={track.effects.pitch ? "default" : "outline"}
+                  variant={(track.effects || []).some(e => e.type === 'compressor') ? "default" : "outline"}
                   size="sm"
                   onClick={(e) => {
                     e.stopPropagation();
-                    addAIEffect(track.id, 'pitch');
+                    addAIEffect(track.id, 'compressor');
                   }}
                   className="text-[10px] h-6 px-1"
                 >
-                  Pit
+                  Comp
                 </Button>
                 <Button
-                  variant={track.effects.harmony ? "default" : "outline"}
+                  variant={(track.effects || []).some(e => e.type === 'eq') ? "default" : "outline"}
                   size="sm"
                   onClick={(e) => {
                     e.stopPropagation();
-                    addAIEffect(track.id, 'harmony');
+                    addAIEffect(track.id, 'eq');
                   }}
                   className="text-[10px] h-6 px-1"
                 >
-                  Har
+                  EQ
                 </Button>
                 <Button
-                  variant={track.effects.filter ? "default" : "outline"}
+                  variant={(track.effects || []).some(e => e.type === 'delay') ? "default" : "outline"}
                   size="sm"
                   onClick={(e) => {
                     e.stopPropagation();
-                    addAIEffect(track.id, 'filter');
+                    addAIEffect(track.id, 'delay');
                   }}
                   className="text-[10px] h-6 px-1"
                 >
-                  Flt
+                  Dly
                 </Button>
               </div>
 
               {/* Effect Parameters */}
-              {Object.keys(track.effects).length > 0 && (
+              {(track.effects || []).length > 0 && (
                 <div className="space-y-1 pt-2 border-t border-border">
-                  {Object.entries(track.effects).map(([effectName, effect]) => (
-                    <div key={effectName} className="space-y-1">
+                  {(track.effects || []).map((effect) => (
+                    <div key={effect.id} className="space-y-1">
                       <div className="flex items-center justify-between">
                         <span className="text-[10px] text-muted-foreground capitalize truncate">
-                          {effectName}
+                          {effect.type}
                         </span>
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={(e) => {
                             e.stopPropagation();
-                            const newEffects = { ...track.effects };
-                            delete newEffects[effectName];
+                            const newEffects = (track.effects || []).filter(e => e.id !== effect.id);
                             updateTrack(track.id, { effects: newEffects });
                           }}
                           className="h-3 w-3 p-0 text-muted-foreground hover:text-destructive"
@@ -239,15 +238,19 @@ const DAWMixerPanel: React.FC<DAWMixerPanelProps> = ({
                         </Button>
                       </div>
                       <Slider
-                        value={[effect.intensity * 100]}
+                        value={[((effect.parameters?.intensity || 0.5) as number) * 100]}
                         onValueChange={(value) => {
-                          const newEffects = {
-                            ...track.effects,
-                            [effectName]: {
-                              ...effect,
-                              intensity: value[0] / 100
-                            }
-                          };
+                          const newEffects = (track.effects || []).map(e =>
+                            e.id === effect.id
+                              ? {
+                                  ...e,
+                                  parameters: {
+                                    ...e.parameters,
+                                    intensity: value[0] / 100
+                                  }
+                                }
+                              : e
+                          );
                           updateTrack(track.id, { effects: newEffects });
                         }}
                         min={0}

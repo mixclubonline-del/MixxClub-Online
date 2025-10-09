@@ -159,9 +159,7 @@ const DAWEffectsPanel: React.FC<DAWEffectsPanelProps> = ({
         track.id === trackId 
           ? { 
               ...track, 
-              effects: Object.fromEntries(
-                Object.entries(track.effects).filter(([key]) => key !== effectId)
-              )
+              effects: (track.effects || []).filter(e => e.id !== effectId)
             }
           : track
       )
