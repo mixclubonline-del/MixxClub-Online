@@ -385,7 +385,10 @@ const HybridDAW = () => {
 
   // Handle imported audio file with automatic BPM detection
   const handleImportedAudio = async (importedFile: any) => {
+    console.log('[HybridDAW] handleImportedAudio called with:', importedFile);
+    
     if (!audioContextRef.current) {
+      console.error('[HybridDAW] No audio context!');
       toast({ 
         title: "Audio Error", 
         description: "Audio system not initialized",
