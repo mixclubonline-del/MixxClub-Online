@@ -36,10 +36,11 @@ import StemSeparationWindow from "@/components/studio/StemSeparationWindow";
 import { CloudProjectManager } from "@/components/daw/CloudProjectManager";
 import { PrimeBotAssistant } from "@/components/studio/PrimeBotAssistant";
 import { AIAssistantPanel } from "@/components/studio/AIAssistantPanel";
+import { StudioSystemCheck } from "@/components/studio/StudioSystemCheck";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useAudioPermissions } from "@/hooks/useAudioPermissions";
-import { useAudioEngineBridge } from "@/hooks/useAudioEngineBridge.ts";
+import { useAudioEngineBridge } from "@/hooks/useAudioEngineBridge";
 import { useAIStudioStore, Track, AudioRegion } from "@/stores/aiStudioStore";
 import { WaveformGenerator } from "@/services/waveformGenerator";
 import Navigation from "@/components/Navigation";
@@ -78,6 +79,7 @@ const HybridDAW = () => {
   const [showStemSeparationDialog, setShowStemSeparationDialog] = useState(false);
   const [showCloudManager, setShowCloudManager] = useState(false);
   const [showAIAssistant, setShowAIAssistant] = useState(false);
+  const [showSystemCheck, setShowSystemCheck] = useState(false);
   
   // Collaboration State
   const [collaborators, setCollaborators] = useState<CollaborationUser[]>([]);
@@ -290,16 +292,22 @@ const HybridDAW = () => {
         // Decode audio and generate waveform
         if (audioContextRef.current) {
           try {
+            console.log('[Recording] Decoding recorded audio...');
             const arrayBuffer = await blob.arrayBuffer();
             const audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
             
-            const waveformData = WaveformGenerator.generateFromBuffer(audioBuffer, {
-              width: 800,
+            const { peaks } = WaveformGenerator.generateFromBuffer(audioBuffer, {
+              width: 1024,
               normalize: true,
             });
             
+            console.log('[Recording] Waveform generated:', peaks.length, 'peaks');
+            
+            // Stable IDs for region
+            const regionId = `region-${Date.now()}`;
+            
             const newRegion: AudioRegion = {
-              id: `region-${Date.now()}`,
+              id: regionId,
               trackId: trackId,
               startTime: currentTime,
               duration: audioBuffer.duration,
@@ -317,7 +325,7 @@ const HybridDAW = () => {
                       ...track, 
                       armed: false,
                       audioBuffer,
-                      waveformData: Array.from(waveformData.peaks),
+                      waveformData: peaks, // ✅ Keep as Float32Array
                       regions: [...(track.regions || []), newRegion] 
                     }
                   : track
@@ -534,24 +542,31 @@ const HybridDAW = () => {
     }
 
     try {
-      // 1. Fetch and decode audio
-      const response = await fetch(importedFile.url);
-      const arrayBuffer = await response.arrayBuffer();
-      const audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
+      console.log('[Import] Start - File:', importedFile.fileName);
       
-      console.log('[Import] Audio decoded:', audioBuffer.duration, 'seconds');
+      // 1. Decode audio - prefer Blob to avoid fetch(blob:) edge cases
+      const dataBuffer = importedFile?.blob 
+        ? await importedFile.blob.arrayBuffer()
+        : await (await fetch(importedFile.url)).arrayBuffer();
       
-      // 2. Generate real waveform
-      const waveformData = WaveformGenerator.generateFromBuffer(audioBuffer, {
-        width: 800,
+      const audioBuffer = await audioContextRef.current.decodeAudioData(dataBuffer.slice(0));
+      console.log('[Import] Decoded:', audioBuffer.duration.toFixed(2), 's,', audioBuffer.numberOfChannels, 'ch,', audioBuffer.sampleRate, 'Hz');
+      
+      // 2. Generate waveform - keep as Float32Array!
+      const { peaks } = WaveformGenerator.generateFromBuffer(audioBuffer, {
+        width: 1024,
         normalize: true,
       });
       
-      console.log('[Import] Waveform generated:', waveformData.peaks.length, 'peaks');
+      console.log('[Waveform] Generated:', peaks.length, 'peaks, min:', Math.min(...peaks).toFixed(3), 'max:', Math.max(...peaks).toFixed(3));
       
-      // 3. Create track with ALL audio data (Store Track interface)
+      // 3. Use stable IDs to avoid drift between track/region
+      const trackId = `track-${Date.now()}`;
+      const regionId = `region-${Date.now()}`;
+      
+      // 4. Create track with ALL audio data
       const newTrack: Track = {
-        id: `track-${Date.now()}`,
+        id: trackId,
         name: importedFile.fileName,
         type: 'audio',
         color: 'hsl(42, 100%, 70%)',
@@ -560,10 +575,10 @@ const HybridDAW = () => {
         mute: false,
         solo: false,
         audioBuffer,  // ✅ Real decoded audio
-        waveformData: Array.from(waveformData.peaks), // ✅ Real waveform
+        waveformData: peaks, // ✅ Keep as Float32Array!
         regions: [{
-          id: `region-${Date.now()}`,
-          trackId: `track-${Date.now()}`,
+          id: regionId,
+          trackId: trackId, // ✅ Use same stable ID
           startTime: 0,
           duration: audioBuffer.duration,
           audioBuffer, // ✅ Also store in region
@@ -884,6 +899,16 @@ const HybridDAW = () => {
             >
               <Sparkles className="w-4 h-4" />
               <span className="text-xs font-semibold">AI ASSISTANT</span>
+            </Button>
+            
+            <Button 
+              variant="glass" 
+              size="sm"
+              onClick={() => setShowSystemCheck(!showSystemCheck)}
+              className="gap-2"
+            >
+              <Settings className="w-4 h-4" />
+              <span className="text-xs font-semibold">SYSTEM CHECK</span>
             </Button>
             
             <div className="w-px h-8 bg-border/50" />
@@ -1217,6 +1242,24 @@ const HybridDAW = () => {
           isOpen={showCloudManager}
           onClose={() => setShowCloudManager(false)}
         />
+      )}
+
+      {/* System Check Dialog */}
+      {showSystemCheck && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+          <div className="w-full max-w-2xl animate-scale-in">
+            <div className="flex justify-end mb-2">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setShowSystemCheck(false)}
+              >
+                Close
+              </Button>
+            </div>
+            <StudioSystemCheck />
+          </div>
+        </div>
       )}
 
       {/* AI Assistant Panel */}

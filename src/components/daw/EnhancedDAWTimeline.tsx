@@ -366,7 +366,11 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
                       <div className="h-full flex flex-col justify-center px-2 relative overflow-hidden">
                         {showWaveforms && track.waveformData && track.waveformData.length > 0 ? (
                           <AudioWaveformRenderer
-                            waveformData={track.waveformData}
+                            waveformData={
+                              track.waveformData instanceof Float32Array
+                                ? track.waveformData
+                                : new Float32Array(track.waveformData)
+                            }
                             width={regionWidth}
                             height={regionHeight}
                             color={track.color || '#8B5CF6'}
