@@ -40,7 +40,8 @@ self.addEventListener('message', async (e) => {
  * Generate waveform from AudioBuffer channel data
  */
 async function generateWaveform({ channelData, samplesPerPixel, normalize, jobId }) {
-  const bars = Math.ceil(channelData.length / samplesPerPixel);
+  const data = new Float32Array(channelData);
+  const bars = Math.ceil(data.length / samplesPerPixel);
   const peaks = new Float32Array(bars);
   const rms = new Float32Array(bars);
   
@@ -49,14 +50,14 @@ async function generateWaveform({ channelData, samplesPerPixel, normalize, jobId
   
   for (let i = 0; i < bars; i++) {
     const startSample = i * samplesPerPixel;
-    const endSample = Math.min(startSample + samplesPerPixel, channelData.length);
+    const endSample = Math.min(startSample + samplesPerPixel, data.length);
     
     let peak = 0;
     let sumSquares = 0;
     let count = 0;
     
     for (let j = startSample; j < endSample; j++) {
-      const sample = Math.abs(channelData[j]);
+      const sample = Math.abs(data[j]);
       peak = Math.max(peak, sample);
       sumSquares += sample * sample;
       count++;
@@ -96,7 +97,8 @@ async function generateWaveform({ channelData, samplesPerPixel, normalize, jobId
  * Downsample waveform to lower resolution
  */
 function downsampleWaveform({ peaks, targetLength, jobId }) {
-  const ratio = peaks.length / targetLength;
+  const peaksArr = peaks instanceof Float32Array ? peaks : new Float32Array(peaks);
+  const ratio = peaksArr.length / targetLength;
   const downsampled = new Float32Array(targetLength);
   
   for (let i = 0; i < targetLength; i++) {
@@ -105,7 +107,7 @@ function downsampleWaveform({ peaks, targetLength, jobId }) {
     
     let maxPeak = 0;
     for (let j = startIdx; j < endIdx; j++) {
-      maxPeak = Math.max(maxPeak, peaks[j]);
+      maxPeak = Math.max(maxPeak, peaksArr[j]);
     }
     
     downsampled[i] = maxPeak;
@@ -122,6 +124,8 @@ function downsampleWaveform({ peaks, targetLength, jobId }) {
  * Generate multi-resolution waveform pyramid
  */
 async function generateMultiResolution({ channelData, duration, jobId }) {
+  const data = new Float32Array(channelData);
+  
   // Three resolution levels
   const lowSamples = Math.ceil(duration * 100);   // 100 samples/sec
   const mediumSamples = Math.ceil(duration * 500); // 500 samples/sec
@@ -129,13 +133,13 @@ async function generateMultiResolution({ channelData, duration, jobId }) {
   
   // Generate high resolution first
   self.postMessage({ type: 'PROGRESS', jobId, progress: 0, stage: 'high' });
-  const high = resampleToPeaks(channelData, highSamples);
+  const high = resampleToPeaks(data, highSamples);
   
   self.postMessage({ type: 'PROGRESS', jobId, progress: 0.33, stage: 'medium' });
-  const medium = resampleToPeaks(channelData, mediumSamples);
+  const medium = resampleToPeaks(data, mediumSamples);
   
   self.postMessage({ type: 'PROGRESS', jobId, progress: 0.66, stage: 'low' });
-  const low = resampleToPeaks(channelData, lowSamples);
+  const low = resampleToPeaks(data, lowSamples);
   
   self.postMessage({
     type: 'MULTI_RES_COMPLETE',

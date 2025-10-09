@@ -569,6 +569,31 @@ const HybridDAW = () => {
     // Transport will handle the seek via useTransportBridge
   };
 
+  // Handle track changes from Timeline (mute, solo, volume, delete)
+  const onTracksChange = (updatedTracks: Track[]) => {
+    // Update changed tracks
+    updatedTracks.forEach(ut => {
+      const orig = tracks.find(t => t.id === ut.id);
+      if (!orig) return;
+      
+      const patch: Partial<Track> = {};
+      if (orig.mute !== ut.mute) patch.mute = ut.mute;
+      if (orig.solo !== ut.solo) patch.solo = ut.solo;
+      if (orig.volume !== ut.volume) patch.volume = ut.volume;
+      
+      if (Object.keys(patch).length) {
+        updateTrack(ut.id, patch);
+      }
+    });
+    
+    // Remove tracks deleted by the timeline
+    tracks.forEach(t => {
+      if (!updatedTracks.find(u => u.id === t.id)) {
+        removeTrack(t.id);
+      }
+    });
+  };
+
   // Keyboard shortcuts for transport control
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -1086,10 +1111,7 @@ const HybridDAW = () => {
             {view === '2d' ? (
               <EnhancedDAWTimeline 
                 tracks={tracks}
-                onTracksChange={() => {
-                  // Legacy prop - components should use store actions directly
-                  // This prevents infinite loops from full track object updates
-                }}
+                onTracksChange={onTracksChange}
                 currentTime={currentTime}
                 onTimeChange={seekToTime}
                 isPlaying={isPlaying}
@@ -1154,10 +1176,7 @@ const HybridDAW = () => {
                 <div className="h-full overflow-hidden">
                   <EnhancedDAWTimeline 
                     tracks={tracks}
-                    onTracksChange={() => {
-                      // Legacy prop - components should use store actions directly
-                      // This prevents infinite loops from full track object updates
-                    }}
+                    onTracksChange={onTracksChange}
                     currentTime={currentTime}
                     onTimeChange={seekToTime}
                     isPlaying={isPlaying}
