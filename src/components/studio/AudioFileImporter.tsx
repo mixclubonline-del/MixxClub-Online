@@ -6,11 +6,12 @@ import { useAIStudioStore, Track, AudioRegion } from '@/stores/aiStudioStore';
 import { WaveformGenerator } from '@/services/waveformGenerator';
 
 /**
- * Import audio files and generate real waveforms
+ * Import audio files and generate real waveforms (in-memory for Phase 1)
+ * No database dependency - pure client-side audio processing
  */
 export const AudioFileImporter = () => {
   const { toast } = useToast();
-  const [isUploading, setIsUploading] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
   const addTrack = useAIStudioStore((state) => state.addTrack);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -18,19 +19,30 @@ export const AudioFileImporter = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setIsUploading(true);
+    setIsImporting(true);
 
     try {
+      console.log('[AudioImporter] Starting import:', file.name);
+      
       // Decode audio and generate waveform
       const audioContext = new AudioContext();
       const arrayBuffer = await file.arrayBuffer();
+      
+      console.log('[AudioImporter] Decoding audio...');
       const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+      console.log('[AudioImporter] Audio decoded:', {
+        duration: audioBuffer.duration,
+        sampleRate: audioBuffer.sampleRate,
+        channels: audioBuffer.numberOfChannels,
+      });
 
       // Generate real waveform data from audio buffer
+      console.log('[AudioImporter] Generating waveform...');
       const waveformData = WaveformGenerator.generateFromBuffer(audioBuffer, {
         width: 800, // High detail for studio
         normalize: true,
       });
+      console.log('[AudioImporter] Waveform generated:', waveformData.peaks.length, 'peaks');
 
       // Create track with real audio data and waveform
       const trackId = `track-${Date.now()}`;
@@ -53,8 +65,8 @@ export const AudioFileImporter = () => {
         pan: 0,
         mute: false,
         solo: false,
-        audioBuffer,
-        waveformData: waveformData.peaks, // Real waveform peaks
+        audioBuffer, // Store AudioBuffer in memory
+        waveformData: waveformData.peaks, // Real waveform peaks (Float32Array)
         peakLevel: 0,
         rmsLevel: 0,
         regions: [newRegion],
@@ -62,23 +74,24 @@ export const AudioFileImporter = () => {
         sends: {},
       };
 
+      console.log('[AudioImporter] Adding track to store:', trackId);
       addTrack(newTrack);
 
       toast({
-        title: 'Track Imported',
-        description: `${file.name} loaded with real waveform data`,
+        title: 'Track Imported Successfully!',
+        description: `${file.name} ready with real waveform data`,
       });
 
       audioContext.close();
     } catch (error) {
-      console.error('Error importing audio:', error);
+      console.error('[AudioImporter] Error importing audio:', error);
       toast({
         title: 'Import Failed',
-        description: 'Failed to import audio file',
+        description: error instanceof Error ? error.message : 'Failed to import audio file',
         variant: 'destructive',
       });
     } finally {
-      setIsUploading(false);
+      setIsImporting(false);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -90,17 +103,17 @@ export const AudioFileImporter = () => {
       <input
         ref={fileInputRef}
         type="file"
-        accept="audio/*"
+        accept="audio/*,.wav,.mp3,.ogg,.flac,.m4a"
         onChange={handleFileSelect}
         style={{ display: 'none' }}
         id="audio-file-input"
-        disabled={isUploading}
+        disabled={isImporting}
       />
       <Button
-        disabled={isUploading}
+        disabled={isImporting}
         onClick={() => fileInputRef.current?.click()}
       >
-        {isUploading ? (
+        {isImporting ? (
           <>
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
             Importing...
