@@ -47,6 +47,10 @@ export function useSimplifiedTransportBridge() {
   }, []);
 
   // ===== Sync store state to audioEngine transport =====
+  // CRITICAL SYNC RULES:
+  // 1. User clicks Play → store.isPlaying=true → start audio from 0 → playhead follows audio
+  // 2. User clicks timeline/seeks → store.currentTime changes → audio seeks → playhead jumps
+  // 3. Audio plays → audioEngine.currentTime updates → (separate effect below) → store.currentTime updates → playhead moves
   useEffect(() => {
     if (!scheduler) return;
 
@@ -58,6 +62,7 @@ export function useSimplifiedTransportBridge() {
     if (isPlaying !== wasPlaying) {
       if (isPlaying) {
         // START playback from zero (always)
+        // Audio → playhead → timeline sync starts here
         const startAt = 0;
         scheduler.stopAll();
         audioEngine.seekTransport(startAt);
@@ -65,36 +70,42 @@ export function useSimplifiedTransportBridge() {
         audioEngine.startTransport();
         setCurrentTime(startAt);
         prevTimeRef.current = startAt;
-        console.log('[SimplifiedBridge] ▶️ START from 0s');
+        console.log('[SimplifiedBridge] ▶️ START from 0s (playhead will follow audio)');
       } else {
         // PAUSE/STOP
+        // Timeline → audio sync: freeze audio where playhead is
         scheduler.stopAll();
         audioEngine.pauseTransport();
-        console.log('[SimplifiedBridge] ⏸ PAUSE');
+        console.log('[SimplifiedBridge] ⏸ PAUSE (playhead frozen at', currentTime.toFixed(3), 's)');
       }
       prevPlayingRef.current = isPlaying;
     }
     
-    // Time changed significantly (user seek)
+    // Time changed significantly (user dragged playhead or clicked timeline)
+    // Timeline → audio sync: make audio follow the playhead position
     else if (timeDelta > 0.2 && !isPlaying) {
       // Seek while paused
       audioEngine.seekTransport(currentTime);
-      console.log('[SimplifiedBridge] ⏩ SEEK to', currentTime.toFixed(3), 's');
+      console.log('[SimplifiedBridge] ⏩ SEEK to', currentTime.toFixed(3), 's (audio follows timeline)');
       prevTimeRef.current = currentTime;
     }
     
     // Time changed while playing (user seek during playback)
+    // Timeline → audio sync: audio must jump to new position
     else if (timeDelta > 0.2 && isPlaying) {
       scheduler.stopAll();
       audioEngine.seekTransport(currentTime);
       scheduler.scheduleAll(currentTime, tracks);
-      console.log('[SimplifiedBridge] ⏩ SEEK while playing to', currentTime.toFixed(3), 's');
+      console.log('[SimplifiedBridge] ⏩ SEEK while playing to', currentTime.toFixed(3), 's (audio follows timeline)');
       prevTimeRef.current = currentTime;
     }
 
   }, [isPlaying, currentTime, tracks]);
 
-  // ===== Sync audioEngine transport time back to store (UI updates) =====
+  // ===== Sync audioEngine transport time back to store (drives playhead & timeline) =====
+  // CRITICAL: This creates the audio → playhead → timeline sync loop
+  // While playing, continuously read audioEngine.currentTime and push to store
+  // Store updates trigger EnhancedDAWTimeline to move playhead and auto-scroll
   useEffect(() => {
     if (!isPlaying) return;
 
@@ -102,7 +113,8 @@ export function useSimplifiedTransportBridge() {
     const syncLoop = () => {
       const engineTime = audioEngine.currentTime;
       
-      // Only update if changed significantly
+      // Update store's currentTime to drive UI playhead
+      // This triggers: audioEngine → store → EnhancedDAWTimeline playhead → timeline scroll
       if (Math.abs(engineTime - prevTimeRef.current) > 0.01) {
         setCurrentTime(engineTime);
         prevTimeRef.current = engineTime;

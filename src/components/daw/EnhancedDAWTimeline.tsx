@@ -72,7 +72,9 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
     }
   }, [tracks]);
 
-  // Auto-scroll timeline to follow playhead
+  // Auto-scroll timeline to follow playhead (playhead → timeline sync)
+  // CRITICAL: This ensures timeline follows playhead as audio plays
+  // Audio plays → store.currentTime updates → this effect scrolls timeline → user sees playhead
   useEffect(() => {
     if (!timelineRef.current || !isPlaying) return;
     
@@ -80,14 +82,13 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
     const headX = currentTime * pixelsPerSecond;
     const viewportWidth = container.clientWidth;
     const scrollLeft = container.scrollLeft;
-    const viewportEnd = scrollLeft + viewportWidth;
     
-    // Keep playhead in the 25-75% range (left-center)
+    // Keep playhead in the 25-75% range (center tracking)
     const leftBound = scrollLeft + viewportWidth * 0.25;
     const rightBound = scrollLeft + viewportWidth * 0.75;
     
     if (headX < leftBound || headX > rightBound) {
-      // Smooth scroll to center-left (33% from left edge)
+      // Smooth scroll to keep playhead centered
       container.scrollTo({
         left: headX - viewportWidth * 0.33,
         behavior: 'smooth'
@@ -140,12 +141,13 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
     onTracksChange(tracks.filter(track => track.id !== trackId));
   };
 
+  // User clicks timeline → playhead jumps → audio follows (timeline → playhead → audio sync)
   const handleTimelineClick = (e: React.MouseEvent) => {
     if (timelineRef.current) {
       const rect = timelineRef.current.getBoundingClientRect();
       const x = e.clientX - rect.left - 220; // Account for track header width
       const time = Math.max(0, x / pixelsPerSecond);
-      onTimeChange(time);
+      onTimeChange(time); // Updates store.currentTime → triggers audio seek in useSimplifiedTransportBridge
     }
   };
 
@@ -339,7 +341,8 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
             ))}
           </div>
 
-          {/* Enhanced Playhead */}
+          {/* Enhanced Playhead - driven by store.currentTime (audio → store → playhead) */}
+          {/* SYNC FLOW: Audio plays → audioEngine.currentTime → store.currentTime → this visual */}
           <div
             className="absolute top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary to-primary/60 z-20 pointer-events-none shadow-lg"
             style={{ 
