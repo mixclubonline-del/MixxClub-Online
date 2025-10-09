@@ -10,10 +10,13 @@ import { ToolPalette } from './ToolPalette';
 import { TimeSelection } from './TimeSelection';
 import { RegionHandle } from './RegionHandle';
 import { FadeHandle } from './FadeHandle';
+import { TimelineNavigator } from './TimelineNavigator';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useMusicalQuantization } from '@/hooks/useMusicalQuantization';
 import { useRegionDrag } from '@/hooks/useRegionDrag';
+import { useZoomControls } from '@/hooks/useZoomControls';
+import { useRubberBandSelection } from '@/hooks/useRubberBandSelection';
 import { TransientDetector, Transient } from '@/audio/analysis/TransientDetector';
 import { ZeroCrossingDetector } from '@/audio/analysis/ZeroCrossingDetector';
 import { TransientMarkers } from './TransientMarkers';
@@ -54,14 +57,32 @@ export const WaveformTimeline = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [zoom, setZoom] = useState(1);
-  const [trackHeight, setTrackHeight] = useState(80);
   const [hoveredTrack, setHoveredTrack] = useState<string | null>(null);
   const [hoveredRegion, setHoveredRegion] = useState<string | null>(null);
   const [trackTransients, setTrackTransients] = useState<Map<string, Transient[]>>(new Map());
+  const [viewportStart, setViewportStart] = useState(0);
+  const [viewportEnd, setViewportEnd] = useState(60);
 
   const trackHeaderWidth = 180;
-  const pixelsPerSecond = 100 * zoom;
+  
+  // Advanced zoom controls
+  const {
+    zoom,
+    zoomIn,
+    zoomOut,
+    setHorizontalZoom,
+    setVerticalZoom,
+    zoomToFit,
+    zoomToSelection,
+    undoZoom,
+    redoZoom,
+    canUndo,
+    canRedo,
+  } = useZoomControls(1);
+  
+  const [trackHeight, setTrackHeight] = useState(80);
+  const effectiveTrackHeight = trackHeight * zoom.vertical;
+  const pixelsPerSecond = 100 * zoom.horizontal;
   
   // Get store actions
   const scrollMode = useAIStudioStore((state) => state.scrollMode);
@@ -89,6 +110,15 @@ export const WaveformTimeline = ({
   const { deleteRegionWithRipple } = useRippleEdit();
   const { isDragging, dragRegionId, ghostPosition, startDrag, onDrag, endDrag } = useRegionDrag(pixelsPerSecond);
 
+  // Rubber band selection
+  const {
+    isSelecting: isRubberBanding,
+    startSelection,
+    updateSelection,
+    endSelection,
+    getSelectionBoxStyle,
+  } = useRubberBandSelection(tracks, pixelsPerSecond, effectiveTrackHeight);
+
   // Time selection state
   const [isSelectingTime, setIsSelectingTime] = useState(false);
   const [timeSelectionStart, setTimeSelectionStart] = useState(0);
@@ -97,6 +127,54 @@ export const WaveformTimeline = ({
   useEffect(() => {
     calculateSessionDuration();
   }, [tracks, calculateSessionDuration]);
+
+  // Keyboard shortcuts for zoom and tools
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger if typing in input
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      
+      if (e.key === '+' || e.key === '=') {
+        zoomIn('horizontal');
+      } else if (e.key === '-' || e.key === '_') {
+        zoomOut('horizontal');
+      } else if (e.key === '[' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        undoZoom();
+      } else if (e.key === ']' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        redoZoom();
+      } else if (e.key === 'a' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        zoomToFit(duration, scrollContainerRef.current?.clientWidth || 800);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [zoomIn, zoomOut, undoZoom, redoZoom, zoomToFit, duration]);
+
+  // Update viewport bounds based on scroll
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      const scrollLeft = container.scrollLeft;
+      const containerWidth = container.clientWidth;
+      const newStart = scrollLeft / pixelsPerSecond;
+      const newEnd = (scrollLeft + containerWidth) / pixelsPerSecond;
+      
+      setViewportStart(newStart);
+      setViewportEnd(newEnd);
+    };
+
+    container.addEventListener('scroll', handleScroll);
+    // Initial update
+    handleScroll();
+
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, [pixelsPerSecond]);
 
   // Detect transients when tracks load
   useEffect(() => {
@@ -289,7 +367,7 @@ export const WaveformTimeline = ({
     ctx.strokeStyle = 'hsl(var(--studio-border))';
     ctx.lineWidth = 1;
     
-    for (let i = 0; i < duration; i += 4) {
+      for (let i = 0; i < duration; i += 4) {
       const x = i * pixelsPerSecond;
       if (x > rect.width) break;
       
@@ -300,11 +378,11 @@ export const WaveformTimeline = ({
     }
 
     tracks.forEach((track, index) => {
-      const trackY = index * trackHeight;
+      const trackY = index * effectiveTrackHeight;
       const trackColor = getTrackColor(track.type);
       
       ctx.fillStyle = hoveredTrack === track.id ? 'hsl(220, 16%, 20%)' : 'hsl(220, 18%, 16%)';
-      ctx.fillRect(0, trackY, rect.width, trackHeight);
+      ctx.fillRect(0, trackY, rect.width, effectiveTrackHeight);
 
       track.regions.forEach((region) => {
         const regionX = region.startTime * pixelsPerSecond;
@@ -313,10 +391,10 @@ export const WaveformTimeline = ({
         const isHovered = hoveredRegion === region.id;
         
         ctx.fillStyle = isSelected ? 'hsl(220, 20%, 30%)' : isHovered ? 'hsl(220, 18%, 24%)' : 'hsl(220, 18%, 20%)';
-        ctx.fillRect(regionX, trackY + 4, regionWidth, trackHeight - 8);
+        ctx.fillRect(regionX, trackY + 4, regionWidth, effectiveTrackHeight - 8);
         
         const waveformData = getWaveformData(track);
-        const gradient = ctx.createLinearGradient(regionX, trackY, regionX, trackY + trackHeight);
+        const gradient = ctx.createLinearGradient(regionX, trackY, regionX, trackY + effectiveTrackHeight);
         const rgb = getRgbFromHsl(trackColor);
         gradient.addColorStop(0, `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.8)`);
         gradient.addColorStop(0.4, `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.6)`);
@@ -324,7 +402,7 @@ export const WaveformTimeline = ({
         
         ctx.fillStyle = gradient;
         ctx.beginPath();
-        ctx.moveTo(regionX, trackY + trackHeight / 2);
+        ctx.moveTo(regionX, trackY + effectiveTrackHeight / 2);
         
         const regionSamples = Math.floor(regionWidth);
         const audioDuration = track.audioBuffer?.duration || region.duration;
@@ -335,7 +413,7 @@ export const WaveformTimeline = ({
           const sourceProgress = sourceTime / audioDuration;
           const dataIndex = Math.floor(sourceProgress * waveformData.length);
           const amplitude = (waveformData[Math.max(0, Math.min(waveformData.length - 1, dataIndex))] || 0) * region.gain;
-          const y = trackY + (trackHeight / 2) - (amplitude * (trackHeight - 8) * 0.3);
+          const y = trackY + (effectiveTrackHeight / 2) - (amplitude * (effectiveTrackHeight - 8) * 0.3);
           ctx.lineTo(regionX + x, y);
         }
         
@@ -345,7 +423,7 @@ export const WaveformTimeline = ({
           const sourceProgress = sourceTime / audioDuration;
           const dataIndex = Math.floor(sourceProgress * waveformData.length);
           const amplitude = (waveformData[Math.max(0, Math.min(waveformData.length - 1, dataIndex))] || 0) * region.gain;
-          const y = trackY + (trackHeight / 2) + (amplitude * (trackHeight - 8) * 0.3);
+          const y = trackY + (effectiveTrackHeight / 2) + (amplitude * (effectiveTrackHeight - 8) * 0.3);
           ctx.lineTo(regionX + x, y);
         }
         
@@ -358,7 +436,7 @@ export const WaveformTimeline = ({
           fadeGrad.addColorStop(0, 'rgba(0, 0, 0, 0.5)');
           fadeGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
           ctx.fillStyle = fadeGrad;
-          ctx.fillRect(regionX, trackY + 4, fadeWidth, trackHeight - 8);
+          ctx.fillRect(regionX, trackY + 4, fadeWidth, effectiveTrackHeight - 8);
         }
         
         if (region.fadeOut.duration > 0) {
@@ -367,19 +445,19 @@ export const WaveformTimeline = ({
           fadeGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
           fadeGrad.addColorStop(1, 'rgba(0, 0, 0, 0.5)');
           ctx.fillStyle = fadeGrad;
-          ctx.fillRect(regionX + regionWidth - fadeWidth, trackY + 4, fadeWidth, trackHeight - 8);
+          ctx.fillRect(regionX + regionWidth - fadeWidth, trackY + 4, fadeWidth, effectiveTrackHeight - 8);
         }
         
         ctx.strokeStyle = isSelected ? 'hsl(var(--studio-accent))' : trackColor;
         ctx.lineWidth = isSelected ? 2 : 1;
-        ctx.strokeRect(regionX, trackY + 4, regionWidth, trackHeight - 8);
+        ctx.strokeRect(regionX, trackY + 4, regionWidth, effectiveTrackHeight - 8);
       });
 
       ctx.strokeStyle = 'hsl(220, 14%, 28%)';
       ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.moveTo(0, trackY + trackHeight);
-      ctx.lineTo(rect.width, trackY + trackHeight);
+      ctx.moveTo(0, trackY + effectiveTrackHeight);
+      ctx.lineTo(rect.width, trackY + effectiveTrackHeight);
       ctx.stroke();
     });
 
@@ -392,7 +470,7 @@ export const WaveformTimeline = ({
       ctx.lineTo(playheadX, rect.height);
       ctx.stroke();
     }
-  }, [tracks, currentTime, duration, zoom, trackHeight, pixelsPerSecond, hoveredTrack, hoveredRegion, selectedRegions]);
+  }, [tracks, currentTime, duration, zoom, effectiveTrackHeight, pixelsPerSecond, hoveredTrack, hoveredRegion, selectedRegions]);
 
   const handleRegionClick = useCallback((regionId: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -429,7 +507,7 @@ export const WaveformTimeline = ({
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     
-    const trackIndex = Math.floor(y / trackHeight);
+    const trackIndex = Math.floor(y / effectiveTrackHeight);
     if (trackIndex >= 0 && trackIndex < tracks.length) {
       const track = tracks[trackIndex];
       const clickTime = x / pixelsPerSecond;
@@ -445,7 +523,7 @@ export const WaveformTimeline = ({
     }
     
     const rawTime = x / pixelsPerSecond;
-    const trackIndex2 = Math.floor(y / trackHeight);
+    const trackIndex2 = Math.floor(y / effectiveTrackHeight);
     const trackId = trackIndex2 >= 0 && trackIndex2 < tracks.length ? tracks[trackIndex2].id : undefined;
     const quantizedTime = enhancedQuantizeTime(rawTime, trackId);
     onTimeChange(Math.max(0, Math.min(duration, quantizedTime)));
@@ -458,11 +536,17 @@ export const WaveformTimeline = ({
     
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    const trackIndex = Math.floor(y / trackHeight);
+    const trackIndex = Math.floor(y / effectiveTrackHeight);
     
     // Handle region drag
     if (isDragging) {
       onDrag(x);
+      return;
+    }
+    
+    // Handle rubber band selection
+    if (isRubberBanding) {
+      updateSelection(x, y);
       return;
     }
     
@@ -485,6 +569,20 @@ export const WaveformTimeline = ({
     if (isDragging) {
       endDrag();
     }
+    if (isRubberBanding) {
+      endSelection();
+    }
+  };
+  
+  const handleViewportChange = (start: number, end: number) => {
+    setViewportStart(start);
+    setViewportEnd(end);
+    
+    // Scroll to viewport
+    if (scrollContainerRef.current) {
+      const scrollLeft = start * pixelsPerSecond;
+      scrollContainerRef.current.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+    }
   };
 
   return (
@@ -505,14 +603,47 @@ export const WaveformTimeline = ({
         }}
       >
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={() => setZoom(Math.max(0.5, zoom - 0.5))} className="h-7 w-7">
+          <Button variant="ghost" size="icon" onClick={() => zoomOut('horizontal')} className="h-7 w-7" title="Zoom Out (-)">
             <ZoomOut className="w-3.5 h-3.5" />
           </Button>
           <span className="text-[10px] font-mono text-[hsl(var(--studio-text-dim))] min-w-[2.5rem] text-center">
-            {Math.round(zoom * 100)}%
+            {Math.round(zoom.horizontal * 100)}%
           </span>
-          <Button variant="ghost" size="icon" onClick={() => setZoom(Math.min(4, zoom + 0.5))} className="h-7 w-7">
+          <Button variant="ghost" size="icon" onClick={() => zoomIn('horizontal')} className="h-7 w-7" title="Zoom In (+)">
             <ZoomIn className="w-3.5 h-3.5" />
+          </Button>
+          
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => zoomToFit(duration, scrollContainerRef.current?.clientWidth || 800)} 
+            className="h-7 w-7"
+            title="Zoom to Fit All (Cmd+A)"
+          >
+            <Maximize2 className="w-3.5 h-3.5" />
+          </Button>
+          
+          <div className="w-px h-5 bg-[hsl(220,14%,28%)] mx-1" />
+          
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => undoZoom()} 
+            disabled={!canUndo}
+            className="h-7 px-2 text-[10px]"
+            title="Undo Zoom ([)"
+          >
+            [
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => redoZoom()} 
+            disabled={!canRedo}
+            className="h-7 px-2 text-[10px]"
+            title="Redo Zoom (])"
+          >
+            ]
           </Button>
           
           <div className="w-px h-5 bg-[hsl(220,14%,28%)] mx-1" />
@@ -579,7 +710,7 @@ export const WaveformTimeline = ({
         </div>
         
         <div className="flex items-center gap-2">
-          <span className="text-xs font-mono text-[hsl(var(--studio-text-dim))]">Track Height</span>
+          <span className="text-xs text-[hsl(var(--studio-text-dim))]">Track Height</span>
           <input
             type="range"
             min="60"
@@ -587,7 +718,24 @@ export const WaveformTimeline = ({
             value={trackHeight}
             onChange={(e) => setTrackHeight(parseInt(e.target.value))}
             className="w-24"
+            title="Adjust Track Height"
           />
+          <span className="text-[10px] text-[hsl(var(--studio-text-dim))]">{trackHeight}px</span>
+          
+          <div className="w-px h-5 bg-[hsl(220,14%,28%)] mx-1" />
+          
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => {
+              const newHeight = effectiveTrackHeight === 60 ? 120 : 60;
+              setTrackHeight(newHeight / zoom.vertical);
+            }}
+            className="h-7 px-2 text-[10px]"
+            title="Toggle Track Size"
+          >
+            {effectiveTrackHeight < 80 ? 'Expand' : 'Collapse'}
+          </Button>
         </div>
       </div>
 
@@ -602,7 +750,7 @@ export const WaveformTimeline = ({
           }}
         >
           {tracks.map((track) => (
-            <div key={track.id} style={{ height: trackHeight }}>
+            <div key={track.id} style={{ height: effectiveTrackHeight }}>
               <TrackControls
                 track={track}
                 onUpdate={(updates) => onTrackUpdate(track.id, updates)}
@@ -623,7 +771,7 @@ export const WaveformTimeline = ({
           <div 
             style={{ 
               width: duration * pixelsPerSecond,
-              height: tracks.length * trackHeight,
+              height: tracks.length * effectiveTrackHeight,
               position: 'relative',
             }}
           >
@@ -637,7 +785,7 @@ export const WaveformTimeline = ({
                 
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
-                const trackIndex = Math.floor(y / trackHeight);
+                const trackIndex = Math.floor(y / effectiveTrackHeight);
                 
                 if (trackIndex >= 0 && trackIndex < tracks.length) {
                   const track = tracks[trackIndex];
@@ -650,22 +798,33 @@ export const WaveformTimeline = ({
                   if (clickedRegion && !e.altKey) {
                     startDrag(clickedRegion.id, x, clickedRegion.startTime);
                     e.stopPropagation();
+                    return;
                   }
+                }
+                
+                // Start rubber band selection if clicking empty space
+                if (!e.altKey && !e.metaKey) {
+                  startSelection(x, y, e.shiftKey);
                 }
               }}
               style={{
                 width: duration * pixelsPerSecond,
-                height: tracks.length * trackHeight,
+                height: tracks.length * effectiveTrackHeight,
                 display: 'block',
               }}
             />
+
+            {/* Rubber Band Selection Box */}
+            {isRubberBanding && (
+              <div style={getSelectionBoxStyle()!} />
+            )}
 
             {/* Region Handles and Fade Handles Overlay */}
             {tracks.map((track, trackIndex) =>
               track.regions.map((region) => {
                 const regionX = region.startTime * pixelsPerSecond;
                 const regionWidth = region.duration * pixelsPerSecond;
-                const regionY = trackIndex * trackHeight;
+                const regionY = trackIndex * effectiveTrackHeight;
                 
                 return (
                   <div key={`handles-${region.id}`}>
@@ -675,7 +834,7 @@ export const WaveformTimeline = ({
                       regionX={regionX}
                       regionY={regionY}
                       regionWidth={regionWidth}
-                      regionHeight={trackHeight}
+                      regionHeight={effectiveTrackHeight}
                       pixelsPerSecond={pixelsPerSecond}
                       currentStartTime={region.startTime}
                       currentDuration={region.duration}
@@ -686,7 +845,7 @@ export const WaveformTimeline = ({
                       regionX={regionX}
                       regionY={regionY}
                       regionWidth={regionWidth}
-                      regionHeight={trackHeight}
+                      regionHeight={effectiveTrackHeight}
                       pixelsPerSecond={pixelsPerSecond}
                       currentStartTime={region.startTime}
                       currentDuration={region.duration}
@@ -697,7 +856,7 @@ export const WaveformTimeline = ({
                       regionX={regionX}
                       regionY={regionY}
                       regionWidth={regionWidth}
-                      regionHeight={trackHeight}
+                      regionHeight={effectiveTrackHeight}
                       pixelsPerSecond={pixelsPerSecond}
                       currentFade={region.fadeIn}
                       maxDuration={region.duration}
@@ -708,7 +867,7 @@ export const WaveformTimeline = ({
                       regionX={regionX}
                       regionY={regionY}
                       regionWidth={regionWidth}
-                      regionHeight={trackHeight}
+                      regionHeight={effectiveTrackHeight}
                       pixelsPerSecond={pixelsPerSecond}
                       currentFade={region.fadeOut}
                       maxDuration={region.duration}
@@ -727,7 +886,7 @@ export const WaveformTimeline = ({
                   top: (() => {
                     for (let i = 0; i < tracks.length; i++) {
                       if (tracks[i].regions.some(r => r.id === dragRegionId)) {
-                        return i * trackHeight + 4;
+                        return i * effectiveTrackHeight + 4;
                       }
                     }
                     return 0;
@@ -739,7 +898,7 @@ export const WaveformTimeline = ({
                     }
                     return 0;
                   })(),
-                  height: trackHeight - 8,
+                  height: effectiveTrackHeight - 8,
                   background: 'hsl(var(--studio-accent) / 0.2)',
                 }}
               />
@@ -748,7 +907,7 @@ export const WaveformTimeline = ({
             {/* Time Selection Overlay */}
             <TimeSelection
               pixelsPerSecond={pixelsPerSecond}
-              height={tracks.length * trackHeight}
+              height={tracks.length * effectiveTrackHeight}
             />
 
             {/* Transient Markers Overlay */}
@@ -762,9 +921,9 @@ export const WaveformTimeline = ({
                   style={{
                     position: 'absolute',
                     left: 0,
-                    top: index * trackHeight,
+                    top: index * effectiveTrackHeight,
                     width: duration * pixelsPerSecond,
-                    height: trackHeight,
+                    height: effectiveTrackHeight,
                     pointerEvents: 'none',
                   }}
                 >
@@ -773,7 +932,7 @@ export const WaveformTimeline = ({
                     startTime={0}
                     duration={duration}
                     width={duration * pixelsPerSecond}
-                    height={trackHeight}
+                    height={effectiveTrackHeight}
                   />
                 </div>
               );
@@ -782,6 +941,16 @@ export const WaveformTimeline = ({
           </div>
         </div>
       </div>
+
+      {/* Minimap Navigator */}
+      <TimelineNavigator
+        tracks={tracks}
+        duration={duration}
+        currentTime={currentTime}
+        viewportStart={viewportStart}
+        viewportEnd={viewportEnd}
+        onViewportChange={handleViewportChange}
+      />
 
       {/* Musical Ruler */}
       <MusicalRuler

@@ -20,6 +20,10 @@ import {
   RotateCcw,
   Move,
   Slice,
+  Link,
+  Volume2,
+  Activity,
+  MinusCircle,
 } from "lucide-react";
 
 interface RegionContextMenuProps {
@@ -35,6 +39,9 @@ interface RegionContextMenuProps {
   onTrimStart?: () => void;
   onTrimEnd?: () => void;
   onSlip?: () => void;
+  onConsolidate?: () => void;
+  onDetectTempo?: () => void;
+  onStripSilence?: () => void;
 }
 
 /**
@@ -57,6 +64,9 @@ export const RegionContextMenu = ({
   onTrimStart,
   onTrimEnd,
   onSlip,
+  onConsolidate,
+  onDetectTempo,
+  onStripSilence,
 }: RegionContextMenuProps) => {
   return (
     <ContextMenu>
@@ -108,6 +118,13 @@ export const RegionContextMenu = ({
           <span>Duplicate</span>
           <span className="ml-auto text-xs text-muted-foreground">⌘D</span>
         </ContextMenuItem>
+        
+        {onConsolidate && (
+          <ContextMenuItem onClick={onConsolidate}>
+            <Link className="mr-2 h-4 w-4" />
+            <span>Consolidate</span>
+          </ContextMenuItem>
+        )}
 
         <ContextMenuSeparator />
 
@@ -121,10 +138,24 @@ export const RegionContextMenu = ({
         )}
         
         <ContextMenuItem onClick={onNormalize}>
-          <Wand2 className="mr-2 h-4 w-4" />
+          <Volume2 className="mr-2 h-4 w-4" />
           <span>Normalize</span>
           <span className="ml-auto text-xs text-muted-foreground">N</span>
         </ContextMenuItem>
+        
+        {onDetectTempo && (
+          <ContextMenuItem onClick={onDetectTempo}>
+            <Activity className="mr-2 h-4 w-4" />
+            <span>Detect Tempo</span>
+          </ContextMenuItem>
+        )}
+        
+        {onStripSilence && (
+          <ContextMenuItem onClick={onStripSilence}>
+            <MinusCircle className="mr-2 h-4 w-4" />
+            <span>Strip Silence</span>
+          </ContextMenuItem>
+        )}
 
         <ContextMenuSub>
           <ContextMenuSubTrigger>
