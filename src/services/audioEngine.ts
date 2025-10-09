@@ -156,10 +156,15 @@ export class AudioEngine {
     const when = startTime !== undefined ? startTime : this.audioContext.currentTime;
     sourceNode.start(when, offset);
     
+    // Track playback state for precise position tracking
     if (!this.isPlaying) {
       this.isPlaying = true;
       this.playbackStartTime = when;
       this.playbackOffset = offset;
+      console.log('[AudioEngine] Playback started:', {
+        when: when.toFixed(3),
+        offset: offset.toFixed(3),
+      });
     }
 
     trackNode.sourceNode = sourceNode;
@@ -300,18 +305,20 @@ export class AudioEngine {
 
   // Stop all tracks
   stopAllTracks() {
-    this.trackNodes.forEach((trackNode) => {
+    console.log('[AudioEngine] Stopping all tracks');
+    this.trackNodes.forEach((trackNode, trackId) => {
       if (trackNode.sourceNode) {
         try {
           trackNode.sourceNode.stop();
           trackNode.sourceNode.disconnect();
           trackNode.sourceNode = null;
         } catch (e) {
-          console.warn('Error stopping track:', e);
+          console.warn('[AudioEngine] Error stopping track:', trackId, e);
         }
       }
     });
     this.isPlaying = false;
+    console.log('[AudioEngine] All tracks stopped, isPlaying =', this.isPlaying);
   }
 
   // Play/Pause control

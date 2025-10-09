@@ -15,7 +15,6 @@ import { audioEngine } from '@/services/audioEngine';
 import { useStudioPlayback } from '@/hooks/useStudioPlayback';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { Mic, Keyboard } from 'lucide-react';
-import Navigation from '@/components/Navigation';
 import { SpatialBackground } from '@/components/background/SpatialBackground';
 
 /**
@@ -78,13 +77,12 @@ const ProStudio = ({ userRole = 'artist' }: ProStudioProps) => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[hsl(220,20%,14%)] flex flex-col relative overflow-hidden">
+    <div className="min-h-screen h-screen bg-[hsl(220,20%,14%)] flex flex-col relative overflow-hidden">
       {/* Spatial Background */}
       <SpatialBackground intensity="medium" />
       
-      {/* Content layer */}
-      <div className="relative z-10 flex flex-col min-h-screen">
-        <Navigation />
+      {/* Content layer - FULLSCREEN */}
+      <div className="relative z-10 flex flex-col h-screen">
         
         {/* Enhanced Transport Bar */}
         <div 

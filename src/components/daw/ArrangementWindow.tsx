@@ -48,7 +48,7 @@ export const ArrangementWindow = ({
     return colors[type] || colors.other;
   };
 
-  // Draw time ruler with bars and beats
+  // Draw playhead on ruler
   useEffect(() => {
     const canvas = rulerRef.current;
     if (!canvas) return;
@@ -108,11 +108,15 @@ export const ArrangementWindow = ({
       }
     }
 
-    // Draw playhead on ruler
+    // Draw playhead on ruler (PRECISE SYNC)
     const playheadX = currentTime * pixelsPerSecond;
     if (playheadX >= 0 && playheadX <= rect.width) {
+      // Playhead line
       ctx.fillStyle = 'hsl(180, 100%, 50%)';
+      ctx.shadowColor = 'hsl(180, 100%, 50%)';
+      ctx.shadowBlur = 6;
       ctx.fillRect(playheadX - 1, 0, 3, rect.height);
+      ctx.shadowBlur = 0;
       
       // Playhead triangle
       ctx.beginPath();
@@ -122,7 +126,7 @@ export const ArrangementWindow = ({
       ctx.closePath();
       ctx.fill();
     }
-  }, [duration, tempo, zoom, pixelsPerSecond, currentTime]);
+  }, [duration, tempo, zoom, pixelsPerSecond, currentTime]); // Re-render on currentTime change for smooth playhead
 
   // Draw waveform canvas
   useEffect(() => {
@@ -187,17 +191,6 @@ export const ArrangementWindow = ({
         const isRegionSelected = selectedRegions.has(region.id);
         const isHovered = hoveredRegion === region.id;
 
-        // Debug logging
-        if (index === 0) {
-          console.log('[ArrangementWindow] Track debug:', {
-            trackName: track.name,
-            hasWaveformData: !!track.waveformData,
-            waveformLength: track.waveformData?.length || 0,
-            regionWidth,
-            trackY,
-          });
-        }
-
         // Region background with track color
         const alpha = isRegionSelected ? 0.5 : isHovered ? 0.4 : 0.3;
         ctx.fillStyle = trackColor.replace(')', `, ${alpha})`).replace('hsl', 'hsla');
@@ -212,12 +205,6 @@ export const ArrangementWindow = ({
 
         // Draw waveform if available
         if (track.waveformData && track.waveformData.length > 0) {
-          console.log('[ArrangementWindow] Drawing waveform for', track.name, {
-            dataLength: track.waveformData.length,
-            regionWidth,
-            sampleEvery: 2
-          });
-          
           // Draw waveform with better visibility
           const waveformHeight = (TRACK_HEIGHT - 40) * 0.7;
           const centerY = trackY + TRACK_HEIGHT / 2;
@@ -282,13 +269,6 @@ export const ArrangementWindow = ({
           // Stroke outline
           ctx.stroke();
           ctx.shadowBlur = 0;
-          
-          console.log('[ArrangementWindow] Waveform drawn successfully');
-        } else {
-          console.warn('[ArrangementWindow] No waveform data for track:', track.name, {
-            hasAudioBuffer: !!track.audioBuffer,
-            hasWaveformData: !!track.waveformData,
-          });
         }
 
         // Region name

@@ -18,7 +18,7 @@ export const StudioTransport = () => {
   const { playTracks, stopTracks } = useStudioPlayback();
   const animationFrameRef = useRef<number>();
 
-  // Update playback position using sample-accurate timing
+  // Update playback position using sample-accurate timing at 60fps
   useEffect(() => {
     if (!isPlaying) {
       if (animationFrameRef.current) {
@@ -27,13 +27,26 @@ export const StudioTransport = () => {
       return;
     }
 
-    const updatePosition = () => {
-      const position = audioEngine.getPlaybackPosition();
-      setCurrentTime(position);
+    let lastUpdateTime = performance.now();
+    const targetFPS = 60;
+    const frameInterval = 1000 / targetFPS;
+
+    const updatePosition = (currentFrameTime: number) => {
+      // Throttle to 60fps for smooth animation
+      const elapsed = currentFrameTime - lastUpdateTime;
+      
+      if (elapsed >= frameInterval) {
+        // Get precise position from audioEngine
+        const position = audioEngine.getPlaybackPosition();
+        setCurrentTime(position);
+        
+        lastUpdateTime = currentFrameTime - (elapsed % frameInterval);
+      }
+      
       animationFrameRef.current = requestAnimationFrame(updatePosition);
     };
 
-    updatePosition();
+    animationFrameRef.current = requestAnimationFrame(updatePosition);
 
     return () => {
       if (animationFrameRef.current) {
@@ -45,11 +58,13 @@ export const StudioTransport = () => {
   const handlePlay = async () => {
     if (isPlaying) {
       // Pause
+      console.log('[Transport] Pausing playback');
       stopTracks(tracks);
       audioEngine.stopAllTracks();
       setPlaying(false);
     } else {
       // Play from current position
+      console.log('[Transport] Starting playback from', currentTime.toFixed(3), 'seconds');
       await audioEngine.resume();
       await playTracks(tracks, currentTime);
       setPlaying(true);
