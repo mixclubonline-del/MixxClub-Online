@@ -22,27 +22,35 @@ export const AudioFileImporter = () => {
     setIsImporting(true);
 
     try {
-      console.log('[AudioImporter] Starting import:', file.name);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('[AudioImporter] 🎵 Starting import:', file.name);
+      console.log('[AudioImporter] File size:', (file.size / 1024 / 1024).toFixed(2), 'MB');
       
       // Decode audio and generate waveform
       const audioContext = new AudioContext();
       const arrayBuffer = await file.arrayBuffer();
       
-      console.log('[AudioImporter] Decoding audio...');
+      console.log('[AudioImporter] 🔊 Decoding audio...');
       const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-      console.log('[AudioImporter] Audio decoded:', {
-        duration: audioBuffer.duration,
-        sampleRate: audioBuffer.sampleRate,
+      console.log('[AudioImporter] ✅ Audio decoded:', {
+        duration: audioBuffer.duration.toFixed(2) + 's',
+        sampleRate: audioBuffer.sampleRate + 'Hz',
         channels: audioBuffer.numberOfChannels,
+        length: audioBuffer.length + ' samples',
       });
 
       // Generate real waveform data from audio buffer
-      console.log('[AudioImporter] Generating waveform...');
+      console.log('[AudioImporter] 📊 Generating waveform...');
       const waveformData = WaveformGenerator.generateFromBuffer(audioBuffer, {
         width: 800, // High detail for studio
         normalize: true,
       });
-      console.log('[AudioImporter] Waveform generated:', waveformData.peaks.length, 'peaks');
+      console.log('[AudioImporter] ✅ Waveform generated:', {
+        peaks: waveformData.peaks.length,
+        peakType: waveformData.peaks.constructor.name,
+        peakSample: waveformData.peaks[0]?.toFixed(3),
+        maxPeak: Math.max(...Array.from(waveformData.peaks)).toFixed(3),
+      });
 
       // Create track with real audio data and waveform
       const trackId = `track-${Date.now()}`;
@@ -74,19 +82,48 @@ export const AudioFileImporter = () => {
         sends: {},
       };
 
-      console.log('[AudioImporter] Adding track to store:', trackId);
+      // Validation checks
+      if (!newTrack.audioBuffer) {
+        throw new Error('Track missing audioBuffer!');
+      }
+      if (!newTrack.waveformData || newTrack.waveformData.length === 0) {
+        throw new Error('Track missing waveformData!');
+      }
+      if (!newTrack.regions || newTrack.regions.length === 0) {
+        throw new Error('Track missing regions!');
+      }
+
+      console.log('[AudioImporter] ✅ Track validated:', {
+        id: trackId,
+        name: newTrack.name,
+        hasBuffer: !!newTrack.audioBuffer,
+        waveformLength: newTrack.waveformData.length,
+        regionCount: newTrack.regions.length,
+      });
+
+      console.log('[AudioImporter] 📤 Adding track to store...');
       addTrack(newTrack);
+      console.log('[AudioImporter] ✅ Track added to store successfully');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
       toast({
-        title: 'Track Imported Successfully!',
-        description: `${file.name} ready with real waveform data`,
+        title: '✅ Track Imported!',
+        description: `${file.name} • ${audioBuffer.duration.toFixed(1)}s • ${waveformData.peaks.length} waveform points`,
       });
 
       audioContext.close();
     } catch (error) {
-      console.error('[AudioImporter] Error importing audio:', error);
+      console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.error('[AudioImporter] ❌ Error importing audio:', error);
+      console.error('[AudioImporter] Error details:', {
+        name: error instanceof Error ? error.name : 'Unknown',
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      });
+      console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      
       toast({
-        title: 'Import Failed',
+        title: '❌ Import Failed',
         description: error instanceof Error ? error.message : 'Failed to import audio file',
         variant: 'destructive',
       });

@@ -130,6 +130,8 @@ const HybridDAW = () => {
 
   // Sync tracks to store when they change
   useEffect(() => {
+    console.log('[HybridDAW] 🔄 Track sync effect triggered, current tracks:', tracks.length);
+    
     const storeState = useAIStudioStore.getState();
     const storeTracks = storeState.tracks;
     
@@ -137,6 +139,7 @@ const HybridDAW = () => {
     const hybridTrackIds = new Set(tracks.map(t => t.id));
     storeTracks.forEach(st => {
       if (!hybridTrackIds.has(st.id)) {
+        console.log('[HybridDAW] 🗑️ Removing orphaned track from store:', st.id);
         useAIStudioStore.getState().removeTrack(st.id);
       }
     });
@@ -146,7 +149,14 @@ const HybridDAW = () => {
       const existsInStore = storeTracks.some(st => st.id === track.id);
       
       if (!existsInStore) {
-        console.log('[HybridDAW] Adding track to store:', track.name, 'hasBuffer:', !!track.audioBuffer);
+        console.log('[HybridDAW] ➕ Adding NEW track to store:', {
+          id: track.id,
+          name: track.name,
+          hasBuffer: !!track.audioBuffer,
+          waveformLength: track.waveformData?.length,
+          regionCount: track.regions?.length,
+        });
+        
         // Add new track with FULL data including audioBuffer and waveformData
         addStoreTrack({
           id: track.id,
@@ -163,8 +173,11 @@ const HybridDAW = () => {
           effects: track.effects || [],
           sends: track.sends || {},
         });
+        
+        console.log('[HybridDAW] ✅ Track added to store successfully');
       } else {
         // Update existing track
+        console.log('[HybridDAW] 🔄 Updating existing track in store:', track.id);
         updateStoreTrack(track.id, {
           name: track.name,
           volume: track.volume,
@@ -177,6 +190,8 @@ const HybridDAW = () => {
         });
       }
     });
+    
+    console.log('[HybridDAW] ✅ Track sync complete, store now has:', useAIStudioStore.getState().tracks.length, 'tracks');
   }, [tracks, addStoreTrack, updateStoreTrack]);
 
   // Initialize Audio Context
@@ -385,12 +400,20 @@ const HybridDAW = () => {
 
   // Handle imported audio file with automatic BPM detection
   const handleImportedAudio = async (importedFile: any) => {
-    console.log('[HybridDAW] handleImportedAudio called with:', importedFile);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('[HybridDAW] 🎵 handleImportedAudio called');
+    console.log('[HybridDAW] Imported file:', {
+      fileName: importedFile.fileName,
+      fileSize: importedFile.fileSize,
+      duration: importedFile.duration,
+      hasBlob: !!importedFile.blob,
+      hasUrl: !!importedFile.url,
+    });
     
     if (!audioContextRef.current) {
-      console.error('[HybridDAW] No audio context!');
+      console.error('[HybridDAW] ❌ No audio context!');
       toast({ 
-        title: "Audio Error", 
+        title: "❌ Audio Error", 
         description: "Audio system not initialized",
         variant: "destructive"
       });
@@ -398,29 +421,46 @@ const HybridDAW = () => {
     }
 
     try {
-      console.log('[Import] Start - File:', importedFile.fileName);
+      console.log('[HybridDAW] 🔊 Step 1: Decoding audio...');
       
       // 1. Decode audio - prefer Blob to avoid fetch(blob:) edge cases
       const dataBuffer = importedFile?.blob 
         ? await importedFile.blob.arrayBuffer()
         : await (await fetch(importedFile.url)).arrayBuffer();
       
+      console.log('[HybridDAW] ArrayBuffer size:', (dataBuffer.byteLength / 1024 / 1024).toFixed(2), 'MB');
+      
       const audioBuffer = await audioContextRef.current.decodeAudioData(dataBuffer.slice(0));
-      console.log('[Import] Decoded:', audioBuffer.duration.toFixed(2), 's,', audioBuffer.numberOfChannels, 'ch,', audioBuffer.sampleRate, 'Hz');
+      console.log('[HybridDAW] ✅ Audio decoded:', {
+        duration: audioBuffer.duration.toFixed(2) + 's',
+        channels: audioBuffer.numberOfChannels,
+        sampleRate: audioBuffer.sampleRate + 'Hz',
+        length: audioBuffer.length + ' samples',
+      });
       
       // 2. Generate waveform - keep as Float32Array!
+      console.log('[HybridDAW] 📊 Step 2: Generating waveform...');
       const { peaks } = WaveformGenerator.generateFromBuffer(audioBuffer, {
         width: 1024,
         normalize: true,
       });
       
-      console.log('[Waveform] Generated:', peaks.length, 'peaks, min:', Math.min(...peaks).toFixed(3), 'max:', Math.max(...peaks).toFixed(3));
+      console.log('[HybridDAW] ✅ Waveform generated:', {
+        peakCount: peaks.length,
+        peakType: peaks.constructor.name,
+        minPeak: Math.min(...Array.from(peaks)).toFixed(3),
+        maxPeak: Math.max(...Array.from(peaks)).toFixed(3),
+        samplePeak: peaks[0]?.toFixed(3),
+      });
       
       // 3. Use stable IDs to avoid drift between track/region
+      console.log('[HybridDAW] 🏷️ Step 3: Creating track with stable IDs...');
       const trackId = `track-${Date.now()}`;
       const regionId = `region-${Date.now()}`;
+      console.log('[HybridDAW] Generated IDs:', { trackId, regionId });
       
       // 4. Create track with ALL audio data
+      console.log('[HybridDAW] 🎨 Step 4: Building track object...');
       const newTrack: Track = {
         id: trackId,
         name: importedFile.fileName,
@@ -447,8 +487,32 @@ const HybridDAW = () => {
         sends: {},
       };
       
+      // Validation
+      if (!newTrack.audioBuffer) {
+        throw new Error('❌ Track missing audioBuffer after creation!');
+      }
+      if (!newTrack.waveformData || newTrack.waveformData.length === 0) {
+        throw new Error('❌ Track missing waveformData after creation!');
+      }
+      if (!newTrack.regions || newTrack.regions.length === 0) {
+        throw new Error('❌ Track missing regions after creation!');
+      }
+      
+      console.log('[HybridDAW] ✅ Track validation passed:', {
+        hasAudioBuffer: !!newTrack.audioBuffer,
+        waveformLength: newTrack.waveformData.length,
+        waveformType: newTrack.waveformData.constructor.name,
+        regionCount: newTrack.regions.length,
+        regionHasBuffer: !!newTrack.regions[0].audioBuffer,
+      });
+      
+      console.log('[HybridDAW] 📤 Step 5: Adding track to state...');
+      const currentTrackCount = tracks.length;
       setTracks(prev => [...prev, newTrack]);
+      console.log('[HybridDAW] ✅ Track added to state (was', currentTrackCount, 'tracks, now should be', currentTrackCount + 1, ')');
+      
       setShowImportDialog(false);
+      console.log('[HybridDAW] ✅ Import dialog closed');
 
       // If analysis is available, update session BPM and time signature
       if (importedFile.analysis) {
@@ -456,30 +520,42 @@ const HybridDAW = () => {
         
         if (confidence > 0.6 && recommendations.sessionBpm) {
           setBpm(recommendations.sessionBpm);
+          console.log('[HybridDAW] 🎼 BPM updated to:', recommendations.sessionBpm);
           
           toast({
-            title: "Session Updated!",
+            title: "✅ Session Updated!",
             description: `Auto-detected BPM: ${recommendations.sessionBpm} | Time: ${recommendations.sessionTimeSignature} | Genre: ${importedFile.analysis.genre}`,
             duration: 5000
           });
         } else {
           toast({
-            title: "Track Added!",
+            title: "✅ Track Added!",
             description: `${importedFile.fileName} added with real audio data. BPM detection confidence low - consider manual adjustment.`,
           });
         }
       } else {
+        console.log('[HybridDAW] 🎉 Import complete!');
         toast({
-          title: "Track Added!",
-          description: `${importedFile.fileName} ready with real audio data`,
+          title: "✅ Track Added to Timeline!",
+          description: `${importedFile.fileName} • ${audioBuffer.duration.toFixed(1)}s • ${peaks.length} waveform points`,
         });
       }
       
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      
     } catch (error) {
-      console.error('[Import] Failed:', error);
+      console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.error('[HybridDAW] ❌ Import failed:', error);
+      console.error('[HybridDAW] Error details:', {
+        name: error instanceof Error ? error.name : 'Unknown',
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      });
+      console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      
       toast({
-        title: "Import Failed",
-        description: "Could not decode audio file",
+        title: "❌ Import Failed",
+        description: error instanceof Error ? error.message : "Could not decode audio file",
         variant: "destructive"
       });
     }
