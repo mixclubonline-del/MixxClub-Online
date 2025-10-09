@@ -2377,6 +2377,36 @@ export type Database = {
         }
         Relationships: []
       }
+      daw_projects: {
+        Row: {
+          created_at: string
+          data: Json
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          data: Json
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+          version?: number
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+          version?: number
+        }
+        Relationships: []
+      }
       deployment_logs: {
         Row: {
           completed_at: string | null
