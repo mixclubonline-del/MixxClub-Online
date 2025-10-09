@@ -40,8 +40,6 @@ const Navigation = () => {
   const getNavLinks = () => {
     if (!user) {
       return [
-        { to: "/mixing", label: "Mixing Magic" },
-        { to: "/mastering", label: "Mastering Polish" },
         { to: "/for-artists", label: "For Artists" },
         { to: "/for-engineers", label: "For Engineers" },
         { to: "/merch", label: "Merch Store", badge: "NEW" },
@@ -53,8 +51,6 @@ const Navigation = () => {
       return [
         { to: "/engineer-crm", label: "Dashboard" },
         { to: "/jobs", label: "Job Board" },
-        { to: "/mixing", label: "Mixing Studio" },
-        { to: "/mastering", label: "Mastering Studio" },
         { to: "/distribution", label: "Distribution" },
         { to: "/merch", label: "Merch Store", badge: "NEW" },
         { to: "/coming-soon", label: "Coming Soon" },
@@ -64,8 +60,6 @@ const Navigation = () => {
     // Artists and clients
     return [
       { to: "/artist-crm", label: "Dashboard" },
-      { to: "/mixing", label: "Mixing Magic" },
-      { to: "/mastering", label: "Mastering Polish" },
       { to: "/for-artists", label: "For Artists" },
       { to: "/distribution", label: "Distribution", featured: true },
       { to: "/merch", label: "Merch Store", badge: "NEW" },
