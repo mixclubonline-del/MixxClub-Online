@@ -87,10 +87,10 @@ export const MixxDelay: React.FC<MixxDelayProps> = ({ isOpen, onClose }) => {
         </div>
 
         {/* Ping Pong */}
-        <div className="flex items-center justify-between p-4 rounded-lg bg-white/5 border border-white/10">
+        <div className="flex items-center justify-between p-4 rounded-lg bg-mixx-navy/40 border border-mixx-cyan/30">
           <div className="space-y-1">
-            <div className="text-sm font-medium">Ping Pong Mode</div>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-sm font-medium text-white">Ping Pong Mode</div>
+            <div className="text-xs text-mixx-cyan">
               Stereo bounce effect
             </div>
           </div>
@@ -121,19 +121,22 @@ export const MixxDelay: React.FC<MixxDelayProps> = ({ isOpen, onClose }) => {
         </div>
 
         {/* Visualization */}
-        <div className="p-4 rounded-lg bg-black/40 border border-white/10">
+        <div className="p-4 rounded-lg bg-mixx-navy-deep/60 border border-mixx-lavender/20 relative overflow-hidden">
           <div className="flex justify-around items-center h-20">
             {[...Array(8)].map((_, i) => {
               const opacity = Math.pow(feedback / 100, i);
               const xPos = pingPong ? (i % 2 === 0 ? '25%' : '75%') : '50%';
+              const color = i % 2 === 0 ? '#FF70D0' : '#70E6FF';
               return (
                 <div
                   key={i}
-                  className="absolute w-8 h-8 rounded-full bg-primary blur-sm"
+                  className="absolute w-8 h-8 rounded-full blur-sm"
                   style={{
                     left: xPos,
                     opacity: opacity,
                     transform: `translateX(-50%) scale(${1 - i * 0.1})`,
+                    background: `radial-gradient(circle, ${color}, transparent)`,
+                    boxShadow: `0 0 20px ${color}`,
                   }}
                 />
               );

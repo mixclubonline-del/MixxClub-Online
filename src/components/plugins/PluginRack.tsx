@@ -51,44 +51,66 @@ export const PluginRack: React.FC<PluginRackProps> = ({
   }
 
   return (
-    <div className="space-y-2">
-      <div className="text-sm text-muted-foreground uppercase tracking-wider mb-3">
+    <div className="space-y-3">
+      <div className="text-sm text-mixx-cyan uppercase tracking-widest mb-3 font-bold">
         Active Plugins ({openPlugins.length})
       </div>
-      <AnimatePresence>
-        {openPlugins.map((pluginId, index) => (
-          <motion.div
-            key={pluginId}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            transition={{ delay: index * 0.05 }}
-            className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-white/5 to-white/10 
-              border border-white/10 group hover:border-primary/30 transition-all cursor-pointer"
-            onClick={() => onOpenPlugin(pluginId)}
-          >
-            <div className="text-2xl">{PLUGIN_ICONS[pluginId] || '🔌'}</div>
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium">{PLUGIN_NAMES[pluginId] || pluginId}</div>
-              <div className="text-xs text-muted-foreground">Slot {index + 1}</div>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-primary shadow-glow" />
-              <Button
-                size="icon"
-                variant="ghost"
-                className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onRemovePlugin(pluginId);
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        <AnimatePresence>
+          {openPlugins.map((pluginId, index) => (
+            <motion.div
+              key={pluginId}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ delay: index * 0.05 }}
+              className="relative group cursor-pointer"
+              onClick={() => onOpenPlugin(pluginId)}
+            >
+              {/* Gradient border container */}
+              <div 
+                className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity blur-sm"
+                style={{
+                  background: 'linear-gradient(135deg, #FF70D0, #C5A3FF, #70E6FF)',
                 }}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          </motion.div>
-        ))}
-      </AnimatePresence>
+              />
+              
+              {/* Card content */}
+              <div className="relative flex flex-col items-center gap-3 p-4 rounded-xl bg-mixx-navy border border-mixx-lavender/20 
+                group-hover:border-mixx-lavender/50 transition-all">
+                <div className="text-3xl">{PLUGIN_ICONS[pluginId] || '🔌'}</div>
+                <div className="text-center">
+                  <div className="text-sm font-bold text-white">{PLUGIN_NAMES[pluginId] || pluginId}</div>
+                  <div className="text-xs text-mixx-cyan">Slot {index + 1}</div>
+                </div>
+                
+                {/* Status indicator */}
+                <div 
+                  className="w-2 h-2 rounded-full animate-pulse"
+                  style={{
+                    background: 'linear-gradient(135deg, #FF70D0, #70E6FF)',
+                    boxShadow: '0 0 8px rgba(197,163,255,0.8)'
+                  }}
+                />
+                
+                {/* Remove button */}
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="absolute top-2 right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity 
+                    hover:bg-red-500/20 hover:text-red-400"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRemovePlugin(pluginId);
+                  }}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
     </div>
   );
 };

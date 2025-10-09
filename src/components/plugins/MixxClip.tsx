@@ -36,17 +36,17 @@ export const MixxClip: React.FC<MixxClipProps> = ({ isOpen, onClose }) => {
             {Array.from({ length: 40 }).map((_, i) => {
               const height = Math.random() * 100;
               const isClipping = height > 85;
+              const position = i / 40;
+              const gradientColor = position < 0.33 ? '#FF70D0' : position < 0.66 ? '#C5A3FF' : '#70E6FF';
               return (
                 <div
                   key={i}
-                  className={`flex-1 rounded-t transition-all duration-100 ${
-                    isClipping 
-                      ? 'bg-red-500' 
-                      : height > 70 
-                      ? 'bg-yellow-500' 
-                      : 'bg-primary'
-                  }`}
-                  style={{ height: `${height}%` }}
+                  className="flex-1 rounded-t transition-all duration-100"
+                  style={{ 
+                    height: `${height}%`,
+                    background: isClipping ? '#ef4444' : height > 70 ? '#eab308' : gradientColor,
+                    boxShadow: isClipping ? '0 0 8px #ef4444' : `0 0 4px ${gradientColor}40`
+                  }}
                 />
               );
             })}
@@ -86,23 +86,23 @@ export const MixxClip: React.FC<MixxClipProps> = ({ isOpen, onClose }) => {
 
         {/* Mode Switches */}
         <div className="space-y-3">
-          <div className="flex items-center justify-between p-4 rounded-lg bg-white/5 border border-white/10">
+          <div className="flex items-center justify-between p-4 rounded-lg bg-mixx-navy/40 border border-mixx-lavender/20">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <Zap className="w-4 h-4 text-yellow-500" />
-                <span className="text-sm font-medium">Car Thump Mode</span>
+                <Zap className="w-4 h-4 text-yellow-400" />
+                <span className="text-sm font-medium text-white">Car Thump Mode</span>
               </div>
-              <div className="text-xs text-muted-foreground">
+              <div className="text-xs text-mixx-cyan">
                 Extreme bass punch for car systems
               </div>
             </div>
             <Switch checked={carThump} onCheckedChange={setCarThump} />
           </div>
 
-          <div className="flex items-center justify-between p-4 rounded-lg bg-white/5 border border-white/10">
+          <div className="flex items-center justify-between p-4 rounded-lg bg-mixx-navy/40 border border-mixx-lavender/20">
             <div className="space-y-1">
-              <div className="text-sm font-medium">Soft Clipping</div>
-              <div className="text-xs text-muted-foreground">
+              <div className="text-sm font-medium text-white">Soft Clipping</div>
+              <div className="text-xs text-mixx-cyan">
                 Gentle saturation vs hard limiting
               </div>
             </div>
@@ -111,13 +111,20 @@ export const MixxClip: React.FC<MixxClipProps> = ({ isOpen, onClose }) => {
         </div>
 
         {/* Waveform Visualization */}
-        <div className="p-4 rounded-lg bg-black/40 border border-white/10">
-          <div className="text-xs text-muted-foreground mb-2">Clipping Behavior</div>
+        <div className="p-4 rounded-lg bg-mixx-navy-deep/60 border border-mixx-lavender/20">
+          <div className="text-xs text-mixx-cyan uppercase tracking-wider mb-2">Clipping Behavior</div>
           <svg viewBox="0 0 200 60" className="w-full">
+            <defs>
+              <linearGradient id="waveform-gradient-clip" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#FF70D0" />
+                <stop offset="50%" stopColor="#C5A3FF" />
+                <stop offset="100%" stopColor="#70E6FF" />
+              </linearGradient>
+            </defs>
             {/* Input waveform */}
             <path
               d="M 0 30 Q 25 10 50 30 T 100 30 Q 125 50 150 30 T 200 30"
-              stroke="rgba(255,255,255,0.3)"
+              stroke="rgba(197,163,255,0.3)"
               strokeWidth="1"
               fill="none"
               strokeDasharray="2"
@@ -129,7 +136,7 @@ export const MixxClip: React.FC<MixxClipProps> = ({ isOpen, onClose }) => {
                 ? "M 0 30 Q 25 15 50 30 T 100 30 Q 125 45 150 30 T 200 30"
                 : "M 0 30 L 25 18 L 50 18 L 75 30 L 100 30 L 125 42 L 150 42 L 175 30 L 200 30"
               }
-              stroke="hsl(var(--primary))"
+              stroke="url(#waveform-gradient-clip)"
               strokeWidth="2"
               fill="none"
             />
@@ -140,7 +147,7 @@ export const MixxClip: React.FC<MixxClipProps> = ({ isOpen, onClose }) => {
               y1={18} 
               x2="200" 
               y2={18} 
-              stroke="red" 
+              stroke="#ef4444" 
               strokeWidth="1" 
               strokeDasharray="4" 
               opacity="0.5"

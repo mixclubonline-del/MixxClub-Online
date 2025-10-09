@@ -119,11 +119,11 @@ export const MixxMaster: React.FC<MixxMasterProps> = ({ isOpen, onClose }) => {
 
         {/* Actions */}
         <div className="flex gap-3">
-          <Button className="flex-1">
+          <Button className="flex-1 bg-mixx-gradient text-white font-bold hover:opacity-90">
             <Sparkles className="w-4 h-4 mr-2" />
             AI Master
           </Button>
-          <Button variant="outline" className="flex-1">
+          <Button variant="outline" className="flex-1 border-mixx-cyan/30 text-mixx-cyan hover:bg-mixx-cyan/10">
             <Download className="w-4 h-4 mr-2" />
             Export Master
           </Button>

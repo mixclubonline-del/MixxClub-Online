@@ -110,20 +110,26 @@ export const MixxReverb: React.FC<MixxReverbProps> = ({ isOpen, onClose }) => {
         </div>
 
         {/* Visualization */}
-        <div className="p-6 rounded-lg bg-black/40 border border-white/10">
+        <div className="p-6 rounded-lg bg-mixx-navy-deep/60 border border-mixx-lavender/20">
           <div className="flex items-end justify-around h-32">
             {Array.from({ length: 20 }).map((_, i) => {
               const height = Math.exp(-i / (decay * 2)) * (diffusion / 100) * 100;
+              const position = i / 20;
+              const gradientColor = position < 0.5 ? '#FF70D0' : '#70E6FF';
               return (
                 <div
                   key={i}
-                  className="w-2 bg-gradient-to-t from-primary to-primary/30 rounded-t"
-                  style={{ height: `${height}%` }}
+                  className="w-2 rounded-t"
+                  style={{ 
+                    height: `${height}%`,
+                    background: `linear-gradient(to top, ${gradientColor}, rgba(197,163,255,0.3))`,
+                    boxShadow: `0 0 4px ${gradientColor}40`
+                  }}
                 />
               );
             })}
           </div>
-          <div className="flex justify-between mt-2 text-xs text-muted-foreground">
+          <div className="flex justify-between mt-2 text-xs text-mixx-cyan uppercase tracking-wider">
             <span>Early</span>
             <span>Reflections</span>
             <span>Tail</span>

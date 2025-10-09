@@ -85,12 +85,22 @@ export const MixxPort: React.FC<MixxPortProps> = ({ isOpen, onClose, onAudioLoad
         {!isAnalyzing ? (
           <>
             <div className="relative">
-              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 
-                flex items-center justify-center border-2 border-dashed border-primary/30">
-                <Upload className="w-12 h-12 text-primary" />
+              <div 
+                className="w-32 h-32 rounded-full flex items-center justify-center border-2 border-dashed"
+                style={{
+                  background: 'radial-gradient(circle, rgba(197,163,255,0.2), rgba(112,230,255,0.1))',
+                  borderColor: '#70E6FF',
+                  boxShadow: '0 0 30px rgba(112,230,255,0.3)'
+                }}
+              >
+                <Upload className="w-12 h-12 text-mixx-cyan" />
               </div>
-              <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-primary 
-                flex items-center justify-center shadow-glow">
+              <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center"
+                style={{
+                  background: 'linear-gradient(135deg, #FF70D0, #C5A3FF, #70E6FF)',
+                  boxShadow: '0 0 20px rgba(197,163,255,0.8)'
+                }}
+              >
                 <Brain className="w-4 h-4 text-white" />
               </div>
             </div>
@@ -118,16 +128,16 @@ export const MixxPort: React.FC<MixxPortProps> = ({ isOpen, onClose, onAudioLoad
               />
             </label>
 
-            <div className="flex gap-4 text-xs text-muted-foreground">
-              <div className="flex items-center gap-1">
+            <div className="flex gap-4 text-xs">
+              <div className="flex items-center gap-1 text-mixx-cyan">
                 <AudioLines className="w-3 h-3" />
                 <span>Stem Separation</span>
               </div>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 text-mixx-lavender">
                 <Brain className="w-3 h-3" />
                 <span>AI Analysis</span>
               </div>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 text-mixx-pink">
                 <Sparkles className="w-3 h-3" />
                 <span>Auto Suggestions</span>
               </div>
