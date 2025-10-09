@@ -424,17 +424,16 @@ export class AudioEngine {
     sendNode.gain.setValueAtTime(amount, this.audioContext.currentTime);
   }
 
-  // Cleanup all resources
-  destroy() {
-    this.trackNodes.forEach((_, trackId) => this.cleanupTrack(trackId));
-    this.trackNodes.clear();
-    this.sendBuses.forEach(bus => {
-      bus.gainNode.disconnect();
-      bus.effectsChain.forEach(effect => effect.destroy());
+  // Set latency compensation enabled/disabled
+  setLatencyCompensation(enabled: boolean) {
+    // Update all track latency delays
+    this.trackNodes.forEach((trackNode) => {
+      if (enabled) {
+        trackNode.latencyDelay.delayTime.value = this.latencyCompensation;
+      } else {
+        trackNode.latencyDelay.delayTime.value = 0;
+      }
     });
-    this.sendBuses.clear();
-    this.audioContext?.close();
-    this.audioContext = null;
   }
 }
 

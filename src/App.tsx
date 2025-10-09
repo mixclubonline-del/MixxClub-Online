@@ -19,6 +19,7 @@ import PrimeStatusBar from "@/components/prime/PrimeStatusBar";
 // Lazy load heavy components
 const MixClubHome = React.lazy(() => import("./pages/MixClubHome"));
 const Home = React.lazy(() => import("./pages/Home"));
+const ProStudio = React.lazy(() => import("./pages/ProStudio"));
 
 // Keep IntroScene non-lazy since it's the landing page
 import IntroScene from "./pages/IntroScene";
@@ -201,6 +202,7 @@ const AppContent = () => {
             <Route path="/mixing-studio" element={<Mixing />} />
             <Route path="/mastering-studio" element={<Mastering />} />
             <Route path="/hybrid-daw" element={<AppLayout><HybridDAW /></AppLayout>} />
+            <Route path="/pro-studio" element={<AppLayout><ProStudio /></AppLayout>} />
             <Route path="/jobs" element={<AppLayout><JobBoard /></AppLayout>} />
             <Route path="/admin" element={<AdminRoute section="Admin Dashboard"><Admin /></AdminRoute>} />
             <Route path="/admin/users" element={<AdminRoute section="Users"><AdminUsers /></AdminRoute>} />
