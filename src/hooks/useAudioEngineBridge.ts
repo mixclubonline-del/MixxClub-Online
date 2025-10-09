@@ -46,12 +46,16 @@ export function useAudioEngineBridge() {
     // Add any new tracks not yet attached
     for (const t of tracks) {
       if (!existing.has(t.id)) {
+        console.log('[AudioEngineBridge] Creating track in engine:', t.name, 'hasBuffer:', !!t.audioBuffer);
+        
         const g = audioEngine.createTrack({
           id: t.id,
           name: t.name,
           buffer: t.audioBuffer ?? undefined,
           groupId: t.busGroupId,
         });
+
+        console.log('[AudioEngineBridge] Track created, bufferSource:', !!g.bufferSource);
 
         // Initial params
         audioEngine.setTrackGain(g.id, t.volume ?? 0.85);
@@ -150,10 +154,16 @@ export function useAudioEngineBridge() {
   // ===== Transport: follow store.isPlaying =====
   useEffect(() => {
     (async () => {
+      console.log('[AudioEngineBridge] isPlaying changed:', isPlaying);
+      console.log('[AudioEngineBridge] Tracks in store:', tracks.length);
+      console.log('[AudioEngineBridge] Tracks in engine:', audioEngine.tracks.size);
+      
       await audioEngine.resume();
       if (isPlaying) {
+        console.log('[AudioEngineBridge] Calling audioEngine.play()');
         audioEngine.play();
       } else {
+        console.log('[AudioEngineBridge] Calling audioEngine.pause()');
         audioEngine.pause();
       }
     })();

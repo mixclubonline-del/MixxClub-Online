@@ -364,17 +364,35 @@ class AudioEngine {
 
   /** Play/Stop convenience for buffer sources (non-destructive to live inputs) */
   play(atTime?: number) {
-    if (this.playing) return;
+    if (this.playing) {
+      console.log('[AudioEngine] Already playing');
+      return;
+    }
+    
+    console.log('[AudioEngine] play() called, tracks:', this.tracks.size);
     const when = atTime ?? this.ctx.currentTime;
+    let playedCount = 0;
+    
     for (const t of this.tracks.values()) {
+      console.log('[AudioEngine] Track:', t.name, 'hasBufferSource:', !!t.bufferSource, 'hasBuffer:', !!t.bufferSource?.buffer);
+      
       if (t.bufferSource) {
         // re-create src to allow retrigger
         const buf = t.bufferSource.buffer;
-        if (!buf) continue;
+        if (!buf) {
+          console.log('[AudioEngine] Track has no buffer:', t.name);
+          continue;
+        }
         this.attachBufferSource(t, buf);
         t.bufferSource!.start(when, this.pausedAt);
+        playedCount++;
+        console.log('[AudioEngine] Started playback for:', t.name);
+      } else {
+        console.log('[AudioEngine] Track has no bufferSource:', t.name);
       }
     }
+    
+    console.log('[AudioEngine] Started', playedCount, 'tracks');
     this.startedAt = when - this.pausedAt;
     this.playing = true;
   }
