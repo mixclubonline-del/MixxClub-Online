@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { 
   Play, 
   Pause, 
@@ -124,6 +125,63 @@ const HybridDAW = () => {
 
   // Initialize Audio Engine Bridge
   useAudioEngineBridge();
+
+  // Sync playback state to store for audio engine bridge
+  const { 
+    setPlaying: setStorePlaying, 
+    setCurrentTime: setStoreCurrentTime,
+    setMasterVolume: setStoreMasterVolume,
+    addTrack: addStoreTrack,
+    updateTrack: updateStoreTrack
+  } = useAIStudioStore();
+
+  // Sync playback state to store
+  useEffect(() => {
+    setStorePlaying(isPlaying);
+  }, [isPlaying, setStorePlaying]);
+
+  // Sync current time to store
+  useEffect(() => {
+    setStoreCurrentTime(currentTime);
+  }, [currentTime, setStoreCurrentTime]);
+
+  // Sync master volume to store
+  useEffect(() => {
+    setStoreMasterVolume(masterVolume);
+  }, [masterVolume, setStoreMasterVolume]);
+
+  // Sync tracks to store when they change
+  useEffect(() => {
+    // Get current store tracks
+    const storeTracks = useAIStudioStore.getState().tracks;
+    
+    // Add new tracks to store
+    tracks.forEach(track => {
+      const existsInStore = storeTracks.some(st => st.id === track.id);
+      if (!existsInStore) {
+        addStoreTrack({
+          id: track.id,
+          name: track.name,
+          type: 'audio' as const,
+          color: track.color,
+          volume: track.volume,
+          pan: 0,
+          mute: track.mute,
+          solo: track.solo,
+          sends: {},
+          effects: [],
+        });
+      } else {
+        // Update existing track
+        updateStoreTrack(track.id, {
+          name: track.name,
+          volume: track.volume,
+          mute: track.mute,
+          solo: track.solo,
+        });
+      }
+    });
+  }, [tracks, addStoreTrack, updateStoreTrack]);
 
   // Initialize Audio Context
   useEffect(() => {
@@ -746,245 +804,291 @@ const HybridDAW = () => {
         </div>
       </div>
 
-      {/* Main DAW Layout with Modern Glassmorphism */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Modern Track Sidebar */}
-        <div className="w-72 glass border-r border-border/50 flex flex-col shadow-glass-lg animate-slide-up" style={{ animationDelay: '100ms' }}>
-          {/* Track Controls Header */}
-          <div className="p-4 border-b border-border/30 glass-hover">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-primary animate-pulse-glow" />
-                <h3 className="text-sm font-bold">TRACKS</h3>
-                <Badge variant="outline" className="text-xs">{tracks.length}</Badge>
+      {/* Main DAW Layout with Resizable Panels */}
+      <ResizablePanelGroup direction="horizontal" className="flex-1 overflow-hidden">
+        {/* Left: Resizable Track Sidebar */}
+        <ResizablePanel defaultSize={20} minSize={15} maxSize={30}>
+          <div className="h-full glass border-r border-border/50 flex flex-col shadow-glass-lg animate-slide-up" style={{ animationDelay: '100ms' }}>
+            {/* Track Controls Header */}
+            <div className="p-4 border-b border-border/30 glass-hover">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-primary animate-pulse-glow" />
+                  <h3 className="text-sm font-bold">TRACKS</h3>
+                  <Badge variant="outline" className="text-xs">{tracks.length}</Badge>
+                </div>
+                <Settings className="w-4 h-4 text-muted-foreground hover:text-primary cursor-pointer transition-colors" />
               </div>
-              <Settings className="w-4 h-4 text-muted-foreground hover:text-primary cursor-pointer transition-colors" />
             </div>
-          </div>
 
-          {/* Track List with Smooth Animations */}
-          <div className="flex-1 overflow-y-auto p-2 space-y-2">
-            {tracks.map((track, index) => (
-              <div 
-                key={track.id} 
-                className="glass-hover p-3 rounded-xl border border-border/30 transition-all duration-300 hover:border-primary/50 hover:shadow-glass animate-scale-in"
-                style={{ animationDelay: `${index * 50}ms` }}
-              >
-                {/* Track Header */}
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div 
-                      className="w-1 h-12 rounded-full animate-pulse-glow"
-                      style={{ 
-                        backgroundColor: track.color,
-                        boxShadow: `0 0 10px ${track.color}40`
-                      }}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-semibold text-foreground truncate">
-                        {track.name}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {track.regions.length} region{track.regions.length !== 1 ? 's' : ''}
+            {/* Track List with Smooth Animations */}
+            <div className="flex-1 overflow-y-auto p-2 space-y-2">
+              {tracks.map((track, index) => (
+                <div 
+                  key={track.id} 
+                  className="glass-hover p-3 rounded-xl border border-border/30 transition-all duration-300 hover:border-primary/50 hover:shadow-glass animate-scale-in"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  {/* Track Header */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <div 
+                        className="w-1 h-12 rounded-full animate-pulse-glow"
+                        style={{ 
+                          backgroundColor: track.color,
+                          boxShadow: `0 0 10px ${track.color}40`
+                        }}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-semibold text-foreground truncate">
+                          {track.name}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {track.regions.length} region{track.regions.length !== 1 ? 's' : ''}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  {track.isRecording && (
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-destructive rounded-full animate-pulse-glow" />
-                      <span className="text-xs text-destructive font-bold">REC</span>
-                    </div>
-                  )}
-                </div>
-                
-                {/* Track Controls */}
-                <div className="flex items-center gap-2 mb-3">
-                  <Button
-                    variant={track.solo ? "glow" : "ghost"}
-                    size="sm"
-                    onClick={() => setTracks(prev => 
-                      prev.map(t => ({ ...t, solo: t.id === track.id ? !t.solo : false }))
+                    {track.isRecording && (
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-destructive rounded-full animate-pulse-glow" />
+                        <span className="text-xs text-destructive font-bold">REC</span>
+                      </div>
                     )}
-                    className="flex-1 text-xs font-bold"
-                  >
-                    S
-                  </Button>
-                  <Button
-                    variant={track.mute ? "destructive" : "ghost"}
-                    size="sm"
-                    onClick={() => setTracks(prev => 
-                      prev.map(t => t.id === track.id ? { ...t, mute: !t.mute } : t)
-                    )}
-                    className="flex-1 text-xs font-bold"
-                  >
-                    M
-                  </Button>
-                  <Button
-                    variant={track.isRecording ? "destructive" : "ghost"}
-                    size="sm"
-                    onClick={() => !track.isRecording ? startRecording(track.id) : stopRecording()}
-                    className="flex-1 text-xs font-bold"
-                  >
-                    <Mic className="w-3 h-3" />
-                  </Button>
-                </div>
-                
-                {/* Volume Control with Modern Styling */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground">Volume</span>
-                    <span className="font-mono text-primary font-bold">
-                      {Math.round(track.volume * 100)}%
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {track.mute ? 
-                      <VolumeX className="w-3 h-3 text-destructive" /> : 
-                      <Volume2 className="w-3 h-3 text-primary" />
-                    }
-                    <Slider
-                      value={[track.volume * 100]}
-                      onValueChange={(value) => setTracks(prev => 
-                        prev.map(t => t.id === track.id ? { ...t, volume: value[0] / 100 } : t)
-                      )}
-                      max={100}
-                      step={1}
-                      className="flex-1"
-                    />
                   </div>
                   
-                  {/* Visual Level Meter */}
-                  <div className="flex gap-1 h-1.5">
-                    {Array.from({ length: 12 }, (_, i) => (
-                      <div
-                        key={i}
-                        className={`flex-1 rounded-full transition-all duration-150 ${
-                          i < Math.floor(track.volume * 12)
-                            ? i < 8 
-                              ? 'bg-gradient-to-r from-green-500 to-green-400 shadow-[0_0_4px_rgba(34,197,94,0.5)]' 
-                              : i < 10 
-                              ? 'bg-gradient-to-r from-yellow-500 to-yellow-400 shadow-[0_0_4px_rgba(234,179,8,0.5)]' 
-                              : 'bg-gradient-to-r from-red-500 to-red-400 shadow-[0_0_4px_rgba(239,68,68,0.5)] animate-pulse-glow'
-                            : 'bg-muted/30'
-                        }`}
+                  {/* Track Controls */}
+                  <div className="flex items-center gap-2 mb-3">
+                    <Button
+                      variant={track.solo ? "glow" : "ghost"}
+                      size="sm"
+                      onClick={() => setTracks(prev => 
+                        prev.map(t => ({ ...t, solo: t.id === track.id ? !t.solo : false }))
+                      )}
+                      className="flex-1 text-xs font-bold"
+                    >
+                      S
+                    </Button>
+                    <Button
+                      variant={track.mute ? "destructive" : "ghost"}
+                      size="sm"
+                      onClick={() => setTracks(prev => 
+                        prev.map(t => t.id === track.id ? { ...t, mute: !t.mute } : t)
+                      )}
+                      className="flex-1 text-xs font-bold"
+                    >
+                      M
+                    </Button>
+                    <Button
+                      variant={track.isRecording ? "destructive" : "ghost"}
+                      size="sm"
+                      onClick={() => !track.isRecording ? startRecording(track.id) : stopRecording()}
+                      className="flex-1 text-xs font-bold"
+                    >
+                      <Mic className="w-3 h-3" />
+                    </Button>
+                  </div>
+                  
+                  {/* Volume Control with Modern Styling */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground">Volume</span>
+                      <span className="font-mono text-primary font-bold">
+                        {Math.round(track.volume * 100)}%
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {track.mute ? 
+                        <VolumeX className="w-3 h-3 text-destructive" /> : 
+                        <Volume2 className="w-3 h-3 text-primary" />
+                      }
+                      <Slider
+                        value={[track.volume * 100]}
+                        onValueChange={(value) => setTracks(prev => 
+                          prev.map(t => t.id === track.id ? { ...t, volume: value[0] / 100 } : t)
+                        )}
+                        max={100}
+                        step={1}
+                        className="flex-1"
                       />
-                    ))}
+                    </div>
+                    
+                    {/* Visual Level Meter */}
+                    <div className="flex gap-1 h-1.5">
+                      {Array.from({ length: 12 }, (_, i) => (
+                        <div
+                          key={i}
+                          className={`flex-1 rounded-full transition-all duration-150 ${
+                            i < Math.floor(track.volume * 12)
+                              ? i < 8 
+                                ? 'bg-gradient-to-r from-green-500 to-green-400 shadow-[0_0_4px_rgba(34,197,94,0.5)]' 
+                                : i < 10 
+                                ? 'bg-gradient-to-r from-yellow-500 to-yellow-400 shadow-[0_0_4px_rgba(234,179,8,0.5)]' 
+                                : 'bg-gradient-to-r from-red-500 to-red-400 shadow-[0_0_4px_rgba(239,68,68,0.5)] animate-pulse-glow'
+                              : 'bg-muted/30'
+                          }`}
+                        />
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-            
-            {tracks.length === 0 && (
-              <div className="text-center py-12 px-6 animate-fade-in">
-                <div className="glass-hover rounded-2xl p-8 border border-border/30">
-                  <AudioWaveform className="w-12 h-12 mx-auto mb-4 text-primary/50 animate-pulse" />
-                  <p className="text-sm font-semibold text-foreground mb-1">No tracks yet</p>
-                  <p className="text-xs text-muted-foreground">Add a track or import audio to start</p>
-                  <Button 
-                    variant="glow" 
-                    size="sm" 
-                    onClick={() => addTrack('vocal')}
-                    className="mt-4"
-                  >
-                    <FileAudio className="w-4 h-4 mr-2" />
-                    Create Track
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Main Content Area */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Timeline Area with Modern Styling */}
-          <div className="flex-1 bg-gradient-to-br from-background to-background/50 animate-fade-in">
-            {view === '2d' ? (
-              <EnhancedDAWTimeline 
-                tracks={tracks}
-                onTracksChange={setTracks}
-                currentTime={currentTime}
-                onTimeChange={seekToTime}
-                isPlaying={isPlaying}
-                bpm={bpm}
-                onStartRecording={startRecording}
-                onStopRecording={stopRecording}
-                isRecording={isRecording}
-              />
-            ) : (
-              <DAW3DView 
-                tracks={tracks}
-                isPlaying={isPlaying}
-                currentTime={currentTime}
-              />
-            )}
-          </div>
-
-          {/* Modern Bottom Panel */}
-          <div className="h-64 glass border-t border-border/50 shadow-glass-lg animate-slide-up" style={{ animationDelay: '200ms' }}>
-            <div className="flex items-center justify-between p-4 border-b border-border/30">
-              <div className="flex items-center gap-4">
-                <h3 className="text-sm font-bold flex items-center gap-2">
-                  <Volume2 className="w-4 h-4 text-primary" />
-                  MIXER CONSOLE
-                </h3>
-                <div className="flex items-center gap-2">
-                  <Button variant={activePanel === 'mixer' ? 'default' : 'ghost'} size="sm" onClick={() => setActivePanel('mixer')}>
-                    MIX
-                  </Button>
-                  <Button variant={activePanel === 'effects' ? 'default' : 'ghost'} size="sm" onClick={() => setActivePanel('effects')}>
-                    FX
-                  </Button>
-                  <Button variant={activePanel === 'collab' ? 'default' : 'ghost'} size="sm" onClick={() => setActivePanel('collab')}>
-                    <Users className="w-4 h-4 mr-1" />
-                    COLLAB
-                  </Button>
-                </div>
-              </div>
+              ))}
               
-              <div className="flex items-center gap-3 glass-hover px-4 py-2 rounded-lg">
-                <span className="text-xs font-semibold text-muted-foreground">MASTER</span>
-                <Volume2 className="w-4 h-4 text-primary" />
-                <Slider
-                  value={[masterVolume * 100]}
-                  onValueChange={(value) => setMasterVolume(value[0] / 100)}
-                  max={100}
-                  step={1}
-                  className="w-32"
-                />
-                <span className="text-sm font-mono font-bold text-primary w-12 text-right">
-                  {Math.round(masterVolume * 100)}%
-                </span>
-              </div>
+              {tracks.length === 0 && (
+                <div className="text-center py-12 px-6 animate-fade-in">
+                  <div className="glass-hover rounded-2xl p-8 border border-border/30">
+                    <AudioWaveform className="w-12 h-12 mx-auto mb-4 text-primary/50 animate-pulse" />
+                    <p className="text-sm font-semibold text-foreground mb-1">No tracks yet</p>
+                    <p className="text-xs text-muted-foreground">Add a track or import audio to start</p>
+                    <Button 
+                      variant="glow" 
+                      size="sm" 
+                      onClick={() => addTrack('vocal')}
+                      className="mt-4"
+                    >
+                      <FileAudio className="w-4 h-4 mr-2" />
+                      Create Track
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
-            
-            <div className="flex-1 overflow-hidden">
-              {activePanel === 'mixer' && (
-                <div className="h-full overflow-x-auto p-2">
-                  <DAWMixerPanel 
+          </div>
+        </ResizablePanel>
+
+        <ResizableHandle withHandle />
+
+        {/* Right: Main Content Area */}
+        <ResizablePanel defaultSize={80}>
+          <ResizablePanelGroup direction="vertical" className="h-full">
+            {/* Top: Timeline/Arrangement View */}
+            <ResizablePanel defaultSize={60} minSize={30}>
+              <div className="h-full bg-gradient-to-br from-background to-background/50 animate-fade-in overflow-hidden">
+                {view === '2d' ? (
+                  <EnhancedDAWTimeline 
                     tracks={tracks}
                     onTracksChange={setTracks}
-                    masterVolume={masterVolume}
-                    onMasterVolumeChange={setMasterVolume}
+                    currentTime={currentTime}
+                    onTimeChange={seekToTime}
+                    isPlaying={isPlaying}
+                    bpm={bpm}
+                    onStartRecording={startRecording}
+                    onStopRecording={stopRecording}
+                    isRecording={isRecording}
                   />
-                </div>
-              )}
-              {activePanel === 'effects' && (
-                <DAWEffectsPanel tracks={tracks} onTracksChange={setTracks} />
-              )}
-              {activePanel === 'collab' && user && (
-                <DAWCollaboration 
-                  sessionId={`daw-session-${user.id}`}
-                  userId={user.id}
-                  userName={user.email || 'User'}
-                  onTrackUpdate={(trackData) => console.log('Track updated:', trackData)}
-                  onEffectChange={(trackId, effectData) => console.log('Effect changed:', trackId, effectData)}
-                />
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+                ) : (
+                  <DAW3DView 
+                    tracks={tracks}
+                    isPlaying={isPlaying}
+                    currentTime={currentTime}
+                  />
+                )}
+              </div>
+            </ResizablePanel>
+
+            <ResizableHandle withHandle />
+
+            {/* Bottom: Permanent Mixer Console + Secondary Panels */}
+            <ResizablePanel defaultSize={40} minSize={25}>
+              <ResizablePanelGroup direction="vertical" className="h-full">
+                {/* Mixer Console (Always Visible) */}
+                <ResizablePanel defaultSize={70} minSize={50}>
+                  <div className="h-full glass border-t border-border/50 shadow-glass-lg animate-slide-up flex flex-col" style={{ animationDelay: '200ms' }}>
+                    <div className="flex items-center justify-between p-3 border-b border-border/30 flex-shrink-0">
+                      <h3 className="text-sm font-bold flex items-center gap-2">
+                        <Volume2 className="w-4 h-4 text-primary" />
+                        MIXER CONSOLE
+                      </h3>
+                      
+                      <div className="flex items-center gap-3 glass-hover px-4 py-2 rounded-lg">
+                        <span className="text-xs font-semibold text-muted-foreground">MASTER</span>
+                        <Volume2 className="w-4 h-4 text-primary" />
+                        <Slider
+                          value={[masterVolume * 100]}
+                          onValueChange={(value) => setMasterVolume(value[0] / 100)}
+                          max={100}
+                          step={1}
+                          className="w-32"
+                        />
+                        <span className="text-sm font-mono font-bold text-primary w-12 text-right">
+                          {Math.round(masterVolume * 100)}%
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex-1 overflow-x-auto p-2">
+                      <DAWMixerPanel 
+                        tracks={tracks}
+                        onTracksChange={setTracks}
+                        masterVolume={masterVolume}
+                        onMasterVolumeChange={setMasterVolume}
+                      />
+                    </div>
+                  </div>
+                </ResizablePanel>
+
+                <ResizableHandle withHandle />
+
+                {/* Secondary Panels: Effects / Collaboration */}
+                <ResizablePanel defaultSize={30} minSize={15}>
+                  <div className="h-full glass border-t border-border/50 flex flex-col">
+                    <div className="flex items-center gap-2 p-3 border-b border-border/30 flex-shrink-0">
+                      <Button 
+                        variant={activePanel === 'effects' ? 'default' : 'ghost'} 
+                        size="sm" 
+                        onClick={() => setActivePanel('effects')}
+                      >
+                        FX
+                      </Button>
+                      <Button 
+                        variant={activePanel === 'collab' ? 'default' : 'ghost'} 
+                        size="sm" 
+                        onClick={() => setActivePanel('collab')}
+                      >
+                        <Users className="w-4 h-4 mr-1" />
+                        COLLAB
+                      </Button>
+                      <Button 
+                        variant={activePanel === 'achievements' ? 'default' : 'ghost'} 
+                        size="sm" 
+                        onClick={() => setActivePanel('achievements')}
+                      >
+                        <Trophy className="w-4 h-4 mr-1" />
+                        ACHIEVEMENTS
+                      </Button>
+                    </div>
+                    
+                    <div className="flex-1 overflow-hidden">
+                      {activePanel === 'effects' && (
+                        <div className="h-full overflow-y-auto p-2">
+                          <DAWEffectsPanel tracks={tracks} onTracksChange={setTracks} />
+                        </div>
+                      )}
+                      {activePanel === 'collab' && user && (
+                        <div className="h-full overflow-y-auto">
+                          <DAWCollaboration 
+                            sessionId={`daw-session-${user.id}`}
+                            userId={user.id}
+                            userName={user.email || 'User'}
+                            onTrackUpdate={(trackData) => console.log('Track updated:', trackData)}
+                            onEffectChange={(trackId, effectData) => console.log('Effect changed:', trackId, effectData)}
+                          />
+                        </div>
+                      )}
+                      {activePanel === 'achievements' && (
+                        <div className="h-full overflow-y-auto p-4">
+                          <DAWGamification 
+                            achievements={achievements}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </ResizablePanel>
+              </ResizablePanelGroup>
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        </ResizablePanel>
+      </ResizablePanelGroup>
 
       {/* Audio Import Dialog */}
       {showImportDialog && (
