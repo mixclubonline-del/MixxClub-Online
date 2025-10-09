@@ -39,12 +39,20 @@ export const DAWArrangement = () => {
     tracks.forEach((track, index) => {
       const y = index * trackHeight;
       
-      // Alternating track background
-      ctx.fillStyle = index % 2 === 0 ? 'hsl(var(--muted) / 0.3)' : 'hsl(var(--muted) / 0.1)';
+      // Alternating track background with subtle gradient
+      const gradient = ctx.createLinearGradient(0, y, 0, y + trackHeight);
+      if (index % 2 === 0) {
+        gradient.addColorStop(0, 'hsl(230, 35%, 10%)');
+        gradient.addColorStop(1, 'hsl(230, 30%, 8%)');
+      } else {
+        gradient.addColorStop(0, 'hsl(230, 30%, 8%)');
+        gradient.addColorStop(1, 'hsl(230, 35%, 10%)');
+      }
+      ctx.fillStyle = gradient;
       ctx.fillRect(0, y, width, trackHeight);
       
-      // Track separator
-      ctx.strokeStyle = 'hsl(var(--border))';
+      // Track separator with glow
+      ctx.strokeStyle = 'hsl(270, 100%, 70%, 0.15)';
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(0, y + trackHeight);
@@ -58,19 +66,36 @@ export const DAWArrangement = () => {
         const regionY = y + 5;
         const regionHeight = trackHeight - 10;
 
-        // Region background
-        ctx.fillStyle = track.color || 'hsl(var(--primary))';
+        // Region gradient background
+        const regionGradient = ctx.createLinearGradient(regionX, regionY, regionX, regionY + regionHeight);
+        const color = track.color || 'hsl(270, 100%, 70%)';
+        regionGradient.addColorStop(0, color.replace(')', ', 0.8)').replace('hsl', 'hsla'));
+        regionGradient.addColorStop(1, color.replace(')', ', 0.6)').replace('hsl', 'hsla'));
+        ctx.fillStyle = regionGradient;
         ctx.fillRect(regionX, regionY, regionWidth, regionHeight);
 
-        // Region border
-        ctx.strokeStyle = 'hsl(var(--background))';
-        ctx.lineWidth = 2;
+        // Glow effect around region
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 10;
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1;
         ctx.strokeRect(regionX, regionY, regionWidth, regionHeight);
+        ctx.shadowBlur = 0;
 
-        // Waveform visualization (simplified)
+        // Top highlight
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(regionX + 1, regionY + 1);
+        ctx.lineTo(regionX + regionWidth - 1, regionY + 1);
+        ctx.stroke();
+
+        // Waveform visualization with glow
         if (track.waveformData) {
-          ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
-          ctx.lineWidth = 1;
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+          ctx.lineWidth = 1.5;
+          ctx.shadowColor = 'rgba(255, 255, 255, 0.5)';
+          ctx.shadowBlur = 2;
           ctx.beginPath();
           
           const samplesPerPixel = Math.ceil(track.waveformData.length / regionWidth);
@@ -86,17 +111,21 @@ export const DAWArrangement = () => {
             }
           }
           ctx.stroke();
+          ctx.shadowBlur = 0;
         }
 
-        // Region name
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-        ctx.font = '11px sans-serif';
-        ctx.fillText(track.name, regionX + 5, regionY + 15);
+        // Region name with glow
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+        ctx.shadowBlur = 4;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+        ctx.font = 'bold 11px Inter, sans-serif';
+        ctx.fillText(track.name, regionX + 8, regionY + 16);
+        ctx.shadowBlur = 0;
       });
     });
 
-    // Draw grid lines (beat markers)
-    ctx.strokeStyle = 'hsl(var(--border) / 0.3)';
+    // Draw grid lines with subtle glow
+    ctx.strokeStyle = 'hsl(270, 100%, 70%, 0.08)';
     ctx.lineWidth = 1;
     const secondsInView = width / pixelsPerSecond;
     for (let second = 0; second < secondsInView; second++) {
@@ -107,28 +136,44 @@ export const DAWArrangement = () => {
       ctx.stroke();
     }
 
-    // Draw playhead
+    // Draw playhead with glow
     const playheadX = currentTime * pixelsPerSecond;
-    ctx.strokeStyle = 'hsl(var(--primary))';
-    ctx.lineWidth = 2;
+    
+    // Playhead glow
+    ctx.shadowColor = 'hsl(270, 100%, 70%)';
+    ctx.shadowBlur = 20;
+    ctx.strokeStyle = 'hsl(270, 100%, 70%)';
+    ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(playheadX, 0);
     ctx.lineTo(playheadX, height);
     ctx.stroke();
+    ctx.shadowBlur = 0;
 
-    // Playhead triangle at top
-    ctx.fillStyle = 'hsl(var(--primary))';
+    // Playhead triangle at top with glow
+    ctx.shadowColor = 'hsl(270, 100%, 70%)';
+    ctx.shadowBlur = 15;
+    ctx.fillStyle = 'hsl(270, 100%, 70%)';
     ctx.beginPath();
-    ctx.moveTo(playheadX - 6, 0);
-    ctx.lineTo(playheadX + 6, 0);
-    ctx.lineTo(playheadX, 10);
+    ctx.moveTo(playheadX - 8, 0);
+    ctx.lineTo(playheadX + 8, 0);
+    ctx.lineTo(playheadX, 12);
     ctx.closePath();
     ctx.fill();
+    ctx.shadowBlur = 0;
 
   }, [tracks, currentTime, pixelsPerSecond]);
 
   return (
-    <ScrollArea className="flex-1 bg-background">
+    <ScrollArea className="flex-1 bg-gradient-to-b from-[hsl(225,50%,5%)] to-[hsl(230,45%,7%)] relative">
+      {/* Grid overlay */}
+      <div className="absolute inset-0 opacity-[0.02] pointer-events-none"
+        style={{
+          backgroundImage: `linear-gradient(hsl(var(--primary)) 1px, transparent 1px),
+                           linear-gradient(90deg, hsl(var(--primary)) 1px, transparent 1px)`,
+          backgroundSize: '20px 20px'
+        }}
+      />
       <div ref={containerRef} className="relative min-h-full">
         <canvas
           ref={canvasRef}

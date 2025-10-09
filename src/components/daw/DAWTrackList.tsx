@@ -59,11 +59,18 @@ export const DAWTrackList = () => {
   };
 
   return (
-    <div className="w-64 bg-card border-r border-border flex flex-col">
+    <div className="w-64 bg-gradient-to-b from-[hsl(235,60%,8%)] to-[hsl(230,55%,6%)] border-r border-[hsl(var(--primary)/0.2)] flex flex-col shadow-xl relative">
+      {/* Side glow */}
+      <div className="absolute top-0 right-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[hsl(var(--primary)/0.4)] to-transparent" />
       {/* Header */}
-      <div className="h-10 border-b border-border flex items-center justify-between px-3">
-        <span className="text-sm font-semibold">TRACKS</span>
-        <Button variant="ghost" size="sm" onClick={handleAddTrack}>
+      <div className="h-10 border-b border-[hsl(var(--primary)/0.2)] flex items-center justify-between px-3 bg-gradient-to-r from-[hsl(230,40%,10%)] to-[hsl(230,35%,8%)]">
+        <span className="text-sm font-display font-semibold tracking-wide text-primary">TRACKS</span>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={handleAddTrack}
+          className="hover:bg-[hsl(var(--primary)/0.1)] hover:text-primary transition-all"
+        >
           <Plus className="w-4 h-4" />
         </Button>
       </div>
@@ -75,10 +82,10 @@ export const DAWTrackList = () => {
             <div
               key={track.id}
               className={cn(
-                'group rounded-md p-2 cursor-pointer transition-colors border',
+                'group rounded-lg p-2 cursor-pointer transition-all border backdrop-blur-sm',
                 selectedTrackId === track.id
-                  ? 'bg-primary/10 border-primary/30'
-                  : 'bg-muted/30 border-transparent hover:bg-muted/50'
+                  ? 'bg-gradient-to-r from-[hsl(var(--primary)/0.15)] to-[hsl(var(--primary)/0.08)] border-[hsl(var(--primary)/0.4)] shadow-[0_0_20px_hsl(var(--primary)/0.2)]'
+                  : 'bg-[hsl(230,35%,12%/0.5)] border-[hsl(230,30%,18%)] hover:bg-[hsl(230,35%,14%/0.7)] hover:border-[hsl(var(--primary)/0.2)]'
               )}
               onClick={() => selectTrack(track.id)}
             >
@@ -162,12 +169,12 @@ export const DAWTrackList = () => {
       </ScrollArea>
 
       {/* Master Track */}
-      <div className="h-20 border-t border-border p-2">
-        <div className="bg-primary/10 border border-primary/30 rounded-md p-2 h-full flex items-center gap-2">
-          <div className="w-3 h-3 rounded-sm bg-primary" />
-          <span className="text-sm font-bold">MASTER</span>
+      <div className="h-20 border-t border-[hsl(var(--primary)/0.2)] p-2 bg-gradient-to-r from-[hsl(230,40%,10%)] to-[hsl(230,35%,8%)]">
+        <div className="bg-gradient-to-r from-[hsl(var(--primary)/0.15)] to-[hsl(var(--primary)/0.08)] border border-[hsl(var(--primary)/0.4)] rounded-lg p-2 h-full flex items-center gap-2 shadow-[0_0_30px_hsl(var(--primary)/0.3)]">
+          <div className="w-3 h-3 rounded-sm bg-primary shadow-[0_0_10px_hsl(var(--primary))]" />
+          <span className="text-sm font-display font-bold tracking-wide">MASTER</span>
           <div className="flex-1" />
-          <Button variant="ghost" size="icon" className="h-6 w-6">
+          <Button variant="ghost" size="icon" className="h-6 w-6 hover:text-primary">
             <Volume2 className="w-3 h-3" />
           </Button>
         </div>

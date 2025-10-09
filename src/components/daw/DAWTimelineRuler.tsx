@@ -91,8 +91,10 @@ export const DAWTimelineRuler = () => {
   return (
     <div
       ref={containerRef}
-      className="h-12 bg-card border-b border-border relative overflow-hidden"
+      className="h-12 bg-gradient-to-r from-[hsl(230,35%,10%)] via-[hsl(230,30%,12%)] to-[hsl(230,35%,10%)] border-b border-[hsl(var(--primary)/0.2)] relative overflow-hidden shadow-lg"
     >
+      {/* Bottom glow */}
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[hsl(var(--primary)/0.3)] to-transparent" />
       <canvas
         ref={canvasRef}
         className="absolute inset-0 w-full h-full"

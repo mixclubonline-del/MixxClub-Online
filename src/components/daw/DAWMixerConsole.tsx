@@ -16,11 +16,16 @@ export const DAWMixerConsole = ({ onClose }: DAWMixerConsoleProps) => {
   const setMasterVolume = useAIStudioStore((state) => state.setMasterVolume);
 
   return (
-    <div className="h-80 bg-card border-t border-border flex flex-col">
+    <div className="h-80 bg-gradient-to-b from-[hsl(230,35%,10%)] to-[hsl(230,30%,8%)] border-t border-[hsl(var(--primary)/0.2)] flex flex-col shadow-xl">
       {/* Header */}
-      <div className="h-10 border-b border-border flex items-center justify-between px-3">
-        <span className="text-sm font-semibold">MIXER</span>
-        <Button variant="ghost" size="sm" onClick={onClose}>
+      <div className="h-10 border-b border-[hsl(var(--primary)/0.2)] flex items-center justify-between px-3 bg-gradient-to-r from-[hsl(230,40%,12%)] to-[hsl(230,35%,10%)]">
+        <span className="text-sm font-display font-semibold tracking-wide text-primary">MIXER</span>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={onClose}
+          className="hover:bg-[hsl(var(--primary)/0.1)] hover:text-primary"
+        >
           <X className="w-4 h-4" />
         </Button>
       </div>
@@ -32,7 +37,7 @@ export const DAWMixerConsole = ({ onClose }: DAWMixerConsoleProps) => {
           {tracks.map((track) => (
             <div
               key={track.id}
-              className="w-24 bg-muted/30 rounded-lg p-2 flex flex-col gap-2"
+              className="w-24 bg-gradient-to-b from-[hsl(230,35%,14%)] to-[hsl(230,30%,10%)] border border-[hsl(var(--primary)/0.2)] rounded-lg p-2 flex flex-col gap-2 shadow-lg hover:border-[hsl(var(--primary)/0.3)] transition-all"
             >
               {/* Track Name */}
               <div className="text-xs font-semibold truncate text-center">
@@ -124,8 +129,8 @@ export const DAWMixerConsole = ({ onClose }: DAWMixerConsoleProps) => {
           ))}
 
           {/* Master Channel */}
-          <div className="w-32 bg-primary/10 border-2 border-primary/30 rounded-lg p-3 flex flex-col gap-2">
-            <div className="text-sm font-bold text-center">MASTER</div>
+          <div className="w-32 bg-gradient-to-b from-[hsl(var(--primary)/0.15)] to-[hsl(var(--primary)/0.08)] border-2 border-[hsl(var(--primary)/0.4)] rounded-lg p-3 flex flex-col gap-2 shadow-[0_0_30px_hsl(var(--primary)/0.3)]">
+            <div className="text-sm font-display font-bold text-center tracking-wide">MASTER</div>
 
             {/* Master Level Meter */}
             <div className="flex-1 bg-background rounded-md p-1 flex flex-col-reverse gap-0.5">

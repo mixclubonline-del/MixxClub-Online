@@ -34,7 +34,9 @@ export const DAWTopToolbar = ({
   const { toast } = useToast();
 
   return (
-    <div className="h-12 bg-card border-b border-border flex items-center px-2 gap-1">
+    <div className="h-12 bg-gradient-to-r from-[hsl(230,35%,12%)] to-[hsl(230,30%,10%)] border-b border-[hsl(var(--primary)/0.2)] flex items-center px-2 gap-1 shadow-lg relative">
+      {/* Top highlight */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[hsl(var(--primary)/0.3)] to-transparent" />
       {/* File Operations */}
       <div className="flex items-center gap-1">
         <Button variant="ghost" size="sm" onClick={onOpenCloudManager}>
