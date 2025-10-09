@@ -16,6 +16,8 @@ import { VCAGroupPanel } from '@/components/studio/VCAGroupPanel';
 import { AutomationLane, AutomationPoint } from '@/components/studio/AutomationLane';
 import { ShortcutsPanel } from '@/components/studio/ShortcutsPanel';
 import { BatchProcessingMenu } from '@/components/studio/BatchProcessingMenu';
+import { GrooveTemplates } from '@/components/studio/GrooveTemplates';
+import { AutomationRecordingControls } from '@/components/studio/AutomationRecordingControls';
 import { audioEngine } from '@/services/audioEngine';
 import { useStudioPlayback } from '@/hooks/useStudioPlayback';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
@@ -163,6 +165,8 @@ const ProStudio = ({ userRole = 'artist' }: ProStudioProps) => {
           
           <div className="flex items-center gap-2">
             <BatchProcessingMenu />
+            <GrooveTemplates />
+            <AutomationRecordingControls />
             <Button
               variant="ghost"
               size="sm"
