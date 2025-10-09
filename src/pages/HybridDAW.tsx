@@ -1,3 +1,74 @@
+/**
+ * MixxClub Hybrid DAW - Industry-Standard Architecture
+ * 
+ * ARCHITECTURE OVERVIEW:
+ * This DAW follows modern web audio best practices used by BandLab, Soundtrap, and Ableton Note.
+ * 
+ * LAYER 1: UI Components (React)
+ * - EnhancedDAWTimeline, DAWMixerPanel, Transport buttons
+ * - Displays waveforms, tracks, playhead position
+ * - Sends user actions (play, pause, seek, volume changes) to Store
+ * 
+ * LAYER 2: State Management (Zustand Store - aiStudioStore)
+ * - Single source of truth for: tracks, regions, currentTime, isPlaying, bpm
+ * - Pure data layer - NO audio logic
+ * - Actions: addTrack, updateTrack, setPlaying, setCurrentTime, etc.
+ * 
+ * LAYER 3: Bridge Hooks (useTransportBridge, useAudioEngineBridge)
+ * - useTransportBridge: Syncs playback state → Transport → Scheduler
+ * - useAudioEngineBridge: Syncs track params (volume, pan, effects) → Audio Graph
+ * - Bridges connect reactive state to imperative audio APIs
+ * 
+ * LAYER 4: Transport (Transport.ts)
+ * - Manages timing: currentTime, play/pause/stop/seek
+ * - Uses AudioContext.currentTime for microsecond precision
+ * - Event-based design: emits onStart/onStop/onPause/onSeek to listeners
+ * - Does NOT handle audio playback - only timing control
+ * 
+ * LAYER 5: Scheduler (TrackScheduler.ts)
+ * - Creates fresh AudioBufferSourceNode instances just-in-time
+ * - Calculates buffer offsets for region-based playback
+ * - Handles mid-region seeks (e.g., start playing at 5.3s in a region)
+ * - Auto-cleanup when sources finish playing
+ * - CRITICAL: AudioBufferSourceNode is one-time-use per Web Audio API spec
+ * 
+ * LAYER 6: Audio Engine (audioEngine.ts)
+ * - Web Audio routing: sources → tracks → buses → effects → master → speakers
+ * - TrackGraph per track: input → gain → pan → effects chain → output
+ * - Volume, pan, effects processing
+ * - Does NOT handle playback timing - only signal routing
+ * 
+ * DATA FLOW EXAMPLE (User Clicks Play):
+ * User clicks Play 
+ * → handlePlayPause() calls setPlaying(true)
+ * → aiStudioStore updates isPlaying = true
+ * → useTransportBridge detects change
+ * → Calls Transport.start()
+ * → Calls TrackScheduler.scheduleAll(currentTime, tracks)
+ * → Scheduler creates fresh AudioBufferSourceNode for each region
+ * → Sources connect to audioEngine TrackGraphs
+ * → Audio plays through Web Audio pipeline!
+ * → Transport continuously updates currentTime
+ * → useTransportBridge syncs time back to store (60fps loop)
+ * → Store update triggers React re-render
+ * → UI updates playhead position smoothly
+ * 
+ * WHY THIS ARCHITECTURE?
+ * ✅ Separation of Concerns - Each layer has one job
+ * ✅ Testable - Can test each layer independently
+ * ✅ Scalable - Easy to add features (MIDI, automation, offline rendering)
+ * ✅ Industry Standard - Proven pattern used by professional DAWs
+ * ✅ Web Audio Compliant - Respects AudioBufferSourceNode one-time-use rule
+ * ✅ Sample-Accurate - Uses AudioContext.currentTime, not setTimeout/setInterval
+ * 
+ * KNOWN LIMITATIONS (Future Enhancements):
+ * - No AudioWorklet yet (currently on main thread)
+ * - No offline rendering (export/bounce)
+ * - No time stretching
+ * - No MIDI support
+ * - No automation curves
+ */
+
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";

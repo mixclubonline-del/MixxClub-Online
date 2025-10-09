@@ -1,7 +1,28 @@
 /**
  * Transport - Central timing and playback control
- * Inspired by Tone.js Transport and BandLab architecture
- * Single source of truth for time, play state, and tempo
+ * 
+ * ARCHITECTURE PATTERN: Industry-standard Transport Layer
+ * Inspired by: Tone.js Transport, BandLab, Soundtrap, Pro Tools
+ * 
+ * RESPONSIBILITY:
+ * - Single source of truth for playback time and state
+ * - Precise timing using AudioContext.currentTime (microsecond precision)
+ * - Event-based notifications to listeners (TrackScheduler, UI, etc.)
+ * - Does NOT handle audio playback directly - only timing control
+ * 
+ * KEY PRINCIPLE:
+ * Separation of Concerns - Transport knows WHEN to play, not HOW to play
+ * The TrackScheduler handles the HOW (creating AudioBufferSourceNode instances)
+ * 
+ * USAGE:
+ * ```typescript
+ * const transport = new Transport(audioContext);
+ * transport.addListener({
+ *   onStart: (time) => scheduler.scheduleAll(time, tracks),
+ *   onPause: () => scheduler.stopAll()
+ * });
+ * transport.start(); // Triggers onStart callback
+ * ```
  */
 
 type TransportState = 'stopped' | 'playing' | 'paused';

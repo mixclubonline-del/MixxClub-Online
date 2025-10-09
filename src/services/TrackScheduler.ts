@@ -1,7 +1,33 @@
 /**
- * TrackScheduler - Handles just-in-time scheduling of audio regions
- * Inspired by BandLab and Soundtrap architecture
- * Creates fresh AudioBufferSourceNode instances for each playback
+ * TrackScheduler - Just-in-time audio region scheduling
+ * 
+ * ARCHITECTURE PATTERN: Scheduler Layer (BandLab/Soundtrap Pattern)
+ * 
+ * CRITICAL WEB AUDIO API RULE:
+ * AudioBufferSourceNode is ONE-TIME-USE ONLY
+ * - Once .start() is called, the node cannot be reused
+ * - Must create fresh instances for every playback
+ * - This is a fundamental Web Audio API limitation
+ * 
+ * RESPONSIBILITY:
+ * - Creates fresh AudioBufferSourceNode instances just-in-time
+ * - Calculates precise timing for region-based playback
+ * - Handles buffer offset calculations for mid-region playback
+ * - Manages source lifecycle (creation → scheduling → cleanup)
+ * - Connects sources to AudioEngine's TrackGraph for routing
+ * 
+ * TIMING CALCULATIONS:
+ * When user seeks to 5.0s and region starts at 3.0s:
+ * - scheduleTime = audioContext.currentTime + (3.0 - 5.0) = currentTime - 2.0s
+ * - offsetInBuffer = 5.0 - 3.0 = 2.0s (start 2 seconds into the buffer)
+ * - Result: Audio plays from correct position, perfectly in sync
+ * 
+ * USAGE:
+ * ```typescript
+ * const scheduler = new TrackScheduler(audioContext, trackGraphs);
+ * const count = scheduler.scheduleAll(currentTime, tracks);
+ * // Creates fresh sources for all regions that should be playing
+ * ```
  */
 
 import type { Track, AudioRegion } from '@/stores/aiStudioStore';

@@ -11,8 +11,37 @@ let transport: Transport | null = null;
 let scheduler: TrackScheduler | null = null;
 
 /**
- * useTransportBridge - Modern transport control following BandLab/Soundtrap patterns
- * Separates timing (Transport) from scheduling (TrackScheduler)
+ * useTransportBridge - Bridge Layer between UI State and Audio Engine
+ * 
+ * ARCHITECTURE PATTERN: State-to-Audio Bridge (Modern DAW Pattern)
+ * 
+ * RESPONSIBILITY:
+ * - Syncs Zustand store state (isPlaying, currentTime) → Transport → Scheduler
+ * - Syncs Transport time updates → back to Zustand store → UI re-renders
+ * - Detects meaningful changes (play/pause/seek) and triggers appropriate actions
+ * - Manages Transport and Scheduler lifecycle (singleton pattern)
+ * 
+ * DATA FLOW (Play Button Click):
+ * 1. User clicks Play → Component calls setPlaying(true)
+ * 2. Store updates: isPlaying = true
+ * 3. useTransportBridge detects change (line 53)
+ * 4. Calls scheduler.stopAll() to clear old sources
+ * 5. Calls transport.seek(currentTime) to set start position
+ * 6. Calls scheduler.scheduleAll(currentTime, tracks) → creates fresh AudioBufferSourceNodes
+ * 7. Calls transport.start() → audio plays!
+ * 8. Transport updates position in real-time
+ * 9. Bridge syncs position back to store (line 134)
+ * 10. Store update triggers UI re-render with moving playhead
+ * 
+ * WHY SINGLETON?
+ * - AudioContext should be shared across entire app
+ * - Multiple Transport instances would conflict
+ * - Scheduler needs stable reference to trackGraphs
+ * 
+ * SMART CHANGE DETECTION:
+ * - Only triggers reschedule if time changed by >0.2s (avoids feedback loops)
+ * - Distinguishes between seek-while-playing vs seek-while-paused
+ * - Prevents unnecessary audio restarts during position sync loop
  */
 export function useTransportBridge() {
   // Store selectors
