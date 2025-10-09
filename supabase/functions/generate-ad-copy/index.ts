@@ -29,6 +29,7 @@ Deno.serve(async (req) => {
       variantCount = 5,
     }: AdCopyRequest = await req.json();
 
+    // Using OPENAI_API_KEY for Google AI (this is intentional - using same key)
     const apiKey = Deno.env.get('OPENAI_API_KEY');
     if (!apiKey) {
       throw new Error('OPENAI_API_KEY not configured');
