@@ -158,6 +158,10 @@ interface AIStudioStore {
   updateRegion: (regionId: string, updates: Partial<AudioRegion>) => void;
   splitRegion: (regionId: string, splitTime: number) => void;
   duplicateRegion: (regionId: string) => void;
+  trimRegionStart: (regionId: string, newStartTime: number) => void;
+  trimRegionEnd: (regionId: string, newEndTime: number) => void;
+  slipRegion: (regionId: string, slipAmount: number) => void;
+  reverseRegion: (regionId: string) => void;
   
   // Selection actions
   selectRegion: (regionId: string, multiSelect?: boolean) => void;
@@ -338,6 +342,73 @@ export const useAIStudioStore = create<AIStudioStore>((set, get) => ({
     
     return { tracks };
   }),
+
+  // Trim region start to new time (non-destructive)
+  trimRegionStart: (regionId, newStartTime) => set((state) => ({
+    tracks: state.tracks.map((t) => ({
+      ...t,
+      regions: t.regions.map((r) => {
+        if (r.id === regionId && newStartTime > r.startTime) {
+          const trimAmount = newStartTime - r.startTime;
+          return {
+            ...r,
+            startTime: newStartTime,
+            sourceStartOffset: r.sourceStartOffset + trimAmount,
+            duration: Math.max(0.01, r.duration - trimAmount),
+          };
+        }
+        return r;
+      }),
+    })),
+  })),
+
+  // Trim region end to new time (non-destructive)
+  trimRegionEnd: (regionId, newEndTime) => set((state) => ({
+    tracks: state.tracks.map((t) => ({
+      ...t,
+      regions: t.regions.map((r) => {
+        if (r.id === regionId && newEndTime > r.startTime) {
+          return {
+            ...r,
+            duration: Math.max(0.01, newEndTime - r.startTime),
+          };
+        }
+        return r;
+      }),
+    })),
+  })),
+
+  // Slip audio - region stays in place, audio slides inside
+  slipRegion: (regionId, slipAmount) => set((state) => ({
+    tracks: state.tracks.map((t) => ({
+      ...t,
+      regions: t.regions.map((r) => {
+        if (r.id === regionId) {
+          return {
+            ...r,
+            sourceStartOffset: Math.max(0, r.sourceStartOffset + slipAmount),
+          };
+        }
+        return r;
+      }),
+    })),
+  })),
+
+  // Reverse region (mark for audio reversal)
+  reverseRegion: (regionId) => set((state) => ({
+    tracks: state.tracks.map((t) => ({
+      ...t,
+      regions: t.regions.map((r) => {
+        if (r.id === regionId) {
+          return {
+            ...r,
+            color: 'hsl(280, 70%, 55%)', // Mark as reversed with purple color
+          };
+        }
+        return r;
+      }),
+    })),
+  })),
   
   // Selection actions
   selectRegion: (regionId, multiSelect = false) => set((state) => {

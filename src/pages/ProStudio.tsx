@@ -14,9 +14,12 @@ import { MasterChannelStrip } from '@/components/studio/MasterChannelStrip';
 import { BusGroupPanel } from '@/components/studio/BusGroupPanel';
 import { VCAGroupPanel } from '@/components/studio/VCAGroupPanel';
 import { AutomationLane, AutomationPoint } from '@/components/studio/AutomationLane';
+import { ShortcutsPanel } from '@/components/studio/ShortcutsPanel';
+import { BatchProcessingMenu } from '@/components/studio/BatchProcessingMenu';
 import { audioEngine } from '@/services/audioEngine';
 import { useStudioPlayback } from '@/hooks/useStudioPlayback';
-import { Music2, Settings, Layers, Mic, Sliders } from 'lucide-react';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { Music2, Settings, Layers, Mic, Sliders, Keyboard } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 
 /**
@@ -34,6 +37,7 @@ interface ProStudioProps {
 
 const ProStudio = ({ userRole = 'artist' }: ProStudioProps) => {
   const [activeView, setActiveView] = useState<'timeline' | 'mixer' | 'automation'>('timeline');
+  const [shortcutsPanelOpen, setShortcutsPanelOpen] = useState(false);
   
   // Store state
   const tracks = useAIStudioStore((state) => state.tracks);
@@ -60,6 +64,9 @@ const ProStudio = ({ userRole = 'artist' }: ProStudioProps) => {
   // Playback hook
   const { updateTrackParams } = useStudioPlayback();
   const [recordArmedTracks, setRecordArmedTracks] = useState<Set<string>>(new Set());
+  
+  // Keyboard shortcuts
+  useKeyboardShortcuts();
   
   // Recording state
   const [metronomeEnabled, setMetronomeEnabled] = useState(false);
@@ -116,6 +123,19 @@ const ProStudio = ({ userRole = 'artist' }: ProStudioProps) => {
     });
   };
 
+  // Handle '?' key to show shortcuts panel
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === '?' && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        setShortcutsPanelOpen(true);
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
     <div className="min-h-screen bg-[hsl(220,20%,14%)] flex flex-col">
       <Navigation />
@@ -142,6 +162,15 @@ const ProStudio = ({ userRole = 'artist' }: ProStudioProps) => {
           </div>
           
           <div className="flex items-center gap-2">
+            <BatchProcessingMenu />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShortcutsPanelOpen(true)}
+              className="gap-2"
+            >
+              <Keyboard className="w-4 h-4" />
+            </Button>
             <AudioFileImporter />
             <AudioSettingsButton />
           </div>
@@ -444,6 +473,12 @@ const ProStudio = ({ userRole = 'artist' }: ProStudioProps) => {
           )}
         </div>
       </div>
+
+      {/* Shortcuts Panel */}
+      <ShortcutsPanel
+        isOpen={shortcutsPanelOpen}
+        onClose={() => setShortcutsPanelOpen(false)}
+      />
     </div>
   );
 };

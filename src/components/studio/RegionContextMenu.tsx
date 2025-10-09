@@ -16,7 +16,10 @@ import {
   Trash2,
   TrendingUp,
   TrendingDown,
-  Wand2
+  Wand2,
+  RotateCcw,
+  Move,
+  Slice,
 } from "lucide-react";
 
 interface RegionContextMenuProps {
@@ -28,8 +31,19 @@ interface RegionContextMenuProps {
   onFadeIn: () => void;
   onFadeOut: () => void;
   onNormalize: () => void;
+  onReverse?: () => void;
+  onTrimStart?: () => void;
+  onTrimEnd?: () => void;
+  onSlip?: () => void;
 }
 
+/**
+ * Enhanced Region Context Menu with Week 2 operations
+ * - Trim start/end (non-destructive edge trimming)
+ * - Slip audio (region stays, audio moves)
+ * - Reverse
+ * - Plus existing operations
+ */
 export const RegionContextMenu = ({
   children,
   onSplit,
@@ -39,18 +53,51 @@ export const RegionContextMenu = ({
   onFadeIn,
   onFadeOut,
   onNormalize,
+  onReverse,
+  onTrimStart,
+  onTrimEnd,
+  onSlip,
 }: RegionContextMenuProps) => {
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild>
         {children}
       </ContextMenuTrigger>
-      <ContextMenuContent className="w-56">
+      <ContextMenuContent className="w-64">
+        {/* Editing Operations */}
         <ContextMenuItem onClick={onSplit}>
           <Scissors className="mr-2 h-4 w-4" />
           <span>Split at Playhead</span>
           <span className="ml-auto text-xs text-muted-foreground">S</span>
         </ContextMenuItem>
+        
+        {onTrimStart && (
+          <ContextMenuItem onClick={onTrimStart}>
+            <Slice className="mr-2 h-4 w-4" />
+            <span>Trim Start to Playhead</span>
+            <span className="ml-auto text-xs text-muted-foreground">[</span>
+          </ContextMenuItem>
+        )}
+        
+        {onTrimEnd && (
+          <ContextMenuItem onClick={onTrimEnd}>
+            <Slice className="mr-2 h-4 w-4 rotate-180" />
+            <span>Trim End to Playhead</span>
+            <span className="ml-auto text-xs text-muted-foreground">]</span>
+          </ContextMenuItem>
+        )}
+        
+        {onSlip && (
+          <ContextMenuItem onClick={onSlip}>
+            <Move className="mr-2 h-4 w-4" />
+            <span>Slip Audio...</span>
+            <span className="ml-auto text-xs text-muted-foreground">Alt+Drag</span>
+          </ContextMenuItem>
+        )}
+
+        <ContextMenuSeparator />
+
+        {/* Copy/Duplicate */}
         <ContextMenuItem onClick={onCopy}>
           <Copy className="mr-2 h-4 w-4" />
           <span>Copy</span>
@@ -61,7 +108,24 @@ export const RegionContextMenu = ({
           <span>Duplicate</span>
           <span className="ml-auto text-xs text-muted-foreground">⌘D</span>
         </ContextMenuItem>
+
         <ContextMenuSeparator />
+
+        {/* Audio Processing */}
+        {onReverse && (
+          <ContextMenuItem onClick={onReverse}>
+            <RotateCcw className="mr-2 h-4 w-4" />
+            <span>Reverse</span>
+            <span className="ml-auto text-xs text-muted-foreground">R</span>
+          </ContextMenuItem>
+        )}
+        
+        <ContextMenuItem onClick={onNormalize}>
+          <Wand2 className="mr-2 h-4 w-4" />
+          <span>Normalize</span>
+          <span className="ml-auto text-xs text-muted-foreground">N</span>
+        </ContextMenuItem>
+
         <ContextMenuSub>
           <ContextMenuSubTrigger>
             <Wand2 className="mr-2 h-4 w-4" />
@@ -78,11 +142,10 @@ export const RegionContextMenu = ({
             </ContextMenuItem>
           </ContextMenuSubContent>
         </ContextMenuSub>
-        <ContextMenuItem onClick={onNormalize}>
-          <Wand2 className="mr-2 h-4 w-4" />
-          <span>Normalize</span>
-        </ContextMenuItem>
+
         <ContextMenuSeparator />
+        
+        {/* Delete */}
         <ContextMenuItem onClick={onDelete} className="text-destructive">
           <Trash2 className="mr-2 h-4 w-4" />
           <span>Delete</span>
