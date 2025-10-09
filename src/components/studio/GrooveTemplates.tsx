@@ -24,7 +24,7 @@ import { toast } from 'sonner';
  * Apply musical feel and swing to regions
  */
 export const GrooveTemplates: React.FC = () => {
-  const { tracks, tempo, selectedRegions, updateRegion } = useAIStudioStore();
+  const { tracks, bpm, selectedRegions, updateRegion } = useAIStudioStore();
   const [selectedTemplate, setSelectedTemplate] = useState<GrooveTemplate>(
     GrooveEngine.TEMPLATES['straight']
   );
@@ -52,7 +52,7 @@ export const GrooveTemplates: React.FC = () => {
     // Apply groove quantization
     const grooved = GrooveEngine.quantizeToGroove(
       regionsToGroove,
-      tempo,
+      bpm,
       selectedTemplate,
       grooveStrength
     );
@@ -81,7 +81,7 @@ export const GrooveTemplates: React.FC = () => {
       .filter(region => selectedRegions.has(region.id))
       .map(region => region.startTime);
 
-    const { template, confidence } = GrooveEngine.detectGroove(regionTimes, tempo);
+    const { template, confidence } = GrooveEngine.detectGroove(regionTimes, bpm);
     
     setSelectedTemplate(template);
     

@@ -19,7 +19,7 @@ export const AIAssistantPanel = () => {
   const [suggestions, setSuggestions] = useState<AISuggestion[]>([]);
   const [customPrompt, setCustomPrompt] = useState('');
   
-  const { tracks, tempo, masterPeakLevel } = useAIStudioStore();
+  const { tracks, bpm, masterPeakLevel } = useAIStudioStore();
 
   const getSuggestion = async (type: string, track?: Track) => {
     setIsLoading(true);
@@ -36,7 +36,7 @@ export const AIAssistantPanel = () => {
             type,
             trackData: track || null,
             sessionData: {
-              tempo,
+              bpm,
               trackCount: tracks.length,
               masterPeak: masterPeakLevel,
             },

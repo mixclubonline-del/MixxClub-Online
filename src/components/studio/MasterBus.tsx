@@ -94,16 +94,40 @@ export const MasterBus: React.FC<MasterBusProps> = ({}) => {
 
       {/* Processor chips */}
       <div className="flex items-center gap-2 mt-3">
-        <Button size="sm" variant="outline" className="gap-1" title="EQ (click to open, Alt-click to bypass)">
+        <Button 
+          size="sm" 
+          variant="outline" 
+          className="gap-1" 
+          title="EQ (click to open, Alt-click to bypass)"
+          onClick={() => console.log('TODO: Open Master EQ editor')}
+        >
           <SlidersHorizontal size={14} /> EQ
         </Button>
-        <Button size="sm" variant="outline" className="gap-1" title="Multiband">
+        <Button 
+          size="sm" 
+          variant="outline" 
+          className="gap-1" 
+          title="Multiband"
+          onClick={() => console.log('TODO: Open MultiComp editor')}
+        >
           <Gauge size={14} /> MultiComp
         </Button>
-        <Button size="sm" variant="outline" className="gap-1" title="Limiter">
+        <Button 
+          size="sm" 
+          variant="outline" 
+          className="gap-1" 
+          title="Limiter"
+          onClick={() => console.log('TODO: Open Limiter editor')}
+        >
           <ShieldCheck size={14} /> Limiter
         </Button>
-        <Button size="sm" variant="outline" className="gap-1" title="Clipper">
+        <Button 
+          size="sm" 
+          variant="outline" 
+          className="gap-1" 
+          title="Clipper"
+          onClick={() => console.log('TODO: Open Clipper editor')}
+        >
           <Zap size={14} /> Clipper
         </Button>
       </div>

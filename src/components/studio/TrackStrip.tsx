@@ -255,10 +255,13 @@ export const TrackStrip: React.FC<TrackStripProps> = ({
                   variant={fx.enabled ? 'default' : 'outline'}
                   className="h-6 px-2 gap-1"
                   onClick={() => {
-                    // placeholder: open plugin editor drawer in future
+                    console.log(`TODO: Open plugin editor for ${fx.type} on track ${track.name}`);
                   }}
                   onMouseDown={(e) => {
-                    if (e.altKey) updateTrackEffect(track.id, fx.id, { enabled: !fx.enabled });
+                    if (e.altKey) {
+                      e.preventDefault();
+                      updateTrackEffect(track.id, fx.id, { enabled: !fx.enabled });
+                    }
                   }}
                   title={
                     fx.enabled

@@ -84,7 +84,7 @@ function hsl(h: number, s: number, l: number) {
 function usePrimeBotSuggestions() {
   // Lightweight “AI” suggestions based on store state
   const tracks = useAIStudioStore((s) => s.tracks);
-  const tempo = useAIStudioStore((s) => s.tempo);
+  const bpm = useAIStudioStore((s) => s.bpm);
   const isPlaying = useAIStudioStore((s) => s.isPlaying);
 
   // Derive some surface insights (you’ll replace with your real Mixx Intelligence Core later)
@@ -118,7 +118,7 @@ function usePrimeBotSuggestions() {
 
     out.push({
       title: "Tempo-synced delay ideas",
-      detail: `At ${tempo} BPM, try dotted-8th throws on ad-libs; low-pass at 6–8 kHz for modern glue.`,
+      detail: `At ${bpm} BPM, try dotted-8th throws on ad-libs; low-pass at 6–8 kHz for modern glue.`,
     });
 
     if (anyClipping) {
@@ -136,7 +136,7 @@ function usePrimeBotSuggestions() {
     }
 
     return out;
-  }, [tracks, tempo, isPlaying]);
+  }, [tracks, bpm, isPlaying]);
 
   // Very basic “insights” skeleton—numbers you can swap for your real meters/analytics
   const insights = useMemo(() => {
@@ -176,7 +176,7 @@ function PrimeBotDock({
   ]);
 
   const tracks = useAIStudioStore((s) => s.tracks);
-  const tempo = useAIStudioStore((s) => s.tempo);
+  const bpm = useAIStudioStore((s) => s.bpm);
   const currentTime = useAIStudioStore((s) => s.currentTime);
 
   const { suggestions, insights } = usePrimeBotSuggestions();
@@ -189,14 +189,14 @@ function PrimeBotDock({
     // Extremely simple heuristic “assistant” reply; in prod, call your LLM
     const reply =
       chatInput.toLowerCase().includes("vocal") || chatInput.toLowerCase().includes("vox")
-        ? `Try subtractive EQ at 200–400 Hz to reduce muddiness, add 2–3 dB at 3–5 kHz for clarity, then gentle de-ess around 6–8 kHz. Sync a 1/4-note delay with a low-pass at 7 kHz. (BPM: ${tempo})`
-        : `Context read: ${tracks.length} tracks, tempo ${tempo} BPM, at ${currentTime.toFixed(
+        ? `Try subtractive EQ at 200–400 Hz to reduce muddiness, add 2–3 dB at 3–5 kHz for clarity, then gentle de-ess around 6–8 kHz. Sync a 1/4-note delay with a low-pass at 7 kHz. (BPM: ${bpm})`
+        : `Context read: ${tracks.length} tracks, tempo ${bpm} BPM, at ${currentTime.toFixed(
             2,
           )}s. Suggest A/B testing your 2-bus chain every 8 bars and leave ~6 dB headroom pre-limiter.`;
 
     setChatLog((prev) => [...prev, { role: "assistant", content: reply }]);
     setChatInput("");
-  }, [chatInput, currentTime, tempo, tracks.length]);
+  }, [chatInput, currentTime, bpm, tracks.length]);
 
   return (
     <div
@@ -469,7 +469,7 @@ const ProStudio = ({ userRole = "artist", projectId }: ProStudioProps) => {
   const currentTime = useAIStudioStore((state) => state.currentTime);
   const duration = useAIStudioStore((state) => state.duration);
   const isPlaying = useAIStudioStore((state) => state.isPlaying);
-  const tempo = useAIStudioStore((state) => state.tempo);
+  const bpm = useAIStudioStore((state) => state.bpm);
   const isRecording = useAIStudioStore((state) => state.isRecording);
 
   // Actions
@@ -491,7 +491,7 @@ const ProStudio = ({ userRole = "artist", projectId }: ProStudioProps) => {
   // Derive session state for save
   const sessionState = useMemo(
     () => ({
-      tempo,
+      bpm,
       currentTime,
       tracks: tracks?.map((t: any) => ({
         id: t?.id,
@@ -503,7 +503,7 @@ const ProStudio = ({ userRole = "artist", projectId }: ProStudioProps) => {
       })),
       updatedAt: Date.now(),
     }),
-    [tempo, currentTime, tracks],
+    [bpm, currentTime, tracks],
   );
 
   // Update audio engine when track params change
@@ -565,7 +565,7 @@ const ProStudio = ({ userRole = "artist", projectId }: ProStudioProps) => {
       .from("projects")
       .update({
         session_state: sessionState,
-        bpm: tempo ?? project?.bpm ?? null,
+        bpm: bpm ?? project?.bpm ?? null,
         updated_at: new Date().toISOString(),
       })
       .eq("id", projectId)
@@ -579,7 +579,7 @@ const ProStudio = ({ userRole = "artist", projectId }: ProStudioProps) => {
       setProject((p) => (p ? { ...p, ...data } : data));
     }
     setSaving(false);
-  }, [projectId, sessionState, tempo, project]);
+  }, [projectId, sessionState, bpm, project]);
 
   // Send to MixxPort (stub: mark updated & pretend an upload pipeline)
   const handleSendToMixxPort = useCallback(async () => {
@@ -677,7 +677,7 @@ const ProStudio = ({ userRole = "artist", projectId }: ProStudioProps) => {
               }}
             >
               <div className="text-xs opacity-60 mb-0.5">BPM</div>
-              <div className="text-2xl">{tempo}</div>
+              <div className="text-2xl">{bpm}</div>
             </div>
 
             {/* Session Info */}

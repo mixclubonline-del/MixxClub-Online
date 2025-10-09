@@ -30,7 +30,7 @@ export const ArrangementWindow = ({
   const setSelectedTrack = useAIStudioStore((state) => state.setSelectedTrack);
   const selectRegion = useAIStudioStore((state) => state.selectRegion);
   const updateRegion = useAIStudioStore((state) => state.updateRegion);
-  const tempo = useAIStudioStore((state) => state.tempo);
+  const bpm = useAIStudioStore((state) => state.bpm);
 
   const TRACK_HEIGHT = 120; // Larger tracks for better visibility
   const pixelsPerSecond = 100 * zoom;
@@ -72,7 +72,7 @@ export const ArrangementWindow = ({
 
     // Calculate bar and beat positions
     const beatsPerBar = 4;
-    const secondsPerBeat = 60 / tempo;
+    const secondsPerBeat = 60 / bpm;
     const secondsPerBar = secondsPerBeat * beatsPerBar;
 
     ctx.font = '11px monospace';
@@ -129,7 +129,7 @@ export const ArrangementWindow = ({
       ctx.closePath();
       ctx.fill();
     }
-  }, [duration, tempo, zoom, pixelsPerSecond, currentTime]); // Re-render on currentTime change for smooth playhead
+  }, [duration, bpm, zoom, pixelsPerSecond, currentTime]); // Re-render on currentTime change for smooth playhead
 
   // Draw waveform canvas
   useEffect(() => {
@@ -152,7 +152,7 @@ export const ArrangementWindow = ({
 
     // Draw bar grid lines
     const beatsPerBar = 4;
-    const secondsPerBeat = 60 / tempo;
+    const secondsPerBeat = 60 / bpm;
     const secondsPerBar = secondsPerBeat * beatsPerBar;
 
     for (let bar = 0; bar <= Math.ceil(duration / secondsPerBar); bar++) {
@@ -307,7 +307,7 @@ export const ArrangementWindow = ({
       ctx.stroke();
       ctx.shadowBlur = 0;
     }
-  }, [tracks, currentTime, duration, zoom, pixelsPerSecond, selectedTrackId, selectedRegions, hoveredRegion, tempo]);
+  }, [tracks, currentTime, duration, zoom, pixelsPerSecond, selectedTrackId, selectedRegions, hoveredRegion, bpm]);
 
   // Handle canvas clicks
   const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {

@@ -37,7 +37,7 @@ const ProStudio = ({ userRole = "artist" }: ProStudioProps) => {
   const currentTime = useAIStudioStore((state) => state.currentTime);
   const duration = useAIStudioStore((state) => state.duration);
   const isPlaying = useAIStudioStore((state) => state.isPlaying);
-  const tempo = useAIStudioStore((state) => state.tempo);
+  const bpm = useAIStudioStore((state) => state.bpm);
   const isRecording = useAIStudioStore((state) => state.isRecording);
 
   // Actions
@@ -103,7 +103,7 @@ const ProStudio = ({ userRole = "artist" }: ProStudioProps) => {
               }}
             >
               <div className="text-xs opacity-60 mb-0.5">BPM</div>
-              <div className="text-2xl">{tempo}</div>
+              <div className="text-2xl">{bpm}</div>
             </div>
 
             {/* Session Info */}

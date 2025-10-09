@@ -85,7 +85,6 @@ interface AIStudioStore {
   isPlaying: boolean;
   currentTime: number;
   bpm: number;
-  tempo: number;
   duration: number;
   masterVolume: number;
   masterPeakLevel: number;
@@ -133,7 +132,6 @@ interface AIStudioStore {
   setPlaying: (playing: boolean) => void;
   setCurrentTime: (time: number) => void;
   setBpm: (bpm: number) => void;
-  setTempo: (tempo: number) => void;
   
   // Master actions
   setMasterVolume: (volume: number) => void;
@@ -176,7 +174,6 @@ export const useAIStudioStore = create<AIStudioStore>((set, get) => ({
   isPlaying: false,
   currentTime: 0,
   bpm: 120,
-  tempo: 120,
   duration: 240,
   masterVolume: 1,
   masterPeakLevel: -Infinity,
@@ -362,9 +359,7 @@ export const useAIStudioStore = create<AIStudioStore>((set, get) => ({
   
   setCurrentTime: (time) => set({ currentTime: time }),
   
-  setBpm: (bpm) => set({ bpm, tempo: bpm }),
-  
-  setTempo: (tempo) => set({ tempo, bpm: tempo }),
+  setBpm: (bpm) => set({ bpm }),
   
   setMasterVolume: (volume) => set({ masterVolume: volume }),
   

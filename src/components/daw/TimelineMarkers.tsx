@@ -27,8 +27,8 @@ export const TimelineMarkers = () => {
   
   const currentTime = useAIStudioStore((state) => state.currentTime);
   const setCurrentTime = useAIStudioStore((state) => state.setCurrentTime);
-  const tempo = useAIStudioStore((state) => state.tempo);
-  const setTempo = useAIStudioStore((state) => state.setTempo);
+  const bpm = useAIStudioStore((state) => state.bpm);
+  const setBpm = useAIStudioStore((state) => state.setBpm);
 
   const handleAddMarker = () => {
     if (!newMarkerName.trim()) {
@@ -80,15 +80,15 @@ export const TimelineMarkers = () => {
           <Label className="text-xs">Tempo (BPM)</Label>
           <Input
             type="number"
-            value={tempo}
-            onChange={(e) => setTempo(Number(e.target.value))}
+            value={bpm}
+            onChange={(e) => setBpm(Number(e.target.value))}
             min={20}
             max={300}
             className="mt-1"
           />
         </div>
         <div className="text-xs" style={{ color: 'hsl(220, 20%, 70%)' }}>
-          {tempo} BPM
+          {bpm} BPM
         </div>
       </div>
 

@@ -5,7 +5,7 @@ import { useAIStudioStore } from '@/stores/aiStudioStore';
  * Hook for musical quantization with bars/beats/subdivisions
  */
 export const useMusicalQuantization = () => {
-  const tempo = useAIStudioStore((state) => state.tempo);
+  const bpm = useAIStudioStore((state) => state.bpm);
   const snapMode = useAIStudioStore((state) => state.snapMode);
   const snapEnabled = useAIStudioStore((state) => state.snapEnabled);
 
@@ -13,7 +13,7 @@ export const useMusicalQuantization = () => {
     (time: number): number => {
       if (!snapEnabled) return time;
 
-      const secondsPerBeat = 60 / tempo;
+      const secondsPerBeat = 60 / bpm;
       
       let quantizeDivision: number;
       switch (snapMode) {
@@ -38,7 +38,7 @@ export const useMusicalQuantization = () => {
 
       return Math.round(time / quantizeDivision) * quantizeDivision;
     },
-    [tempo, snapMode, snapEnabled]
+    [bpm, snapMode, snapEnabled]
   );
 
   const getSnapLabel = useCallback((): string => {
@@ -61,7 +61,7 @@ export const useMusicalQuantization = () => {
   }, [snapMode, snapEnabled]);
 
   const getQuantizeInterval = useCallback((): number => {
-    const secondsPerBeat = 60 / tempo;
+    const secondsPerBeat = 60 / bpm;
     
     switch (snapMode) {
       case 'bars':
@@ -77,7 +77,7 @@ export const useMusicalQuantization = () => {
       default:
         return secondsPerBeat;
     }
-  }, [tempo, snapMode]);
+  }, [bpm, snapMode]);
 
   return {
     quantizeTime,

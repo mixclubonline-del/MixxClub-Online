@@ -89,7 +89,7 @@ export const WaveformTimeline = ({
   const snapEnabled = useAIStudioStore((state) => state.snapEnabled);
   const snapMode = useAIStudioStore((state) => state.snapMode);
   const rippleMode = useAIStudioStore((state) => state.rippleMode);
-  const tempo = useAIStudioStore((state) => state.tempo);
+  const bpm = useAIStudioStore((state) => state.bpm);
   const selectedRegions = useAIStudioStore((state) => state.selectedRegions);
   const setScrollMode = useAIStudioStore((state) => state.setScrollMode);
   const setSnapEnabled = useAIStudioStore((state) => state.setSnapEnabled);
@@ -960,7 +960,7 @@ export const WaveformTimeline = ({
         duration={duration}
         currentTime={currentTime}
         pixelsPerSecond={pixelsPerSecond}
-        tempo={tempo}
+        tempo={bpm}
         onTimeChange={onTimeChange}
       />
     </div>
