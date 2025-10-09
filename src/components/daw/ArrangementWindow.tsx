@@ -187,6 +187,17 @@ export const ArrangementWindow = ({
         const isRegionSelected = selectedRegions.has(region.id);
         const isHovered = hoveredRegion === region.id;
 
+        // Debug logging
+        if (index === 0) {
+          console.log('[ArrangementWindow] Track debug:', {
+            trackName: track.name,
+            hasWaveformData: !!track.waveformData,
+            waveformLength: track.waveformData?.length || 0,
+            regionWidth,
+            trackY,
+          });
+        }
+
         // Region background with track color
         const alpha = isRegionSelected ? 0.5 : isHovered ? 0.4 : 0.3;
         ctx.fillStyle = trackColor.replace(')', `, ${alpha})`).replace('hsl', 'hsla');
@@ -201,26 +212,83 @@ export const ArrangementWindow = ({
 
         // Draw waveform if available
         if (track.waveformData && track.waveformData.length > 0) {
-          ctx.strokeStyle = trackColor;
-          ctx.lineWidth = 1.5;
-          ctx.beginPath();
-
-          const waveformHeight = (TRACK_HEIGHT - 40) * 0.6;
+          console.log('[ArrangementWindow] Drawing waveform for', track.name, {
+            dataLength: track.waveformData.length,
+            regionWidth,
+            sampleEvery: 2
+          });
+          
+          // Draw waveform with better visibility
+          const waveformHeight = (TRACK_HEIGHT - 40) * 0.7;
           const centerY = trackY + TRACK_HEIGHT / 2;
-
-          for (let x = 0; x < regionWidth; x += 2) {
-            const progress = x / regionWidth;
-            const dataIndex = Math.floor(progress * track.waveformData.length);
-            const amplitude = track.waveformData[dataIndex] || 0;
-            const y = centerY + (amplitude - 0.5) * waveformHeight * 2;
-            
-            if (x === 0) {
-              ctx.moveTo(regionX + x, y);
-            } else {
-              ctx.lineTo(regionX + x, y);
-            }
-          }
+          
+          // Draw center line
+          ctx.strokeStyle = 'hsl(220, 20%, 25%)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(regionX, centerY);
+          ctx.lineTo(regionX + regionWidth, centerY);
           ctx.stroke();
+          
+          // Draw waveform
+          ctx.strokeStyle = trackColor;
+          ctx.lineWidth = 2;
+          ctx.shadowColor = trackColor;
+          ctx.shadowBlur = 4;
+          
+          // Draw filled waveform
+          ctx.beginPath();
+          ctx.moveTo(regionX, centerY);
+          
+          const samplesPerPixel = track.waveformData.length / regionWidth;
+          
+          for (let px = 0; px < regionWidth; px++) {
+            const startSample = Math.floor(px * samplesPerPixel);
+            const endSample = Math.floor((px + 1) * samplesPerPixel);
+            
+            // Find max amplitude in this pixel's sample range
+            let maxAmp = 0;
+            for (let i = startSample; i < endSample && i < track.waveformData.length; i++) {
+              const amp = Math.abs(track.waveformData[i] - 0.5);
+              maxAmp = Math.max(maxAmp, amp);
+            }
+            
+            const y = centerY - (maxAmp * waveformHeight);
+            ctx.lineTo(regionX + px, y);
+          }
+          
+          // Bottom half
+          for (let px = regionWidth - 1; px >= 0; px--) {
+            const startSample = Math.floor(px * samplesPerPixel);
+            const endSample = Math.floor((px + 1) * samplesPerPixel);
+            
+            let maxAmp = 0;
+            for (let i = startSample; i < endSample && i < track.waveformData.length; i++) {
+              const amp = Math.abs(track.waveformData[i] - 0.5);
+              maxAmp = Math.max(maxAmp, amp);
+            }
+            
+            const y = centerY + (maxAmp * waveformHeight);
+            ctx.lineTo(regionX + px, y);
+          }
+          
+          ctx.closePath();
+          
+          // Fill with semi-transparent color
+          const fillColor = trackColor.replace(')', ', 0.4)').replace('hsl', 'hsla');
+          ctx.fillStyle = fillColor;
+          ctx.fill();
+          
+          // Stroke outline
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+          
+          console.log('[ArrangementWindow] Waveform drawn successfully');
+        } else {
+          console.warn('[ArrangementWindow] No waveform data for track:', track.name, {
+            hasAudioBuffer: !!track.audioBuffer,
+            hasWaveformData: !!track.waveformData,
+          });
         }
 
         // Region name
