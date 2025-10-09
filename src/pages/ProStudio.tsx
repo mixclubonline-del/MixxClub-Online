@@ -4,13 +4,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAIStudioStore } from '@/stores/aiStudioStore';
 import { WaveformTimeline } from '@/components/studio/WaveformTimeline';
 import { StudioTransport } from '@/components/studio/StudioTransport';
+import { RecordingControls } from '@/components/studio/RecordingControls';
 import { AudioFileImporter } from '@/components/studio/AudioFileImporter';
 import { AudioSettingsButton } from '@/components/studio/AudioSettingsButton';
 import { ChannelStrip } from '@/components/studio/ChannelStrip';
 import { MasterChannelStrip } from '@/components/studio/MasterChannelStrip';
 import { audioEngine } from '@/services/audioEngine';
 import { useStudioPlayback } from '@/hooks/useStudioPlayback';
-import { Music2, Settings, Layers } from 'lucide-react';
+import { Music2, Settings, Layers, Mic } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 
 /**
@@ -54,6 +55,13 @@ const ProStudio = ({ userRole = 'artist' }: ProStudioProps) => {
   // Playback hook
   const { updateTrackParams } = useStudioPlayback();
   const [recordArmedTracks, setRecordArmedTracks] = useState<Set<string>>(new Set());
+  
+  // Recording state
+  const [metronomeEnabled, setMetronomeEnabled] = useState(false);
+  const [countInBars, setCountInBars] = useState(1);
+  const [inputMonitoring, setInputMonitoring] = useState(false);
+  const [punchInEnabled, setPunchInEnabled] = useState(false);
+  const setRecording = useAIStudioStore((state) => state.setRecording);
   
   // Update audio engine when track params change
   useEffect(() => {
@@ -115,7 +123,7 @@ const ProStudio = ({ userRole = 'artist' }: ProStudioProps) => {
         </div>
       </div>
 
-      {/* Transport Controls */}
+      {/* Transport & Recording Controls */}
       <div 
         className="border-b px-6 py-3"
         style={{
@@ -123,8 +131,22 @@ const ProStudio = ({ userRole = 'artist' }: ProStudioProps) => {
           borderColor: 'hsl(220, 14%, 28%)',
         }}
       >
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-6">
           <StudioTransport />
+          
+          <RecordingControls
+            isRecording={isRecording}
+            onRecordToggle={() => setRecording(!isRecording)}
+            tempo={tempo}
+            metronomeEnabled={metronomeEnabled}
+            onMetronomeToggle={() => setMetronomeEnabled(!metronomeEnabled)}
+            countInBars={countInBars}
+            onCountInChange={setCountInBars}
+            inputMonitoring={inputMonitoring}
+            onInputMonitoringToggle={() => setInputMonitoring(!inputMonitoring)}
+            punchInEnabled={punchInEnabled}
+            onPunchInToggle={() => setPunchInEnabled(!punchInEnabled)}
+          />
           
           <div className="flex items-center gap-4">
             <div className="text-xs font-mono text-[hsl(var(--studio-text-dim))]">

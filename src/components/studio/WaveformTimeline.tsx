@@ -5,8 +5,16 @@ import { cn } from '@/lib/utils';
 import { Track, AudioRegion, useAIStudioStore } from '@/stores/aiStudioStore';
 import { TrackControls } from './TrackControls';
 import { RegionContextMenu } from './RegionContextMenu';
+import { MusicalRuler } from './MusicalRuler';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useMusicalQuantization } from '@/hooks/useMusicalQuantization';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface WaveformTimelineProps {
   tracks: Track[];
@@ -48,15 +56,20 @@ export const WaveformTimeline = ({
   const scrollMode = useAIStudioStore((state) => state.scrollMode);
   const snapEnabled = useAIStudioStore((state) => state.snapEnabled);
   const snapMode = useAIStudioStore((state) => state.snapMode);
+  const tempo = useAIStudioStore((state) => state.tempo);
   const selectedRegions = useAIStudioStore((state) => state.selectedRegions);
   const setScrollMode = useAIStudioStore((state) => state.setScrollMode);
   const setSnapEnabled = useAIStudioStore((state) => state.setSnapEnabled);
+  const setSnapMode = useAIStudioStore((state) => state.setSnapMode);
   const selectRegion = useAIStudioStore((state) => state.selectRegion);
   const clearSelection = useAIStudioStore((state) => state.clearSelection);
   const splitRegion = useAIStudioStore((state) => state.splitRegion);
   const duplicateRegion = useAIStudioStore((state) => state.duplicateRegion);
   const removeRegion = useAIStudioStore((state) => state.removeRegion);
   const updateRegion = useAIStudioStore((state) => state.updateRegion);
+  
+  // Musical quantization
+  const { quantizeTime, getSnapLabel } = useMusicalQuantization();
 
   // Generate fallback waveform if real data not available
   const generateFallbackWaveform = (type: Track['type']) => {
@@ -330,7 +343,7 @@ export const WaveformTimeline = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedRegions, currentTime, splitRegion, duplicateRegion, removeRegion, clearSelection]);
 
-  // Handle click to seek
+  // Handle click to seek with quantization
   const handleTimelineClick = (e: React.MouseEvent) => {
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
@@ -354,9 +367,10 @@ export const WaveformTimeline = ({
       }
     }
     
-    // Otherwise seek
-    const time = x / pixelsPerSecond;
-    onTimeChange(Math.max(0, Math.min(duration, time)));
+    // Otherwise seek with quantization
+    const rawTime = x / pixelsPerSecond;
+    const quantizedTime = quantizeTime(rawTime);
+    onTimeChange(Math.max(0, Math.min(duration, quantizedTime)));
     clearSelection();
   };
 
@@ -424,15 +438,28 @@ export const WaveformTimeline = ({
           </div>
           
           <div className="flex items-center gap-2 ml-4">
-            <Button
-              variant={snapEnabled ? "default" : "outline"}
-              size="sm"
-              onClick={() => setSnapEnabled(!snapEnabled)}
-              className="h-7"
-            >
-              <Magnet className="w-3 h-3 mr-1" />
-              Snap
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant={snapEnabled ? "default" : "outline"}
+                  size="sm"
+                  className="h-7"
+                >
+                  <Magnet className="w-3 h-3 mr-1" />
+                  Snap: {getSnapLabel()}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => setSnapEnabled(!snapEnabled)}>
+                  {snapEnabled ? 'Disable' : 'Enable'} Snap
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSnapMode('bars')}>Bars</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSnapMode('beats')}>Beats</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSnapMode('quarter')}>1/4 Note</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSnapMode('eighth')}>1/8 Note</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSnapMode('sixteenth')}>1/16 Note</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             
             <Button
               variant={scrollMode === 'continuous' ? "default" : "outline"}
@@ -462,9 +489,27 @@ export const WaveformTimeline = ({
       </div>
 
       {/* Timeline Content */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Track Headers */}
-        <div className="flex-shrink-0 bg-[hsl(var(--studio-panel))] border-r border-[hsl(var(--studio-border))]" style={{ width: trackHeaderWidth }}>
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Musical Ruler */}
+        <div className="flex border-b border-[hsl(var(--studio-border))]">
+          <div className="flex-shrink-0" style={{ width: trackHeaderWidth }} />
+          <div className="flex-1 overflow-hidden">
+            <div style={{ width: duration * pixelsPerSecond }}>
+              <MusicalRuler
+                duration={duration}
+                tempo={tempo}
+                pixelsPerSecond={pixelsPerSecond}
+                currentTime={currentTime}
+                onTimeChange={onTimeChange}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Track Area */}
+        <div className="flex-1 flex overflow-hidden">
+          {/* Track Headers */}
+          <div className="flex-shrink-0 bg-[hsl(var(--studio-panel))] border-r border-[hsl(var(--studio-border))]" style={{ width: trackHeaderWidth }}>
           {tracks.map((track) => (
             <div
               key={track.id}
@@ -533,6 +578,7 @@ export const WaveformTimeline = ({
             );
           })}
         </div>
+      </div>
       </div>
     </div>
   );
