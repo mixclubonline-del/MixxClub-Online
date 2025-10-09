@@ -14,7 +14,7 @@ import {
   EyeOff
 } from "lucide-react";
 import * as THREE from "three";
-import type { Track } from "@/pages/HybridDAW";
+import type { Track } from "@/stores/aiStudioStore";
 
 interface DAW3DViewProps {
   tracks: Track[];

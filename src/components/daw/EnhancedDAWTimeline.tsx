@@ -19,7 +19,8 @@ import {
   Maximize2,
   Minimize2
 } from "lucide-react";
-import type { Track, AudioRegion } from "@/pages/HybridDAW";
+import { Track, AudioRegion } from "@/stores/aiStudioStore";
+import { AudioWaveformRenderer } from "./AudioWaveformRenderer";
 
 interface EnhancedDAWTimelineProps {
   tracks: Track[];
@@ -59,30 +60,14 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
   useEffect(() => {
     if (tracks.length > 0) {
       const lastTrack = tracks[tracks.length - 1];
-      if (lastTrack.regions.length > 0 && lastTrack.regions[0].url) {
+      if (lastTrack.regions && lastTrack.regions.length > 0 && lastTrack.audioBuffer) {
         setNewlyImportedTrack(lastTrack.id);
         setTimeout(() => setNewlyImportedTrack(null), 2000);
       }
     }
   }, [tracks]);
 
-  // Generate waveform visualization (simplified)
-  const generateWaveform = (region: AudioRegion, width: number) => {
-    const points = 50;
-    const waveformData = Array.from({ length: points }, () => Math.random() * 0.8 + 0.1);
-    
-    return waveformData.map((amplitude, index) => (
-      <div
-        key={index}
-        className="bg-white/60 mx-px"
-        style={{
-          width: `${width / points - 2}px`,
-          height: `${amplitude * (trackHeight - 16)}px`,
-          minHeight: '2px'
-        }}
-      />
-    ));
-  };
+  // No more fake waveform generation - using real AudioWaveformRenderer!
 
   const toggleSolo = (trackId: string) => {
     onTracksChange(
@@ -255,12 +240,12 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
                   variant="ghost"
                   size="sm"
                   onClick={
-                    track.isRecording 
+                    track.armed 
                       ? onStopRecording 
                       : () => onStartRecording(track.id)
                   }
                   className={`h-7 w-8 text-xs p-0 transition-all ${
-                    track.isRecording 
+                    track.armed 
                       ? 'bg-destructive text-destructive-foreground animate-pulse-glow' 
                       : 'hover:bg-destructive/20'
                   }`}
@@ -354,50 +339,70 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
                   />
                 ))}
 
-                {/* Enhanced Audio Regions with Waveforms */}
-                {track.regions.map((region) => (
-                  <div
-                    key={region.id}
-                    className={`absolute top-2 bottom-2 rounded-lg cursor-pointer transition-all duration-300 hover:scale-105 group ${
-                      selectedRegion === region.id 
-                        ? 'ring-2 ring-primary shadow-lg shadow-primary/20' 
-                        : 'hover:shadow-md'
-                    } ${newlyImportedTrack === track.id ? 'animate-scale-in' : ''}`}
-                    style={{
-                      left: `${region.start * pixelsPerSecond}px`,
-                      width: `${(region.end - region.start) * pixelsPerSecond}px`,
-                      background: `linear-gradient(135deg, ${track.color}, ${track.color}90)`,
-                      border: `1px solid ${track.color}40`
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleRegionClick(region.id);
-                    }}
-                  >
-                    <div className="h-full flex flex-col justify-center px-2 relative overflow-hidden">
-                      {showWaveforms && (
-                        <div className="flex items-center justify-center h-full gap-px opacity-80">
-                          {generateWaveform(region, (region.end - region.start) * pixelsPerSecond)}
-                        </div>
-                      )}
-                      
-                      {!showWaveforms && (
-                        <div className="flex items-center justify-center h-full">
-                          <span className="text-xs text-white/90 font-semibold drop-shadow">
-                            {region.url ? '♪ Audio' : '🎤 Recording'}
-                          </span>
-                        </div>
-                      )}
-                      
-                      {/* Region fade indicators */}
-                      <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-r from-transparent to-white/20"></div>
-                      <div className="absolute top-0 right-0 w-2 h-full bg-gradient-to-l from-transparent to-white/20"></div>
+                {/* Enhanced Audio Regions with REAL Waveforms */}
+                {track.regions?.map((region) => {
+                  const regionWidth = region.duration * pixelsPerSecond;
+                  const regionHeight = trackHeight - 16;
+                  
+                  return (
+                    <div
+                      key={region.id}
+                      className={`absolute top-2 bottom-2 rounded-lg cursor-pointer transition-all duration-300 hover:scale-105 group ${
+                        selectedRegion === region.id 
+                          ? 'ring-2 ring-primary shadow-lg shadow-primary/20' 
+                          : 'hover:shadow-md'
+                      } ${newlyImportedTrack === track.id ? 'animate-scale-in' : ''}`}
+                      style={{
+                        left: `${region.startTime * pixelsPerSecond}px`,
+                        width: `${regionWidth}px`,
+                        background: `linear-gradient(135deg, ${track.color}, ${track.color}90)`,
+                        border: `1px solid ${track.color}40`
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRegionClick(region.id);
+                      }}
+                    >
+                      <div className="h-full flex flex-col justify-center px-2 relative overflow-hidden">
+                        {showWaveforms && track.waveformData && track.waveformData.length > 0 ? (
+                          <AudioWaveformRenderer
+                            waveformData={track.waveformData}
+                            width={regionWidth}
+                            height={regionHeight}
+                            color={track.color || '#8B5CF6'}
+                            progress={
+                              isPlaying && currentTime >= region.startTime
+                                ? Math.min(
+                                    1,
+                                    (currentTime - region.startTime) / region.duration
+                                  )
+                                : 0
+                            }
+                            zoom={zoom}
+                            startOffset={region.sourceStartOffset || 0}
+                          />
+                        ) : showWaveforms ? (
+                          <div className="flex items-center justify-center h-full">
+                            <span className="text-xs text-white/60 font-medium">No waveform</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-center h-full">
+                            <span className="text-xs text-white/90 font-semibold drop-shadow">
+                              ♪ Audio
+                            </span>
+                          </div>
+                        )}
+                        
+                        {/* Region fade indicators */}
+                        <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-r from-transparent to-white/20"></div>
+                        <div className="absolute top-0 right-0 w-2 h-full bg-gradient-to-l from-transparent to-white/20"></div>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
 
                 {/* Enhanced Recording Indicator */}
-                {track.isRecording && (
+                {track.armed && isRecording && (
                   <div 
                     className="absolute top-2 bottom-2 bg-gradient-to-r from-destructive to-destructive/80 rounded-lg animate-pulse-glow border border-destructive/50"
                     style={{

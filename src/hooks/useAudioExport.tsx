@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import type { Track } from "@/pages/HybridDAW";
+import type { Track } from "@/stores/aiStudioStore";
 
 type ExportFormat = 'wav' | 'mp3' | 'stems' | 'project';
 type ExportQuality = 'low' | 'medium' | 'high';

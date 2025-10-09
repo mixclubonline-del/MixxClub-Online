@@ -14,7 +14,7 @@ import {
   MoreHorizontal,
   Trash2
 } from "lucide-react";
-import type { Track, AudioRegion } from "@/pages/HybridDAW";
+import type { Track, AudioRegion } from "@/stores/aiStudioStore";
 
 interface DAWTimelineProps {
   tracks: Track[];

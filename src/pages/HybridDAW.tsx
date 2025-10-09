@@ -40,32 +40,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useAudioPermissions } from "@/hooks/useAudioPermissions";
 import { useAudioEngineBridge } from "@/hooks/useAudioEngineBridge";
-import { useAIStudioStore } from "@/stores/aiStudioStore";
+import { useAIStudioStore, Track, AudioRegion } from "@/stores/aiStudioStore";
+import { WaveformGenerator } from "@/services/waveformGenerator";
 import Navigation from "@/components/Navigation";
-
-export interface Track {
-  id: string;
-  name: string;
-  color: string;
-  regions: AudioRegion[];
-  solo: boolean;
-  mute: boolean;
-  volume: number;
-  effects: { [key: string]: any };
-  automation: AutomationPoint[];
-  isRecording?: boolean;
-}
-
-export interface AudioRegion {
-  id: string;
-  start: number;
-  end: number;
-  url?: string;
-  blob?: Blob;
-  gain: number;
-  fadeIn: number;
-  fadeOut: number;
-}
 
 export interface AutomationPoint {
   time: number;
@@ -152,30 +129,44 @@ const HybridDAW = () => {
 
   // Sync tracks to store when they change
   useEffect(() => {
-    // Get current store tracks
-    const storeTracks = useAIStudioStore.getState().tracks;
+    const storeState = useAIStudioStore.getState();
+    const storeTracks = storeState.tracks;
     
-    // Add new tracks to store
-    tracks.forEach(track => {
+    // Remove tracks from store that no longer exist in HybridDAW
+    const hybridTrackIds = new Set(tracks.map(t => t.id));
+    storeTracks.forEach(st => {
+      if (!hybridTrackIds.has(st.id)) {
+        useAIStudioStore.getState().removeTrack(st.id);
+      }
+    });
+    
+    // Add or update tracks in store with FULL data
+    tracks.forEach((track) => {
       const existsInStore = storeTracks.some(st => st.id === track.id);
+      
       if (!existsInStore) {
+        // Add new track with FULL data including audioBuffer and waveformData
         addStoreTrack({
           id: track.id,
           name: track.name,
-          type: 'audio' as const,
+          type: track.type || 'audio',
           color: track.color,
           volume: track.volume,
-          pan: 0,
+          pan: track.pan || 0,
           mute: track.mute,
           solo: track.solo,
-          sends: {},
-          effects: [],
+          audioBuffer: track.audioBuffer,  // ✅ Pass audio!
+          waveformData: track.waveformData, // ✅ Pass waveform!
+          regions: track.regions,  // ✅ Pass regions with audio!
+          effects: track.effects || [],
+          sends: track.sends || {},
         });
       } else {
-        // Update existing track
+        // Update existing track (don't update audioBuffer/waveformData as they're immutable)
         updateStoreTrack(track.id, {
           name: track.name,
           volume: track.volume,
+          pan: track.pan || 0,
           mute: track.mute,
           solo: track.solo,
         });
@@ -241,13 +232,15 @@ const HybridDAW = () => {
     const newTrack: Track = {
       id: `track-${Date.now()}`,
       name: `${type.charAt(0).toUpperCase() + type.slice(1)} Track ${tracks.length + 1}`,
+      type: type === 'instrument' ? 'audio' : type,
       color: trackColors[type],
-      regions: [],
-      solo: false,
-      mute: false,
       volume: 0.8,
-      effects: {},
-      automation: []
+      pan: 0,
+      mute: false,
+      solo: false,
+      regions: [],
+      effects: [],
+      sends: {},
     };
 
     setTracks(prev => [...prev, newTrack]);
@@ -287,25 +280,49 @@ const HybridDAW = () => {
         }
       };
 
-      mediaRecorder.onstop = () => {
+      mediaRecorder.onstop = async () => {
         const blob = new Blob(chunks, { type: 'audio/webm' });
-        const newRegion: AudioRegion = {
-          id: `region-${Date.now()}`,
-          start: currentTime,
-          end: currentTime + 10, // Default 10 second region
-          blob,
-          gain: 1,
-          fadeIn: 0,
-          fadeOut: 0
-        };
+        
+        // Decode audio and generate waveform
+        if (audioContextRef.current) {
+          try {
+            const arrayBuffer = await blob.arrayBuffer();
+            const audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
+            
+            const waveformData = WaveformGenerator.generateFromBuffer(audioBuffer, {
+              width: 800,
+              normalize: true,
+            });
+            
+            const newRegion: AudioRegion = {
+              id: `region-${Date.now()}`,
+              trackId: trackId,
+              startTime: currentTime,
+              duration: audioBuffer.duration,
+              audioBuffer,
+              sourceStartOffset: 0,
+              fadeIn: { duration: 0, curve: 'linear' },
+              fadeOut: { duration: 0, curve: 'linear' },
+              gain: 1.0,
+            };
 
-        setTracks(prev => 
-          prev.map(track => 
-            track.id === trackId 
-              ? { ...track, regions: [...track.regions, newRegion] }
-              : track
-          )
-        );
+            setTracks(prev => 
+              prev.map(track => 
+                track.id === trackId 
+                  ? { 
+                      ...track, 
+                      armed: false,
+                      audioBuffer,
+                      waveformData: Array.from(waveformData.peaks),
+                      regions: [...(track.regions || []), newRegion] 
+                    }
+                  : track
+              )
+            );
+          } catch (error) {
+            console.error('[Recording] Failed to decode:', error);
+          }
+        };
 
         // Check for first recording achievement
         setAchievements(prev => 
@@ -329,7 +346,7 @@ const HybridDAW = () => {
       setTracks(prev => 
         prev.map(track => 
           track.id === trackId 
-            ? { ...track, isRecording: true }
+            ? { ...track, armed: true }
             : track
         )
       );
@@ -345,13 +362,13 @@ const HybridDAW = () => {
   };
 
   // Stop Recording
-  const stopRecording = () => {
+  const stopRecording = async () => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
       
       setTracks(prev => 
-        prev.map(track => ({ ...track, isRecording: false }))
+        prev.map(track => ({ ...track, armed: false }))
       );
     }
   };
@@ -365,47 +382,64 @@ const HybridDAW = () => {
     }
   };
 
-  // Play audio from blob or URL
-  const playAudioRegion = async (region: AudioRegion, trackVolume: number = 0.8, trackMute: boolean = false) => {
-    if (!audioContextRef.current || trackMute) return;
+  // Play audio from pre-decoded buffer
+  const playAudioRegion = (
+    track: Track,
+    region: AudioRegion,
+    trackVolume: number,
+    trackMute: boolean
+  ) => {
+    if (!audioContextRef.current || trackMute || !track.audioBuffer) {
+      console.warn('[Playback] Skipped:', 
+        !audioContextRef.current ? 'No context' : 
+        !track.audioBuffer ? 'No buffer' : 'Muted'
+      );
+      return;
+    }
 
     try {
-      let audioBuffer: AudioBuffer;
-      
-      if (region.blob) {
-        const arrayBuffer = await region.blob.arrayBuffer();
-        audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
-      } else if (region.url) {
-        const response = await fetch(region.url);
-        const arrayBuffer = await response.arrayBuffer();
-        audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
-      } else {
-        return;
-      }
-
+      // Create nodes
       const source = audioContextRef.current.createBufferSource();
       const gainNode = audioContextRef.current.createGain();
       
-      source.buffer = audioBuffer;
+      // Use pre-decoded buffer - INSTANT! No fetch, no decode!
+      source.buffer = track.audioBuffer;
       gainNode.gain.value = (region.gain || 1) * trackVolume * masterVolume;
       
+      // Connect graph
       source.connect(gainNode);
       gainNode.connect(audioContextRef.current.destination);
       
-      // Start playback from current time position
-      const startOffset = Math.max(0, currentTime - region.start);
-      const duration = Math.max(0, region.end - region.start - startOffset);
+      // Apply fade in
+      if (region.fadeIn && region.fadeIn.duration > 0) {
+        const now = audioContextRef.current.currentTime;
+        gainNode.gain.setValueAtTime(0, now);
+        gainNode.gain.linearRampToValueAtTime(
+          gainNode.gain.value,
+          now + region.fadeIn.duration
+        );
+      }
       
-      if (startOffset < audioBuffer.duration && duration > 0) {
-        source.start(0, startOffset, duration);
+      // Calculate playback range
+      const sourceStart = (region.sourceStartOffset || 0) + Math.max(0, currentTime - region.startTime);
+      const duration = Math.min(
+        (region.duration || track.audioBuffer.duration) - (currentTime - region.startTime),
+        track.audioBuffer.duration - sourceStart
+      );
+      
+      if (duration > 0 && sourceStart < track.audioBuffer.duration) {
+        source.start(0, sourceStart, duration);
         playbackSourcesRef.current.set(region.id, source);
         
         source.onended = () => {
           playbackSourcesRef.current.delete(region.id);
         };
+        
+        console.log('[Playback] Started:', track.name, `${sourceStart.toFixed(2)}s for ${duration.toFixed(2)}s`);
       }
+      
     } catch (error) {
-      console.error('Error playing audio region:', error);
+      console.error('[Playback] Error:', error);
     }
   };
 
@@ -448,22 +482,13 @@ const HybridDAW = () => {
       startTimeRef.current = audioContextRef.current.currentTime;
       
       // Play all audio regions that should be playing at current time
-      tracks.forEach(track => {
-        if (!track.mute && !track.solo) {
-          track.regions.forEach(region => {
-            if (currentTime >= region.start && currentTime < region.end) {
-              playAudioRegion(region, track.volume, track.mute);
-            }
-          });
-        }
-      });
-      
-      // Play solo tracks if any
       const soloTracks = tracks.filter(track => track.solo);
-      soloTracks.forEach(track => {
-        track.regions.forEach(region => {
-          if (currentTime >= region.start && currentTime < region.end) {
-            playAudioRegion(region, track.volume, false);
+      const tracksToPlay = soloTracks.length > 0 ? soloTracks : tracks.filter(track => !track.mute);
+      
+      tracksToPlay.forEach(track => {
+        track.regions?.forEach(region => {
+          if (currentTime >= region.startTime && currentTime < region.startTime + region.duration) {
+            playAudioRegion(track, region, track.volume, track.mute);
           }
         });
       });
@@ -495,52 +520,92 @@ const HybridDAW = () => {
 
   // Handle imported audio file with automatic BPM detection
   const handleImportedAudio = async (importedFile: any) => {
-    // Create track with imported audio
-    const newTrack: Track = {
-      id: `track-${Date.now()}`,
-      name: importedFile.fileName,
-      color: 'hsl(42, 100%, 70%)', // Orange color for imported audio
-      regions: [{
-        id: `region-${Date.now()}`,
-        start: 0,
-        end: importedFile.duration || 10,
-        url: importedFile.url,
-        gain: 1,
-        fadeIn: 0,
-        fadeOut: 0
-      }],
-      solo: false,
-      mute: false,
-      volume: 0.8,
-      effects: {},
-      automation: []
-    };
+    if (!audioContextRef.current) {
+      toast({ 
+        title: "Audio Error", 
+        description: "Audio system not initialized",
+        variant: "destructive"
+      });
+      return;
+    }
 
-    setTracks(prev => [...prev, newTrack]);
-    setShowImportDialog(false);
-
-    // If analysis is available, update session BPM and time signature
-    if (importedFile.analysis) {
-      const { recommendations, bpm: detectedBpm, timeSignature, confidence } = importedFile.analysis;
+    try {
+      // 1. Fetch and decode audio
+      const response = await fetch(importedFile.url);
+      const arrayBuffer = await response.arrayBuffer();
+      const audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
       
-      if (confidence > 0.6 && recommendations.sessionBpm) {
-        setBpm(recommendations.sessionBpm);
+      console.log('[Import] Audio decoded:', audioBuffer.duration, 'seconds');
+      
+      // 2. Generate real waveform
+      const waveformData = WaveformGenerator.generateFromBuffer(audioBuffer, {
+        width: 800,
+        normalize: true,
+      });
+      
+      console.log('[Import] Waveform generated:', waveformData.peaks.length, 'peaks');
+      
+      // 3. Create track with ALL audio data (Store Track interface)
+      const newTrack: Track = {
+        id: `track-${Date.now()}`,
+        name: importedFile.fileName,
+        type: 'audio',
+        color: 'hsl(42, 100%, 70%)',
+        volume: 0.8,
+        pan: 0,
+        mute: false,
+        solo: false,
+        audioBuffer,  // ✅ Real decoded audio
+        waveformData: Array.from(waveformData.peaks), // ✅ Real waveform
+        regions: [{
+          id: `region-${Date.now()}`,
+          trackId: `track-${Date.now()}`,
+          startTime: 0,
+          duration: audioBuffer.duration,
+          audioBuffer, // ✅ Also store in region
+          sourceStartOffset: 0,
+          fadeIn: { duration: 0, curve: 'linear' },
+          fadeOut: { duration: 0, curve: 'linear' },
+          gain: 1.0,
+        }],
+        effects: [],
+        sends: {},
+      };
+      
+      setTracks(prev => [...prev, newTrack]);
+      setShowImportDialog(false);
+
+      // If analysis is available, update session BPM and time signature
+      if (importedFile.analysis) {
+        const { recommendations, bpm: detectedBpm, timeSignature, confidence } = importedFile.analysis;
         
-        toast({
-          title: "Session Updated!",
-          description: `Auto-detected BPM: ${recommendations.sessionBpm} | Time: ${recommendations.sessionTimeSignature} | Genre: ${importedFile.analysis.genre}`,
-          duration: 5000
-        });
+        if (confidence > 0.6 && recommendations.sessionBpm) {
+          setBpm(recommendations.sessionBpm);
+          
+          toast({
+            title: "Session Updated!",
+            description: `Auto-detected BPM: ${recommendations.sessionBpm} | Time: ${recommendations.sessionTimeSignature} | Genre: ${importedFile.analysis.genre}`,
+            duration: 5000
+          });
+        } else {
+          toast({
+            title: "Track Added!",
+            description: `${importedFile.fileName} added with real audio data. BPM detection confidence low - consider manual adjustment.`,
+          });
+        }
       } else {
         toast({
           title: "Track Added!",
-          description: `${importedFile.fileName} added. BPM detection confidence low - consider manual adjustment.`,
+          description: `${importedFile.fileName} ready with real audio data`,
         });
       }
-    } else {
+      
+    } catch (error) {
+      console.error('[Import] Failed:', error);
       toast({
-        title: "Track Added!",
-        description: `${importedFile.fileName} has been added to your session`,
+        title: "Import Failed",
+        description: "Could not decode audio file",
+        variant: "destructive"
       });
     }
   };
@@ -576,7 +641,7 @@ const HybridDAW = () => {
   };
 
   // Handle Processed Stems
-  const handleStemsProcessed = (stems: Array<{
+  const handleStemsProcessed = async (stems: Array<{
     stemType: string;
     stemName: string;
     filePath: string;
@@ -584,43 +649,78 @@ const HybridDAW = () => {
     // Close the dialog
     setShowStemSeparationDialog(false);
     
-    // Create a new track for each stem
-    stems.forEach((stem, index) => {
-      const stemColors: Record<string, string> = {
-        'vocals': 'hsl(280, 70%, 75%)',
-        'drums': 'hsl(0, 70%, 65%)',
-        'bass': 'hsl(220, 100%, 70%)',
-        'other': 'hsl(140, 60%, 65%)',
-        'piano': 'hsl(40, 80%, 70%)',
-        'guitar': 'hsl(30, 70%, 65%)',
-      };
+    if (!audioContextRef.current) {
+      toast({
+        title: "Audio Error",
+        description: "Audio system not initialized",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Create a new track for each stem with decoded audio
+    for (const [index, stem] of stems.entries()) {
+      try {
+        // Fetch and decode stem audio
+        const response = await fetch(stem.filePath);
+        const arrayBuffer = await response.arrayBuffer();
+        const audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
+        
+        // Generate waveform
+        const waveformData = WaveformGenerator.generateFromBuffer(audioBuffer, {
+          width: 800,
+          normalize: true,
+        });
+        
+        const stemColors: Record<string, string> = {
+          'vocals': 'hsl(280, 70%, 75%)',
+          'drums': 'hsl(0, 70%, 65%)',
+          'bass': 'hsl(220, 100%, 70%)',
+          'other': 'hsl(140, 60%, 65%)',
+          'piano': 'hsl(40, 80%, 70%)',
+          'guitar': 'hsl(30, 70%, 65%)',
+        };
 
-      const newTrack: Track = {
-        id: `stem-track-${Date.now()}-${index}`,
-        name: stem.stemName,
-        color: stemColors[stem.stemType.toLowerCase()] || 'hsl(262, 83%, 58%)',
-        regions: [{
-          id: `stem-region-${Date.now()}-${index}`,
-          start: 0,
-          end: 0, // Will be set when audio loads
-          url: stem.filePath,
-          gain: 1,
-          fadeIn: 0,
-          fadeOut: 0
-        }],
-        solo: false,
-        mute: false,
-        volume: 0.8,
-        effects: {},
-        automation: []
-      };
-      
-      setTracks(prev => [...prev, newTrack]);
-    });
+        const newTrack: Track = {
+          id: `stem-track-${Date.now()}-${index}`,
+          name: stem.stemName,
+          type: stem.stemType.toLowerCase() as any || 'audio',
+          color: stemColors[stem.stemType.toLowerCase()] || 'hsl(262, 83%, 58%)',
+          volume: 0.8,
+          pan: 0,
+          mute: false,
+          solo: false,
+          audioBuffer,
+          waveformData: Array.from(waveformData.peaks),
+          regions: [{
+            id: `stem-region-${Date.now()}-${index}`,
+            trackId: `stem-track-${Date.now()}-${index}`,
+            startTime: 0,
+            duration: audioBuffer.duration,
+            audioBuffer,
+            sourceStartOffset: 0,
+            fadeIn: { duration: 0, curve: 'linear' },
+            fadeOut: { duration: 0, curve: 'linear' },
+            gain: 1.0,
+          }],
+          effects: [],
+          sends: {},
+        };
+        
+        setTracks(prev => [...prev, newTrack]);
+      } catch (error) {
+        console.error(`[Stems] Failed to decode ${stem.stemName}:`, error);
+        toast({
+          title: "Stem Import Error",
+          description: `Failed to decode ${stem.stemName}`,
+          variant: "destructive"
+        });
+      }
+    }
     
     toast({
       title: "Stems Imported!",
-      description: `${stems.length} stems added to your project`,
+      description: `${stems.length} stems added with real audio data`,
     });
   };
 
@@ -848,7 +948,7 @@ const HybridDAW = () => {
                         </div>
                       </div>
                     </div>
-                    {track.isRecording && (
+                    {track.armed && (
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 bg-destructive rounded-full animate-pulse-glow" />
                         <span className="text-xs text-destructive font-bold">REC</span>
@@ -879,9 +979,9 @@ const HybridDAW = () => {
                       M
                     </Button>
                     <Button
-                      variant={track.isRecording ? "destructive" : "ghost"}
+                      variant={track.armed ? "destructive" : "ghost"}
                       size="sm"
-                      onClick={() => !track.isRecording ? startRecording(track.id) : stopRecording()}
+                      onClick={() => !track.armed ? startRecording(track.id) : stopRecording()}
                       className="flex-1 text-xs font-bold"
                     >
                       <Mic className="w-3 h-3" />

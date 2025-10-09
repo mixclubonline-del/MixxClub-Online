@@ -17,7 +17,7 @@ import {
   Volume2,
   Waves
 } from "lucide-react";
-import type { Track } from "@/pages/HybridDAW";
+import type { Track } from "@/stores/aiStudioStore";
 
 interface DAWEffectsPanelProps {
   tracks: Track[];

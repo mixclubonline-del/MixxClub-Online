@@ -15,7 +15,7 @@ import {
   Zap,
   RotateCcw
 } from "lucide-react";
-import type { Track } from "@/pages/HybridDAW";
+import type { Track } from "@/stores/aiStudioStore";
 
 interface DAWMixerPanelProps {
   tracks: Track[];
