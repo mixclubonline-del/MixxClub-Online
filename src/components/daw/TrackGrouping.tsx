@@ -145,11 +145,7 @@ export const TrackGrouping = () => {
                   return track ? (
                     <div 
                       key={trackId}
-                      className="text-xs py-1 px-2 rounded"
-                      style={{ 
-                        background: 'hsl(220, 20%, 16%)',
-                        color: 'hsl(220, 20%, 80%)'
-                      }}
+                      className="text-xs py-1 px-2 rounded bg-muted/50 text-foreground hover:bg-muted transition-colors"
                     >
                       {track.name}
                     </div>

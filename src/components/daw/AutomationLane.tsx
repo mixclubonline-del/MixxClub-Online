@@ -46,12 +46,15 @@ export const AutomationLane = ({ trackId, parameter, onClose }: AutomationLanePr
     const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      // Background
-      ctx.fillStyle = 'hsl(220, 20%, 10%)';
+      // Background with subtle gradient
+      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      gradient.addColorStop(0, 'hsl(220, 20%, 12%)');
+      gradient.addColorStop(1, 'hsl(220, 20%, 8%)');
+      ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
       // Grid lines
-      ctx.strokeStyle = 'hsl(220, 20%, 15%)';
+      ctx.strokeStyle = 'hsl(220, 20%, 18%)';
       ctx.lineWidth = 1;
       for (let i = 0; i <= 4; i++) {
         const y = (canvas.height / 4) * i;
@@ -63,8 +66,12 @@ export const AutomationLane = ({ trackId, parameter, onClose }: AutomationLanePr
       
       // Current time indicator
       const playheadX = (currentTime / duration) * canvas.width;
-      ctx.strokeStyle = 'hsl(0, 80%, 60%)';
-      ctx.lineWidth = 2;
+      const playheadGradient = ctx.createLinearGradient(playheadX - 1, 0, playheadX + 1, 0);
+      playheadGradient.addColorStop(0, 'hsla(0, 80%, 60%, 0)');
+      playheadGradient.addColorStop(0.5, 'hsl(0, 80%, 60%)');
+      playheadGradient.addColorStop(1, 'hsla(0, 80%, 60%, 0)');
+      ctx.strokeStyle = playheadGradient;
+      ctx.lineWidth = 3;
       ctx.beginPath();
       ctx.moveTo(playheadX, 0);
       ctx.lineTo(playheadX, canvas.height);
@@ -72,11 +79,26 @@ export const AutomationLane = ({ trackId, parameter, onClose }: AutomationLanePr
       
       // Automation curve
       if (points.length > 0) {
+        const sortedPoints = [...points].sort((a, b) => a.time - b.time);
+        
+        // Fill area under curve
+        ctx.fillStyle = 'hsla(180, 70%, 50%, 0.1)';
+        ctx.beginPath();
+        ctx.moveTo(0, canvas.height);
+        sortedPoints.forEach((point) => {
+          const x = (point.time / duration) * canvas.width;
+          const y = canvas.height - (point.value * canvas.height);
+          ctx.lineTo(x, y);
+        });
+        ctx.lineTo((sortedPoints[sortedPoints.length - 1].time / duration) * canvas.width, canvas.height);
+        ctx.closePath();
+        ctx.fill();
+        
+        // Draw curve line
         ctx.strokeStyle = 'hsl(180, 70%, 50%)';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 2.5;
         ctx.beginPath();
         
-        const sortedPoints = [...points].sort((a, b) => a.time - b.time);
         sortedPoints.forEach((point, index) => {
           const x = (point.time / duration) * canvas.width;
           const y = canvas.height - (point.value * canvas.height);
@@ -94,15 +116,27 @@ export const AutomationLane = ({ trackId, parameter, onClose }: AutomationLanePr
           const x = (point.time / duration) * canvas.width;
           const y = canvas.height - (point.value * canvas.height);
           
+          // Point glow
+          if (selectedPoint === index) {
+            const glowGradient = ctx.createRadialGradient(x, y, 0, x, y, 12);
+            glowGradient.addColorStop(0, 'hsla(50, 100%, 50%, 0.3)');
+            glowGradient.addColorStop(1, 'hsla(50, 100%, 50%, 0)');
+            ctx.fillStyle = glowGradient;
+            ctx.beginPath();
+            ctx.arc(x, y, 12, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          
+          // Point
           ctx.fillStyle = selectedPoint === index 
-            ? 'hsl(50, 100%, 50%)' 
+            ? 'hsl(50, 100%, 55%)' 
             : 'hsl(180, 70%, 50%)';
           ctx.beginPath();
-          ctx.arc(x, y, 6, 0, Math.PI * 2);
+          ctx.arc(x, y, 5, 0, Math.PI * 2);
           ctx.fill();
           
           // Point border
-          ctx.strokeStyle = 'hsl(220, 20%, 10%)';
+          ctx.strokeStyle = 'hsl(220, 20%, 8%)';
           ctx.lineWidth = 2;
           ctx.stroke();
         });
@@ -173,20 +207,16 @@ export const AutomationLane = ({ trackId, parameter, onClose }: AutomationLanePr
 
   return (
     <div 
-      className="flex flex-col border-t"
+      className="flex flex-col border-t bg-card/50"
       style={{
-        background: 'hsl(220, 20%, 12%)',
-        borderColor: 'hsl(220, 20%, 20%)',
         height: '120px',
       }}
     >
       {/* Header */}
-      <div 
-        className="flex items-center justify-between px-3 py-1 border-b"
-        style={{ borderColor: 'hsl(220, 20%, 20%)' }}
-      >
+      <div className="flex items-center justify-between px-3 py-1.5 border-b bg-muted/30">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold" style={{ color: 'hsl(180, 70%, 50%)' }}>
+          <div className="w-1 h-4 bg-primary rounded-full" />
+          <span className="text-xs font-semibold text-primary">
             {getParameterLabel()} Automation
           </span>
         </div>

@@ -1,8 +1,8 @@
 import { useRef, useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Slider } from '@/components/ui/slider';
-import { Music, Pencil, Eraser, Hand, Grid3x3 } from 'lucide-react';
+import { Music, Pencil, Eraser, Hand } from 'lucide-react';
+import { ZoomControl } from './ZoomControl';
 
 interface MIDINote {
   id: string;
@@ -205,14 +205,15 @@ export const MIDIEditor = () => {
           <h3 className="font-semibold">MIDI Editor</h3>
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {/* Tools */}
-          <div className="flex gap-1 border rounded-lg p-1">
+          <div className="flex gap-1 bg-muted/50 rounded-lg p-1">
             <Button
               variant={tool === 'select' ? 'default' : 'ghost'}
               size="icon"
               className="h-7 w-7"
               onClick={() => setTool('select')}
+              title="Select (V)"
             >
               <Hand className="w-4 h-4" />
             </Button>
@@ -221,6 +222,7 @@ export const MIDIEditor = () => {
               size="icon"
               className="h-7 w-7"
               onClick={() => setTool('draw')}
+              title="Draw (D)"
             >
               <Pencil className="w-4 h-4" />
             </Button>
@@ -229,36 +231,37 @@ export const MIDIEditor = () => {
               size="icon"
               className="h-7 w-7"
               onClick={() => setTool('erase')}
+              title="Erase (E)"
             >
               <Eraser className="w-4 h-4" />
             </Button>
           </div>
           
           {/* Snap */}
-          <Select value={snap.toString()} onValueChange={(v) => setSnap(Number(v))}>
-            <SelectTrigger className="w-24 h-8">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="1">1/1</SelectItem>
-              <SelectItem value="2">1/2</SelectItem>
-              <SelectItem value="4">1/4</SelectItem>
-              <SelectItem value="8">1/8</SelectItem>
-              <SelectItem value="16">1/16</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          {/* Zoom */}
-          <div className="flex items-center gap-2 w-32">
-            <Grid3x3 className="w-4 h-4" />
-            <Slider
-              value={[zoom]}
-              min={0.5}
-              max={2}
-              step={0.1}
-              onValueChange={(v) => setZoom(v[0])}
-            />
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">Snap:</span>
+            <Select value={snap.toString()} onValueChange={(v) => setSnap(Number(v))}>
+              <SelectTrigger className="w-20 h-8">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1">1/1</SelectItem>
+                <SelectItem value="2">1/2</SelectItem>
+                <SelectItem value="4">1/4</SelectItem>
+                <SelectItem value="8">1/8</SelectItem>
+                <SelectItem value="16">1/16</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
+          
+          {/* Zoom Control */}
+          <ZoomControl
+            zoom={zoom}
+            onZoomChange={setZoom}
+            min={0.5}
+            max={3}
+            showButtons={false}
+          />
         </div>
       </div>
 

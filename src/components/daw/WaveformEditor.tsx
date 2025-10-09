@@ -93,13 +93,7 @@ export const WaveformEditor = ({ regionId, trackId }: WaveformEditorProps) => {
   };
 
   return (
-    <div 
-      className="flex items-center gap-1 p-2 rounded-lg border"
-      style={{
-        background: 'linear-gradient(135deg, hsl(220, 20%, 16%) 0%, hsl(220, 20%, 14%) 100%)',
-        borderColor: 'hsl(220, 20%, 24%)',
-      }}
-    >
+    <div className="flex items-center gap-1 p-2 rounded-lg border bg-card/80 backdrop-blur-sm">
       {/* Edit Tools */}
       <div className="flex items-center gap-1">
         <Button
