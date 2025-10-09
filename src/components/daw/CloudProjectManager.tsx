@@ -19,7 +19,12 @@ interface SavedProject {
   data: any;
 }
 
-export const CloudProjectManager = () => {
+interface CloudProjectManagerProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export const CloudProjectManager = ({ isOpen, onClose }: CloudProjectManagerProps) => {
   const [projects, setProjects] = useState<SavedProject[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -138,18 +143,14 @@ export const CloudProjectManager = () => {
   };
 
   if (!user) {
-    return (
-      <Card className="p-4">
-        <div className="text-center py-8 text-muted-foreground">
-          <Cloud className="w-12 h-12 mx-auto mb-2 opacity-20" />
-          <p className="text-sm">Sign in to save projects to the cloud</p>
-        </div>
-      </Card>
-    );
+    return null;
   }
 
+  if (!isOpen) return null;
+
   return (
-    <Card className="p-4 space-y-4">
+    <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <Card className="glass p-6 max-w-4xl w-full max-h-[80vh] overflow-auto">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Cloud className="w-5 h-5 text-primary" />
@@ -241,6 +242,11 @@ export const CloudProjectManager = () => {
           <p className="text-sm">No saved projects yet</p>
         </div>
       )}
-    </Card>
+      
+      <div className="flex justify-end mt-6">
+        <Button variant="outline" onClick={onClose}>Close</Button>
+      </div>
+      </Card>
+    </div>
   );
 };

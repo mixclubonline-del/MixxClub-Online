@@ -8,6 +8,11 @@ import { Scissors, Music2, Mic, Drum, Guitar, Loader2, Download } from 'lucide-r
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+interface StemSeparationProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
 interface StemResult {
   type: string;
   url: string;
@@ -23,7 +28,7 @@ const STEM_OPTIONS = [
   { id: 'other', label: 'Other', icon: Guitar },
 ];
 
-export const StemSeparation = () => {
+export const StemSeparation = ({ isOpen, onClose }: StemSeparationProps) => {
   const [selectedStems, setSelectedStems] = useState<string[]>(['vocals', 'drums', 'bass', 'other']);
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -107,12 +112,17 @@ export const StemSeparation = () => {
     }
   };
 
+  if (!isOpen) return null;
+
   return (
-    <Card className="p-4 space-y-4">
-      <div className="flex items-center gap-2">
-        <Scissors className="w-5 h-5 text-primary" />
-        <h3 className="font-semibold">AI Stem Separation</h3>
-      </div>
+    <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <Card className="glass p-6 max-w-2xl w-full max-h-[80vh] overflow-auto">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Scissors className="w-5 h-5 text-primary" />
+            <h3 className="font-semibold">AI Stem Separation</h3>
+          </div>
+        </div>
 
       {/* File Upload */}
       <div className="space-y-2">
@@ -220,6 +230,11 @@ export const StemSeparation = () => {
           </div>
         </div>
       )}
-    </Card>
+
+        <div className="flex justify-end mt-6">
+          <Button variant="outline" onClick={onClose}>Close</Button>
+        </div>
+      </Card>
+    </div>
   );
 };

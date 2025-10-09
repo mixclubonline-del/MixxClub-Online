@@ -148,6 +148,9 @@ interface AIStudioStore {
   setCurrentTime: (time: number) => void;
   setDuration: (duration: number) => void;
   setTempo: (tempo: number) => void;
+  bpm: number;
+  setBpm: (bpm: number) => void;
+  selectTrack: (id: string) => void;
   
   setProcessing: (processing: Partial<ProcessingState>) => void;
   setViewMode: (mode: 'studio' | 'console' | '3d' | 'compact') => void;
@@ -214,6 +217,7 @@ export const useAIStudioStore = create<AIStudioStore>((set, get) => ({
   duration: 60, // Initial minimum
   sessionEndTime: 60,
   tempo: 120,
+  bpm: 120,
   processing: {
     isProcessing: false,
     progress: 0,
@@ -242,6 +246,8 @@ export const useAIStudioStore = create<AIStudioStore>((set, get) => ({
   })),
   
   setSelectedTrack: (id) => set({ selectedTrackId: id }),
+  selectTrack: (id) => set({ selectedTrackId: id }),
+  setBpm: (bpm) => set({ bpm, tempo: bpm }),
   
   addEffect: (effect) => set((state) => ({
     effects: [...state.effects, effect],

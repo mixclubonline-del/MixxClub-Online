@@ -26,6 +26,9 @@ import IntroScene from "./pages/IntroScene";
 const ArtistCRM = React.lazy(() => import("./pages/ArtistCRM"));
 const EngineerCRM = React.lazy(() => import("./pages/EngineerCRM"));
 const AudioLab = React.lazy(() => import("./pages/AudioLab"));
+import { Route } from "react-router-dom";
+// ... keep existing code
+const ProDAW = React.lazy(() => import("./pages/ProDAW"));
 const HybridDAW = React.lazy(() => import("./pages/HybridDAW"));
 const Admin = React.lazy(() => import("./pages/Admin"));
 const AIMastering = React.lazy(() => import("./pages/AIMastering"));

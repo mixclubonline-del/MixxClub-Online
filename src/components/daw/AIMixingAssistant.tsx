@@ -17,7 +17,12 @@ interface MixingSuggestion {
   applied?: boolean;
 }
 
-export const AIMixingAssistant = () => {
+interface AIMixingAssistantProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export const AIMixingAssistant = ({ isOpen, onClose }: AIMixingAssistantProps) => {
   const [suggestions, setSuggestions] = useState<MixingSuggestion[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisType, setAnalysisType] = useState<'mix' | 'master' | 'arrangement'>('mix');
@@ -103,15 +108,18 @@ export const AIMixingAssistant = () => {
     }
   };
 
+  if (!isOpen) return null;
+
   return (
-    <Card className="p-4 space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-primary" />
-          <h3 className="font-semibold">AI Mixing Assistant</h3>
-          <Badge variant="outline" className="text-xs">2027 Tech</Badge>
+    <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <Card className="glass p-6 max-w-2xl w-full max-h-[80vh] overflow-auto">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-primary" />
+            <h3 className="font-semibold">AI Mixing Assistant</h3>
+            <Badge variant="outline" className="text-xs">2027 Tech</Badge>
+          </div>
         </div>
-      </div>
 
       <div className="flex gap-2">
         <Button
@@ -217,6 +225,11 @@ export const AIMixingAssistant = () => {
           <p className="text-sm">Click a button above to get AI-powered suggestions</p>
         </div>
       )}
+      
+      <div className="flex justify-end mt-6">
+        <Button variant="outline" onClick={onClose}>Close</Button>
+      </div>
     </Card>
+    </div>
   );
 };
