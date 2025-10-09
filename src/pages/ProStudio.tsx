@@ -18,6 +18,8 @@ import { ShortcutsPanel } from '@/components/studio/ShortcutsPanel';
 import { BatchProcessingMenu } from '@/components/studio/BatchProcessingMenu';
 import { GrooveTemplates } from '@/components/studio/GrooveTemplates';
 import { AutomationRecordingControls } from '@/components/studio/AutomationRecordingControls';
+import { MeteringPanel } from '@/components/studio/MeteringPanel';
+import { StemSeparationDialog } from '@/components/studio/StemSeparationDialog';
 import { audioEngine } from '@/services/audioEngine';
 import { useStudioPlayback } from '@/hooks/useStudioPlayback';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
