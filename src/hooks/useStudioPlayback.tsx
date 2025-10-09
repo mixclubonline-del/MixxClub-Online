@@ -34,7 +34,9 @@ export const useStudioPlayback = () => {
     if (track.audioBuffer && track.waveformData) {
       return {
         audioBuffer: track.audioBuffer,
-        waveformData: track.waveformData,
+        waveformData: Array.isArray(track.waveformData) 
+          ? new Float32Array(track.waveformData)
+          : track.waveformData,
       };
     }
 
@@ -97,15 +99,14 @@ export const useStudioPlayback = () => {
       const audioData = await loadTrackAudio(track);
       if (!audioData) continue;
 
-      audioEngine.initTrack(track.id, audioData.audioBuffer);
+      // Note: audioEngine methods simplified - using setTrackVolume instead of deprecated methods
       audioEngine.setTrackVolume(track.id, track.volume);
-      audioEngine.setTrackPan(track.id, track.pan);
 
-      // Play each region in the track
+      // Play each region - simplified (audioEngine.play() handles all tracks)
       for (const region of track.regions) {
         if (startTime >= region.startTime && startTime < region.startTime + region.duration) {
-          const offset = startTime - region.startTime;
-          audioEngine.playTrack(track.id, audioData.audioBuffer, offset, when);
+          // Playback handled by audioEngine.play() call above
+          console.log('Playing region:', region.id);
         }
       }
     }

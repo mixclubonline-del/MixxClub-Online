@@ -67,7 +67,7 @@ export const FadeHandle = ({
     e.stopPropagation();
     
     // Cycle through fade curves
-    const currentIndex = FADE_CURVES.indexOf(currentFade.curve);
+    const currentIndex = FADE_CURVES.indexOf(currentFade.curve as 'linear' | 'exponential' | 'logarithmic');
     const nextCurve = FADE_CURVES[(currentIndex + 1) % FADE_CURVES.length];
     
     updateRegion(regionId, {

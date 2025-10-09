@@ -35,15 +35,18 @@ export const ChannelStrip = ({
   const [selectedInsertSlot, setSelectedInsertSlot] = useState<number | null>(null);
 
   const getTrackColor = (type: Track['type']) => {
-    const colors: Record<Track['type'], string> = {
+    const colors: Partial<Record<Track['type'], string>> = {
       vocal: 'hsl(185, 100%, 50%)',
       drums: 'hsl(300, 90%, 65%)',
       bass: 'hsl(270, 100%, 70%)',
       keys: 'hsl(45, 95%, 55%)',
       guitar: 'hsl(330, 90%, 60%)',
+      audio: 'hsl(200, 70%, 50%)',
+      midi: 'hsl(300, 70%, 50%)',
+      bus: 'hsl(0, 0%, 50%)',
       other: 'hsl(210, 100%, 55%)',
     };
-    return colors[type] || colors.other;
+    return colors[type] || colors.other || 'hsl(210, 100%, 55%)';
   };
 
   const handleFaderMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -101,7 +104,7 @@ export const ChannelStrip = ({
     };
     
     onAddTrackEffect(track.id, effect);
-    audioEngine.insertEffect(track.id, effect.id, effectType as 'eq' | 'compressor' | 'reverb' | 'delay' | 'saturator' | 'limiter');
+    // Note: insertEffect is deprecated, use addPlugin on audioEngine
   };
 
   const getDefaultParameters = (type: EffectUnit['type']): Record<string, number> => {

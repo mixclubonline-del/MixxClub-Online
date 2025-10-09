@@ -11,14 +11,14 @@ export interface AudioRegion {
   startTime: number;
   duration: number;
   audioBuffer?: AudioBuffer;
-  offset: number;
+  offset?: number;
   sourceStartOffset?: number;
   fadeIn: FadeConfig;
   fadeOut: FadeConfig;
   gain: number;
-  locked: boolean;
+  locked?: boolean;
   color?: string;
-  name: string;
+  name?: string;
 }
 
 export interface EffectUnit {
@@ -33,20 +33,21 @@ export interface EffectUnit {
 
 export interface SendUnit {
   amount: number;
-  preFader?: boolean;
+  preFader: boolean;
 }
 
 export interface Track {
   id: string;
   name: string;
   type: 'audio' | 'midi' | 'bus' | 'vocal' | 'drums' | 'bass' | 'keys' | 'guitar' | 'other';
-  color: string;
+  color?: string;
   volume: number;
   pan: number;
   mute: boolean;
   solo: boolean;
-  armed: boolean;
+  armed?: boolean;
   frozen?: boolean;
+  filePath?: string;
   audioBuffer?: AudioBuffer;
   busGroupId?: string;
   effects?: EffectUnit[];
@@ -54,7 +55,7 @@ export interface Track {
   peakLevel?: number;
   rmsLevel?: number;
   regions?: AudioRegion[];
-  waveformData?: number[];
+  waveformData?: number[] | Float32Array;
 }
 
 export interface BusGroup {
@@ -93,10 +94,10 @@ interface AIStudioStore {
   totalLatency: number;
   latencyCompensation: boolean;
   effects: EffectUnit[];
-  scrollMode?: string;
-  snapEnabled?: boolean;
-  snapMode?: string;
-  rippleMode?: boolean;
+  scrollMode: string;
+  snapEnabled: boolean;
+  snapMode: string;
+  rippleMode: string;
   
   // Track actions
   addTrack: (track: Track) => void;
@@ -109,7 +110,7 @@ interface AIStudioStore {
   addBusGroup: (bus: BusGroup) => void;
   updateBusGroup: (id: string, updates: Partial<BusGroup>) => void;
   removeBusGroup: (id: string) => void;
-  createBusGroup: (bus: BusGroup) => void;
+  createBusGroup: (name: string, trackIds: string[]) => void;
   deleteBusGroup: (id: string) => void;
   
   // Region actions
@@ -157,7 +158,7 @@ interface AIStudioStore {
   setScrollMode: (mode: string) => void;
   setSnapEnabled: (enabled: boolean) => void;
   setSnapMode: (mode: string) => void;
-  setRippleMode: (enabled: boolean) => void;
+  setRippleMode: (mode: string) => void;
   splitRegion: (id: string, position: number) => void;
   isRecording: boolean;
   setRecording: (recording: boolean) => void;
@@ -187,7 +188,7 @@ export const useAIStudioStore = create<AIStudioStore>((set, get) => ({
   scrollMode: 'page',
   snapEnabled: true,
   snapMode: 'grid',
-  rippleMode: false,
+  rippleMode: 'off',
   isRecording: false,
   
   addTrack: (track) => set((state) => ({ 
@@ -220,8 +221,17 @@ export const useAIStudioStore = create<AIStudioStore>((set, get) => ({
     busGroups: state.busGroups.filter(b => b.id !== id)
   })),
   
-  createBusGroup: (bus) => set((state) => ({ 
-    busGroups: [...state.busGroups, bus] 
+  createBusGroup: (name, trackIds) => set((state) => ({
+    busGroups: [...state.busGroups, {
+      id: `bus-${Date.now()}`,
+      name,
+      trackIds,
+      color: '#888888',
+      volume: 1,
+      pan: 0,
+      mute: false,
+      solo: false,
+    }]
   })),
   
   deleteBusGroup: (id) => set((state) => ({
@@ -407,7 +417,7 @@ export const useAIStudioStore = create<AIStudioStore>((set, get) => ({
   
   setSnapMode: (mode) => set({ snapMode: mode }),
   
-  setRippleMode: (enabled) => set({ rippleMode: enabled }),
+  setRippleMode: (mode) => set({ rippleMode: mode }),
   
   calculateSessionDuration: () => {
     const state = get();

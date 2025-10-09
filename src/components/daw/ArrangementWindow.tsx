@@ -37,15 +37,18 @@ export const ArrangementWindow = ({
 
   // Colors based on track type - Pro Tools inspired
   const getTrackColor = (type: Track['type']): string => {
-    const colors: Record<Track['type'], string> = {
+    const colors: Partial<Record<Track['type'], string>> = {
       vocal: 'hsl(280, 70%, 55%)', // Purple/Magenta
       guitar: 'hsl(15, 85%, 55%)',  // Orange/Red
       bass: 'hsl(220, 80%, 45%)',   // Deep Blue
       drums: 'hsl(140, 70%, 45%)',  // Green
       keys: 'hsl(180, 75%, 50%)',   // Cyan
+      audio: 'hsl(200, 70%, 50%)',  // Blue
+      midi: 'hsl(300, 70%, 50%)',   // Magenta
+      bus: 'hsl(0, 0%, 50%)',       // Gray
       other: 'hsl(50, 90%, 55%)',   // Yellow
     };
-    return colors[type] || colors.other;
+    return colors[type] || colors.other || 'hsl(50, 90%, 55%)';
   };
 
   // Draw playhead on ruler

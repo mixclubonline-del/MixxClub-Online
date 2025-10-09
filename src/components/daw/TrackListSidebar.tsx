@@ -41,15 +41,18 @@ export const TrackListSidebar = () => {
 
   // Track type colors - Pro Tools inspired
   const getTrackColor = (type: Track['type']): string => {
-    const colors: Record<Track['type'], string> = {
+    const colors: Partial<Record<Track['type'], string>> = {
       vocal: 'hsl(280, 70%, 55%)',
       guitar: 'hsl(15, 85%, 55%)',
       bass: 'hsl(220, 80%, 45%)',
       drums: 'hsl(140, 70%, 45%)',
       keys: 'hsl(180, 75%, 50%)',
+      audio: 'hsl(200, 70%, 50%)',
+      midi: 'hsl(300, 70%, 50%)',
+      bus: 'hsl(0, 0%, 50%)',
       other: 'hsl(50, 90%, 55%)',
     };
-    return colors[type] || colors.other;
+    return colors[type] || colors.other || 'hsl(50, 90%, 55%)';
   };
 
   const handleVolumeChange = (trackId: string, value: number[]) => {

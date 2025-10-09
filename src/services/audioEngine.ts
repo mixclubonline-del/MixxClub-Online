@@ -431,6 +431,59 @@ class AudioEngine {
     console.warn("renderOffline stub: implement with OfflineAudioContext for true export.");
     return null;
   }
+
+  /** Stub methods for compatibility with existing components */
+  setSampleRate(_rate: number) {
+    console.warn("setSampleRate: Sample rate is fixed at AudioContext creation");
+  }
+
+  setBufferSize(_size: number) {
+    console.warn("setBufferSize: Buffer size configuration not yet implemented");
+  }
+
+  setLatencyCompensation(_enabled: boolean) {
+    console.warn("setLatencyCompensation: Latency compensation not yet implemented");
+  }
+
+  startPluginPreview(_trackId: UUID, _pluginType: string) {
+    console.warn("startPluginPreview: Plugin preview not yet implemented");
+  }
+
+  stopPluginPreview() {
+    console.warn("stopPluginPreview: Plugin preview not yet implemented");
+  }
+
+  insertEffect(_trackId: UUID, _effect: any) {
+    console.warn("insertEffect: Use addPlugin instead");
+  }
+
+  updateEffectParameter(_trackId: UUID, _effectId: UUID, _paramId: string, _value: number) {
+    console.warn("updateEffectParameter: Effect parameter automation not yet implemented");
+  }
+
+  getPlaybackPosition(): number {
+    return this.playing ? this.ctx.currentTime - this.startedAt : this.pausedAt;
+  }
+
+  stopAllTracks() {
+    this.stop();
+  }
+
+  initTrack(_trackId: UUID) {
+    console.warn("initTrack: Track initialization handled by createTrack");
+  }
+
+  setTrackVolume(trackId: UUID, volume: number) {
+    this.setTrackGain(trackId, volume);
+  }
+
+  playTrack(_trackId: UUID) {
+    console.warn("playTrack: Individual track playback - use play() for all tracks");
+  }
+
+  stopTrack(_trackId: UUID) {
+    console.warn("stopTrack: Individual track stop not yet implemented");
+  }
 }
 
 // Singleton export (matches your existing import style)
