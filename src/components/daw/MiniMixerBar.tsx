@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { ChevronUp, ChevronDown, Volume2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { EnhancedChannelStrip } from './EnhancedChannelStrip';
 
 export const MiniMixerBar = () => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -35,8 +36,12 @@ export const MiniMixerBar = () => {
     return colors[type] || colors.other;
   };
 
-  const handleVolumeChange = (trackId: string, value: number[]) => {
-    updateTrack(trackId, { volume: value[0] / 100 });
+  const handleVolumeChange = (trackId: string, value: number) => {
+    updateTrack(trackId, { volume: value });
+  };
+
+  const handlePanChange = (trackId: string, value: number) => {
+    updateTrack(trackId, { pan: value });
   };
 
   return (
@@ -97,82 +102,17 @@ export const MiniMixerBar = () => {
               const trackColor = getTrackColor(track.type);
 
               return (
-                <div
+                <EnhancedChannelStrip
                   key={track.id}
-                  className={cn(
-                    "flex flex-col border rounded-lg transition-colors cursor-pointer",
-                    isSelected && "ring-2"
-                  )}
-                  style={{
-                    width: `${CHANNEL_WIDTH}px`,
-                    background: 'linear-gradient(135deg, hsl(220, 20%, 18%) 0%, hsl(220, 20%, 16%) 50%, hsl(220, 20%, 14%) 100%)',
-                    borderColor: isSelected ? trackColor : 'hsl(220, 20%, 24%)',
-                    boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.05), inset 0 -1px 2px rgba(0,0,0,0.3), 0 2px 6px rgba(0,0,0,0.3)',
-                  }}
-                  onClick={() => setSelectedTrack(track.id)}
-                >
-                  {/* Vertical fader */}
-                  <div className="flex-1 flex flex-col items-center justify-center p-2">
-                    <div className="relative" style={{ height: '100%', width: '20px' }}>
-                      <Slider
-                        value={[track.volume * 100]}
-                        onValueChange={(value) => handleVolumeChange(track.id, value)}
-                        max={100}
-                        step={1}
-                        orientation="vertical"
-                        className="h-full"
-                      />
-                    </div>
-                    
-                    {/* Volume value */}
-                    <div className="mt-2 text-[10px] font-mono" style={{ color: 'hsl(220, 20%, 70%)' }}>
-                      {Math.round(track.volume * 100)}
-                    </div>
-                  </div>
-
-                  {/* M/S buttons */}
-                  <div className="flex gap-1 p-1 border-t" style={{ borderColor: 'hsl(220, 20%, 24%)' }}>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className={cn(
-                        "h-6 flex-1 text-[10px] font-bold",
-                        track.mute && "bg-[hsl(0,70%,50%)]"
-                      )}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        updateTrack(track.id, { mute: !track.mute });
-                      }}
-                    >
-                      M
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className={cn(
-                        "h-6 flex-1 text-[10px] font-bold",
-                        track.solo && "bg-[hsl(50,90%,50%)]"
-                      )}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        updateTrack(track.id, { solo: !track.solo });
-                      }}
-                    >
-                      S
-                    </Button>
-                  </div>
-
-                  {/* Track name */}
-                  <div 
-                    className="p-2 text-center text-[10px] font-medium truncate border-t"
-                    style={{ 
-                      borderColor: 'hsl(220, 20%, 24%)',
-                      color: 'hsl(220, 20%, 90%)'
-                    }}
-                  >
-                    {track.name}
-                  </div>
-                </div>
+                  track={track}
+                  isSelected={isSelected}
+                  onSelect={() => setSelectedTrack(track.id)}
+                  onVolumeChange={(value) => handleVolumeChange(track.id, value)}
+                  onPanChange={(value) => handlePanChange(track.id, value)}
+                  onMuteToggle={() => updateTrack(track.id, { mute: !track.mute })}
+                  onSoloToggle={() => updateTrack(track.id, { solo: !track.solo })}
+                  trackColor={trackColor}
+                />
               );
             })}
 

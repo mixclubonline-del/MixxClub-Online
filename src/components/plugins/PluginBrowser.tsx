@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Sliders, Waves, Sparkles, Mic, Zap, Disc, Brain, Music, Eye } from 'lucide-react';
+import { Plus, Sliders, Waves, Sparkles, Mic, Zap, Disc, Brain, Music, Eye, DoorOpen, Flame, Maximize2 } from 'lucide-react';
 import { usePluginStore } from '@/stores/pluginStore';
 import { usePluginPreviewStore } from '@/stores/pluginPreviewStore';
 import { useAIStudioStore } from '@/stores/aiStudioStore';
@@ -39,6 +39,14 @@ const AVAILABLE_PLUGINS = [
     color: 'from-purple-500/20 to-purple-600/20',
   },
   {
+    id: 'mixx-gate',
+    name: 'MixxGate',
+    category: 'Dynamics',
+    icon: DoorOpen,
+    description: 'Noise gate & expander',
+    color: 'from-purple-500/20 to-purple-600/20',
+  },
+  {
     id: 'mixx-reverb',
     name: 'MixxReverb',
     category: 'Spatial',
@@ -53,6 +61,30 @@ const AVAILABLE_PLUGINS = [
     icon: Waves,
     description: 'BPM-synced delay with ping-pong',
     color: 'from-indigo-500/20 to-indigo-600/20',
+  },
+  {
+    id: 'mixx-chorus',
+    name: 'MixxChorus',
+    category: 'Modulation',
+    icon: Waves,
+    description: 'Rich chorus & ensemble effect',
+    color: 'from-purple-500/20 to-violet-600/20',
+  },
+  {
+    id: 'mixx-saturator',
+    name: 'MixxSaturator',
+    category: 'Creative',
+    icon: Flame,
+    description: 'Harmonic saturation & warmth',
+    color: 'from-orange-500/20 to-red-600/20',
+  },
+  {
+    id: 'mixx-stereo',
+    name: 'MixxStereoImager',
+    category: 'Spatial',
+    icon: Maximize2,
+    description: 'Stereo width & spatial control',
+    color: 'from-cyan-500/20 to-blue-600/20',
   },
   {
     id: 'mixx-master',
@@ -113,7 +145,7 @@ const AVAILABLE_PLUGINS = [
 ];
 
 export const PluginBrowser: React.FC<PluginBrowserProps> = ({ onPluginSelect }) => {
-  const categories = ['All', 'Utility', 'EQ', 'Dynamics', 'Spatial', 'Mastering', 'Voice', 'Creative', 'AI'];
+  const categories = ['All', 'Utility', 'EQ', 'Dynamics', 'Spatial', 'Modulation', 'Mastering', 'Voice', 'Creative', 'AI'];
   const [selectedCategory, setSelectedCategory] = React.useState('All');
   const { startPreview } = usePluginPreviewStore();
   const selectedTrackId = useAIStudioStore((state) => state.selectedTrackId);
