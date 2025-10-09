@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useAIStudioStore } from '@/stores/aiStudioStore';
 import { cn } from '@/lib/utils';
+import { WaveformGenerator } from '@/services/waveformGenerator';
 
 export const DAWArrangement = () => {
   const containerRef = useRef<HTMLDivElement>(null);

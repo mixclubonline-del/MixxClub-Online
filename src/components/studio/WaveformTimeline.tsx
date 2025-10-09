@@ -8,6 +8,7 @@ import { RegionContextMenu } from './RegionContextMenu';
 import { MusicalRuler } from './MusicalRuler';
 import { ToolPalette } from './ToolPalette';
 import { TimeSelection } from './TimeSelection';
+import { WaveformGenerator } from '@/services/waveformGenerator';
 import { RegionHandle } from './RegionHandle';
 import { FadeHandle } from './FadeHandle';
 import { TimelineNavigator } from './TimelineNavigator';

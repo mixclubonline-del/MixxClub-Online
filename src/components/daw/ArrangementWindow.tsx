@@ -4,6 +4,7 @@ import { TrackListSidebar } from './TrackListSidebar';
 import { Card } from '@/components/ui/card';
 import { Music2 } from 'lucide-react';
 import { AudioFileImporter } from '@/components/studio/AudioFileImporter';
+import { WaveformGenerator } from '@/services/waveformGenerator';
 
 interface ArrangementWindowProps {
   currentTime: number;

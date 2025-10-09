@@ -3,7 +3,6 @@ import { audioEngine } from '@/services/audioEngine';
 import { Track } from '@/stores/aiStudioStore';
 import { WaveformGenerator } from '@/services/waveformGenerator';
 import { supabase } from '@/integrations/supabase/client';
-import { WaveformGenerator } from '@/services/waveformGenerator';
 
 /**
  * Hook to manage sample-accurate playback in the studio
