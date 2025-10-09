@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState } from 'react';
 import { useAIStudioStore, Track, AudioRegion } from '@/stores/aiStudioStore';
+import { TrackListSidebar } from './TrackListSidebar';
 import { Card } from '@/components/ui/card';
 import { Music2 } from 'lucide-react';
 import { AudioFileImporter } from '@/components/studio/AudioFileImporter';
@@ -394,6 +395,9 @@ export const ArrangementWindow = ({
         boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.4), inset 0 -2px 4px rgba(255,255,255,0.02)',
       }}
     >
+      {/* Track List Sidebar */}
+      <TrackListSidebar />
+
       {/* Arrangement Canvas with Spatial Depth */}
       <div 
         className="flex-1 flex flex-col overflow-hidden"
