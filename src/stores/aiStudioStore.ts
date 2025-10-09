@@ -1,609 +1,269 @@
-import { create } from 'zustand';
+"use client";
 
-export interface AudioRegion {
-  id: string;
-  trackId: string;
-  startTime: number;
-  duration: number;
-  sourceStartOffset: number;
-  fadeIn: { duration: number; curve: 'linear' | 'exponential' | 'logarithmic' };
-  fadeOut: { duration: number; curve: 'linear' | 'exponential' | 'logarithmic' };
-  gain: number;
-  color?: string;
-}
+import { useEffect, useMemo, useRef } from "react";
+import { useAIStudioStore } from "@/stores/aiStudioStore";
+import { audioEngine } from "@/services/audioEngine";
 
-export interface Track {
-  id: string;
-  name: string;
-  type: 'vocal' | 'drums' | 'bass' | 'keys' | 'guitar' | 'other';
-  volume: number;
-  pan: number;
-  mute: boolean;
-  solo: boolean;
-  audioBuffer?: AudioBuffer;
-  audioFileId?: string; // Link to audio_files table
-  filePath?: string; // Storage path for loading
-  waveformData?: Float32Array; // Real waveform peaks
-  peakLevel: number;
-  rmsLevel: number;
-  analysis?: AudioAnalysis;
-  color?: string;
-  regions: AudioRegion[];
-  effects: EffectUnit[];
-  sends: { [busId: string]: { amount: number; preFader: boolean } };
-  frozen?: boolean;
-  frozenBuffer?: AudioBuffer;
-  busGroupId?: string;
-  vcaGroupIds?: string[];
-  latency?: number; // in ms
-}
+/**
+ * Bridges Zustand store <-> audioEngine graph.
+ * - Creates/removes engine tracks when store.tracks change
+ * - Applies gain/pan/sends/effects
+ * - Streams analyser values back into store (track peak/rms + master)
+ * - Controls transport (play/pause) and master volume
+ *
+ * Usage:
+ *   In ProStudio.tsx (top-level):
+ *     import { useAudioEngineBridge } from '@/hooks/useAudioEngineBridge';
+ *     ...
+ *     useAudioEngineBridge();
+ */
+export function useAudioEngineBridge() {
+  // ===== Store selectors (keep them granular to avoid rerenders) =====
+  const tracks = useAIStudioStore((s) => s.tracks);
+  const isPlaying = useAIStudioStore((s) => s.isPlaying);
+  const masterVolume = useAIStudioStore((s) => s.masterVolume);
+  const setPlaying = useAIStudioStore((s) => s.setPlaying);
+  const updateTrack = useAIStudioStore((s) => s.updateTrack);
+  const updateMasterLevels = useAIStudioStore((s) => s.updateMasterLevels);
 
-export interface EffectUnit {
-  id: string;
-  name: string;
-  type: 'eq' | 'compressor' | 'reverb' | 'delay' | 'limiter' | 'saturator' | 'mixxtune';
-  enabled: boolean;
-  parameters: Record<string, number>;
-  rackPosition: number;
-}
+  // Engine track existence map to avoid recreation churn
+  const attachedRef = useRef<Set<string>>(new Set());
 
-export interface ProcessingState {
-  isProcessing: boolean;
-  progress: number;
-  currentOperation: string;
-  error?: string;
-}
+  // ===== One-time engine resume =====
+  useEffect(() => {
+    audioEngine.resume().catch(() => void 0);
+  }, []);
 
-export interface AudioAnalysis {
-  rms: number;
-  peak: number;
-  spectral: number[];
-  lufs: number;
-}
+  // ===== Mirror master volume into engine =====
+  useEffect(() => {
+    audioEngine.setMasterGain(masterVolume ?? 1);
+  }, [masterVolume]);
 
-export interface BusGroup {
-  id: string;
-  name: string;
-  color: string;
-  trackIds: string[];
-  volume: number;
-  mute: boolean;
-  solo: boolean;
-  effects: EffectUnit[];
-}
+  // ===== Create / remove tracks in engine when store.tracks changes =====
+  useEffect(() => {
+    const existing = attachedRef.current;
 
-export interface VCAGroup {
-  id: string;
-  name: string;
-  trackIds: string[];
-  color: string;
-  value: number; // -1 to 1 offset
-}
+    // Add any new tracks not yet attached
+    for (const t of tracks) {
+      if (!existing.has(t.id)) {
+        const g = audioEngine.createTrack({
+          id: t.id,
+          name: t.name,
+          buffer: t.audioBuffer ?? undefined,
+          groupId: t.busGroupId,
+        });
 
-interface AIStudioStore {
-  // Tracks
-  tracks: Track[];
-  selectedTrackId: string | null;
-  
-  // Regions & Selection
-  selectedRegions: Set<string>;
-  timeSelection: { start: number; end: number } | null;
-  
-  // Arrangement View
-  scrollMode: 'none' | 'page' | 'continuous';
-  snapEnabled: boolean;
-  snapMode: 'bars' | 'beats' | 'quarter' | 'eighth' | 'sixteenth' | 'transient' | 'zero-crossing';
-  rippleMode: 'off' | 'selected' | 'all';
-  
-  // Effects
-  effects: EffectUnit[];
-  
-  // Transport
-  isPlaying: boolean;
-  isRecording: boolean;
-  currentTime: number;
-  duration: number;
-  sessionEndTime: number; // User-configurable session end
-  tempo: number;
-  
-  // Processing
-  processing: ProcessingState;
-  
-  // View mode
-  viewMode: 'studio' | 'console' | '3d' | 'compact';
-  
-  // Master
-  masterVolume: number;
-  masterPeakLevel: number;
-  
-  // Groups
-  busGroups: BusGroup[];
-  vcaGroups: VCAGroup[];
-  
-  // Performance
-  totalLatency: number;
-  latencyCompensation: boolean;
-  
-  // Actions
-  addTrack: (track: Track) => void;
-  removeTrack: (id: string) => void;
-  updateTrack: (id: string, updates: Partial<Track>) => void;
-  setSelectedTrack: (id: string | null) => void;
-  
-  addEffect: (effect: EffectUnit) => void;
-  removeEffect: (id: string) => void;
-  updateEffect: (id: string, updates: Partial<EffectUnit>) => void;
-  reorderEffect: (id: string, newPosition: number) => void;
-  
-  // Track effect actions
-  addTrackEffect: (trackId: string, effect: EffectUnit) => void;
-  removeTrackEffect: (trackId: string, effectId: string) => void;
-  updateTrackEffect: (trackId: string, effectId: string, updates: Partial<EffectUnit>) => void;
-  
-  // Send actions
-  updateTrackSend: (trackId: string, busId: string, amount: number, preFader?: boolean) => void;
-  
-  setPlaying: (playing: boolean) => void;
-  setRecording: (recording: boolean) => void;
-  setCurrentTime: (time: number) => void;
-  setDuration: (duration: number) => void;
-  setTempo: (tempo: number) => void;
-  bpm: number;
-  setBpm: (bpm: number) => void;
-  selectTrack: (id: string) => void;
-  
-  setProcessing: (processing: Partial<ProcessingState>) => void;
-  setViewMode: (mode: 'studio' | 'console' | '3d' | 'compact') => void;
-  setMasterVolume: (volume: number) => void;
-  updateMasterLevels: (peak: number) => void;
-  
-  // Region actions
-  addRegion: (trackId: string, region: AudioRegion) => void;
-  removeRegion: (regionId: string) => void;
-  updateRegion: (regionId: string, updates: Partial<AudioRegion>) => void;
-  splitRegion: (regionId: string, splitTime: number) => void;
-  duplicateRegion: (regionId: string) => void;
-  trimRegionStart: (regionId: string, newStartTime: number) => void;
-  trimRegionEnd: (regionId: string, newEndTime: number) => void;
-  slipRegion: (regionId: string, slipAmount: number) => void;
-  reverseRegion: (regionId: string) => void;
-  
-  // Selection actions
-  selectRegion: (regionId: string, multiSelect?: boolean) => void;
-  clearSelection: () => void;
-  setTimeSelection: (selection: { start: number; end: number } | null) => void;
-  
-  // Dynamic timeline
-  calculateSessionDuration: () => number;
-  setSessionEndTime: (time: number) => void;
-  
-  // Arrangement actions
-  setScrollMode: (mode: 'none' | 'page' | 'continuous') => void;
-  setSnapEnabled: (enabled: boolean) => void;
-  setSnapMode: (mode: 'bars' | 'beats' | 'quarter' | 'eighth' | 'sixteenth' | 'transient' | 'zero-crossing') => void;
-  setRippleMode: (mode: 'off' | 'selected' | 'all') => void;
-  
-  // Group actions
-  createBusGroup: (name: string, trackIds: string[]) => void;
-  createVCAGroup: (name: string, trackIds: string[]) => void;
-  updateBusGroup: (groupId: string, updates: Partial<BusGroup>) => void;
-  updateVCAGroup: (groupId: string, value: number) => void;
-  deleteBusGroup: (groupId: string) => void;
-  deleteVCAGroup: (groupId: string) => void;
-  
-  // Freeze actions
-  freezeTrack: (trackId: string) => Promise<void>;
-  unfreezeTrack: (trackId: string) => void;
-  
-  // Latency actions
-  calculateTotalLatency: () => number;
-  setLatencyCompensation: (enabled: boolean) => void;
-}
+        // Initial params
+        audioEngine.setTrackGain(g.id, t.volume ?? 0.85);
+        audioEngine.setTrackPan(g.id, t.pan ?? 0);
 
-export const useAIStudioStore = create<AIStudioStore>((set, get) => ({
-  // Initial state - blank session
-  tracks: [],
-  selectedTrackId: null,
-  selectedRegions: new Set<string>(),
-  timeSelection: null,
-  scrollMode: 'continuous',
-  snapEnabled: true,
-  snapMode: 'beats',
-  rippleMode: 'off',
-  effects: [],
-  isPlaying: false,
-  isRecording: false,
-  currentTime: 0,
-  duration: 60, // Initial minimum
-  sessionEndTime: 60,
-  tempo: 120,
-  bpm: 120,
-  processing: {
-    isProcessing: false,
-    progress: 0,
-    currentOperation: '',
-  },
-  viewMode: 'studio',
-  masterVolume: 0.8,
-  masterPeakLevel: 0,
-  busGroups: [],
-  vcaGroups: [],
-  totalLatency: 0,
-  latencyCompensation: true,
-  
-  // Actions
-  addTrack: (track) => set((state) => ({
-    tracks: [...state.tracks, track],
-  })),
-  
-  removeTrack: (id) => set((state) => ({
-    tracks: state.tracks.filter((t) => t.id !== id),
-    selectedTrackId: state.selectedTrackId === id ? null : state.selectedTrackId,
-  })),
-  
-  updateTrack: (id, updates) => set((state) => ({
-    tracks: state.tracks.map((t) => (t.id === id ? { ...t, ...updates } : t)),
-  })),
-  
-  setSelectedTrack: (id) => set({ selectedTrackId: id }),
-  selectTrack: (id) => set({ selectedTrackId: id }),
-  setBpm: (bpm) => set({ bpm, tempo: bpm }),
-  
-  addEffect: (effect) => set((state) => ({
-    effects: [...state.effects, effect],
-  })),
-  
-  removeEffect: (id) => set((state) => ({
-    effects: state.effects.filter((e) => e.id !== id),
-  })),
-  
-  updateEffect: (id, updates) => set((state) => ({
-    effects: state.effects.map((e) => (e.id === id ? { ...e, ...updates } : e)),
-  })),
-  
-  reorderEffect: (id, newPosition) => set((state) => {
-    const effects = [...state.effects];
-    const effectIndex = effects.findIndex((e) => e.id === id);
-    if (effectIndex === -1) return state;
-    
-    const [effect] = effects.splice(effectIndex, 1);
-    effects.splice(newPosition, 0, { ...effect, rackPosition: newPosition });
-    
-    return { effects };
-  }),
-  
-  setPlaying: (playing) => set({ isPlaying: playing }),
-  setRecording: (recording) => set({ isRecording: recording }),
-  setCurrentTime: (time) => set({ currentTime: time }),
-  setDuration: (duration) => set({ duration }),
-  setTempo: (tempo) => set({ tempo }),
-  
-  setProcessing: (processing) => set((state) => ({
-    processing: { ...state.processing, ...processing },
-  })),
-  
-  setViewMode: (mode) => set({ viewMode: mode }),
-  setMasterVolume: (volume) => set({ masterVolume: volume }),
-  updateMasterLevels: (peak) => set({ masterPeakLevel: peak }),
-  
-  // Region actions
-  addRegion: (trackId, region) => set((state) => ({
-    tracks: state.tracks.map((t) => 
-      t.id === trackId ? { ...t, regions: [...t.regions, region] } : t
-    ),
-  })),
-  
-  removeRegion: (regionId) => set((state) => ({
-    tracks: state.tracks.map((t) => ({
-      ...t,
-      regions: t.regions.filter((r) => r.id !== regionId),
-    })),
-    selectedRegions: new Set(Array.from(state.selectedRegions).filter(id => id !== regionId)),
-  })),
-  
-  updateRegion: (regionId, updates) => set((state) => ({
-    tracks: state.tracks.map((t) => ({
-      ...t,
-      regions: t.regions.map((r) => (r.id === regionId ? { ...r, ...updates } : r)),
-    })),
-  })),
-  
-  splitRegion: (regionId, splitTime) => set((state) => {
-    const tracks = state.tracks.map((track) => {
-      const regionIndex = track.regions.findIndex((r) => r.id === regionId);
-      if (regionIndex === -1) return track;
-      
-      const region = track.regions[regionIndex];
-      const relativeTime = splitTime - region.startTime;
-      
-      if (relativeTime <= 0 || relativeTime >= region.duration) return track;
-      
-      const leftRegion: AudioRegion = {
-        ...region,
-        id: `${regionId}-left`,
-        duration: relativeTime,
-      };
-      
-      const rightRegion: AudioRegion = {
-        ...region,
-        id: `${regionId}-right`,
-        startTime: splitTime,
-        sourceStartOffset: region.sourceStartOffset + relativeTime,
-        duration: region.duration - relativeTime,
-      };
-      
-      const newRegions = [...track.regions];
-      newRegions.splice(regionIndex, 1, leftRegion, rightRegion);
-      
-      return { ...track, regions: newRegions };
-    });
-    
-    return { tracks };
-  }),
-  
-  duplicateRegion: (regionId) => set((state) => {
-    const tracks = state.tracks.map((track) => {
-      const region = track.regions.find((r) => r.id === regionId);
-      if (!region) return track;
-      
-      const newRegion: AudioRegion = {
-        ...region,
-        id: `region-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-        startTime: region.startTime + region.duration + 0.1,
-      };
-      
-      return { ...track, regions: [...track.regions, newRegion] };
-    });
-    
-    return { tracks };
-  }),
-
-  // Trim region start to new time (non-destructive)
-  trimRegionStart: (regionId, newStartTime) => set((state) => ({
-    tracks: state.tracks.map((t) => ({
-      ...t,
-      regions: t.regions.map((r) => {
-        if (r.id === regionId && newStartTime > r.startTime) {
-          const trimAmount = newStartTime - r.startTime;
-          return {
-            ...r,
-            startTime: newStartTime,
-            sourceStartOffset: r.sourceStartOffset + trimAmount,
-            duration: Math.max(0.01, r.duration - trimAmount),
-          };
-        }
-        return r;
-      }),
-    })),
-  })),
-
-  // Trim region end to new time (non-destructive)
-  trimRegionEnd: (regionId, newEndTime) => set((state) => ({
-    tracks: state.tracks.map((t) => ({
-      ...t,
-      regions: t.regions.map((r) => {
-        if (r.id === regionId && newEndTime > r.startTime) {
-          return {
-            ...r,
-            duration: Math.max(0.01, newEndTime - r.startTime),
-          };
-        }
-        return r;
-      }),
-    })),
-  })),
-
-  // Slip audio - region stays in place, audio slides inside
-  slipRegion: (regionId, slipAmount) => set((state) => ({
-    tracks: state.tracks.map((t) => ({
-      ...t,
-      regions: t.regions.map((r) => {
-        if (r.id === regionId) {
-          return {
-            ...r,
-            sourceStartOffset: Math.max(0, r.sourceStartOffset + slipAmount),
-          };
-        }
-        return r;
-      }),
-    })),
-  })),
-
-  // Reverse region (mark for audio reversal)
-  reverseRegion: (regionId) => set((state) => ({
-    tracks: state.tracks.map((t) => ({
-      ...t,
-      regions: t.regions.map((r) => {
-        if (r.id === regionId) {
-          return {
-            ...r,
-            color: 'hsl(280, 70%, 55%)', // Mark as reversed with purple color
-          };
-        }
-        return r;
-      }),
-    })),
-  })),
-  
-  // Selection actions
-  selectRegion: (regionId, multiSelect = false) => set((state) => {
-    const newSelection = new Set(multiSelect ? state.selectedRegions : []);
-    if (newSelection.has(regionId)) {
-      newSelection.delete(regionId);
-    } else {
-      newSelection.add(regionId);
-    }
-    return { selectedRegions: newSelection };
-  }),
-  
-  clearSelection: () => set({ selectedRegions: new Set() }),
-  
-  setTimeSelection: (selection) => set({ timeSelection: selection }),
-  
-  // Dynamic timeline calculation
-  calculateSessionDuration: () => {
-    const state = get();
-    if (state.tracks.length === 0) return Math.max(60, state.sessionEndTime);
-    
-    let lastRegionEnd = 0;
-    state.tracks.forEach(track => {
-      track.regions.forEach(region => {
-        const regionEnd = region.startTime + region.duration;
-        lastRegionEnd = Math.max(lastRegionEnd, regionEnd);
-      });
-    });
-    
-    // Add 30 seconds tail room, respect session end time, ensure minimum 60s
-    const calculatedDuration = Math.max(
-      60,
-      lastRegionEnd + 30,
-      state.sessionEndTime
-    );
-    
-    set({ duration: calculatedDuration });
-    return calculatedDuration;
-  },
-  
-  setSessionEndTime: (time) => {
-    set({ sessionEndTime: time });
-    get().calculateSessionDuration();
-  },
-  
-  // Arrangement actions
-  setScrollMode: (mode) => set({ scrollMode: mode }),
-  setSnapEnabled: (enabled) => set({ snapEnabled: enabled }),
-  setSnapMode: (mode) => set({ snapMode: mode }),
-  setRippleMode: (mode) => set({ rippleMode: mode }),
-  
-  // Track effect actions
-  addTrackEffect: (trackId, effect) => set((state) => ({
-    tracks: state.tracks.map((t) => 
-      t.id === trackId ? { ...t, effects: [...t.effects, effect] } : t
-    ),
-  })),
-  
-  removeTrackEffect: (trackId, effectId) => set((state) => ({
-    tracks: state.tracks.map((t) => 
-      t.id === trackId ? { ...t, effects: t.effects.filter(e => e.id !== effectId) } : t
-    ),
-  })),
-  
-  updateTrackEffect: (trackId, effectId, updates) => set((state) => ({
-    tracks: state.tracks.map((t) => 
-      t.id === trackId 
-        ? { ...t, effects: t.effects.map(e => e.id === effectId ? { ...e, ...updates } : e) }
-        : t
-    ),
-  })),
-  
-  // Send actions
-  updateTrackSend: (trackId, busId, amount, preFader = false) => set((state) => ({
-    tracks: state.tracks.map((t) => 
-      t.id === trackId 
-        ? { 
-            ...t, 
-            sends: { 
-              ...t.sends, 
-              [busId]: { amount, preFader } 
-            } 
+        // Sends
+        if (t.sends) {
+          for (const [busId, send] of Object.entries(t.sends)) {
+            audioEngine.setSendLevel(g.id, busId, send.amount ?? 0);
           }
-        : t
-    ),
-  })),
-  
-  // Group actions
-  createBusGroup: (name, trackIds) => set((state) => ({
-    busGroups: [
-      ...state.busGroups,
-      {
-        id: `bus-${Date.now()}`,
-        name,
-        color: `hsl(${Math.random() * 360}, 70%, 50%)`,
-        trackIds,
-        volume: 0.8,
-        mute: false,
-        solo: false,
-        effects: [],
-      },
-    ],
-  })),
-  
-  createVCAGroup: (name, trackIds) => set((state) => ({
-    vcaGroups: [
-      ...state.vcaGroups,
-      {
-        id: `vca-${Date.now()}`,
-        name,
-        trackIds,
-        color: `hsl(${Math.random() * 360}, 70%, 50%)`,
-        value: 0,
-      },
-    ],
-  })),
-  
-  updateBusGroup: (groupId, updates) => set((state) => ({
-    busGroups: state.busGroups.map(g => g.id === groupId ? { ...g, ...updates } : g),
-  })),
-  
-  updateVCAGroup: (groupId, value) => set((state) => {
-    const group = state.vcaGroups.find(g => g.id === groupId);
-    if (!group) return state;
-    
-    return {
-      vcaGroups: state.vcaGroups.map(g => g.id === groupId ? { ...g, value } : g),
-      tracks: state.tracks.map(t => 
-        group.trackIds.includes(t.id)
-          ? { ...t, volume: Math.max(0, Math.min(1, t.volume + value)) }
-          : t
-      ),
+        }
+
+        // Effects (insert chain)
+        (t.effects ?? [])
+          .sort((a, b) => (a.rackPosition ?? 0) - (b.rackPosition ?? 0))
+          .forEach((fx) => {
+            audioEngine.addPlugin(g.id, {
+              type: mapEffectTypeToPlugin(fx.type),
+              bypass: !fx.enabled,
+            });
+          });
+
+        existing.add(t.id);
+      }
+    }
+
+    // Remove engine tracks that no longer exist in store
+    for (const id of Array.from(existing)) {
+      if (!tracks.find((t) => t.id === id)) {
+        audioEngine.removeTrack(id);
+        existing.delete(id);
+      }
+    }
+  }, [tracks]);
+
+  // ===== Incremental param sync (gain/pan/sends/effects/buffer changes) =====
+  useEffect(() => {
+    for (const t of tracks) {
+      // Gain & Pan
+      audioEngine.setTrackGain(t.id, clamp(t.volume ?? 0.85, 0, 1.5));
+      audioEngine.setTrackPan(t.id, clamp(t.pan ?? 0, -1, 1));
+
+      // Sends
+      if (t.sends) {
+        for (const [busId, send] of Object.entries(t.sends)) {
+          audioEngine.setSendLevel(t.id, busId, clamp(send.amount ?? 0, 0, 1));
+        }
+      }
+
+      // Buffer changes (e.g., user imported/replaced audio)
+      if (t.audioBuffer) {
+        const graph = audioEngine.tracks.get(t.id);
+        if (graph?.bufferSource?.buffer !== t.audioBuffer) {
+          audioEngine.attachBufferSource(graph!, t.audioBuffer);
+        }
+      }
+
+      // Effects (simple reconcile: ensure count & bypass flags align)
+      // NOTE: For full fidelity, you can diff by effect.id → add/remove/move specific plugins.
+      const graph = audioEngine.tracks.get(t.id);
+      if (graph) {
+        // If counts mismatch, rebuild plugins (conservative approach)
+        const storeActiveCount = (t.effects ?? []).filter((e) => e.enabled).length;
+        const engineCount = (graph.plugins ?? []).length;
+        if (storeActiveCount !== engineCount) {
+          // Remove all plugins then re-add in order
+          for (const p of [...graph.plugins]) {
+            audioEngine.removePlugin(t.id, p.id);
+          }
+          (t.effects ?? [])
+            .sort((a, b) => (a.rackPosition ?? 0) - (b.rackPosition ?? 0))
+            .forEach((fx) => {
+              audioEngine.addPlugin(t.id, {
+                type: mapEffectTypeToPlugin(fx.type),
+                bypass: !fx.enabled,
+              });
+            });
+        } else {
+          // Sync bypass flags only
+          // (Assumes order/rackPosition stable.)
+          const enabledList = (t.effects ?? [])
+            .sort((a, b) => (a.rackPosition ?? 0) - (b.rackPosition ?? 0))
+            .map((fx) => fx.enabled);
+
+          graph.plugins.forEach((p, i) => {
+            const shouldBypass = enabledList[i] === false;
+            if (p.bypass !== shouldBypass) {
+              audioEngine.setPluginBypass(t.id, p.id, shouldBypass);
+            }
+          });
+        }
+      }
+    }
+  }, [tracks]);
+
+  // ===== Transport: follow store.isPlaying =====
+  useEffect(() => {
+    (async () => {
+      await audioEngine.resume();
+      if (isPlaying) {
+        audioEngine.play();
+      } else {
+        audioEngine.pause();
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPlaying]);
+
+  // ===== RAF Metering Loop (per-track + master) =====
+  useEffect(() => {
+    let raf = 0;
+
+    const tmpTime = new Uint8Array(1024);
+
+    const loop = () => {
+      // Per-track post analyser → update peak/rms into store
+      for (const t of tracks) {
+        const a = audioEngine.getTrackPostAnalyser(t.id);
+        if (!a) continue;
+
+        const size = Math.min(tmpTime.length, a.fftSize);
+        const buf = size === tmpTime.length ? tmpTime : new Uint8Array(a.fftSize);
+        a.getByteTimeDomainData(buf);
+
+        // Rough peak/rms
+        let max = 0;
+        let sum = 0;
+        for (let i = 0; i < buf.length; i++) {
+          const v = (buf[i] - 128) / 128;
+          const av = Math.abs(v);
+          if (av > max) max = av;
+          sum += v * v;
+        }
+        const rmsLin = Math.sqrt(sum / buf.length);
+        const pkDb = linToDb(max);
+        const rmDb = linToDb(rmsLin);
+
+        // Write back to store (debounced by RAF rate)
+        updateTrack(t.id, {
+          peakLevel: pkDb,
+          rmsLevel: rmDb,
+        });
+      }
+
+      // Master analyser → updateMasterLevels(peak)
+      const master = audioEngine.getMasterAnalyser();
+      if (master) {
+        const mbuf = new Uint8Array(master.fftSize);
+        master.getByteTimeDomainData(mbuf);
+        let mmax = 0;
+        for (let i = 0; i < mbuf.length; i++) {
+          const v = Math.abs((mbuf[i] - 128) / 128);
+          if (v > mmax) mmax = v;
+        }
+        updateMasterLevels(linToDb(mmax));
+      }
+
+      raf = requestAnimationFrame(loop);
     };
-  }),
-  
-  deleteBusGroup: (groupId) => set((state) => ({
-    busGroups: state.busGroups.filter(g => g.id !== groupId),
-    tracks: state.tracks.map(t => ({ ...t, busGroupId: t.busGroupId === groupId ? undefined : t.busGroupId })),
-  })),
-  
-  deleteVCAGroup: (groupId) => set((state) => ({
-    vcaGroups: state.vcaGroups.filter(g => g.id !== groupId),
-  })),
-  
-  // Freeze actions
-  freezeTrack: async (trackId) => {
-    const state = get();
-    const track = state.tracks.find(t => t.id === trackId);
-    if (!track || !track.audioBuffer) return;
-    
-    // In real implementation: render track with effects to new buffer
-    // For now, just use existing buffer as frozen buffer
-    set({
-      tracks: state.tracks.map(t => 
-        t.id === trackId
-          ? { ...t, frozen: true, frozenBuffer: track.audioBuffer }
-          : t
-      ),
-    });
-  },
-  
-  unfreezeTrack: (trackId) => set((state) => ({
-    tracks: state.tracks.map(t => 
-      t.id === trackId
-        ? { ...t, frozen: false, frozenBuffer: undefined }
-        : t
-    ),
-  })),
-  
-  // Latency actions
-  calculateTotalLatency: () => {
-    const state = get();
-    const maxLatency = state.tracks.reduce((max, track) => {
-      const trackLatency = track.effects.length * 2.5; // Estimate 2.5ms per effect
-      return Math.max(max, trackLatency);
-    }, 0);
-    
-    set({ totalLatency: maxLatency });
-    return maxLatency;
-  },
-  
-  setLatencyCompensation: (enabled) => set({ latencyCompensation: enabled }),
-}));
+
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tracks.length]);
+
+  // ===== Keep store.isPlaying honest if user agent suspends/resumes context =====
+  useEffect(() => {
+    const onState = () => {
+      // If the context was suspended externally, reflect that
+      if (audioEngine.ctx.state !== "running" && isPlaying) {
+        setPlaying(false);
+      }
+    };
+    audioEngine.ctx.addEventListener?.("statechange", onState as any);
+    return () => {
+      audioEngine.ctx.removeEventListener?.("statechange", onState as any);
+    };
+  }, [isPlaying, setPlaying]);
+}
+
+/* ============================
+   Helpers
+   ============================ */
+
+function mapEffectTypeToPlugin(t: string) {
+  // Store → Engine type mapping
+  // store: 'eq' | 'compressor' | 'reverb' | 'delay' | 'limiter' | 'saturator' | 'mixxtune'
+  switch (t) {
+    case "eq":
+      return "EQ";
+    case "compressor":
+      return "COMP";
+    case "reverb":
+      return "REV";
+    case "delay":
+      return "DLY";
+    case "limiter":
+      return "OTHER";
+    case "saturator":
+      return "SAT";
+    case "mixxtune":
+      return "OTHER";
+    default:
+      return "OTHER";
+  }
+}
+
+function clamp(v: number, lo: number, hi: number) {
+  return Math.max(lo, Math.min(hi, v));
+}
+
+function linToDb(x: number) {
+  const y = Math.max(x, 1e-6);
+  return 20 * Math.log10(y);
+}
