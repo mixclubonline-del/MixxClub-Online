@@ -162,75 +162,8 @@ export function useAudioEngineBridge() {
     }
   }, [tracks]);
 
-  // ===== Transport: follow store.isPlaying =====
-  useEffect(() => {
-    (async () => {
-      await audioEngine.resume();
-      if (isPlaying) {
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.log('[AudioEngineBridge] ▶️ PLAY requested');
-        console.log('[AudioEngineBridge] Starting from:', currentTime.toFixed(3), 's');
-        console.log('[AudioEngineBridge] Tracks to play:', tracks.length);
-        
-        tracks.forEach((t, i) => {
-          console.log(`[AudioEngineBridge] Track ${i + 1}:`, {
-            name: t.name,
-            hasBuffer: !!t.audioBuffer,
-            regionCount: t.regions?.length || 0,
-          });
-        });
-        
-        audioEngine.stop(); // Stop any previous playback
-        audioEngine.play(currentTime, tracks); // Pass tracks for region scheduling!
-        
-        console.log('[AudioEngineBridge] ✅ Play command sent to engine');
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      } else {
-        console.log('[AudioEngineBridge] ⏸️ PAUSE requested');
-        audioEngine.pause();
-      }
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPlaying]); // DO NOT include currentTime here to avoid seek loops
-
-  // ===== Seek detection (when currentTime changes while paused) =====
-  const lastTimeRef = useRef(0);
-  useEffect(() => {
-    if (!isPlaying && Math.abs(currentTime - lastTimeRef.current) > 0.1) {
-      // User seeked while paused
-      console.log('[AudioEngineBridge] Seek detected:', currentTime.toFixed(3), 's');
-      audioEngine.pausedAt = currentTime; // Update engine's pause position
-    }
-    lastTimeRef.current = currentTime;
-  }, [currentTime, isPlaying]);
-
-  // ===== Sync playback position back to store (when playing) =====
-  useEffect(() => {
-    if (!isPlaying) return;
-    
-    console.log('[AudioEngineBridge] 🔄 Starting position sync loop');
-    let raf = 0;
-    let frameCount = 0;
-    
-    const syncPosition = () => {
-      const pos = audioEngine.getPlaybackPosition();
-      
-      // Log every 30 frames (~0.5s at 60fps)
-      if (frameCount % 30 === 0) {
-        console.log('[AudioEngineBridge] ⏱️ Position:', pos.toFixed(3), 's');
-      }
-      frameCount++;
-      
-      useAIStudioStore.getState().setCurrentTime(pos);
-      raf = requestAnimationFrame(syncPosition);
-    };
-    
-    raf = requestAnimationFrame(syncPosition);
-    return () => {
-      console.log('[AudioEngineBridge] 🛑 Stopping position sync loop');
-      cancelAnimationFrame(raf);
-    };
-  }, [isPlaying]);
+  // ===== Transport control removed - use useTransportBridge() instead =====
+  // This bridge now only handles audio graph parameter sync (gain/pan/effects)
 
   // ===== RAF Metering Loop (per-track + master) =====
   useEffect(() => {

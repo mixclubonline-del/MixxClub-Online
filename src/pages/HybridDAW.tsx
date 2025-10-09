@@ -44,6 +44,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useAudioPermissions } from "@/hooks/useAudioPermissions";
 import { useAudioEngineBridge } from "@/hooks/useAudioEngineBridge";
+import { useTransportBridge } from "@/hooks/useTransportBridge";
 import { useAchievements } from "@/hooks/useAchievements";
 import { useAIStudioStore, Track, AudioRegion } from "@/stores/aiStudioStore";
 import { WaveformGenerator } from "@/services/waveformGenerator";
@@ -68,13 +69,21 @@ const HybridDAW = () => {
   const { toast } = useToast();
   const { permissions, requestAudioPermissions, hasAudioAccess, isRequesting } = useAudioPermissions();
   
-  // Core DAW State
-  const [tracks, setTracks] = useState<Track[]>([]);
-  const [isPlaying, setIsPlaying] = useState(false);
+  // Core DAW State - Use Zustand store directly (single source of truth)
+  const tracks = useAIStudioStore((s) => s.tracks);
+  const isPlaying = useAIStudioStore((s) => s.isPlaying);
+  const currentTime = useAIStudioStore((s) => s.currentTime);
+  const bpm = useAIStudioStore((s) => s.bpm);
+  const masterVolume = useAIStudioStore((s) => s.masterVolume);
+  const setPlaying = useAIStudioStore((s) => s.setPlaying);
+  const setCurrentTime = useAIStudioStore((s) => s.setCurrentTime);
+  const setBpm = useAIStudioStore((s) => s.setBpm);
+  const setMasterVolume = useAIStudioStore((s) => s.setMasterVolume);
+  const addTrack = useAIStudioStore((s) => s.addTrack);
+  const updateTrack = useAIStudioStore((s) => s.updateTrack);
+  const removeTrack = useAIStudioStore((s) => s.removeTrack);
+  
   const [isRecording, setIsRecording] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [bpm, setBpm] = useState(120);
-  const [masterVolume, setMasterVolume] = useState(0.8);
   
   // View State
   const [view, setView] = useState<'2d' | '3d'>('2d');
@@ -101,99 +110,9 @@ const HybridDAW = () => {
   // Gamification - use hook
   const { achievements, unlockAchievement } = useAchievements();
 
-  // Initialize Audio Engine Bridge
-  useAudioEngineBridge();
-
-  // Sync playback state to store for audio engine bridge
-  const { 
-    setPlaying: setStorePlaying, 
-    setCurrentTime: setStoreCurrentTime,
-    setMasterVolume: setStoreMasterVolume,
-    addTrack: addStoreTrack,
-    updateTrack: updateStoreTrack
-  } = useAIStudioStore();
-
-  // Sync playback state to store
-  useEffect(() => {
-    setStorePlaying(isPlaying);
-  }, [isPlaying, setStorePlaying]);
-
-  // Sync current time from store to local (for UI display)
-  const storeCurrentTime = useAIStudioStore((state) => state.currentTime);
-  useEffect(() => {
-    setCurrentTime(storeCurrentTime);
-  }, [storeCurrentTime]);
-
-  // Sync master volume to store
-  useEffect(() => {
-    setStoreMasterVolume(masterVolume);
-  }, [masterVolume, setStoreMasterVolume]);
-
-  // Sync tracks to store when they change
-  useEffect(() => {
-    console.log('[HybridDAW] 🔄 Track sync effect triggered, current tracks:', tracks.length);
-    
-    const storeState = useAIStudioStore.getState();
-    const storeTracks = storeState.tracks;
-    
-    // Remove tracks from store that no longer exist in HybridDAW
-    const hybridTrackIds = new Set(tracks.map(t => t.id));
-    storeTracks.forEach(st => {
-      if (!hybridTrackIds.has(st.id)) {
-        console.log('[HybridDAW] 🗑️ Removing orphaned track from store:', st.id);
-        useAIStudioStore.getState().removeTrack(st.id);
-      }
-    });
-    
-    // Add or update tracks in store with FULL data
-    tracks.forEach((track) => {
-      const existsInStore = storeTracks.some(st => st.id === track.id);
-      
-      if (!existsInStore) {
-        console.log('[HybridDAW] ➕ Adding NEW track to store:', {
-          id: track.id,
-          name: track.name,
-          hasBuffer: !!track.audioBuffer,
-          waveformLength: track.waveformData?.length,
-          regionCount: track.regions?.length,
-        });
-        
-        // Add new track with FULL data including audioBuffer and waveformData
-        addStoreTrack({
-          id: track.id,
-          name: track.name,
-          type: track.type || 'audio',
-          color: track.color,
-          volume: track.volume,
-          pan: track.pan || 0,
-          mute: track.mute,
-          solo: track.solo,
-          audioBuffer: track.audioBuffer,  // ✅ Pass audio!
-          waveformData: track.waveformData, // ✅ Pass waveform!
-          regions: track.regions,  // ✅ Pass regions with audio!
-          effects: track.effects || [],
-          sends: track.sends || {},
-        });
-        
-        console.log('[HybridDAW] ✅ Track added to store successfully');
-      } else {
-        // Update existing track
-        console.log('[HybridDAW] 🔄 Updating existing track in store:', track.id);
-        updateStoreTrack(track.id, {
-          name: track.name,
-          volume: track.volume,
-          pan: track.pan || 0,
-          mute: track.mute,
-          solo: track.solo,
-          audioBuffer: track.audioBuffer,  // ✅ Update audio buffer if changed!
-          waveformData: track.waveformData, // ✅ Update waveform if changed!
-          regions: track.regions,  // ✅ Update regions!
-        });
-      }
-    });
-    
-    console.log('[HybridDAW] ✅ Track sync complete, store now has:', useAIStudioStore.getState().tracks.length, 'tracks');
-  }, [tracks, addStoreTrack, updateStoreTrack]);
+  // Initialize bridges
+  useAudioEngineBridge(); // Handles audio graph parameter sync (volume, pan, effects)
+  useTransportBridge(); // Handles transport control (play/pause/seek)
 
   // Initialize Audio Context
   useEffect(() => {
@@ -229,8 +148,8 @@ const HybridDAW = () => {
     }
   };
 
-  // Add New Track
-  const addTrack = (type: 'audio' | 'vocal' | 'instrument' = 'audio') => {
+  // Add New Track (renamed to avoid conflict with store action)
+  const createNewTrack = (type: 'audio' | 'vocal' | 'instrument' = 'audio') => {
     const trackColors = {
       audio: 'hsl(262, 83%, 58%)',
       vocal: 'hsl(280, 70%, 75%)',
@@ -251,7 +170,7 @@ const HybridDAW = () => {
       sends: {},
     };
 
-    setTracks(prev => [...prev, newTrack]);
+    addTrack(newTrack);
     
     // Check for first track achievement
     if (tracks.length === 0) {
@@ -384,11 +303,11 @@ const HybridDAW = () => {
    */
   const handlePlayPause = async () => {
     if (isPlaying) {
-      setIsPlaying(false);
-      // audioEngine.pause() called by useAudioEngineBridge
+      setPlaying(false);
+      // Transport.pause() called by useTransportBridge
     } else {
-      setIsPlaying(true);
-      // audioEngine.play(currentTime) called by useAudioEngineBridge
+      setPlaying(true);
+      // Transport.start() called by useTransportBridge
     }
   };
 
@@ -396,9 +315,9 @@ const HybridDAW = () => {
    * Stop playback and reset to beginning
    */
   const handleStop = () => {
-    setIsPlaying(false);
+    setPlaying(false);
     setCurrentTime(0);
-    // audioEngine.stop() called by useAudioEngineBridge
+    // Transport.stop() called by useTransportBridge
   };
 
   // Handle imported audio file with automatic BPM detection
@@ -570,8 +489,8 @@ const HybridDAW = () => {
   // Seek to time position
   const seekToTime = (time: number) => {
     console.log('[HybridDAW] Seeking to:', time.toFixed(3), 's');
-    setStoreCurrentTime(time);
-    // audioEngine will handle the seek via useAudioEngineBridge
+    setCurrentTime(time);
+    // Transport will handle the seek via useTransportBridge
   };
 
   // Keyboard shortcuts for transport control
