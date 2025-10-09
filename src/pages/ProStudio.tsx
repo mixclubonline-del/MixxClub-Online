@@ -19,8 +19,13 @@ import Navigation from '@/components/Navigation';
  * - Latency compensation
  * - Professional transport controls
  * - Track management with real audio data
+ * - Unified studio for both Artist and Engineer CRMs
  */
-const ProStudio = () => {
+interface ProStudioProps {
+  userRole?: 'artist' | 'engineer';
+}
+
+const ProStudio = ({ userRole = 'artist' }: ProStudioProps) => {
   const [activeView, setActiveView] = useState<'timeline' | 'mixer'>('timeline');
   
   // Store state
@@ -89,10 +94,10 @@ const ProStudio = () => {
             <Music2 className="w-6 h-6 text-[hsl(var(--studio-accent))]" />
             <div>
               <h1 className="text-xl font-bold text-[hsl(var(--studio-text))]">
-                Professional Studio
+                Professional Studio {userRole === 'engineer' ? '(Engineer)' : '(Artist)'}
               </h1>
               <p className="text-xs text-[hsl(var(--studio-text-dim))]">
-                Phase 1: Real Waveforms • Sample-Accurate Playback • Latency Compensation
+                Real Waveforms • Sample-Accurate Playback • Professional Tools
               </p>
             </div>
           </div>

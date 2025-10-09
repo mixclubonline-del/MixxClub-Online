@@ -26,7 +26,7 @@ import ProfileInsights from '@/components/crm/ProfileInsights';
 import SessionManager from '@/components/collaboration/SessionManager';
 import CollaborationWorkspace from '@/components/collaboration/CollaborationWorkspace';
 import { RealTimeCollaboration } from '@/components/RealTimeCollaboration';
-import StudioHub from '@/components/studio/StudioHub';
+import ProStudio from '@/pages/ProStudio';
 import { ArtistCRMChatbot } from '@/components/crm/ArtistCRMChatbot';
 import { ArtistCRMSlideshow } from '@/components/crm/ArtistCRMSlideshow';
 import { ArtistAssistantIntro } from '@/components/crm/ArtistAssistantIntro';
@@ -330,18 +330,8 @@ const ArtistCRM = () => {
 
       case 'studio':
         return (
-          <div className="space-y-6">
-            {activeSessionId ? (
-              <CollaborationWorkspace 
-                sessionId={activeSessionId}
-                onLeaveSession={() => setActiveSessionId(null)}
-              />
-            ) : (
-              <StudioHub 
-                userRole="artist"
-                onTrackSelect={() => {}}
-              />
-            )}
+          <div className="h-[calc(100vh-4rem)]">
+            <ProStudio userRole="artist" />
           </div>
         );
 

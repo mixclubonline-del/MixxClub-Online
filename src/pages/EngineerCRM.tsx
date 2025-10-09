@@ -13,7 +13,7 @@ import EnhancedCRM from '@/components/crm/EnhancedCRM';
 import SessionManager from '@/components/collaboration/SessionManager';
 import CollaborationWorkspace from '@/components/collaboration/CollaborationWorkspace';
 import { RealTimeCollaboration } from '@/components/RealTimeCollaboration';
-import StudioHub from '@/components/studio/StudioHub';
+import ProStudio from '@/pages/ProStudio';
 import { toast } from 'sonner';
 import { JobPool } from '@/components/JobPool';
 import { EarningsOverview } from '@/components/engineer/EarningsOverview';
@@ -379,18 +379,8 @@ const EngineerCRM = () => {
 
       case 'studio':
         return (
-          <div className="space-y-6">
-            {activeSessionId ? (
-              <CollaborationWorkspace 
-                sessionId={activeSessionId}
-                onLeaveSession={() => setActiveSessionId(null)}
-              />
-            ) : (
-              <StudioHub 
-                userRole="engineer"
-                onTrackSelect={() => {}}
-              />
-            )}
+          <div className="h-[calc(100vh-4rem)]">
+            <ProStudio userRole="engineer" />
           </div>
         );
 

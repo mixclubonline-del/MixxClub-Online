@@ -201,8 +201,7 @@ const AppContent = () => {
             <Route path="/ai-mastering" element={<AIMastering />} />
             <Route path="/mixing-studio" element={<Mixing />} />
             <Route path="/mastering-studio" element={<Mastering />} />
-            <Route path="/hybrid-daw" element={<AppLayout><HybridDAW /></AppLayout>} />
-            <Route path="/pro-studio" element={<AppLayout><ProStudio /></AppLayout>} />
+            {/* Legacy studio routes - removed. Use /artist-crm?tab=studio or /engineer-crm?tab=studio */}
             <Route path="/jobs" element={<AppLayout><JobBoard /></AppLayout>} />
             <Route path="/admin" element={<AdminRoute section="Admin Dashboard"><Admin /></AdminRoute>} />
             <Route path="/admin/users" element={<AdminRoute section="Users"><AdminUsers /></AdminRoute>} />
