@@ -231,19 +231,16 @@ const HybridDAW = () => {
               gain: 1.0,
             };
 
-            setTracks(prev => 
-              prev.map(track => 
-                track.id === trackId 
-                  ? { 
-                      ...track, 
-                      armed: false,
-                      audioBuffer,
-                      waveformData: peaks, // ✅ Keep as Float32Array
-                      regions: [...(track.regions || []), newRegion] 
-                    }
-                  : track
-              )
-            );
+            // Update track with recording
+            const currentTrack = tracks.find(t => t.id === trackId);
+            if (currentTrack) {
+              updateTrack(trackId, {
+                armed: false,
+                audioBuffer,
+                waveformData: peaks,
+                regions: [...(currentTrack.regions || []), newRegion]
+              });
+            }
           } catch (error) {
             console.error('[Recording] Failed to decode:', error);
           }
@@ -264,13 +261,7 @@ const HybridDAW = () => {
       mediaRecorder.start();
       setIsRecording(true);
 
-      setTracks(prev => 
-        prev.map(track => 
-          track.id === trackId 
-            ? { ...track, armed: true }
-            : track
-        )
-      );
+      updateTrack(trackId, { armed: true });
 
     } catch (error) {
       console.error('Recording failed:', error);
@@ -288,9 +279,11 @@ const HybridDAW = () => {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
       
-      setTracks(prev => 
-        prev.map(track => ({ ...track, armed: false }))
-      );
+      tracks.forEach(track => {
+        if (track.armed) {
+          updateTrack(track.id, { armed: false });
+        }
+      });
     }
   };
 
@@ -433,7 +426,7 @@ const HybridDAW = () => {
       
       console.log('[HybridDAW] 📤 Step 5: Adding track to state...');
       const currentTrackCount = tracks.length;
-      setTracks(prev => [...prev, newTrack]);
+      addTrack(newTrack);
       console.log('[HybridDAW] ✅ Track added to state (was', currentTrackCount, 'tracks, now should be', currentTrackCount + 1, ')');
       
       setShowImportDialog(false);
@@ -539,12 +532,14 @@ const HybridDAW = () => {
   };
 
   const handleUpdateRegion = (regionId: string, updates: Partial<AudioRegion>) => {
-    setTracks(tracks.map(track => ({
-      ...track,
-      regions: track.regions?.map(r =>
+    tracks.forEach(track => {
+      const updatedRegions = track.regions?.map(r =>
         r.id === regionId ? { ...r, ...updates } : r
-      )
-    })));
+      );
+      if (updatedRegions && updatedRegions !== track.regions) {
+        updateTrack(track.id, { regions: updatedRegions });
+      }
+    });
   };
 
   // Export Project
@@ -623,7 +618,7 @@ const HybridDAW = () => {
           sends: {},
         };
         
-        setTracks(prev => [...prev, newTrack]);
+        addTrack(newTrack);
       } catch (error) {
         console.error(`[Stems] Failed to decode ${stem.stemName}:`, error);
         toast({
@@ -775,7 +770,7 @@ const HybridDAW = () => {
             <Button 
               variant="outline" 
               size="sm"
-              onClick={() => addTrack('vocal')}
+              onClick={() => createNewTrack('vocal')}
               className="gap-2"
             >
               <FileAudio className="w-4 h-4" />
@@ -904,9 +899,15 @@ const HybridDAW = () => {
                     <Button
                       variant={track.solo ? "glow" : "ghost"}
                       size="sm"
-                      onClick={() => setTracks(prev => 
-                        prev.map(t => ({ ...t, solo: t.id === track.id ? !t.solo : false }))
-                      )}
+                      onClick={() => {
+                        // Unsolo all other tracks, then toggle this one
+                        tracks.forEach(t => {
+                          if (t.id !== track.id && t.solo) {
+                            updateTrack(t.id, { solo: false });
+                          }
+                        });
+                        updateTrack(track.id, { solo: !track.solo });
+                      }}
                       className="flex-1 text-xs font-bold"
                     >
                       S
@@ -914,9 +915,7 @@ const HybridDAW = () => {
                     <Button
                       variant={track.mute ? "destructive" : "ghost"}
                       size="sm"
-                      onClick={() => setTracks(prev => 
-                        prev.map(t => t.id === track.id ? { ...t, mute: !t.mute } : t)
-                      )}
+                      onClick={() => updateTrack(track.id, { mute: !track.mute })}
                       className="flex-1 text-xs font-bold"
                     >
                       M
@@ -946,9 +945,7 @@ const HybridDAW = () => {
                       }
                       <Slider
                         value={[track.volume * 100]}
-                        onValueChange={(value) => setTracks(prev => 
-                          prev.map(t => t.id === track.id ? { ...t, volume: value[0] / 100 } : t)
-                        )}
+                        onValueChange={(value) => updateTrack(track.id, { volume: value[0] / 100 })}
                         max={100}
                         step={1}
                         className="flex-1"
@@ -985,7 +982,7 @@ const HybridDAW = () => {
                     <Button 
                       variant="glow" 
                       size="sm" 
-                      onClick={() => addTrack('vocal')}
+                      onClick={() => createNewTrack('vocal')}
                       className="mt-4"
                     >
                       <FileAudio className="w-4 h-4 mr-2" />
@@ -1006,7 +1003,11 @@ const HybridDAW = () => {
             {view === '2d' ? (
               <EnhancedDAWTimeline 
                 tracks={tracks}
-                onTracksChange={setTracks}
+                onTracksChange={(updatedTracks) => {
+                  updatedTracks.forEach(track => {
+                    updateTrack(track.id, track);
+                  });
+                }}
                 currentTime={currentTime}
                 onTimeChange={seekToTime}
                 isPlaying={isPlaying}
@@ -1071,7 +1072,11 @@ const HybridDAW = () => {
                 <div className="h-full overflow-hidden">
                   <EnhancedDAWTimeline 
                     tracks={tracks}
-                    onTracksChange={setTracks}
+                    onTracksChange={(updatedTracks) => {
+                      updatedTracks.forEach(track => {
+                        updateTrack(track.id, track);
+                      });
+                    }}
                     currentTime={currentTime}
                     onTimeChange={seekToTime}
                     isPlaying={isPlaying}
@@ -1118,7 +1123,11 @@ const HybridDAW = () => {
                   <div className="flex-1 overflow-hidden">
                     <DAWMixerPanel 
                       tracks={tracks}
-                      onTracksChange={setTracks}
+                      onTracksChange={(updatedTracks) => {
+                        updatedTracks.forEach(track => {
+                          updateTrack(track.id, track);
+                        });
+                      }}
                       masterVolume={masterVolume}
                       onMasterVolumeChange={setMasterVolume}
                     />
@@ -1233,7 +1242,14 @@ const HybridDAW = () => {
               <Button variant="ghost" size="sm" onClick={() => setActivePanel('timeline')}>Close</Button>
             </div>
             <div className="overflow-y-auto max-h-[calc(80vh-80px)] p-4">
-              <DAWEffectsPanel tracks={tracks} onTracksChange={setTracks} />
+              <DAWEffectsPanel 
+                tracks={tracks} 
+                onTracksChange={(updatedTracks) => {
+                  updatedTracks.forEach(track => {
+                    updateTrack(track.id, track);
+                  });
+                }} 
+              />
             </div>
           </div>
         </div>
