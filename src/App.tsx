@@ -27,6 +27,7 @@ const EngineerCRM = React.lazy(() => import("./pages/EngineerCRM"));
 const AudioLab = React.lazy(() => import("./pages/AudioLab"));
 const Admin = React.lazy(() => import("./pages/Admin"));
 const AIMastering = React.lazy(() => import("./pages/AIMastering"));
+const HybridDAW = React.lazy(() => import("./pages/HybridDAW"));
 
 // Keep critical routes non-lazy
 import MixBattles from "./pages/MixBattles";
@@ -188,7 +189,7 @@ const AppContent = () => {
         <Route path="/engineer-crm" element={<AppLayout><EngineerCRM /></AppLayout>} />
         <Route path="/artist-studio" element={<Navigate to="/artist-crm?tab=studio" replace />} />
         <Route path="/engineer-studio" element={<Navigate to="/artist-crm?tab=studio" replace />} />
-        <Route path="/hybrid-daw" element={<Navigate to="/artist-crm?tab=studio" replace />} />
+        <Route path="/hybrid-daw" element={<HybridDAW />} />
         <Route path="/studio/create-session" element={<AppLayout><SessionManager /></AppLayout>} />
         <Route path="/studio/join-session" element={<AppLayout><SessionManager /></AppLayout>} />
         <Route path="/session/:sessionId" element={<AppLayout><SessionWorkspacePage /></AppLayout>} />
