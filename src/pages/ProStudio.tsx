@@ -7,6 +7,7 @@ import { StudioTransport } from '@/components/studio/StudioTransport';
 import { AudioFileImporter } from '@/components/studio/AudioFileImporter';
 import { AudioSettingsButton } from '@/components/studio/AudioSettingsButton';
 import { ChannelStrip } from '@/components/studio/ChannelStrip';
+import { MasterChannelStrip } from '@/components/studio/MasterChannelStrip';
 import { audioEngine } from '@/services/audioEngine';
 import { useStudioPlayback } from '@/hooks/useStudioPlayback';
 import { Music2, Settings, Layers } from 'lucide-react';
@@ -36,6 +37,8 @@ const ProStudio = ({ userRole = 'artist' }: ProStudioProps) => {
   const tempo = useAIStudioStore((state) => state.tempo);
   const selectedTrackId = useAIStudioStore((state) => state.selectedTrackId);
   const isRecording = useAIStudioStore((state) => state.isRecording);
+  const masterVolume = useAIStudioStore((state) => state.masterVolume);
+  const masterPeakLevel = useAIStudioStore((state) => state.masterPeakLevel);
   
   // Actions
   const setCurrentTime = useAIStudioStore((state) => state.setCurrentTime);
@@ -44,6 +47,9 @@ const ProStudio = ({ userRole = 'artist' }: ProStudioProps) => {
   const removeTrack = useAIStudioStore((state) => state.removeTrack);
   const addTrackEffect = useAIStudioStore((state) => state.addTrackEffect);
   const updateTrackSend = useAIStudioStore((state) => state.updateTrackSend);
+  const setMasterVolume = useAIStudioStore((state) => state.setMasterVolume);
+  const addEffect = useAIStudioStore((state) => state.addEffect);
+  const effects = useAIStudioStore((state) => state.effects);
   
   // Playback hook
   const { updateTrackParams } = useStudioPlayback();
@@ -202,20 +208,33 @@ const ProStudio = ({ userRole = 'artist' }: ProStudioProps) => {
                     </Card>
                   </div>
                 ) : (
-                  tracks.map((track) => (
-                    <ChannelStrip
-                      key={track.id}
-                      track={track}
-                      isSelected={selectedTrackId === track.id}
-                      onSelect={() => setSelectedTrack(track.id)}
-                      onVolumeChange={(volume) => handleTrackUpdate(track.id, { volume })}
-                      onPanChange={(pan) => handleTrackUpdate(track.id, { pan })}
-                      onMuteToggle={() => handleTrackUpdate(track.id, { mute: !track.mute })}
-                      onSoloToggle={() => handleTrackUpdate(track.id, { solo: !track.solo })}
-                      onAddTrackEffect={addTrackEffect}
-                      onUpdateTrackSend={updateTrackSend}
-                    />
-                  ))
+                  <>
+                    {tracks.map((track) => (
+                      <ChannelStrip
+                        key={track.id}
+                        track={track}
+                        isSelected={selectedTrackId === track.id}
+                        onSelect={() => setSelectedTrack(track.id)}
+                        onVolumeChange={(volume) => handleTrackUpdate(track.id, { volume })}
+                        onPanChange={(pan) => handleTrackUpdate(track.id, { pan })}
+                        onMuteToggle={() => handleTrackUpdate(track.id, { mute: !track.mute })}
+                        onSoloToggle={() => handleTrackUpdate(track.id, { solo: !track.solo })}
+                        onAddTrackEffect={addTrackEffect}
+                        onUpdateTrackSend={updateTrackSend}
+                      />
+                    ))}
+                    
+                    {/* Master Channel Strip */}
+                    <div className="ml-4 border-l-2 pl-4" style={{ borderColor: 'hsl(var(--studio-accent) / 0.3)' }}>
+                      <MasterChannelStrip
+                        volume={masterVolume}
+                        peakLevel={masterPeakLevel}
+                        onVolumeChange={setMasterVolume}
+                        effects={effects}
+                        onAddEffect={addEffect}
+                      />
+                    </div>
+                  </>
                 )}
               </div>
             </div>
