@@ -62,14 +62,15 @@ export const SpectrumAnalyzer: React.FC<SpectrumAnalyzerProps> = ({
         });
       }
 
-      // Draw spectrum
+      // Draw spectrum with Mixxclub gradient
       const barWidth = width / bufferLength;
       let x = 0;
 
-      const gradient = ctx.createLinearGradient(0, height, 0, 0);
-      gradient.addColorStop(0, color.replace(')', ', 0.3)').replace('hsl', 'hsla'));
-      gradient.addColorStop(0.5, color.replace(')', ', 0.6)').replace('hsl', 'hsla'));
-      gradient.addColorStop(1, color);
+      // Mixxclub gradient: Pink -> Lavender -> Cyan
+      const gradient = ctx.createLinearGradient(0, 0, width, 0);
+      gradient.addColorStop(0, 'rgba(255,112,208,0.8)'); // Pink
+      gradient.addColorStop(0.5, 'rgba(197,163,255,0.8)'); // Lavender
+      gradient.addColorStop(1, 'rgba(112,230,255,0.8)'); // Cyan
 
       ctx.fillStyle = gradient;
 
@@ -80,10 +81,16 @@ export const SpectrumAnalyzer: React.FC<SpectrumAnalyzerProps> = ({
         x += barWidth;
       }
 
-      // Draw glow effect
-      ctx.shadowBlur = 15;
-      ctx.shadowColor = color;
-      ctx.strokeStyle = color;
+      // Draw glow effect with Mixxclub gradient
+      ctx.shadowBlur = 20;
+      ctx.shadowColor = 'rgba(197,163,255,0.6)';
+      
+      const glowGradient = ctx.createLinearGradient(0, 0, width, 0);
+      glowGradient.addColorStop(0, '#FF70D0'); // Pink
+      glowGradient.addColorStop(0.5, '#C5A3FF'); // Lavender
+      glowGradient.addColorStop(1, '#70E6FF'); // Cyan
+      
+      ctx.strokeStyle = glowGradient;
       ctx.lineWidth = 2;
       ctx.beginPath();
       
@@ -111,7 +118,7 @@ export const SpectrumAnalyzer: React.FC<SpectrumAnalyzerProps> = ({
   }, [analyser, width, height, showGrid, color]);
 
   return (
-    <div className="relative rounded-lg overflow-hidden border border-white/10 bg-black/40">
+    <div className="relative rounded-lg overflow-hidden border border-mixx-lavender/20 bg-mixx-navy-deep/60 backdrop-blur-sm">
       <canvas
         ref={canvasRef}
         width={width}
@@ -119,7 +126,7 @@ export const SpectrumAnalyzer: React.FC<SpectrumAnalyzerProps> = ({
         className="w-full h-full"
       />
       {/* Frequency labels */}
-      <div className="absolute bottom-1 left-0 right-0 flex justify-between px-2 text-[9px] text-muted-foreground font-mono">
+      <div className="absolute bottom-1 left-0 right-0 flex justify-between px-2 text-[9px] text-mixx-cyan font-mono uppercase tracking-wider">
         <span>20Hz</span>
         <span>100Hz</span>
         <span>1kHz</span>
