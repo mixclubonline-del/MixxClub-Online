@@ -9,7 +9,7 @@ interface PluginKnobProps {
   unit?: string;
   onChange: (value: number) => void;
   displayValue?: (value: number) => string;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
   aiSuggested?: boolean;
 }
 
@@ -17,6 +17,7 @@ const sizeMap = {
   sm: { outer: 48, inner: 36, border: 2, indicator: 2 },
   md: { outer: 64, inner: 48, border: 3, indicator: 2.5 },
   lg: { outer: 80, inner: 60, border: 4, indicator: 3 },
+  xl: { outer: 120, inner: 90, border: 5, indicator: 4 },
 };
 
 export const PluginKnob: React.FC<PluginKnobProps> = ({

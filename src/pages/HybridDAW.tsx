@@ -23,7 +23,9 @@ import {
   Download,
   Upload,
   Save,
-  FolderOpen
+  FolderOpen,
+  Sliders,
+  SkipBack
 } from "lucide-react";
 import EnhancedDAWTimeline from "@/components/daw/EnhancedDAWTimeline";
 import DAWMixerPanel from "@/components/daw/DAWMixerPanel";
@@ -37,6 +39,7 @@ import { CloudProjectManager } from "@/components/daw/CloudProjectManager";
 import { PrimeBotAssistant } from "@/components/studio/PrimeBotAssistant";
 import { AIAssistantPanel } from "@/components/studio/AIAssistantPanel";
 import { StudioSystemCheck } from "@/components/studio/StudioSystemCheck";
+import { ClipEditorPanel } from "@/components/daw/ClipEditorPanel";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useAudioPermissions } from "@/hooks/useAudioPermissions";
@@ -74,12 +77,14 @@ const HybridDAW = () => {
   
   // View State
   const [view, setView] = useState<'2d' | '3d'>('2d');
+  const [viewMode, setViewMode] = useState<'arrange' | 'mix'>('arrange');
   const [activePanel, setActivePanel] = useState<'timeline' | 'mixer' | 'effects' | 'collab' | 'achievements'>('timeline');
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [showStemSeparationDialog, setShowStemSeparationDialog] = useState(false);
   const [showCloudManager, setShowCloudManager] = useState(false);
   const [showAIAssistant, setShowAIAssistant] = useState(false);
   const [showSystemCheck, setShowSystemCheck] = useState(false);
+  const [showPrimeBotModal, setShowPrimeBotModal] = useState(false);
   
   // Collaboration State
   const [collaborators, setCollaborators] = useState<CollaborationUser[]>([]);
@@ -714,6 +719,20 @@ const HybridDAW = () => {
           {/* Right - View & Actions */}
           <div className="flex items-center gap-2">
             <Button 
+              variant={viewMode === 'mix' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setViewMode(viewMode === 'arrange' ? 'mix' : 'arrange')}
+              className="gap-2"
+            >
+              <Sliders className="w-4 h-4" />
+              <span className="text-xs font-semibold">
+                {viewMode === 'arrange' ? 'MIXING MODE' : 'ARRANGEMENT MODE'}
+              </span>
+            </Button>
+            
+            <div className="w-px h-8 bg-border/50" />
+            
+            <Button 
               variant="outline" 
               size="sm"
               onClick={() => addTrack('vocal')}
@@ -785,10 +804,13 @@ const HybridDAW = () => {
         </div>
       </div>
 
-      {/* Main DAW Layout with Resizable Panels */}
+      {/* Main DAW Layout - Mode-Aware */}
       <ResizablePanelGroup direction="horizontal" className="flex-1 overflow-hidden">
-        {/* Left: Resizable Track Sidebar */}
-        <ResizablePanel defaultSize={20} minSize={15} maxSize={30}>
+        {viewMode === 'arrange' ? (
+          // ========== ARRANGEMENT MODE ==========
+          <>
+          {/* Left: Track List (15%) */}
+          <ResizablePanel defaultSize={15} minSize={12} maxSize={20}>
           <div className="h-full glass border-r border-border/50 flex flex-col shadow-glass-lg animate-slide-up" style={{ animationDelay: '100ms' }}>
             {/* Track Controls Header */}
             <div className="p-4 border-b border-border/30 glass-hover">
@@ -938,41 +960,43 @@ const HybridDAW = () => {
 
         <ResizableHandle withHandle />
 
-        {/* Right: Main Content Area */}
-        <ResizablePanel defaultSize={80}>
-          <ResizablePanelGroup direction="vertical" className="h-full">
-            {/* Top: Timeline/Arrangement View */}
-            <ResizablePanel defaultSize={60} minSize={30}>
-              <div className="h-full bg-gradient-to-br from-background to-background/50 animate-fade-in overflow-hidden">
-                {view === '2d' ? (
-                  <EnhancedDAWTimeline 
-                    tracks={tracks}
-                    onTracksChange={setTracks}
-                    currentTime={currentTime}
-                    onTimeChange={seekToTime}
-                    isPlaying={isPlaying}
-                    bpm={bpm}
-                    onStartRecording={startRecording}
-                    onStopRecording={stopRecording}
-                    isRecording={isRecording}
-                  />
-                ) : (
-                  <DAW3DView 
-                    tracks={tracks}
-                    isPlaying={isPlaying}
-                    currentTime={currentTime}
-                  />
-                )}
-              </div>
-            </ResizablePanel>
+        {/* Center: Timeline (70%) */}
+        <ResizablePanel defaultSize={70}>
+          <div className="h-full bg-gradient-to-br from-background to-background/50 animate-fade-in overflow-hidden">
+            {view === '2d' ? (
+              <EnhancedDAWTimeline 
+                tracks={tracks}
+                onTracksChange={setTracks}
+                currentTime={currentTime}
+                onTimeChange={seekToTime}
+                isPlaying={isPlaying}
+                bpm={bpm}
+                onStartRecording={startRecording}
+                onStopRecording={stopRecording}
+                isRecording={isRecording}
+              />
+            ) : (
+              <DAW3DView 
+                tracks={tracks}
+                isPlaying={isPlaying}
+                currentTime={currentTime}
+              />
+            )}
+          </div>
+        </ResizablePanel>
 
-            <ResizableHandle withHandle />
+        <ResizableHandle withHandle />
 
-            {/* Bottom: Permanent Mixer Console + Secondary Panels */}
-            <ResizablePanel defaultSize={40} minSize={25}>
-              <ResizablePanelGroup direction="vertical" className="h-full">
-                {/* Mixer Console (Always Visible) */}
-                <ResizablePanel defaultSize={70} minSize={50}>
+        {/* Right: Clip Editor (15%) */}
+        <ResizablePanel defaultSize={15} minSize={12} maxSize={25}>
+          <ClipEditorPanel 
+            selectedRegion={null}
+            selectedTrack={null}
+            onUpdateRegion={(regionId, updates) => {
+              // TODO: Wire to region update
+            }}
+          />
+        </ResizablePanel>
                   <div className="h-full glass border-t border-border/50 shadow-glass-lg animate-slide-up flex flex-col" style={{ animationDelay: '200ms' }}>
                     <div className="flex items-center justify-between p-3 border-b border-border/30 flex-shrink-0">
                       <h3 className="text-sm font-bold flex items-center gap-2">
@@ -1069,6 +1093,113 @@ const HybridDAW = () => {
             </ResizablePanel>
           </ResizablePanelGroup>
         </ResizablePanel>
+        </ResizablePanelGroup>
+      ) : (
+        {/* Left: Compact Track List (12%) */}
+        <ResizablePanel defaultSize={12} minSize={10} maxSize={15}>
+            <div className="h-full glass border-r border-border/50 flex flex-col">
+              <div className="p-3 border-b border-border/30">
+                <h3 className="text-xs font-bold">TRACKS</h3>
+              </div>
+              <div className="flex-1 overflow-y-auto p-2 space-y-1">
+                {tracks.map((track) => (
+                  <div 
+                    key={track.id}
+                    className="glass-hover p-2 rounded border border-border/20 cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="w-1 h-8 rounded" style={{ backgroundColor: track.color }} />
+                      <span className="text-xs font-medium truncate flex-1">{track.name}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </ResizablePanel>
+
+          <ResizableHandle withHandle />
+
+          {/* Right: Timeline + Mixer (88%) */}
+          <ResizablePanel defaultSize={88}>
+            <ResizablePanelGroup direction="vertical" className="h-full">
+              {/* Timeline (50%) */}
+              <ResizablePanel defaultSize={50} minSize={30} maxSize={70}>
+                <div className="h-full overflow-hidden">
+                  <EnhancedDAWTimeline 
+                    tracks={tracks}
+                    onTracksChange={setTracks}
+                    currentTime={currentTime}
+                    onTimeChange={seekToTime}
+                    isPlaying={isPlaying}
+                    bpm={bpm}
+                    onStartRecording={startRecording}
+                    onStopRecording={stopRecording}
+                    isRecording={isRecording}
+                  />
+                </div>
+              </ResizablePanel>
+
+              <ResizableHandle withHandle />
+
+              {/* Mixer Console (50%) - FULL WIDTH */}
+              <ResizablePanel defaultSize={50} minSize={30} maxSize={70}>
+                <div className="h-full glass border-t border-border/50 shadow-glass-lg flex flex-col">
+                  {/* Mixer Header */}
+                  <div className="flex items-center justify-between p-3 border-b border-border/30 flex-shrink-0">
+                    <h3 className="text-sm font-bold flex items-center gap-2">
+                      <Volume2 className="w-4 h-4 text-primary" />
+                      MIXER CONSOLE
+                      <Badge variant="outline" className="text-xs">
+                        {tracks.length} Channels
+                      </Badge>
+                    </h3>
+                    
+                    <div className="flex items-center gap-3 glass-hover px-4 py-2 rounded-lg">
+                      <span className="text-xs font-semibold text-muted-foreground">MASTER</span>
+                      <Volume2 className="w-4 h-4 text-primary" />
+                      <Slider
+                        value={[masterVolume * 100]}
+                        onValueChange={(value) => setMasterVolume(value[0] / 100)}
+                        max={150}
+                        step={0.1}
+                        className="w-32"
+                      />
+                      <span className="text-sm font-mono font-bold text-primary w-16 text-right">
+                        {masterVolume === 0 ? '-∞' : `${(20 * Math.log10(masterVolume)).toFixed(1)}`} dB
+                      </span>
+                    </div>
+                  </div>
+                  
+                  {/* Mixer Content */}
+                  <div className="flex-1 overflow-hidden">
+                    <DAWMixerPanel 
+                      tracks={tracks}
+                      onTracksChange={setTracks}
+                      masterVolume={masterVolume}
+                      onMasterVolumeChange={setMasterVolume}
+                    />
+                  </div>
+
+                  {/* Mixer Footer with Secondary Panel Triggers */}
+                  <div className="p-2 border-t border-border/30 flex gap-2 flex-shrink-0">
+                    <Button variant="ghost" size="sm" onClick={() => setActivePanel('effects')}>
+                      FX
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => setActivePanel('collab')}>
+                      <Users className="w-3 h-3 mr-1" />
+                      COLLAB
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => setActivePanel('achievements')}>
+                      <Trophy className="w-3 h-3 mr-1" />
+                      ACHIEVEMENTS
+                    </Button>
+                  </div>
+                </div>
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          </ResizablePanel>
+        </>
+        )}
       </ResizablePanelGroup>
 
       {/* Audio Import Dialog */}
@@ -1121,8 +1252,82 @@ const HybridDAW = () => {
         </div>
       )}
 
-      {/* PrimeBot Assistant */}
-      <PrimeBotAssistant message="Ready to help with your production!" />
+      {/* Floating PrimeBot Button */}
+      <Button 
+        className="fixed bottom-6 right-6 w-16 h-16 rounded-full shadow-glow z-50 bg-gradient-to-br from-primary to-accent"
+        onClick={() => setShowPrimeBotModal(!showPrimeBotModal)}
+      >
+        <Sparkles className="w-7 h-7" />
+      </Button>
+
+      {/* PrimeBot Modal */}
+      {showPrimeBotModal && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+          <div className="w-full max-w-3xl max-h-[80vh] animate-scale-in bg-card rounded-2xl border border-primary/30 shadow-glass-lg overflow-hidden">
+            <div className="flex justify-between items-center p-4 border-b border-border/30">
+              <h2 className="text-lg font-bold flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-primary" />
+                PrimeBot 4.0 Assistant
+              </h2>
+              <Button variant="ghost" size="sm" onClick={() => setShowPrimeBotModal(false)}>
+                Close
+              </Button>
+            </div>
+            <div className="overflow-y-auto max-h-[calc(80vh-80px)]">
+              <PrimeBotAssistant message="Ready to help with your production!" />
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Secondary Panels as Modals */}
+      {activePanel === 'effects' && viewMode === 'mix' && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 flex items-center justify-center p-4">
+          <div className="w-full max-w-4xl max-h-[80vh] bg-card rounded-2xl border shadow-glass-lg overflow-hidden">
+            <div className="flex justify-between items-center p-4 border-b">
+              <h2 className="text-lg font-bold">Effects Panel</h2>
+              <Button variant="ghost" size="sm" onClick={() => setActivePanel('timeline')}>Close</Button>
+            </div>
+            <div className="overflow-y-auto max-h-[calc(80vh-80px)] p-4">
+              <DAWEffectsPanel tracks={tracks} onTracksChange={setTracks} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activePanel === 'collab' && viewMode === 'mix' && user && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 flex items-center justify-center p-4">
+          <div className="w-full max-w-4xl max-h-[80vh] bg-card rounded-2xl border shadow-glass-lg overflow-hidden">
+            <div className="flex justify-between items-center p-4 border-b">
+              <h2 className="text-lg font-bold">Collaboration</h2>
+              <Button variant="ghost" size="sm" onClick={() => setActivePanel('timeline')}>Close</Button>
+            </div>
+            <div className="overflow-y-auto max-h-[calc(80vh-80px)]">
+              <DAWCollaboration 
+                sessionId={`daw-session-${user.id}`}
+                userId={user.id}
+                userName={user.email || 'User'}
+                onTrackUpdate={(trackData) => console.log('Track updated:', trackData)}
+                onEffectChange={(trackId, effectData) => console.log('Effect changed:', trackId, effectData)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activePanel === 'achievements' && viewMode === 'mix' && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 flex items-center justify-center p-4">
+          <div className="w-full max-w-4xl max-h-[80vh] bg-card rounded-2xl border shadow-glass-lg overflow-hidden">
+            <div className="flex justify-between items-center p-4 border-b">
+              <h2 className="text-lg font-bold">Achievements</h2>
+              <Button variant="ghost" size="sm" onClick={() => setActivePanel('timeline')}>Close</Button>
+            </div>
+            <div className="overflow-y-auto max-h-[calc(80vh-80px)] p-4">
+              <DAWGamification achievements={achievements} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
