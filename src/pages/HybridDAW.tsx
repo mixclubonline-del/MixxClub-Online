@@ -289,12 +289,9 @@ const HybridDAW = () => {
             const arrayBuffer = await blob.arrayBuffer();
             const audioBuffer = await audioEngine.ctx.decodeAudioData(arrayBuffer);
             
-            const { peaks } = WaveformGenerator.generateFromBuffer(audioBuffer, {
-              width: 1024,
-              normalize: true,
-            });
+            const waveformData = WaveformGenerator.generateMultiResolution(audioBuffer);
             
-            console.log('[Recording] Waveform generated:', peaks.length, 'peaks');
+            console.log('[Recording] Multi-resolution waveform generated:', waveformData.multiResolution);
             
             // Stable IDs for region
             const regionId = `region-${Date.now()}`;
@@ -317,7 +314,7 @@ const HybridDAW = () => {
               updateTrack(trackId, {
                 armed: false,
                 audioBuffer,
-                waveformData: peaks,
+                waveformData, // Multi-resolution waveform data
                 regions: [...(currentTrack.regions || []), newRegion]
               });
             }
@@ -436,19 +433,14 @@ const HybridDAW = () => {
         length: audioBuffer.length + ' samples',
       });
       
-      // 2. Generate waveform - keep as Float32Array!
-      console.log('[HybridDAW] 📊 Step 2: Generating waveform...');
-      const { peaks } = WaveformGenerator.generateFromBuffer(audioBuffer, {
-        width: 1024,
-        normalize: true,
-      });
+      // 2. Generate multi-resolution waveform for WebGL rendering (PHASE 3)
+      console.log('[HybridDAW] 📊 Step 2: Generating multi-resolution waveform...');
+      const waveformData = WaveformGenerator.generateMultiResolution(audioBuffer);
       
-      console.log('[HybridDAW] ✅ Waveform generated:', {
-        peakCount: peaks.length,
-        peakType: peaks.constructor.name,
-        minPeak: Math.min(...Array.from(peaks)).toFixed(3),
-        maxPeak: Math.max(...Array.from(peaks)).toFixed(3),
-        samplePeak: peaks[0]?.toFixed(3),
+      console.log('[HybridDAW] ✅ Multi-resolution waveform generated:', {
+        low: waveformData.multiResolution?.low.length + ' peaks (overview)',
+        medium: waveformData.multiResolution?.medium.length + ' peaks (normal)',
+        high: waveformData.multiResolution?.high.length + ' peaks (detail)',
       });
       
       // 3. Use stable IDs to avoid drift between track/region
@@ -469,7 +461,7 @@ const HybridDAW = () => {
         mute: false,
         solo: false,
         audioBuffer,  // ✅ Real decoded audio
-        waveformData: peaks, // ✅ Keep as Float32Array!
+        waveformData, // ✅ Multi-resolution waveform data (PHASE 3)
         regions: [{
           id: regionId,
           trackId: trackId, // ✅ Use same stable ID
@@ -534,7 +526,7 @@ const HybridDAW = () => {
         console.log('[HybridDAW] 🎉 Import complete!');
         toast({
           title: "✅ Track Added to Timeline!",
-          description: `${importedFile.fileName} • ${audioBuffer.duration.toFixed(1)}s • ${peaks.length} waveform points`,
+          description: `${importedFile.fileName} • ${audioBuffer.duration.toFixed(1)}s • Multi-resolution waveform`,
         });
       }
       
@@ -681,7 +673,7 @@ const HybridDAW = () => {
           mute: false,
           solo: false,
           audioBuffer,
-          waveformData: waveformData.peaks,
+          waveformData,
           regions: [{
             id: `stem-region-${Date.now()}-${index}`,
             trackId: `stem-track-${Date.now()}-${index}`,

@@ -20,7 +20,7 @@ import {
   Minimize2
 } from "lucide-react";
 import { Track, AudioRegion } from "@/stores/aiStudioStore";
-import { WavesurferTrack } from "./WavesurferTrack";
+import { WebGLWaveformTrack } from "./WebGLWaveformTrack";
 
 interface EnhancedDAWTimelineProps {
   tracks: Track[];
@@ -399,7 +399,7 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
                     >
                       <div className="h-full flex flex-col justify-center px-2 relative overflow-hidden">
                         {showWaveforms && track.audioBuffer ? (
-                          <WavesurferTrack
+                          <WebGLWaveformTrack
                             track={track}
                             currentTime={currentTime}
                             isPlaying={isPlaying}
