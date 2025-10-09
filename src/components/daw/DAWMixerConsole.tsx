@@ -26,8 +26,8 @@ export const DAWMixerConsole = ({ onClose }: DAWMixerConsoleProps) => {
       </div>
 
       {/* Mixer Channels */}
-      <ScrollArea orientation="horizontal" className="flex-1">
-        <div className="flex gap-2 p-4 min-w-max">
+      <div className="flex-1 overflow-x-auto">
+        <div className="flex gap-2 p-4 min-w-max h-full">
           {/* Track Channels */}
           {tracks.map((track) => (
             <div
@@ -166,7 +166,7 @@ export const DAWMixerConsole = ({ onClose }: DAWMixerConsoleProps) => {
             </div>
           </div>
         </div>
-      </ScrollArea>
+      </div>
     </div>
   );
 };

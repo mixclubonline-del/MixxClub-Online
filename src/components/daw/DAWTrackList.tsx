@@ -14,7 +14,7 @@ import {
   Guitar,
   Piano,
 } from 'lucide-react';
-import { useAIStudioStore } from '@/stores/aiStudioStore';
+import { useAIStudioStore, Track } from '@/stores/aiStudioStore';
 import { cn } from '@/lib/utils';
 
 export const DAWTrackList = () => {

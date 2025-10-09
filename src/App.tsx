@@ -20,15 +20,13 @@ import PrimeStatusBar from "@/components/prime/PrimeStatusBar";
 const MixClubHome = React.lazy(() => import("./pages/MixClubHome"));
 const Home = React.lazy(() => import("./pages/Home"));
 const ProStudio = React.lazy(() => import("./pages/ProStudio"));
+const ProDAW = React.lazy(() => import("./pages/ProDAW"));
 
 // Keep IntroScene non-lazy since it's the landing page
 import IntroScene from "./pages/IntroScene";
 const ArtistCRM = React.lazy(() => import("./pages/ArtistCRM"));
 const EngineerCRM = React.lazy(() => import("./pages/EngineerCRM"));
 const AudioLab = React.lazy(() => import("./pages/AudioLab"));
-import { Route } from "react-router-dom";
-// ... keep existing code
-const ProDAW = React.lazy(() => import("./pages/ProDAW"));
 const HybridDAW = React.lazy(() => import("./pages/HybridDAW"));
 const Admin = React.lazy(() => import("./pages/Admin"));
 const AIMastering = React.lazy(() => import("./pages/AIMastering"));
@@ -239,6 +237,8 @@ const AppContent = () => {
             <Route path="/engineers" element={<EngineerDirectory />} />
             <Route path="/engineer/:userId" element={<EngineerProfile />} />
             <Route path="/audio-lab" element={<AudioLab />} />
+            <Route path="/hybrid-daw" element={<HybridDAW />} />
+            <Route path="/pro-daw" element={<ProDAW />} />
             <Route path="/project/:projectId" element={<AppLayout><ProjectDetail /></AppLayout>} />
             <Route path="/coming-soon" element={<ComingSoon />} />
             <Route path="/faq" element={<FAQ />} />
