@@ -1,6 +1,7 @@
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { CollapsibleCard } from "@/components/ui/collapsible-card";
 import { ArrowLeft, Rocket, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { LaunchReadinessChecklist } from "@/components/admin/LaunchReadinessChecklist";
@@ -41,13 +42,28 @@ export default function LaunchReadiness() {
         </div>
 
         {/* System Health Metrics */}
-        <SystemHealthMetrics />
+        <CollapsibleCard
+          title="System Health Metrics"
+          storageKey="launch-readiness-health"
+        >
+          <SystemHealthMetrics />
+        </CollapsibleCard>
 
         {/* Pre-Launch Checklist */}
-        <LaunchReadinessChecklist />
+        <CollapsibleCard
+          title="Pre-Launch Checklist"
+          storageKey="launch-readiness-checklist"
+        >
+          <LaunchReadinessChecklist />
+        </CollapsibleCard>
 
         {/* Deployment Readiness */}
-        <DeploymentReadiness />
+        <CollapsibleCard
+          title="Deployment Readiness"
+          storageKey="launch-readiness-deployment"
+        >
+          <DeploymentReadiness />
+        </CollapsibleCard>
       </div>
     </AdminLayout>
   );

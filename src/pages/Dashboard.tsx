@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import Navigation from '@/components/Navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CollapsibleCard } from '@/components/ui/collapsible-card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -134,23 +135,29 @@ const Dashboard = () => {
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          {quickStats.map((stat, index) => (
-            <Card key={index}>
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4">
-                  <div className={`p-3 rounded-lg ${stat.bg}`}>
-                    <stat.icon className={`w-6 h-6 ${stat.color}`} />
+        <CollapsibleCard
+          title="Quick Stats"
+          storageKey="dashboard-quick-stats"
+          contentClassName="pt-0"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {quickStats.map((stat, index) => (
+              <Card key={index}>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-4">
+                    <div className={`p-3 rounded-lg ${stat.bg}`}>
+                      <stat.icon className={`w-6 h-6 ${stat.color}`} />
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold">{stat.value}</div>
+                      <div className="text-sm text-muted-foreground">{stat.label}</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-2xl font-bold">{stat.value}</div>
-                    <div className="text-sm text-muted-foreground">{stat.label}</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </CollapsibleCard>
 
         {/* Main Content Tabs */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -195,66 +202,63 @@ const Dashboard = () => {
 
             {activeTab === 'overview' && (
               <div className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Active Projects</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {activeProjects.map((project, index) => (
-                      <div key={index} className="p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                        <div className="flex items-center justify-between mb-2">
-                          <h3 className="font-semibold">{project.name}</h3>
-                          <Badge variant="outline">{project.status}</Badge>
+                <CollapsibleCard
+                  title="Active Projects"
+                  storageKey="dashboard-active-projects"
+                  contentClassName="space-y-4"
+                >
+                  {activeProjects.map((project, index) => (
+                    <div key={index} className="p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="font-semibold">{project.name}</h3>
+                        <Badge variant="outline">{project.status}</Badge>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>Progress</span>
+                          <span>{project.progress}%</span>
                         </div>
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-sm">
-                            <span>Progress</span>
-                            <span>{project.progress}%</span>
-                          </div>
-                          <Progress value={project.progress} className="h-2" />
-                          <div className="flex justify-between text-xs text-muted-foreground">
-                            <span>Engineer: {project.engineer}</span>
-                            <span>Due in {project.deadline}</span>
-                          </div>
+                        <Progress value={project.progress} className="h-2" />
+                        <div className="flex justify-between text-xs text-muted-foreground">
+                          <span>Engineer: {project.engineer}</span>
+                          <span>Due in {project.deadline}</span>
                         </div>
                       </div>
-                    ))}
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Quick Actions</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-2 gap-4">
-                      <Link to="/artist-crm">
-                        <Button variant="outline" className="h-20 flex-col gap-2 w-full">
-                          <Upload className="w-6 h-6" />
-                          Upload Track
-                        </Button>
-                      </Link>
-                      <Link to="/mixing">
-                        <Button variant="outline" className="h-20 flex-col gap-2 w-full">
-                          <Mic className="w-6 h-6" />
-                          Start Mixing
-                        </Button>
-                      </Link>
-                      <Link to="/engineer-dashboard">
-                        <Button variant="outline" className="h-20 flex-col gap-2 w-full">
-                          <Users className="w-6 h-6" />
-                          Find Engineer
-                        </Button>
-                      </Link>
-                      <Link to="/jobs">
-                        <Button variant="outline" className="h-20 flex-col gap-2 w-full">
-                          <Radio className="w-6 h-6" />
-                          Join Session
-                        </Button>
-                      </Link>
                     </div>
-                  </CardContent>
-                </Card>
+                  ))}
+                </CollapsibleCard>
+
+                <CollapsibleCard
+                  title="Quick Actions"
+                  storageKey="dashboard-quick-actions"
+                >
+                  <div className="grid grid-cols-2 gap-4">
+                    <Link to="/artist-crm">
+                      <Button variant="outline" className="h-20 flex-col gap-2 w-full">
+                        <Upload className="w-6 h-6" />
+                        Upload Track
+                      </Button>
+                    </Link>
+                    <Link to="/mixing">
+                      <Button variant="outline" className="h-20 flex-col gap-2 w-full">
+                        <Mic className="w-6 h-6" />
+                        Start Mixing
+                      </Button>
+                    </Link>
+                    <Link to="/engineer-dashboard">
+                      <Button variant="outline" className="h-20 flex-col gap-2 w-full">
+                        <Users className="w-6 h-6" />
+                        Find Engineer
+                      </Button>
+                    </Link>
+                    <Link to="/jobs">
+                      <Button variant="outline" className="h-20 flex-col gap-2 w-full">
+                        <Radio className="w-6 h-6" />
+                        Join Session
+                      </Button>
+                    </Link>
+                  </div>
+                </CollapsibleCard>
               </div>
             )}
 

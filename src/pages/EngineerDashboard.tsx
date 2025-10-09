@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { CollapsibleCard } from '@/components/ui/collapsible-card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
@@ -154,14 +155,18 @@ const EngineerDashboard = () => {
         )}
 
         {/* Earnings Overview */}
-        <div className="mb-8">
+        <CollapsibleCard
+          title="Earnings Overview"
+          storageKey="engineer-earnings"
+          className="mb-8"
+        >
           <EarningsOverview
             totalEarnings={stats.totalEarnings}
             pendingEarnings={stats.pendingEarnings}
             paidEarnings={stats.paidEarnings}
             totalBonuses={stats.totalBonuses}
           />
-        </div>
+        </CollapsibleCard>
 
         {/* Mobile Stats Carousel */}
         {isMobile && (
@@ -180,7 +185,13 @@ const EngineerDashboard = () => {
         )}
 
         {/* Stats Cards - Desktop Only */}
-        <div className="hidden md:grid md:grid-cols-3 gap-6 mb-8">
+        <CollapsibleCard
+          title="Key Statistics"
+          storageKey="engineer-stats"
+          className="hidden md:block mb-8"
+          contentClassName="pt-0"
+        >
+          <div className="grid md:grid-cols-3 gap-6">
           <Card className="border-border">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
@@ -219,16 +230,15 @@ const EngineerDashboard = () => {
               <p className="text-sm text-muted-foreground">Out of 5.0</p>
             </CardContent>
           </Card>
-        </div>
+          </div>
+        </CollapsibleCard>
 
         <div className="grid lg:grid-cols-2 gap-6 mb-8">
           {/* Recent Projects */}
-          <Card className="border-border">
-            <CardHeader>
-              <CardTitle>Recent Projects</CardTitle>
-              <CardDescription>Your latest assignments</CardDescription>
-            </CardHeader>
-            <CardContent>
+          <CollapsibleCard
+            title="Recent Projects"
+            storageKey="engineer-recent-projects"
+          >
               {loadingProjects ? (
                 <p className="text-muted-foreground">Loading projects...</p>
               ) : projects.length === 0 ? (
@@ -272,48 +282,73 @@ const EngineerDashboard = () => {
                   ))}
                 </div>
               )}
-            </CardContent>
-          </Card>
+          </CollapsibleCard>
 
           {/* Payout Management */}
-          <PayoutManagement
-            engineerId={user?.id || ''}
-            availableBalance={stats.paidEarnings}
-          />
+          <CollapsibleCard
+            title="Payout Management"
+            storageKey="engineer-payouts"
+          >
+            <PayoutManagement
+              engineerId={user?.id || ''}
+              availableBalance={stats.paidEarnings}
+            />
+          </CollapsibleCard>
         </div>
 
         {/* Monthly Awards */}
-        <div className="mb-8">
+        <CollapsibleCard
+          title="Monthly Awards"
+          storageKey="engineer-monthly-awards"
+          className="mb-8"
+        >
           <MonthlyAwards />
-        </div>
+        </CollapsibleCard>
 
         {/* Achievement Progress */}
-        <div className="mb-8">
+        <CollapsibleCard
+          title="Achievement Progress"
+          storageKey="engineer-achievements"
+          className="mb-8"
+        >
           {user && <AchievementProgress userId={user.id} />}
-        </div>
+        </CollapsibleCard>
 
         {/* Badge Showcase */}
-        <div className="mb-8">
+        <CollapsibleCard
+          title="Badge Showcase"
+          storageKey="engineer-badges"
+          className="mb-8"
+        >
           <BadgeShowcase badges={badges} />
-        </div>
+        </CollapsibleCard>
 
         {/* Enhanced Leaderboard */}
-        <div className="mb-8">
+        <CollapsibleCard
+          title="Enhanced Leaderboard"
+          storageKey="engineer-leaderboard"
+          className="mb-8"
+        >
           <EnhancedLeaderboard />
-        </div>
+        </CollapsibleCard>
 
         {/* Original Gamification Section */}
-        <div className="grid lg:grid-cols-2 gap-6">
-          {/* Badges & Streaks */}
-          <BadgesDisplay
-            badges={badges}
-            currentStreak={streak.current_streak}
-            longestStreak={streak.longest_streak}
-          />
+        <CollapsibleCard
+          title="Badges & Leaderboard"
+          storageKey="engineer-gamification"
+        >
+          <div className="grid lg:grid-cols-2 gap-6">
+            {/* Badges & Streaks */}
+            <BadgesDisplay
+              badges={badges}
+              currentStreak={streak.current_streak}
+              longestStreak={streak.longest_streak}
+            />
 
-          {/* Legacy Leaderboard */}
-          <EngineerLeaderboard />
-        </div>
+            {/* Legacy Leaderboard */}
+            <EngineerLeaderboard />
+          </div>
+        </CollapsibleCard>
       </div>
     </div>
   );

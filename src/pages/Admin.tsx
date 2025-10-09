@@ -8,6 +8,7 @@ import AdminMixxBot from '@/components/admin/AdminMixxBot';
 import { MobileDeploymentChecklist } from '@/components/admin/MobileDeploymentChecklist';
 import { PerformanceOptimizer } from '@/components/admin/PerformanceOptimizer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CollapsibleCard } from '@/components/ui/collapsible-card';
 import { Button } from '@/components/ui/button';
 import { Users, Music, FileAudio, TrendingUp, Rocket, TestTube2, Zap, CheckCircle, Bot, Shield, Smartphone, Sparkles, Activity, AlertTriangle, FileText, Target, DollarSign, Eye, Megaphone, Headphones, BarChart3, Plug, UserCog } from 'lucide-react';
 
@@ -80,11 +81,26 @@ export default function Admin() {
             <p className="text-muted-foreground mt-2">Manage your platform from here</p>
           </div>
 
-          <NotificationTestPanel />
+          <CollapsibleCard
+            title="Notification Test Panel"
+            storageKey="admin-notification-test"
+          >
+            <NotificationTestPanel />
+          </CollapsibleCard>
           
           <div className="grid md:grid-cols-2 gap-6">
-            <MobileDeploymentChecklist />
-            <PerformanceOptimizer />
+            <CollapsibleCard
+              title="Mobile Deployment Checklist"
+              storageKey="admin-mobile-deployment"
+            >
+              <MobileDeploymentChecklist />
+            </CollapsibleCard>
+            <CollapsibleCard
+              title="Performance Optimizer"
+              storageKey="admin-performance-optimizer"
+            >
+              <PerformanceOptimizer />
+            </CollapsibleCard>
           </div>
 
           {/* Launch Readiness Test */}
@@ -174,16 +190,21 @@ export default function Admin() {
             </Card>
           </div>
 
-          {/* New Admin Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
-            <Card className="p-6 hover:shadow-lg transition-all cursor-pointer group bg-gradient-to-br from-primary/10 to-primary/20" onClick={() => navigate('/admin/launch-control')}>
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-lg bg-primary">
-                  <Target className="h-5 w-5 text-white" />
+          {/* Admin Feature Cards */}
+          <CollapsibleCard
+            title="Admin Features"
+            storageKey="admin-features"
+            contentClassName="pt-0"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+              <Card className="p-6 hover:shadow-lg transition-all cursor-pointer group bg-gradient-to-br from-primary/10 to-primary/20" onClick={() => navigate('/admin/launch-control')}>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 rounded-lg bg-primary">
+                    <Target className="h-5 w-5 text-white" />
+                  </div>
+                  <h3 className="font-bold">Launch Control</h3>
                 </div>
-                <h3 className="font-bold">Launch Control</h3>
-              </div>
-            </Card>
+              </Card>
 
             <Card className="p-6 hover:shadow-lg transition-all cursor-pointer group bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20" onClick={() => navigate('/admin/core-testing')}>
               <div className="flex items-center gap-3 mb-3">
@@ -209,35 +230,6 @@ export default function Admin() {
                   <DollarSign className="h-5 w-5 text-white" />
                 </div>
                 <h3 className="font-bold">Revenue Features</h3>
-              </div>
-            </Card>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-            <Card className="p-6 hover:shadow-lg transition-all cursor-pointer group bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-950/20 dark:to-orange-950/20" onClick={() => navigate('/admin-security')}>
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-lg bg-gradient-to-r from-red-600 to-orange-600">
-                  <Shield className="h-5 w-5 text-white" />
-                </div>
-                <h3 className="font-bold">Security</h3>
-              </div>
-            </Card>
-
-            <Card className="p-6 hover:shadow-lg transition-all cursor-pointer group bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-950/20 dark:to-rose-950/20" onClick={() => navigate('/admin/ux-optimization')}>
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-lg bg-gradient-to-r from-pink-600 to-rose-600">
-                  <Eye className="h-5 w-5 text-white" />
-                </div>
-                <h3 className="font-bold">UX Optimization</h3>
-              </div>
-            </Card>
-
-            <Card className="p-6 hover:shadow-lg transition-all cursor-pointer group bg-gradient-to-br from-indigo-50 to-violet-50 dark:from-indigo-950/20 dark:to-violet-950/20" onClick={() => navigate('/admin/marketing')}>
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600">
-                  <Megaphone className="h-5 w-5 text-white" />
-                </div>
-                <h3 className="font-bold">Marketing & Growth</h3>
               </div>
             </Card>
           </div>
@@ -323,6 +315,7 @@ export default function Admin() {
               </Button>
             </CardContent>
           </Card>
+          </CollapsibleCard>
         </div>
       </AdminLayout>
       <AdminMixxBot />

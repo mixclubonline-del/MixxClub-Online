@@ -2,6 +2,7 @@ import { AdminLayout } from "@/components/admin/AdminLayout";
 import { CustomizableDashboard } from "@/components/admin/CustomizableDashboard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { CollapsibleCard } from "@/components/ui/collapsible-card";
 import { ArrowLeft, Radio } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -37,7 +38,12 @@ export default function RealtimeDashboard() {
           </Badge>
         </div>
 
-        <CustomizableDashboard />
+        <CollapsibleCard
+          title="Customizable Dashboard"
+          storageKey="realtime-dashboard"
+        >
+          <CustomizableDashboard />
+        </CollapsibleCard>
       </div>
     </AdminLayout>
   );

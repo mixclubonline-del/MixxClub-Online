@@ -1,6 +1,7 @@
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { CollapsibleCard } from "@/components/ui/collapsible-card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, BarChart3, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -50,15 +51,30 @@ export default function AdvancedAnalytics() {
           </TabsList>
 
           <TabsContent value="users" className="space-y-6">
-            <UserAnalyticsDashboard />
+            <CollapsibleCard
+              title="User Analytics Dashboard"
+              storageKey="analytics-user"
+            >
+              <UserAnalyticsDashboard />
+            </CollapsibleCard>
           </TabsContent>
 
           <TabsContent value="revenue" className="space-y-6">
-            <RevenueAnalyticsDashboard />
+            <CollapsibleCard
+              title="Revenue Analytics Dashboard"
+              storageKey="analytics-revenue"
+            >
+              <RevenueAnalyticsDashboard />
+            </CollapsibleCard>
           </TabsContent>
 
           <TabsContent value="kpis" className="space-y-6">
-            <PerformanceKPIDashboard />
+            <CollapsibleCard
+              title="Performance KPI Dashboard"
+              storageKey="analytics-kpis"
+            >
+              <PerformanceKPIDashboard />
+            </CollapsibleCard>
           </TabsContent>
         </Tabs>
       </div>

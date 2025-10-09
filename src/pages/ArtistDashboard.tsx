@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { CollapsibleCard } from "@/components/ui/collapsible-card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -149,67 +150,76 @@ const ArtistDashboard = () => {
         </div>
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card className="p-6 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-full bg-primary/20">
-                <Music className="w-6 h-6 text-primary" />
+        <CollapsibleCard
+          title="Stats Overview"
+          storageKey="artist-dashboard-stats"
+          contentClassName="pt-0"
+          className="mb-8"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <Card className="p-6 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-full bg-primary/20">
+                  <Music className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Total Projects</p>
+                  <p className="text-2xl font-bold text-primary">{projects.length}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Total Projects</p>
-                <p className="text-2xl font-bold text-primary">{projects.length}</p>
-              </div>
-            </div>
-          </Card>
+            </Card>
 
-          <Card className="p-6 bg-gradient-to-br from-green-500/10 to-green-500/5 border-green-500/20">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-full bg-green-500/20">
-                <Star className="w-6 h-6 text-green-500" />
+            <Card className="p-6 bg-gradient-to-br from-green-500/10 to-green-500/5 border-green-500/20">
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-full bg-green-500/20">
+                  <Star className="w-6 h-6 text-green-500" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Completed</p>
+                  <p className="text-2xl font-bold text-green-500">
+                    {projects.filter(p => p.status === 'completed').length}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Completed</p>
-                <p className="text-2xl font-bold text-green-500">
-                  {projects.filter(p => p.status === 'completed').length}
-                </p>
-              </div>
-            </div>
-          </Card>
+            </Card>
 
-          <Card className="p-6 bg-gradient-to-br from-blue-500/10 to-blue-500/5 border-blue-500/20">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-full bg-blue-500/20">
-                <Clock className="w-6 h-6 text-blue-500" />
+            <Card className="p-6 bg-gradient-to-br from-blue-500/10 to-blue-500/5 border-blue-500/20">
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-full bg-blue-500/20">
+                  <Clock className="w-6 h-6 text-blue-500" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">In Progress</p>
+                  <p className="text-2xl font-bold text-blue-500">
+                    {projects.filter(p => p.status === 'in_progress').length}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">In Progress</p>
-                <p className="text-2xl font-bold text-blue-500">
-                  {projects.filter(p => p.status === 'in_progress').length}
-                </p>
-              </div>
-            </div>
-          </Card>
+            </Card>
 
-          <Card className="p-6 bg-gradient-to-br from-purple-500/10 to-purple-500/5 border-purple-500/20">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-full bg-purple-500/20">
-                <Users className="w-6 h-6 text-purple-500" />
+            <Card className="p-6 bg-gradient-to-br from-purple-500/10 to-purple-500/5 border-purple-500/20">
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-full bg-purple-500/20">
+                  <Users className="w-6 h-6 text-purple-500" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Collaborators</p>
+                  <p className="text-2xl font-bold text-purple-500">
+                    {projects.filter(p => p.engineer).length}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Collaborators</p>
-                <p className="text-2xl font-bold text-purple-500">
-                  {projects.filter(p => p.engineer).length}
-                </p>
-              </div>
-            </div>
-          </Card>
-        </div>
+            </Card>
+          </div>
+        </CollapsibleCard>
 
         {/* Create Project Form */}
         {showCreateForm && (
-          <Card className="p-8 mb-8 bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold">Create New Project</h2>
+          <CollapsibleCard
+            title="Create New Project"
+            storageKey="artist-dashboard-create-form"
+            className="mb-8 bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20"
+            badge={
               <Button 
                 variant="outline" 
                 onClick={() => setShowCreateForm(false)}
@@ -217,8 +227,8 @@ const ArtistDashboard = () => {
               >
                 Cancel
               </Button>
-            </div>
-            
+            }
+          >
             <form onSubmit={createProject} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
@@ -276,12 +286,15 @@ const ArtistDashboard = () => {
                 )}
               </Button>
             </form>
-          </Card>
+          </CollapsibleCard>
         )}
 
         {/* Projects List */}
-        <div className="space-y-6">
-          <h2 className="text-2xl font-bold">Your Projects</h2>
+        <CollapsibleCard
+          title="Your Projects"
+          storageKey="artist-dashboard-projects-list"
+          contentClassName="space-y-6 pt-0"
+        >
           
           {projects.length === 0 ? (
             <Card className="p-12 text-center">
@@ -358,7 +371,7 @@ const ArtistDashboard = () => {
               ))}
             </div>
           )}
-        </div>
+        </CollapsibleCard>
       </div>
     </div>
   );
