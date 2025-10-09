@@ -25,13 +25,13 @@ export const SessionManager = () => {
         .insert({
           host_user_id: user?.id,
           session_name: sessionData.name,
-          session_type: sessionData.type, // Now using valid type from wizard
+          session_type: sessionData.type,
           status: 'active',
-          metadata: {
+          audio_quality: sessionData.audioQuality,
+          max_participants: sessionData.maxParticipants,
+          session_state: {
             description: sessionData.description,
-            genre: sessionData.genre,
-            audioQuality: sessionData.audioQuality,
-            maxParticipants: sessionData.maxParticipants
+            genre: sessionData.genre
           }
         })
         .select()
