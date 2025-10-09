@@ -33,10 +33,11 @@ const SessionCreationWizard = ({ onComplete, onCancel }: SessionCreationWizardPr
     genre: '',
     collaborators: [] as string[],
     audioQuality: 'high',
-    maxParticipants: 4
+    maxParticipants: 4,
+    mode: 'solo' as 'solo' | 'collaborative'
   });
 
-  const totalSteps = 4;
+  const totalSteps = sessionData.mode === 'solo' ? 3 : 4;
   const progress = (step / totalSteps) * 100;
 
   const sessionTypes = [
@@ -110,14 +111,43 @@ const SessionCreationWizard = ({ onComplete, onCancel }: SessionCreationWizardPr
       </div>
 
       <Card className="p-8 animate-scale-in">
-        {/* Step 1: Session Type */}
+        {/* Step 1: Session Type & Mode */}
         {step === 1 && (
           <div className="space-y-6">
             <div className="text-center mb-6">
               <h3 className="text-2xl font-bold mb-2">What type of session?</h3>
-              <p className="text-muted-foreground">Choose the focus of your collaboration</p>
+              <p className="text-muted-foreground">Choose the focus of your session</p>
             </div>
 
+            {/* Session Mode Selection */}
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <Card
+                className={`p-4 cursor-pointer bloom-hover transition-all ${
+                  sessionData.mode === 'solo' ? 'border-primary border-2 shadow-glow-sm' : ''
+                }`}
+                onClick={() => setSessionData({ ...sessionData, mode: 'solo', maxParticipants: 1 })}
+              >
+                <div className="text-center">
+                  <Users className="w-8 h-8 mx-auto mb-2 text-primary" />
+                  <h4 className="font-bold">Solo Session</h4>
+                  <p className="text-xs text-muted-foreground mt-1">Work independently</p>
+                </div>
+              </Card>
+              <Card
+                className={`p-4 cursor-pointer bloom-hover transition-all ${
+                  sessionData.mode === 'collaborative' ? 'border-primary border-2 shadow-glow-sm' : ''
+                }`}
+                onClick={() => setSessionData({ ...sessionData, mode: 'collaborative', maxParticipants: 4 })}
+              >
+                <div className="text-center">
+                  <Users className="w-8 h-8 mx-auto mb-2 text-accent-cyan" />
+                  <h4 className="font-bold">Collaborative</h4>
+                  <p className="text-xs text-muted-foreground mt-1">Work with others</p>
+                </div>
+              </Card>
+            </div>
+
+            {/* Session Type Selection */}
             <div className="grid gap-4">
               {sessionTypes.map((type) => (
                 <Card
@@ -192,8 +222,8 @@ const SessionCreationWizard = ({ onComplete, onCancel }: SessionCreationWizardPr
           </div>
         )}
 
-        {/* Step 3: AI Collaborator Suggestions */}
-        {step === 3 && (
+        {/* Step 3: AI Collaborator Suggestions (only for collaborative mode) */}
+        {step === 3 && sessionData.mode === 'collaborative' && (
           <div className="space-y-6">
             <div className="text-center mb-6">
               <div className="p-3 bg-primary/10 rounded-full w-fit mx-auto mb-3">
@@ -241,8 +271,8 @@ const SessionCreationWizard = ({ onComplete, onCancel }: SessionCreationWizardPr
           </div>
         )}
 
-        {/* Step 4: Configuration */}
-        {step === 4 && (
+        {/* Step 3/4: Configuration */}
+        {((step === 3 && sessionData.mode === 'solo') || (step === 4 && sessionData.mode === 'collaborative')) && (
           <div className="space-y-6">
             <div className="text-center mb-6">
               <Settings className="w-12 h-12 mx-auto mb-3 text-primary" />
@@ -275,22 +305,24 @@ const SessionCreationWizard = ({ onComplete, onCancel }: SessionCreationWizardPr
                 </div>
               </div>
 
-              <div>
-                <Label className="mb-3 block">Max Participants</Label>
-                <div className="grid grid-cols-4 gap-3">
-                  {[2, 4, 6, 8].map((num) => (
-                    <Card
-                      key={num}
-                      className={`p-3 cursor-pointer text-center transition-all hover:shadow-lg ${
-                        sessionData.maxParticipants === num ? 'border-primary border-2' : ''
-                      }`}
-                      onClick={() => setSessionData({ ...sessionData, maxParticipants: num })}
-                    >
-                      <div className="text-2xl font-bold">{num}</div>
-                    </Card>
-                  ))}
+              {sessionData.mode === 'collaborative' && (
+                <div>
+                  <Label className="mb-3 block">Max Participants</Label>
+                  <div className="grid grid-cols-4 gap-3">
+                    {[2, 4, 6, 8].map((num) => (
+                      <Card
+                        key={num}
+                        className={`p-3 cursor-pointer text-center transition-all hover:shadow-lg ${
+                          sessionData.maxParticipants === num ? 'border-primary border-2' : ''
+                        }`}
+                        onClick={() => setSessionData({ ...sessionData, maxParticipants: num })}
+                      >
+                        <div className="text-2xl font-bold">{num}</div>
+                      </Card>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               <Card className="p-4 bg-gradient-to-r from-primary/10 to-accent-cyan/10 border-primary/20">
                 <h4 className="font-semibold mb-2 flex items-center gap-2">
@@ -298,7 +330,7 @@ const SessionCreationWizard = ({ onComplete, onCancel }: SessionCreationWizardPr
                   Ready to Launch!
                 </h4>
                 <p className="text-sm text-muted-foreground">
-                  Your session will be live and ready for collaboration
+                  Your {sessionData.mode === 'solo' ? 'solo' : 'collaborative'} session will be live and ready
                 </p>
               </Card>
             </div>
