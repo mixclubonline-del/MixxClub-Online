@@ -29,7 +29,7 @@ export const AudioWaveformRenderer = ({
     const canvas = canvasRef.current;
     if (!canvas || !waveformData || waveformData.length === 0) return;
     
-    const ctx = canvas.getContext('2d', { alpha: false }); // Disable alpha for performance
+    const ctx = canvas.getContext('2d');
     if (!ctx) return;
     
     // High DPI rendering
@@ -38,9 +38,8 @@ export const AudioWaveformRenderer = ({
     canvas.height = height * dpr;
     ctx.scale(dpr, dpr);
     
-    // Clear with solid background (no transparency)
-    ctx.fillStyle = '#000';
-    ctx.fillRect(0, 0, width, height);
+    // Clear canvas
+    ctx.clearRect(0, 0, width, height);
     
     const centerY = height / 2;
     const maxAmplitude = height / 2 - 4;
@@ -68,9 +67,10 @@ export const AudioWaveformRenderer = ({
       const barHeight = peakValue * maxAmplitude;
       const xPos = x * barWidth;
       
-      // Gradient for played vs unplayed
+      // Opacity for played vs unplayed
       const isPlayed = x / width < progress;
-      ctx.fillStyle = isPlayed ? color : `${color}60`;
+      ctx.globalAlpha = isPlayed ? 1 : 0.6;
+      ctx.fillStyle = color;
       
       // Draw symmetric bar
       ctx.fillRect(
@@ -80,6 +80,9 @@ export const AudioWaveformRenderer = ({
         barHeight * 2
       );
     }
+    
+    // Reset alpha
+    ctx.globalAlpha = 1;
     
     // Center line
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
