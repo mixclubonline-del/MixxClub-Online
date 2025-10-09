@@ -1074,10 +1074,9 @@ const HybridDAW = () => {
             {view === '2d' ? (
               <EnhancedDAWTimeline 
                 tracks={tracks}
-                onTracksChange={(updatedTracks) => {
-                  updatedTracks.forEach(track => {
-                    updateTrack(track.id, track);
-                  });
+                onTracksChange={() => {
+                  // Legacy prop - components should use store actions directly
+                  // This prevents infinite loops from full track object updates
                 }}
                 currentTime={currentTime}
                 onTimeChange={seekToTime}
@@ -1143,10 +1142,9 @@ const HybridDAW = () => {
                 <div className="h-full overflow-hidden">
                   <EnhancedDAWTimeline 
                     tracks={tracks}
-                    onTracksChange={(updatedTracks) => {
-                      updatedTracks.forEach(track => {
-                        updateTrack(track.id, track);
-                      });
+                    onTracksChange={() => {
+                      // Legacy prop - components should use store actions directly
+                      // This prevents infinite loops from full track object updates
                     }}
                     currentTime={currentTime}
                     onTimeChange={seekToTime}
@@ -1194,10 +1192,9 @@ const HybridDAW = () => {
                   <div className="flex-1 overflow-hidden">
                     <DAWMixerPanel 
                       tracks={tracks}
-                      onTracksChange={(updatedTracks) => {
-                        updatedTracks.forEach(track => {
-                          updateTrack(track.id, track);
-                        });
+                      onTracksChange={() => {
+                        // Legacy prop - components should use store actions directly
+                        // This prevents infinite loops from full track object updates
                       }}
                       masterVolume={masterVolume}
                       onMasterVolumeChange={setMasterVolume}
@@ -1315,11 +1312,10 @@ const HybridDAW = () => {
             <div className="overflow-y-auto max-h-[calc(80vh-80px)] p-4">
               <DAWEffectsPanel 
                 tracks={tracks} 
-                onTracksChange={(updatedTracks) => {
-                  updatedTracks.forEach(track => {
-                    updateTrack(track.id, track);
-                  });
-                }} 
+                onTracksChange={() => {
+                  // Legacy prop - components should use store actions directly
+                  // This prevents infinite loops from full track object updates
+                }}
               />
             </div>
           </div>
