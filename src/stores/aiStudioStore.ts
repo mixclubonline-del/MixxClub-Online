@@ -1,5 +1,10 @@
 import { create } from 'zustand';
 
+export interface FadeConfig {
+  duration: number;
+  curve: string;
+}
+
 export interface AudioRegion {
   id: string;
   trackId: string;
@@ -7,8 +12,9 @@ export interface AudioRegion {
   duration: number;
   audioBuffer?: AudioBuffer;
   offset: number;
-  fadeIn: number;
-  fadeOut: number;
+  sourceStartOffset?: number;
+  fadeIn: FadeConfig;
+  fadeOut: FadeConfig;
   gain: number;
   locked: boolean;
   color?: string;
@@ -17,6 +23,7 @@ export interface AudioRegion {
 
 export interface EffectUnit {
   id: string;
+  name?: string;
   type: 'eq' | 'compressor' | 'reverb' | 'delay' | 'limiter' | 'saturator' | 'mixxtune';
   enabled: boolean;
   rackPosition: number;
@@ -32,13 +39,14 @@ export interface SendUnit {
 export interface Track {
   id: string;
   name: string;
-  type: 'audio' | 'midi' | 'bus';
+  type: 'audio' | 'midi' | 'bus' | 'vocal' | 'drums' | 'bass' | 'keys' | 'guitar' | 'other';
   color: string;
   volume: number;
   pan: number;
   mute: boolean;
   solo: boolean;
   armed: boolean;
+  frozen?: boolean;
   audioBuffer?: AudioBuffer;
   busGroupId?: string;
   effects?: EffectUnit[];
@@ -59,6 +67,7 @@ export interface BusGroup {
   solo: boolean;
   effects?: EffectUnit[];
   isReturnBus?: boolean;
+  trackIds: string[];
 }
 
 export interface TimeSelection {
@@ -70,7 +79,7 @@ interface AIStudioStore {
   tracks: Track[];
   busGroups: BusGroup[];
   regions: AudioRegion[];
-  selectedRegions: string[];
+  selectedRegions: Set<string>;
   selectedTrackId: string | null;
   isPlaying: boolean;
   currentTime: number;
@@ -80,6 +89,14 @@ interface AIStudioStore {
   masterVolume: number;
   masterPeakLevel: number;
   timeSelection: TimeSelection | null;
+  vcaGroups: any[];
+  totalLatency: number;
+  latencyCompensation: boolean;
+  effects: EffectUnit[];
+  scrollMode?: string;
+  snapEnabled?: boolean;
+  snapMode?: string;
+  rippleMode?: boolean;
   
   // Track actions
   addTrack: (track: Track) => void;
@@ -103,6 +120,8 @@ interface AIStudioStore {
   clearRegionSelection: () => void;
   duplicateRegion: (id: string) => void;
   reverseRegion: (id: string) => void;
+  trimRegionStart: (id: string, newStart: number) => void;
+  trimRegionEnd: (id: string, newEnd: number) => void;
   
   // Effect actions
   addTrackEffect: (trackId: string, effect: EffectUnit) => void;
@@ -119,6 +138,30 @@ interface AIStudioStore {
   setMasterVolume: (volume: number) => void;
   updateMasterLevels: (peak: number) => void;
   
+  // Send actions
+  updateTrackSend: (trackId: string, busId: string, amount: number, preFader?: boolean) => void;
+  
+  // VCA actions
+  createVCAGroup: (name: string, trackIds: string[]) => void;
+  updateVCAGroup: (id: string, updates: any) => void;
+  deleteVCAGroup: (id: string) => void;
+  
+  // Track freeze actions
+  freezeTrack: (id: string) => void;
+  unfreezeTrack: (id: string) => void;
+  
+  // Utility actions
+  calculateTotalLatency: () => number;
+  calculateSessionDuration: () => number;
+  clearSelection: () => void;
+  setScrollMode: (mode: string) => void;
+  setSnapEnabled: (enabled: boolean) => void;
+  setSnapMode: (mode: string) => void;
+  setRippleMode: (enabled: boolean) => void;
+  splitRegion: (id: string, position: number) => void;
+  isRecording: boolean;
+  setRecording: (recording: boolean) => void;
+  
   // Selection actions
   setTimeSelection: (selection: TimeSelection | null) => void;
 }
@@ -127,7 +170,7 @@ export const useAIStudioStore = create<AIStudioStore>((set, get) => ({
   tracks: [],
   busGroups: [],
   regions: [],
-  selectedRegions: [],
+  selectedRegions: new Set<string>(),
   selectedTrackId: null,
   isPlaying: false,
   currentTime: 0,
@@ -137,6 +180,15 @@ export const useAIStudioStore = create<AIStudioStore>((set, get) => ({
   masterVolume: 1,
   masterPeakLevel: -Infinity,
   timeSelection: null,
+  vcaGroups: [],
+  totalLatency: 0,
+  latencyCompensation: true,
+  effects: [],
+  scrollMode: 'page',
+  snapEnabled: true,
+  snapMode: 'grid',
+  rippleMode: false,
+  isRecording: false,
   
   addTrack: (track) => set((state) => ({ 
     tracks: [...state.tracks, track] 
@@ -184,18 +236,27 @@ export const useAIStudioStore = create<AIStudioStore>((set, get) => ({
     regions: state.regions.map(r => r.id === id ? { ...r, ...updates } : r)
   })),
   
-  removeRegion: (id) => set((state) => ({
-    regions: state.regions.filter(r => r.id !== id),
-    selectedRegions: state.selectedRegions.filter(rid => rid !== id)
-  })),
+  removeRegion: (id) => set((state) => {
+    const newSelected = new Set(state.selectedRegions);
+    newSelected.delete(id);
+    return {
+      regions: state.regions.filter(r => r.id !== id),
+      selectedRegions: newSelected
+    };
+  }),
   
-  selectRegion: (id, addToSelection) => set((state) => ({
-    selectedRegions: addToSelection 
-      ? [...state.selectedRegions, id]
-      : [id]
-  })),
+  selectRegion: (id, addToSelection) => set((state) => {
+    const newSelected = new Set(state.selectedRegions);
+    if (addToSelection) {
+      newSelected.add(id);
+    } else {
+      newSelected.clear();
+      newSelected.add(id);
+    }
+    return { selectedRegions: newSelected };
+  }),
   
-  clearRegionSelection: () => set({ selectedRegions: [] }),
+  clearRegionSelection: () => set({ selectedRegions: new Set<string>() }),
   
   duplicateRegion: (id) => set((state) => {
     const region = state.regions.find(r => r.id === id);
@@ -233,6 +294,30 @@ export const useAIStudioStore = create<AIStudioStore>((set, get) => ({
       )
     };
   }),
+  
+  trimRegionStart: (id, newStart) => set((state) => ({
+    regions: state.regions.map(r =>
+      r.id === id
+        ? {
+            ...r,
+            startTime: newStart,
+            offset: r.offset + (newStart - r.startTime),
+            duration: r.duration - (newStart - r.startTime)
+          }
+        : r
+    )
+  })),
+  
+  trimRegionEnd: (id, newEnd) => set((state) => ({
+    regions: state.regions.map(r =>
+      r.id === id
+        ? {
+            ...r,
+            duration: newEnd - r.startTime
+          }
+        : r
+    )
+  })),
   
   addTrackEffect: (trackId, effect) => set((state) => ({
     tracks: state.tracks.map(t => 
@@ -274,6 +359,88 @@ export const useAIStudioStore = create<AIStudioStore>((set, get) => ({
   setMasterVolume: (volume) => set({ masterVolume: volume }),
   
   updateMasterLevels: (peak) => set({ masterPeakLevel: peak }),
+  
+  updateTrackSend: (trackId, busId, amount, preFader) => set((state) => ({
+    tracks: state.tracks.map(t =>
+      t.id === trackId
+        ? {
+            ...t,
+            sends: {
+              ...t.sends,
+              [busId]: { amount, preFader: preFader ?? false }
+            }
+          }
+        : t
+    )
+  })),
+  
+  createVCAGroup: (name, trackIds) => set((state) => ({
+    vcaGroups: [...state.vcaGroups, { id: `vca-${Date.now()}`, name, trackIds }]
+  })),
+  
+  updateVCAGroup: (id, updates) => set((state) => ({
+    vcaGroups: state.vcaGroups.map(v => v.id === id ? { ...v, ...updates } : v)
+  })),
+  
+  deleteVCAGroup: (id) => set((state) => ({
+    vcaGroups: state.vcaGroups.filter(v => v.id !== id)
+  })),
+  
+  freezeTrack: (id) => set((state) => ({
+    tracks: state.tracks.map(t => t.id === id ? { ...t, frozen: true } : t)
+  })),
+  
+  unfreezeTrack: (id) => set((state) => ({
+    tracks: state.tracks.map(t => t.id === id ? { ...t, frozen: false } : t)
+  })),
+  
+  calculateTotalLatency: () => {
+    const state = get();
+    return state.tracks.reduce((sum, t) => sum + ((t.effects?.length ?? 0) * 5), 0);
+  },
+  
+  clearSelection: () => set({ selectedRegions: new Set<string>(), selectedTrackId: null }),
+  
+  setScrollMode: (mode) => set({ scrollMode: mode }),
+  
+  setSnapEnabled: (enabled) => set({ snapEnabled: enabled }),
+  
+  setSnapMode: (mode) => set({ snapMode: mode }),
+  
+  setRippleMode: (enabled) => set({ rippleMode: enabled }),
+  
+  calculateSessionDuration: () => {
+    const state = get();
+    const maxTime = Math.max(...state.regions.map(r => r.startTime + r.duration), 0);
+    return maxTime;
+  },
+  
+  splitRegion: (id, position) => set((state) => {
+    const region = state.regions.find(r => r.id === id);
+    if (!region || position <= region.startTime || position >= region.startTime + region.duration) {
+      return state;
+    }
+    
+    const splitOffset = position - region.startTime;
+    const newRegion: AudioRegion = {
+      ...region,
+      id: `region-${Date.now()}`,
+      startTime: position,
+      offset: region.offset + splitOffset,
+      duration: region.duration - splitOffset,
+    };
+    
+    return {
+      regions: [
+        ...state.regions.map(r =>
+          r.id === id ? { ...r, duration: splitOffset } : r
+        ),
+        newRegion
+      ]
+    };
+  }),
+  
+  setRecording: (recording) => set({ isRecording: recording }),
   
   setTimeSelection: (selection) => set({ timeSelection: selection }),
 }));
