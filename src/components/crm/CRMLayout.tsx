@@ -28,9 +28,10 @@ interface CRMLayoutProps {
     onClick: () => void;
     variant?: 'default' | 'outline';
   }>;
+  isStudioMode?: boolean;
 }
 
-export const CRMLayout = ({ children, userType, profile, stats, quickActions }: CRMLayoutProps) => {
+export const CRMLayout = ({ children, userType, profile, stats, quickActions, isStudioMode = false }: CRMLayoutProps) => {
   const isMobile = useIsMobile();
   const { insights, isLoading: insightsLoading } = useAIDashboardInsights();
   
@@ -90,104 +91,108 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions }: 
   if (isMobile) {
     return (
       <>
-        <RoleSwitcher />
+        {!isStudioMode && <RoleSwitcher />}
         <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-        <Navigation />
+        {!isStudioMode && <Navigation />}
         
-        <div className="pt-20 pb-20 px-4 md:px-6">
-          {/* Mobile Header with Gamification */}
-          <div className="mb-6 animate-fade-in">
-            <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary via-primary-glow to-accent bg-clip-text text-transparent">
-                {userType === 'engineer' ? 'Pro Studio' : 'Your Studio'}
-              </h1>
-              <Sparkles className="w-6 h-6 text-primary animate-pulse-glow" />
-            </div>
-            <p className="text-muted-foreground text-lg">
-              {userType === 'engineer' 
-                ? "Let's create some magic today 🎚️"
-                : "Let's make some hits today 🎵"
-              }
-            </p>
-            
-            {/* Level Progress */}
-            {profile && (
-              <Card className="mt-4 p-4 bg-gradient-to-r from-primary/10 via-accent/10 to-primary-glow/10 border-primary/20 animate-in slide-in-from-top duration-500">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <Award className="w-5 h-5 text-primary" />
-                    <span className="font-semibold">Level {profile.level || 1}</span>
-                  </div>
-                  <span className="text-sm text-muted-foreground">
-                    {profile.points || 0} points
-                  </span>
+        <div className={isStudioMode ? "" : "pt-20 pb-20 px-4 md:px-6"}>
+          {!isStudioMode && (
+            <>
+              {/* Mobile Header with Gamification */}
+              <div className="mb-6 animate-fade-in">
+                <div className="flex items-center gap-3 mb-2">
+                  <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary via-primary-glow to-accent bg-clip-text text-transparent">
+                    {userType === 'engineer' ? 'Pro Studio' : 'Your Studio'}
+                  </h1>
+                  <Sparkles className="w-6 h-6 text-primary animate-pulse-glow" />
                 </div>
-                <Progress value={getLevelProgress()} className="h-2 bg-muted" />
-                <p className="text-xs text-muted-foreground mt-2">
-                  {1000 - ((profile?.points || 0) % 1000)} XP to Level {(profile?.level || 1) + 1}
+                <p className="text-muted-foreground text-lg">
+                  {userType === 'engineer' 
+                    ? "Let's create some magic today 🎚️"
+                    : "Let's make some hits today 🎵"
+                  }
                 </p>
+                
+                {/* Level Progress */}
+                {profile && (
+                  <Card className="mt-4 p-4 bg-gradient-to-r from-primary/10 via-accent/10 to-primary-glow/10 border-primary/20 animate-in slide-in-from-top duration-500">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <Award className="w-5 h-5 text-primary" />
+                        <span className="font-semibold">Level {profile.level || 1}</span>
+                      </div>
+                      <span className="text-sm text-muted-foreground">
+                        {profile.points || 0} points
+                      </span>
+                    </div>
+                    <Progress value={getLevelProgress()} className="h-2 bg-muted" />
+                    <p className="text-xs text-muted-foreground mt-2">
+                      {1000 - ((profile?.points || 0) % 1000)} XP to Level {(profile?.level || 1) + 1}
+                    </p>
+                  </Card>
+                )}
+              </div>
+
+              {/* Mobile Quick Stats - Colorful Cards */}
+              <ScrollArea className="w-full pb-4">
+                <div className="flex gap-3 pb-2">
+                  {stats.map((stat, index) => (
+                    <Card 
+                      key={index} 
+                      className={cn(
+                        "p-4 min-w-[160px] flex-shrink-0 border-2 transition-all duration-300 hover:scale-105 animate-in slide-in-from-left",
+                        "hover:shadow-glow cursor-pointer"
+                      )}
+                      style={{ animationDelay: `${index * 100}ms` }}
+                    >
+                      <div className="flex flex-col gap-2">
+                        <div className={cn("p-2 rounded-lg w-fit", stat.color)}>
+                          {stat.icon}
+                        </div>
+                        <div>
+                          <div className="text-2xl font-bold">{stat.value}</div>
+                          <div className="text-xs text-muted-foreground">{stat.label}</div>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              </ScrollArea>
+
+              {/* Quick Actions - Colorful Buttons */}
+              <Card className="p-6 mb-6 glass-hover animate-in slide-in-from-bottom duration-700">
+                <div className="flex items-center gap-2 mb-4">
+                  <Zap className="w-5 h-5 text-primary animate-pulse" />
+                  <h3 className="font-bold text-lg">Quick Actions</h3>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  {quickActions.map((action, index) => (
+                    <Button
+                      key={index}
+                      onClick={action.onClick}
+                      variant={action.variant || 'outline'}
+                      size="lg"
+                      className={cn(
+                        "gap-2 h-auto py-4 flex-col items-center justify-center transition-all duration-300 hover:scale-105",
+                        "border-2 hover:shadow-glow animate-in zoom-in",
+                        index === 0 && "bg-gradient-to-br from-primary/20 to-primary/5 border-primary/40 hover:border-primary",
+                        index === 1 && "bg-gradient-to-br from-accent/20 to-accent/5 border-accent/40 hover:border-accent",
+                        index === 2 && "bg-gradient-to-br from-primary-glow/20 to-primary-glow/5 border-primary-glow/40 hover:border-primary-glow",
+                      )}
+                      style={{ animationDelay: `${index * 150}ms` }}
+                    >
+                      {action.icon}
+                      <span className="text-xs font-medium">{action.label}</span>
+                    </Button>
+                  ))}
+                </div>
               </Card>
-            )}
-          </div>
-
-          {/* Mobile Quick Stats - Colorful Cards */}
-          <ScrollArea className="w-full pb-4">
-            <div className="flex gap-3 pb-2">
-              {stats.map((stat, index) => (
-                <Card 
-                  key={index} 
-                  className={cn(
-                    "p-4 min-w-[160px] flex-shrink-0 border-2 transition-all duration-300 hover:scale-105 animate-in slide-in-from-left",
-                    "hover:shadow-glow cursor-pointer"
-                  )}
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  <div className="flex flex-col gap-2">
-                    <div className={cn("p-2 rounded-lg w-fit", stat.color)}>
-                      {stat.icon}
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold">{stat.value}</div>
-                      <div className="text-xs text-muted-foreground">{stat.label}</div>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </ScrollArea>
-
-          {/* Quick Actions - Colorful Buttons */}
-          <Card className="p-6 mb-6 glass-hover animate-in slide-in-from-bottom duration-700">
-            <div className="flex items-center gap-2 mb-4">
-              <Zap className="w-5 h-5 text-primary animate-pulse" />
-              <h3 className="font-bold text-lg">Quick Actions</h3>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              {quickActions.map((action, index) => (
-                <Button
-                  key={index}
-                  onClick={action.onClick}
-                  variant={action.variant || 'outline'}
-                  size="lg"
-                  className={cn(
-                    "gap-2 h-auto py-4 flex-col items-center justify-center transition-all duration-300 hover:scale-105",
-                    "border-2 hover:shadow-glow animate-in zoom-in",
-                    index === 0 && "bg-gradient-to-br from-primary/20 to-primary/5 border-primary/40 hover:border-primary",
-                    index === 1 && "bg-gradient-to-br from-accent/20 to-accent/5 border-accent/40 hover:border-accent",
-                    index === 2 && "bg-gradient-to-br from-primary-glow/20 to-primary-glow/5 border-primary-glow/40 hover:border-primary-glow",
-                  )}
-                  style={{ animationDelay: `${index * 150}ms` }}
-                >
-                  {action.icon}
-                  <span className="text-xs font-medium">{action.label}</span>
-                </Button>
-              ))}
-            </div>
-          </Card>
+            </>
+          )}
 
           {/* Main Content with Resizable AI Copilot */}
-          <div className="animate-in fade-in duration-1000">
-            <ResizableAICopilot insights={insights} isLoading={insightsLoading}>
+          <div className={isStudioMode ? "" : "animate-in fade-in duration-1000"}>
+            <ResizableAICopilot insights={insights} isLoading={insightsLoading} defaultOpen={!isStudioMode}>
               {children}
             </ResizableAICopilot>
           </div>
@@ -200,58 +205,62 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions }: 
   // Desktop layout - full width
   return (
     <>
-      <RoleSwitcher />
+      {!isStudioMode && <RoleSwitcher />}
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-        <Navigation />
+        {!isStudioMode && <Navigation />}
         
-        <div className="pt-20 px-4 md:px-6 max-w-[1800px] mx-auto">
-          {/* Header with Quick Actions */}
-          <div className="mb-3 animate-fade-in">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-6 h-6 text-primary animate-pulse-glow" />
-                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary via-accent to-primary-glow bg-clip-text text-transparent">
-                  {userType === 'engineer' ? 'Pro Studio' : 'Your Studio'}
-                </h1>
+        <div className={isStudioMode ? "" : "pt-20 px-4 md:px-6 max-w-[1800px] mx-auto"}>
+          {!isStudioMode && (
+            <>
+              {/* Header with Quick Actions */}
+              <div className="mb-3 animate-fade-in">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-6 h-6 text-primary animate-pulse-glow" />
+                    <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary via-accent to-primary-glow bg-clip-text text-transparent">
+                      {userType === 'engineer' ? 'Pro Studio' : 'Your Studio'}
+                    </h1>
+                  </div>
+                  
+                  {/* Quick Actions Toolbar */}
+                  <div className="hidden lg:flex items-center gap-2">
+                    {quickActions.map((action, index) => (
+                      <Button
+                        key={index}
+                        onClick={action.onClick}
+                        variant={action.variant || 'outline'}
+                        size="sm"
+                        className="gap-2 hover:scale-105 transition-transform"
+                      >
+                        {action.icon}
+                        <span className="text-xs">{action.label}</span>
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Mobile Quick Actions */}
+                <div className="lg:hidden flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                  {quickActions.map((action, index) => (
+                    <Button
+                      key={index}
+                      onClick={action.onClick}
+                      variant={action.variant || 'outline'}
+                      size="sm"
+                      className="gap-2 whitespace-nowrap flex-shrink-0"
+                    >
+                      {action.icon}
+                      <span className="text-xs">{action.label}</span>
+                    </Button>
+                  ))}
+                </div>
               </div>
-              
-              {/* Quick Actions Toolbar */}
-              <div className="hidden lg:flex items-center gap-2">
-                {quickActions.map((action, index) => (
-                  <Button
-                    key={index}
-                    onClick={action.onClick}
-                    variant={action.variant || 'outline'}
-                    size="sm"
-                    className="gap-2 hover:scale-105 transition-transform"
-                  >
-                    {action.icon}
-                    <span className="text-xs">{action.label}</span>
-                  </Button>
-                ))}
-              </div>
-            </div>
-            
-            {/* Mobile Quick Actions */}
-            <div className="lg:hidden flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-              {quickActions.map((action, index) => (
-                <Button
-                  key={index}
-                  onClick={action.onClick}
-                  variant={action.variant || 'outline'}
-                  size="sm"
-                  className="gap-2 whitespace-nowrap flex-shrink-0"
-                >
-                  {action.icon}
-                  <span className="text-xs">{action.label}</span>
-                </Button>
-              ))}
-            </div>
-          </div>
+            </>
+          )}
 
           {/* Main Content with Resizable AI Copilot */}
-          <div className="animate-in fade-in duration-700">
-            <ResizableAICopilot insights={insights} isLoading={insightsLoading}>
+          <div className={isStudioMode ? "" : "animate-in fade-in duration-700"}>
+            <ResizableAICopilot insights={insights} isLoading={insightsLoading} defaultOpen={!isStudioMode}>
               {children}
             </ResizableAICopilot>
           </div>

@@ -417,6 +417,7 @@ const ArtistCRM = () => {
         profile={profile}
         stats={stats}
         quickActions={quickActions}
+        isStudioMode={currentTab === 'studio'}
       >
         {renderContent()}
       </CRMLayout>

@@ -7,12 +7,9 @@ import { AICopilotSidebar } from "./AICopilotSidebar";
 
 interface ResizableAICopilotProps {
   children: React.ReactNode;
-  insights: Array<{
-    type: string;
-    title: string;
-    description: string;
-  }>;
-  isLoading: boolean;
+  insights?: any[];
+  isLoading?: boolean;
+  defaultOpen?: boolean;
 }
 
 const STORAGE_KEY = "mixclub-copilot-panel-size";
@@ -20,8 +17,8 @@ const DEFAULT_SIZE = 25; // 25% of screen width
 const MIN_SIZE = 20; // ~280px on 1280px screen
 const MAX_SIZE = 45; // ~600px on 1280px screen
 
-export function ResizableAICopilot({ children, insights, isLoading }: ResizableAICopilotProps) {
-  const [isOpen, setIsOpen] = useState(true);
+export function ResizableAICopilot({ children, insights, isLoading, defaultOpen = true }: ResizableAICopilotProps) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
   const [panelSize, setPanelSize] = useState<number>(DEFAULT_SIZE);
 
   // Load saved panel size from localStorage
