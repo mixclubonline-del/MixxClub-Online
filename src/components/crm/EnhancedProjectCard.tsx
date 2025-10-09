@@ -329,21 +329,21 @@ export const EnhancedProjectCard = ({ project, onStartSession, onClick }: Enhanc
             animate={{ opacity: isHovered ? 1 : 0.7 }}
             className="h-16 bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 rounded-lg flex items-center px-4 relative overflow-hidden"
           >
-            {waveformData.length > 0 ? (
+            {waveformData?.peaks && waveformData.peaks.length > 0 ? (
               <div className="flex items-center justify-between w-full h-full gap-1">
-                {waveformData.map((value, i) => (
+                {Array.from(waveformData.peaks).map((value, i) => (
                   <motion.div
                     key={i}
                     initial={{ height: 0 }}
                     animate={{ 
                       height: `${value * 100}%`,
-                      opacity: isPlaying && (i / waveformData.length) * 100 < progress ? 1 : 0.5
+                      opacity: isPlaying && (i / waveformData.peaks.length) * 100 < progress ? 1 : 0.5
                     }}
                     transition={{ delay: i * 0.01 }}
                     className="bg-primary rounded-full flex-1"
                     style={{ 
                       minWidth: '2px',
-                      backgroundColor: isPlaying && (i / waveformData.length) * 100 < progress 
+                      backgroundColor: isPlaying && (i / waveformData.peaks.length) * 100 < progress 
                         ? 'hsl(var(--primary))' 
                         : 'hsl(var(--primary) / 0.5)'
                     }}

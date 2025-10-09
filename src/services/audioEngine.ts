@@ -19,15 +19,18 @@ export class AudioEngine {
     analyserNode: AnalyserNode;
     effectsChain: Map<string, EffectProcessor>;
     sendNodes: Map<string, GainNode>;
+    latencyDelay: DelayNode; // For latency compensation
   }> = new Map();
   private sendBuses: Map<string, {
     gainNode: GainNode;
     effectsChain: Map<string, EffectProcessor>;
   }> = new Map();
   private isPlaying = false;
-  private startTime = 0;
-  private pausedAt = 0;
-  private animationFrameId: number | null = null;
+  private playbackStartTime = 0; // AudioContext time when playback started
+  private playbackOffset = 0; // Position in track when playback started (seconds)
+  private latencyCompensation = 0; // Total system latency in seconds
+  private sampleRate = 48000;
+  private bufferSize = 512;
 
   constructor() {
     this.initAudioContext();
@@ -35,9 +38,15 @@ export class AudioEngine {
 
   private initAudioContext() {
     if (!this.audioContext) {
-      this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)({
+        sampleRate: this.sampleRate,
+        latencyHint: 'interactive',
+      });
       this.masterGainNode = this.audioContext.createGain();
       this.masterGainNode.connect(this.audioContext.destination);
+      
+      // Calculate actual latency
+      this.calculateLatency();
       
       // Initialize 4 send buses
       ['S1', 'S2', 'S3', 'S4'].forEach(busId => {
@@ -51,6 +60,33 @@ export class AudioEngine {
     }
   }
 
+  private calculateLatency() {
+    if (!this.audioContext) return;
+    
+    // Calculate total system latency
+    const baseLatency = this.audioContext.baseLatency || 0;
+    const outputLatency = (this.audioContext as any).outputLatency || 0;
+    const bufferLatency = this.bufferSize / this.audioContext.sampleRate;
+    
+    this.latencyCompensation = baseLatency + outputLatency + bufferLatency;
+    
+    console.log(`Audio Engine Latency: ${(this.latencyCompensation * 1000).toFixed(2)}ms`);
+  }
+
+  setSampleRate(sampleRate: 44100 | 48000 | 96000) {
+    this.sampleRate = sampleRate;
+    // Note: Requires audio context restart to take effect
+  }
+
+  setBufferSize(bufferSize: 128 | 256 | 512 | 1024 | 2048) {
+    this.bufferSize = bufferSize;
+    this.calculateLatency();
+  }
+
+  getLatency(): number {
+    return this.latencyCompensation;
+  }
+
   // Initialize track in the audio graph
   initTrack(trackId: string, audioBuffer?: AudioBuffer) {
     if (!this.audioContext || !this.masterGainNode) return;
@@ -61,11 +97,14 @@ export class AudioEngine {
     const gainNode = this.audioContext.createGain();
     const panNode = this.audioContext.createStereoPanner();
     const analyserNode = this.audioContext.createAnalyser();
+    const latencyDelay = this.audioContext.createDelay(1.0); // Max 1 second delay
     
     analyserNode.fftSize = 2048;
+    latencyDelay.delayTime.value = this.latencyCompensation;
     
-    // Connect: gain -> pan -> analyser -> master
-    gainNode.connect(panNode);
+    // Connect: gain -> latency compensation -> pan -> analyser -> master
+    gainNode.connect(latencyDelay);
+    latencyDelay.connect(panNode);
     panNode.connect(analyserNode);
     analyserNode.connect(this.masterGainNode);
 
@@ -77,30 +116,44 @@ export class AudioEngine {
       analyserNode,
       effectsChain: new Map(),
       sendNodes: new Map(),
+      latencyDelay,
     });
   }
 
-  // Start playback for a specific track
-  playTrack(trackId: string, audioBuffer: AudioBuffer, offset = 0) {
+  // Start playback for a specific track at specific time (sample-accurate)
+  playTrack(trackId: string, audioBuffer: AudioBuffer, offset = 0, startTime?: number) {
     if (!this.audioContext) return;
 
     const trackNode = this.trackNodes.get(trackId);
     if (!trackNode) {
       this.initTrack(trackId, audioBuffer);
-      return this.playTrack(trackId, audioBuffer, offset);
+      return this.playTrack(trackId, audioBuffer, offset, startTime);
     }
 
     // Stop existing source
     if (trackNode.sourceNode) {
-      trackNode.sourceNode.stop();
-      trackNode.sourceNode.disconnect();
+      try {
+        trackNode.sourceNode.stop();
+        trackNode.sourceNode.disconnect();
+      } catch (e) {
+        // Source may already be stopped
+      }
     }
 
-    // Create new source
+    // Create new source with sample-accurate timing
     const sourceNode = this.audioContext.createBufferSource();
     sourceNode.buffer = audioBuffer;
     sourceNode.connect(trackNode.gainNode);
-    sourceNode.start(0, offset);
+    
+    // Use provided start time or current context time for sample-accurate playback
+    const when = startTime !== undefined ? startTime : this.audioContext.currentTime;
+    sourceNode.start(when, offset);
+    
+    if (!this.isPlaying) {
+      this.isPlaying = true;
+      this.playbackStartTime = when;
+      this.playbackOffset = offset;
+    }
 
     trackNode.sourceNode = sourceNode;
     this.trackNodes.set(trackId, trackNode);
@@ -213,9 +266,53 @@ export class AudioEngine {
     }
   }
 
-  // Get current audio context time
+  // Get current audio context time (sample-accurate)
   getCurrentTime(): number {
     return this.audioContext?.currentTime || 0;
+  }
+
+  // Get current playback position (in seconds)
+  getPlaybackPosition(): number {
+    if (!this.isPlaying || !this.audioContext) return this.playbackOffset;
+    
+    const elapsed = this.audioContext.currentTime - this.playbackStartTime;
+    return this.playbackOffset + elapsed;
+  }
+
+  // Set playback position (for seeking)
+  setPlaybackPosition(position: number) {
+    this.playbackOffset = position;
+    
+    if (this.isPlaying) {
+      // If playing, restart all tracks from new position
+      this.stopAllTracks();
+      this.playbackStartTime = this.audioContext!.currentTime;
+      // Note: Individual tracks need to be restarted by the DAW controller
+    }
+  }
+
+  // Stop all tracks
+  stopAllTracks() {
+    this.trackNodes.forEach((trackNode) => {
+      if (trackNode.sourceNode) {
+        try {
+          trackNode.sourceNode.stop();
+          trackNode.sourceNode.disconnect();
+          trackNode.sourceNode = null;
+        } catch (e) {
+          console.warn('Error stopping track:', e);
+        }
+      }
+    });
+    this.isPlaying = false;
+  }
+
+  // Play/Pause control
+  togglePlayback() {
+    if (this.isPlaying) {
+      this.stopAllTracks();
+    }
+    return !this.isPlaying;
   }
 
   // Insert effect into track's effect chain
