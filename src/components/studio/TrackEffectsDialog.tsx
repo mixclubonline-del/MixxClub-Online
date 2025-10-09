@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/dialog';
 import { EffectUnit } from '@/stores/aiStudioStore';
 import { RackUnit } from './RackUnit';
-import { PresetManager } from './PresetManager';
+import { EffectPresetManager } from './EffectPresetManager';
 import { cn } from '@/lib/utils';
 
 interface TrackEffectsDialogProps {
@@ -124,7 +124,7 @@ export const TrackEffectsDialog = ({
 
         {/* Preset Manager */}
         {selectedEffectForPreset && (
-          <PresetManager
+          <EffectPresetManager
             effectType={selectedEffectForPreset.type}
             currentParameters={selectedEffectForPreset.parameters}
             onLoadPreset={(params) => {

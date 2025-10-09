@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAIStudioStore } from '@/stores/aiStudioStore';
 import { WaveformTimeline } from '@/components/studio/WaveformTimeline';
@@ -9,9 +10,12 @@ import { AudioFileImporter } from '@/components/studio/AudioFileImporter';
 import { AudioSettingsButton } from '@/components/studio/AudioSettingsButton';
 import { ChannelStrip } from '@/components/studio/ChannelStrip';
 import { MasterChannelStrip } from '@/components/studio/MasterChannelStrip';
+import { BusGroupPanel } from '@/components/studio/BusGroupPanel';
+import { VCAGroupPanel } from '@/components/studio/VCAGroupPanel';
+import { AutomationLane, AutomationPoint } from '@/components/studio/AutomationLane';
 import { audioEngine } from '@/services/audioEngine';
 import { useStudioPlayback } from '@/hooks/useStudioPlayback';
-import { Music2, Settings, Layers, Mic } from 'lucide-react';
+import { Music2, Settings, Layers, Mic, Sliders } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 
 /**
@@ -28,7 +32,7 @@ interface ProStudioProps {
 }
 
 const ProStudio = ({ userRole = 'artist' }: ProStudioProps) => {
-  const [activeView, setActiveView] = useState<'timeline' | 'mixer'>('timeline');
+  const [activeView, setActiveView] = useState<'timeline' | 'mixer' | 'automation'>('timeline');
   
   // Store state
   const tracks = useAIStudioStore((state) => state.tracks);
@@ -62,6 +66,26 @@ const ProStudio = ({ userRole = 'artist' }: ProStudioProps) => {
   const [inputMonitoring, setInputMonitoring] = useState(false);
   const [punchInEnabled, setPunchInEnabled] = useState(false);
   const setRecording = useAIStudioStore((state) => state.setRecording);
+  
+  // Automation state
+  const [automationLanes, setAutomationLanes] = useState<Array<{
+    id: string;
+    trackId: string;
+    parameter: string;
+    points: AutomationPoint[];
+  }>>([]);
+  
+  const handleAddAutomationLane = (trackId: string) => {
+    setAutomationLanes([
+      ...automationLanes,
+      {
+        id: `auto-${Date.now()}`,
+        trackId,
+        parameter: 'volume',
+        points: [],
+      },
+    ]);
+  };
   
   // Update audio engine when track params change
   useEffect(() => {
@@ -182,6 +206,10 @@ const ProStudio = ({ userRole = 'artist' }: ProStudioProps) => {
                 <Settings className="w-4 h-4" />
                 Mixer
               </TabsTrigger>
+              <TabsTrigger value="automation" className="gap-2">
+                <Sliders className="w-4 h-4" />
+                Automation
+              </TabsTrigger>
             </TabsList>
           </div>
 
@@ -259,6 +287,116 @@ const ProStudio = ({ userRole = 'artist' }: ProStudioProps) => {
                   </>
                 )}
               </div>
+            </div>
+          </TabsContent>
+          {/* Automation View */}
+          <TabsContent value="automation" className="flex-1 m-0 overflow-hidden flex">
+            <div className="flex-1 flex flex-col overflow-hidden">
+              {/* Automation lanes */}
+              <div className="flex-1 overflow-y-auto">
+                {automationLanes.length === 0 ? (
+                  <div className="flex items-center justify-center h-full">
+                    <Card className="p-8 text-center max-w-md">
+                      <Sliders className="w-12 h-12 mx-auto mb-4 text-[hsl(var(--studio-accent))]" />
+                      <h3 className="text-lg font-semibold mb-2">No Automation Yet</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Add automation lanes to draw parameter changes over time
+                      </p>
+                    </Card>
+                  </div>
+                ) : (
+                  <div>
+                    {automationLanes.map((lane) => {
+                      const track = tracks.find(t => t.id === lane.trackId);
+                      if (!track) return null;
+                      
+                      return (
+                        <AutomationLane
+                          key={lane.id}
+                          trackId={lane.trackId}
+                          trackName={track.name}
+                          parameter={lane.parameter}
+                          points={lane.points}
+                          duration={duration}
+                          pixelsPerSecond={100}
+                          onAddPoint={(point) => {
+                            setAutomationLanes(lanes =>
+                              lanes.map(l =>
+                                l.id === lane.id
+                                  ? { ...l, points: [...l.points, point] }
+                                  : l
+                              )
+                            );
+                          }}
+                          onUpdatePoint={(index, point) => {
+                            setAutomationLanes(lanes =>
+                              lanes.map(l =>
+                                l.id === lane.id
+                                  ? { ...l, points: l.points.map((p, i) => i === index ? point : p) }
+                                  : l
+                              )
+                            );
+                          }}
+                          onDeletePoint={(index) => {
+                            setAutomationLanes(lanes =>
+                              lanes.map(l =>
+                                l.id === lane.id
+                                  ? { ...l, points: l.points.filter((_, i) => i !== index) }
+                                  : l
+                              )
+                            );
+                          }}
+                          onChangeParameter={(parameter) => {
+                            setAutomationLanes(lanes =>
+                              lanes.map(l =>
+                                l.id === lane.id ? { ...l, parameter } : l
+                              )
+                            );
+                          }}
+                          onDelete={() => {
+                            setAutomationLanes(lanes => lanes.filter(l => l.id !== lane.id));
+                          }}
+                        />
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Automation sidebar */}
+            <div
+              className="w-80 border-l overflow-y-auto p-4 space-y-4"
+              style={{
+                background: 'hsl(220, 18%, 16%)',
+                borderColor: 'hsl(220, 14%, 28%)',
+              }}
+            >
+              <div>
+                <h3 className="text-sm font-semibold text-[hsl(var(--studio-text))] mb-3">
+                  Add Automation
+                </h3>
+                <div className="space-y-2">
+                  {tracks.map((track) => (
+                    <Button
+                      key={track.id}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleAddAutomationLane(track.id)}
+                      className="w-full justify-start"
+                    >
+                      <div
+                        className="w-2 h-2 rounded-full mr-2"
+                        style={{ background: track.color || 'hsl(210, 100%, 55%)' }}
+                      />
+                      {track.name}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              <BusGroupPanel tracks={tracks} />
+              <VCAGroupPanel tracks={tracks} />
             </div>
           </TabsContent>
         </Tabs>
