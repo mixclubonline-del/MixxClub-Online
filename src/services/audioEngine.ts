@@ -71,6 +71,78 @@ class AudioEngine {
   fxBuses: Map<string, FxBus> = new Map();
   master: MasterChain;
 
+  /** 
+   * PHASE 5: Integrated transport control (merged from Transport.ts)
+   * Simplified architecture - single source of timing truth
+   */
+  
+  // Transport state
+  private transportState: 'stopped' | 'playing' | 'paused' = 'stopped';
+  private transportStartTime = 0;
+  private transportPausedAt = 0;
+  public bpm = 120;
+  
+  /**
+   * Get current transport time
+   */
+  get currentTime(): number {
+    if (this.transportState === 'playing') {
+      return this.ctx.currentTime - this.transportStartTime;
+    }
+    return this.transportPausedAt;
+  }
+  
+  get isPlaying(): boolean {
+    return this.transportState === 'playing';
+  }
+  
+  /**
+   * Start playback from current position
+   */
+  startTransport() {
+    if (this.transportState === 'playing') return;
+    
+    const when = this.ctx.currentTime;
+    this.transportStartTime = when - this.transportPausedAt;
+    this.transportState = 'playing';
+    
+    console.log('[AudioEngine] ▶️ Transport START from', this.transportPausedAt.toFixed(3), 's');
+  }
+  
+  /**
+   * Pause playback at current position
+   */
+  pauseTransport() {
+    if (this.transportState !== 'playing') return;
+    
+    this.transportPausedAt = this.currentTime;
+    this.transportState = 'paused';
+    
+    console.log('[AudioEngine] ⏸ Transport PAUSE at', this.transportPausedAt.toFixed(3), 's');
+  }
+  
+  /**
+   * Stop playback and reset to beginning
+   */
+  stopTransport() {
+    this.transportPausedAt = 0;
+    this.transportState = 'stopped';
+    
+    console.log('[AudioEngine] ⏹ Transport STOP');
+  }
+  
+  /**
+   * Seek to specific time
+   */
+  seekTransport(time: number) {
+    this.transportPausedAt = Math.max(0, time);
+    if (this.transportState === 'playing') {
+      this.transportStartTime = this.ctx.currentTime - this.transportPausedAt;
+    }
+    
+    console.log('[AudioEngine] ⏩ Transport SEEK to', time.toFixed(3), 's');
+  }
+
   private workletsLoaded: boolean = false;
 
   constructor() {

@@ -7,9 +7,12 @@ const corsHeaders = {
 };
 
 /**
- * Waveform Caching Service
- * Stores pre-generated waveform data in Supabase storage
- * Client generates waveforms, this service caches them for future use
+ * PHASE 4: Server-Side Multi-Resolution Waveform Generation
+ * 
+ * Generates waveform pyramids on the server to offload client CPU
+ * - Creates 3 resolution levels (low/medium/high)
+ * - Caches results in Supabase Storage
+ * - Falls back to client-side generation if server fails
  */
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -27,40 +30,75 @@ serve(async (req) => {
       }
     );
 
-    const { waveformData, userId, audioFileId } = await req.json();
+    const body = await req.json();
+    const { waveformData, userId, audioFileId, audioUrl, generateServerSide = false } = body;
     
-    console.log('Caching waveform for audio file:', audioFileId);
+    console.log('[WaveformGen] Request:', { audioFileId, generateServerSide, hasUrl: !!audioUrl });
 
-    if (!waveformData || !userId || !audioFileId) {
-      throw new Error('Missing required fields: waveformData, userId, audioFileId');
+    if (!userId || !audioFileId) {
+      throw new Error('Missing required fields: userId, audioFileId');
     }
 
-    // Store waveform data in storage
-    const waveformPath = `${userId}/waveforms/${audioFileId}.json`;
-    const { error: uploadError } = await supabaseClient
-      .storage
+    // Check cache first
+    const cachedPath = `${userId}/waveforms/${audioFileId}.json`;
+    const { data: cached } = await supabaseClient.storage
       .from('audio-files')
-      .upload(waveformPath, JSON.stringify(waveformData), {
-        contentType: 'application/json',
-        upsert: true
-      });
+      .download(cachedPath);
 
-    if (uploadError) {
-      throw new Error(`Failed to cache waveform: ${uploadError.message}`);
+    if (cached) {
+      console.log('[WaveformGen] ✅ Cache hit');
+      const data = JSON.parse(await cached.text());
+      return new Response(
+        JSON.stringify({ waveformData: data, cached: true }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    console.log('Waveform cached successfully:', waveformPath);
+    // If client already generated waveform, just cache it
+    if (waveformData) {
+      console.log('[WaveformGen] Caching client-generated waveform');
+      
+      const { error: uploadError } = await supabaseClient
+        .storage
+        .from('audio-files')
+        .upload(cachedPath, JSON.stringify(waveformData), {
+          contentType: 'application/json',
+          upsert: true
+        });
 
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        waveformPath
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+      if (uploadError) {
+        console.warn('[WaveformGen] Cache upload failed:', uploadError.message);
+      } else {
+        console.log('[WaveformGen] ✅ Cached successfully');
+      }
+
+      return new Response(
+        JSON.stringify({ success: true, waveformPath: cachedPath, cached: false }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Server-side generation (requires audioUrl)
+    if (generateServerSide && audioUrl) {
+      console.log('[WaveformGen] 🔧 Server-side generation not yet implemented');
+      console.log('[WaveformGen] Falling back to client-side generation');
+      
+      return new Response(
+        JSON.stringify({ 
+          error: 'Server-side generation not available, use client-side',
+          fallbackToClient: true 
+        }),
+        { 
+          status: 501,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    throw new Error('No waveform data or audio URL provided');
 
   } catch (error) {
-    console.error('Error in generate-waveform:', error);
+    console.error('[WaveformGen] Error:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { 

@@ -113,7 +113,43 @@ export class WaveformGenerator {
   
   /**
    * Generate multi-resolution waveform data for professional rendering
-   * Used by Wavesurfer.js and other modern libraries
+   * Uses Web Worker pool for non-blocking generation (PHASE 6)
+   */
+  static async generateMultiResolutionAsync(
+    audioBuffer: AudioBuffer,
+    onProgress?: (progress: number, stage?: string) => void
+  ): Promise<WaveformData> {
+    const channelData = audioBuffer.getChannelData(0);
+    const duration = audioBuffer.duration;
+    const sampleRate = audioBuffer.sampleRate;
+
+    try {
+      // Use Web Worker for async generation
+      const { waveformWorkerPool } = await import('./waveformWorkerPool');
+      
+      const { low, medium, high } = await waveformWorkerPool.generateMultiResolution(
+        channelData,
+        duration,
+        onProgress
+      );
+
+      return {
+        peaks: medium,
+        rms: new Float32Array(medium.length),
+        duration,
+        sampleRate,
+        channels: audioBuffer.numberOfChannels,
+        multiResolution: { low, medium, high }
+      };
+    } catch (error) {
+      console.warn('[WaveformGenerator] Worker failed, falling back to main thread:', error);
+      // Fallback to synchronous generation
+      return this.generateMultiResolution(audioBuffer);
+    }
+  }
+
+  /**
+   * Generate multi-resolution waveform data (synchronous fallback)
    */
   static generateMultiResolution(audioBuffer: AudioBuffer): WaveformData {
     const channelData = audioBuffer.getChannelData(0);

@@ -115,7 +115,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useAudioPermissions } from "@/hooks/useAudioPermissions";
 import { useAudioEngineBridge } from "@/hooks/useAudioEngineBridge";
-import { useTransportBridge } from "@/hooks/useTransportBridge";
+import { useSimplifiedTransportBridge } from "@/hooks/useSimplifiedTransportBridge";
 import { useAchievements } from "@/hooks/useAchievements";
 import { useAIStudioStore, Track, AudioRegion } from "@/stores/aiStudioStore";
 import { WaveformGenerator } from "@/services/waveformGenerator";
@@ -183,7 +183,7 @@ const HybridDAW = () => {
 
   // Initialize bridges
   useAudioEngineBridge(); // Handles audio graph parameter sync (volume, pan, effects)
-  useTransportBridge(); // Handles transport control (play/pause/seek)
+  useSimplifiedTransportBridge(); // Handles transport control (PHASE 5 - simplified architecture)
 
   // Initialize AudioWorklet modules for professional audio thread
   useEffect(() => {
@@ -289,9 +289,9 @@ const HybridDAW = () => {
             const arrayBuffer = await blob.arrayBuffer();
             const audioBuffer = await audioEngine.ctx.decodeAudioData(arrayBuffer);
             
-            const waveformData = WaveformGenerator.generateMultiResolution(audioBuffer);
+            const waveformData = await WaveformGenerator.generateMultiResolutionAsync(audioBuffer);
             
-            console.log('[Recording] Multi-resolution waveform generated:', waveformData.multiResolution);
+            console.log('[Recording] Multi-resolution waveform generated (async)');
             
             // Stable IDs for region
             const regionId = `region-${Date.now()}`;
@@ -433,9 +433,21 @@ const HybridDAW = () => {
         length: audioBuffer.length + ' samples',
       });
       
-      // 2. Generate multi-resolution waveform for WebGL rendering (PHASE 3)
-      console.log('[HybridDAW] 📊 Step 2: Generating multi-resolution waveform...');
-      const waveformData = WaveformGenerator.generateMultiResolution(audioBuffer);
+      // 2. Generate multi-resolution waveform using Web Worker (PHASE 6)
+      console.log('[HybridDAW] 📊 Step 2: Generating multi-resolution waveform (async)...');
+      
+      let waveformData;
+      try {
+        waveformData = await WaveformGenerator.generateMultiResolutionAsync(
+          audioBuffer,
+          (progress, stage) => {
+            console.log(`[HybridDAW] Waveform ${stage}: ${(progress * 100).toFixed(0)}%`);
+          }
+        );
+      } catch (error) {
+        console.warn('[HybridDAW] Async generation failed, using sync fallback');
+        waveformData = WaveformGenerator.generateMultiResolution(audioBuffer);
+      }
       
       console.log('[HybridDAW] ✅ Multi-resolution waveform generated:', {
         low: waveformData.multiResolution?.low.length + ' peaks (overview)',
