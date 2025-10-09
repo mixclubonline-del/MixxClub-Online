@@ -1,19 +1,16 @@
 import { useEffect, useRef } from 'react';
 import { useAIStudioStore } from '@/stores/aiStudioStore';
+import { audioEngine } from '@/services/audioEngine';
 
 /**
- * Bridge between React state and Web Audio API for real-time audio playback
- * Handles audio buffer playback, scheduling, and synchronization
+ * Bridge between React state and audioEngine singleton
+ * Syncs zustand store with the real Web Audio API engine
  */
 export const useAudioEngineBridge = () => {
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const sourceNodesRef = useRef<Map<string, AudioBufferSourceNode>>(new Map());
-  const gainNodesRef = useRef<Map<string, GainNode>>(new Map());
-  const masterGainRef = useRef<GainNode | null>(null);
-  const startTimeRef = useRef<number>(0);
-  const pauseTimeRef = useRef<number>(0);
+  const trackedEngineTracksRef = useRef<Set<string>>(new Set());
   const animationFrameRef = useRef<number | null>(null);
-
+  const lastPausedTimeRef = useRef(0);
+  
   const { 
     tracks, 
     isPlaying, 
@@ -22,175 +19,196 @@ export const useAudioEngineBridge = () => {
     setCurrentTime 
   } = useAIStudioStore();
 
-  // Initialize Audio Context
+  // Initialize engine
   useEffect(() => {
-    const initAudio = async () => {
-      try {
-        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-        
-        // Create master gain node
-        masterGainRef.current = audioContextRef.current.createGain();
-        masterGainRef.current.connect(audioContextRef.current.destination);
-        masterGainRef.current.gain.value = masterVolume;
-        
-        console.log('[AudioEngine] Initialized successfully');
-      } catch (error) {
-        console.error('[AudioEngine] Failed to initialize:', error);
-      }
-    };
-    
-    initAudio();
-    
-    return () => {
-      // Cleanup
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
-      }
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
+    audioEngine.resume();
   }, []);
 
-  // Update master volume
+  // Sync master volume
   useEffect(() => {
-    if (masterGainRef.current) {
-      masterGainRef.current.gain.value = masterVolume;
-    }
+    audioEngine.setMasterGain(masterVolume);
   }, [masterVolume]);
 
-  // Update track volumes
+  // Sync tracks (create/remove)
+  useEffect(() => {
+    const storeTrackIds = new Set(tracks.map(t => t.id));
+    const engineTrackIds = new Set(audioEngine.tracks.keys());
+
+    // Remove deleted tracks from engine
+    for (const id of engineTrackIds) {
+      if (!storeTrackIds.has(id)) {
+        audioEngine.removeTrack(id);
+        trackedEngineTracksRef.current.delete(id);
+      }
+    }
+
+    // Add new tracks to engine
+    for (const track of tracks) {
+      if (!trackedEngineTracksRef.current.has(track.id)) {
+        audioEngine.createTrack({
+          id: track.id,
+          name: track.name,
+          buffer: track.audioBuffer ?? null,
+          groupId: track.busGroupId
+        });
+        trackedEngineTracksRef.current.add(track.id);
+      }
+    }
+  }, [tracks]);
+
+  // Sync track parameters (volume, pan, mute, solo, sends, effects)
   useEffect(() => {
     tracks.forEach(track => {
-      const gainNode = gainNodesRef.current.get(track.id);
-      if (gainNode) {
-        const effectiveVolume = track.mute ? 0 : track.volume;
-        gainNode.gain.value = effectiveVolume;
+      const engineTrack = audioEngine.tracks.get(track.id);
+      if (!engineTrack) return;
+
+      // Volume
+      audioEngine.setTrackGain(track.id, track.volume);
+      
+      // Pan
+      audioEngine.setTrackPan(track.id, track.pan);
+      
+      // Mute (via gain)
+      if (track.mute) {
+        audioEngine.setTrackGain(track.id, 0);
       }
+      
+      // Solo (mute all others)
+      const hasSolo = tracks.some(t => t.solo);
+      if (hasSolo && !track.solo) {
+        audioEngine.setTrackGain(track.id, 0);
+      }
+
+      // Sends
+      if (track.sends) {
+        Object.entries(track.sends).forEach(([busId, send]) => {
+          audioEngine.setSendLevel(track.id, busId, send.amount);
+        });
+      }
+
+      // Effects (sync plugin chain)
+      const currentPlugins = engineTrack.plugins.map(p => p.type);
+      const desiredEffects = (track.effects || []).map(e => 
+        e.type.toUpperCase() as any
+      );
+      
+      // Remove plugins not in store
+      engineTrack.plugins.forEach(p => {
+        if (!desiredEffects.includes(p.type)) {
+          audioEngine.removePlugin(track.id, p.id);
+        }
+      });
+      
+      // Add missing plugins
+      desiredEffects.forEach(type => {
+        if (!currentPlugins.includes(type)) {
+          audioEngine.addPlugin(track.id, { type });
+        }
+      });
     });
   }, [tracks]);
 
-  // Stop all audio sources
-  const stopAllSources = () => {
-    sourceNodesRef.current.forEach((source, trackId) => {
-      try {
-        source.stop();
-        source.disconnect();
-      } catch (e) {
-        // Source might already be stopped
-      }
-    });
-    sourceNodesRef.current.clear();
-    gainNodesRef.current.clear();
-  };
-
-  // Start playback from current time
-  const startPlayback = (startTime: number) => {
-    if (!audioContextRef.current || !masterGainRef.current) {
-      console.warn('[AudioEngine] Audio context not initialized');
-      return;
-    }
-
-    const audioContext = audioContextRef.current;
-    const now = audioContext.currentTime;
-
-    // Stop any existing sources
-    stopAllSources();
-
-    console.log('[AudioEngine] Starting playback from', startTime, 'seconds');
-
-    // Create source nodes for each track with audio
-    tracks.forEach(track => {
-      // Skip if muted or no audio buffer
-      if (!track.audioBuffer || track.mute) return;
-
-      // Check if any regions exist and have audio
-      const hasAudioRegions = track.regions && track.regions.length > 0;
-      if (!hasAudioRegions && !track.audioBuffer) return;
-
-      try {
-        // Create gain node for this track
-        const gainNode = audioContext.createGain();
-        gainNode.gain.value = track.volume;
-        gainNode.connect(masterGainRef.current!);
-        gainNodesRef.current.set(track.id, gainNode);
-
-        // Play all regions in this track
-        if (hasAudioRegions) {
-          track.regions.forEach((region, regionIndex) => {
-            const regionBuffer = region.audioBuffer || track.audioBuffer;
-            if (!regionBuffer) return;
-
-            // Skip if region ends before current time
-            if (region.start + region.duration < startTime) return;
-
-            // Create source node
-            const source = audioContext.createBufferSource();
-            source.buffer = regionBuffer;
-            source.connect(gainNode);
-
-            // Calculate when to start this region
-            const regionStartTime = region.start;
-            const offsetIntoRegion = Math.max(0, startTime - regionStartTime);
-            const whenToStart = now + Math.max(0, regionStartTime - startTime);
-
-            // Schedule playback
-            if (offsetIntoRegion < region.duration) {
-              source.start(whenToStart, offsetIntoRegion, region.duration - offsetIntoRegion);
-              sourceNodesRef.current.set(`${track.id}-region-${regionIndex}`, source);
-            }
-          });
-        } else if (track.audioBuffer) {
-          // Play the entire track buffer if no regions
-          const source = audioContext.createBufferSource();
-          source.buffer = track.audioBuffer;
-          source.connect(gainNode);
-          source.start(now, startTime);
-          sourceNodesRef.current.set(track.id, source);
-        }
-      } catch (error) {
-        console.error(`[AudioEngine] Error playing track ${track.name}:`, error);
-      }
-    });
-
-    // Store when we started
-    startTimeRef.current = now - startTime;
-
-    // Update current time via animation frame
-    const updateTime = () => {
-      if (audioContextRef.current && isPlaying) {
-        const elapsed = audioContextRef.current.currentTime - startTimeRef.current;
-        setCurrentTime(elapsed);
-        animationFrameRef.current = requestAnimationFrame(updateTime);
-      }
-    };
-    animationFrameRef.current = requestAnimationFrame(updateTime);
-  };
-
-  // Handle playback state changes
+  // Handle playback state
   useEffect(() => {
     if (isPlaying) {
-      pauseTimeRef.current = currentTime;
-      startPlayback(currentTime);
+      audioEngine.play(currentTime);
     } else {
-      // Pause playback
+      audioEngine.pause();
+    }
+  }, [isPlaying, currentTime]);
+
+  // Sync currentTime (read from engine during playback)
+  useEffect(() => {
+    if (!isPlaying) {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
         animationFrameRef.current = null;
       }
-      stopAllSources();
+      return;
     }
-  }, [isPlaying]);
 
-  // Handle seek/time changes when not playing
+    const updateTime = () => {
+      const pos = audioEngine.getPlaybackPosition();
+      setCurrentTime(pos);
+      animationFrameRef.current = requestAnimationFrame(updateTime);
+    };
+    
+    animationFrameRef.current = requestAnimationFrame(updateTime);
+    
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [isPlaying, setCurrentTime]);
+
+  // Detect seeks while paused
   useEffect(() => {
-    if (!isPlaying) {
-      pauseTimeRef.current = currentTime;
+    if (!isPlaying && currentTime !== lastPausedTimeRef.current) {
+      audioEngine.pausedAt = currentTime;
+      lastPausedTimeRef.current = currentTime;
     }
   }, [currentTime, isPlaying]);
 
+  // Audio metering loop
+  useEffect(() => {
+    const meteringLoop = () => {
+      // Update track levels
+      tracks.forEach(track => {
+        const analyser = audioEngine.getTrackPostAnalyser(track.id);
+        if (!analyser) return;
+
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+        analyser.getByteTimeDomainData(dataArray);
+        
+        let sum = 0;
+        let peak = 0;
+        for (let i = 0; i < dataArray.length; i++) {
+          const normalized = (dataArray[i] - 128) / 128;
+          const abs = Math.abs(normalized);
+          sum += abs * abs;
+          peak = Math.max(peak, abs);
+        }
+        
+        const rms = Math.sqrt(sum / dataArray.length);
+        const peakDb = peak > 0 ? 20 * Math.log10(peak) : -Infinity;
+        const rmsDb = rms > 0 ? 20 * Math.log10(rms) : -Infinity;
+        
+        // Update store
+        useAIStudioStore.getState().updateTrack(track.id, {
+          peakLevel: peakDb,
+          rmsLevel: rmsDb
+        });
+      });
+
+      // Update master levels
+      const masterAnalyser = audioEngine.getMasterAnalyser();
+      const masterData = new Uint8Array(masterAnalyser.frequencyBinCount);
+      masterAnalyser.getByteTimeDomainData(masterData);
+      
+      let masterPeak = 0;
+      for (let i = 0; i < masterData.length; i++) {
+        const normalized = Math.abs((masterData[i] - 128) / 128);
+        masterPeak = Math.max(masterPeak, normalized);
+      }
+      
+      const masterPeakDb = masterPeak > 0 ? 20 * Math.log10(masterPeak) : -Infinity;
+      useAIStudioStore.getState().updateMasterLevels(masterPeakDb);
+      
+      animationFrameRef.current = requestAnimationFrame(meteringLoop);
+    };
+    
+    animationFrameRef.current = requestAnimationFrame(meteringLoop);
+    
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [tracks]);
+
   return {
-    audioContext: audioContextRef.current,
-    isReady: !!audioContextRef.current,
+    audioContext: audioEngine.ctx,
+    isReady: audioEngine.ctx.state === 'running',
   };
 };

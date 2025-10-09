@@ -55,7 +55,7 @@ export interface Track {
   peakLevel?: number;
   rmsLevel?: number;
   regions?: AudioRegion[];
-  waveformData?: number[] | Float32Array;
+  waveformData?: Float32Array;
 }
 
 export interface BusGroup {

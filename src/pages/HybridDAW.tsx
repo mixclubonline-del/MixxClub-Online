@@ -44,6 +44,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useAudioPermissions } from "@/hooks/useAudioPermissions";
 import { useAudioEngineBridge } from "@/hooks/useAudioEngineBridge";
+import { useAchievements } from "@/hooks/useAchievements";
 import { useAIStudioStore, Track, AudioRegion } from "@/stores/aiStudioStore";
 import { WaveformGenerator } from "@/services/waveformGenerator";
 import Navigation from "@/components/Navigation";
@@ -85,6 +86,7 @@ const HybridDAW = () => {
   const [showAIAssistant, setShowAIAssistant] = useState(false);
   const [showSystemCheck, setShowSystemCheck] = useState(false);
   const [showPrimeBotModal, setShowPrimeBotModal] = useState(false);
+  const [selectedRegionId, setSelectedRegionId] = useState<string | null>(null);
   
   // Collaboration State
   const [collaborators, setCollaborators] = useState<CollaborationUser[]>([]);
@@ -96,13 +98,8 @@ const HybridDAW = () => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   // Removed manual playback refs - using audioEngine only
   
-  // Gamification State
-  const [achievements, setAchievements] = useState<Array<{ id: string; title: string; description: string; unlocked: boolean }>>([
-    { id: 'first-track', title: 'First Steps', description: 'Create your first track', unlocked: false },
-    { id: 'first-recording', title: 'Sound Engineer', description: 'Record your first audio', unlocked: false },
-    { id: 'collab-master', title: 'Team Player', description: 'Collaborate with another user', unlocked: false },
-    { id: 'effect-wizard', title: 'Effect Master', description: 'Apply 5 different effects', unlocked: false },
-  ]);
+  // Gamification - use hook
+  const { achievements, unlockAchievement } = useAchievements();
 
   // Initialize Audio Engine Bridge
   useAudioEngineBridge();
@@ -242,17 +239,7 @@ const HybridDAW = () => {
     
     // Check for first track achievement
     if (tracks.length === 0) {
-      setAchievements(prev => 
-        prev.map(achievement => 
-          achievement.id === 'first-track' 
-            ? { ...achievement, unlocked: true }
-            : achievement
-        )
-      );
-      toast({
-        title: "Achievement Unlocked!",
-        description: "🎉 First Steps - You created your first track!",
-      });
+      unlockAchievement('first-track');
     }
   };
 
@@ -326,13 +313,7 @@ const HybridDAW = () => {
         };
 
         // Check for first recording achievement
-        setAchievements(prev => 
-          prev.map(achievement => 
-            achievement.id === 'first-recording' 
-              ? { ...achievement, unlocked: true }
-              : achievement
-          )
-        );
+        unlockAchievement('first-recording');
 
         // Recording automatically added to track with audioBuffer
         // audioEngine will play it when user clicks play
@@ -507,6 +488,27 @@ const HybridDAW = () => {
     // audioEngine will handle the seek via useAudioEngineBridge
   };
 
+  // Region selection helpers
+  const getSelectedRegion = (): AudioRegion | null => {
+    if (!selectedRegionId) return null;
+    return tracks.flatMap(t => t.regions || []).find(r => r.id === selectedRegionId) || null;
+  };
+
+  const getSelectedRegionTrack = (): Track | null => {
+    const region = getSelectedRegion();
+    if (!region) return null;
+    return tracks.find(t => t.id === region.trackId) || null;
+  };
+
+  const handleUpdateRegion = (regionId: string, updates: Partial<AudioRegion>) => {
+    setTracks(tracks.map(track => ({
+      ...track,
+      regions: track.regions?.map(r =>
+        r.id === regionId ? { ...r, ...updates } : r
+      )
+    })));
+  };
+
   // Export Project
   const exportProject = () => {
     // TODO: Implement project export
@@ -567,7 +569,7 @@ const HybridDAW = () => {
           mute: false,
           solo: false,
           audioBuffer,
-          waveformData: Array.from(waveformData.peaks),
+          waveformData: waveformData.peaks,
           regions: [{
             id: `stem-region-${Date.now()}-${index}`,
             trackId: `stem-track-${Date.now()}-${index}`,
@@ -974,6 +976,7 @@ const HybridDAW = () => {
                 onStartRecording={startRecording}
                 onStopRecording={stopRecording}
                 isRecording={isRecording}
+                onRegionSelect={setSelectedRegionId}
               />
             ) : (
               <DAW3DView 
@@ -990,11 +993,9 @@ const HybridDAW = () => {
         {/* Right: Clip Editor (15%) */}
         <ResizablePanel defaultSize={15} minSize={12} maxSize={25}>
           <ClipEditorPanel 
-            selectedRegion={null}
-            selectedTrack={null}
-            onUpdateRegion={(regionId, updates) => {
-              // TODO: Wire to region update
-            }}
+            selectedRegion={getSelectedRegion()}
+            selectedTrack={getSelectedRegionTrack()}
+            onUpdateRegion={handleUpdateRegion}
           />
         </ResizablePanel>
         </>

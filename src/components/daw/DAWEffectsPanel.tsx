@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
@@ -124,6 +124,13 @@ const DAWEffectsPanel: React.FC<DAWEffectsPanelProps> = ({
   const [activeCategory, setActiveCategory] = useState<string>('all');
 
   const selectedTrackData = tracks.find(t => t.id === selectedTrack);
+
+  // Sync selected track with external changes
+  useEffect(() => {
+    if (selectedTrack && !tracks.find(t => t.id === selectedTrack)) {
+      setSelectedTrack(null);
+    }
+  }, [selectedTrack, tracks]);
 
   const addEffect = (trackId: string, effectId: string) => {
     const effect = aiEffects.find(e => e.id === effectId);

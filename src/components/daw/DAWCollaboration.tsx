@@ -61,38 +61,29 @@ const DAWCollaboration: React.FC<DAWCollaborationProps> = ({
   const [audioEnabled, setAudioEnabled] = useState(false);
   const [videoEnabled, setVideoEnabled] = useState(false);
 
-  // Use collaboration hook
-  const {
-    isConnected,
-    connectionStatus,
-    participants,
-    connect,
-    disconnect,
-    sendChatMessage,
-    sendTrackUpdate,
-    sendEffectChange
-  } = useCollaboration({
-    sessionId,
-    userId,
-    userName,
-    onMessage: (message) => {
-      if (message.type === 'chat_message' && message.data?.message) {
-        const chatMessage: ChatMessage = {
-          id: Date.now().toString(),
-          userId: message.userId,
-          userName: message.userName || 'Unknown',
-          message: message.data.message,
-          timestamp: new Date(message.timestamp),
-          type: 'text'
-        };
-        setChatMessages(prev => [...prev, chatMessage]);
-      } else if (message.type === 'track_update' && onTrackUpdate) {
-        onTrackUpdate(message.data);
-      } else if (message.type === 'effect_change' && onEffectChange) {
-        onEffectChange(message.data.trackId, message.data);
-      }
-    }
-  });
+  // Placeholder for collaboration hook (would use Supabase Realtime)
+  const isConnected = false;
+  const participants: CollaborationUser[] = [];
+  
+  const connect = () => {
+    console.log('[Collab] Connect requested - implement Supabase Realtime');
+  };
+  
+  const disconnect = () => {
+    console.log('[Collab] Disconnect requested');
+  };
+  
+  const sendChatMessage = (message: string) => {
+    const chatMessage: ChatMessage = {
+      id: Date.now().toString(),
+      userId: 'current-user',
+      userName: userName,
+      message,
+      timestamp: new Date(),
+      type: 'text'
+    };
+    setChatMessages(prev => [...prev, chatMessage]);
+  };
 
   const sendMessage = () => {
     if (!newMessage.trim()) return;

@@ -32,6 +32,7 @@ interface EnhancedDAWTimelineProps {
   onStartRecording: (trackId: string) => void;
   onStopRecording: () => void;
   isRecording: boolean;
+  onRegionSelect?: (regionId: string | null) => void;
 }
 
 const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
@@ -43,10 +44,14 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
   bpm,
   onStartRecording,
   onStopRecording,
-  isRecording
+  isRecording,
+  onRegionSelect
 }) => {
   const timelineRef = useRef<HTMLDivElement>(null);
-  const [zoom, setZoom] = useState(1);
+  const [zoom, setZoom] = useState(() => {
+    const saved = localStorage.getItem('daw-zoom');
+    return saved ? parseFloat(saved) : 1;
+  });
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
   const [trackHeight, setTrackHeight] = useState(80);
   const [showWaveforms, setShowWaveforms] = useState(true);
@@ -100,7 +105,13 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
 
   const handleRegionClick = (regionId: string) => {
     setSelectedRegion(regionId);
+    onRegionSelect?.(regionId);
   };
+  
+  // Persist zoom to localStorage
+  useEffect(() => {
+    localStorage.setItem('daw-zoom', zoom.toString());
+  }, [zoom]);
 
   const deleteTrack = (trackId: string) => {
     onTracksChange(tracks.filter(track => track.id !== trackId));
@@ -405,10 +416,10 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
                   );
                 })}
 
-                {/* Enhanced Recording Indicator */}
+                {/* Enhanced Recording Indicator with pulsing animation */}
                 {track.armed && isRecording && (
                   <div 
-                    className="absolute top-2 bottom-2 bg-gradient-to-r from-destructive to-destructive/80 rounded-lg animate-pulse-glow border border-destructive/50"
+                    className="absolute top-2 bottom-2 bg-gradient-to-r from-destructive to-destructive/80 rounded-lg border border-destructive/50"
                     style={{
                       left: `${currentTime * pixelsPerSecond}px`,
                       width: `${3 * pixelsPerSecond}px`
@@ -416,8 +427,11 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
                   >
                     <div className="h-full flex items-center justify-center">
                       <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                        <span className="text-xs text-white font-bold drop-shadow">RECORDING</span>
+                        <div className="relative">
+                          <div className="w-2 h-2 bg-white rounded-full absolute animate-ping"></div>
+                          <div className="w-2 h-2 bg-white rounded-full relative"></div>
+                        </div>
+                        <span className="text-xs text-white font-bold drop-shadow animate-pulse">RECORDING</span>
                       </div>
                     </div>
                   </div>

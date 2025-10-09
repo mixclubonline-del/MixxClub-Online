@@ -58,16 +58,17 @@ const DAWMixerPanel: React.FC<DAWMixerPanelProps> = ({
     const track = tracks.find(t => t.id === trackId);
     if (!track) return;
 
-    const newEffects = {
-      ...track.effects,
-      [effectType]: {
-        enabled: true,
-        intensity: 0.5,
-        type: effectType
-      }
+    const newEffect = {
+      id: `effect-${Date.now()}`,
+      type: effectType as any,
+      enabled: true,
+      rackPosition: (track.effects?.length || 0),
+      parameters: { intensity: 0.5 }
     };
 
-    updateTrack(trackId, { effects: newEffects });
+    updateTrack(trackId, { 
+      effects: [...(track.effects || []), newEffect] 
+    });
   };
 
   return (
