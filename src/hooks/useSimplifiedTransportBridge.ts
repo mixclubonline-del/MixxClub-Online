@@ -57,12 +57,15 @@ export function useSimplifiedTransportBridge() {
     // Playback state changed
     if (isPlaying !== wasPlaying) {
       if (isPlaying) {
-        // START playback
+        // START playback from zero (always)
+        const startAt = 0;
         scheduler.stopAll();
-        audioEngine.seekTransport(currentTime);
-        scheduler.scheduleAll(currentTime, tracks);
+        audioEngine.seekTransport(startAt);
+        scheduler.scheduleAll(startAt, tracks);
         audioEngine.startTransport();
-        console.log('[SimplifiedBridge] ▶️ START');
+        setCurrentTime(startAt);
+        prevTimeRef.current = startAt;
+        console.log('[SimplifiedBridge] ▶️ START from 0s');
       } else {
         // PAUSE/STOP
         scheduler.stopAll();
