@@ -388,14 +388,33 @@ export const ArrangementWindow = ({
   }
 
   return (
-    <div className="flex-1 flex overflow-hidden" style={{ background: 'hsl(220, 20%, 14%)' }}>
+    <div 
+      className="flex-1 flex overflow-hidden" 
+      style={{ 
+        background: 'linear-gradient(135deg, hsl(220, 20%, 16%) 0%, hsl(220, 20%, 14%) 50%, hsl(220, 20%, 12%) 100%)',
+        boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.4), inset 0 -2px 4px rgba(255,255,255,0.02)',
+      }}
+    >
       {/* Track List Sidebar */}
       <TrackListSidebar />
 
-      {/* Arrangement Canvas */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Time Ruler */}
-        <div className="relative" style={{ height: '40px', borderBottom: '1px solid hsl(220, 20%, 22%)' }}>
+      {/* Arrangement Canvas with Spatial Depth */}
+      <div 
+        className="flex-1 flex flex-col overflow-hidden"
+        style={{
+          boxShadow: 'inset 2px 0 6px rgba(0,0,0,0.3)',
+        }}
+      >
+        {/* Time Ruler with Depth */}
+        <div 
+          className="relative" 
+          style={{ 
+            height: '40px', 
+            borderBottom: '1px solid hsl(220, 20%, 22%)',
+            background: 'linear-gradient(180deg, hsl(220, 20%, 13%) 0%, hsl(220, 20%, 11%) 100%)',
+            boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.05), 0 2px 4px rgba(0,0,0,0.3)',
+          }}
+        >
           <canvas
             ref={rulerRef}
             onClick={handleRulerClick}
@@ -404,8 +423,14 @@ export const ArrangementWindow = ({
           />
         </div>
 
-        {/* Tracks Canvas */}
-        <div ref={containerRef} className="flex-1 overflow-auto">
+        {/* Tracks Canvas with Depth */}
+        <div 
+          ref={containerRef} 
+          className="flex-1 overflow-auto"
+          style={{
+            background: 'linear-gradient(180deg, hsl(220, 20%, 14%) 0%, hsl(220, 20%, 13%) 100%)',
+          }}
+        >
           <canvas
             ref={canvasRef}
             onClick={handleCanvasClick}

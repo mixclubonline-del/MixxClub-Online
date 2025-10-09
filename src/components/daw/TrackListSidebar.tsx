@@ -66,8 +66,9 @@ export const TrackListSidebar = () => {
         className="flex flex-col border-r"
         style={{
           width: `${COLLAPSED_WIDTH}px`,
-          background: 'hsl(220, 20%, 12%)',
+          background: 'linear-gradient(135deg, hsl(220, 20%, 14%) 0%, hsl(220, 20%, 12%) 50%, hsl(220, 20%, 10%) 100%)',
           borderColor: 'hsl(220, 20%, 22%)',
+          boxShadow: 'inset -1px 0 2px rgba(255,255,255,0.05), 2px 0 8px rgba(0,0,0,0.4)',
         }}
       >
         {/* Collapse button */}
@@ -112,14 +113,19 @@ export const TrackListSidebar = () => {
       className="flex flex-col border-r"
       style={{
         width: `${SIDEBAR_WIDTH}px`,
-        background: 'hsl(220, 20%, 12%)',
+        background: 'linear-gradient(135deg, hsl(220, 20%, 14%) 0%, hsl(220, 20%, 12%) 50%, hsl(220, 20%, 10%) 100%)',
         borderColor: 'hsl(220, 20%, 22%)',
+        boxShadow: 'inset -1px 0 2px rgba(255,255,255,0.05), 2px 0 8px rgba(0,0,0,0.4)',
       }}
     >
-      {/* Sidebar Header */}
+      {/* Sidebar Header with Spatial Depth */}
       <div 
         className="p-3 border-b flex items-center justify-between"
-        style={{ borderColor: 'hsl(220, 20%, 22%)' }}
+        style={{ 
+          borderColor: 'hsl(220, 20%, 22%)',
+          background: 'linear-gradient(180deg, hsl(220, 20%, 15%) 0%, hsl(220, 20%, 13%) 100%)',
+          boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.05), 0 2px 3px rgba(0,0,0,0.3)',
+        }}
       >
         <h3 className="text-sm font-semibold" style={{ color: 'hsl(220, 20%, 80%)' }}>
           Tracks

@@ -15,7 +15,7 @@ import { audioEngine } from '@/services/audioEngine';
 import { useStudioPlayback } from '@/hooks/useStudioPlayback';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { Mic, Keyboard } from 'lucide-react';
-import { SpatialBackground } from '@/components/background/SpatialBackground';
+
 
 /**
  * Professional Studio with Phase 1 Complete:
@@ -77,19 +77,15 @@ const ProStudio = ({ userRole = 'artist' }: ProStudioProps) => {
   }, []);
 
   return (
-    <div className="min-h-screen h-screen bg-[hsl(220,20%,14%)] flex flex-col relative overflow-hidden">
-      {/* Spatial Background */}
-      <SpatialBackground intensity="medium" />
-      
-      {/* Content layer - FULLSCREEN */}
-      <div className="relative z-10 flex flex-col h-screen">
+    <div className="h-screen flex flex-col overflow-hidden" style={{ background: 'hsl(220, 20%, 10%)' }}>
         
-        {/* Enhanced Transport Bar */}
+        {/* Enhanced Transport Bar with Spatial Depth */}
         <div 
           className="border-b px-6 py-4"
           style={{
-            background: 'hsl(220, 20%, 12%)',
+            background: 'linear-gradient(135deg, hsl(220, 20%, 14%) 0%, hsl(220, 20%, 12%) 50%, hsl(220, 20%, 11%) 100%)',
             borderColor: 'hsl(220, 20%, 22%)',
+            boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.05), inset 0 -1px 3px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.4)',
           }}
         >
           <div className="flex items-center justify-between">
@@ -160,8 +156,6 @@ const ProStudio = ({ userRole = 'artist' }: ProStudioProps) => {
           {/* Mini Mixer Bar */}
           <MiniMixerBar />
         </div>
-
-      </div> {/* Close content layer */}
 
       {/* Plugin Preview Control */}
       <PluginPreviewControl />

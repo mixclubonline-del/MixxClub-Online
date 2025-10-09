@@ -44,15 +44,20 @@ export const MiniMixerBar = () => {
       className="border-t transition-all duration-300"
       style={{
         height: `${height}px`,
-        background: 'hsl(220, 20%, 12%)',
+        background: 'linear-gradient(180deg, hsl(220, 20%, 13%) 0%, hsl(220, 20%, 11%) 100%)',
         borderColor: 'hsl(220, 20%, 22%)',
         overflow: 'hidden',
+        boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.05)',
       }}
     >
-      {/* Toggle button */}
+      {/* Toggle button with Depth */}
       <div 
         className="border-b px-4 py-1 flex items-center justify-between cursor-pointer"
-        style={{ borderColor: 'hsl(220, 20%, 22%)' }}
+        style={{ 
+          borderColor: 'hsl(220, 20%, 22%)',
+          background: 'linear-gradient(180deg, hsl(220, 20%, 14%) 0%, hsl(220, 20%, 12%) 100%)',
+          boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.05)',
+        }}
         onClick={() => setIsCollapsed(!isCollapsed)}
       >
         <div className="flex items-center gap-2">
@@ -100,8 +105,9 @@ export const MiniMixerBar = () => {
                   )}
                   style={{
                     width: `${CHANNEL_WIDTH}px`,
-                    background: 'hsl(220, 20%, 16%)',
+                    background: 'linear-gradient(135deg, hsl(220, 20%, 18%) 0%, hsl(220, 20%, 16%) 50%, hsl(220, 20%, 14%) 100%)',
                     borderColor: isSelected ? trackColor : 'hsl(220, 20%, 24%)',
+                    boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.05), inset 0 -1px 2px rgba(0,0,0,0.3), 0 2px 6px rgba(0,0,0,0.3)',
                   }}
                   onClick={() => setSelectedTrack(track.id)}
                 >
@@ -170,13 +176,14 @@ export const MiniMixerBar = () => {
               );
             })}
 
-            {/* Master channel */}
+            {/* Master channel with Elevated Effect */}
             <div
               className="flex flex-col border-2 rounded-lg"
               style={{
                 width: `${CHANNEL_WIDTH}px`,
-                background: 'hsl(220, 20%, 18%)',
+                background: 'linear-gradient(135deg, hsl(220, 20%, 20%) 0%, hsl(220, 20%, 18%) 50%, hsl(220, 20%, 16%) 100%)',
                 borderColor: 'hsl(180, 100%, 50%)',
+                boxShadow: '0 0 20px rgba(0, 255, 255, 0.3), inset 0 1px 2px rgba(0, 255, 255, 0.1), inset 0 -1px 2px rgba(0,0,0,0.4)',
               }}
             >
               <div className="flex-1 flex flex-col items-center justify-center p-2">
