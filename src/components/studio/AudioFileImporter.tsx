@@ -57,6 +57,7 @@ export const AudioFileImporter = () => {
         trackId,
         startTime: 0,
         duration: audioBuffer.duration,
+        audioBuffer, // Attach buffer to region for scheduler
         sourceStartOffset: 0,
         fadeIn: { duration: 0, curve: 'linear' },
         fadeOut: { duration: 0, curve: 'linear' },

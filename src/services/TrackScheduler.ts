@@ -117,10 +117,10 @@ export class TrackScheduler {
     const offsetInBuffer = Math.max(0, offsetSec - region.startTime) + (region.sourceStartOffset || 0);
     const durationToPlay = region.duration - Math.max(0, offsetSec - region.startTime);
 
-    // Get buffer
-    const buffer = region.audioBuffer;
+    // Get buffer (prefer region, fallback to track graph buffer if attached)
+    const buffer = region.audioBuffer || graph.bufferSource?.buffer || null;
     if (!buffer) {
-      console.log(`  Region ${regionNum}: ❌ No buffer available`);
+      console.log(`  Region ${regionNum}: ❌ No buffer available (region and track missing)`);
       return false;
     }
 
