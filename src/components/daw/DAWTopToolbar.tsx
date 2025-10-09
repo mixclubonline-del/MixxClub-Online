@@ -18,6 +18,8 @@ import { useAIStudioStore } from '@/stores/aiStudioStore';
 
 interface DAWTopToolbarProps {
   onToggleMixer: () => void;
+  onToggleBrowser: () => void;
+  onToggleStepSequencer: () => void;
   onOpenAIMixing: () => void;
   onOpenStemSeparation: () => void;
   onOpenCloudManager: () => void;
@@ -26,6 +28,8 @@ interface DAWTopToolbarProps {
 
 export const DAWTopToolbar = ({
   onToggleMixer,
+  onToggleBrowser,
+  onToggleStepSequencer,
   onOpenAIMixing,
   onOpenStemSeparation,
   onOpenCloudManager,
@@ -101,6 +105,24 @@ export const DAWTopToolbar = ({
 
       {/* View */}
       <div className="flex items-center gap-1">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onToggleBrowser}
+          className="hover:text-primary"
+        >
+          <Sliders className="w-4 h-4 mr-1" />
+          Browser
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onToggleStepSequencer}
+          className="hover:text-primary"
+        >
+          <Sliders className="w-4 h-4 mr-1" />
+          Sequencer
+        </Button>
         <Button
           variant={showMixer ? "secondary" : "ghost"}
           size="sm"
