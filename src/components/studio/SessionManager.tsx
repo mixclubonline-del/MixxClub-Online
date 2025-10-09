@@ -9,30 +9,30 @@ import { Play, Users, Hash } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
+import SessionCreationWizard from './SessionCreationWizard';
 
 export const SessionManager = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [sessionName, setSessionName] = useState('');
   const [sessionCode, setSessionCode] = useState('');
-  const [isCreating, setIsCreating] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
+  const [showWizard, setShowWizard] = useState(false);
 
-  const handleCreateSession = async () => {
-    if (!sessionName.trim()) {
-      toast.error("Please enter a session name");
-      return;
-    }
-
-    setIsCreating(true);
+  const handleCreateSession = async (sessionData: any) => {
     try {
       const { data: session, error } = await supabase
         .from('collaboration_sessions')
         .insert({
           host_user_id: user?.id,
-          session_name: sessionName,
-          session_type: 'collaboration',
-          status: 'active'
+          session_name: sessionData.name,
+          session_type: sessionData.type, // Now using valid type from wizard
+          status: 'active',
+          metadata: {
+            description: sessionData.description,
+            genre: sessionData.genre,
+            audioQuality: sessionData.audioQuality,
+            maxParticipants: sessionData.maxParticipants
+          }
         })
         .select()
         .single();
@@ -44,8 +44,6 @@ export const SessionManager = () => {
     } catch (error) {
       console.error('Error creating session:', error);
       toast.error("Failed to create session");
-    } finally {
-      setIsCreating(false);
     }
   };
 
@@ -86,6 +84,15 @@ export const SessionManager = () => {
     }
   };
 
+  if (showWizard) {
+    return (
+      <SessionCreationWizard
+        onComplete={handleCreateSession}
+        onCancel={() => setShowWizard(false)}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background p-6">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -109,22 +116,11 @@ export const SessionManager = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="session-name">Session Name</Label>
-                <Input
-                  id="session-name"
-                  placeholder="e.g., Summer Vibes Mix"
-                  value={sessionName}
-                  onChange={(e) => setSessionName(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleCreateSession()}
-                />
-              </div>
               <Button
-                onClick={handleCreateSession}
-                disabled={isCreating}
+                onClick={() => setShowWizard(true)}
                 className="w-full"
               >
-                {isCreating ? "Creating..." : "Create Session"}
+                Create Session
               </Button>
             </CardContent>
           </Card>
