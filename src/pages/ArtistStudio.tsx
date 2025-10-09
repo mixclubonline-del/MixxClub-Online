@@ -821,16 +821,3 @@ const ProStudio = ({ userRole = "artist", projectId }: ProStudioProps) => {
 };
 
 export default ProStudio;
-
-/* ==========================================================
-   OPTIONAL: If you place this file at /app/studio/page.tsx,
-   it will immediately work as a full page in Lovable.
-   If you place it at /components/studio/ProStudio.tsx,
-   create a tiny route that imports and renders it, e.g.:
-
-   // app/studio/page.tsx
-   import ProStudio from '@/components/studio/ProStudio';
-   export default function Page() {
-     return <ProStudio userRole="artist" projectId="<your-project-id>" />;
-   }
-   ========================================================== */
