@@ -39,7 +39,7 @@ import { AIAssistantPanel } from "@/components/studio/AIAssistantPanel";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useAudioPermissions } from "@/hooks/useAudioPermissions";
-import { useAudioEngineBridge } from "@/hooks/useAudioEngineBridge";
+import { useAudioEngineBridge } from "@/hooks/useAudioEngineBridge.ts";
 import { useAIStudioStore, Track, AudioRegion } from "@/stores/aiStudioStore";
 import { WaveformGenerator } from "@/services/waveformGenerator";
 import Navigation from "@/components/Navigation";
@@ -145,6 +145,7 @@ const HybridDAW = () => {
       const existsInStore = storeTracks.some(st => st.id === track.id);
       
       if (!existsInStore) {
+        console.log('[HybridDAW] Adding track to store:', track.name, 'hasBuffer:', !!track.audioBuffer);
         // Add new track with FULL data including audioBuffer and waveformData
         addStoreTrack({
           id: track.id,
@@ -162,13 +163,16 @@ const HybridDAW = () => {
           sends: track.sends || {},
         });
       } else {
-        // Update existing track (don't update audioBuffer/waveformData as they're immutable)
+        // Update existing track
         updateStoreTrack(track.id, {
           name: track.name,
           volume: track.volume,
           pan: track.pan || 0,
           mute: track.mute,
           solo: track.solo,
+          audioBuffer: track.audioBuffer,  // ✅ Update audio buffer if changed!
+          waveformData: track.waveformData, // ✅ Update waveform if changed!
+          regions: track.regions,  // ✅ Update regions!
         });
       }
     });
