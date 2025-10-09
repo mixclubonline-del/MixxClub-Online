@@ -26,7 +26,7 @@ import ProfileInsights from '@/components/crm/ProfileInsights';
 import SessionManager from '@/components/collaboration/SessionManager';
 import CollaborationWorkspace from '@/components/collaboration/CollaborationWorkspace';
 import { RealTimeCollaboration } from '@/components/RealTimeCollaboration';
-import ProDAW from '@/pages/ProDAW';
+import ProStudio from '@/pages/ProStudio';
 import { ArtistCRMChatbot } from '@/components/crm/ArtistCRMChatbot';
 import { ArtistCRMSlideshow } from '@/components/crm/ArtistCRMSlideshow';
 import { ArtistAssistantIntro } from '@/components/crm/ArtistAssistantIntro';
@@ -331,7 +331,7 @@ const ArtistCRM = () => {
       case 'studio':
         return (
           <div className="h-[calc(100vh-4rem)]">
-            <ProDAW />
+            <ProStudio userRole="artist" />
           </div>
         );
 

@@ -13,7 +13,7 @@ import EnhancedCRM from '@/components/crm/EnhancedCRM';
 import SessionManager from '@/components/collaboration/SessionManager';
 import CollaborationWorkspace from '@/components/collaboration/CollaborationWorkspace';
 import { RealTimeCollaboration } from '@/components/RealTimeCollaboration';
-import ProDAW from '@/pages/ProDAW';
+import ProStudio from '@/pages/ProStudio';
 import { toast } from 'sonner';
 import { JobPool } from '@/components/JobPool';
 import { EarningsOverview } from '@/components/engineer/EarningsOverview';
@@ -380,7 +380,7 @@ const EngineerCRM = () => {
       case 'studio':
         return (
           <div className="h-[calc(100vh-4rem)]">
-            <ProDAW />
+            <ProStudio userRole="engineer" />
           </div>
         );
 
