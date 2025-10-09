@@ -1,4 +1,4 @@
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -71,8 +71,9 @@ Deno.serve(async (req) => {
     );
   } catch (error) {
     console.error('Error in generate-ai-avatar:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to generate avatar';
     return new Response(
-      JSON.stringify({ error: error.message || 'Failed to generate avatar' }),
+      JSON.stringify({ error: errorMessage }),
       { 
         status: 500, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
