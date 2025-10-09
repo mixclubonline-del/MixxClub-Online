@@ -167,10 +167,26 @@ export function useAudioEngineBridge() {
     (async () => {
       await audioEngine.resume();
       if (isPlaying) {
-        console.log('[AudioEngineBridge] Playing from', currentTime.toFixed(3), 's');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('[AudioEngineBridge] ▶️ PLAY requested');
+        console.log('[AudioEngineBridge] Starting from:', currentTime.toFixed(3), 's');
+        console.log('[AudioEngineBridge] Tracks to play:', tracks.length);
+        
+        tracks.forEach((t, i) => {
+          console.log(`[AudioEngineBridge] Track ${i + 1}:`, {
+            name: t.name,
+            hasBuffer: !!t.audioBuffer,
+            regionCount: t.regions?.length || 0,
+          });
+        });
+        
         audioEngine.stop(); // Stop any previous playback
         audioEngine.play(currentTime); // Start from current position
+        
+        console.log('[AudioEngineBridge] ✅ Play command sent to engine');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       } else {
+        console.log('[AudioEngineBridge] ⏸️ PAUSE requested');
         audioEngine.pause();
       }
     })();
@@ -192,15 +208,28 @@ export function useAudioEngineBridge() {
   useEffect(() => {
     if (!isPlaying) return;
     
+    console.log('[AudioEngineBridge] 🔄 Starting position sync loop');
     let raf = 0;
+    let frameCount = 0;
+    
     const syncPosition = () => {
       const pos = audioEngine.getPlaybackPosition();
+      
+      // Log every 30 frames (~0.5s at 60fps)
+      if (frameCount % 30 === 0) {
+        console.log('[AudioEngineBridge] ⏱️ Position:', pos.toFixed(3), 's');
+      }
+      frameCount++;
+      
       useAIStudioStore.getState().setCurrentTime(pos);
       raf = requestAnimationFrame(syncPosition);
     };
     
     raf = requestAnimationFrame(syncPosition);
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      console.log('[AudioEngineBridge] 🛑 Stopping position sync loop');
+      cancelAnimationFrame(raf);
+    };
   }, [isPlaying]);
 
   // ===== RAF Metering Loop (per-track + master) =====

@@ -118,10 +118,11 @@ const HybridDAW = () => {
     setStorePlaying(isPlaying);
   }, [isPlaying, setStorePlaying]);
 
-  // Sync current time to store
+  // Sync current time from store to local (for UI display)
+  const storeCurrentTime = useAIStudioStore((state) => state.currentTime);
   useEffect(() => {
-    setStoreCurrentTime(currentTime);
-  }, [currentTime, setStoreCurrentTime]);
+    setCurrentTime(storeCurrentTime);
+  }, [storeCurrentTime]);
 
   // Sync master volume to store
   useEffect(() => {
@@ -563,7 +564,8 @@ const HybridDAW = () => {
 
   // Seek to time position
   const seekToTime = (time: number) => {
-    setCurrentTime(time);
+    console.log('[HybridDAW] Seeking to:', time.toFixed(3), 's');
+    setStoreCurrentTime(time);
     // audioEngine will handle the seek via useAudioEngineBridge
   };
 

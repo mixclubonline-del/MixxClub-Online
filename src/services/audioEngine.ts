@@ -477,7 +477,11 @@ class AudioEngine {
   }
 
   getPlaybackPosition(): number {
-    return this.playing ? this.ctx.currentTime - this.startedAt : this.pausedAt;
+    if (!this.playing) {
+      return this.pausedAt;
+    }
+    const pos = this.ctx.currentTime - this.startedAt;
+    return Math.max(0, pos);
   }
 
   stopAllTracks() {
