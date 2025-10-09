@@ -58,8 +58,8 @@ export const WaveformTimeline = ({
   const removeRegion = useAIStudioStore((state) => state.removeRegion);
   const updateRegion = useAIStudioStore((state) => state.updateRegion);
 
-  // Generate simplified waveform data
-  const generateWaveform = (type: Track['type']) => {
+  // Generate fallback waveform if real data not available
+  const generateFallbackWaveform = (type: Track['type']) => {
     const points = 100;
     const data: number[] = [];
     
@@ -80,6 +80,16 @@ export const WaveformTimeline = ({
     }
     
     return data;
+  };
+
+  // Convert Float32Array to regular array for rendering
+  const getWaveformData = (track: Track): number[] => {
+    if (track.waveformData && track.waveformData.length > 0) {
+      // Use real waveform data from audio buffer
+      return Array.from(track.waveformData);
+    }
+    // Fallback to generated waveform
+    return generateFallbackWaveform(track.type);
   };
 
   // Get color for track type - Purple to Cyan gradient spectrum
@@ -212,8 +222,8 @@ export const WaveformTimeline = ({
           : 'hsl(220, 18%, 20%)';
         ctx.fillRect(regionX, trackY + 4, regionWidth, trackHeight - 8);
         
-        // Draw waveform within region bounds
-        const waveformData = track.waveformData || generateWaveform(track.type);
+        // Draw waveform within region bounds - use REAL waveform data
+        const waveformData = getWaveformData(track);
         const gradient = ctx.createLinearGradient(regionX, trackY, regionX, trackY + trackHeight);
         const rgb = getRgbFromHsl(trackColor);
         gradient.addColorStop(0, `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.8)`);

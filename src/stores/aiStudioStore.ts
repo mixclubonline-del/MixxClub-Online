@@ -21,7 +21,9 @@ export interface Track {
   mute: boolean;
   solo: boolean;
   audioBuffer?: AudioBuffer;
-  waveformData?: number[];
+  audioFileId?: string; // Link to audio_files table
+  filePath?: string; // Storage path for loading
+  waveformData?: Float32Array; // Real waveform peaks
   peakLevel: number;
   rmsLevel: number;
   analysis?: AudioAnalysis;
