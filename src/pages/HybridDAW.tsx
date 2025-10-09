@@ -20,7 +20,9 @@ import {
   Trophy,
   Gamepad2,
   Download,
-  Upload
+  Upload,
+  Save,
+  FolderOpen
 } from "lucide-react";
 import EnhancedDAWTimeline from "@/components/daw/EnhancedDAWTimeline";
 import DAWMixerPanel from "@/components/daw/DAWMixerPanel";
@@ -30,9 +32,14 @@ import DAWEffectsPanel from "@/components/daw/DAWEffectsPanel";
 import DAWGamification from "@/components/daw/DAWGamification";
 import AudioImportDialog from "@/components/AudioImportDialog";
 import StemSeparationWindow from "@/components/studio/StemSeparationWindow";
+import { CloudProjectManager } from "@/components/daw/CloudProjectManager";
+import { PrimeBotAssistant } from "@/components/studio/PrimeBotAssistant";
+import { AIAssistantPanel } from "@/components/studio/AIAssistantPanel";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useAudioPermissions } from "@/hooks/useAudioPermissions";
+import { useAudioEngineBridge } from "@/hooks/useAudioEngineBridge";
+import { useAIStudioStore } from "@/stores/aiStudioStore";
 import Navigation from "@/components/Navigation";
 
 export interface Track {
@@ -91,6 +98,8 @@ const HybridDAW = () => {
   const [activePanel, setActivePanel] = useState<'timeline' | 'mixer' | 'effects' | 'collab' | 'achievements'>('timeline');
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [showStemSeparationDialog, setShowStemSeparationDialog] = useState(false);
+  const [showCloudManager, setShowCloudManager] = useState(false);
+  const [showAIAssistant, setShowAIAssistant] = useState(false);
   
   // Collaboration State
   const [collaborators, setCollaborators] = useState<CollaborationUser[]>([]);
@@ -112,6 +121,9 @@ const HybridDAW = () => {
     { id: 'collab-master', title: 'Team Player', description: 'Collaborate with another user', unlocked: false },
     { id: 'effect-wizard', title: 'Effect Master', description: 'Apply 5 different effects', unlocked: false },
   ]);
+
+  // Initialize Audio Engine Bridge
+  useAudioEngineBridge();
 
   // Initialize Audio Context
   useEffect(() => {
@@ -585,8 +597,14 @@ const HybridDAW = () => {
         <div className="px-6 py-3 flex items-center justify-between">
           {/* Left - Transport Controls */}
           <div className="flex items-center gap-3">
-            <Button variant="glass" size="sm" className="text-xs font-semibold">
-              FILE
+            <Button 
+              variant="glass" 
+              size="sm" 
+              onClick={() => setShowCloudManager(true)}
+              className="text-xs font-semibold gap-2"
+            >
+              <FolderOpen className="w-3 h-3" />
+              PROJECT
             </Button>
             <div className="w-px h-8 bg-border/50" />
             
@@ -694,6 +712,16 @@ const HybridDAW = () => {
             >
               <Sparkles className="w-4 h-4" />
               <span className="text-xs font-semibold">SEPARATE STEMS</span>
+            </Button>
+            
+            <Button 
+              variant="glass" 
+              size="sm"
+              onClick={() => setShowAIAssistant(!showAIAssistant)}
+              className="gap-2"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span className="text-xs font-semibold">AI ASSISTANT</span>
             </Button>
             
             <div className="w-px h-8 bg-border/50" />
@@ -974,6 +1002,24 @@ const HybridDAW = () => {
           onStemsProcessed={handleStemsProcessed}
         />
       )}
+
+      {/* Cloud Project Manager */}
+      {showCloudManager && (
+        <CloudProjectManager
+          isOpen={showCloudManager}
+          onClose={() => setShowCloudManager(false)}
+        />
+      )}
+
+      {/* AI Assistant Panel */}
+      {showAIAssistant && (
+        <div className="fixed right-4 bottom-4 z-50 w-96 animate-slide-up">
+          <AIAssistantPanel />
+        </div>
+      )}
+
+      {/* PrimeBot Assistant */}
+      <PrimeBotAssistant message="Ready to help with your production!" />
     </div>
   );
 };

@@ -19,8 +19,6 @@ import PrimeStatusBar from "@/components/prime/PrimeStatusBar";
 // Lazy load heavy components
 const MixClubHome = React.lazy(() => import("./pages/MixClubHome"));
 const Home = React.lazy(() => import("./pages/Home"));
-const ProStudio = React.lazy(() => import("./pages/ProStudio"));
-const ProDAW = React.lazy(() => import("./pages/ProDAW"));
 
 // Keep IntroScene non-lazy since it's the landing page
 import IntroScene from "./pages/IntroScene";
@@ -51,8 +49,6 @@ import HybridOnboarding from "./pages/HybridOnboarding";
 import Dashboard from "./pages/Dashboard";
 import ArtistDashboard from "./pages/ArtistDashboard";
 import EngineerDashboard from "./pages/EngineerDashboard";
-import ArtistStudio from "./pages/ArtistStudio";
-import EngineerStudio from "./pages/EngineerStudio";
 import { SessionManager } from "./components/studio/SessionManager";
 import SessionWorkspace from "./pages/SessionWorkspace";
 import { SessionWorkspacePage } from "./pages/SessionWorkspacePage";
@@ -238,7 +234,6 @@ const AppContent = () => {
             <Route path="/engineer/:userId" element={<EngineerProfile />} />
             <Route path="/audio-lab" element={<AudioLab />} />
             <Route path="/hybrid-daw" element={<HybridDAW />} />
-            <Route path="/pro-daw" element={<ProDAW />} />
             <Route path="/project/:projectId" element={<AppLayout><ProjectDetail /></AppLayout>} />
             <Route path="/coming-soon" element={<ComingSoon />} />
             <Route path="/faq" element={<FAQ />} />
