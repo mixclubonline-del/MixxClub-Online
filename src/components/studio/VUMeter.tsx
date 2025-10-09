@@ -92,3 +92,6 @@ export const VUMeter: React.FC<VUMeterProps> = ({
     </div>
   );
 };
+
+// Export alias for compatibility
+export const AudioMeter = VUMeter;
