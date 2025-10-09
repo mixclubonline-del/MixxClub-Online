@@ -235,7 +235,7 @@ export const WaveformTimeline = ({
           : 'hsl(220, 18%, 20%)';
         ctx.fillRect(regionX, trackY + 4, regionWidth, trackHeight - 8);
         
-        // Draw waveform within region bounds - use REAL waveform data
+        // Draw waveform within region bounds - use REAL waveform data with proper sync
         const waveformData = getWaveformData(track);
         const gradient = ctx.createLinearGradient(regionX, trackY, regionX, trackY + trackHeight);
         const rgb = getRgbFromHsl(trackColor);
@@ -247,17 +247,29 @@ export const WaveformTimeline = ({
         ctx.beginPath();
         ctx.moveTo(regionX, trackY + trackHeight / 2);
         
+        // Calculate proper sample mapping - map region pixels to waveform samples
         const regionSamples = Math.floor(regionWidth);
+        const audioDuration = track.audioBuffer?.duration || region.duration;
+        
         for (let x = 0; x < regionSamples; x++) {
-          const dataIndex = Math.floor(((region.sourceStartOffset * pixelsPerSecond + x) / (duration * pixelsPerSecond)) * waveformData.length);
-          const amplitude = (waveformData[dataIndex] || 0) * region.gain;
+          // Time within the region (in seconds)
+          const pixelTime = x / pixelsPerSecond;
+          // Time in the source audio buffer
+          const sourceTime = region.sourceStartOffset + pixelTime;
+          // Map to waveform data index (0 to waveformData.length)
+          const sourceProgress = sourceTime / audioDuration;
+          const dataIndex = Math.floor(sourceProgress * waveformData.length);
+          const amplitude = (waveformData[Math.max(0, Math.min(waveformData.length - 1, dataIndex))] || 0) * region.gain;
           const y = trackY + (trackHeight / 2) - (amplitude * (trackHeight - 8) * 0.3);
           ctx.lineTo(regionX + x, y);
         }
         
         for (let x = regionSamples - 1; x >= 0; x--) {
-          const dataIndex = Math.floor(((region.sourceStartOffset * pixelsPerSecond + x) / (duration * pixelsPerSecond)) * waveformData.length);
-          const amplitude = (waveformData[dataIndex] || 0) * region.gain;
+          const pixelTime = x / pixelsPerSecond;
+          const sourceTime = region.sourceStartOffset + pixelTime;
+          const sourceProgress = sourceTime / audioDuration;
+          const dataIndex = Math.floor(sourceProgress * waveformData.length);
+          const amplitude = (waveformData[Math.max(0, Math.min(waveformData.length - 1, dataIndex))] || 0) * region.gain;
           const y = trackY + (trackHeight / 2) + (amplitude * (trackHeight - 8) * 0.3);
           ctx.lineTo(regionX + x, y);
         }
@@ -406,71 +418,79 @@ export const WaveformTimeline = ({
         background: 'hsl(220, 20%, 14%)',
       }}
     >
-      {/* Timeline Header */}
+      {/* Timeline Header - Simplified */}
       <div 
-        className="flex items-center justify-between px-4 py-2 border-b"
+        className="flex items-center justify-between px-3 py-1.5 border-b"
         style={{
           background: 'var(--panel-gradient)',
           borderColor: 'hsl(220, 14%, 28%)',
-          boxShadow: 'var(--shadow-raised)',
         }}
       >
-        <div className="flex items-center gap-4">
-          <span className="text-xs font-mono text-[hsl(var(--studio-text-dim))] uppercase tracking-wider">
-            Arrangement
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setZoom(Math.max(0.5, zoom - 0.5))}
+            className="h-7 w-7"
+          >
+            <ZoomOut className="w-3.5 h-3.5" />
+          </Button>
+          <span className="text-[10px] font-mono text-[hsl(var(--studio-text-dim))] min-w-[2.5rem] text-center">
+            {Math.round(zoom * 100)}%
           </span>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setZoom(Math.max(0.5, zoom - 0.5))}
-              className="p-1 hover:bg-[hsl(var(--studio-panel-raised))] rounded transition"
-            >
-              <ZoomOut className="w-4 h-4 text-[hsl(var(--studio-text-dim))]" />
-            </button>
-            <span className="text-xs font-mono text-[hsl(var(--studio-text-dim))] min-w-[3rem] text-center">
-              {Math.round(zoom * 100)}%
-            </span>
-            <button
-              onClick={() => setZoom(Math.min(4, zoom + 0.5))}
-              className="p-1 hover:bg-[hsl(var(--studio-panel-raised))] rounded transition"
-            >
-              <ZoomIn className="w-4 h-4 text-[hsl(var(--studio-text-dim))]" />
-            </button>
-          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setZoom(Math.min(4, zoom + 0.5))}
+            className="h-7 w-7"
+          >
+            <ZoomIn className="w-3.5 h-3.5" />
+          </Button>
           
-          <div className="flex items-center gap-2 ml-4">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant={snapEnabled ? "default" : "outline"}
-                  size="sm"
-                  className="h-7"
-                >
-                  <Magnet className="w-3 h-3 mr-1" />
-                  Snap: {getSnapLabel()}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => setSnapEnabled(!snapEnabled)}>
-                  {snapEnabled ? 'Disable' : 'Enable'} Snap
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSnapMode('bars')}>Bars</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSnapMode('beats')}>Beats</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSnapMode('quarter')}>1/4 Note</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSnapMode('eighth')}>1/8 Note</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSnapMode('sixteenth')}>1/16 Note</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            
-            <Button
-              variant={scrollMode === 'continuous' ? "default" : "outline"}
-              size="sm"
-              onClick={() => setScrollMode(scrollMode === 'continuous' ? 'none' : 'continuous')}
-              className="h-7"
-            >
-              <Navigation className="w-3 h-3 mr-1" />
-              Follow
-            </Button>
-          </div>
+          <div className="w-px h-5 bg-[hsl(220,14%,28%)] mx-1" />
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant={snapEnabled ? "default" : "ghost"}
+                size="sm"
+                className="h-7 px-2 gap-1"
+              >
+                <Magnet className="w-3 h-3" />
+                <span className="text-[10px]">{getSnapLabel()}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => setSnapEnabled(!snapEnabled)}>
+                {snapEnabled ? 'Disable' : 'Enable'} Snap
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSnapMode('bars')}>Bars</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSnapMode('beats')}>Beats</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSnapMode('quarter')}>1/4 Note</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSnapMode('eighth')}>1/8 Note</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSnapMode('sixteenth')}>1/16 Note</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant={scrollMode !== 'none' ? "default" : "ghost"}
+                size="sm"
+                className="h-7 px-2 gap-1"
+              >
+                <Navigation className="w-3 h-3" />
+                <span className="text-[10px]">
+                  {scrollMode === 'continuous' ? 'Follow' : scrollMode === 'page' ? 'Page' : 'Static'}
+                </span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => setScrollMode('none')}>Static</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setScrollMode('page')}>Page Scroll</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setScrollMode('continuous')}>Follow Playhead</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         
         <div className="flex items-center gap-2">

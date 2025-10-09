@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAIStudioStore } from '@/stores/aiStudioStore';
 import { WaveformTimeline } from '@/components/studio/WaveformTimeline';
@@ -119,69 +120,83 @@ const ProStudio = ({ userRole = 'artist' }: ProStudioProps) => {
     <div className="min-h-screen bg-[hsl(220,20%,14%)] flex flex-col">
       <Navigation />
       
-      {/* Studio Header */}
+      {/* Studio Header - Simplified */}
       <div 
-        className="border-b px-6 py-4"
+        className="border-b px-6 py-3"
         style={{
           background: 'var(--panel-gradient)',
           borderColor: 'hsl(220, 14%, 28%)',
         }}
       >
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Music2 className="w-6 h-6 text-[hsl(var(--studio-accent))]" />
-            <div>
-              <h1 className="text-xl font-bold text-[hsl(var(--studio-text))]">
-                Professional Studio {userRole === 'engineer' ? '(Engineer)' : '(Artist)'}
-              </h1>
-              <p className="text-xs text-[hsl(var(--studio-text-dim))]">
-                Real Waveforms • Sample-Accurate Playback • Professional Tools
-              </p>
-            </div>
+          <div className="flex items-center gap-3">
+            <Music2 className="w-5 h-5 text-[hsl(var(--studio-accent))]" />
+            <h1 className="text-lg font-semibold text-[hsl(var(--studio-text))]">
+              Professional Studio
+            </h1>
+            {userRole && (
+              <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                {userRole}
+              </Badge>
+            )}
           </div>
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <AudioFileImporter />
             <AudioSettingsButton />
           </div>
         </div>
       </div>
 
-      {/* Transport & Recording Controls */}
+      {/* Transport Bar - Compact */}
       <div 
-        className="border-b px-6 py-3"
+        className="border-b px-6 py-2"
         style={{
           background: 'hsl(220, 18%, 16%)',
           borderColor: 'hsl(220, 14%, 28%)',
         }}
       >
-        <div className="flex items-center justify-between gap-6">
-          <StudioTransport />
-          
-          <RecordingControls
-            isRecording={isRecording}
-            onRecordToggle={() => setRecording(!isRecording)}
-            tempo={tempo}
-            metronomeEnabled={metronomeEnabled}
-            onMetronomeToggle={() => setMetronomeEnabled(!metronomeEnabled)}
-            countInBars={countInBars}
-            onCountInChange={setCountInBars}
-            inputMonitoring={inputMonitoring}
-            onInputMonitoringToggle={() => setInputMonitoring(!inputMonitoring)}
-            punchInEnabled={punchInEnabled}
-            onPunchInToggle={() => setPunchInEnabled(!punchInEnabled)}
-          />
-          
+        <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="text-xs font-mono text-[hsl(var(--studio-text-dim))]">
-              {tempo} BPM
+            <StudioTransport />
+            
+            <div className="w-px h-8 bg-[hsl(220,14%,28%)]" />
+            
+            <div className="flex items-center gap-3 text-[10px] font-mono text-[hsl(var(--studio-text-dim))]">
+              <span>{tempo} BPM</span>
+              <span>•</span>
+              <span>{audioEngine.getLatency().toFixed(1)}ms</span>
+              <span>•</span>
+              <span>{tracks.length} tracks</span>
             </div>
-            <div className="text-xs font-mono text-[hsl(var(--studio-text-dim))]">
-              Latency: {audioEngine.getLatency().toFixed(1)}ms
-            </div>
-            <div className="text-xs font-mono text-[hsl(var(--studio-text-dim))]">
-              {tracks.length} tracks
-            </div>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Button
+              variant={isRecording ? 'destructive' : 'ghost'}
+              size="sm"
+              onClick={() => setRecording(!isRecording)}
+              className="h-7"
+            >
+              <Mic className="w-3 h-3 mr-1" />
+              {isRecording ? 'Recording' : 'Record'}
+            </Button>
+            
+            {(isRecording || metronomeEnabled || recordArmedTracks.size > 0) && (
+              <RecordingControls
+                isRecording={isRecording}
+                onRecordToggle={() => setRecording(!isRecording)}
+                tempo={tempo}
+                metronomeEnabled={metronomeEnabled}
+                onMetronomeToggle={() => setMetronomeEnabled(!metronomeEnabled)}
+                countInBars={countInBars}
+                onCountInChange={setCountInBars}
+                inputMonitoring={inputMonitoring}
+                onInputMonitoringToggle={() => setInputMonitoring(!inputMonitoring)}
+                punchInEnabled={punchInEnabled}
+                onPunchInToggle={() => setPunchInEnabled(!punchInEnabled)}
+              />
+            )}
           </div>
         </div>
       </div>
@@ -402,31 +417,31 @@ const ProStudio = ({ userRole = 'artist' }: ProStudioProps) => {
         </Tabs>
       </div>
 
-      {/* Status Bar */}
+      {/* Status Bar - Minimal */}
       <div 
-        className="border-t px-6 py-2"
+        className="border-t px-6 py-1.5"
         style={{
           background: 'hsl(220, 18%, 16%)',
           borderColor: 'hsl(220, 14%, 28%)',
         }}
       >
-        <div className="flex items-center justify-between text-xs text-[hsl(var(--studio-text-dim))]">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-green-500"></div>
-              Audio Engine Ready
+        <div className="flex items-center gap-3 text-[10px] text-[hsl(var(--studio-text-dim))]">
+          <div className="flex items-center gap-1.5">
+            <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
+            Audio
+          </div>
+          {isRecording && (
+            <div className="flex items-center gap-1.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></div>
+              REC
             </div>
-            {isRecording && (
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
-                Recording
-              </div>
-            )}
-          </div>
-          
-          <div>
-            Phase 1 Complete: Real Waveforms • Sample-Accurate Timing • Latency Compensation
-          </div>
+          )}
+          {isPlaying && (
+            <div className="flex items-center gap-1.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+              Playing
+            </div>
+          )}
         </div>
       </div>
     </div>
