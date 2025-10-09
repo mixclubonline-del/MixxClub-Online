@@ -1,269 +1,279 @@
-"use client";
+import { create } from 'zustand';
 
-import { useEffect, useMemo, useRef } from "react";
-import { useAIStudioStore } from "@/stores/aiStudioStore";
-import { audioEngine } from "@/services/audioEngine";
+export interface AudioRegion {
+  id: string;
+  trackId: string;
+  startTime: number;
+  duration: number;
+  audioBuffer?: AudioBuffer;
+  offset: number;
+  fadeIn: number;
+  fadeOut: number;
+  gain: number;
+  locked: boolean;
+  color?: string;
+  name: string;
+}
 
-/**
- * Bridges Zustand store <-> audioEngine graph.
- * - Creates/removes engine tracks when store.tracks change
- * - Applies gain/pan/sends/effects
- * - Streams analyser values back into store (track peak/rms + master)
- * - Controls transport (play/pause) and master volume
- *
- * Usage:
- *   In ProStudio.tsx (top-level):
- *     import { useAudioEngineBridge } from '@/hooks/useAudioEngineBridge';
- *     ...
- *     useAudioEngineBridge();
- */
-export function useAudioEngineBridge() {
-  // ===== Store selectors (keep them granular to avoid rerenders) =====
-  const tracks = useAIStudioStore((s) => s.tracks);
-  const isPlaying = useAIStudioStore((s) => s.isPlaying);
-  const masterVolume = useAIStudioStore((s) => s.masterVolume);
-  const setPlaying = useAIStudioStore((s) => s.setPlaying);
-  const updateTrack = useAIStudioStore((s) => s.updateTrack);
-  const updateMasterLevels = useAIStudioStore((s) => s.updateMasterLevels);
+export interface EffectUnit {
+  id: string;
+  type: 'eq' | 'compressor' | 'reverb' | 'delay' | 'limiter' | 'saturator' | 'mixxtune';
+  enabled: boolean;
+  rackPosition: number;
+  parameters?: Record<string, any>;
+  preset?: string;
+}
 
-  // Engine track existence map to avoid recreation churn
-  const attachedRef = useRef<Set<string>>(new Set());
+export interface SendUnit {
+  amount: number;
+  preFader?: boolean;
+}
 
-  // ===== One-time engine resume =====
-  useEffect(() => {
-    audioEngine.resume().catch(() => void 0);
-  }, []);
+export interface Track {
+  id: string;
+  name: string;
+  type: 'audio' | 'midi' | 'bus';
+  color: string;
+  volume: number;
+  pan: number;
+  mute: boolean;
+  solo: boolean;
+  armed: boolean;
+  audioBuffer?: AudioBuffer;
+  busGroupId?: string;
+  effects?: EffectUnit[];
+  sends?: Record<string, SendUnit>;
+  peakLevel?: number;
+  rmsLevel?: number;
+  regions?: AudioRegion[];
+  waveformData?: number[];
+}
 
-  // ===== Mirror master volume into engine =====
-  useEffect(() => {
-    audioEngine.setMasterGain(masterVolume ?? 1);
-  }, [masterVolume]);
+export interface BusGroup {
+  id: string;
+  name: string;
+  color: string;
+  volume: number;
+  pan: number;
+  mute: boolean;
+  solo: boolean;
+  effects?: EffectUnit[];
+  isReturnBus?: boolean;
+}
 
-  // ===== Create / remove tracks in engine when store.tracks changes =====
-  useEffect(() => {
-    const existing = attachedRef.current;
+export interface TimeSelection {
+  start: number;
+  end: number;
+}
 
-    // Add any new tracks not yet attached
-    for (const t of tracks) {
-      if (!existing.has(t.id)) {
-        const g = audioEngine.createTrack({
-          id: t.id,
-          name: t.name,
-          buffer: t.audioBuffer ?? undefined,
-          groupId: t.busGroupId,
-        });
+interface AIStudioStore {
+  tracks: Track[];
+  busGroups: BusGroup[];
+  regions: AudioRegion[];
+  selectedRegions: string[];
+  selectedTrackId: string | null;
+  isPlaying: boolean;
+  currentTime: number;
+  bpm: number;
+  tempo: number;
+  duration: number;
+  masterVolume: number;
+  masterPeakLevel: number;
+  timeSelection: TimeSelection | null;
+  
+  // Track actions
+  addTrack: (track: Track) => void;
+  updateTrack: (id: string, updates: Partial<Track>) => void;
+  removeTrack: (id: string) => void;
+  selectTrack: (id: string | null) => void;
+  setSelectedTrack: (id: string | null) => void;
+  
+  // Bus actions
+  addBusGroup: (bus: BusGroup) => void;
+  updateBusGroup: (id: string, updates: Partial<BusGroup>) => void;
+  removeBusGroup: (id: string) => void;
+  createBusGroup: (bus: BusGroup) => void;
+  deleteBusGroup: (id: string) => void;
+  
+  // Region actions
+  addRegion: (region: AudioRegion) => void;
+  updateRegion: (id: string, updates: Partial<AudioRegion>) => void;
+  removeRegion: (id: string) => void;
+  selectRegion: (id: string, addToSelection?: boolean) => void;
+  clearRegionSelection: () => void;
+  duplicateRegion: (id: string) => void;
+  reverseRegion: (id: string) => void;
+  
+  // Effect actions
+  addTrackEffect: (trackId: string, effect: EffectUnit) => void;
+  updateTrackEffect: (trackId: string, effectId: string, updates: Partial<EffectUnit>) => void;
+  removeTrackEffect: (trackId: string, effectId: string) => void;
+  
+  // Transport actions
+  setPlaying: (playing: boolean) => void;
+  setCurrentTime: (time: number) => void;
+  setBpm: (bpm: number) => void;
+  setTempo: (tempo: number) => void;
+  
+  // Master actions
+  setMasterVolume: (volume: number) => void;
+  updateMasterLevels: (peak: number) => void;
+  
+  // Selection actions
+  setTimeSelection: (selection: TimeSelection | null) => void;
+}
 
-        // Initial params
-        audioEngine.setTrackGain(g.id, t.volume ?? 0.85);
-        audioEngine.setTrackPan(g.id, t.pan ?? 0);
-
-        // Sends
-        if (t.sends) {
-          for (const [busId, send] of Object.entries(t.sends)) {
-            audioEngine.setSendLevel(g.id, busId, send.amount ?? 0);
+export const useAIStudioStore = create<AIStudioStore>((set, get) => ({
+  tracks: [],
+  busGroups: [],
+  regions: [],
+  selectedRegions: [],
+  selectedTrackId: null,
+  isPlaying: false,
+  currentTime: 0,
+  bpm: 120,
+  tempo: 120,
+  duration: 240,
+  masterVolume: 1,
+  masterPeakLevel: -Infinity,
+  timeSelection: null,
+  
+  addTrack: (track) => set((state) => ({ 
+    tracks: [...state.tracks, track] 
+  })),
+  
+  updateTrack: (id, updates) => set((state) => ({
+    tracks: state.tracks.map(t => t.id === id ? { ...t, ...updates } : t)
+  })),
+  
+  removeTrack: (id) => set((state) => ({
+    tracks: state.tracks.filter(t => t.id !== id),
+    regions: state.regions.filter(r => r.trackId !== id),
+    selectedTrackId: state.selectedTrackId === id ? null : state.selectedTrackId
+  })),
+  
+  selectTrack: (id) => set({ selectedTrackId: id }),
+  
+  setSelectedTrack: (id) => set({ selectedTrackId: id }),
+  
+  addBusGroup: (bus) => set((state) => ({ 
+    busGroups: [...state.busGroups, bus] 
+  })),
+  
+  updateBusGroup: (id, updates) => set((state) => ({
+    busGroups: state.busGroups.map(b => b.id === id ? { ...b, ...updates } : b)
+  })),
+  
+  removeBusGroup: (id) => set((state) => ({
+    busGroups: state.busGroups.filter(b => b.id !== id)
+  })),
+  
+  createBusGroup: (bus) => set((state) => ({ 
+    busGroups: [...state.busGroups, bus] 
+  })),
+  
+  deleteBusGroup: (id) => set((state) => ({
+    busGroups: state.busGroups.filter(b => b.id !== id)
+  })),
+  
+  addRegion: (region) => set((state) => ({ 
+    regions: [...state.regions, region] 
+  })),
+  
+  updateRegion: (id, updates) => set((state) => ({
+    regions: state.regions.map(r => r.id === id ? { ...r, ...updates } : r)
+  })),
+  
+  removeRegion: (id) => set((state) => ({
+    regions: state.regions.filter(r => r.id !== id),
+    selectedRegions: state.selectedRegions.filter(rid => rid !== id)
+  })),
+  
+  selectRegion: (id, addToSelection) => set((state) => ({
+    selectedRegions: addToSelection 
+      ? [...state.selectedRegions, id]
+      : [id]
+  })),
+  
+  clearRegionSelection: () => set({ selectedRegions: [] }),
+  
+  duplicateRegion: (id) => set((state) => {
+    const region = state.regions.find(r => r.id === id);
+    if (!region) return state;
+    const newRegion: AudioRegion = {
+      ...region,
+      id: `region-${Date.now()}`,
+      startTime: region.startTime + region.duration,
+    };
+    return { regions: [...state.regions, newRegion] };
+  }),
+  
+  reverseRegion: (id) => set((state) => {
+    const region = state.regions.find(r => r.id === id);
+    if (!region || !region.audioBuffer) return state;
+    
+    const buffer = region.audioBuffer;
+    const reversed = new AudioBuffer({
+      length: buffer.length,
+      numberOfChannels: buffer.numberOfChannels,
+      sampleRate: buffer.sampleRate,
+    });
+    
+    for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
+      const original = buffer.getChannelData(channel);
+      const reversedData = reversed.getChannelData(channel);
+      for (let i = 0; i < buffer.length; i++) {
+        reversedData[i] = original[buffer.length - 1 - i];
+      }
+    }
+    
+    return {
+      regions: state.regions.map(r =>
+        r.id === id ? { ...r, audioBuffer: reversed } : r
+      )
+    };
+  }),
+  
+  addTrackEffect: (trackId, effect) => set((state) => ({
+    tracks: state.tracks.map(t => 
+      t.id === trackId 
+        ? { ...t, effects: [...(t.effects || []), effect] }
+        : t
+    )
+  })),
+  
+  updateTrackEffect: (trackId, effectId, updates) => set((state) => ({
+    tracks: state.tracks.map(t =>
+      t.id === trackId
+        ? {
+            ...t,
+            effects: t.effects?.map(e =>
+              e.id === effectId ? { ...e, ...updates } : e
+            )
           }
-        }
-
-        // Effects (insert chain)
-        (t.effects ?? [])
-          .sort((a, b) => (a.rackPosition ?? 0) - (b.rackPosition ?? 0))
-          .forEach((fx) => {
-            audioEngine.addPlugin(g.id, {
-              type: mapEffectTypeToPlugin(fx.type),
-              bypass: !fx.enabled,
-            });
-          });
-
-        existing.add(t.id);
-      }
-    }
-
-    // Remove engine tracks that no longer exist in store
-    for (const id of Array.from(existing)) {
-      if (!tracks.find((t) => t.id === id)) {
-        audioEngine.removeTrack(id);
-        existing.delete(id);
-      }
-    }
-  }, [tracks]);
-
-  // ===== Incremental param sync (gain/pan/sends/effects/buffer changes) =====
-  useEffect(() => {
-    for (const t of tracks) {
-      // Gain & Pan
-      audioEngine.setTrackGain(t.id, clamp(t.volume ?? 0.85, 0, 1.5));
-      audioEngine.setTrackPan(t.id, clamp(t.pan ?? 0, -1, 1));
-
-      // Sends
-      if (t.sends) {
-        for (const [busId, send] of Object.entries(t.sends)) {
-          audioEngine.setSendLevel(t.id, busId, clamp(send.amount ?? 0, 0, 1));
-        }
-      }
-
-      // Buffer changes (e.g., user imported/replaced audio)
-      if (t.audioBuffer) {
-        const graph = audioEngine.tracks.get(t.id);
-        if (graph?.bufferSource?.buffer !== t.audioBuffer) {
-          audioEngine.attachBufferSource(graph!, t.audioBuffer);
-        }
-      }
-
-      // Effects (simple reconcile: ensure count & bypass flags align)
-      // NOTE: For full fidelity, you can diff by effect.id → add/remove/move specific plugins.
-      const graph = audioEngine.tracks.get(t.id);
-      if (graph) {
-        // If counts mismatch, rebuild plugins (conservative approach)
-        const storeActiveCount = (t.effects ?? []).filter((e) => e.enabled).length;
-        const engineCount = (graph.plugins ?? []).length;
-        if (storeActiveCount !== engineCount) {
-          // Remove all plugins then re-add in order
-          for (const p of [...graph.plugins]) {
-            audioEngine.removePlugin(t.id, p.id);
-          }
-          (t.effects ?? [])
-            .sort((a, b) => (a.rackPosition ?? 0) - (b.rackPosition ?? 0))
-            .forEach((fx) => {
-              audioEngine.addPlugin(t.id, {
-                type: mapEffectTypeToPlugin(fx.type),
-                bypass: !fx.enabled,
-              });
-            });
-        } else {
-          // Sync bypass flags only
-          // (Assumes order/rackPosition stable.)
-          const enabledList = (t.effects ?? [])
-            .sort((a, b) => (a.rackPosition ?? 0) - (b.rackPosition ?? 0))
-            .map((fx) => fx.enabled);
-
-          graph.plugins.forEach((p, i) => {
-            const shouldBypass = enabledList[i] === false;
-            if (p.bypass !== shouldBypass) {
-              audioEngine.setPluginBypass(t.id, p.id, shouldBypass);
-            }
-          });
-        }
-      }
-    }
-  }, [tracks]);
-
-  // ===== Transport: follow store.isPlaying =====
-  useEffect(() => {
-    (async () => {
-      await audioEngine.resume();
-      if (isPlaying) {
-        audioEngine.play();
-      } else {
-        audioEngine.pause();
-      }
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPlaying]);
-
-  // ===== RAF Metering Loop (per-track + master) =====
-  useEffect(() => {
-    let raf = 0;
-
-    const tmpTime = new Uint8Array(1024);
-
-    const loop = () => {
-      // Per-track post analyser → update peak/rms into store
-      for (const t of tracks) {
-        const a = audioEngine.getTrackPostAnalyser(t.id);
-        if (!a) continue;
-
-        const size = Math.min(tmpTime.length, a.fftSize);
-        const buf = size === tmpTime.length ? tmpTime : new Uint8Array(a.fftSize);
-        a.getByteTimeDomainData(buf);
-
-        // Rough peak/rms
-        let max = 0;
-        let sum = 0;
-        for (let i = 0; i < buf.length; i++) {
-          const v = (buf[i] - 128) / 128;
-          const av = Math.abs(v);
-          if (av > max) max = av;
-          sum += v * v;
-        }
-        const rmsLin = Math.sqrt(sum / buf.length);
-        const pkDb = linToDb(max);
-        const rmDb = linToDb(rmsLin);
-
-        // Write back to store (debounced by RAF rate)
-        updateTrack(t.id, {
-          peakLevel: pkDb,
-          rmsLevel: rmDb,
-        });
-      }
-
-      // Master analyser → updateMasterLevels(peak)
-      const master = audioEngine.getMasterAnalyser();
-      if (master) {
-        const mbuf = new Uint8Array(master.fftSize);
-        master.getByteTimeDomainData(mbuf);
-        let mmax = 0;
-        for (let i = 0; i < mbuf.length; i++) {
-          const v = Math.abs((mbuf[i] - 128) / 128);
-          if (v > mmax) mmax = v;
-        }
-        updateMasterLevels(linToDb(mmax));
-      }
-
-      raf = requestAnimationFrame(loop);
-    };
-
-    raf = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(raf);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tracks.length]);
-
-  // ===== Keep store.isPlaying honest if user agent suspends/resumes context =====
-  useEffect(() => {
-    const onState = () => {
-      // If the context was suspended externally, reflect that
-      if (audioEngine.ctx.state !== "running" && isPlaying) {
-        setPlaying(false);
-      }
-    };
-    audioEngine.ctx.addEventListener?.("statechange", onState as any);
-    return () => {
-      audioEngine.ctx.removeEventListener?.("statechange", onState as any);
-    };
-  }, [isPlaying, setPlaying]);
-}
-
-/* ============================
-   Helpers
-   ============================ */
-
-function mapEffectTypeToPlugin(t: string) {
-  // Store → Engine type mapping
-  // store: 'eq' | 'compressor' | 'reverb' | 'delay' | 'limiter' | 'saturator' | 'mixxtune'
-  switch (t) {
-    case "eq":
-      return "EQ";
-    case "compressor":
-      return "COMP";
-    case "reverb":
-      return "REV";
-    case "delay":
-      return "DLY";
-    case "limiter":
-      return "OTHER";
-    case "saturator":
-      return "SAT";
-    case "mixxtune":
-      return "OTHER";
-    default:
-      return "OTHER";
-  }
-}
-
-function clamp(v: number, lo: number, hi: number) {
-  return Math.max(lo, Math.min(hi, v));
-}
-
-function linToDb(x: number) {
-  const y = Math.max(x, 1e-6);
-  return 20 * Math.log10(y);
-}
+        : t
+    )
+  })),
+  
+  removeTrackEffect: (trackId, effectId) => set((state) => ({
+    tracks: state.tracks.map(t =>
+      t.id === trackId
+        ? { ...t, effects: t.effects?.filter(e => e.id !== effectId) }
+        : t
+    )
+  })),
+  
+  setPlaying: (playing) => set({ isPlaying: playing }),
+  
+  setCurrentTime: (time) => set({ currentTime: time }),
+  
+  setBpm: (bpm) => set({ bpm, tempo: bpm }),
+  
+  setTempo: (tempo) => set({ tempo, bpm: tempo }),
+  
+  setMasterVolume: (volume) => set({ masterVolume: volume }),
+  
+  updateMasterLevels: (peak) => set({ masterPeakLevel: peak }),
+  
+  setTimeSelection: (selection) => set({ timeSelection: selection }),
+}));
