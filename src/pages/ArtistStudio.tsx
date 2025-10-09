@@ -64,21 +64,12 @@ type ReviewAction = "approve" | "request_revisions" | "send_notes";
 async function getSupabaseClient() {
   // Safely obtain a Supabase client without hard-crashing if the import path differs.
   try {
-    const mod = await import("@/lib/supabaseClient");
+    const mod = await import("@/integrations/supabase/client");
     // Common patterns: default export or named
     // @ts-ignore
     return mod.default ?? mod.supabase ?? mod.client ?? mod;
   } catch {
-    // As a fallback, try env-based bootstrap
-    try {
-      const { createClient } = await import("@supabase/supabase-js");
-      const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-      if (!url || !key) return null;
-      return createClient(url, key);
-    } catch {
-      return null;
-    }
+    return null;
   }
 }
 
@@ -547,7 +538,7 @@ const ProStudio = ({ userRole = "artist", projectId }: ProStudioProps) => {
         setLoadingProject(false);
         return;
       }
-      const { data, error } = await supabase.from<ProjectRow>("projects").select("*").eq("id", projectId).maybeSingle();
+      const { data, error } = await supabase.from("projects").select("*").eq("id", projectId).maybeSingle();
       if (error) console.error(error);
       if (mounted) setProject(data ?? null);
       setLoadingProject(false);
