@@ -281,12 +281,14 @@ const HybridDAW = () => {
       mediaRecorder.onstop = async () => {
         const blob = new Blob(chunks, { type: 'audio/webm' });
         
-        // Decode audio and generate waveform
+        // Decode audio and generate waveform using audioEngine context
         if (audioContextRef.current) {
           try {
             console.log('[Recording] Decoding recorded audio...');
+            const { audioEngine } = await import('@/services/audioEngine');
+            await audioEngine.resume();
             const arrayBuffer = await blob.arrayBuffer();
-            const audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
+            const audioBuffer = await audioEngine.ctx.decodeAudioData(arrayBuffer);
             
             const { peaks } = WaveformGenerator.generateFromBuffer(audioBuffer, {
               width: 1024,
@@ -424,14 +426,17 @@ const HybridDAW = () => {
     try {
       console.log('[HybridDAW] 🔊 Step 1: Decoding audio...');
       
-      // 1. Decode audio - prefer Blob to avoid fetch(blob:) edge cases
+      // 1. Decode audio using audioEngine context to avoid mismatch
+      const { audioEngine } = await import('@/services/audioEngine');
+      await audioEngine.resume();
+      
       const dataBuffer = importedFile?.blob 
         ? await importedFile.blob.arrayBuffer()
         : await (await fetch(importedFile.url)).arrayBuffer();
       
       console.log('[HybridDAW] ArrayBuffer size:', (dataBuffer.byteLength / 1024 / 1024).toFixed(2), 'MB');
       
-      const audioBuffer = await audioContextRef.current.decodeAudioData(dataBuffer.slice(0));
+      const audioBuffer = await audioEngine.ctx.decodeAudioData(dataBuffer.slice(0));
       console.log('[HybridDAW] ✅ Audio decoded:', {
         duration: audioBuffer.duration.toFixed(2) + 's',
         channels: audioBuffer.numberOfChannels,
@@ -568,6 +573,39 @@ const HybridDAW = () => {
     setStoreCurrentTime(time);
     // audioEngine will handle the seek via useAudioEngineBridge
   };
+
+  // Keyboard shortcuts for transport control
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger shortcuts when typing in inputs/textareas
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+        return;
+      }
+      
+      switch (e.key) {
+        case ' ':
+          e.preventDefault();
+          handlePlayPause();
+          break;
+        case 'ArrowLeft':
+          e.preventDefault();
+          seekToTime(Math.max(0, currentTime - 1));
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          seekToTime(currentTime + 1);
+          break;
+        case 'Home':
+          e.preventDefault();
+          seekToTime(0);
+          break;
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentTime, isPlaying]);
 
   // Region selection helpers
   const getSelectedRegion = (): AudioRegion | null => {

@@ -72,6 +72,29 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
     }
   }, [tracks]);
 
+  // Auto-scroll timeline to follow playhead
+  useEffect(() => {
+    if (!timelineRef.current || !isPlaying) return;
+    
+    const container = timelineRef.current;
+    const headX = currentTime * pixelsPerSecond;
+    const viewportWidth = container.clientWidth;
+    const scrollLeft = container.scrollLeft;
+    const viewportEnd = scrollLeft + viewportWidth;
+    
+    // Keep playhead in the 25-75% range (left-center)
+    const leftBound = scrollLeft + viewportWidth * 0.25;
+    const rightBound = scrollLeft + viewportWidth * 0.75;
+    
+    if (headX < leftBound || headX > rightBound) {
+      // Smooth scroll to center-left (33% from left edge)
+      container.scrollTo({
+        left: headX - viewportWidth * 0.33,
+        behavior: 'smooth'
+      });
+    }
+  }, [currentTime, isPlaying, pixelsPerSecond]);
+
   // No more fake waveform generation - using real AudioWaveformRenderer!
 
   const toggleSolo = (trackId: string) => {
@@ -385,14 +408,13 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
                             width={regionWidth}
                             height={regionHeight}
                             color={track.color || '#8B5CF6'}
-                            progress={
-                              isPlaying && currentTime >= region.startTime
-                                ? Math.min(
-                                    1,
-                                    (currentTime - region.startTime) / region.duration
-                                  )
-                                : 0
-                            }
+                            progress={Math.max(
+                              0,
+                              Math.min(
+                                1,
+                                (currentTime - region.startTime) / region.duration
+                              )
+                            )}
                             zoom={zoom}
                             startOffset={region.sourceStartOffset || 0}
                           />

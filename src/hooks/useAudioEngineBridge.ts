@@ -181,7 +181,7 @@ export function useAudioEngineBridge() {
         });
         
         audioEngine.stop(); // Stop any previous playback
-        audioEngine.play(currentTime); // Start from current position
+        audioEngine.play(currentTime, tracks); // Pass tracks for region scheduling!
         
         console.log('[AudioEngineBridge] ✅ Play command sent to engine');
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');

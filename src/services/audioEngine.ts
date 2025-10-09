@@ -362,32 +362,80 @@ class AudioEngine {
     return (this.ctx.baseLatency ?? 0) * 1000;
   }
 
-  /** Play/Stop convenience for buffer sources (non-destructive to live inputs) */
-  play(offsetSec: number = 0) {
+  /** 
+   * Play with region-accurate scheduling
+   * @param offsetSec - Playback start time in seconds
+   * @param storeTracks - Optional store tracks with region data
+   */
+  play(offsetSec: number = 0, storeTracks?: any[]) {
     if (this.playing) {
       console.log('[AudioEngine] Already playing');
       return;
     }
     
     const when = this.ctx.currentTime;
-    let playedCount = 0;
+    let scheduledCount = 0;
+    
+    console.log('[AudioEngine] 🎬 Starting playback from', offsetSec.toFixed(3), 's');
     
     for (const t of this.tracks.values()) {
-      if (t.bufferSource) {
+      // Find matching store track with regions
+      const storeTrack = storeTracks?.find(st => st.id === t.id);
+      const regions = storeTrack?.regions || [];
+      
+      console.log('[AudioEngine] Track:', t.name, '| Regions:', regions.length);
+      
+      if (regions.length > 0) {
+        // Region-based playback scheduling
+        regions.forEach((region: any, idx: number) => {
+          const regionEnd = region.startTime + region.duration;
+          
+          // Skip regions that end before playback offset
+          if (regionEnd <= offsetSec) {
+            console.log(`  Region ${idx + 1}: Skipped (ends before offset)`);
+            return;
+          }
+          
+          // Calculate timing
+          const startInEngine = Math.max(0, region.startTime - offsetSec);
+          const offsetInBuffer = Math.max(0, offsetSec - region.startTime) + (region.sourceStartOffset || 0);
+          const durationToPlay = region.duration - Math.max(0, offsetSec - region.startTime);
+          
+          // Get buffer from region or track
+          const buffer = region.audioBuffer || t.bufferSource?.buffer;
+          if (!buffer) {
+            console.log(`  Region ${idx + 1}: No buffer`);
+            return;
+          }
+          
+          // Create and schedule source
+          const source = this.ctx.createBufferSource();
+          source.buffer = buffer;
+          source.connect(t.input);
+          
+          const scheduleTime = when + startInEngine;
+          source.start(scheduleTime, offsetInBuffer, durationToPlay);
+          
+          console.log(`  Region ${idx + 1}: Scheduled | start:${region.startTime.toFixed(2)}s | offset:${offsetInBuffer.toFixed(2)}s | duration:${durationToPlay.toFixed(2)}s`);
+          scheduledCount++;
+          
+          // Store reference for cleanup (simple approach - store in bufferSource for now)
+          if (!t.bufferSource) {
+            t.bufferSource = source;
+          }
+        });
+      } else if (t.bufferSource?.buffer) {
+        // Fallback: single-buffer playback (legacy)
         const buf = t.bufferSource.buffer;
-        if (!buf) continue;
-        
-        // Re-create source for retrigger
         this.attachBufferSource(t, buf);
-        
-        // START FROM OFFSET (seeking support!)
         t.bufferSource!.start(when, offsetSec);
-        playedCount++;
+        scheduledCount++;
+        console.log('  Track: Using single buffer (legacy mode)');
       }
     }
     
-    console.log('[AudioEngine] Started', playedCount, 'tracks from', offsetSec.toFixed(3), 's');
-    this.startedAt = when - offsetSec; // Correct timing for getPlaybackPosition()
+    console.log('[AudioEngine] ✅ Scheduled', scheduledCount, 'sources');
+    this.startedAt = when - offsetSec;
     this.pausedAt = offsetSec;
     this.playing = true;
   }
