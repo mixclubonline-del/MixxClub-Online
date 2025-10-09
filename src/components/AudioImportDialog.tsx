@@ -14,7 +14,7 @@ import {
   Trash2,
   Download 
 } from "lucide-react";
-import { useAudioImport } from "@/hooks/useAudioImport.ts";
+import { useAudioImport } from "@/hooks/useAudioImport";
 import { useToast } from "@/hooks/use-toast";
 
 interface ImportedAudioFile {
