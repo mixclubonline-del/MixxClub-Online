@@ -31,6 +31,13 @@ export class AudioEngine {
   private latencyCompensation = 0; // Total system latency in seconds
   private sampleRate = 48000;
   private bufferSize = 512;
+  
+  // Preview system
+  private previewNode: {
+    gainNode: GainNode;
+    effectProcessor: EffectProcessor | null;
+    trackId: string | null;
+  } | null = null;
 
   constructor() {
     this.initAudioContext();
@@ -434,6 +441,83 @@ export class AudioEngine {
         trackNode.latencyDelay.delayTime.value = 0;
       }
     });
+  }
+
+  // Start plugin preview on a track
+  startPluginPreview(trackId: string, effectType: 'eq' | 'compressor' | 'reverb' | 'delay' | 'saturator' | 'limiter'): void {
+    if (!this.audioContext || !this.masterGainNode) return;
+    
+    // Stop any existing preview
+    this.stopPluginPreview();
+    
+    const trackNode = this.trackNodes.get(trackId);
+    if (!trackNode) return;
+
+    // Create preview processor
+    let processor: EffectProcessor;
+    
+    switch (effectType) {
+      case 'eq':
+        processor = new EQProcessor(this.audioContext);
+        break;
+      case 'compressor':
+        processor = new CompressorProcessor(this.audioContext);
+        break;
+      case 'reverb':
+        processor = new ReverbProcessor(this.audioContext);
+        break;
+      case 'delay':
+        processor = new DelayProcessor(this.audioContext);
+        break;
+      case 'saturator':
+        processor = new SaturatorProcessor(this.audioContext);
+        break;
+      case 'limiter':
+        processor = new LimiterProcessor(this.audioContext);
+        break;
+    }
+
+    // Create preview gain node
+    const previewGain = this.audioContext.createGain();
+    previewGain.gain.value = 1;
+
+    // Disconnect track's analyser from master temporarily
+    trackNode.analyserNode.disconnect();
+
+    // Route: analyser -> preview effect -> preview gain -> master
+    trackNode.analyserNode.connect(processor.getInputNode());
+    processor.getOutputNode().connect(previewGain);
+    previewGain.connect(this.masterGainNode);
+
+    this.previewNode = {
+      gainNode: previewGain,
+      effectProcessor: processor,
+      trackId
+    };
+  }
+
+  // Stop plugin preview
+  stopPluginPreview(): void {
+    if (!this.previewNode || !this.masterGainNode) return;
+
+    const trackNode = this.trackNodes.get(this.previewNode.trackId!);
+    if (trackNode) {
+      // Restore original routing
+      trackNode.analyserNode.disconnect();
+      trackNode.analyserNode.connect(this.masterGainNode);
+    }
+
+    // Clean up preview nodes
+    if (this.previewNode.effectProcessor) {
+      this.previewNode.effectProcessor.destroy();
+    }
+    this.previewNode.gainNode.disconnect();
+    this.previewNode = null;
+  }
+
+  // Get preview state
+  isPreviewActive(): boolean {
+    return this.previewNode !== null;
   }
 }
 

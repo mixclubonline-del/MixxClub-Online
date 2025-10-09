@@ -2,8 +2,12 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Sliders, Waves, Sparkles, Mic, Zap, Disc, Brain, Music } from 'lucide-react';
+import { Plus, Sliders, Waves, Sparkles, Mic, Zap, Disc, Brain, Music, Eye } from 'lucide-react';
 import { usePluginStore } from '@/stores/pluginStore';
+import { usePluginPreviewStore } from '@/stores/pluginPreviewStore';
+import { useAIStudioStore } from '@/stores/aiStudioStore';
+import { audioEngine } from '@/services/audioEngine';
+import { toast } from 'sonner';
 
 interface PluginBrowserProps {
   onPluginSelect: (pluginType: string) => void;
@@ -111,10 +115,35 @@ const AVAILABLE_PLUGINS = [
 export const PluginBrowser: React.FC<PluginBrowserProps> = ({ onPluginSelect }) => {
   const categories = ['All', 'Utility', 'EQ', 'Dynamics', 'Spatial', 'Mastering', 'Voice', 'Creative', 'AI'];
   const [selectedCategory, setSelectedCategory] = React.useState('All');
+  const { startPreview } = usePluginPreviewStore();
+  const selectedTrackId = useAIStudioStore((state) => state.selectedTrackId);
 
   const filteredPlugins = selectedCategory === 'All' 
     ? AVAILABLE_PLUGINS 
     : AVAILABLE_PLUGINS.filter(p => p.category === selectedCategory);
+
+  const getEffectType = (pluginId: string): 'eq' | 'compressor' | 'reverb' | 'delay' | 'saturator' | 'limiter' => {
+    if (pluginId.includes('eq')) return 'eq';
+    if (pluginId.includes('comp')) return 'compressor';
+    if (pluginId.includes('reverb')) return 'reverb';
+    if (pluginId.includes('delay')) return 'delay';
+    if (pluginId.includes('saturator') || pluginId.includes('glue')) return 'saturator';
+    return 'limiter';
+  };
+
+  const handlePreview = (plugin: typeof AVAILABLE_PLUGINS[0], e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (!selectedTrackId) {
+      toast.error('Please select a track first');
+      return;
+    }
+
+    const effectType = getEffectType(plugin.id);
+    audioEngine.startPluginPreview(selectedTrackId, effectType);
+    startPreview(plugin.id, plugin.name, selectedTrackId, effectType);
+    toast.success(`Previewing ${plugin.name}`);
+  };
 
   return (
     <div className="space-y-6">
@@ -144,11 +173,10 @@ export const PluginBrowser: React.FC<PluginBrowserProps> = ({ onPluginSelect }) 
               whileTap={{ scale: 0.98 }}
             >
               <Card 
-                className={`p-4 cursor-pointer bg-gradient-to-br ${plugin.color} border-white/10 
-                  hover:border-primary/30 transition-all group`}
-                onClick={() => onPluginSelect(plugin.id)}
+                className={`p-4 bg-gradient-to-br ${plugin.color} border-white/10 
+                  hover:border-primary/30 transition-all group relative`}
               >
-                <div className="flex items-start gap-3">
+                <div className="flex items-start gap-3 mb-3">
                   <div className="p-3 rounded-lg bg-white/5 group-hover:bg-white/10 transition-all">
                     <Icon className="w-6 h-6" />
                   </div>
@@ -159,6 +187,26 @@ export const PluginBrowser: React.FC<PluginBrowserProps> = ({ onPluginSelect }) 
                       {plugin.category}
                     </span>
                   </div>
+                </div>
+                
+                <div className="flex gap-2">
+                  <Button
+                    onClick={(e) => handlePreview(plugin, e)}
+                    size="sm"
+                    variant="outline"
+                    className="flex-1 gap-2 text-xs"
+                  >
+                    <Eye className="w-3 h-3" />
+                    Preview
+                  </Button>
+                  <Button
+                    onClick={() => onPluginSelect(plugin.id)}
+                    size="sm"
+                    className="flex-1 gap-2 text-xs"
+                  >
+                    <Plus className="w-3 h-3" />
+                    Add
+                  </Button>
                 </div>
               </Card>
             </motion.div>
