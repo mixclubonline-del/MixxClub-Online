@@ -51,9 +51,9 @@ export default function EcosystemSection() {
 
           <DashboardCard
             icon="🤖"
-            title="AI Studio"
+            title="Studio"
             description="Access intelligent tools and automation"
-            route="/ai-studio"
+            route="/artist-crm?tab=studio"
             aiLog={aiStudioLog}
             gradient="hsl(var(--accent)), hsl(var(--primary))"
             delay={0.3}

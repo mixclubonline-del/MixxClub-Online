@@ -13,7 +13,6 @@ import EnhancedCRM from '@/components/crm/EnhancedCRM';
 import SessionManager from '@/components/collaboration/SessionManager';
 import CollaborationWorkspace from '@/components/collaboration/CollaborationWorkspace';
 import { RealTimeCollaboration } from '@/components/RealTimeCollaboration';
-import HybridDAW from '@/pages/HybridDAW';
 import { toast } from 'sonner';
 import { JobPool } from '@/components/JobPool';
 import { EarningsOverview } from '@/components/engineer/EarningsOverview';
@@ -327,7 +326,7 @@ const EngineerCRM = () => {
     {
       label: 'Open Studio',
       icon: <Headphones className="w-4 h-4" />,
-      onClick: () => navigate('/engineer-crm?tab=studio'),
+      onClick: () => navigate('/artist-crm?tab=studio'),
       variant: 'default' as const,
     },
     {
@@ -362,14 +361,14 @@ const EngineerCRM = () => {
           <ActiveWorkHub 
             userRole="engineer" 
             onStartSession={() => {
-              navigate('/engineer-crm?tab=studio');
+              navigate('/artist-crm?tab=studio');
               setTimeout(() => {
                 const createBtn = document.querySelector('[data-create-session]');
                 if (createBtn instanceof HTMLElement) createBtn.click();
               }, 100);
             }}
-            onUploadStems={() => navigate('/engineer-crm?tab=studio')}
-            onJoinSession={() => navigate('/engineer-crm?tab=studio')}
+            onUploadStems={() => navigate('/artist-crm?tab=studio')}
+            onJoinSession={() => navigate('/artist-crm?tab=studio')}
             onReviewApprove={() => navigate('/engineer-crm?tab=profile')}
           />
         );
@@ -378,11 +377,8 @@ const EngineerCRM = () => {
         return <OpportunitiesHub userRole="engineer" />;
 
       case 'studio':
-        return (
-          <div className="h-[calc(100vh-4rem)]">
-            <HybridDAW />
-          </div>
-        );
+        navigate('/artist-crm?tab=studio');
+        return null;
 
       case 'business':
         return (

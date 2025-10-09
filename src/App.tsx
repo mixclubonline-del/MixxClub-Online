@@ -25,7 +25,6 @@ import IntroScene from "./pages/IntroScene";
 const ArtistCRM = React.lazy(() => import("./pages/ArtistCRM"));
 const EngineerCRM = React.lazy(() => import("./pages/EngineerCRM"));
 const AudioLab = React.lazy(() => import("./pages/AudioLab"));
-const HybridDAW = React.lazy(() => import("./pages/HybridDAW"));
 const Admin = React.lazy(() => import("./pages/Admin"));
 const AIMastering = React.lazy(() => import("./pages/AIMastering"));
 
@@ -36,7 +35,6 @@ import HowItWorks from "./pages/HowItWorks";
 import Network from "./pages/Network";
 import Artist from "./pages/Artist";
 import Engineer from "./pages/Engineer";
-import AIStudio from "./pages/AIStudio";
 import Pulse from "./pages/Pulse";
 import Arena from "./pages/Arena";
 import Crowd from "./pages/Crowd";
@@ -170,7 +168,7 @@ const AppContent = () => {
             <Route path="/network" element={<MixClubHome />} />
             <Route path="/artist" element={<Artist />} />
             <Route path="/engineer" element={<Engineer />} />
-            <Route path="/ai-studio" element={<AIStudio />} />
+            <Route path="/ai-studio" element={<Navigate to="/artist-crm?tab=studio" replace />} />
             <Route path="/pulse" element={<Pulse />} />
             <Route path="/arena" element={<Arena />} />
             <Route path="/crowd" element={<Crowd />} />
@@ -189,7 +187,8 @@ const AppContent = () => {
         <Route path="/artist-crm" element={<AppLayout><ArtistCRM /></AppLayout>} />
         <Route path="/engineer-crm" element={<AppLayout><EngineerCRM /></AppLayout>} />
         <Route path="/artist-studio" element={<Navigate to="/artist-crm?tab=studio" replace />} />
-        <Route path="/engineer-studio" element={<Navigate to="/engineer-crm?tab=studio" replace />} />
+        <Route path="/engineer-studio" element={<Navigate to="/artist-crm?tab=studio" replace />} />
+        <Route path="/hybrid-daw" element={<Navigate to="/artist-crm?tab=studio" replace />} />
         <Route path="/studio/create-session" element={<AppLayout><SessionManager /></AppLayout>} />
         <Route path="/studio/join-session" element={<AppLayout><SessionManager /></AppLayout>} />
         <Route path="/session/:sessionId" element={<AppLayout><SessionWorkspacePage /></AppLayout>} />
@@ -233,7 +232,6 @@ const AppContent = () => {
             <Route path="/engineers" element={<EngineerDirectory />} />
             <Route path="/engineer/:userId" element={<EngineerProfile />} />
             <Route path="/audio-lab" element={<AudioLab />} />
-            <Route path="/hybrid-daw" element={<HybridDAW />} />
             <Route path="/project/:projectId" element={<AppLayout><ProjectDetail /></AppLayout>} />
             <Route path="/coming-soon" element={<ComingSoon />} />
             <Route path="/faq" element={<FAQ />} />

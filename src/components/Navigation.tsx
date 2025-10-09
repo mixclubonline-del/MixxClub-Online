@@ -70,7 +70,7 @@ const Navigation = () => {
       { to: "/distribution", label: "Distribution", featured: true },
       { to: "/merch", label: "Merch Store", badge: "NEW" },
       { to: "/coming-soon", label: "Coming Soon" },
-      ...(isFeatureEnabled('THE_LAB_ENABLED') ? [{ to: "/hybrid-daw", label: "The Lab" }] : []),
+      ...(isFeatureEnabled('THE_LAB_ENABLED') ? [{ to: "/artist-crm?tab=studio", label: "Studio" }] : []),
     ];
   };
 

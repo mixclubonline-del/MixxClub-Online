@@ -12,7 +12,7 @@ export const StickyUploadButton = () => {
         
         {/* Main button */}
         <Button size="lg" asChild className="relative bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white shadow-2xl hover:shadow-primary/50 transition-all duration-300 pl-6 pr-6 py-6 text-base font-semibold">
-          <Link to="/artist-studio">
+          <Link to="/artist-crm?tab=studio">
             <Upload className="w-5 h-5 mr-2" />
             Upload Your Track
           </Link>

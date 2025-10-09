@@ -157,7 +157,7 @@ export const AIProjectRecommender = () => {
       <Card className="p-6 text-center">
         <Sparkles className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
         <p className="text-muted-foreground">No active projects to recommend</p>
-        <Button className="mt-4" onClick={() => navigate('/artist-studio')}>
+        <Button className="mt-4" onClick={() => navigate('/artist-crm?tab=studio')}>
           Start New Project
         </Button>
       </Card>
