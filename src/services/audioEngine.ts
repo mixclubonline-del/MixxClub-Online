@@ -71,6 +71,8 @@ class AudioEngine {
   fxBuses: Map<string, FxBus> = new Map();
   master: MasterChain;
 
+  private workletsLoaded: boolean = false;
+
   constructor() {
     const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
     this.ctx = new AudioCtx();
@@ -158,6 +160,21 @@ class AudioEngine {
     const preAnalyser = this.makeAnalyser();
     const postAnalyser = this.makeAnalyser();
 
+    // Add metering worklet if available
+    let meterWorklet: AudioWorkletNode | null = null;
+    if (this.workletsLoaded) {
+      try {
+        meterWorklet = new AudioWorkletNode(this.ctx, 'daw-meter-processor');
+        // Store meter data for this track globally for UI access
+        meterWorklet.port.onmessage = (e) => {
+          if (!(window as any).audioMeterData) (window as any).audioMeterData = {};
+          (window as any).audioMeterData[id] = e.data;
+        };
+      } catch (error) {
+        console.warn('[AudioEngine] Failed to create meter worklet for track', name, error);
+      }
+    }
+
     const pan = this.ctx.createStereoPanner();
     pan.pan.value = 0;
 
@@ -187,7 +204,14 @@ class AudioEngine {
 
     pan.connect(fader);
     fader.connect(postAnalyser);
-    postAnalyser.connect(out);
+    
+    // Insert meter worklet in chain if available
+    if (meterWorklet) {
+      postAnalyser.connect(meterWorklet);
+      meterWorklet.connect(out);
+    } else {
+      postAnalyser.connect(out);
+    }
 
     // out connects downstream based on grouping
     if (opts.groupId) {
@@ -358,6 +382,26 @@ class AudioEngine {
   }
 
   // Removed deprecated play/pause/stop methods - use Transport and TrackScheduler instead
+
+  /** Initialize AudioWorklet modules for professional-grade audio processing */
+  async initWorklets() {
+    if (this.workletsLoaded) {
+      console.log('[AudioEngine] ✅ Worklets already loaded');
+      return;
+    }
+
+    try {
+      console.log('[AudioEngine] 🔧 Loading AudioWorklet modules...');
+      await this.ctx.audioWorklet.addModule('/worklets/daw-mixer-processor.js');
+      await this.ctx.audioWorklet.addModule('/worklets/daw-meter-processor.js');
+      this.workletsLoaded = true;
+      console.log('[AudioEngine] ✅ AudioWorklets loaded successfully');
+      console.log('[AudioEngine] 🎵 Audio processing now running on dedicated audio thread');
+    } catch (error) {
+      console.error('[AudioEngine] ❌ Failed to load AudioWorklets:', error);
+      console.warn('[AudioEngine] ⚠️ Falling back to main thread audio processing');
+    }
+  }
 
   /** Resume audio context (required by browsers) */
   async resume() {

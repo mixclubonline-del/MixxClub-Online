@@ -185,6 +185,15 @@ const HybridDAW = () => {
   useAudioEngineBridge(); // Handles audio graph parameter sync (volume, pan, effects)
   useTransportBridge(); // Handles transport control (play/pause/seek)
 
+  // Initialize AudioWorklet modules for professional audio thread
+  useEffect(() => {
+    const initWorklets = async () => {
+      const { audioEngine } = await import('@/services/audioEngine');
+      await audioEngine.initWorklets();
+    };
+    initWorklets();
+  }, []);
+
   // Initialize Audio Context
   useEffect(() => {
     const initAudio = async () => {

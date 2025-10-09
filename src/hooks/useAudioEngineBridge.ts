@@ -165,60 +165,31 @@ export function useAudioEngineBridge() {
   // ===== Transport control removed - use useTransportBridge() instead =====
   // This bridge now only handles audio graph parameter sync (gain/pan/effects)
 
-  // ===== RAF Metering Loop (per-track + master) =====
+  // ===== Worklet-Based Metering (zero main thread impact) =====
   useEffect(() => {
-    let raf = 0;
-
-    const tmpTime = new Uint8Array(1024);
-
-    const loop = () => {
-      // Per-track post analyser → update peak/rms into store
+    // Check for worklet meter data at 60fps
+    const interval = setInterval(() => {
+      const meterData = (window as any).audioMeterData || {};
+      
+      // Update per-track meters from worklet data
       for (const t of tracks) {
-        const a = audioEngine.getTrackPostAnalyser(t.id);
-        if (!a) continue;
-
-        const size = Math.min(tmpTime.length, a.fftSize);
-        const buf = size === tmpTime.length ? tmpTime : new Uint8Array(a.fftSize);
-        a.getByteTimeDomainData(buf);
-
-        // Rough peak/rms
-        let max = 0;
-        let sum = 0;
-        for (let i = 0; i < buf.length; i++) {
-          const v = (buf[i] - 128) / 128;
-          const av = Math.abs(v);
-          if (av > max) max = av;
-          sum += v * v;
+        const data = meterData[t.id];
+        if (data) {
+          updateTrack(t.id, {
+            peakLevel: data.peakDb,
+            rmsLevel: data.rmsDb,
+          });
         }
-        const rmsLin = Math.sqrt(sum / buf.length);
-        const pkDb = linToDb(max);
-        const rmDb = linToDb(rmsLin);
-
-        // Write back to store (debounced by RAF rate)
-        updateTrack(t.id, {
-          peakLevel: pkDb,
-          rmsLevel: rmDb,
-        });
       }
-
-      // Master analyser → updateMasterLevels(peak)
-      const master = audioEngine.getMasterAnalyser();
-      if (master) {
-        const mbuf = new Uint8Array(master.fftSize);
-        master.getByteTimeDomainData(mbuf);
-        let mmax = 0;
-        for (let i = 0; i < mbuf.length; i++) {
-          const v = Math.abs((mbuf[i] - 128) / 128);
-          if (v > mmax) mmax = v;
-        }
-        updateMasterLevels(linToDb(mmax));
+      
+      // Update master meter from worklet data
+      const masterData = meterData['master'];
+      if (masterData) {
+        updateMasterLevels(masterData.peakDb);
       }
-
-      raf = requestAnimationFrame(loop);
-    };
-
-    raf = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(raf);
+    }, 16); // 60fps
+    
+    return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tracks.length]);
 

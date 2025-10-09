@@ -1,9 +1,7 @@
 /**
- * Time Stretching & Pitch Shifting using Tone.js
+ * Time Stretching & Pitch Shifting using Web Audio API
  * Professional audio time/pitch manipulation
  */
-
-import * as Tone from 'tone';
 
 export class TimeStretch {
   /**
