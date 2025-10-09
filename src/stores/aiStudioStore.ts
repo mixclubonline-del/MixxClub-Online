@@ -91,7 +91,8 @@ interface AIStudioStore {
   // Arrangement View
   scrollMode: 'none' | 'page' | 'continuous';
   snapEnabled: boolean;
-  snapMode: 'bars' | 'beats' | 'quarter' | 'eighth' | 'sixteenth';
+  snapMode: 'bars' | 'beats' | 'quarter' | 'eighth' | 'sixteenth' | 'transient' | 'zero-crossing';
+  rippleMode: 'off' | 'selected' | 'all';
   
   // Effects
   effects: EffectUnit[];
@@ -165,7 +166,8 @@ interface AIStudioStore {
   // Arrangement actions
   setScrollMode: (mode: 'none' | 'page' | 'continuous') => void;
   setSnapEnabled: (enabled: boolean) => void;
-  setSnapMode: (mode: 'bars' | 'beats' | 'quarter' | 'eighth' | 'sixteenth') => void;
+  setSnapMode: (mode: 'bars' | 'beats' | 'quarter' | 'eighth' | 'sixteenth' | 'transient' | 'zero-crossing') => void;
+  setRippleMode: (mode: 'off' | 'selected' | 'all') => void;
   
   // Group actions
   createBusGroup: (name: string, trackIds: string[]) => void;
@@ -192,6 +194,7 @@ export const useAIStudioStore = create<AIStudioStore>((set, get) => ({
   scrollMode: 'continuous',
   snapEnabled: true,
   snapMode: 'beats',
+  rippleMode: 'off',
   effects: [],
   isPlaying: false,
   isRecording: false,
@@ -353,6 +356,7 @@ export const useAIStudioStore = create<AIStudioStore>((set, get) => ({
   setScrollMode: (mode) => set({ scrollMode: mode }),
   setSnapEnabled: (enabled) => set({ snapEnabled: enabled }),
   setSnapMode: (mode) => set({ snapMode: mode }),
+  setRippleMode: (mode) => set({ rippleMode: mode }),
   
   // Track effect actions
   addTrackEffect: (trackId, effect) => set((state) => ({

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { ZoomIn, ZoomOut, Maximize2, Magnet, ArrowRightFromLine, Navigation } from 'lucide-react';
+import { ZoomIn, ZoomOut, Maximize2, Magnet, ArrowRightFromLine, Navigation, Workflow } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Track, AudioRegion, useAIStudioStore } from '@/stores/aiStudioStore';
 import { TrackControls } from './TrackControls';
@@ -9,6 +9,11 @@ import { MusicalRuler } from './MusicalRuler';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useMusicalQuantization } from '@/hooks/useMusicalQuantization';
+import { TransientDetector, Transient } from '@/audio/analysis/TransientDetector';
+import { ZeroCrossingDetector } from '@/audio/analysis/ZeroCrossingDetector';
+import { TransientMarkers } from './TransientMarkers';
+import { useSmartCursor } from '@/hooks/useSmartCursor';
+import { useRippleEdit } from '@/hooks/useRippleEdit';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,6 +53,7 @@ export const WaveformTimeline = ({
   const [trackHeight, setTrackHeight] = useState(80);
   const [hoveredTrack, setHoveredTrack] = useState<string | null>(null);
   const [hoveredRegion, setHoveredRegion] = useState<string | null>(null);
+  const [trackTransients, setTrackTransients] = useState<Map<string, Transient[]>>(new Map());
 
   const trackHeaderWidth = 180;
   const pixelsPerSecond = 100 * zoom;
@@ -56,11 +62,13 @@ export const WaveformTimeline = ({
   const scrollMode = useAIStudioStore((state) => state.scrollMode);
   const snapEnabled = useAIStudioStore((state) => state.snapEnabled);
   const snapMode = useAIStudioStore((state) => state.snapMode);
+  const rippleMode = useAIStudioStore((state) => state.rippleMode);
   const tempo = useAIStudioStore((state) => state.tempo);
   const selectedRegions = useAIStudioStore((state) => state.selectedRegions);
   const setScrollMode = useAIStudioStore((state) => state.setScrollMode);
   const setSnapEnabled = useAIStudioStore((state) => state.setSnapEnabled);
   const setSnapMode = useAIStudioStore((state) => state.setSnapMode);
+  const setRippleMode = useAIStudioStore((state) => state.setRippleMode);
   const selectRegion = useAIStudioStore((state) => state.selectRegion);
   const clearSelection = useAIStudioStore((state) => state.clearSelection);
   const splitRegion = useAIStudioStore((state) => state.splitRegion);
@@ -68,8 +76,69 @@ export const WaveformTimeline = ({
   const removeRegion = useAIStudioStore((state) => state.removeRegion);
   const updateRegion = useAIStudioStore((state) => state.updateRegion);
   
-  // Musical quantization
+  // Musical quantization and precision tools
   const { quantizeTime, getSnapLabel } = useMusicalQuantization();
+  const { cursorState, updateCursor, resetCursor } = useSmartCursor();
+  const { deleteRegionWithRipple } = useRippleEdit();
+
+  // Detect transients when tracks load
+  useEffect(() => {
+    const detectTransients = async () => {
+      const newTransients = new Map<string, Transient[]>();
+      
+      for (const track of tracks) {
+        if (track.audioBuffer && !trackTransients.has(track.id)) {
+          const transients = TransientDetector.detect(
+            track.audioBuffer,
+            0.3, // Moderate sensitivity
+            0.05 // 50ms minimum between transients
+          );
+          newTransients.set(track.id, transients);
+          console.log(`Detected ${transients.length} transients in track ${track.name}`);
+        }
+      }
+
+      if (newTransients.size > 0) {
+        setTrackTransients(prev => new Map([...prev, ...newTransients]));
+      }
+    };
+
+    detectTransients();
+  }, [tracks]);
+
+  // Enhanced quantization with transient/zero-crossing snap
+  const enhancedQuantizeTime = useCallback((time: number, trackId?: string): number => {
+    if (!snapEnabled) return time;
+
+    // Snap to transient
+    if (snapMode === 'transient' && trackId) {
+      const transients = trackTransients.get(trackId);
+      if (transients && transients.length > 0) {
+        const nearest = TransientDetector.findNearest(transients, time, 0.15);
+        if (nearest) {
+          console.log(`Snapped to transient at ${nearest.time}s`);
+          return nearest.time;
+        }
+      }
+    }
+
+    // Snap to zero crossing
+    if (snapMode === 'zero-crossing' && trackId) {
+      const track = tracks.find(t => t.id === trackId);
+      if (track?.audioBuffer) {
+        const snapped = ZeroCrossingDetector.snapToZeroCrossing(
+          track.audioBuffer,
+          time,
+          0.01 // 10ms max distance
+        );
+        console.log(`Snapped to zero crossing: ${time}s -> ${snapped}s`);
+        return snapped;
+      }
+    }
+
+    // Use regular musical quantization
+    return quantizeTime(time);
+  }, [snapEnabled, snapMode, trackTransients, tracks, quantizeTime]);
 
   // Generate fallback waveform if real data not available
   const generateFallbackWaveform = (type: Track['type']) => {
@@ -80,7 +149,6 @@ export const WaveformTimeline = ({
       const t = i / points;
       let value = Math.random() * 0.5 + 0.3;
       
-      // Add some shape based on track type
       if (type === 'drums') {
         value = Math.abs(Math.sin(t * 20)) * 0.8 + 0.2;
       } else if (type === 'bass') {
@@ -95,17 +163,13 @@ export const WaveformTimeline = ({
     return data;
   };
 
-  // Convert Float32Array to regular array for rendering
   const getWaveformData = (track: Track): number[] => {
     if (track.waveformData && track.waveformData.length > 0) {
-      // Use real waveform data from audio buffer
       return Array.from(track.waveformData);
     }
-    // Fallback to generated waveform
     return generateFallbackWaveform(track.type);
   };
 
-  // Get color for track type - Purple to Cyan gradient spectrum
   const getTrackColor = (type: Track['type']) => {
     const colors: Record<Track['type'], string> = {
       vocal: 'hsl(185, 100%, 50%)',
@@ -118,7 +182,6 @@ export const WaveformTimeline = ({
     return colors[type] || colors.other;
   };
 
-  // Helper to convert HSL to RGB for gradient
   const getRgbFromHsl = (hslString: string) => {
     const match = hslString.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
     if (!match) return { r: 255, g: 255, b: 255 };
@@ -154,7 +217,9 @@ export const WaveformTimeline = ({
     };
   };
 
-  // Auto-scroll to follow playhead
+  // Auto-scroll effect
+  
+
   useEffect(() => {
     if (!isPlaying || scrollMode === 'none' || !scrollContainerRef.current) return;
     
@@ -164,18 +229,15 @@ export const WaveformTimeline = ({
     const scrollLeft = container.scrollLeft;
     
     if (scrollMode === 'continuous') {
-      // Keep playhead centered
       const targetScroll = playheadX - containerWidth / 2;
       container.scrollTo({ left: Math.max(0, targetScroll), behavior: 'smooth' });
     } else if (scrollMode === 'page') {
-      // Jump scroll when playhead reaches 80% of visible area
       if (playheadX > scrollLeft + containerWidth * 0.8) {
         container.scrollTo({ left: playheadX - containerWidth * 0.2, behavior: 'smooth' });
       }
     }
   }, [currentTime, isPlaying, scrollMode, pixelsPerSecond]);
   
-  // Draw waveforms and regions on canvas
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -190,15 +252,12 @@ export const WaveformTimeline = ({
     canvas.height = rect.height * dpr;
     ctx.scale(dpr, dpr);
 
-    // Clear canvas
     ctx.fillStyle = 'hsl(var(--studio-black))';
     ctx.fillRect(0, 0, rect.width, rect.height);
 
-    // Draw grid lines (measures)
     ctx.strokeStyle = 'hsl(var(--studio-border))';
     ctx.lineWidth = 1;
     
-    const measureWidth = pixelsPerSecond * 4; // 4 seconds per measure at 120 BPM
     for (let i = 0; i < duration; i += 4) {
       const x = i * pixelsPerSecond;
       if (x > rect.width) break;
@@ -209,33 +268,22 @@ export const WaveformTimeline = ({
       ctx.stroke();
     }
 
-    // Draw tracks and regions
     tracks.forEach((track, index) => {
       const trackY = index * trackHeight;
       const trackColor = getTrackColor(track.type);
       
-      // Draw track background
-      ctx.fillStyle = hoveredTrack === track.id 
-        ? 'hsl(220, 16%, 20%)' 
-        : 'hsl(220, 18%, 16%)';
+      ctx.fillStyle = hoveredTrack === track.id ? 'hsl(220, 16%, 20%)' : 'hsl(220, 18%, 16%)';
       ctx.fillRect(0, trackY, rect.width, trackHeight);
 
-      // Draw regions
       track.regions.forEach((region) => {
         const regionX = region.startTime * pixelsPerSecond;
         const regionWidth = region.duration * pixelsPerSecond;
         const isSelected = selectedRegions.has(region.id);
         const isHovered = hoveredRegion === region.id;
         
-        // Region background
-        ctx.fillStyle = isSelected 
-          ? 'hsl(220, 20%, 30%)' 
-          : isHovered 
-          ? 'hsl(220, 18%, 24%)' 
-          : 'hsl(220, 18%, 20%)';
+        ctx.fillStyle = isSelected ? 'hsl(220, 20%, 30%)' : isHovered ? 'hsl(220, 18%, 24%)' : 'hsl(220, 18%, 20%)';
         ctx.fillRect(regionX, trackY + 4, regionWidth, trackHeight - 8);
         
-        // Draw waveform within region bounds - use REAL waveform data with proper sync
         const waveformData = getWaveformData(track);
         const gradient = ctx.createLinearGradient(regionX, trackY, regionX, trackY + trackHeight);
         const rgb = getRgbFromHsl(trackColor);
@@ -247,16 +295,12 @@ export const WaveformTimeline = ({
         ctx.beginPath();
         ctx.moveTo(regionX, trackY + trackHeight / 2);
         
-        // Calculate proper sample mapping - map region pixels to waveform samples
         const regionSamples = Math.floor(regionWidth);
         const audioDuration = track.audioBuffer?.duration || region.duration;
         
         for (let x = 0; x < regionSamples; x++) {
-          // Time within the region (in seconds)
           const pixelTime = x / pixelsPerSecond;
-          // Time in the source audio buffer
           const sourceTime = region.sourceStartOffset + pixelTime;
-          // Map to waveform data index (0 to waveformData.length)
           const sourceProgress = sourceTime / audioDuration;
           const dataIndex = Math.floor(sourceProgress * waveformData.length);
           const amplitude = (waveformData[Math.max(0, Math.min(waveformData.length - 1, dataIndex))] || 0) * region.gain;
@@ -277,7 +321,6 @@ export const WaveformTimeline = ({
         ctx.closePath();
         ctx.fill();
         
-        // Fade in/out overlays
         if (region.fadeIn.duration > 0) {
           const fadeWidth = region.fadeIn.duration * pixelsPerSecond;
           const fadeGrad = ctx.createLinearGradient(regionX, 0, regionX + fadeWidth, 0);
@@ -296,13 +339,11 @@ export const WaveformTimeline = ({
           ctx.fillRect(regionX + regionWidth - fadeWidth, trackY + 4, fadeWidth, trackHeight - 8);
         }
         
-        // Region border
         ctx.strokeStyle = isSelected ? 'hsl(var(--studio-accent))' : trackColor;
         ctx.lineWidth = isSelected ? 2 : 1;
         ctx.strokeRect(regionX, trackY + 4, regionWidth, trackHeight - 8);
       });
 
-      // Draw track separator
       ctx.strokeStyle = 'hsl(220, 14%, 28%)';
       ctx.lineWidth = 1;
       ctx.beginPath();
@@ -311,7 +352,6 @@ export const WaveformTimeline = ({
       ctx.stroke();
     });
 
-    // Draw playhead
     const playheadX = currentTime * pixelsPerSecond;
     if (playheadX >= 0 && playheadX <= rect.width) {
       ctx.strokeStyle = 'hsl(var(--studio-accent))';
@@ -323,28 +363,24 @@ export const WaveformTimeline = ({
     }
   }, [tracks, currentTime, duration, zoom, trackHeight, pixelsPerSecond, hoveredTrack, hoveredRegion, selectedRegions]);
 
-  // Handle region selection
   const handleRegionClick = useCallback((regionId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     const multiSelect = e.metaKey || e.ctrlKey;
     selectRegion(regionId, multiSelect);
   }, [selectRegion]);
   
-  // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (selectedRegions.size === 0) return;
       
       if (e.key === 's' || e.key === 'S') {
-        // Split selected regions at playhead
         selectedRegions.forEach(regionId => splitRegion(regionId, currentTime));
       } else if ((e.metaKey || e.ctrlKey) && e.key === 'd') {
         e.preventDefault();
-        // Duplicate selected regions
         selectedRegions.forEach(regionId => duplicateRegion(regionId));
       } else if (e.key === 'Delete' || e.key === 'Backspace') {
-        // Delete selected regions
-        selectedRegions.forEach(regionId => removeRegion(regionId));
+        // Use ripple-aware delete
+        selectedRegions.forEach(regionId => deleteRegionWithRipple(regionId));
         clearSelection();
       } else if (e.key === 'Escape') {
         clearSelection();
@@ -353,9 +389,8 @@ export const WaveformTimeline = ({
     
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedRegions, currentTime, splitRegion, duplicateRegion, removeRegion, clearSelection]);
+  }, [selectedRegions, currentTime, splitRegion, duplicateRegion, deleteRegionWithRipple, clearSelection]);
 
-  // Handle click to seek with quantization
   const handleTimelineClick = (e: React.MouseEvent) => {
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
@@ -363,7 +398,6 @@ export const WaveformTimeline = ({
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     
-    // Check if clicking on a region
     const trackIndex = Math.floor(y / trackHeight);
     if (trackIndex >= 0 && trackIndex < tracks.length) {
       const track = tracks[trackIndex];
@@ -379,14 +413,14 @@ export const WaveformTimeline = ({
       }
     }
     
-    // Otherwise seek with quantization
     const rawTime = x / pixelsPerSecond;
-    const quantizedTime = quantizeTime(rawTime);
+    const trackIndex2 = Math.floor(y / trackHeight);
+    const trackId = trackIndex2 >= 0 && trackIndex2 < tracks.length ? tracks[trackIndex2].id : undefined;
+    const quantizedTime = enhancedQuantizeTime(rawTime, trackId);
     onTimeChange(Math.max(0, Math.min(duration, quantizedTime)));
     clearSelection();
   };
 
-  // Handle track and region hover
   const handleMouseMove = (e: React.MouseEvent) => {
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
@@ -399,7 +433,6 @@ export const WaveformTimeline = ({
       const track = tracks[trackIndex];
       setHoveredTrack(track.id);
       
-      // Check if hovering over a region
       const hoverTime = x / pixelsPerSecond;
       const hovered = track.regions.find(r => 
         hoverTime >= r.startTime && hoverTime <= r.startTime + r.duration
@@ -414,11 +447,9 @@ export const WaveformTimeline = ({
   return (
     <div 
       className="flex flex-col h-full"
-      style={{
-        background: 'hsl(220, 20%, 14%)',
-      }}
+      style={{ background: 'hsl(220, 20%, 14%)' }}
     >
-      {/* Timeline Header - Simplified */}
+      {/* Timeline Header */}
       <div 
         className="flex items-center justify-between px-3 py-1.5 border-b"
         style={{
@@ -427,35 +458,22 @@ export const WaveformTimeline = ({
         }}
       >
         <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setZoom(Math.max(0.5, zoom - 0.5))}
-            className="h-7 w-7"
-          >
+          <Button variant="ghost" size="icon" onClick={() => setZoom(Math.max(0.5, zoom - 0.5))} className="h-7 w-7">
             <ZoomOut className="w-3.5 h-3.5" />
           </Button>
           <span className="text-[10px] font-mono text-[hsl(var(--studio-text-dim))] min-w-[2.5rem] text-center">
             {Math.round(zoom * 100)}%
           </span>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setZoom(Math.min(4, zoom + 0.5))}
-            className="h-7 w-7"
-          >
+          <Button variant="ghost" size="icon" onClick={() => setZoom(Math.min(4, zoom + 0.5))} className="h-7 w-7">
             <ZoomIn className="w-3.5 h-3.5" />
           </Button>
           
           <div className="w-px h-5 bg-[hsl(220,14%,28%)] mx-1" />
           
+          {/* Snap Mode Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant={snapEnabled ? "default" : "ghost"}
-                size="sm"
-                className="h-7 px-2 gap-1"
-              >
+              <Button variant={snapEnabled ? "default" : "ghost"} size="sm" className="h-7 px-2 gap-1">
                 <Magnet className="w-3 h-3" />
                 <span className="text-[10px]">{getSnapLabel()}</span>
               </Button>
@@ -469,16 +487,19 @@ export const WaveformTimeline = ({
               <DropdownMenuItem onClick={() => setSnapMode('quarter')}>1/4 Note</DropdownMenuItem>
               <DropdownMenuItem onClick={() => setSnapMode('eighth')}>1/8 Note</DropdownMenuItem>
               <DropdownMenuItem onClick={() => setSnapMode('sixteenth')}>1/16 Note</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSnapMode('transient')}>
+                Transient 🎯
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSnapMode('zero-crossing')}>
+                Zero-Crossing ⚡
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           
+          {/* Scroll Mode */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant={scrollMode !== 'none' ? "default" : "ghost"}
-                size="sm"
-                className="h-7 px-2 gap-1"
-              >
+              <Button variant={scrollMode !== 'none' ? "default" : "ghost"} size="sm" className="h-7 px-2 gap-1">
                 <Navigation className="w-3 h-3" />
                 <span className="text-[10px]">
                   {scrollMode === 'continuous' ? 'Follow' : scrollMode === 'page' ? 'Page' : 'Static'}
@@ -491,115 +512,125 @@ export const WaveformTimeline = ({
               <DropdownMenuItem onClick={() => setScrollMode('continuous')}>Follow Playhead</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          {/* Ripple Mode */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant={rippleMode !== 'off' ? "default" : "ghost"} size="sm" className="h-7 px-2 gap-1">
+                <Workflow className="w-3 h-3" />
+                <span className="text-[10px]">
+                  {rippleMode === 'all' ? 'Ripple All' : rippleMode === 'selected' ? 'Ripple Sel' : 'No Ripple'}
+                </span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => setRippleMode('off')}>No Ripple</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setRippleMode('selected')}>Ripple Selected Tracks</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setRippleMode('all')}>Ripple All Tracks</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         
         <div className="flex items-center gap-2">
-          <span className="text-xs font-mono text-[hsl(var(--studio-text-dim))]">
-            Track Height
-          </span>
+          <span className="text-xs font-mono text-[hsl(var(--studio-text-dim))]">Track Height</span>
           <input
             type="range"
             min="60"
-            max="120"
+            max="200"
             value={trackHeight}
-            onChange={(e) => setTrackHeight(Number(e.target.value))}
-            className="w-24 accent-[hsl(var(--studio-accent))]"
+            onChange={(e) => setTrackHeight(parseInt(e.target.value))}
+            className="w-24"
           />
         </div>
       </div>
 
       {/* Timeline Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Musical Ruler */}
-        <div className="flex border-b border-[hsl(var(--studio-border))]">
-          <div className="flex-shrink-0" style={{ width: trackHeaderWidth }} />
-          <div className="flex-1 overflow-hidden">
-            <div style={{ width: duration * pixelsPerSecond }}>
-              <MusicalRuler
-                duration={duration}
-                tempo={tempo}
-                pixelsPerSecond={pixelsPerSecond}
-                currentTime={currentTime}
-                onTimeChange={onTimeChange}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Track Area */}
-        <div className="flex-1 flex overflow-hidden">
-          {/* Track Headers */}
-          <div className="flex-shrink-0 bg-[hsl(var(--studio-panel))] border-r border-[hsl(var(--studio-border))]" style={{ width: trackHeaderWidth }}>
+      <div className="flex flex-1 overflow-hidden">
+        {/* Track Headers */}
+        <div 
+          className="flex-shrink-0 overflow-y-auto border-r"
+          style={{ 
+            width: trackHeaderWidth,
+            borderColor: 'hsl(220, 14%, 28%)',
+          }}
+        >
           {tracks.map((track) => (
-            <div
-              key={track.id}
-              className={cn(
-                "flex items-center px-3 border-b border-[hsl(var(--studio-border))] transition",
-                hoveredTrack === track.id && "bg-[hsl(var(--studio-panel-raised))]"
-              )}
-              style={{ height: trackHeight }}
-            >
-              <div className="flex items-center gap-2 flex-1 min-w-0">
-                <div
-                  className="w-2 h-2 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: getTrackColor(track.type) }}
-                />
-                <span className="text-xs font-medium text-[hsl(var(--studio-text))] truncate">
-                  {track.name}
-                </span>
-              </div>
-              
+            <div key={track.id} style={{ height: trackHeight }}>
               <TrackControls
                 track={track}
-                isRecordArmed={recordArmedTracks.has(track.id)}
-                onToggleRecordArm={() => onToggleRecordArm(track.id)}
-                onOpenEffects={() => onOpenTrackEffects(track.id)}
-                onDelete={() => onDeleteTrack(track.id)}
                 onUpdate={(updates) => onTrackUpdate(track.id, updates)}
+                onDelete={() => onDeleteTrack(track.id)}
+                onToggleRecordArm={() => onToggleRecordArm(track.id)}
+                isRecordArmed={recordArmedTracks.has(track.id)}
+                onOpenEffects={() => onOpenTrackEffects(track.id)}
               />
             </div>
           ))}
         </div>
 
         {/* Timeline Canvas */}
-        <div className="flex-1 overflow-x-auto overflow-y-hidden" ref={scrollContainerRef}>
-          <canvas
-            ref={canvasRef}
-            className="w-full cursor-crosshair"
+        <div 
+          ref={scrollContainerRef}
+          className="flex-1 overflow-auto relative"
+        >
+          <div 
             style={{ 
+              width: duration * pixelsPerSecond,
               height: tracks.length * trackHeight,
-              minWidth: Math.max(800, duration * pixelsPerSecond)
+              position: 'relative',
             }}
-            onClick={handleTimelineClick}
-            onMouseMove={handleMouseMove}
-            onMouseLeave={() => {
-              setHoveredTrack(null);
-              setHoveredRegion(null);
-            }}
-          />
+          >
+            <canvas
+              ref={canvasRef}
+              onClick={handleTimelineClick}
+              onMouseMove={handleMouseMove}
+              style={{
+                width: duration * pixelsPerSecond,
+                height: tracks.length * trackHeight,
+                display: 'block',
+              }}
+            />
+
+            {/* Transient Markers Overlay */}
+            {tracks.map((track, index) => {
+              const transients = trackTransients.get(track.id);
+              if (!transients || transients.length === 0) return null;
+
+              return (
+                <div
+                  key={`transients-${track.id}`}
+                  style={{
+                    position: 'absolute',
+                    left: 0,
+                    top: index * trackHeight,
+                    width: duration * pixelsPerSecond,
+                    height: trackHeight,
+                    pointerEvents: 'none',
+                  }}
+                >
+                  <TransientMarkers
+                    transients={transients}
+                    startTime={0}
+                    duration={duration}
+                    width={duration * pixelsPerSecond}
+                    height={trackHeight}
+                  />
+                </div>
+              );
+            })}
+
+          </div>
         </div>
       </div>
 
-      {/* Time Ruler */}
-      <div className="h-8 bg-[hsl(var(--studio-panel))] border-t border-[hsl(var(--studio-border))] flex items-center px-4">
-        <div className="flex-shrink-0" style={{ width: trackHeaderWidth }} />
-        <div className="flex-1 relative">
-          {Array.from({ length: Math.ceil(duration / 4) }).map((_, i) => {
-            const time = i * 4;
-            const x = time * pixelsPerSecond;
-            return (
-              <div
-                key={i}
-                className="absolute text-xs font-mono text-[hsl(var(--studio-text-dim))]"
-                style={{ left: x }}
-              >
-                {Math.floor(time / 60)}:{(time % 60).toString().padStart(2, '0')}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-      </div>
+      {/* Musical Ruler */}
+      <MusicalRuler
+        duration={duration}
+        currentTime={currentTime}
+        pixelsPerSecond={pixelsPerSecond}
+        tempo={tempo}
+        onTimeChange={onTimeChange}
+      />
     </div>
   );
 };
