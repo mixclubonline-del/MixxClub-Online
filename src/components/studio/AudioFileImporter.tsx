@@ -39,17 +39,15 @@ export const AudioFileImporter = () => {
         length: audioBuffer.length + ' samples',
       });
 
-      // Generate real waveform data from audio buffer
-      console.log('[AudioImporter] 📊 Generating waveform...');
-      const waveformData = WaveformGenerator.generateFromBuffer(audioBuffer, {
-        width: 800, // High detail for studio
-        normalize: true,
-      });
+      // Generate multi-resolution waveform data using client-side generation
+      console.log('[AudioImporter] 📊 Generating multi-resolution waveform...');
+      const waveformData = WaveformGenerator.generateMultiResolution(audioBuffer);
       console.log('[AudioImporter] ✅ Waveform generated:', {
         peaks: waveformData.peaks.length,
-        peakType: waveformData.peaks.constructor.name,
-        peakSample: waveformData.peaks[0]?.toFixed(3),
-        maxPeak: Math.max(...Array.from(waveformData.peaks)).toFixed(3),
+        multiResolution: !!waveformData.multiResolution,
+        low: waveformData.multiResolution?.low.length,
+        medium: waveformData.multiResolution?.medium.length,
+        high: waveformData.multiResolution?.high.length,
       });
 
       // Create track with real audio data and waveform
@@ -74,7 +72,7 @@ export const AudioFileImporter = () => {
         mute: false,
         solo: false,
         audioBuffer, // Store AudioBuffer in memory
-        waveformData: waveformData.peaks, // Real waveform peaks (Float32Array)
+        waveformData: waveformData, // Multi-resolution waveform data
         peakLevel: 0,
         rmsLevel: 0,
         regions: [newRegion],
@@ -86,7 +84,7 @@ export const AudioFileImporter = () => {
       if (!newTrack.audioBuffer) {
         throw new Error('Track missing audioBuffer!');
       }
-      if (!newTrack.waveformData || newTrack.waveformData.length === 0) {
+      if (!newTrack.waveformData) {
         throw new Error('Track missing waveformData!');
       }
       if (!newTrack.regions || newTrack.regions.length === 0) {
@@ -97,7 +95,7 @@ export const AudioFileImporter = () => {
         id: trackId,
         name: newTrack.name,
         hasBuffer: !!newTrack.audioBuffer,
-        waveformLength: newTrack.waveformData.length,
+        waveformData: typeof newTrack.waveformData,
         regionCount: newTrack.regions.length,
       });
 
@@ -108,7 +106,7 @@ export const AudioFileImporter = () => {
 
       toast({
         title: '✅ Track Imported!',
-        description: `${file.name} • ${audioBuffer.duration.toFixed(1)}s • ${waveformData.peaks.length} waveform points`,
+        description: `${file.name} • ${audioBuffer.duration.toFixed(1)}s • Multi-resolution waveform`,
       });
 
       audioContext.close();

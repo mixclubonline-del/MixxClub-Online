@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 
+import { WaveformData } from '@/services/waveformGenerator';
+
 export interface FadeConfig {
   duration: number;
   curve: string;
@@ -55,7 +57,7 @@ export interface Track {
   peakLevel?: number;
   rmsLevel?: number;
   regions?: AudioRegion[];
-  waveformData?: Float32Array;
+  waveformData?: Float32Array | WaveformData;
 }
 
 export interface BusGroup {

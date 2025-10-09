@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { audioEngine } from '@/services/audioEngine';
 import { Track } from '@/stores/aiStudioStore';
+import { WaveformGenerator } from '@/services/waveformGenerator';
 import { supabase } from '@/integrations/supabase/client';
 import { WaveformGenerator } from '@/services/waveformGenerator';
 
@@ -34,9 +35,7 @@ export const useStudioPlayback = () => {
     if (track.audioBuffer && track.waveformData) {
       return {
         audioBuffer: track.audioBuffer,
-        waveformData: Array.isArray(track.waveformData) 
-          ? new Float32Array(track.waveformData)
-          : track.waveformData,
+        waveformData: WaveformGenerator.getPeaks(track.waveformData),
       };
     }
 

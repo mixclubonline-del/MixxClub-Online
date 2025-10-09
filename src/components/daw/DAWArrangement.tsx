@@ -98,10 +98,11 @@ export const DAWArrangement = () => {
           ctx.shadowBlur = 2;
           ctx.beginPath();
           
-          const samplesPerPixel = Math.ceil(track.waveformData.length / regionWidth);
+          const peaks = WaveformGenerator.getPeaks(track.waveformData);
+          const samplesPerPixel = Math.ceil(peaks.length / regionWidth);
           for (let px = 0; px < regionWidth; px++) {
             const sampleIndex = Math.floor(px * samplesPerPixel);
-            const sample = track.waveformData[sampleIndex] || 0;
+            const sample = peaks[sampleIndex] || 0;
             const waveY = regionY + regionHeight / 2 + (sample * regionHeight / 2);
             
             if (px === 0) {

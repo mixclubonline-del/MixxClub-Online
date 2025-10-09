@@ -9,6 +9,12 @@ export interface WaveformData {
   duration: number;
   sampleRate: number;
   channels: number;
+  // Multi-resolution data for professional rendering
+  multiResolution?: {
+    low: Float32Array;    // 100 samples/sec - Overview
+    medium: Float32Array; // 500 samples/sec - Normal zoom
+    high: Float32Array;   // 2000 samples/sec - Detail view
+  };
 }
 
 export interface WaveformOptions {
@@ -105,6 +111,72 @@ export class WaveformGenerator {
     return this.generateFromBuffer(audioBuffer, options);
   }
   
+  /**
+   * Generate multi-resolution waveform data for professional rendering
+   * Used by Wavesurfer.js and other modern libraries
+   */
+  static generateMultiResolution(audioBuffer: AudioBuffer): WaveformData {
+    const channelData = audioBuffer.getChannelData(0);
+    const sampleRate = audioBuffer.sampleRate;
+    const duration = audioBuffer.duration;
+
+    // Generate 3 resolution levels
+    const low = this.resampleToPeaks(channelData, Math.ceil(duration * 100));
+    const medium = this.resampleToPeaks(channelData, Math.ceil(duration * 500));
+    const high = this.resampleToPeaks(channelData, Math.ceil(duration * 2000));
+
+    return {
+      peaks: medium,
+      rms: new Float32Array(medium.length),
+      duration,
+      sampleRate,
+      channels: audioBuffer.numberOfChannels,
+      multiResolution: { low, medium, high }
+    };
+  }
+
+  /**
+   * Resample audio data to target number of peaks
+   */
+  private static resampleToPeaks(data: Float32Array, targetLength: number): Float32Array {
+    const result = new Float32Array(targetLength);
+    const samplesPerPeak = Math.floor(data.length / targetLength);
+    
+    for (let i = 0; i < targetLength; i++) {
+      const start = i * samplesPerPeak;
+      const end = Math.min(start + samplesPerPeak, data.length);
+      let peak = 0;
+      
+      for (let j = start; j < end; j++) {
+        peak = Math.max(peak, Math.abs(data[j]));
+      }
+      
+      result[i] = peak;
+    }
+    
+    return result;
+  }
+
+  /**
+   * Get peaks array from waveform data (handles both formats)
+   */
+  static getPeaks(waveformData: Float32Array | WaveformData): Float32Array {
+    if (waveformData instanceof Float32Array) {
+      return waveformData;
+    }
+    return waveformData.peaks;
+  }
+
+  /**
+   * Get waveform length (handles both formats)
+   */
+  static getLength(waveformData: Float32Array | WaveformData): number {
+    if (waveformData instanceof Float32Array) {
+      return waveformData.length;
+    }
+    return waveformData.peaks.length;
+  }
+
   /**
    * Downsample waveform data for zoom levels
    */

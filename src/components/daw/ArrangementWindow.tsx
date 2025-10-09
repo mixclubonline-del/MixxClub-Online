@@ -207,7 +207,10 @@ export const ArrangementWindow = ({
         ctx.strokeRect(regionX, trackY + 10, regionWidth, TRACK_HEIGHT - 20);
 
         // Draw waveform if available
-        if (track.waveformData && track.waveformData.length > 0) {
+        if (track.waveformData) {
+          const peaks = WaveformGenerator.getPeaks(track.waveformData);
+          const waveformLength = WaveformGenerator.getLength(track.waveformData);
+          
           // Draw waveform with better visibility
           const waveformHeight = (TRACK_HEIGHT - 40) * 0.7;
           const centerY = trackY + TRACK_HEIGHT / 2;
@@ -230,7 +233,7 @@ export const ArrangementWindow = ({
           ctx.beginPath();
           ctx.moveTo(regionX, centerY);
           
-          const samplesPerPixel = track.waveformData.length / regionWidth;
+          const samplesPerPixel = waveformLength / regionWidth;
           
           for (let px = 0; px < regionWidth; px++) {
             const startSample = Math.floor(px * samplesPerPixel);
@@ -238,8 +241,8 @@ export const ArrangementWindow = ({
             
             // Find max amplitude in this pixel's sample range
             let maxAmp = 0;
-            for (let i = startSample; i < endSample && i < track.waveformData.length; i++) {
-              const amp = Math.abs(track.waveformData[i] - 0.5);
+            for (let i = startSample; i < endSample && i < waveformLength; i++) {
+              const amp = Math.abs(peaks[i] - 0.5);
               maxAmp = Math.max(maxAmp, amp);
             }
             
@@ -253,8 +256,8 @@ export const ArrangementWindow = ({
             const endSample = Math.floor((px + 1) * samplesPerPixel);
             
             let maxAmp = 0;
-            for (let i = startSample; i < endSample && i < track.waveformData.length; i++) {
-              const amp = Math.abs(track.waveformData[i] - 0.5);
+            for (let i = startSample; i < endSample && i < waveformLength; i++) {
+              const amp = Math.abs(peaks[i] - 0.5);
               maxAmp = Math.max(maxAmp, amp);
             }
             

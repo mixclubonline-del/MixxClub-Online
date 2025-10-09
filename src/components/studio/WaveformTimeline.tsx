@@ -259,8 +259,9 @@ export const WaveformTimeline = ({
   };
 
   const getWaveformData = (track: Track): number[] => {
-    if (track.waveformData && track.waveformData.length > 0) {
-      return Array.from(track.waveformData);
+    if (track.waveformData) {
+      const peaks = WaveformGenerator.getPeaks(track.waveformData);
+      return Array.from(peaks);
     }
     return generateFallbackWaveform(track.type);
   };

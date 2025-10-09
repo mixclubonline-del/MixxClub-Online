@@ -20,7 +20,7 @@ import {
   Minimize2
 } from "lucide-react";
 import { Track, AudioRegion } from "@/stores/aiStudioStore";
-import { AudioWaveformRenderer } from "./AudioWaveformRenderer";
+import { WavesurferTrack } from "./WavesurferTrack";
 
 interface EnhancedDAWTimelineProps {
   tracks: Track[];
@@ -398,25 +398,13 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
                       }}
                     >
                       <div className="h-full flex flex-col justify-center px-2 relative overflow-hidden">
-                        {showWaveforms && track.waveformData && track.waveformData.length > 0 ? (
-                          <AudioWaveformRenderer
-                            waveformData={
-                              track.waveformData instanceof Float32Array
-                                ? track.waveformData
-                                : new Float32Array(track.waveformData)
-                            }
-                            width={regionWidth}
-                            height={regionHeight}
-                            color={track.color || '#8B5CF6'}
-                            progress={Math.max(
-                              0,
-                              Math.min(
-                                1,
-                                (currentTime - region.startTime) / region.duration
-                              )
-                            )}
+                        {showWaveforms && track.audioBuffer ? (
+                          <WavesurferTrack
+                            track={track}
+                            currentTime={currentTime}
+                            isPlaying={isPlaying}
                             zoom={zoom}
-                            startOffset={region.sourceStartOffset || 0}
+                            height={regionHeight}
                           />
                         ) : showWaveforms ? (
                           <div className="flex items-center justify-center h-full">

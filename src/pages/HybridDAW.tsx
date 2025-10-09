@@ -480,7 +480,7 @@ const HybridDAW = () => {
       if (!newTrack.audioBuffer) {
         throw new Error('❌ Track missing audioBuffer after creation!');
       }
-      if (!newTrack.waveformData || newTrack.waveformData.length === 0) {
+      if (!newTrack.waveformData) {
         throw new Error('❌ Track missing waveformData after creation!');
       }
       if (!newTrack.regions || newTrack.regions.length === 0) {
@@ -489,8 +489,7 @@ const HybridDAW = () => {
       
       console.log('[HybridDAW] ✅ Track validation passed:', {
         hasAudioBuffer: !!newTrack.audioBuffer,
-        waveformLength: newTrack.waveformData.length,
-        waveformType: newTrack.waveformData.constructor.name,
+        waveformData: typeof newTrack.waveformData,
         regionCount: newTrack.regions.length,
         regionHasBuffer: !!newTrack.regions[0].audioBuffer,
       });
