@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
-import { ResizableAICopilot } from './ResizableAICopilot';
 import { ProjectsGridHero } from './ProjectsGridHero';
 import { LiveActivityFeed } from './LiveActivityFeed';
 import { QuickActionLauncher } from './QuickActionLauncher';
 import { useMoodTheming } from '@/hooks/useMoodTheming';
-import { useAIDashboardInsights } from '@/hooks/useAIDashboardInsights';
 import { cn } from '@/lib/utils';
 import { CollapsibleCard } from '@/components/ui/collapsible-card';
 import { Command, FolderKanban, Radio } from 'lucide-react';
@@ -15,7 +13,6 @@ export const RevolutionaryDashboard = () => {
   const { user } = useAuth();
   const [showCommandPalette, setShowCommandPalette] = useState(false);
   const { theme, updateMood } = useMoodTheming();
-  const { insights, isLoading: insightsLoading } = useAIDashboardInsights();
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -73,40 +70,38 @@ export const RevolutionaryDashboard = () => {
         ))}
       </div>
 
-      {/* Resizable AI Copilot + Dashboard Content */}
-      <ResizableAICopilot insights={insights} isLoading={insightsLoading}>
-        <div className="container px-4 md:px-6 py-6 space-y-6">
-          <CollapsibleCard
-            title="Quick Actions"
-            icon={<Command className="w-5 h-5" />}
-            defaultOpen={true}
-            storageKey="crm-quick-actions"
-            contentClassName="p-0"
-          >
-            <QuickActionLauncher onOpenPalette={() => setShowCommandPalette(true)} />
-          </CollapsibleCard>
+      {/* Dashboard Content */}
+      <div className="container px-4 md:px-6 py-6 space-y-6">
+        <CollapsibleCard
+          title="Quick Actions"
+          icon={<Command className="w-5 h-5" />}
+          defaultOpen={true}
+          storageKey="crm-quick-actions"
+          contentClassName="p-0"
+        >
+          <QuickActionLauncher onOpenPalette={() => setShowCommandPalette(true)} />
+        </CollapsibleCard>
 
-          <CollapsibleCard
-            title="Active Projects"
-            icon={<FolderKanban className="w-5 h-5" />}
-            defaultOpen={true}
-            storageKey="crm-active-projects"
-            contentClassName="p-0"
-          >
-            <ProjectsGridHero userRole="artist" />
-          </CollapsibleCard>
+        <CollapsibleCard
+          title="Active Projects"
+          icon={<FolderKanban className="w-5 h-5" />}
+          defaultOpen={true}
+          storageKey="crm-active-projects"
+          contentClassName="p-0"
+        >
+          <ProjectsGridHero userRole="artist" />
+        </CollapsibleCard>
 
-          <CollapsibleCard
-            title="Live Activity"
-            icon={<Radio className="w-5 h-5" />}
-            defaultOpen={true}
-            storageKey="crm-live-activity"
-            contentClassName="p-0"
-          >
-            <LiveActivityFeed />
-          </CollapsibleCard>
-        </div>
-      </ResizableAICopilot>
+        <CollapsibleCard
+          title="Live Activity"
+          icon={<Radio className="w-5 h-5" />}
+          defaultOpen={true}
+          storageKey="crm-live-activity"
+          contentClassName="p-0"
+        >
+          <LiveActivityFeed />
+        </CollapsibleCard>
+      </div>
 
       {/* Command Palette Modal */}
       <AnimatePresence>

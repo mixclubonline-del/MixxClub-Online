@@ -9,6 +9,8 @@ import { NavLink } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { RoleSwitcher } from './RoleSwitcher';
+import { ResizableAICopilot } from './dashboard/ResizableAICopilot';
+import { useAIDashboardInsights } from '@/hooks/useAIDashboardInsights';
 
 interface CRMLayoutProps {
   children: ReactNode;
@@ -30,6 +32,7 @@ interface CRMLayoutProps {
 
 export const CRMLayout = ({ children, userType, profile, stats, quickActions }: CRMLayoutProps) => {
   const isMobile = useIsMobile();
+  const { insights, isLoading: insightsLoading } = useAIDashboardInsights();
   
   const getLevelProgress = () => {
     if (!profile) return 0;
@@ -182,9 +185,11 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions }: 
             </div>
           </Card>
 
-          {/* Main Content */}
+          {/* Main Content with Resizable AI Copilot */}
           <div className="animate-in fade-in duration-1000">
-            {children}
+            <ResizableAICopilot insights={insights} isLoading={insightsLoading}>
+              {children}
+            </ResizableAICopilot>
           </div>
         </div>
         </div>
@@ -244,9 +249,11 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions }: 
             </div>
           </div>
 
-          {/* Main Content */}
+          {/* Main Content with Resizable AI Copilot */}
           <div className="animate-in fade-in duration-700">
-            {children}
+            <ResizableAICopilot insights={insights} isLoading={insightsLoading}>
+              {children}
+            </ResizableAICopilot>
           </div>
         </div>
       </div>
