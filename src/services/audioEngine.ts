@@ -1,532 +1,447 @@
-import { EQProcessor } from '@/audio/effects/EQProcessor';
-import { CompressorProcessor } from '@/audio/effects/CompressorProcessor';
-import { ReverbProcessor } from '@/audio/effects/ReverbProcessor';
-import { DelayProcessor } from '@/audio/effects/DelayProcessor';
-import { SaturatorProcessor } from '@/audio/effects/SaturatorProcessor';
-import { LimiterProcessor } from '@/audio/effects/LimiterProcessor';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+type UUID = string;
 
-type EffectProcessor = EQProcessor | CompressorProcessor | ReverbProcessor | DelayProcessor | SaturatorProcessor | LimiterProcessor;
+export type PluginType = "EQ" | "COMP" | "SAT" | "REV" | "DLY" | "OTHER";
+export interface PluginSlot {
+  id: UUID;
+  type: PluginType;
+  bypass: boolean;
+  node: AudioNode; // GainNode or WorkletNode placeholder
+}
 
-// Audio Engine Service - Handles playback, recording, routing, and effects
-export class AudioEngine {
-  private audioContext: AudioContext | null = null;
-  private masterGainNode: GainNode | null = null;
-  private trackNodes: Map<string, {
-    gainNode: GainNode;
-    panNode: StereoPannerNode;
-    sourceNode: AudioBufferSourceNode | null;
-    recordingNode: MediaStreamAudioSourceNode | null;
-    analyserNode: AnalyserNode;
-    effectsChain: Map<string, EffectProcessor>;
-    sendNodes: Map<string, GainNode>;
-    latencyDelay: DelayNode; // For latency compensation
-  }> = new Map();
-  private sendBuses: Map<string, {
-    gainNode: GainNode;
-    effectsChain: Map<string, EffectProcessor>;
-  }> = new Map();
-  private isPlaying = false;
-  private playbackStartTime = 0; // AudioContext time when playback started
-  private playbackOffset = 0; // Position in track when playback started (seconds)
-  private latencyCompensation = 0; // Total system latency in seconds
-  private sampleRate = 48000;
-  private bufferSize = 512;
-  
-  // Preview system
-  private previewNode: {
-    gainNode: GainNode;
-    effectProcessor: EffectProcessor | null;
-    trackId: string | null;
-  } | null = null;
+export interface SendLevels {
+  reverb?: number; // 0..1
+  delay?: number; // 0..1
+  [key: string]: number | undefined;
+}
+
+export interface TrackGraph {
+  id: UUID;
+  name: string;
+  // Core nodes
+  input: AudioNode; // MediaStreamAudioSourceNode or AudioBufferSourceNode (dynamic)
+  preGain: GainNode;
+  preAnalyser: AnalyserNode;
+
+  // Plugin chain (ordered inserts)
+  plugins: PluginSlot[];
+  postAnalyser: AnalyserNode;
+
+  // Pan + fader
+  pan: StereoPannerNode;
+  fader: GainNode;
+
+  // Sends
+  sendGains: Record<string, GainNode>; // e.g., { reverb: GainNode, delay: GainNode }
+
+  // Output tap
+  out: GainNode;
+
+  // State
+  bufferSource?: AudioBufferSourceNode | null; // for file playback convenience
+  isArmed?: boolean;
+  muted?: boolean;
+  solo?: boolean;
+  sendLevels: SendLevels;
+}
+
+export interface FxBus {
+  id: string; // 'reverb' | 'delay' | ...
+  in: GainNode;
+  proc: AudioNode; // ConvolverNode / DelayNode / WorkletNode
+  out: GainNode;
+  returnGain: GainNode; // Return level to master
+  enabled: boolean;
+}
+
+export interface MasterChain {
+  input: GainNode;
+  eq: GainNode; // placeholder
+  multiband: GainNode; // placeholder
+  limiter: GainNode; // placeholder
+  clipper: GainNode; // placeholder
+  analyser: AnalyserNode;
+  output: GainNode; // to destination
+}
+
+class AudioEngine {
+  ctx: AudioContext;
+  tracks: Map<UUID, TrackGraph> = new Map();
+  submixes: Map<string, GainNode> = new Map(); // e.g., 'DRUMS', 'VOX'
+  fxBuses: Map<string, FxBus> = new Map();
+  master: MasterChain;
+
+  // global clock helpers
+  private startedAt = 0;
+  private pausedAt = 0;
+  private playing = false;
 
   constructor() {
-    this.initAudioContext();
+    const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+    this.ctx = new AudioCtx();
+
+    // --- Master chain ---
+    const input = this.ctx.createGain();
+    const eq = this.ctx.createGain();
+    const multiband = this.ctx.createGain();
+    const limiter = this.ctx.createGain();
+    const clipper = this.ctx.createGain();
+    const analyser = this.ctx.createAnalyser();
+    analyser.fftSize = 2048;
+    const output = this.ctx.createGain();
+
+    input.connect(eq);
+    eq.connect(multiband);
+    multiband.connect(limiter);
+    limiter.connect(clipper);
+    clipper.connect(analyser);
+    analyser.connect(output);
+    output.connect(this.ctx.destination);
+
+    this.master = { input, eq, multiband, limiter, clipper, analyser, output };
+
+    // --- Default FX buses (Reverb / Delay) ---
+    this.createFxBus("reverb", this.ctx.createConvolver());
+    const delay = this.ctx.createDelay(2.0);
+    delay.delayTime.value = 0.38; // nice default
+    this.createFxBus("delay", delay);
   }
 
-  private initAudioContext() {
-    if (!this.audioContext) {
-      this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)({
-        sampleRate: this.sampleRate,
-        latencyHint: 'interactive',
-      });
-      this.masterGainNode = this.audioContext.createGain();
-      this.masterGainNode.connect(this.audioContext.destination);
-      
-      // Calculate actual latency
-      this.calculateLatency();
-      
-      // Initialize 4 send buses
-      ['S1', 'S2', 'S3', 'S4'].forEach(busId => {
-        const gainNode = this.audioContext!.createGain();
-        gainNode.connect(this.masterGainNode!);
-        this.sendBuses.set(busId, {
-          gainNode,
-          effectsChain: new Map(),
-        });
-      });
-    }
-  }
+  /** Create a shared FX bus (Send/Return) and route to master */
+  createFxBus(id: string, processor: AudioNode) {
+    const inGain = this.ctx.createGain();
+    inGain.gain.value = 1;
 
-  private calculateLatency() {
-    if (!this.audioContext) return;
-    
-    // Calculate total system latency
-    const baseLatency = this.audioContext.baseLatency || 0;
-    const outputLatency = (this.audioContext as any).outputLatency || 0;
-    const bufferLatency = this.bufferSize / this.audioContext.sampleRate;
-    
-    this.latencyCompensation = baseLatency + outputLatency + bufferLatency;
-    
-    console.log(`Audio Engine Latency: ${(this.latencyCompensation * 1000).toFixed(2)}ms`);
-  }
+    const returnGain = this.ctx.createGain();
+    returnGain.gain.value = 0.25; // default return level
 
-  setSampleRate(sampleRate: 44100 | 48000 | 96000) {
-    this.sampleRate = sampleRate;
-    // Note: Requires audio context restart to take effect
-  }
+    const out = this.ctx.createGain();
+    inGain.connect(processor);
+    processor.connect(out);
+    out.connect(returnGain);
+    returnGain.connect(this.master.input);
 
-  setBufferSize(bufferSize: 128 | 256 | 512 | 1024 | 2048) {
-    this.bufferSize = bufferSize;
-    this.calculateLatency();
-  }
-
-  getLatency(): number {
-    return this.latencyCompensation;
-  }
-
-  // Initialize track in the audio graph
-  initTrack(trackId: string, audioBuffer?: AudioBuffer) {
-    if (!this.audioContext || !this.masterGainNode) return;
-
-    // Clean up existing nodes for this track
-    this.cleanupTrack(trackId);
-
-    const gainNode = this.audioContext.createGain();
-    const panNode = this.audioContext.createStereoPanner();
-    const analyserNode = this.audioContext.createAnalyser();
-    const latencyDelay = this.audioContext.createDelay(1.0); // Max 1 second delay
-    
-    analyserNode.fftSize = 2048;
-    latencyDelay.delayTime.value = this.latencyCompensation;
-    
-    // Connect: gain -> latency compensation -> pan -> analyser -> master
-    gainNode.connect(latencyDelay);
-    latencyDelay.connect(panNode);
-    panNode.connect(analyserNode);
-    analyserNode.connect(this.masterGainNode);
-
-    this.trackNodes.set(trackId, {
-      gainNode,
-      panNode,
-      sourceNode: null,
-      recordingNode: null,
-      analyserNode,
-      effectsChain: new Map(),
-      sendNodes: new Map(),
-      latencyDelay,
+    this.fxBuses.set(id, {
+      id,
+      in: inGain,
+      proc: processor,
+      out,
+      returnGain,
+      enabled: true,
     });
   }
 
-  // Start playback for a specific track at specific time (sample-accurate)
-  playTrack(trackId: string, audioBuffer: AudioBuffer, offset = 0, startTime?: number) {
-    if (!this.audioContext) return;
+  /** Create a submix / group bus (route multiple tracks into it) */
+  createSubmix(id: string) {
+    if (this.submixes.has(id)) return this.submixes.get(id)!;
+    const g = this.ctx.createGain();
+    g.connect(this.master.input);
+    this.submixes.set(id, g);
+    return g;
+  }
 
-    const trackNode = this.trackNodes.get(trackId);
-    if (!trackNode) {
-      this.initTrack(trackId, audioBuffer);
-      return this.playTrack(trackId, audioBuffer, offset, startTime);
+  /** Utility to create a default Analyser */
+  private makeAnalyser() {
+    const a = this.ctx.createAnalyser();
+    a.fftSize = 1024;
+    a.smoothingTimeConstant = 0.6;
+    return a;
+  }
+
+  /** Create a new track and connect it to master (and sends) */
+  createTrack(opts: { id?: UUID; name?: string; buffer?: AudioBuffer | null; groupId?: string }): TrackGraph {
+    const id: UUID = opts.id ?? crypto.randomUUID();
+    const name = opts.name ?? "Track";
+
+    // Input node: default to a dummy Gain as placeholder
+    const input = this.ctx.createGain();
+    input.gain.value = 1;
+
+    const preGain = this.ctx.createGain();
+    preGain.gain.value = 1;
+
+    const preAnalyser = this.makeAnalyser();
+    const postAnalyser = this.makeAnalyser();
+
+    const pan = this.ctx.createStereoPanner();
+    pan.pan.value = 0;
+
+    const fader = this.ctx.createGain();
+    fader.gain.value = 0.85;
+
+    const out = this.ctx.createGain();
+
+    // default sends
+    const sendGains: Record<string, GainNode> = {};
+    for (const [busId, bus] of this.fxBuses) {
+      const sg = this.ctx.createGain();
+      sg.gain.value = 0; // off by default
+      out.connect(sg);
+      sg.connect(bus.in);
+      sendGains[busId] = sg;
     }
 
-    // Stop existing source
-    if (trackNode.sourceNode) {
-      try {
-        trackNode.sourceNode.stop();
-        trackNode.sourceNode.disconnect();
-      } catch (e) {
-        // Source may already be stopped
-      }
-    }
+    // wire base path
+    input.connect(preGain);
+    preGain.connect(preAnalyser);
 
-    // Create new source with sample-accurate timing
-    const sourceNode = this.audioContext.createBufferSource();
-    sourceNode.buffer = audioBuffer;
-    sourceNode.connect(trackNode.gainNode);
-    
-    // Use provided start time or current context time for sample-accurate playback
-    const when = startTime !== undefined ? startTime : this.audioContext.currentTime;
-    sourceNode.start(when, offset);
-    
-    // Track playback state for precise position tracking
-    if (!this.isPlaying) {
-      this.isPlaying = true;
-      this.playbackStartTime = when;
-      this.playbackOffset = offset;
-      console.log('[AudioEngine] Playback started:', {
-        when: when.toFixed(3),
-        offset: offset.toFixed(3),
-      });
-    }
+    // initial plugin chain (empty)
+    const plugins: PluginSlot[] = [];
+    // connect chain head to pan
+    preAnalyser.connect(pan); // start: preAnalyser → pan (we will repatch when plugins added)
 
-    trackNode.sourceNode = sourceNode;
-    this.trackNodes.set(trackId, trackNode);
-  }
+    pan.connect(fader);
+    fader.connect(postAnalyser);
+    postAnalyser.connect(out);
 
-  // Stop playback for a specific track
-  stopTrack(trackId: string) {
-    const trackNode = this.trackNodes.get(trackId);
-    if (trackNode?.sourceNode) {
-      try {
-        trackNode.sourceNode.stop();
-        trackNode.sourceNode.disconnect();
-        trackNode.sourceNode = null;
-      } catch (e) {
-        console.warn('Error stopping track:', e);
-      }
-    }
-  }
-
-  // Update track volume
-  setTrackVolume(trackId: string, volume: number) {
-    const trackNode = this.trackNodes.get(trackId);
-    if (trackNode) {
-      trackNode.gainNode.gain.setValueAtTime(volume, this.audioContext?.currentTime || 0);
-    }
-  }
-
-  // Update track pan
-  setTrackPan(trackId: string, pan: number) {
-    const trackNode = this.trackNodes.get(trackId);
-    if (trackNode) {
-      trackNode.panNode.pan.setValueAtTime(pan, this.audioContext?.currentTime || 0);
-    }
-  }
-
-  // Set master volume
-  setMasterVolume(volume: number) {
-    if (this.masterGainNode) {
-      this.masterGainNode.gain.setValueAtTime(volume, this.audioContext?.currentTime || 0);
-    }
-  }
-
-  // Get current audio levels for a track
-  getTrackLevels(trackId: string): { peak: number; rms: number } {
-    const trackNode = this.trackNodes.get(trackId);
-    if (!trackNode) return { peak: 0, rms: 0 };
-
-    const analyser = trackNode.analyserNode;
-    const bufferLength = analyser.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
-    analyser.getByteTimeDomainData(dataArray);
-
-    let peak = 0;
-    let sum = 0;
-
-    for (let i = 0; i < bufferLength; i++) {
-      const normalized = Math.abs((dataArray[i] - 128) / 128);
-      peak = Math.max(peak, normalized);
-      sum += normalized * normalized;
-    }
-
-    const rms = Math.sqrt(sum / bufferLength);
-    return { peak, rms };
-  }
-
-  // Start recording on a track
-  async startRecording(trackId: string, stream: MediaStream) {
-    if (!this.audioContext) return;
-
-    const trackNode = this.trackNodes.get(trackId);
-    if (!trackNode) {
-      this.initTrack(trackId);
-      return this.startRecording(trackId, stream);
-    }
-
-    // Create source from microphone stream
-    const recordingNode = this.audioContext.createMediaStreamSource(stream);
-    recordingNode.connect(trackNode.gainNode);
-    
-    trackNode.recordingNode = recordingNode;
-    this.trackNodes.set(trackId, trackNode);
-  }
-
-  // Stop recording on a track
-  stopRecording(trackId: string) {
-    const trackNode = this.trackNodes.get(trackId);
-    if (trackNode?.recordingNode) {
-      trackNode.recordingNode.disconnect();
-      trackNode.recordingNode = null;
-    }
-  }
-
-  // Clean up track resources
-  cleanupTrack(trackId: string) {
-    const trackNode = this.trackNodes.get(trackId);
-    if (trackNode) {
-      trackNode.sourceNode?.disconnect();
-      trackNode.recordingNode?.disconnect();
-      trackNode.gainNode.disconnect();
-      trackNode.panNode.disconnect();
-      trackNode.analyserNode.disconnect();
-      this.trackNodes.delete(trackId);
-    }
-  }
-
-  // Resume audio context (needed for some browsers)
-  async resume() {
-    if (this.audioContext?.state === 'suspended') {
-      await this.audioContext.resume();
-    }
-  }
-
-  // Get current audio context time (sample-accurate)
-  getCurrentTime(): number {
-    return this.audioContext?.currentTime || 0;
-  }
-
-  // Get current playback position (in seconds)
-  getPlaybackPosition(): number {
-    if (!this.isPlaying || !this.audioContext) return this.playbackOffset;
-    
-    const elapsed = this.audioContext.currentTime - this.playbackStartTime;
-    return this.playbackOffset + elapsed;
-  }
-
-  // Set playback position (for seeking)
-  setPlaybackPosition(position: number) {
-    this.playbackOffset = position;
-    
-    if (this.isPlaying) {
-      // If playing, restart all tracks from new position
-      this.stopAllTracks();
-      this.playbackStartTime = this.audioContext!.currentTime;
-      // Note: Individual tracks need to be restarted by the DAW controller
-    }
-  }
-
-  // Stop all tracks
-  stopAllTracks() {
-    console.log('[AudioEngine] Stopping all tracks');
-    this.trackNodes.forEach((trackNode, trackId) => {
-      if (trackNode.sourceNode) {
-        try {
-          trackNode.sourceNode.stop();
-          trackNode.sourceNode.disconnect();
-          trackNode.sourceNode = null;
-        } catch (e) {
-          console.warn('[AudioEngine] Error stopping track:', trackId, e);
-        }
-      }
-    });
-    this.isPlaying = false;
-    console.log('[AudioEngine] All tracks stopped, isPlaying =', this.isPlaying);
-  }
-
-  // Play/Pause control
-  togglePlayback() {
-    if (this.isPlaying) {
-      this.stopAllTracks();
-    }
-    return !this.isPlaying;
-  }
-
-  // Insert effect into track's effect chain
-  insertEffect(trackId: string, effectId: string, effectType: 'eq' | 'compressor' | 'reverb' | 'delay' | 'saturator' | 'limiter'): void {
-    if (!this.audioContext) return;
-    
-    const trackNode = this.trackNodes.get(trackId);
-    if (!trackNode) return;
-
-    let processor: EffectProcessor;
-    
-    switch (effectType) {
-      case 'eq':
-        processor = new EQProcessor(this.audioContext);
-        break;
-      case 'compressor':
-        processor = new CompressorProcessor(this.audioContext);
-        break;
-      case 'reverb':
-        processor = new ReverbProcessor(this.audioContext);
-        break;
-      case 'delay':
-        processor = new DelayProcessor(this.audioContext);
-        break;
-      case 'saturator':
-        processor = new SaturatorProcessor(this.audioContext);
-        break;
-      case 'limiter':
-        processor = new LimiterProcessor(this.audioContext);
-        break;
-    }
-
-    trackNode.effectsChain.set(effectId, processor);
-    this.rebuildEffectChain(trackId);
-  }
-
-  // Remove effect from track
-  removeEffect(trackId: string, effectId: string): void {
-    const trackNode = this.trackNodes.get(trackId);
-    if (!trackNode) return;
-
-    const processor = trackNode.effectsChain.get(effectId);
-    if (processor) {
-      processor.destroy();
-      trackNode.effectsChain.delete(effectId);
-      this.rebuildEffectChain(trackId);
-    }
-  }
-
-  // Update effect parameter
-  updateEffectParameter(trackId: string, effectId: string, param: string, value: number): void {
-    const trackNode = this.trackNodes.get(trackId);
-    if (!trackNode) return;
-
-    const processor = trackNode.effectsChain.get(effectId);
-    if (processor) {
-      processor.setParameter(param, value);
-    }
-  }
-
-  // Rebuild the effect chain routing
-  private rebuildEffectChain(trackId: string): void {
-    const trackNode = this.trackNodes.get(trackId);
-    if (!trackNode || !this.masterGainNode) return;
-
-    // Disconnect existing chain
-    trackNode.panNode.disconnect();
-    trackNode.analyserNode.disconnect();
-
-    const effects = Array.from(trackNode.effectsChain.values());
-    
-    if (effects.length === 0) {
-      // No effects: pan -> analyser -> master
-      trackNode.panNode.connect(trackNode.analyserNode);
-      trackNode.analyserNode.connect(this.masterGainNode);
+    // out connects downstream based on grouping
+    if (opts.groupId) {
+      const group = this.createSubmix(opts.groupId);
+      out.connect(group);
     } else {
-      // With effects: pan -> effect1 -> ... -> effectN -> analyser -> master
-      trackNode.panNode.connect(effects[0].getInputNode());
-      
-      for (let i = 0; i < effects.length - 1; i++) {
-        effects[i].getOutputNode().connect(effects[i + 1].getInputNode());
-      }
-      
-      effects[effects.length - 1].getOutputNode().connect(trackNode.analyserNode);
-      trackNode.analyserNode.connect(this.masterGainNode);
-    }
-  }
-
-  // Create send for track to bus
-  setSendAmount(trackId: string, busId: string, amount: number, preFader: boolean = false): void {
-    if (!this.audioContext) return;
-
-    const trackNode = this.trackNodes.get(trackId);
-    const sendBus = this.sendBuses.get(busId);
-    if (!trackNode || !sendBus) return;
-
-    let sendNode = trackNode.sendNodes.get(busId);
-    
-    if (!sendNode) {
-      sendNode = this.audioContext.createGain();
-      trackNode.sendNodes.set(busId, sendNode);
-      
-      // Connect send: Either pre-fader (from gain) or post-fader (from pan)
-      const sourceNode = preFader ? trackNode.gainNode : trackNode.panNode;
-      sourceNode.connect(sendNode);
-      sendNode.connect(sendBus.gainNode);
+      out.connect(this.master.input);
     }
 
-    sendNode.gain.setValueAtTime(amount, this.audioContext.currentTime);
-  }
-
-  // Set latency compensation enabled/disabled
-  setLatencyCompensation(enabled: boolean) {
-    // Update all track latency delays
-    this.trackNodes.forEach((trackNode) => {
-      if (enabled) {
-        trackNode.latencyDelay.delayTime.value = this.latencyCompensation;
-      } else {
-        trackNode.latencyDelay.delayTime.value = 0;
-      }
-    });
-  }
-
-  // Start plugin preview on a track
-  startPluginPreview(trackId: string, effectType: 'eq' | 'compressor' | 'reverb' | 'delay' | 'saturator' | 'limiter'): void {
-    if (!this.audioContext || !this.masterGainNode) return;
-    
-    // Stop any existing preview
-    this.stopPluginPreview();
-    
-    const trackNode = this.trackNodes.get(trackId);
-    if (!trackNode) return;
-
-    // Create preview processor
-    let processor: EffectProcessor;
-    
-    switch (effectType) {
-      case 'eq':
-        processor = new EQProcessor(this.audioContext);
-        break;
-      case 'compressor':
-        processor = new CompressorProcessor(this.audioContext);
-        break;
-      case 'reverb':
-        processor = new ReverbProcessor(this.audioContext);
-        break;
-      case 'delay':
-        processor = new DelayProcessor(this.audioContext);
-        break;
-      case 'saturator':
-        processor = new SaturatorProcessor(this.audioContext);
-        break;
-      case 'limiter':
-        processor = new LimiterProcessor(this.audioContext);
-        break;
-    }
-
-    // Create preview gain node
-    const previewGain = this.audioContext.createGain();
-    previewGain.gain.value = 1;
-
-    // Disconnect track's analyser from master temporarily
-    trackNode.analyserNode.disconnect();
-
-    // Route: analyser -> preview effect -> preview gain -> master
-    trackNode.analyserNode.connect(processor.getInputNode());
-    processor.getOutputNode().connect(previewGain);
-    previewGain.connect(this.masterGainNode);
-
-    this.previewNode = {
-      gainNode: previewGain,
-      effectProcessor: processor,
-      trackId
+    const tg: TrackGraph = {
+      id,
+      name,
+      input,
+      preGain,
+      preAnalyser,
+      plugins,
+      postAnalyser,
+      pan,
+      fader,
+      sendGains,
+      out,
+      bufferSource: null,
+      isArmed: false,
+      muted: false,
+      solo: false,
+      sendLevels: {},
     };
-  }
 
-  // Stop plugin preview
-  stopPluginPreview(): void {
-    if (!this.previewNode || !this.masterGainNode) return;
-
-    const trackNode = this.trackNodes.get(this.previewNode.trackId!);
-    if (trackNode) {
-      // Restore original routing
-      trackNode.analyserNode.disconnect();
-      trackNode.analyserNode.connect(this.masterGainNode);
+    // if buffer provided, auto create buffer source (stopped until play)
+    if (opts.buffer) {
+      this.attachBufferSource(tg, opts.buffer);
     }
 
-    // Clean up preview nodes
-    if (this.previewNode.effectProcessor) {
-      this.previewNode.effectProcessor.destroy();
-    }
-    this.previewNode.gainNode.disconnect();
-    this.previewNode = null;
+    this.tracks.set(id, tg);
+    this._repatchChain(tg); // ensure chain wiring is consistent
+    return tg;
   }
 
-  // Get preview state
-  isPreviewActive(): boolean {
-    return this.previewNode !== null;
+  /** Attach an AudioBufferSource to a track input (for stems/clips) */
+  attachBufferSource(track: TrackGraph, buffer: AudioBuffer) {
+    if (track.bufferSource) {
+      try {
+        track.bufferSource.stop();
+      } catch {}
+      track.bufferSource.disconnect();
+    }
+    const src = this.ctx.createBufferSource();
+    src.buffer = buffer;
+    src.loop = false;
+    src.connect(track.input);
+    track.bufferSource = src;
+  }
+
+  /** Remove track and disconnect nodes */
+  removeTrack(id: UUID) {
+    const t = this.tracks.get(id);
+    if (!t) return;
+    try {
+      t.bufferSource?.stop();
+    } catch {}
+    t.bufferSource?.disconnect();
+    t.input.disconnect();
+    t.preGain.disconnect();
+    t.preAnalyser.disconnect();
+    t.plugins.forEach((p) => p.node.disconnect());
+    t.pan.disconnect();
+    t.fader.disconnect();
+    t.postAnalyser.disconnect();
+    t.out.disconnect();
+    Object.values(t.sendGains).forEach((sg) => sg.disconnect());
+    this.tracks.delete(id);
+  }
+
+  /** Insert plugin at index; simple GainNode placeholder by default */
+  addPlugin(trackId: UUID, slot: { id?: UUID; type: PluginType; node?: AudioNode; bypass?: boolean }, index?: number) {
+    const t = this.tracks.get(trackId);
+    if (!t) return;
+    const plugin: PluginSlot = {
+      id: slot.id ?? crypto.randomUUID(),
+      type: slot.type,
+      bypass: !!slot.bypass,
+      node: slot.node ?? this.ctx.createGain(), // replace with AudioWorkletNode for real DSP
+    };
+    if (index === undefined || index < 0 || index > t.plugins.length) {
+      t.plugins.push(plugin);
+    } else {
+      t.plugins.splice(index, 0, plugin);
+    }
+    this._repatchChain(t);
+  }
+
+  /** Remove plugin by id */
+  removePlugin(trackId: UUID, pluginId: UUID) {
+    const t = this.tracks.get(trackId);
+    if (!t) return;
+    const idx = t.plugins.findIndex((p) => p.id === pluginId);
+    if (idx >= 0) {
+      try {
+        t.plugins[idx].node.disconnect();
+      } catch {}
+      t.plugins.splice(idx, 1);
+      this._repatchChain(t);
+    }
+  }
+
+  /** Toggle plugin bypass (when bypassed we wire around it) */
+  setPluginBypass(trackId: UUID, pluginId: UUID, bypass: boolean) {
+    const t = this.tracks.get(trackId);
+    if (!t) return;
+    const p = t.plugins.find((p) => p.id === pluginId);
+    if (!p) return;
+    p.bypass = bypass;
+    this._repatchChain(t);
+  }
+
+  /** Rebuild the internal wiring of one track (Input → Pre → Plugins → Pan → Fader) */
+  private _repatchChain(t: TrackGraph) {
+    // disconnect preAnalyser downstream
+    try {
+      t.preAnalyser.disconnect();
+    } catch {}
+    t.plugins.forEach((p) => {
+      try {
+        p.node.disconnect();
+      } catch {}
+    });
+    try {
+      t.pan.disconnect();
+    } catch {}
+
+    // Wire sequence respecting bypass flags
+    let head: AudioNode = t.preAnalyser;
+    for (const p of t.plugins) {
+      if (p.bypass) continue;
+      head.connect(p.node);
+      head = p.node;
+    }
+    head.connect(t.pan);
+    // everything else (pan→fader→postAnalyser→out) is static
+  }
+
+  /** Levels, pan, sends */
+  setTrackGain(id: UUID, gain: number) {
+    const t = this.tracks.get(id);
+    if (!t) return;
+    t.fader.gain.value = Math.max(0, Math.min(1.5, gain));
+  }
+  setTrackPan(id: UUID, pan: number) {
+    const t = this.tracks.get(id);
+    if (!t) return;
+    t.pan.pan.value = Math.max(-1, Math.min(1, pan));
+  }
+  setSendLevel(id: UUID, busId: string, level: number) {
+    const t = this.tracks.get(id);
+    if (!t) return;
+    const sg = t.sendGains[busId];
+    if (!sg) return;
+    sg.gain.value = Math.max(0, Math.min(1, level));
+    t.sendLevels[busId] = sg.gain.value;
+  }
+
+  /** Master helpers */
+  setMasterGain(v: number) {
+    this.master.output.gain.value = v;
+  }
+  getLatency() {
+    return (this.ctx.baseLatency ?? 0) * 1000;
+  }
+
+  /** Play/Stop convenience for buffer sources (non-destructive to live inputs) */
+  play(atTime?: number) {
+    if (this.playing) return;
+    const when = atTime ?? this.ctx.currentTime;
+    for (const t of this.tracks.values()) {
+      if (t.bufferSource) {
+        // re-create src to allow retrigger
+        const buf = t.bufferSource.buffer;
+        if (!buf) continue;
+        this.attachBufferSource(t, buf);
+        t.bufferSource!.start(when, this.pausedAt);
+      }
+    }
+    this.startedAt = when - this.pausedAt;
+    this.playing = true;
+  }
+
+  pause() {
+    if (!this.playing) return;
+    const now = this.ctx.currentTime;
+    this.pausedAt = now - this.startedAt;
+    for (const t of this.tracks.values()) {
+      try {
+        t.bufferSource?.stop();
+      } catch {}
+      t.bufferSource?.disconnect();
+      // keep state; reattach on next play()
+      if (t.bufferSource?.buffer) {
+        const buf = t.bufferSource.buffer;
+        this.attachBufferSource(t, buf);
+      }
+    }
+    this.playing = false;
+  }
+
+  stop() {
+    for (const t of this.tracks.values()) {
+      try {
+        t.bufferSource?.stop();
+      } catch {}
+      t.bufferSource?.disconnect();
+      if (t.bufferSource?.buffer) this.attachBufferSource(t, t.bufferSource.buffer);
+    }
+    this.startedAt = 0;
+    this.pausedAt = 0;
+    this.playing = false;
+  }
+
+  /** Resume audio context (required by browsers) */
+  async resume() {
+    if (this.ctx.state !== "running") await this.ctx.resume();
+  }
+
+  /** Taps for UI meters: pre/post track, master */
+  getTrackPreAnalyser(id: UUID) {
+    return this.tracks.get(id)?.preAnalyser ?? null;
+  }
+  getTrackPostAnalyser(id: UUID) {
+    return this.tracks.get(id)?.postAnalyser ?? null;
+  }
+  getMasterAnalyser() {
+    return this.master.analyser;
+  }
+
+  /** Basic export stub (replace with OfflineAudioContext pipeline later) */
+  async renderOffline(durationSec: number): Promise<AudioBuffer | null> {
+    console.warn("renderOffline stub: implement with OfflineAudioContext for true export.");
+    return null;
   }
 }
 
-// Singleton instance
+// Singleton export (matches your existing import style)
 export const audioEngine = new AudioEngine();
+
+/* =========================
+   Optional: Worklet wiring
+   =========================
+   // In your app bootstrap:
+   await audioEngine.ctx.audioWorklet.addModule('/worklets/mixx-eq-processor.js');
+   // Then create a node:
+   const eqNode = new AudioWorkletNode(audioEngine.ctx, 'mixx-eq-processor', { numberOfInputs: 1, numberOfOutputs: 1 });
+   audioEngine.addPlugin(trackId, { type: 'EQ', node: eqNode });
+*/
