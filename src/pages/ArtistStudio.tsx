@@ -16,11 +16,12 @@ import { BatchProcessingMenu } from "@/components/studio/BatchProcessingMenu";
 import { GrooveTemplates } from "@/components/studio/GrooveTemplates";
 import { AutomationRecordingControls } from "@/components/studio/AutomationRecordingControls";
 import { PluginPreviewControl } from "@/components/plugins/PluginPreviewControl";
-import { ArrangementWindow } from "@/components/daw/ArrangementWindow";
+import { ArrangementWindow } from "@/components/studio/ArrangementWindow";
 import { MiniMixerBar } from "@/components/daw/MiniMixerBar";
 import { audioEngine } from "@/services/audioEngine";
 import { useStudioPlayback } from "@/hooks/useStudioPlayback";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { useAudioEngineBridge } from "@/hooks/useAudioEngineBridge";
 
 import {
   Mic,
@@ -457,6 +458,9 @@ interface ProStudioProps {
 }
 
 const ProStudio = ({ userRole = "artist", projectId }: ProStudioProps) => {
+  // Keep audio engine and store in sync
+  useAudioEngineBridge();
+  
   const [shortcutsPanelOpen, setShortcutsPanelOpen] = useState(false);
   const [primeDockOpen, setPrimeDockOpen] = useState(true);
 
