@@ -71,7 +71,7 @@ const HowItWorks = () => {
       <div className="container px-6 relative z-10">
         <div className="text-center mb-12 animate-fade-in">
           <h2 className="text-4xl font-bold mb-4">
-            How <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">MixClub</span> Works
+            How <span className="font-black tracking-wider bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">MIXXCLUB</span> Works
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
             A seamless process designed for both artists and engineers. Switch views to see how each side benefits.

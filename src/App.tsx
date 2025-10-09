@@ -40,6 +40,7 @@ import AIStudio from "./pages/AIStudio";
 import Pulse from "./pages/Pulse";
 import Arena from "./pages/Arena";
 import Crowd from "./pages/Crowd";
+import Feed from "./pages/Feed";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
 import ArtistOnboarding from "./pages/ArtistOnboarding";
@@ -165,11 +166,9 @@ const AppContent = () => {
     <>
       <MobileRouteGuard />
       <OfflineIndicator />
-      <PrimeConsole />
-      <PrimeStatusBar />
       <React.Suspense fallback={<DashboardSkeleton />}>
       <Routes>
-        <Route path="/" element={<IntroScene />} />
+        <Route path="/" element={<MixClubHome />} />
             <Route path="/network" element={<MixClubHome />} />
             <Route path="/artist" element={<Artist />} />
             <Route path="/engineer" element={<Engineer />} />
@@ -177,6 +176,7 @@ const AppContent = () => {
             <Route path="/pulse" element={<Pulse />} />
             <Route path="/arena" element={<Arena />} />
             <Route path="/crowd" element={<Crowd />} />
+            <Route path="/feed" element={<Feed />} />
             <Route path="/mix-battles" element={<MixBattles />} />
             <Route path="/leaderboard" element={<CommunityLeaderboard />} />
             <Route path="/how-it-works" element={<HowItWorks />} />

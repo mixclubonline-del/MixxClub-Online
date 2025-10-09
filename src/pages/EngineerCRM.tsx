@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { CheckCircle, Clock, AlertCircle, Music, Plus, Upload, Award, TrendingUp, DollarSign } from 'lucide-react';
+import { CheckCircle, Clock, AlertCircle, Music, Plus, Upload, Award, TrendingUp, DollarSign, Headphones } from 'lucide-react';
 import { CRMLayout } from '@/components/crm/CRMLayout';
 import EnhancedCRM from '@/components/crm/EnhancedCRM';
 import SessionManager from '@/components/collaboration/SessionManager';
@@ -324,6 +324,12 @@ const EngineerCRM = () => {
   ];
 
   const quickActions = [
+    {
+      label: 'Open Studio',
+      icon: <Headphones className="w-4 h-4" />,
+      onClick: () => navigate('/engineer-crm?tab=studio'),
+      variant: 'default' as const,
+    },
     {
       label: 'Find New Projects',
       icon: <Music className="w-4 h-4" />,

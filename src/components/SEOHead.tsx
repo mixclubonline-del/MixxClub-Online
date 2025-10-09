@@ -21,7 +21,7 @@ export const SEOHead = ({
   schema,
   noindex = false,
 }: SEOHeadProps) => {
-  const fullTitle = `${title} | MixClub - Professional Audio Engineering Platform`;
+  const fullTitle = `${title} | MIXXCLUB - Professional Audio Engineering Platform`;
   const currentUrl = canonicalUrl || window.location.href;
 
   return (
@@ -42,7 +42,7 @@ export const SEOHead = ({
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />
       <meta property="og:image" content={ogImage} />
-      <meta property="og:site_name" content="MixClub" />
+      <meta property="og:site_name" content="MIXXCLUB" />
 
       {/* Twitter */}
       <meta name="twitter:card" content="summary_large_image" />

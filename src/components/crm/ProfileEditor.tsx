@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { Loader2, Save, Sparkles } from "lucide-react";
 import ProfilePhotoUpload from "./ProfilePhotoUpload";
 import AIBioGenerator from "./AIBioGenerator";
+import { AIAvatarGenerator } from "./AIAvatarGenerator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function ProfileEditor() {
@@ -139,6 +140,13 @@ export default function ProfileEditor() {
               <ProfilePhotoUpload
                 currentPhotoUrl={profile.avatar_url}
                 onPhotoUploaded={(url) => {
+                  setProfile({ ...profile, avatar_url: url });
+                  handleAutoSave("avatar_url", url);
+                }}
+              />
+              
+              <AIAvatarGenerator 
+                onAvatarGenerated={(url) => {
                   setProfile({ ...profile, avatar_url: url });
                   handleAutoSave("avatar_url", url);
                 }}

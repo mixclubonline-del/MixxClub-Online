@@ -38,14 +38,14 @@ export function AppSidebar() {
             <div className="absolute inset-0 bg-primary/20 rounded-lg blur-lg opacity-0 group-hover:opacity-100 transition-opacity"></div>
             <img 
               src={mixclub3DLogo} 
-              alt="MixClub" 
+              alt="Mixxclub" 
               className="w-10 h-8 object-contain relative z-10" 
             />
           </div>
           {!isCollapsed && (
             <div className="flex flex-col">
-              <span className="font-bold text-lg leading-tight bg-gradient-to-r from-white via-white/85 via-purple-300 to-primary bg-clip-text text-transparent bg-[length:200%_auto] animate-[gradient-shift_4s_ease-in-out_infinite] group-hover:animate-[gradient-shift_1.5s_ease-in-out_infinite] transition-all duration-300">
-                MixClub
+              <span className="font-black text-lg tracking-wider leading-tight bg-gradient-to-r from-white via-white/85 via-purple-300 to-primary bg-clip-text text-transparent bg-[length:200%_auto] animate-[gradient-shift_4s_ease-in-out_infinite] group-hover:animate-[gradient-shift_1.5s_ease-in-out_infinite] transition-all duration-300">
+                MIXXCLUB
               </span>
             </div>
           )}
