@@ -73,83 +73,38 @@ const DAWMixerPanel: React.FC<DAWMixerPanelProps> = ({
   return (
     <div className="h-full flex flex-col bg-card/10">
       {/* Header */}
-      <div className="p-4 border-b border-border">
+      <div className="p-3 border-b border-border">
         <h3 className="font-semibold text-sm flex items-center gap-2">
           <Volume2 className="w-4 h-4" />
           Mixer Console
         </h3>
       </div>
 
-      {/* Master Section */}
-      <div className="p-4 border-b border-border bg-muted/20">
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Master</span>
-            <Badge variant="secondary" className="text-xs">
-              {Math.round(masterVolume * 100)}%
-            </Badge>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <VolumeX className="w-4 h-4 text-muted-foreground" />
-            <Slider
-              value={[masterVolume * 100]}
-              onValueChange={(value) => onMasterVolumeChange(value[0] / 100)}
-              min={0}
-              max={100}
-              step={1}
-              className="flex-1"
-              orientation="horizontal"
-            />
-            <Volume2 className="w-4 h-4 text-muted-foreground" />
-          </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <Button variant="outline" size="sm" className="text-xs gap-1">
-              <Headphones className="w-3 h-3" />
-              Monitor
-            </Button>
-            <Button variant="outline" size="sm" className="text-xs gap-1">
-              <Settings className="w-3 h-3" />
-              Settings
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Track Strips */}
-      <div className="flex-1 overflow-y-auto p-2 space-y-2">
-        {tracks.map((track) => (
-          <Card 
-            key={track.id}
-            className={`p-3 transition-all duration-200 cursor-pointer ${
-              selectedTrack === track.id 
-                ? 'ring-2 ring-primary bg-primary/5' 
-                : 'hover:bg-muted/30'
-            }`}
-            onClick={() => setSelectedTrack(track.id)}
-          >
-            {/* Track Header */}
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
+      {/* Horizontal Scrollable Mixer */}
+      <div className="flex-1 overflow-x-auto overflow-y-hidden">
+        <div className="flex gap-3 p-4 h-full min-w-max">
+          {/* Track Strips */}
+          {tracks.map((track) => (
+            <div
+              key={track.id}
+              className={`w-24 flex flex-col bg-card border rounded-lg p-2 transition-all duration-200 ${
+                selectedTrack === track.id 
+                  ? 'ring-2 ring-primary bg-primary/5' 
+                  : 'hover:bg-muted/30'
+              }`}
+              onClick={() => setSelectedTrack(track.id)}
+            >
+              {/* Track Name & Color */}
+              <div className="text-center mb-2">
                 <div 
-                  className="w-3 h-3 rounded-full"
+                  className="w-full h-1 rounded-full mb-1"
                   style={{ backgroundColor: track.color }}
                 />
-                <span className="text-sm font-medium truncate">{track.name}</span>
+                <span className="text-xs font-medium truncate block">{track.name}</span>
               </div>
-              <div className="flex gap-1">
-                <Button
-                  variant={track.solo ? "default" : "ghost"}
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleSolo(track.id);
-                  }}
-                  className="h-6 w-6 p-0 text-xs"
-                >
-                  S
-                </Button>
+
+              {/* Mute/Solo Buttons */}
+              <div className="flex gap-1 mb-2">
                 <Button
                   variant={track.mute ? "destructive" : "ghost"}
                   size="sm"
@@ -157,44 +112,63 @@ const DAWMixerPanel: React.FC<DAWMixerPanelProps> = ({
                     e.stopPropagation();
                     updateTrack(track.id, { mute: !track.mute });
                   }}
-                  className="h-6 w-6 p-0 text-xs"
+                  className="flex-1 h-6 text-xs"
                 >
                   M
                 </Button>
+                <Button
+                  variant={track.solo ? "default" : "ghost"}
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleSolo(track.id);
+                  }}
+                  className="flex-1 h-6 text-xs"
+                >
+                  S
+                </Button>
               </div>
-            </div>
 
-            {/* Volume Control */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">Volume</span>
-                <span className="text-xs font-mono">
-                  {Math.round(track.volume * 100)}%
-                </span>
+              {/* Level Meter */}
+              <div className="flex-1 bg-background rounded p-1 flex flex-col-reverse gap-0.5 mb-2 min-h-[120px]">
+                {Array.from({ length: 12 }, (_, i) => {
+                  const level = track.volume * 12;
+                  const isActive = i < level;
+                  let color = 'bg-green-500';
+                  if (i > 9) color = 'bg-red-500';
+                  else if (i > 7) color = 'bg-yellow-500';
+
+                  return (
+                    <div
+                      key={i}
+                      className={`h-2 rounded-sm transition-colors ${
+                        isActive ? color : 'bg-muted'
+                      }`}
+                    />
+                  );
+                })}
               </div>
-              
-              <div className="flex items-center gap-2">
-                <VolumeX className="w-3 h-3 text-muted-foreground" />
+
+              {/* Vertical Fader */}
+              <div className="h-32 flex justify-center mb-2">
                 <Slider
+                  orientation="vertical"
                   value={[track.volume * 100]}
                   onValueChange={(value) => updateTrack(track.id, { volume: value[0] / 100 })}
                   min={0}
                   max={100}
                   step={1}
-                  className="flex-1"
+                  className="h-full"
                 />
-                <Volume2 className="w-3 h-3 text-muted-foreground" />
               </div>
-            </div>
 
-            {/* AI Effects */}
-            <div className="mt-3 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">AI Effects</span>
-                <Zap className="w-3 h-3 text-primary" />
+              {/* Volume Display */}
+              <div className="text-xs text-center font-mono mb-2">
+                {Math.round(track.volume * 100)}%
               </div>
-              
-              <div className="grid grid-cols-2 gap-1">
+
+              {/* AI Effects Buttons */}
+              <div className="grid grid-cols-2 gap-1 mb-2">
                 <Button
                   variant={track.effects.reverb ? "default" : "outline"}
                   size="sm"
@@ -202,9 +176,9 @@ const DAWMixerPanel: React.FC<DAWMixerPanelProps> = ({
                     e.stopPropagation();
                     addAIEffect(track.id, 'reverb');
                   }}
-                  className="text-xs h-7"
+                  className="text-[10px] h-6 px-1"
                 >
-                  Reverb
+                  Rev
                 </Button>
                 <Button
                   variant={track.effects.pitch ? "default" : "outline"}
@@ -213,9 +187,9 @@ const DAWMixerPanel: React.FC<DAWMixerPanelProps> = ({
                     e.stopPropagation();
                     addAIEffect(track.id, 'pitch');
                   }}
-                  className="text-xs h-7"
+                  className="text-[10px] h-6 px-1"
                 >
-                  Pitch
+                  Pit
                 </Button>
                 <Button
                   variant={track.effects.harmony ? "default" : "outline"}
@@ -224,9 +198,9 @@ const DAWMixerPanel: React.FC<DAWMixerPanelProps> = ({
                     e.stopPropagation();
                     addAIEffect(track.id, 'harmony');
                   }}
-                  className="text-xs h-7"
+                  className="text-[10px] h-6 px-1"
                 >
-                  Harmony
+                  Har
                 </Button>
                 <Button
                   variant={track.effects.filter ? "default" : "outline"}
@@ -235,19 +209,19 @@ const DAWMixerPanel: React.FC<DAWMixerPanelProps> = ({
                     e.stopPropagation();
                     addAIEffect(track.id, 'filter');
                   }}
-                  className="text-xs h-7"
+                  className="text-[10px] h-6 px-1"
                 >
-                  Filter
+                  Flt
                 </Button>
               </div>
 
               {/* Effect Parameters */}
               {Object.keys(track.effects).length > 0 && (
-                <div className="space-y-1">
+                <div className="space-y-1 pt-2 border-t border-border">
                   {Object.entries(track.effects).map(([effectName, effect]) => (
                     <div key={effectName} className="space-y-1">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground capitalize">
+                        <span className="text-[10px] text-muted-foreground capitalize truncate">
                           {effectName}
                         </span>
                         <Button
@@ -259,7 +233,7 @@ const DAWMixerPanel: React.FC<DAWMixerPanelProps> = ({
                             delete newEffects[effectName];
                             updateTrack(track.id, { effects: newEffects });
                           }}
-                          className="h-4 w-4 p-0 text-muted-foreground hover:text-destructive"
+                          className="h-3 w-3 p-0 text-muted-foreground hover:text-destructive"
                         >
                           <RotateCcw className="w-2 h-2" />
                         </Button>
@@ -286,34 +260,72 @@ const DAWMixerPanel: React.FC<DAWMixerPanelProps> = ({
                 </div>
               )}
             </div>
+          ))}
 
-            {/* Meters */}
-            <div className="mt-3 flex gap-1 h-2">
-              {Array.from({ length: 8 }, (_, i) => (
-                <div
-                  key={i}
-                  className={`flex-1 rounded-sm ${
-                    i < Math.floor(track.volume * 8)
-                      ? i < 5 
-                        ? 'bg-green-500' 
-                        : i < 7 
-                        ? 'bg-yellow-500' 
-                        : 'bg-red-500'
-                      : 'bg-muted'
-                  }`}
-                />
-              ))}
+          {/* Master Channel */}
+          <div className="w-28 flex flex-col bg-primary/10 border-2 border-primary rounded-lg p-3">
+            <div className="text-sm font-bold text-center mb-2">MASTER</div>
+
+            {/* Master Level Meter */}
+            <div className="flex-1 bg-background rounded p-1 flex flex-col-reverse gap-0.5 mb-2 min-h-[120px]">
+              {Array.from({ length: 12 }, (_, i) => {
+                const level = masterVolume * 12;
+                const isActive = i < level;
+                let color = 'bg-green-500';
+                if (i > 9) color = 'bg-red-500';
+                else if (i > 7) color = 'bg-yellow-500';
+
+                return (
+                  <div
+                    key={i}
+                    className={`h-2 rounded-sm transition-colors ${
+                      isActive ? color : 'bg-muted'
+                    }`}
+                  />
+                );
+              })}
             </div>
-          </Card>
-        ))}
 
-        {tracks.length === 0 && (
-          <div className="text-center text-muted-foreground py-8">
-            <Volume2 className="w-8 h-8 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">No tracks to mix</p>
-            <p className="text-xs">Add tracks to get started</p>
+            {/* Master Vertical Fader */}
+            <div className="h-32 flex justify-center mb-2">
+              <Slider
+                orientation="vertical"
+                value={[masterVolume * 100]}
+                onValueChange={(value) => onMasterVolumeChange(value[0] / 100)}
+                min={0}
+                max={100}
+                step={1}
+                className="h-full"
+              />
+            </div>
+
+            {/* Master Volume Display */}
+            <div className="text-sm text-center font-mono font-bold mb-2">
+              {Math.round(masterVolume * 100)}%
+            </div>
+
+            {/* Master Controls */}
+            <div className="grid grid-cols-1 gap-1">
+              <Button variant="outline" size="sm" className="text-xs gap-1 h-7">
+                <Headphones className="w-3 h-3" />
+                Mon
+              </Button>
+              <Button variant="outline" size="sm" className="text-xs gap-1 h-7">
+                <Settings className="w-3 h-3" />
+                Set
+              </Button>
+            </div>
           </div>
-        )}
+
+          {/* Empty State */}
+          {tracks.length === 0 && (
+            <div className="text-center text-muted-foreground py-8">
+              <Volume2 className="w-8 h-8 mx-auto mb-2 opacity-50" />
+              <p className="text-sm">No tracks to mix</p>
+              <p className="text-xs">Add tracks to get started</p>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Footer */}
