@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { X, Minimize2, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { MixxclubLogo } from '@/components/brand/MixxclubLogo';
+import { SpatialBackground } from '@/components/background/SpatialBackground';
 
 interface PluginWindowProps {
   title: string;
@@ -52,12 +53,15 @@ export const PluginWindow: React.FC<PluginWindowProps> = ({
         <div className="relative h-full rounded-2xl p-[1px]" style={{
           background: 'linear-gradient(135deg, #FF70D0 0%, #C5A3FF 50%, #70E6FF 100%)',
         }}>
+          {/* Spatial Background for plugin */}
+          <SpatialBackground intensity="low" className="rounded-2xl" />
+          
           {/* Glass background */}
-          <div className="h-full rounded-2xl bg-gradient-to-br from-mixx-navy/95 via-mixx-navy-deep/98 to-mixx-navy/95 backdrop-blur-xl flex flex-col">
+          <div className="relative z-10 h-full rounded-2xl bg-gradient-to-br from-mixx-navy/95 via-mixx-navy-deep/98 to-mixx-navy/95 backdrop-blur-xl flex flex-col">
             
             {/* Header with gradient background */}
             <div 
-              className="relative z-10 flex items-center justify-between px-6 py-4 border-b"
+              className="relative z-20 flex items-center justify-between px-6 py-4 border-b"
               style={{
                 background: 'linear-gradient(135deg, rgba(255,112,208,0.1), rgba(197,163,255,0.08), rgba(112,230,255,0.1))',
                 borderColor: 'rgba(197,163,255,0.2)',
@@ -91,13 +95,13 @@ export const PluginWindow: React.FC<PluginWindowProps> = ({
             </div>
             
             {/* Content */}
-            <div className="relative z-10 flex-1 overflow-auto p-6">
+            <div className="relative z-20 flex-1 overflow-auto p-6">
               {children}
             </div>
             
             {/* Footer with Mixxclub logo */}
             <div 
-              className="relative z-10 flex items-center justify-center py-3 border-t"
+              className="relative z-20 flex items-center justify-center py-3 border-t"
               style={{
                 borderColor: 'rgba(197,163,255,0.2)',
                 background: 'linear-gradient(135deg, rgba(10,14,26,0.8), rgba(26,31,53,0.8))',

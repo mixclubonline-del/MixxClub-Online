@@ -25,6 +25,7 @@ import { useStudioPlayback } from '@/hooks/useStudioPlayback';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { Music2, Settings, Layers, Mic, Sliders, Keyboard } from 'lucide-react';
 import Navigation from '@/components/Navigation';
+import { SpatialBackground } from '@/components/background/SpatialBackground';
 
 /**
  * Professional Studio with Phase 1 Complete:
@@ -141,10 +142,15 @@ const ProStudio = ({ userRole = 'artist' }: ProStudioProps) => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[hsl(220,20%,14%)] flex flex-col">
-      <Navigation />
+    <div className="min-h-screen bg-[hsl(220,20%,14%)] flex flex-col relative overflow-hidden">
+      {/* Spatial Background */}
+      <SpatialBackground intensity="medium" />
       
-      {/* Studio Header - Simplified */}
+      {/* Content layer */}
+      <div className="relative z-10 flex flex-col min-h-screen">
+        <Navigation />
+        
+        {/* Studio Header - Simplified */}
       <div 
         className="border-b px-6 py-3"
         style={{
@@ -479,6 +485,7 @@ const ProStudio = ({ userRole = 'artist' }: ProStudioProps) => {
           )}
         </div>
       </div>
+      </div> {/* Close content layer */}
 
       {/* Shortcuts Panel */}
       <ShortcutsPanel
