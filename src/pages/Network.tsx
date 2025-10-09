@@ -18,10 +18,10 @@ export default function Network() {
         {/* Onboarding overlay */}
         <section className="fixed inset-0 z-30 flex items-center justify-center bg-[radial-gradient(circle_at_center,hsl(235_60%_6%)_0%,hsl(235_60%_8%)_100%)] animate-fade-in">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent-blue))]">
-              Mixx Club Hub
+            <h1 className="text-2xl font-bold text-white">
+              Mixxclub Hub
             </h1>
-            <p className="mt-2 text-sm text-muted-foreground">Connecting to the Mixx Club Hub…</p>
+            <p className="mt-2 text-sm text-muted-foreground">Connecting to the Mixxclub Hub…</p>
             <div className="mt-4 w-48 h-1 mx-auto rounded-full bg-[hsl(var(--muted)/0.3)] overflow-hidden">
               <div className="h-full w-3/4 bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent-cyan))] animate-pulse" />
             </div>

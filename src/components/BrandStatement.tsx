@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { MixxclubLogo } from '@/components/brand/MixxclubLogo';
 
 export const BrandStatement = () => {
   return (
@@ -8,11 +9,9 @@ export const BrandStatement = () => {
       className="fixed bottom-8 right-8 z-50 pointer-events-none"
     >
       <div className="relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary via-accent-blue to-primary blur-2xl opacity-50 animate-pulse" />
-        <div className="relative px-6 py-3 bg-black/90 backdrop-blur-xl border border-primary/30 rounded-full">
-          <span className="font-black text-2xl tracking-widest bg-gradient-to-r from-primary via-accent-blue to-primary bg-clip-text text-transparent">
-            MIXXCLUB
-          </span>
+        <div className="absolute inset-0 bg-mixx-glow blur-3xl opacity-60 animate-pulse" />
+        <div className="relative px-6 py-3 bg-black/90 backdrop-blur-xl border border-mixx-cyan/30 rounded-full shadow-mixx-glow">
+          <MixxclubLogo variant="wordmark-only" size="sm" animated={false} />
         </div>
       </div>
     </motion.div>

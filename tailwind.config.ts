@@ -57,11 +57,30 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        mixx: {
+          pink: "#FF70D0",
+          lavender: "#C5A3FF",
+          cyan: "#70E6FF",
+          purple: "#8B5CF6",
+          "navy-deep": "#0A0E1A",
+          navy: "#1A1F35",
+          "blue-deep": "#1A1F3F",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      backgroundImage: {
+        "mixx-gradient": "linear-gradient(90deg, #FF70D0 0%, #C5A3FF 50%, #70E6FF 100%)",
+        "mixx-gradient-vertical": "linear-gradient(180deg, #FF70D0 0%, #C5A3FF 50%, #70E6FF 100%)",
+        "mixx-glow": "radial-gradient(circle, rgba(255,112,208,0.3) 0%, rgba(197,163,255,0.2) 50%, rgba(112,230,255,0.3) 100%)",
+      },
+      boxShadow: {
+        "mixx-glow-pink": "0 0 20px rgba(255,112,208,0.5), 0 0 40px rgba(255,112,208,0.3)",
+        "mixx-glow-cyan": "0 0 20px rgba(112,230,255,0.5), 0 0 40px rgba(112,230,255,0.3)",
+        "mixx-glow": "0 0 20px rgba(255,112,208,0.4), 0 0 40px rgba(197,163,255,0.3), 0 0 60px rgba(112,230,255,0.4)",
       },
       keyframes: {
         "accordion-down": {
