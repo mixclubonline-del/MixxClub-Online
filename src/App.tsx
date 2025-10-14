@@ -166,7 +166,7 @@ const AppContent = () => {
       <React.Suspense fallback={<DashboardSkeleton />}>
       <Routes>
         <Route path="/" element={<MixClubHome />} />
-            <Route path="/network" element={<MixClubHome />} />
+            <Route path="/network" element={<Navigate to="/" replace />} />
             <Route path="/artist" element={<Artist />} />
             <Route path="/engineer" element={<Engineer />} />
             <Route path="/ai-studio" element={<Navigate to="/artist-crm?tab=studio" replace />} />
@@ -183,8 +183,8 @@ const AppContent = () => {
         <Route path="/onboarding/engineer" element={<EngineerOnboarding />} />
         <Route path="/onboarding/hybrid" element={<HybridOnboarding />} />
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/artist-dashboard" element={<ArtistDashboard />} />
-            <Route path="/engineer-dashboard" element={<EngineerDashboard />} />
+            <Route path="/artist-dashboard" element={<Navigate to="/artist-crm" replace />} />
+            <Route path="/engineer-dashboard" element={<Navigate to="/engineer-crm" replace />} />
         <Route path="/artist-crm" element={<AppLayout><ArtistCRM /></AppLayout>} />
         <Route path="/engineer-crm" element={<AppLayout><EngineerCRM /></AppLayout>} />
         <Route path="/artist-studio" element={<Navigate to="/artist-crm?tab=studio" replace />} />
