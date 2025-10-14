@@ -1,11 +1,21 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+const addonPaymentSchema = z.object({
+  serviceId: z.string().uuid('Invalid service ID format'),
+  projectId: z.string().uuid('Invalid project ID format').optional(),
+  amount: z.number()
+    .positive('Amount must be positive')
+    .min(1, 'Minimum payment is $1')
+    .max(100000, 'Maximum payment is $100,000')
+});
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -13,7 +23,8 @@ serve(async (req) => {
   }
 
   try {
-    const { serviceId, projectId, amount } = await req.json();
+    const body = await req.json();
+    const { serviceId, projectId, amount } = addonPaymentSchema.parse(body);
 
     if (!serviceId || !amount) {
       throw new Error("Service ID and amount are required");
@@ -68,12 +79,24 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error("Error creating add-on payment:", error);
+    
+    if (error instanceof z.ZodError) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid input', details: error.errors }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
+      );
+    }
+    
+    if (error instanceof Error && error.message === 'Service not found') {
+      return new Response(
+        JSON.stringify({ error: 'Service not found' }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 404 }
+      );
+    }
+    
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-      {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 400,
-      }
+      JSON.stringify({ error: 'Payment processing failed' }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
     );
   }
 });

@@ -1,11 +1,20 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+const paymentSchema = z.object({
+  projectId: z.string().uuid('Invalid project ID format'),
+  amount: z.number()
+    .positive('Amount must be positive')
+    .min(1, 'Minimum payment is $1')
+    .max(100000, 'Maximum payment is $100,000')
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -13,7 +22,8 @@ serve(async (req) => {
   }
 
   try {
-    const { projectId, amount } = await req.json();
+    const body = await req.json();
+    const { projectId, amount } = paymentSchema.parse(body);
 
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -63,8 +73,19 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error('Error creating payment intent:', error);
+    
+    if (error instanceof z.ZodError) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid input', details: error.errors }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        }
+      );
+    }
+    
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
+      JSON.stringify({ error: 'Payment processing failed' }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,

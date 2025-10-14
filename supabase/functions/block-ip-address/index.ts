@@ -1,10 +1,24 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+const ipBlockSchema = z.object({
+  ipAddress: z.string()
+    .refine((val) => {
+      const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/;
+      const ipv6Regex = /^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$/;
+      return ipv4Regex.test(val) || ipv6Regex.test(val);
+    }, 'Invalid IP address format'),
+  reason: z.string()
+    .min(10, 'Reason must be at least 10 characters')
+    .max(500, 'Reason must not exceed 500 characters')
+    .trim()
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -43,11 +57,8 @@ serve(async (req) => {
       throw new Error('Admin access required');
     }
 
-    const { ipAddress, reason } = await req.json();
-
-    if (!ipAddress) {
-      throw new Error('IP address is required');
-    }
+    const body = await req.json();
+    const { ipAddress, reason } = ipBlockSchema.parse(body);
 
     console.log('Blocking IP:', ipAddress, 'Reason:', reason);
 
@@ -83,12 +94,21 @@ serve(async (req) => {
       }
     );
   } catch (error: any) {
-    console.error('Error:', error);
+    console.error('Error in block-ip-address function:', error);
+    
+    if (error instanceof z.ZodError) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid input', details: error.errors }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    const isAuthError = error.message?.includes('Unauthorized') || error.message?.includes('Admin');
     return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      JSON.stringify({ error: isAuthError ? 'Access denied' : 'Operation failed' }),
+      { 
+        status: isAuthError ? 403 : 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
   }
