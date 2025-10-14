@@ -52,6 +52,8 @@ import Mixing from "./pages/Mixing";
 import Mastering from "./pages/Mastering";
 import MixingShowcase from "./pages/MixingShowcase";
 import MasteringShowcase from "./pages/MasteringShowcase";
+import Services from "./pages/Services";
+import StudioPlaceholder from "./pages/StudioPlaceholder";
 import BattleTournaments from "./pages/BattleTournaments";
 import StudioDirectory from "./pages/StudioDirectory";
 import EducationalHub from "./pages/EducationalHub";
@@ -194,11 +196,23 @@ const AppContent = () => {
         <Route path="/studio/create-session" element={<AppLayout><SessionManager /></AppLayout>} />
         <Route path="/studio/join-session" element={<AppLayout><SessionManager /></AppLayout>} />
         <Route path="/session/:sessionId" element={<AppLayout><SessionWorkspacePage /></AppLayout>} />
-            <Route path="/mixing" element={<MixingShowcase />} />
-            <Route path="/mastering" element={<MasteringShowcase />} />
-            <Route path="/ai-mastering" element={<AIMastering />} />
+            {/* Services Hub */}
+            <Route path="/services" element={<Services />} />
+            <Route path="/services/mixing" element={<MixingShowcase />} />
+            <Route path="/services/mastering" element={<MasteringShowcase />} />
+            <Route path="/services/ai-mastering" element={<AIMastering />} />
+            <Route path="/services/distribution" element={<DistributionHub />} />
+            
+            {/* Legacy service redirects */}
+            <Route path="/mixing" element={<Navigate to="/services/mixing" replace />} />
+            <Route path="/mastering" element={<Navigate to="/services/mastering" replace />} />
+            <Route path="/ai-mastering" element={<Navigate to="/services/ai-mastering" replace />} />
+            <Route path="/distribution" element={<Navigate to="/services/distribution" replace />} />
             <Route path="/mixing-studio" element={<Mixing />} />
             <Route path="/mastering-studio" element={<Mastering />} />
+            
+            {/* Studio Placeholder */}
+            <Route path="/studio" element={<StudioPlaceholder />} />
             {/* Legacy studio routes - removed. Use /artist-crm?tab=studio or /engineer-crm?tab=studio */}
             <Route path="/jobs" element={<AppLayout><JobBoard /></AppLayout>} />
             <Route path="/admin" element={<AdminRoute section="Admin Dashboard"><Admin /></AdminRoute>} />

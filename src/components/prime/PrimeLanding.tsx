@@ -96,7 +96,7 @@ const serviceCards = [
     id: 'mixing',
     title: 'Professional Mixing',
     description: 'Studio-quality mixes from expert engineers',
-    route: '/mixing',
+    route: '/services/mixing',
     icon: Zap,
     color: 'hsl(270 100% 70%)'
   },
@@ -104,7 +104,7 @@ const serviceCards = [
     id: 'mastering',
     title: 'Audio Mastering',
     description: 'Polish your tracks to radio-ready perfection',
-    route: '/mastering',
+    route: '/services/mastering',
     icon: Sparkles,
     color: 'hsl(210 100% 55%)'
   },
@@ -112,7 +112,7 @@ const serviceCards = [
     id: 'studio',
     title: 'AI Studio',
     description: 'Intelligent mixing and mastering tools',
-    route: '/artist-crm?tab=studio',
+    route: '/studio',
     icon: Radio,
     color: 'hsl(185 100% 50%)'
   },
@@ -120,7 +120,7 @@ const serviceCards = [
     id: 'distribution',
     title: 'Distribution',
     description: 'Get your music on all major platforms',
-    route: '/distribution',
+    route: '/services/distribution',
     icon: TrendingUp,
     color: 'hsl(300 90% 65%)'
   }

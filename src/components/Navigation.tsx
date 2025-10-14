@@ -44,10 +44,11 @@ const Navigation = () => {
           label: "Services", 
           isDropdown: true,
           items: [
-            { to: "/mixing", label: "Mixing" },
-            { to: "/mastering", label: "Mastering" },
-            { to: "/ai-mastering", label: "AI Mastering" },
-            { to: "/distribution", label: "Distribution" },
+            { to: "/services", label: "All Services" },
+            { to: "/services/mixing", label: "Mixing" },
+            { to: "/services/mastering", label: "Mastering" },
+            { to: "/services/ai-mastering", label: "AI Mastering" },
+            { to: "/services/distribution", label: "Distribution" },
           ]
         },
         { 
@@ -74,9 +75,10 @@ const Navigation = () => {
           label: "Services", 
           isDropdown: true,
           items: [
-            { to: "/mixing", label: "Mixing" },
-            { to: "/mastering", label: "Mastering" },
-            { to: "/distribution", label: "Distribution" },
+            { to: "/services", label: "All Services" },
+            { to: "/services/mixing", label: "Mixing" },
+            { to: "/services/mastering", label: "Mastering" },
+            { to: "/services/distribution", label: "Distribution" },
           ]
         },
         { 
@@ -100,10 +102,11 @@ const Navigation = () => {
         label: "Services", 
         isDropdown: true,
         items: [
-          { to: "/mixing", label: "Mixing" },
-          { to: "/mastering", label: "Mastering" },
-          { to: "/ai-mastering", label: "AI Mastering" },
-          { to: "/distribution", label: "Distribution", badge: "NEW" },
+          { to: "/services", label: "All Services" },
+          { to: "/services/mixing", label: "Mixing" },
+          { to: "/services/mastering", label: "Mastering" },
+          { to: "/services/ai-mastering", label: "AI Mastering" },
+          { to: "/services/distribution", label: "Distribution", badge: "NEW" },
         ]
       },
       { 
