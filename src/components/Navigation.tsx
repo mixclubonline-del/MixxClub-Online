@@ -54,8 +54,10 @@ const Navigation = () => {
           label: "Community", 
           isDropdown: true,
           items: [
-            { to: "/feed", label: "The Feed" },
-            { to: "/arena", label: "The Arena" },
+            { to: "/community?tab=feed", label: "The Feed" },
+            { to: "/community?tab=arena", label: "The Arena" },
+            { to: "/community?tab=crowd", label: "The Crowd" },
+            { to: "/community?tab=leaderboard", label: "Leaderboard" },
             { to: "/marketplace", label: "Marketplace" },
           ]
         },
@@ -81,8 +83,10 @@ const Navigation = () => {
           label: "Community", 
           isDropdown: true,
           items: [
-            { to: "/feed", label: "The Feed" },
-            { to: "/arena", label: "The Arena" },
+            { to: "/community?tab=feed", label: "The Feed" },
+            { to: "/community?tab=arena", label: "The Arena" },
+            { to: "/community?tab=crowd", label: "The Crowd" },
+            { to: "/community?tab=leaderboard", label: "Leaderboard" },
             { to: "/marketplace", label: "Marketplace" },
           ]
         },
@@ -106,8 +110,10 @@ const Navigation = () => {
         label: "Community", 
         isDropdown: true,
         items: [
-          { to: "/feed", label: "The Feed" },
-          { to: "/arena", label: "The Arena" },
+          { to: "/community?tab=feed", label: "The Feed" },
+          { to: "/community?tab=arena", label: "The Arena" },
+          { to: "/community?tab=crowd", label: "The Crowd" },
+          { to: "/community?tab=leaderboard", label: "Leaderboard" },
           { to: "/marketplace", label: "Marketplace" },
         ]
       },
