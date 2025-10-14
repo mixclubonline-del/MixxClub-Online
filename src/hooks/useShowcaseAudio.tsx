@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { getStorageUrl } from '@/lib/storage/signedUrls';
 
 interface AudioSample {
   id: string;
@@ -46,18 +47,22 @@ export const useShowcaseAudio = (category?: string) => {
       // Generate public URLs for audio files
       const samplesWithUrls = await Promise.all(
         (data || []).map(async (sample) => {
-          const { data: beforeUrlData } = supabase.storage
-            .from('showcase-audio')
-            .getPublicUrl(sample.before_file_path);
+          const beforeUrl = await getStorageUrl(
+            'showcase-audio',
+            sample.before_file_path,
+            { forcePublic: true }
+          );
 
-          const { data: afterUrlData } = supabase.storage
-            .from('showcase-audio')
-            .getPublicUrl(sample.after_file_path);
+          const afterUrl = await getStorageUrl(
+            'showcase-audio',
+            sample.after_file_path,
+            { forcePublic: true }
+          );
 
           return {
             ...sample,
-            beforeUrl: beforeUrlData.publicUrl,
-            afterUrl: afterUrlData.publicUrl,
+            beforeUrl: beforeUrl || '',
+            afterUrl: afterUrl || '',
           };
         })
       );

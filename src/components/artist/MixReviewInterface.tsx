@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Play, Pause, CheckCircle, RotateCcw, Download, Volume2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { createSignedUrl } from "@/lib/storage/signedUrls";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 
@@ -114,13 +115,15 @@ export const MixReviewInterface = ({
 
   const handleDownload = async () => {
     try {
-      const { data, error } = await supabase.storage
-        .from('engineer-deliverables')
-        .createSignedUrl(deliverable.file_path, 3600);
+      const { url, error } = await createSignedUrl(
+        'engineer-deliverables',
+        deliverable.file_path,
+        3600
+      );
 
       if (error) throw error;
-      if (data?.signedUrl) {
-        window.open(data.signedUrl, '_blank');
+      if (url) {
+        window.open(url, '_blank');
         toast.success("Download started");
       }
     } catch (error) {

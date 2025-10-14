@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { getStorageUrl } from "@/lib/storage/signedUrls";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -69,11 +70,11 @@ export default function ProfilePhotoUpload({
       if (uploadError) throw uploadError;
 
       // Get public URL
-      const { data } = supabase.storage
-        .from("project-files")
-        .getPublicUrl(filePath);
+      const url = await getStorageUrl("project-files", filePath, { 
+        expiresIn: 365 * 24 * 60 * 60 // 1 year for profile photos
+      });
 
-      onPhotoUploaded(data.publicUrl);
+      if (url) onPhotoUploaded(url);
       toast.success("Photo uploaded successfully!");
     } catch (error: any) {
       toast.error(error.message || "Failed to upload photo");
