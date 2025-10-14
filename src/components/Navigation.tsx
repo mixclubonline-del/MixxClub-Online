@@ -36,40 +36,82 @@ const Navigation = () => {
     return "/artist-crm";
   };
 
-  // Role-specific navigation
+  // Role-specific navigation with new structure
   const getNavLinks = () => {
     if (!user) {
       return [
-        { to: "/mixing", label: "Mixing Magic" },
-        { to: "/mastering", label: "Mastering Polish" },
+        { 
+          label: "Services", 
+          isDropdown: true,
+          items: [
+            { to: "/mixing", label: "Mixing" },
+            { to: "/mastering", label: "Mastering" },
+            { to: "/ai-mastering", label: "AI Mastering" },
+            { to: "/distribution", label: "Distribution" },
+          ]
+        },
+        { 
+          label: "Community", 
+          isDropdown: true,
+          items: [
+            { to: "/feed", label: "The Feed" },
+            { to: "/arena", label: "The Arena" },
+            { to: "/marketplace", label: "Marketplace" },
+          ]
+        },
         { to: "/for-artists", label: "For Artists" },
         { to: "/for-engineers", label: "For Engineers" },
-        { to: "/merch", label: "Merch Store", badge: "NEW" },
-        { to: "/coming-soon", label: "Coming Soon" },
       ];
     }
 
     if (userRole === 'engineer') {
       return [
-        { to: "/engineer-crm", label: "Dashboard" },
+        { to: "/engineer", label: "Dashboard" },
         { to: "/jobs", label: "Job Board" },
-        { to: "/mixing", label: "Mixing Studio" },
-        { to: "/mastering", label: "Mastering Studio" },
-        { to: "/distribution", label: "Distribution" },
-        { to: "/merch", label: "Merch Store", badge: "NEW" },
-        { to: "/coming-soon", label: "Coming Soon" },
+        { 
+          label: "Services", 
+          isDropdown: true,
+          items: [
+            { to: "/mixing", label: "Mixing" },
+            { to: "/mastering", label: "Mastering" },
+            { to: "/distribution", label: "Distribution" },
+          ]
+        },
+        { 
+          label: "Community", 
+          isDropdown: true,
+          items: [
+            { to: "/feed", label: "The Feed" },
+            { to: "/arena", label: "The Arena" },
+            { to: "/marketplace", label: "Marketplace" },
+          ]
+        },
       ];
     }
 
     // Artists and clients
     return [
-      { to: "/artist-crm", label: "Dashboard" },
-      { to: "/mixing", label: "Mixing Magic" },
-      { to: "/mastering", label: "Mastering Polish" },
+      { to: "/artist", label: "Dashboard" },
+      { 
+        label: "Services", 
+        isDropdown: true,
+        items: [
+          { to: "/mixing", label: "Mixing" },
+          { to: "/mastering", label: "Mastering" },
+          { to: "/ai-mastering", label: "AI Mastering" },
+          { to: "/distribution", label: "Distribution", badge: "NEW" },
+        ]
+      },
+      { 
+        label: "Community", 
+        isDropdown: true,
+        items: [
+          { to: "/feed", label: "The Feed" },
+          { to: "/arena", label: "The Arena" },
+          { to: "/marketplace", label: "Marketplace" },
+        ]
+      },
       { to: "/for-artists", label: "For Artists" },
-      { to: "/distribution", label: "Distribution", featured: true },
-      { to: "/merch", label: "Merch Store", badge: "NEW" },
-      { to: "/coming-soon", label: "Coming Soon" },
       ...(isFeatureEnabled('THE_LAB_ENABLED') ? [{ to: "/artist-crm?tab=studio", label: "Studio" }] : []),
     ];
   };
@@ -108,38 +150,56 @@ const Navigation = () => {
           <div className="hidden md:flex items-center gap-8">
             {user && <RealTimeNotifications userId={user.id} />}
             
-            {navLinks.map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                className={`relative text-foreground hover:text-primary transition-all duration-300 ${
-                  (link as any).featured ? 'font-bold' : 'font-medium'
-                } ${
-                  isActiveRoute(link.to) ? 'text-primary' : ''
-                }`}
-              >
-                <div className="flex items-center gap-2">
+            {navLinks.map((link, index) => {
+              // Check if it's a dropdown menu
+              if ((link as any).isDropdown) {
+                return (
+                  <div key={index} className="relative group">
+                    <button className="relative text-foreground hover:text-primary transition-all duration-300 font-medium flex items-center gap-1">
+                      {link.label}
+                      <svg className="w-4 h-4 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                    {/* Dropdown menu */}
+                    <div className="absolute top-full left-0 mt-2 w-48 glass rounded-lg border border-[hsl(var(--border))] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-2">
+                      {(link as any).items.map((item: any) => (
+                        <Link
+                          key={item.to}
+                          to={item.to}
+                          className="block px-4 py-2 text-sm hover:bg-[hsl(var(--primary)/0.1)] hover:text-primary transition-colors"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span>{item.label}</span>
+                            {item.badge && (
+                              <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-primary/20 text-primary border border-primary/30">
+                                {item.badge}
+                              </span>
+                            )}
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                );
+              }
+
+              // Regular link
+              return (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className={`relative text-foreground hover:text-primary transition-all duration-300 font-medium ${
+                    isActiveRoute(link.to) ? 'text-primary' : ''
+                  }`}
+                >
                   {link.label}
-                  {(link as any).badge && (
-                    <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-primary/20 text-primary border border-primary/30">
-                      {(link as any).badge}
-                    </span>
-                  )}
-                  {(link as any).featured && (
-                    <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-gradient-to-r from-primary via-[hsl(220_90%_60%)] to-[hsl(180_100%_50%)] text-foreground animate-pulse-glow shadow-glow-sm">
-                      NEW
-                    </span>
-                  )}
-                </div>
-                <span className={`absolute bottom-0 left-0 w-full h-0.5 ${
-                  (link as any).featured 
-                    ? 'bg-gradient-to-r from-primary via-[hsl(220_90%_60%)] to-[hsl(180_100%_50%)]' 
-                    : 'bg-primary'
-                } transform transition-transform duration-300 ${
-                  isActiveRoute(link.to) ? 'scale-x-100' : 'scale-x-0 hover:scale-x-100'
-                }`}></span>
-              </Link>
-            ))}
+                  <span className={`absolute bottom-0 left-0 w-full h-0.5 bg-primary transform transition-transform duration-300 ${
+                    isActiveRoute(link.to) ? 'scale-x-100' : 'scale-x-0 hover:scale-x-100'
+                  }`}></span>
+                </Link>
+              );
+            })}
 
             {user ? (
               <Button 
@@ -188,35 +248,53 @@ const Navigation = () => {
 
         {/* Mobile Menu */}
         <div className={`md:hidden overflow-hidden transition-all duration-500 ease-out ${
-          isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+          isOpen ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'
         }`}>
           <div className="pt-4 pb-2 space-y-2 border-t border-border/50 mt-4">
-            {navLinks.map((link, index) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                className={`block px-4 py-3 rounded-lg text-foreground hover:text-primary hover:bg-primary/5 transition-all duration-300 transform ${
-                  isOpen ? 'translate-x-0 opacity-100' : 'translate-x-4 opacity-0'
-                } ${isActiveRoute(link.to) ? 'text-primary bg-primary/5' : ''} ${
-                  (link as any).featured ? 'font-bold' : ''
-                }`}
-                style={{ transitionDelay: `${index * 50}ms` }}
-              >
-                <div className="flex items-center justify-between">
-                  <span>{link.label}</span>
-                  {(link as any).badge && (
-                    <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-primary/20 text-primary border border-primary/30">
-                      {(link as any).badge}
-                    </span>
-                  )}
-                  {(link as any).featured && (
-                    <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-gradient-to-r from-primary via-[hsl(220_90%_60%)] to-[hsl(180_100%_50%)] text-foreground animate-pulse-glow">
-                      NEW
-                    </span>
-                  )}
-                </div>
-              </Link>
-            ))}
+            {navLinks.map((link, index) => {
+              // Check if it's a dropdown menu
+              if ((link as any).isDropdown) {
+                return (
+                  <div key={index} className="space-y-1">
+                    <div className="px-4 py-2 text-sm font-semibold text-muted-foreground">
+                      {link.label}
+                    </div>
+                    {(link as any).items.map((item: any) => (
+                      <Link
+                        key={item.to}
+                        to={item.to}
+                        className={`block px-6 py-2 rounded-lg text-sm text-foreground hover:text-primary hover:bg-primary/5 transition-all duration-300 ${
+                          isActiveRoute(item.to) ? 'text-primary bg-primary/5' : ''
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span>{item.label}</span>
+                          {item.badge && (
+                            <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-primary/20 text-primary border border-primary/30">
+                              {item.badge}
+                            </span>
+                          )}
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                );
+              }
+
+              // Regular link
+              return (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className={`block px-4 py-3 rounded-lg text-foreground hover:text-primary hover:bg-primary/5 transition-all duration-300 transform ${
+                    isOpen ? 'translate-x-0 opacity-100' : 'translate-x-4 opacity-0'
+                  } ${isActiveRoute(link.to) ? 'text-primary bg-primary/5' : ''}`}
+                  style={{ transitionDelay: `${index * 50}ms` }}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
 
             <div className={`pt-2 space-y-2 transform transition-all duration-300 ${
               isOpen ? 'translate-x-0 opacity-100' : 'translate-x-4 opacity-0'

@@ -1,21 +1,23 @@
 import { Helmet } from 'react-helmet-async';
-import NeuralHub from '@/components/mixclub/NeuralHub';
+import Navigation from '@/components/Navigation';
+import PrimeLanding from '@/components/prime/PrimeLanding';
 
 export default function MixClubHome() {
   return (
     <>
       <Helmet>
-        <title>MIXXCLUB — Music Collaboration Network</title>
+        <title>MIXXCLUB — From Bedroom to Billboard</title>
         <meta 
           name="description" 
-          content="The social hub for music creators. Connect with artists, engineers, and producers in a collaborative network powered by MIXXCLUB." 
+          content="Transform your sound with AI-powered tools, professional engineers, and a collaborative network. From bedroom recordings to radio-ready tracks." 
         />
-        <meta name="keywords" content="MIXXCLUB, music collaboration, social network, artists, engineers, music community" />
+        <meta name="keywords" content="music mixing, mastering, AI studio, music collaboration, professional engineers, music production" />
       </Helmet>
 
-      <div className="min-h-screen overflow-y-auto overflow-x-hidden bg-[#0a0a1a]">
-        <div className="w-full py-8">
-          <NeuralHub />
+      <div className="min-h-screen">
+        <Navigation />
+        <div className="pt-16">
+          <PrimeLanding />
         </div>
       </div>
     </>
