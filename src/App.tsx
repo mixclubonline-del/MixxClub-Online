@@ -151,6 +151,8 @@ import MobileAdminUsers from "./pages/MobileAdminUsers";
 import MobileMixxBot from "./pages/MobileMixxBot";
 import { PersistentChatbot } from "@/components/PersistentChatbot";
 import { AppLayout } from "@/components/layouts/AppLayout";
+import { AppStyleLayout } from "@/components/layouts/AppStyleLayout";
+import { PageTransition } from "@/components/layouts/PageTransition";
 import { DashboardSkeleton } from "@/components/ui/loading-skeleton";
 import { PerformanceMonitor } from "@/components/PerformanceMonitor";
 import { CookieConsent } from "@/components/legal/CookieConsent";
@@ -159,11 +161,12 @@ import { CookieConsent } from "@/components/legal/CookieConsent";
 const AppContent = () => {
   usePageTracking();
   return (
-    <>
-      <MobileRouteGuard />
-      <OfflineIndicator />
-      <React.Suspense fallback={<DashboardSkeleton />}>
-      <Routes>
+    <AppStyleLayout>
+      <PageTransition>
+        <MobileRouteGuard />
+        <OfflineIndicator />
+        <React.Suspense fallback={<DashboardSkeleton />}>
+        <Routes>
         <Route path="/" element={<MixClubHome />} />
             <Route path="/network" element={<Navigate to="/" replace />} />
             <Route path="/artist" element={<Artist />} />
@@ -327,8 +330,10 @@ const AppContent = () => {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </React.Suspense>
-      </>
-    );
+        <PWAInstallPrompt />
+      </PageTransition>
+    </AppStyleLayout>
+  );
 };
 
 const App = () => (
@@ -342,7 +347,6 @@ const App = () => (
             <ErrorBoundary>
               <AppContent />
               <PersistentChatbot />
-              <PWAInstallPrompt />
               <PerformanceMonitor />
               <CookieConsent />
             </ErrorBoundary>
