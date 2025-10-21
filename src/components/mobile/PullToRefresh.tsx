@@ -1,108 +1,108 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState, useRef } from 'react';
+import { motion, useAnimation, PanInfo } from 'framer-motion';
 import { RefreshCw } from 'lucide-react';
+import { useHaptics } from '@/hooks/useHaptics';
 
 interface PullToRefreshProps {
   onRefresh: () => Promise<void>;
   children: React.ReactNode;
+  threshold?: number;
+  disabled?: boolean;
 }
 
-export const PullToRefresh = ({ onRefresh, children }: PullToRefreshProps) => {
-  const [pulling, setPulling] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
+export const PullToRefresh = ({ 
+  onRefresh, 
+  children, 
+  threshold = 80,
+  disabled = false 
+}: PullToRefreshProps) => {
+  const [isPulling, setIsPulling] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [pullDistance, setPullDistance] = useState(0);
-  const startY = useRef(0);
+  const controls = useAnimation();
   const containerRef = useRef<HTMLDivElement>(null);
+  const { trigger, heavy } = useHaptics();
 
-  const PULL_THRESHOLD = 80;
+  const handleDragStart = () => {
+    if (disabled || isRefreshing) return;
+    
+    // Only start if scrolled to top
+    if (containerRef.current?.scrollTop === 0) {
+      setIsPulling(true);
+    }
+  };
 
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+  const handleDrag = (_: any, info: PanInfo) => {
+    if (!isPulling || disabled || isRefreshing) return;
 
-    let touchStartY = 0;
+    const distance = Math.max(0, info.offset.y);
+    setPullDistance(distance);
 
-    const handleTouchStart = (e: TouchEvent) => {
-      if (container.scrollTop === 0) {
-        touchStartY = e.touches[0].clientY;
-        startY.current = touchStartY;
+    // Haptic feedback at threshold
+    if (distance >= threshold && pullDistance < threshold) {
+      trigger('medium');
+    }
+  };
+
+  const handleDragEnd = async (_: any, info: PanInfo) => {
+    if (!isPulling || disabled || isRefreshing) return;
+
+    setIsPulling(false);
+    
+    if (info.offset.y >= threshold) {
+      setIsRefreshing(true);
+      heavy();
+      
+      try {
+        await onRefresh();
+      } finally {
+        setIsRefreshing(false);
+        setPullDistance(0);
+        controls.start({ y: 0 });
       }
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      if (refreshing || startY.current === 0) return;
-
-      const currentY = e.touches[0].clientY;
-      const distance = currentY - startY.current;
-
-      if (distance > 0 && container.scrollTop === 0) {
-        e.preventDefault();
-        setPulling(true);
-        setPullDistance(Math.min(distance, PULL_THRESHOLD * 1.5));
-      }
-    };
-
-    const handleTouchEnd = async () => {
-      if (pullDistance >= PULL_THRESHOLD && !refreshing) {
-        setRefreshing(true);
-        try {
-          await onRefresh();
-        } finally {
-          setRefreshing(false);
-        }
-      }
-      setPulling(false);
+    } else {
       setPullDistance(0);
-      startY.current = 0;
-    };
+      controls.start({ y: 0 });
+    }
+  };
 
-    container.addEventListener('touchstart', handleTouchStart);
-    container.addEventListener('touchmove', handleTouchMove, { passive: false });
-    container.addEventListener('touchend', handleTouchEnd);
-
-    return () => {
-      container.removeEventListener('touchstart', handleTouchStart);
-      container.removeEventListener('touchmove', handleTouchMove);
-      container.removeEventListener('touchend', handleTouchEnd);
-    };
-  }, [pullDistance, refreshing, onRefresh]);
-
-  const pullProgress = Math.min(pullDistance / PULL_THRESHOLD, 1);
-  const rotation = pullProgress * 360;
+  const refreshIconRotation = isRefreshing 
+    ? 360 
+    : Math.min((pullDistance / threshold) * 180, 180);
 
   return (
-    <div ref={containerRef} className="relative h-full overflow-y-auto">
-      {/* Pull indicator */}
-      {(pulling || refreshing) && (
-        <div 
-          className="absolute top-0 left-0 right-0 flex items-center justify-center z-50 transition-all duration-300"
-          style={{ 
-            height: Math.max(pullDistance, 60),
-            opacity: pullProgress 
+    <div ref={containerRef} className="relative overflow-auto h-full">
+      <motion.div
+        drag={!disabled && !isRefreshing ? "y" : false}
+        dragConstraints={{ top: 0, bottom: threshold * 2 }}
+        dragElastic={{ top: 0.3, bottom: 0 }}
+        onDragStart={handleDragStart}
+        onDrag={handleDrag}
+        onDragEnd={handleDragEnd}
+        animate={controls}
+        className="min-h-full"
+      >
+        {/* Pull indicator */}
+        <motion.div
+          className="absolute top-0 left-0 right-0 flex items-center justify-center"
+          style={{
+            height: pullDistance,
+            opacity: Math.min(pullDistance / threshold, 1),
           }}
         >
-          <div 
-            className={`bg-background/90 backdrop-blur-sm rounded-full p-3 shadow-lg ${
-              refreshing ? 'animate-spin' : ''
-            }`}
-            style={{ 
-              transform: refreshing ? '' : `rotate(${rotation}deg)`,
-              transition: refreshing ? '' : 'transform 0.1s'
-            }}
+          <motion.div
+            animate={{ rotate: refreshIconRotation }}
+            transition={{ duration: isRefreshing ? 1 : 0, repeat: isRefreshing ? Infinity : 0 }}
           >
-            <RefreshCw className="h-5 w-5 text-primary" />
-          </div>
-        </div>
-      )}
+            <RefreshCw 
+              className="text-primary" 
+              size={24}
+            />
+          </motion.div>
+        </motion.div>
 
-      {/* Content */}
-      <div
-        style={{
-          transform: pulling ? `translateY(${pullDistance}px)` : '',
-          transition: pulling ? 'none' : 'transform 0.3s'
-        }}
-      >
         {children}
-      </div>
+      </motion.div>
     </div>
   );
 };
