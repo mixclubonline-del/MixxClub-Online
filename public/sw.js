@@ -83,6 +83,52 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
+// Background sync
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'sync-tasks') {
+    event.waitUntil(syncPendingTasks());
+  }
+});
+
+async function syncPendingTasks() {
+  try {
+    const pendingTasks = await getPendingTasks();
+    const failedTasks = [];
+
+    for (const task of pendingTasks) {
+      try {
+        const response = await fetch(task.endpoint, {
+          method: task.method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(task.data),
+        });
+
+        if (!response.ok) {
+          failedTasks.push(task);
+        }
+      } catch (error) {
+        failedTasks.push(task);
+      }
+    }
+
+    await savePendingTasks(failedTasks);
+  } catch (error) {
+    console.error('Sync failed:', error);
+  }
+}
+
+async function getPendingTasks() {
+  const cache = await caches.open('pending-tasks');
+  const response = await cache.match('/pending-tasks');
+  if (!response) return [];
+  return await response.json();
+}
+
+async function savePendingTasks(tasks) {
+  const cache = await caches.open('pending-tasks');
+  await cache.put('/pending-tasks', new Response(JSON.stringify(tasks)));
+}
+
 // Push notifications
 self.addEventListener('push', (event) => {
   const options = {
