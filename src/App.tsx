@@ -167,7 +167,7 @@ const AppContent = () => {
         <OfflineIndicator />
         <React.Suspense fallback={<DashboardSkeleton />}>
         <Routes>
-        <Route path="/" element={<MixClubHome />} />
+        <Route path="/" element={<AppLayout><Home /></AppLayout>} />
             <Route path="/network" element={<Navigate to="/" replace />} />
             <Route path="/artist" element={<Artist />} />
             <Route path="/engineer" element={<Engineer />} />
