@@ -28,19 +28,19 @@ export const MobileEnhancedNav = () => {
   const isAdmin = location.pathname.includes('mobile-admin');
 
   const engineerTabs: NavTab[] = [
-    { icon: Home, label: 'Home', path: '/engineer-crm' },
+    { icon: Home, label: 'Home', path: '/mobile-home' },
     { icon: Briefcase, label: 'Jobs', path: '/jobs', badge: 5 },
     { icon: ShoppingBag, label: 'Shop', path: '/merch' },
     { icon: Bot, label: 'AI', path: '/mobile-mixxbot' },
-    { icon: User, label: 'Profile', path: '/engineer-profile' },
+    { icon: User, label: 'Profile', path: '/settings' },
   ];
 
   const artistTabs: NavTab[] = [
-    { icon: Home, label: 'Home', path: '/artist-crm' },
-    { icon: Briefcase, label: 'Projects', path: '/artist-dashboard' },
+    { icon: Home, label: 'Home', path: '/mobile-home' },
+    { icon: Briefcase, label: 'Projects', path: '/artist-crm' },
     { icon: ShoppingBag, label: 'Shop', path: '/merch' },
     { icon: Bot, label: 'AI', path: '/mobile-mixxbot' },
-    { icon: User, label: 'Profile', path: '/artist-crm' },
+    { icon: User, label: 'Profile', path: '/settings' },
   ];
 
   const adminTabs: NavTab[] = [

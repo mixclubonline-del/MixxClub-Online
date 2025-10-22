@@ -51,10 +51,10 @@ const Home = () => {
               <div className="space-y-4">
                 <h4 className="font-semibold">Services</h4>
                 <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li><button onClick={() => navigate('/mixing')} className="hover:text-primary transition-colors">Mixing</button></li>
-                  <li><button onClick={() => navigate('/mastering')} className="hover:text-primary transition-colors">Mastering</button></li>
-                  <li><button onClick={() => navigate('/studio-directory')} className="hover:text-primary transition-colors">Studio Sessions</button></li>
-                  <li><button onClick={() => navigate('/distribution-hub')} className="hover:text-primary transition-colors">Distribution</button></li>
+                  <li><button onClick={() => navigate('/services/mixing')} className="hover:text-primary transition-colors">Mixing</button></li>
+                  <li><button onClick={() => navigate('/services/mastering')} className="hover:text-primary transition-colors">Mastering</button></li>
+                  <li><button onClick={() => navigate('/services/ai-mastering')} className="hover:text-primary transition-colors">AI Mastering</button></li>
+                  <li><button onClick={() => navigate('/services/distribution')} className="hover:text-primary transition-colors">Distribution</button></li>
                 </ul>
               </div>
 

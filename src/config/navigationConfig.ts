@@ -60,14 +60,14 @@ const navigationItems: NavItem[] = [
   // Services
   {
     label: 'Mixing Magic',
-    path: '/mixing',
+    path: '/services/mixing',
     icon: Headphones,
     roles: ['artist', 'engineer', null],
     category: 'Services',
   },
   {
     label: 'Mastering Polish',
-    path: '/mastering',
+    path: '/services/mastering',
     icon: Mic2,
     roles: ['artist', 'engineer', null],
     category: 'Services',
@@ -81,7 +81,7 @@ const navigationItems: NavItem[] = [
   },
   {
     label: 'Distribution',
-    path: '/distribution',
+    path: '/services/distribution',
     icon: Share2,
     roles: ['artist', 'engineer'],
     category: 'Services',
