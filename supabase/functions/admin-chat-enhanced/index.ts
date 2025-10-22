@@ -1,11 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { getCorsHeaders, validateAdminOrigin } from '../_shared/cors.ts';
 
 // ============================================
 // SECURITY LAYER: Injection Detection
@@ -192,6 +188,8 @@ When helping admins, you can:
 Remember: You're not just answering questions - you're actively helping build and optimize a successful online mixing and mastering business. Be proactive, insightful, and strategic in your assistance.`;
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
+  
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -239,6 +237,15 @@ serve(async (req) => {
       });
       
       return new Response(JSON.stringify({ error: 'Admin access required' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Validate origin for admin function
+    const isValidOrigin = await validateAdminOrigin(req, supabaseAdmin, user.id);
+    if (!isValidOrigin) {
+      return new Response(JSON.stringify({ error: 'Forbidden - Invalid origin' }), {
         status: 403,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });

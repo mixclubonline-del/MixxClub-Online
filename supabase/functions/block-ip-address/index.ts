@@ -1,11 +1,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { getCorsHeaders, validateAdminOrigin } from '../_shared/cors.ts';
 
 const ipBlockSchema = z.object({
   ipAddress: z.string()
@@ -21,6 +17,8 @@ const ipBlockSchema = z.object({
 });
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
+  
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -55,6 +53,15 @@ serve(async (req) => {
 
     if (!roles) {
       throw new Error('Admin access required');
+    }
+
+    // Validate origin for admin function
+    const isValidOrigin = await validateAdminOrigin(req, supabaseClient, user.id);
+    if (!isValidOrigin) {
+      return new Response(
+        JSON.stringify({ error: 'Forbidden - Invalid origin' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const body = await req.json();
