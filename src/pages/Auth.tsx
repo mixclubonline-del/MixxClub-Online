@@ -61,22 +61,22 @@ const Auth = () => {
         throw error;
       }
 
-      if (!data?.session) {
-        throw new Error('No session returned from demo creation');
+      if (!data?.email || !data?.password) {
+        throw new Error('Invalid response from demo creation');
       }
 
-      // Set the session in Supabase client
-      const { error: sessionError } = await supabase.auth.setSession({
-        access_token: data.session.access_token,
-        refresh_token: data.session.refresh_token,
+      // Sign in with temporary credentials
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
       });
 
-      if (sessionError) {
-        throw sessionError;
+      if (authError) {
+        throw authError;
       }
 
       // Clear localStorage slideshow flags for fresh demo experience
-      localStorage.removeItem(`artist_crm_slideshow_seen_${data.user.id}`);
+      localStorage.removeItem(`artist_crm_slideshow_seen_${data.userId}`);
       localStorage.removeItem('engineer_crm_slideshow_seen');
 
       toast.success(`Demo session created! Expires in 4 hours.`);

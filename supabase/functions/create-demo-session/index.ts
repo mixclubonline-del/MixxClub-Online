@@ -1,5 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.58.0';
-import { corsHeaders } from '../_shared/cors.ts';
+import { getCorsHeaders } from '../_shared/cors.ts';
 import { createLogger } from '../_shared/logger.ts';
 
 const logger = createLogger('create-demo-session');
@@ -9,6 +9,8 @@ interface DemoSessionRequest {
 }
 
 Deno.serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
+  
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -108,43 +110,18 @@ Deno.serve(async (req) => {
       logger.warn('Onboarding profile creation failed', onboardingError);
     }
 
-    // Generate session for this user
-    const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.generateLink({
-      type: 'magiclink',
-      email: tempEmail,
-      options: {
-        redirectTo: role === 'admin' ? `${Deno.env.get('SUPABASE_URL').replace('supabase.co', 'lovable.app')}/admin` :
-                    role === 'engineer' ? `${Deno.env.get('SUPABASE_URL').replace('supabase.co', 'lovable.app')}/engineer-crm` :
-                    `${Deno.env.get('SUPABASE_URL').replace('supabase.co', 'lovable.app')}/artist-crm`
-      }
-    });
-
-    if (sessionError) {
-      logger.error('Failed to generate session', sessionError);
-      throw sessionError;
-    }
-
-    // Create a sign-in session token
-    const { data: signInData, error: signInError } = await supabaseAdmin.auth.signInWithPassword({
-      email: tempEmail,
-      password: tempPassword,
-    });
-
-    if (signInError) {
-      logger.error('Failed to create session', signInError);
-      throw signInError;
-    }
-
     logger.info('Demo session created successfully', { 
       userId: authData.user.id,
       role,
       expiresIn: '4 hours'
     });
 
+    // Return temporary credentials for client to sign in
     return new Response(
       JSON.stringify({ 
-        session: signInData.session,
-        user: signInData.user,
+        email: tempEmail,
+        password: tempPassword,
+        userId: authData.user.id,
         role,
         expiresAt: new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString()
       }),
@@ -155,10 +132,11 @@ Deno.serve(async (req) => {
     );
 
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to create demo session';
     logger.error('Demo session creation failed', error);
     return new Response(
       JSON.stringify({ 
-        error: error.message || 'Failed to create demo session'
+        error: errorMessage
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
