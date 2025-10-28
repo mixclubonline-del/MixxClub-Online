@@ -37,6 +37,7 @@ import Network from "./pages/Network";
 import Artist from "./pages/Artist";
 import Engineer from "./pages/Engineer";
 import Community from "./pages/Community";
+import Install from "./pages/Install";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
 import ArtistOnboarding from "./pages/ArtistOnboarding";
@@ -168,6 +169,7 @@ const AppContent = () => {
         <React.Suspense fallback={<DashboardSkeleton />}>
         <Routes>
         <Route path="/" element={<AppLayout><Home /></AppLayout>} />
+            <Route path="/install" element={<Install />} />
             <Route path="/network" element={<Navigate to="/" replace />} />
             <Route path="/artist" element={<Artist />} />
             <Route path="/engineer" element={<Engineer />} />
