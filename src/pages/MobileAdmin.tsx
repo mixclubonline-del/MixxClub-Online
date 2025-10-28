@@ -73,8 +73,8 @@ export default function MobileAdmin() {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-20">
-      <div className="p-4 space-y-4">
+    <div className="min-h-screen bg-background pb-20 overflow-y-auto touch-manipulation">
+      <div className="p-4 space-y-4 pb-safe">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold">Admin Dashboard</h1>

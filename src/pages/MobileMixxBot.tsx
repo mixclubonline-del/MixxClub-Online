@@ -29,9 +29,9 @@ export default function MobileMixxBot() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background">
       <MobileEnhancedNav />
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-auto touch-manipulation">
         <EnhancedMobileMixxBot />
       </div>
     </div>

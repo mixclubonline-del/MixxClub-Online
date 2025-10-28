@@ -40,11 +40,11 @@ const MobileLanding = () => {
   };
 
   return (
-    <div className="min-h-screen pb-32">
+    <div className="min-h-screen pb-32 overflow-y-auto touch-manipulation">
       <MobileEnhancedNav />
       
       <PullToRefresh onRefresh={handleRefresh}>
-        <div className="container mx-auto px-4 py-8 space-y-16">
+        <div className="container mx-auto px-4 py-8 space-y-16 pb-safe">
         <Hero />
         <Services />
         <HowItWorks />

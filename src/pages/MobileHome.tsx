@@ -63,11 +63,11 @@ export default function MobileHome() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background pb-20 overflow-y-auto touch-manipulation">
       <MobileEnhancedNav />
 
       <PullToRefresh onRefresh={handleRefresh}>
-        <div className="container mx-auto px-4 py-6 space-y-6">
+        <div className="container mx-auto px-4 py-6 space-y-6 pb-safe">
           {/* Quick Actions */}
           <div className="grid grid-cols-2 gap-4">
             <Button

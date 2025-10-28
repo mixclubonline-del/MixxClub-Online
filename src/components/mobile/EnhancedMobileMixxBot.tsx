@@ -139,9 +139,9 @@ export const EnhancedMobileMixxBot = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-background">
+    <div className="flex flex-col min-h-screen bg-background pb-safe">
       {/* Chat Messages */}
-      <ScrollArea className="flex-1 px-4 py-6">
+      <div className="flex-1 overflow-y-auto px-4 py-6 touch-manipulation">
         <div className="space-y-4 pb-4">
           {messages.map((msg, idx) => (
             <div key={idx} className="space-y-2">
@@ -190,7 +190,7 @@ export const EnhancedMobileMixxBot = () => {
           )}
           <div ref={scrollRef} />
         </div>
-      </ScrollArea>
+      </div>
 
       {/* Quick Actions */}
       <div className="px-4 py-2 border-t border-border">

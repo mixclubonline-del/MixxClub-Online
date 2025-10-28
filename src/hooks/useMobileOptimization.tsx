@@ -30,10 +30,13 @@ export const useMobileOptimization = (config: MobileOptimizationConfig = {}) => 
       }
 
       // Add touch-action CSS for better touch handling
-      document.body.style.touchAction = 'manipulation';
+      document.body.style.touchAction = 'pan-y pinch-zoom';
 
       // Optimize scrolling (webkit specific)
       (document.body.style as any).webkitOverflowScrolling = 'touch';
+      
+      // Ensure body can scroll
+      document.body.style.overflowY = 'auto';
 
       // Prevent pull-to-refresh if disabled
       if (!config.enablePullToRefresh) {
