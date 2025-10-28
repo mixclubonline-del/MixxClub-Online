@@ -1,5 +1,8 @@
 project_id = "htvmkylgrrlaydhdbonl"
 
+[functions.create-demo-session]
+verify_jwt = false
+
 [functions.generate-trap-beat]
 verify_jwt = false
 

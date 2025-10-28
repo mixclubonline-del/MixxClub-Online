@@ -51,111 +51,47 @@ const Auth = () => {
     setLoading(true);
     setError('');
     
-    // Demo credentials are managed server-side for security
-    // These are demo accounts only - not production credentials
-    const demoCredentials = {
-      client: { email: 'mixclub.demo.artist@gmail.com', password: 'demo123456' },
-      engineer: { email: 'mixclub.demo.engineer@gmail.com', password: 'demo123456' },
-      admin: { email: 'mixclub.demo.admin@gmail.com', password: 'admin123456' }
-    };
-
-    const credentials = demoCredentials[role];
-
     try {
-      // Try to sign in first
-      let { data, error } = await supabase.auth.signInWithPassword(credentials);
+      // Create temporary demo session via secure edge function
+      const { data, error } = await supabase.functions.invoke('create-demo-session', {
+        body: { role }
+      });
 
-      // If user doesn't exist, create them
-      if (error?.message.includes('Invalid login')) {
-        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-          email: credentials.email,
-          password: credentials.password,
-          options: {
-            data: {
-              full_name: role === 'admin' ? 'Demo Admin' : role === 'engineer' ? 'Demo Engineer' : 'Demo Artist',
-            },
-            emailRedirectTo: `${window.location.origin}/`,
-          },
-        });
+      if (error) {
+        throw error;
+      }
 
-        if (signUpError) {
-          setError(signUpError.message);
-          setLoading(false);
-          return;
-        }
+      if (!data?.session) {
+        throw new Error('No session returned from demo creation');
+      }
 
-        // Update profile with role
-        if (signUpData.user) {
-          const profileRole = role === 'admin' ? 'client' : role;
-          await supabase
-            .from('profiles')
-            .update({ role: profileRole })
-            .eq('id', signUpData.user.id);
+      // Set the session in Supabase client
+      const { error: sessionError } = await supabase.auth.setSession({
+        access_token: data.session.access_token,
+        refresh_token: data.session.refresh_token,
+      });
 
-          // For admin, also add to user_roles table
-          if (role === 'admin') {
-            await supabase
-              .from('user_roles')
-              .insert({ user_id: signUpData.user.id, role: 'admin' });
-          }
+      if (sessionError) {
+        throw sessionError;
+      }
 
-          toast.success(`Demo ${role} account ready!`);
-          
-          // Route based on demo role
-          if (role === 'admin') {
-            navigate('/admin');
-          } else if (role === 'engineer') {
-            navigate('/engineer-crm');
-          } else {
-            navigate('/artist-crm');
-          }
-        }
-      } else if (error) {
-        setError(error.message);
-      } else if (data.user) {
-        // Existing user - reset demo state for fresh experience
-        console.log('Checking admin status for demo login, role:', role, 'user:', data.user.id);
-        
-        // Clear localStorage slideshow flags for fresh demo experience
-        localStorage.removeItem(`artist_crm_slideshow_seen_${data.user.id}`);
-        localStorage.removeItem('engineer_crm_slideshow_seen');
-        
-        // Ensure onboarding profile exists and is set to completed for slideshow
-        const { data: existingProfile } = await supabase
-          .from('onboarding_profiles')
-          .select('id')
-          .eq('user_id', data.user.id)
-          .single();
+      // Clear localStorage slideshow flags for fresh demo experience
+      localStorage.removeItem(`artist_crm_slideshow_seen_${data.user.id}`);
+      localStorage.removeItem('engineer_crm_slideshow_seen');
 
-        if (existingProfile) {
-          await supabase
-            .from('onboarding_profiles')
-            .update({ onboarding_completed: true })
-            .eq('user_id', data.user.id);
-        } else {
-          await supabase
-            .from('onboarding_profiles')
-            .insert({
-              user_id: data.user.id,
-              user_type: role === 'engineer' ? 'engineer' : 'artist',
-              onboarding_completed: true
-            });
-        }
-        
-        // Route based on which demo button was clicked
-        if (role === 'admin') {
-          toast.success('Logged in as Admin!');
-          navigate('/admin');
-        } else if (role === 'engineer') {
-          toast.success('Demo started fresh! Watch the intro.');
-          navigate('/engineer-crm');
-        } else {
-          toast.success('Demo started fresh! Watch the intro.');
-          navigate('/artist-crm');
-        }
+      toast.success(`Demo session created! Expires in 4 hours.`);
+      
+      // Route based on demo role
+      if (role === 'admin') {
+        navigate('/admin');
+      } else if (role === 'engineer') {
+        navigate('/engineer-crm');
+      } else {
+        navigate('/artist-crm');
       }
     } catch (err) {
-      setError("Demo login failed");
+      console.error('Demo session creation failed:', err);
+      setError("Failed to create demo session. Please try again.");
     } finally {
       setLoading(false);
     }
