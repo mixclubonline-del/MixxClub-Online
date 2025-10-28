@@ -119,6 +119,7 @@ import { useSimplifiedTransportBridge } from "@/hooks/useSimplifiedTransportBrid
 import { useAchievements } from "@/hooks/useAchievements";
 import { useAIStudioStore, Track, AudioRegion } from "@/stores/aiStudioStore";
 import { WaveformGenerator } from "@/services/waveformGenerator";
+import { audioEngine } from "@/services/audioEngine";
 import Navigation from "@/components/Navigation";
 
 export interface AutomationPoint {
@@ -188,7 +189,6 @@ const HybridDAW = () => {
   // Initialize AudioWorklet modules for professional audio thread
   useEffect(() => {
     const initWorklets = async () => {
-      const { audioEngine } = await import('@/services/audioEngine');
       await audioEngine.initWorklets();
     };
     initWorklets();
@@ -284,7 +284,6 @@ const HybridDAW = () => {
         if (audioContextRef.current) {
           try {
             console.log('[Recording] Decoding recorded audio...');
-            const { audioEngine } = await import('@/services/audioEngine');
             await audioEngine.resume();
             const arrayBuffer = await blob.arrayBuffer();
             const audioBuffer = await audioEngine.ctx.decodeAudioData(arrayBuffer);
@@ -416,7 +415,6 @@ const HybridDAW = () => {
       console.log('[HybridDAW] 🔊 Step 1: Decoding audio...');
       
       // 1. Decode audio using audioEngine context to avoid mismatch
-      const { audioEngine } = await import('@/services/audioEngine');
       await audioEngine.resume();
       
       const dataBuffer = importedFile?.blob 
