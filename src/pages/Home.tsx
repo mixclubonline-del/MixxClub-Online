@@ -8,6 +8,7 @@ import { AISessionPrepShowcase } from "@/components/home/AISessionPrepShowcase";
 import { CommunityMilestonesShowcase } from "@/components/home/CommunityMilestonesShowcase";
 import { TierShowcase } from "@/components/home/TierShowcase";
 import { SimplePackagePreview } from "@/components/home/SimplePackagePreview";
+import { ParticleBackground } from "@/components/home/2030/ParticleBackground";
 import { useNavigate } from "react-router-dom";
 
 const Home = () => {
@@ -25,18 +26,38 @@ const Home = () => {
         }}
       />
       
-      <div className="min-h-screen flex flex-col">
-        <Navigation />
-        <EnhancedHero />
-        <BedroomToBillboard />
-        <AIMasteringCTA />
-        <AISessionPrepShowcase />
-        <CommunityMilestonesShowcase />
-        <TierShowcase />
-        <SimplePackagePreview />
+      <div className="relative min-h-screen flex flex-col overflow-hidden">
+        {/* Particle Background */}
+        <ParticleBackground />
         
-        {/* Footer */}
-        <footer className="bg-muted/30 border-t mt-20">
+        {/* Content */}
+        <div className="relative z-10">
+          <Navigation />
+          <main className="snap-container h-screen overflow-y-auto">
+            <section className="snap-section">
+              <EnhancedHero />
+            </section>
+            <section className="snap-section">
+              <BedroomToBillboard />
+            </section>
+            <section className="snap-section">
+              <AIMasteringCTA />
+            </section>
+            <section className="snap-section">
+              <AISessionPrepShowcase />
+            </section>
+            <section className="snap-section">
+              <CommunityMilestonesShowcase />
+            </section>
+            <section className="snap-section">
+              <TierShowcase />
+            </section>
+            <section className="snap-section">
+              <SimplePackagePreview />
+            </section>
+        
+            {/* Footer */}
+            <footer className="snap-section bg-muted/30 border-t mt-20 relative">
           <div className="container mx-auto px-4 py-12">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
               {/* Brand */}
@@ -80,9 +101,11 @@ const Home = () => {
 
             <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
               <p>&copy; 2024 MixClub. All rights reserved.</p>
+              </div>
             </div>
-          </div>
-        </footer>
+          </footer>
+        </main>
+        </div>
       </div>
     </>
   );
