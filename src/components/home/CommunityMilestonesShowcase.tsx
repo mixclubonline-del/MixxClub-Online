@@ -24,34 +24,35 @@ export const CommunityMilestonesShowcase = () => {
   }
 
   return (
-    <section className="py-20 bg-gradient-to-b from-background to-primary/5">
-      <div className="container px-6">
+    <section className="min-h-screen flex items-center py-16 md:py-20 relative">
+      <div className="container px-4 md:px-6 relative z-10">
         {/* Header */}
         <div className="text-center mb-12">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full mb-4"
           >
-            <Users className="w-4 h-4 text-primary" />
-            <span className="text-sm font-semibold">Community Unlocks</span>
+            <Badge className="glass-morphic backdrop-blur-xl border-primary/30 gap-2 px-5 py-2 text-base mb-6">
+              <Users className="w-4 h-4 text-primary" />
+              Community Unlocks
+            </Badge>
           </motion.div>
           
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-black mb-4"
+            className="text-4xl md:text-6xl lg:text-7xl font-black mb-6"
           >
-            Grow Together, <span className="text-primary">Unlock Together</span>
+            Grow Together, <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Unlock Together</span>
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-xl text-muted-foreground max-w-2xl mx-auto"
+            className="text-lg md:text-xl text-foreground/80 max-w-2xl mx-auto leading-relaxed"
           >
             As our community grows, everyone unlocks powerful new features. Every signup brings us closer!
           </motion.p>
@@ -67,8 +68,8 @@ export const CommunityMilestonesShowcase = () => {
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
             >
-              <Card className="relative overflow-hidden group hover:shadow-elegant transition-all duration-300">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <Card className="glass-morphic-card backdrop-blur-xl border-primary/20 relative overflow-hidden group">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                 
                 <div className="p-8 relative z-10">
                   {/* Icon & Badge */}

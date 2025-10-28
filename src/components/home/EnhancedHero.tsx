@@ -9,12 +9,18 @@ export const EnhancedHero = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-primary/5 via-background to-background py-20 md:py-32">
-      {/* Background decoration */}
-      <div className="absolute inset-0 bg-grid-white/10 bg-grid-16 [mask-image:radial-gradient(white,transparent_70%)]" />
+    <section className="relative min-h-screen flex items-center overflow-hidden">
+      {/* Dynamic gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-accent/10" />
+      <div className="absolute inset-0" 
+        style={{ 
+          backgroundImage: `radial-gradient(circle at 20% 30%, hsl(var(--primary) / 0.15) 0%, transparent 50%),
+                           radial-gradient(circle at 80% 70%, hsl(var(--accent) / 0.1) 0%, transparent 50%)` 
+        }} 
+      />
       
-      <div className="container relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+      <div className="container relative z-10 px-4 md:px-6">
+        <div className="grid lg:grid-cols-[1.2fr_1fr] gap-12 lg:gap-20 items-center">
           {/* Left column - Hero content */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -22,42 +28,50 @@ export const EnhancedHero = () => {
             transition={{ duration: 0.5 }}
             className="space-y-8"
           >
-            <Badge className="bg-primary/10 text-primary border-primary/20">
-              <Zap className="w-3 h-3 mr-1" />
-              AI-Powered Matching
-            </Badge>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.1 }}
+            >
+              <Badge className="glass-morphic backdrop-blur-xl text-primary border-primary/30 px-4 py-2">
+                <Zap className="w-4 h-4 mr-2" />
+                AI-Powered Matching
+              </Badge>
+            </motion.div>
 
-            <div className="space-y-4">
-              <h1 className="text-4xl md:text-6xl font-bold leading-tight">
+            <div className="space-y-6">
+              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-[1.1] tracking-tight">
                 Your Music.
                 <br />
-                <span className="text-primary">World-Class</span> Engineers.
+                <span className="bg-gradient-to-r from-primary via-primary-glow to-accent bg-clip-text text-transparent">
+                  World-Class
+                </span>
                 <br />
-                Perfect Match.
+                Engineers.
               </h1>
               
-              <p className="text-lg md:text-xl text-muted-foreground max-w-xl">
-                Connect with top audio engineers, collaborate in real-time, and bring your tracks to professional quality. Join 5,000+ artists and engineers.
+              <p className="text-lg md:text-2xl text-foreground/80 max-w-2xl leading-relaxed">
+                Connect with top audio engineers, collaborate in real-time, and bring your tracks to professional quality.
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-4 pt-2">
               <Button 
                 size="lg" 
                 onClick={() => navigate('/auth')}
-                className="gap-2 group"
+                className="gap-2 group text-lg px-8 py-6 shadow-glow-sm hover:shadow-glow transition-all duration-300"
               >
                 Get Started Free
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
               
               <Button 
                 size="lg" 
                 variant="outline"
                 onClick={() => navigate('/how-it-works')}
-                className="gap-2"
+                className="gap-2 glass-morphic backdrop-blur-xl border-primary/20 hover:border-primary/40 text-lg px-8 py-6"
               >
-                <Play className="w-4 h-4" />
+                <Play className="w-5 h-5" />
                 Watch Demo
               </Button>
             </div>
@@ -99,56 +113,66 @@ export const EnhancedHero = () => {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="relative"
+            className="relative lg:block hidden"
           >
-            <div className="space-y-4">
-              <Card className="p-6 bg-gradient-to-br from-primary/10 to-purple-500/10 border-primary/20">
-                <div className="space-y-4">
+            <div className="space-y-6">
+              <Card className="glass-morphic-card p-8 border-primary/30 backdrop-blur-xl">
+                <div className="space-y-6">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-bold">AI Matching Score</h3>
-                    <Badge variant="secondary">98% Match</Badge>
+                    <h3 className="text-xl font-bold">AI Matching Score</h3>
+                    <Badge className="bg-primary/20 text-primary border-primary/30 text-sm px-3 py-1">98% Match</Badge>
                   </div>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Genre Match</span>
-                      <span className="font-bold">95%</span>
+                  <div className="space-y-4">
+                    <div className="flex justify-between text-base">
+                      <span className="text-foreground/70">Genre Match</span>
+                      <span className="font-bold text-primary">95%</span>
                     </div>
-                    <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                      <div className="h-full bg-primary w-[95%] rounded-full" />
+                    <div className="h-3 bg-muted/30 rounded-full overflow-hidden backdrop-blur-sm">
+                      <motion.div 
+                        initial={{ width: 0 }}
+                        animate={{ width: "95%" }}
+                        transition={{ duration: 1, delay: 0.5 }}
+                        className="h-full bg-gradient-to-r from-primary to-primary-glow rounded-full shadow-glow-sm" 
+                      />
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Style Compatibility</span>
-                      <span className="font-bold">100%</span>
+                  <div className="space-y-4">
+                    <div className="flex justify-between text-base">
+                      <span className="text-foreground/70">Style Compatibility</span>
+                      <span className="font-bold text-primary">100%</span>
                     </div>
-                    <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                      <div className="h-full bg-primary w-full rounded-full" />
+                    <div className="h-3 bg-muted/30 rounded-full overflow-hidden backdrop-blur-sm">
+                      <motion.div 
+                        initial={{ width: 0 }}
+                        animate={{ width: "100%" }}
+                        transition={{ duration: 1, delay: 0.7 }}
+                        className="h-full bg-gradient-to-r from-primary to-accent rounded-full shadow-glow-sm" 
+                      />
                     </div>
                   </div>
                 </div>
               </Card>
 
-              <Card className="p-6 bg-gradient-to-br from-green-500/10 to-emerald-500/10 border-green-500/20">
+              <Card className="glass-morphic-card p-6 border-accent/30 backdrop-blur-xl">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center">
-                    <Zap className="w-6 h-6 text-green-600" />
+                  <div className="w-14 h-14 rounded-2xl bg-accent/20 flex items-center justify-center backdrop-blur-sm">
+                    <Zap className="w-7 h-7 text-accent" />
                   </div>
                   <div>
-                    <p className="font-bold">Real-Time Collaboration</p>
-                    <p className="text-sm text-muted-foreground">Work together live with low-latency audio</p>
+                    <p className="font-bold text-lg">Real-Time Collaboration</p>
+                    <p className="text-sm text-foreground/70">Work together live with low-latency audio</p>
                   </div>
                 </div>
               </Card>
 
-              <Card className="p-6 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border-blue-500/20">
+              <Card className="glass-morphic-card p-6 border-primary/30 backdrop-blur-xl">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center">
-                    <Star className="w-6 h-6 text-blue-600" />
+                  <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center backdrop-blur-sm">
+                    <Star className="w-7 h-7 text-primary" />
                   </div>
                   <div>
-                    <p className="font-bold">Quality Guaranteed</p>
-                    <p className="text-sm text-muted-foreground">Money-back if not satisfied with results</p>
+                    <p className="font-bold text-lg">Quality Guaranteed</p>
+                    <p className="text-sm text-foreground/70">Money-back if not satisfied with results</p>
                   </div>
                 </div>
               </Card>

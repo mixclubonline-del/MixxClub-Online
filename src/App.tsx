@@ -168,7 +168,7 @@ const AppContent = () => {
         <OfflineIndicator />
         <React.Suspense fallback={<DashboardSkeleton />}>
         <Routes>
-        <Route path="/" element={<AppLayout><Home /></AppLayout>} />
+        <Route path="/" element={<Home />} />
             <Route path="/install" element={<Install />} />
             <Route path="/network" element={<Navigate to="/" replace />} />
             <Route path="/artist" element={<Artist />} />
