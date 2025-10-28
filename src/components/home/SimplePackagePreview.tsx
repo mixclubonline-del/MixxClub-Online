@@ -33,22 +33,22 @@ export const SimplePackagePreview = () => {
   ];
 
   return (
-    <section className="py-20 bg-gradient-to-b from-primary/5 to-background">
-      <div className="container px-6">
-        <div className="text-center mb-12">
+    <section className="min-h-screen flex items-center py-16 md:py-20 relative">
+      <div className="container px-4 md:px-6">
+        <div className="text-center mb-16 md:mb-20">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <Badge variant="secondary" className="mb-4 gap-2">
+            <Badge className="glass-morphic backdrop-blur-xl border-primary/30 gap-2 px-5 py-2 text-base mb-6">
               <Sparkles className="w-4 h-4" />
               Simple Pricing
             </Badge>
-            <h2 className="text-4xl md:text-5xl font-black mb-4">
+            <h2 className="text-4xl md:text-6xl lg:text-7xl font-black mb-6 leading-tight">
               Choose Your Package
             </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-lg md:text-xl text-foreground/80 max-w-2xl mx-auto leading-relaxed">
               Professional mixing & mastering at every budget. All packages include AI session prep.
             </p>
           </motion.div>
@@ -64,9 +64,9 @@ export const SimplePackagePreview = () => {
               transition={{ delay: index * 0.1 }}
             >
               <Card className={`
-                relative overflow-hidden p-8 h-full flex flex-col
-                ${pkg.highlight ? 'border-2 border-primary shadow-elegant' : 'border-border'}
-                hover:shadow-lg transition-all duration-300 group
+                glass-morphic-card backdrop-blur-xl relative overflow-hidden p-8 md:p-10 h-full flex flex-col
+                ${pkg.highlight ? 'border-2 border-primary' : 'border-primary/20'}
+                hover:scale-105 transition-all duration-300 group
               `}>
                 {/* Gradient Accent Top */}
                 <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${pkg.color}`} />

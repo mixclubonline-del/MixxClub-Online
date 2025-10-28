@@ -95,42 +95,43 @@ export const TierShowcase = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="text-center mb-12">
-        <h2 className="text-4xl md:text-5xl font-black mb-4">
-          <span className="bg-gradient-to-r from-primary via-accent-blue to-accent-cyan bg-clip-text text-transparent">
-            Your Journey Starts Here
-          </span>
-        </h2>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Every feature unlocked by the community, for the community
-        </p>
-      </div>
+    <section className="min-h-screen flex items-center py-16 md:py-20 relative">
+      <div className="container px-4 md:px-6">
+        <div className="space-y-12">
+          <div className="text-center mb-16 md:mb-20">
+            <h2 className="text-4xl md:text-6xl lg:text-7xl font-black mb-6 leading-tight">
+              <span className="bg-gradient-to-r from-primary via-accent to-primary-glow bg-clip-text text-transparent">
+                Your Journey Starts Here
+              </span>
+            </h2>
+            <p className="text-lg md:text-xl text-foreground/80 max-w-2xl mx-auto leading-relaxed">
+              Every feature unlocked by the community, for the community
+            </p>
+          </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {tierConfig.map((tier, index) => {
-          const status = getTierStatus(tier);
-          const Icon = tier.icon;
-          const isLocked = !status.unlocked;
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {tierConfig.map((tier, index) => {
+              const status = getTierStatus(tier);
+              const Icon = tier.icon;
+              const isLocked = !status.unlocked;
 
-          return (
-            <motion.div
-              key={tier.title}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <Card className={`
-                relative overflow-hidden h-full
-                ${isLocked ? 'opacity-75' : ''}
-                border-2 transition-all duration-300 hover:scale-105
-                ${tier.color === 'primary' ? 'border-primary/50 hover:border-primary' : ''}
-                ${tier.color === 'accent-blue' ? 'border-accent-blue/50 hover:border-accent-blue' : ''}
-                ${tier.color === 'success' ? 'border-success/50 hover:border-success' : ''}
-                ${tier.color === 'warning' ? 'border-warning/50 hover:border-warning' : ''}
-                ${tier.color === 'accent-cyan' ? 'border-accent-cyan/50 hover:border-accent-cyan' : ''}
-                glass-studio
-              `}>
+              return (
+                <motion.div
+                  key={tier.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <Card className={`
+                    glass-morphic-card backdrop-blur-xl relative overflow-hidden h-full
+                    ${isLocked ? 'opacity-75' : ''}
+                    border-2 transition-all duration-300 hover:scale-105
+                    ${tier.color === 'primary' ? 'border-primary/50 hover:border-primary' : ''}
+                    ${tier.color === 'accent-blue' ? 'border-accent-blue/50 hover:border-accent-blue' : ''}
+                    ${tier.color === 'success' ? 'border-success/50 hover:border-success' : ''}
+                    ${tier.color === 'warning' ? 'border-warning/50 hover:border-warning' : ''}
+                    ${tier.color === 'accent-cyan' ? 'border-accent-cyan/50 hover:border-accent-cyan' : ''}
+                  `}>
                 {/* Header */}
                 <div className="p-6 pb-4 border-b border-border/50">
                   <div className="flex items-start justify-between mb-4">
@@ -237,7 +238,9 @@ export const TierShowcase = () => {
             </motion.div>
           );
         })}
+        </div>
       </div>
-    </div>
+      </div>
+    </section>
   );
 };

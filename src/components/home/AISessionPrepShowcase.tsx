@@ -26,32 +26,28 @@ export const AISessionPrepShowcase = () => {
   };
 
   return (
-    <section className="py-20 relative overflow-hidden bg-gradient-to-b from-background via-primary/5 to-background">
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
+    <section className="min-h-screen flex items-center py-16 md:py-20 relative overflow-hidden">
 
-      <div className="container px-6 relative z-10">
-        <div className="text-center mb-12">
+      <div className="container px-4 md:px-6 relative z-10">
+        <div className="text-center mb-16 md:mb-20">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary/10 to-accent/10 px-4 py-2 rounded-full mb-4 border border-primary/20">
+            <Badge className="glass-morphic backdrop-blur-xl border-primary/30 gap-2 px-5 py-2 text-base mb-6">
               <Sparkles className="h-4 w-4 text-primary animate-pulse" />
-              <span className="text-sm font-semibold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                AI-Powered Session Prep
-              </span>
-            </div>
-            <h2 className="text-4xl md:text-5xl font-black mb-4">
+              AI-Powered Session Prep
+            </Badge>
+            <h2 className="text-4xl md:text-6xl lg:text-7xl font-black mb-6 leading-tight">
               Engineers Know Your Track
               <br />
               <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 Before The Session
               </span>
             </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-lg md:text-xl text-foreground/80 max-w-2xl mx-auto leading-relaxed">
               Our AI analyzes your music instantly, giving engineers the insights they need to deliver perfect mixes faster
             </p>
           </motion.div>
@@ -65,7 +61,7 @@ export const AISessionPrepShowcase = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <Card className="p-8 border-2 border-primary/20 bg-gradient-to-br from-background to-primary/5">
+            <Card className="glass-morphic-strong backdrop-blur-xl border-primary/30 p-8 md:p-10">
               <div className="flex items-center gap-3 mb-6">
                 <div className="p-2 rounded-lg bg-primary/10">
                   <Sparkles className="w-5 h-5 text-primary animate-pulse" />
