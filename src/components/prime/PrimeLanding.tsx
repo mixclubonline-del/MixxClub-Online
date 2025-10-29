@@ -6,6 +6,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AudioWaveformBg } from "@/components/brand/AudioWaveformBg";
+import { ParticleBackground } from "@/components/home/2030/ParticleBackground";
+import { HolographicPlatform } from "@/components/brand/HolographicPlatform";
 import { useState, useEffect } from "react";
 
 // Live stats animation
@@ -128,7 +130,10 @@ const serviceCards = [
 
 export default function PrimeLanding() {
   return (
-    <div className="min-h-screen bg-[hsl(var(--background))] text-foreground overflow-hidden">
+    <div className="min-h-screen bg-[hsl(var(--background))] text-foreground overflow-hidden relative">
+      {/* 2030 Particle Network Background */}
+      <ParticleBackground />
+      
       {/* Hero Section */}
       <section className="relative min-h-[90vh] flex items-center justify-center px-6 py-20">
         {/* Animated background */}
@@ -183,6 +188,11 @@ export default function PrimeLanding() {
 
         {/* Content */}
         <div className="relative z-10 text-center max-w-5xl mx-auto">
+          {/* Holographic Platform behind content */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none -z-10">
+            <HolographicPlatform size={600} rings={12} />
+          </div>
+          
           {/* Animated logo badge */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
@@ -190,9 +200,9 @@ export default function PrimeLanding() {
             transition={{ duration: 0.5 }}
             className="inline-block mb-6"
           >
-            <div className="px-6 py-2 rounded-full glass border border-[hsl(var(--primary)/0.3)]">
-              <span className="text-sm font-mono text-[hsl(var(--primary))]">
-                ⚡ PRIME 4.0 — GLASS ARCHITECTURE
+            <div className="px-6 py-2 rounded-full glass border border-[hsl(var(--primary)/0.3)] shadow-[0_0_30px_hsl(var(--primary)/0.3)]">
+              <span className="text-sm font-mono text-[hsl(var(--primary))] tracking-wider">
+                ⚡ PRIME 4.0 — 2030 ARCHITECTURE
               </span>
             </div>
           </motion.div>
@@ -202,13 +212,13 @@ export default function PrimeLanding() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-5xl md:text-7xl font-bold mb-6 leading-tight"
+            className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight"
           >
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[hsl(var(--primary))] via-[hsl(var(--accent-blue))] to-[hsl(var(--accent-cyan))]">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[hsl(var(--primary))] via-[hsl(var(--accent-blue))] to-[hsl(var(--accent-cyan))] drop-shadow-[0_0_30px_hsl(var(--primary)/0.5)]">
               From Bedroom
             </span>
             <br />
-            <span className="text-foreground">to Billboard</span>
+            <span className="text-foreground drop-shadow-[0_0_20px_hsl(var(--foreground)/0.3)]">to Billboard</span>
           </motion.h1>
 
           {/* Subheadline */}
@@ -239,15 +249,21 @@ export default function PrimeLanding() {
             className="flex flex-wrap items-center justify-center gap-4 mb-12"
           >
             <Link to="/auth?mode=signup">
-              <Button size="lg" className="group relative overflow-hidden bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent-blue))] hover:shadow-[0_0_40px_hsl(var(--primary)/0.5)] transition-all">
-                <span className="relative z-10 flex items-center gap-2">
+              <Button size="lg" className="group relative overflow-hidden bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent-blue))] hover:shadow-[0_0_60px_hsl(var(--primary)/0.8)] transition-all border border-[hsl(var(--primary)/0.3)]">
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--accent-cyan))] to-[hsl(var(--primary))]"
+                  initial={{ x: '-100%' }}
+                  whileHover={{ x: '100%' }}
+                  transition={{ duration: 0.6 }}
+                />
+                <span className="relative z-10 flex items-center gap-2 font-semibold">
                   Enter the Network
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </span>
               </Button>
             </Link>
             <Link to="/how-it-works">
-              <Button size="lg" variant="outline" className="glass border-[hsl(var(--border))] hover:border-[hsl(var(--primary))] hover:bg-[hsl(var(--primary)/0.1)]">
+              <Button size="lg" variant="outline" className="glass border-[hsl(var(--border))] hover:border-[hsl(var(--primary))] hover:bg-[hsl(var(--primary)/0.1)] hover:shadow-[0_0_30px_hsl(var(--primary)/0.4)] transition-all">
                 How It Works
               </Button>
             </Link>
@@ -259,7 +275,7 @@ export default function PrimeLanding() {
       </section>
 
       {/* Three Paths Section */}
-      <section className="relative px-6 py-24">
+      <section className="relative px-6 py-24 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -281,7 +297,7 @@ export default function PrimeLanding() {
                 transition={{ delay: index * 0.1 }}
               >
                 <Link to={card.route}>
-                  <div className="group h-full glass rounded-2xl p-8 hover:shadow-[0_0_50px_hsl(var(--primary)/0.3)] transition-all duration-300 hover:scale-105 cursor-pointer">
+                  <div className="group h-full glass rounded-2xl p-8 hover:shadow-[0_0_60px_hsl(var(--primary)/0.5)] transition-all duration-300 hover:scale-105 cursor-pointer border border-[hsl(var(--border)/0.5)] hover:border-[hsl(var(--primary)/0.5)]">
                     {/* Icon with gradient background */}
                     <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${card.gradient} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
                       <card.icon className="w-8 h-8 text-white" />
@@ -322,7 +338,7 @@ export default function PrimeLanding() {
       </section>
 
       {/* Services Overview */}
-      <section className="relative px-6 py-24 bg-[hsl(var(--card)/0.3)]">
+      <section className="relative px-6 py-24 bg-[hsl(var(--card)/0.3)] backdrop-blur-sm">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -344,7 +360,7 @@ export default function PrimeLanding() {
                 transition={{ delay: index * 0.1 }}
               >
                 <Link to={service.route}>
-                  <div className="group glass rounded-xl p-6 hover:shadow-[0_0_40px_hsl(var(--primary)/0.2)] transition-all duration-300 hover:scale-105 cursor-pointer h-full">
+                  <div className="group glass rounded-xl p-6 hover:shadow-[0_0_50px_hsl(var(--primary)/0.4)] transition-all duration-300 hover:scale-105 cursor-pointer h-full border border-[hsl(var(--border)/0.3)] hover:border-[hsl(var(--primary)/0.4)]">
                     <div 
                       className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"
                       style={{
@@ -368,7 +384,7 @@ export default function PrimeLanding() {
       </section>
 
       {/* Footer CTA */}
-      <section className="relative px-6 py-24">
+      <section className="relative px-6 py-24 backdrop-blur-sm">
         <div className="max-w-4xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -382,9 +398,9 @@ export default function PrimeLanding() {
               Join thousands of artists and engineers creating the future of music
             </p>
             <Link to="/auth?mode=signup">
-              <Button size="lg" className="bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent-cyan))] hover:shadow-[0_0_50px_hsl(var(--primary)/0.6)] transition-all">
+              <Button size="lg" className="group bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent-cyan))] hover:shadow-[0_0_80px_hsl(var(--primary)/0.8)] transition-all border border-[hsl(var(--primary)/0.3)]">
                 Get Started Free
-                <ArrowRight className="ml-2 w-5 h-5" />
+                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
           </motion.div>
