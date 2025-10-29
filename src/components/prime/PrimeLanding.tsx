@@ -193,17 +193,19 @@ export default function PrimeLanding() {
             <HolographicPlatform size={600} rings={12} />
           </div>
           
-          {/* Animated logo badge */}
+          {/* AI-Powered Feature Badge */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-            className="inline-block mb-6"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="mb-8"
           >
-            <div className="px-6 py-2 rounded-full glass border border-[hsl(var(--primary)/0.3)] shadow-[0_0_30px_hsl(var(--primary)/0.3)]">
-              <span className="text-sm font-mono text-[hsl(var(--primary))] tracking-wider">
-                ⚡ PRIME 4.0 — 2030 ARCHITECTURE
+            <div className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl glass border border-[hsl(var(--primary)/0.4)] shadow-[0_0_40px_hsl(var(--primary)/0.4)]">
+              <Sparkles className="w-5 h-5 text-[hsl(var(--accent-cyan))] animate-pulse" />
+              <span className="text-lg md:text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[hsl(var(--primary))] via-[hsl(var(--accent-blue))] to-[hsl(var(--accent-cyan))]">
+                AI-Powered Stem Separation
               </span>
+              <Zap className="w-5 h-5 text-[hsl(var(--primary))] animate-pulse" />
             </div>
           </motion.div>
 
