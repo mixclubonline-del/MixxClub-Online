@@ -168,10 +168,10 @@ const AppContent = () => {
         <OfflineIndicator />
         <React.Suspense fallback={<DashboardSkeleton />}>
         <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Navigate to="/mixclub" replace />} />
         <Route path="/mixclub" element={<MixClubHome />} />
             <Route path="/install" element={<Install />} />
-            <Route path="/network" element={<Navigate to="/" replace />} />
+            <Route path="/network" element={<Navigate to="/mixclub" replace />} />
             <Route path="/artist" element={<Artist />} />
             <Route path="/engineer" element={<Engineer />} />
             <Route path="/ai-studio" element={<Navigate to="/artist-crm?tab=studio" replace />} />
