@@ -169,6 +169,7 @@ const AppContent = () => {
         <React.Suspense fallback={<DashboardSkeleton />}>
         <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/mixclub" element={<MixClubHome />} />
             <Route path="/install" element={<Install />} />
             <Route path="/network" element={<Navigate to="/" replace />} />
             <Route path="/artist" element={<Artist />} />
