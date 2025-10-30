@@ -9,8 +9,6 @@ import { AudioWaveformBg } from "@/components/brand/AudioWaveformBg";
 import { ParticleBackground } from "@/components/home/2030/ParticleBackground";
 import { HolographicPlatform } from "@/components/brand/HolographicPlatform";
 import { useState, useEffect } from "react";
-import { PrimeCharacter } from "./PrimeCharacter";
-import { usePrime } from "@/contexts/PrimeContext";
 
 // Live stats animation
 const LiveStats = () => {
@@ -131,84 +129,12 @@ const serviceCards = [
 ];
 
 export default function PrimeLanding() {
-  const { systemMode } = usePrime();
-
   return (
     <div className="min-h-screen bg-[hsl(var(--background))] text-foreground overflow-hidden relative">
       {/* 2030 Particle Network Background */}
       <ParticleBackground />
       
-      {/* PRIME CHARACTER HERO - NEW 2030 Section */}
-      <section className="relative h-[70vh] flex items-center justify-center px-6 overflow-hidden">
-        {/* Animated gradient background */}
-        <div className="absolute inset-0">
-          <motion.div
-            className="absolute inset-0"
-            animate={{
-              background: [
-                'radial-gradient(circle at 30% 50%, hsl(270 100% 70% / 0.3) 0%, transparent 50%)',
-                'radial-gradient(circle at 70% 50%, hsl(185 100% 50% / 0.3) 0%, transparent 50%)',
-                'radial-gradient(circle at 30% 50%, hsl(270 100% 70% / 0.3) 0%, transparent 50%)',
-              ]
-            }}
-            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-          />
-        </div>
-
-        {/* 3D Prime Character */}
-        <div className="absolute inset-0 z-10">
-          <PrimeCharacter size="hero" showParticles showRings />
-        </div>
-
-        {/* Text overlay */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 1 }}
-          className="relative z-20 text-center"
-        >
-          <motion.div
-            className="inline-flex items-center gap-3 px-6 py-3 rounded-full glass border border-[hsl(var(--primary)/0.4)] mb-6"
-            animate={{
-              boxShadow: [
-                '0 0 20px hsl(var(--primary) / 0.3)',
-                '0 0 40px hsl(var(--primary) / 0.5)',
-                '0 0 20px hsl(var(--primary) / 0.3)',
-              ]
-            }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            <div className="w-2 h-2 rounded-full bg-[hsl(var(--accent-cyan))] animate-pulse" />
-            <span className="text-sm font-mono text-muted-foreground">
-              SYSTEM: {systemMode.toUpperCase()}
-            </span>
-          </motion.div>
-          
-          <h2 className="text-4xl md:text-6xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-[hsl(var(--primary))] via-[hsl(var(--accent-blue))] to-[hsl(var(--accent-cyan))]">
-            Meet PRIME 4.0
-          </h2>
-          <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto">
-            Your AI Studio Assistant — Real-time collaboration, intelligent mixing, and limitless creativity
-          </p>
-        </motion.div>
-
-        {/* Scroll indicator */}
-        <motion.div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20"
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          <div className="w-6 h-10 rounded-full border-2 border-[hsl(var(--primary))] flex items-start justify-center p-2">
-            <motion.div
-              className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--primary))]"
-              animate={{ y: [0, 12, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            />
-          </div>
-        </motion.div>
-      </section>
-
-      {/* Main Hero Section */}
+      {/* Hero Section */}
       <section className="relative min-h-[90vh] flex items-center justify-center px-6 py-20">
         {/* Animated background */}
         <div className="absolute inset-0 overflow-hidden">
