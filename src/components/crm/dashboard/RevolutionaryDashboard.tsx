@@ -8,11 +8,14 @@ import { useMoodTheming } from '@/hooks/useMoodTheming';
 import { cn } from '@/lib/utils';
 import { CollapsibleCard } from '@/components/ui/collapsible-card';
 import { Command, FolderKanban, Radio } from 'lucide-react';
+import { useAudioReactivity } from '@/hooks/useAudioReactivity';
 
 export const RevolutionaryDashboard = () => {
   const { user } = useAuth();
   const [showCommandPalette, setShowCommandPalette] = useState(false);
   const { theme, updateMood } = useMoodTheming();
+  const { amplitude } = useAudioReactivity();
+  const intensity = amplitude / 100; // Normalize to 0-1
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -34,35 +37,49 @@ export const RevolutionaryDashboard = () => {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      {/* Morphing Background */}
+      {/* Morphing Background with Audio Reactivity */}
       <motion.div
         className="fixed inset-0 -z-10"
         animate={{
           background: [
-            `linear-gradient(135deg, ${theme.primary}15 0%, ${theme.secondary}15 100%)`,
-            `linear-gradient(225deg, ${theme.secondary}15 0%, ${theme.primary}15 100%)`,
-            `linear-gradient(135deg, ${theme.primary}15 0%, ${theme.secondary}15 100%)`,
+            `radial-gradient(circle at 20% 50%, hsl(var(--ember) / ${0.15 + intensity * 0.1}) 0%, transparent 50%), 
+             radial-gradient(circle at 80% 50%, hsl(var(--midnight-light) / 0.3) 0%, transparent 50%), 
+             linear-gradient(135deg, hsl(var(--midnight)) 0%, hsl(var(--midnight-dark)) 100%)`,
+            `radial-gradient(circle at 80% 50%, hsl(var(--ember) / ${0.15 + intensity * 0.1}) 0%, transparent 50%), 
+             radial-gradient(circle at 20% 50%, hsl(var(--midnight-light) / 0.3) 0%, transparent 50%), 
+             linear-gradient(225deg, hsl(var(--midnight)) 0%, hsl(var(--midnight-dark)) 100%)`,
+            `radial-gradient(circle at 20% 50%, hsl(var(--ember) / ${0.15 + intensity * 0.1}) 0%, transparent 50%), 
+             radial-gradient(circle at 80% 50%, hsl(var(--midnight-light) / 0.3) 0%, transparent 50%), 
+             linear-gradient(135deg, hsl(var(--midnight)) 0%, hsl(var(--midnight-dark)) 100%)`,
           ]
         }}
         transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
       />
 
-      {/* Particle Effects */}
+      {/* Audio-Reactive Particle Effects */}
       <div className="fixed inset-0 -z-5 overflow-hidden pointer-events-none">
-        {[...Array(20)].map((_, i) => (
+        {[...Array(30)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-1 h-1 bg-primary/20 rounded-full"
+            className="absolute rounded-full bg-gradient-to-br from-ember/30 to-ember-light/20"
+            style={{
+              width: `${2 + intensity * 4}px`,
+              height: `${2 + intensity * 4}px`,
+              filter: 'blur(1px)',
+            }}
             initial={{ 
               x: Math.random() * window.innerWidth, 
-              y: Math.random() * window.innerHeight 
+              y: Math.random() * window.innerHeight,
+              opacity: 0.3 + intensity * 0.3,
             }}
             animate={{
               x: [null, Math.random() * window.innerWidth],
               y: [null, Math.random() * window.innerHeight],
+              opacity: [0.3 + intensity * 0.3, 0.5 + intensity * 0.5, 0.3 + intensity * 0.3],
+              scale: [1, 1 + intensity * 0.5, 1],
             }}
             transition={{
-              duration: Math.random() * 20 + 10,
+              duration: Math.random() * 15 + 10,
               repeat: Infinity,
               ease: "linear"
             }}

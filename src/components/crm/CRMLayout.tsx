@@ -11,6 +11,8 @@ import { cn } from '@/lib/utils';
 import { RoleSwitcher } from './RoleSwitcher';
 import { ResizableAICopilot } from './dashboard/ResizableAICopilot';
 import { useAIDashboardInsights } from '@/hooks/useAIDashboardInsights';
+import { CursorTrail } from '@/components/effects/CursorTrail';
+import { HoverCard3D } from '@/components/interactive/HoverCard3D';
 
 interface CRMLayoutProps {
   children: ReactNode;
@@ -91,8 +93,9 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions, is
   if (isMobile) {
     return (
       <>
+        <CursorTrail />
         {!isStudioMode && <RoleSwitcher />}
-        <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+        <div className="min-h-screen bg-gradient-to-br from-midnight via-midnight-light to-ember/10">
         {!isStudioMode && <Navigation />}
         
         <div className={isStudioMode ? "" : "pt-20 pb-20 px-4 md:px-6"}>
@@ -137,24 +140,25 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions, is
               <ScrollArea className="w-full pb-4">
                 <div className="flex gap-3 pb-2">
                   {stats.map((stat, index) => (
-                    <Card 
-                      key={index} 
-                      className={cn(
-                        "p-4 min-w-[160px] flex-shrink-0 border-2 transition-all duration-300 hover:scale-105 animate-in slide-in-from-left",
-                        "hover:shadow-glow cursor-pointer"
-                      )}
-                      style={{ animationDelay: `${index * 100}ms` }}
-                    >
-                      <div className="flex flex-col gap-2">
-                        <div className={cn("p-2 rounded-lg w-fit", stat.color)}>
-                          {stat.icon}
+                    <HoverCard3D key={index}>
+                      <Card 
+                        className={cn(
+                          "p-4 min-w-[160px] flex-shrink-0 border-2 transition-all duration-300 animate-in slide-in-from-left",
+                          "hover:shadow-glow cursor-pointer bg-gradient-to-br from-midnight-light/50 to-midnight-dark/50 border-ember/20"
+                        )}
+                        style={{ animationDelay: `${index * 100}ms` }}
+                      >
+                        <div className="flex flex-col gap-2">
+                          <div className={cn("p-2 rounded-lg w-fit bg-ember/10 text-ember")}>
+                            {stat.icon}
+                          </div>
+                          <div>
+                            <div className="text-2xl font-bold text-foreground">{stat.value}</div>
+                            <div className="text-xs text-muted-foreground">{stat.label}</div>
+                          </div>
                         </div>
-                        <div>
-                          <div className="text-2xl font-bold">{stat.value}</div>
-                          <div className="text-xs text-muted-foreground">{stat.label}</div>
-                        </div>
-                      </div>
-                    </Card>
+                      </Card>
+                    </HoverCard3D>
                   ))}
                 </div>
               </ScrollArea>
@@ -205,8 +209,9 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions, is
   // Desktop layout - full width
   return (
     <>
+      <CursorTrail />
       {!isStudioMode && <RoleSwitcher />}
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+      <div className="min-h-screen bg-gradient-to-br from-midnight via-midnight-light to-ember/10">
         {!isStudioMode && <Navigation />}
         
         <div className={isStudioMode ? "" : "pt-20 px-4 md:px-6 max-w-[1800px] mx-auto"}>
