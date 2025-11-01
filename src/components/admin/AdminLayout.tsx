@@ -127,15 +127,15 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       <SidebarProvider defaultOpen={!isMobile}>
         <div className="flex min-h-screen w-full pt-20">
           <Sidebar 
-            className="border-r z-[90]" 
+            className="glass-mid border-r border-[hsl(var(--glass-border))] z-[90] glass-scrollbar" 
             collapsible="offcanvas"
           >
             <SidebarContent>
               {/* Admin Profile Section */}
-              <div className="p-4 border-b">
-                <div className="mb-2">
+              <div className="p-4 border-b border-[hsl(var(--glass-border))]">
+                <div className="glass-pill p-3 rounded-lg border border-[hsl(var(--glass-border))] mb-2">
                   <h3 className="font-semibold">Admin</h3>
-                  <Badge variant="default" className="mt-1">Administrator</Badge>
+                  <Badge variant="default" className="glass-pill mt-1 border border-[hsl(var(--glass-edge-ember))] shadow-glass-glow">Administrator</Badge>
                 </div>
               </div>
 
@@ -152,13 +152,13 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                               to={item.href}
                               end={item.href === '/admin'}
                               className={({ isActive }) =>
-                                isActive ? 'bg-primary/10 text-primary font-medium' : ''
+                                isActive ? 'glass-near text-primary font-medium border border-[hsl(var(--glass-border-glow))] rounded-lg' : 'glass-pill hover:glass-near rounded-lg transition-all'
                               }
                             >
                               <item.icon className="w-4 h-4" />
                               <span>{item.name}</span>
                               {item.featured && (
-                                <Badge variant="secondary" className="ml-auto text-xs">
+                                <Badge variant="secondary" className="glass-pill ml-auto text-xs border border-[hsl(var(--glass-edge-ember))] shadow-glass-glow">
                                   Featured
                                 </Badge>
                               )}
@@ -172,7 +172,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               ))}
 
               {/* Sign Out */}
-              <SidebarGroup className="mt-auto border-t pt-4">
+              <SidebarGroup className="mt-auto border-t border-[hsl(var(--glass-border))] pt-4">
                 <SidebarGroupContent>
                   <Button
                     variant="ghost"

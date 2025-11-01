@@ -104,7 +104,7 @@ export default function Admin() {
           </div>
 
           {/* Launch Readiness Test */}
-          <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-purple-500/5">
+          <Card variant="glass-ember" hover="glow" className="border-[hsl(var(--glass-edge-ember))] animate-glass-breathe">
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div>
@@ -149,7 +149,7 @@ export default function Admin() {
           </Card>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card>
+            <Card variant="glass-near" hover="lift">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Users</CardTitle>
                 <Users className="h-4 w-4 text-muted-foreground" />
@@ -159,7 +159,7 @@ export default function Admin() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card variant="glass-near" hover="lift">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Active Engineers</CardTitle>
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
@@ -169,7 +169,7 @@ export default function Admin() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card variant="glass-near" hover="lift">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Projects</CardTitle>
                 <Music className="h-4 w-4 text-muted-foreground" />
@@ -179,7 +179,7 @@ export default function Admin() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card variant="glass-near" hover="lift">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Audio Files</CardTitle>
                 <FileAudio className="h-4 w-4 text-muted-foreground" />
@@ -197,36 +197,36 @@ export default function Admin() {
             contentClassName="pt-0"
           >
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-              <Card className="p-6 hover:shadow-lg transition-all cursor-pointer group bg-gradient-to-br from-primary/10 to-primary/20" onClick={() => navigate('/admin/launch-control')}>
+              <Card variant="glass-ember" hover="glow" className="p-6 cursor-pointer group" onClick={() => navigate('/admin/launch-control')}>
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 rounded-lg bg-primary">
+                  <div className="glass-pill p-2 rounded-lg border border-[hsl(var(--glass-edge-ember))]" style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent-blue)))' }}>
                     <Target className="h-5 w-5 text-white" />
                   </div>
                   <h3 className="font-bold">Launch Control</h3>
                 </div>
               </Card>
 
-            <Card className="p-6 hover:shadow-lg transition-all cursor-pointer group bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20" onClick={() => navigate('/admin/core-testing')}>
+            <Card variant="glass-near" hover="lift" className="p-6 cursor-pointer group" onClick={() => navigate('/admin/core-testing')}>
               <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600">
+                <div className="glass-pill p-2 rounded-lg border border-[hsl(var(--glass-border))]" style={{ background: 'linear-gradient(135deg, hsl(270 100% 65%), hsl(210 100% 60%))' }}>
                   <TestTube2 className="h-5 w-5 text-white" />
                 </div>
                 <h3 className="font-bold">Core Testing</h3>
               </div>
             </Card>
 
-            <Card className="p-6 hover:shadow-lg transition-all cursor-pointer group bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20" onClick={() => navigate('/admin/mobile-testing')}>
+            <Card variant="glass-near" hover="lift" className="p-6 cursor-pointer group" onClick={() => navigate('/admin/mobile-testing')}>
               <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600">
+                <div className="glass-pill p-2 rounded-lg border border-[hsl(var(--glass-border))]" style={{ background: 'linear-gradient(135deg, hsl(160 100% 50%), hsl(170 100% 45%))' }}>
                   <Smartphone className="h-5 w-5 text-white" />
                 </div>
                 <h3 className="font-bold">Mobile Testing</h3>
               </div>
             </Card>
 
-            <Card className="p-6 hover:shadow-lg transition-all cursor-pointer group bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950/20 dark:to-yellow-950/20" onClick={() => navigate('/admin/revenue')}>
+            <Card variant="glass-near" hover="lift" className="p-6 cursor-pointer group" onClick={() => navigate('/admin/revenue')}>
               <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-lg bg-gradient-to-r from-amber-600 to-yellow-600">
+                <div className="glass-pill p-2 rounded-lg border border-[hsl(var(--glass-border))]" style={{ background: 'linear-gradient(135deg, hsl(45 100% 55%), hsl(55 100% 50%))' }}>
                   <DollarSign className="h-5 w-5 text-white" />
                 </div>
                 <h3 className="font-bold">Revenue Features</h3>
@@ -234,7 +234,7 @@ export default function Admin() {
             </Card>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 glass-scrollbar">
             <Card className="p-6 hover:shadow-lg transition-all cursor-pointer group bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-950/20 dark:to-orange-950/20" onClick={() => navigate('/admin-security')}>
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 rounded-lg bg-gradient-to-r from-red-600 to-orange-600">

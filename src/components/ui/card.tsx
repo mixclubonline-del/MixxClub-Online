@@ -9,6 +9,7 @@ const cardVariants = cva(
       variant: {
         default: "border bg-card shadow-sm",
         glass: "glass-mid",
+        "glass-near": "glass-near",
         "glass-heavy": "glass-near",
         "glass-floating": "glass-floating",
         "glass-ember": "glass-ember",

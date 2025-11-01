@@ -132,8 +132,8 @@ const Navigation = () => {
   return (
     <nav className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${
       scrolled 
-        ? 'bg-background/90 backdrop-blur-md border-b border-border/50 shadow-lg' 
-        : 'bg-background/95 backdrop-blur border-b border-border'
+        ? 'glass-ultra border-b border-[hsl(var(--glass-border-strong))] shadow-glass-lg animate-glass-breathe' 
+        : 'glass-mid border-b border-[hsl(var(--glass-border))]'
     }`}>
       <div className="container px-6 py-4">
         <div className="flex items-center justify-between">
@@ -143,7 +143,7 @@ const Navigation = () => {
             className="flex items-center gap-3 group transition-all duration-300 hover:scale-105"
           >
             <div className="relative">
-              <div className="absolute inset-0 bg-primary/20 rounded-lg blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="absolute inset-0 rounded-lg blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-glass-glow-pulse" style={{ boxShadow: '0 0 40px hsl(var(--primary))' }}></div>
               <img 
                 src={mixclub3DLogo} 
                 alt="MixClub 3D Logo" 
@@ -171,17 +171,17 @@ const Navigation = () => {
                       </svg>
                     </button>
                     {/* Dropdown menu */}
-                    <div className="absolute top-full left-0 mt-2 w-48 glass rounded-lg border border-[hsl(var(--border))] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-2">
+                    <div className="absolute top-full left-0 mt-2 w-48 glass-floating rounded-lg border border-[hsl(var(--glass-border-strong))] shadow-glass-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-2 z-[110]">
                       {(link as any).items.map((item: any) => (
                         <Link
                           key={item.to}
                           to={item.to}
-                          className="block px-4 py-2 text-sm hover:bg-[hsl(var(--primary)/0.1)] hover:text-primary transition-colors"
+                          className="block px-4 py-2 text-sm glass-pill hover:glass-near hover:text-primary transition-all mx-2 my-1 rounded-lg"
                         >
                           <div className="flex items-center justify-between">
                             <span>{item.label}</span>
                             {item.badge && (
-                              <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-primary/20 text-primary border border-primary/30">
+                              <span className="glass-pill px-2 py-0.5 text-[10px] font-bold rounded-full text-primary border border-[hsl(var(--glass-edge-ember))] shadow-glass-glow">
                                 {item.badge}
                               </span>
                             )}
@@ -259,7 +259,7 @@ const Navigation = () => {
         <div className={`md:hidden overflow-hidden transition-all duration-500 ease-out ${
           isOpen ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'
         }`}>
-          <div className="pt-4 pb-2 space-y-2 border-t border-border/50 mt-4">
+          <div className="pt-4 pb-2 space-y-2 glass-frosted border-t border-[hsl(var(--glass-border))] mt-4 rounded-b-lg">
             {navLinks.map((link, index) => {
               // Check if it's a dropdown menu
               if ((link as any).isDropdown) {

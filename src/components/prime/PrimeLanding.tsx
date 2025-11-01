@@ -38,19 +38,19 @@ const LiveStats = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.6 }}
     >
-      <div className="flex items-center gap-2">
+      <div className="glass-pill flex items-center gap-2 px-4 py-2 rounded-full border border-[hsl(var(--glass-border))]">
         <div className="w-2 h-2 rounded-full bg-[hsl(var(--accent-cyan))] animate-pulse" />
         <span className="text-muted-foreground">
           <span className="font-bold text-foreground">{stats.activeUsers}</span> online now
         </span>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="glass-pill flex items-center gap-2 px-4 py-2 rounded-full border border-[hsl(var(--glass-border))]">
         <TrendingUp className="w-4 h-4 text-[hsl(var(--primary))]" />
         <span className="text-muted-foreground">
           <span className="font-bold text-foreground">{stats.projectsCompleted.toLocaleString()}</span> projects completed
         </span>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="glass-pill flex items-center gap-2 px-4 py-2 rounded-full border border-[hsl(var(--glass-border))]">
         <Sparkles className="w-4 h-4 text-[hsl(var(--accent-cyan))]" />
         <span className="text-muted-foreground">
           <span className="font-bold text-foreground">${stats.earningsDistributed.toLocaleString()}</span> earned by engineers
@@ -205,7 +205,7 @@ export default function PrimeLanding() {
             transition={{ duration: 0.6 }}
             className="mb-8"
           >
-            <div className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl glass border border-[hsl(var(--primary)/0.4)] shadow-[0_0_40px_hsl(var(--primary)/0.4)]">
+            <div className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl glass-floating border border-[hsl(var(--glass-border-glow))] shadow-glass-glow animate-glass-glow-pulse">
               <Sparkles className="w-5 h-5 text-[hsl(var(--accent-cyan))] animate-pulse" />
               <span className="text-lg md:text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[hsl(var(--primary))] via-[hsl(var(--accent-blue))] to-[hsl(var(--accent-cyan))]">
                 AI-Powered Stem Separation
@@ -305,7 +305,7 @@ export default function PrimeLanding() {
               >
                 <Link to={card.route}>
                   <HoverCard3D intensity="high" className="h-full">
-                    <div className="group h-full glass rounded-2xl p-8 transition-all duration-300 cursor-pointer border border-[hsl(var(--border)/0.5)] hover:border-[hsl(var(--primary)/0.5)]">
+                    <div className="group h-full glass-near rounded-2xl p-8 transition-all duration-300 cursor-pointer border border-[hsl(var(--glass-border))] hover:border-[hsl(var(--glass-border-glow))] hover:shadow-glass-glow glass-reflect">
                     {/* Icon with gradient background */}
                     <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${card.gradient} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
                       <card.icon className="w-8 h-8 text-white" />
@@ -370,12 +370,13 @@ export default function PrimeLanding() {
               >
                 <Link to={service.route}>
                   <HoverCard3D intensity="medium" glowColor={service.color} className="h-full">
-                    <div className="group glass rounded-xl p-6 transition-all duration-300 cursor-pointer h-full border border-[hsl(var(--border)/0.3)] hover:border-[hsl(var(--primary)/0.4)]">
+                    <div className="group glass-mid rounded-xl p-6 transition-all duration-300 cursor-pointer h-full border border-[hsl(var(--glass-border))] hover:border-[hsl(var(--glass-border-strong))] hover:shadow-glass glass-reflect">
                     <div 
-                      className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"
+                      className="glass-pill w-12 h-12 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"
                       style={{
-                        background: `${service.color}20`,
-                        border: `1px solid ${service.color}40`
+                        background: `${service.color}15`,
+                        border: `1px solid ${service.color}40`,
+                        backdropFilter: 'blur(16px)'
                       }}
                     >
                       <service.icon 
