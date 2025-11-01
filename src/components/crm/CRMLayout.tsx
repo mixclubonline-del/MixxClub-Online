@@ -95,7 +95,22 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions, is
       <>
         <CursorTrail />
         {!isStudioMode && <RoleSwitcher />}
-        <div className="min-h-screen bg-gradient-to-br from-midnight via-midnight-light to-ember/10">
+        <div className="min-h-screen relative">
+          {/* Multi-layer glass depth background */}
+          <div className="fixed inset-0 -z-10 bg-gradient-to-br from-midnight via-midnight-light to-ember/10" />
+          <div className="fixed inset-0 -z-5 opacity-20" 
+            style={{ 
+              backgroundImage: `radial-gradient(circle at 20% 50%, hsl(15 95% 58% / 0.15) 0%, transparent 50%),
+                               radial-gradient(circle at 80% 80%, hsl(185 90% 52% / 0.1) 0%, transparent 50%)` 
+            }} 
+          />
+          <div className="fixed inset-0 -z-4 opacity-[0.02]"
+            style={{
+              backgroundImage: `linear-gradient(hsl(var(--primary)) 1px, transparent 1px),
+                               linear-gradient(90deg, hsl(var(--primary)) 1px, transparent 1px)`,
+              backgroundSize: '50px 50px'
+            }}
+          />
         {!isStudioMode && <Navigation />}
         
         <div className={isStudioMode ? "" : "pt-20 pb-20 px-4 md:px-6"}>
@@ -118,7 +133,7 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions, is
                 
                 {/* Level Progress */}
                 {profile && (
-                  <Card className="mt-4 p-4 bg-gradient-to-r from-primary/10 via-accent/10 to-primary-glow/10 border-primary/20 animate-in slide-in-from-top duration-500">
+                  <Card variant="glass" hover="glow" className="mt-4 p-4 animate-in slide-in-from-top duration-500">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
                         <Award className="w-5 h-5 text-primary" />
@@ -142,9 +157,10 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions, is
                   {stats.map((stat, index) => (
                     <HoverCard3D key={index}>
                       <Card 
+                        variant="glass"
+                        hover="float"
                         className={cn(
-                          "p-4 min-w-[160px] flex-shrink-0 border-2 transition-all duration-300 animate-in slide-in-from-left",
-                          "hover:shadow-glow cursor-pointer bg-gradient-to-br from-midnight-light/50 to-midnight-dark/50 border-ember/20"
+                          "p-4 min-w-[160px] flex-shrink-0 animate-in slide-in-from-left cursor-pointer"
                         )}
                         style={{ animationDelay: `${index * 100}ms` }}
                       >
@@ -163,8 +179,8 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions, is
                 </div>
               </ScrollArea>
 
-              {/* Quick Actions - Colorful Buttons */}
-              <Card className="p-6 mb-6 glass-hover animate-in slide-in-from-bottom duration-700">
+              {/* Quick Actions - Glass Pills */}
+              <Card variant="glass-heavy" hover="lift" className="p-6 mb-6 animate-in slide-in-from-bottom duration-700">
                 <div className="flex items-center gap-2 mb-4">
                   <Zap className="w-5 h-5 text-primary animate-pulse" />
                   <h3 className="font-bold text-lg">Quick Actions</h3>
@@ -177,11 +193,7 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions, is
                       variant={action.variant || 'outline'}
                       size="lg"
                       className={cn(
-                        "gap-2 h-auto py-4 flex-col items-center justify-center transition-all duration-300 hover:scale-105",
-                        "border-2 hover:shadow-glow animate-in zoom-in",
-                        index === 0 && "bg-gradient-to-br from-primary/20 to-primary/5 border-primary/40 hover:border-primary",
-                        index === 1 && "bg-gradient-to-br from-accent/20 to-accent/5 border-accent/40 hover:border-accent",
-                        index === 2 && "bg-gradient-to-br from-primary-glow/20 to-primary-glow/5 border-primary-glow/40 hover:border-primary-glow",
+                        "gap-2 h-auto py-4 flex-col items-center justify-center glass-pill hover:scale-105 animate-in zoom-in"
                       )}
                       style={{ animationDelay: `${index * 150}ms` }}
                     >
@@ -211,7 +223,22 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions, is
     <>
       <CursorTrail />
       {!isStudioMode && <RoleSwitcher />}
-      <div className="min-h-screen bg-gradient-to-br from-midnight via-midnight-light to-ember/10">
+      <div className="min-h-screen relative">
+        {/* Multi-layer glass depth background */}
+        <div className="fixed inset-0 -z-10 bg-gradient-to-br from-midnight via-midnight-light to-ember/10" />
+        <div className="fixed inset-0 -z-5 opacity-20" 
+          style={{ 
+            backgroundImage: `radial-gradient(circle at 20% 50%, hsl(15 95% 58% / 0.15) 0%, transparent 50%),
+                             radial-gradient(circle at 80% 80%, hsl(185 90% 52% / 0.1) 0%, transparent 50%)` 
+          }} 
+        />
+        <div className="fixed inset-0 -z-4 opacity-[0.02]"
+          style={{
+            backgroundImage: `linear-gradient(hsl(var(--primary)) 1px, transparent 1px),
+                             linear-gradient(90deg, hsl(var(--primary)) 1px, transparent 1px)`,
+            backgroundSize: '50px 50px'
+          }}
+        />
         {!isStudioMode && <Navigation />}
         
         <div className={isStudioMode ? "" : "pt-20 px-4 md:px-6 max-w-[1800px] mx-auto"}>

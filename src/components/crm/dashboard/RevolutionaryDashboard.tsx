@@ -16,6 +16,13 @@ export const RevolutionaryDashboard = () => {
   const { theme, updateMood } = useMoodTheming();
   const { amplitude } = useAudioReactivity();
   const intensity = amplitude / 100; // Normalize to 0-1
+  const glassIntensity = Math.min(intensity, 1);
+
+  // Dynamic glass style for audio reactivity
+  const reactiveGlassStyle = {
+    backdropFilter: `blur(${16 + glassIntensity * 24}px) saturate(${180 + glassIntensity * 40}%)`,
+    borderColor: `rgba(255, 120, 80, ${0.1 + glassIntensity * 0.3})`,
+  };
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -56,16 +63,16 @@ export const RevolutionaryDashboard = () => {
         transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
       />
 
-      {/* Audio-Reactive Particle Effects */}
+      {/* Audio-Reactive Glass Particles with Refraction */}
       <div className="fixed inset-0 -z-5 overflow-hidden pointer-events-none">
         {[...Array(30)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute rounded-full bg-gradient-to-br from-ember/30 to-ember-light/20"
+            className="absolute rounded-full glass-far"
             style={{
-              width: `${2 + intensity * 4}px`,
-              height: `${2 + intensity * 4}px`,
-              filter: 'blur(1px)',
+              width: `${3 + glassIntensity * 6}px`,
+              height: `${3 + glassIntensity * 6}px`,
+              boxShadow: `0 0 ${8 + glassIntensity * 16}px rgba(255, 120, 80, ${0.2 + glassIntensity * 0.3})`,
             }}
             initial={{ 
               x: Math.random() * window.innerWidth, 
@@ -87,47 +94,53 @@ export const RevolutionaryDashboard = () => {
         ))}
       </div>
 
-      {/* Dashboard Content */}
+      {/* Dashboard Content with Glass Containers */}
       <div className="container px-4 md:px-6 py-6 space-y-6">
-        <CollapsibleCard
-          title="Quick Actions"
-          icon={<Command className="w-5 h-5" />}
-          defaultOpen={true}
-          storageKey="crm-quick-actions"
-          contentClassName="p-0"
-        >
-          <QuickActionLauncher onOpenPalette={() => setShowCommandPalette(true)} />
-        </CollapsibleCard>
+        <div className="glass-floating animate-glass-breathe rounded-lg" style={reactiveGlassStyle}>
+          <CollapsibleCard
+            title="Quick Actions"
+            icon={<Command className="w-5 h-5" />}
+            defaultOpen={true}
+            storageKey="crm-quick-actions"
+            contentClassName="p-0"
+          >
+            <QuickActionLauncher onOpenPalette={() => setShowCommandPalette(true)} />
+          </CollapsibleCard>
+        </div>
 
-        <CollapsibleCard
-          title="Active Projects"
-          icon={<FolderKanban className="w-5 h-5" />}
-          defaultOpen={true}
-          storageKey="crm-active-projects"
-          contentClassName="p-0"
-        >
-          <ProjectsGridHero userRole="artist" />
-        </CollapsibleCard>
+        <div className="glass-floating animate-glass-breathe rounded-lg" style={reactiveGlassStyle}>
+          <CollapsibleCard
+            title="Active Projects"
+            icon={<FolderKanban className="w-5 h-5" />}
+            defaultOpen={true}
+            storageKey="crm-active-projects"
+            contentClassName="p-0"
+          >
+            <ProjectsGridHero userRole="artist" />
+          </CollapsibleCard>
+        </div>
 
-        <CollapsibleCard
-          title="Live Activity"
-          icon={<Radio className="w-5 h-5" />}
-          defaultOpen={true}
-          storageKey="crm-live-activity"
-          contentClassName="p-0"
-        >
-          <LiveActivityFeed />
-        </CollapsibleCard>
+        <div className="glass-floating animate-glass-breathe rounded-lg" style={reactiveGlassStyle}>
+          <CollapsibleCard
+            title="Live Activity"
+            icon={<Radio className="w-5 h-5" />}
+            defaultOpen={true}
+            storageKey="crm-live-activity"
+            contentClassName="p-0"
+          >
+            <LiveActivityFeed />
+          </CollapsibleCard>
+        </div>
       </div>
 
-      {/* Command Palette Modal */}
+      {/* Command Palette Modal with Ultra Glass */}
       <AnimatePresence>
         {showCommandPalette && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-start justify-center pt-32"
+            className="fixed inset-0 glass-frosted z-50 flex items-start justify-center pt-32"
             onClick={() => setShowCommandPalette(false)}
           >
             <motion.div
@@ -135,7 +148,7 @@ export const RevolutionaryDashboard = () => {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: -20 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-2xl"
+              className="w-full max-w-2xl glass-ultra rounded-lg"
             >
               <QuickActionLauncher 
                 fullScreen 
