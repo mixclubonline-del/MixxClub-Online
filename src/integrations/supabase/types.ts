@@ -8501,9 +8501,9 @@ export type Database = {
           last_autovacuum: string | null
           last_vacuum: string | null
           row_count: number | null
-          schemaname: unknown | null
+          schemaname: unknown
           size_bytes: number | null
-          table_name: unknown | null
+          table_name: unknown
           total_size: string | null
           vacuum_status: string | null
         }
@@ -8512,9 +8512,9 @@ export type Database = {
       index_usage_stats: {
         Row: {
           index_size: string | null
-          indexname: unknown | null
-          schemaname: unknown | null
-          tablename: unknown | null
+          indexname: unknown
+          schemaname: unknown
+          tablename: unknown
           times_used: number | null
           tuples_fetched: number | null
           tuples_read: number | null
@@ -8670,7 +8670,7 @@ export type Database = {
         Returns: number
       }
       get_community_milestones_status: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           contributor_count: number
           current_value: number
@@ -8683,22 +8683,10 @@ export type Database = {
           unlocked_at: string
         }[]
       }
-      get_security_dashboard_stats: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
-      has_distribution_access: {
-        Args: { user_id: string }
-        Returns: boolean
-      }
-      has_mastering_access: {
-        Args: { user_id: string }
-        Returns: boolean
-      }
-      has_mixing_access: {
-        Args: { user_id: string }
-        Returns: boolean
-      }
+      get_security_dashboard_stats: { Args: never; Returns: Json }
+      has_distribution_access: { Args: { user_id: string }; Returns: boolean }
+      has_mastering_access: { Args: { user_id: string }; Returns: boolean }
+      has_mixing_access: { Args: { user_id: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["user_role"]
@@ -8710,10 +8698,7 @@ export type Database = {
         Args: { p_amount: number; p_date: string; p_field: string }
         Returns: undefined
       }
-      is_admin: {
-        Args: { user_uuid: string }
-        Returns: boolean
-      }
+      is_admin: { Args: { user_uuid: string }; Returns: boolean }
       is_org_admin: {
         Args: { p_org_id: string; p_user_id: string }
         Returns: boolean
@@ -8738,7 +8723,7 @@ export type Database = {
         Returns: string
       }
       run_maintenance_cleanup: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           execution_time_ms: number
           records_deleted: number
@@ -8754,10 +8739,7 @@ export type Database = {
         }
         Returns: undefined
       }
-      update_engineer_leaderboard: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      update_engineer_leaderboard: { Args: never; Returns: undefined }
       update_engineer_streak: {
         Args: { p_engineer_id: string }
         Returns: undefined
@@ -8771,10 +8753,7 @@ export type Database = {
         }
         Returns: boolean
       }
-      update_revenue_analytics: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      update_revenue_analytics: { Args: never; Returns: undefined }
       use_free_tier: {
         Args: { p_job_id: string; p_user_id: string }
         Returns: boolean

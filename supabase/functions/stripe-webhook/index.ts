@@ -2,6 +2,15 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
 import { webhookHeaders } from '../_shared/cors.ts';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
+
+const stripeMetadataSchema = z.object({
+  userId: z.string().uuid('Invalid user ID format'),
+  packageId: z.string().uuid('Invalid package ID format'),
+  packageType: z.enum(['mixing', 'mastering', 'distribution'], {
+    errorMap: () => ({ message: 'Invalid package type' })
+  })
+});
 
 serve(async (req) => {
   // Webhooks should not accept OPTIONS/preflight requests
@@ -37,9 +46,23 @@ serve(async (req) => {
 
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
-      const userId = session.client_reference_id;
-      const packageId = session.metadata?.packageId;
-      const packageType = session.metadata?.packageType || 'mastering';
+      
+      // Validate metadata with Zod
+      const validationResult = stripeMetadataSchema.safeParse({
+        userId: session.client_reference_id,
+        packageId: session.metadata?.packageId,
+        packageType: session.metadata?.packageType || 'mastering'
+      });
+
+      if (!validationResult.success) {
+        console.error('Invalid webhook metadata:', validationResult.error);
+        return new Response(
+          JSON.stringify({ error: 'Invalid metadata', details: validationResult.error.errors }),
+          { headers: webhookHeaders, status: 400 }
+        );
+      }
+
+      const { userId, packageId, packageType } = validationResult.data;
 
       if (userId && packageId) {
         // Determine which table to insert into based on package type

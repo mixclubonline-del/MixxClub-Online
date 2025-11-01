@@ -7,11 +7,25 @@ declare global {
   }
 }
 
-export const FB_PIXEL_ID = 'YOUR_PIXEL_ID'; // Replace with actual Pixel ID
+// Get from environment or use empty string if not configured
+export const FB_PIXEL_ID = import.meta.env.VITE_FB_PIXEL_ID || '';
 
 // Initialize Facebook Pixel
 export const initFBPixel = () => {
   if (typeof window === 'undefined') return;
+  
+  // Don't initialize if pixel ID is not configured
+  if (!FB_PIXEL_ID) {
+    console.warn('Facebook Pixel ID not configured');
+    return;
+  }
+
+  // Validate pixel ID format (15-16 digits)
+  const pixelIdRegex = /^[0-9]{15,16}$/;
+  if (!pixelIdRegex.test(FB_PIXEL_ID)) {
+    console.error('Invalid Facebook Pixel ID format');
+    return;
+  }
 
   const script = document.createElement('script');
   script.innerHTML = `
