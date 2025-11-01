@@ -1,7 +1,12 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "./useAuth";
+import { stateManager } from "@/utils/stateManager";
+
+const PROCESSING_STATE_KEY = 'ai_processing_state';
+const MAX_RETRIES = 2;
+const RETRY_DELAY = 1000;
 
 interface AIProcessingParams {
   [key: string]: number;
@@ -31,6 +36,8 @@ export const useAIProcessing = () => {
   const [processingProgress, setProcessingProgress] = useState(0);
   const { toast } = useToast();
   const { user } = useAuth();
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const retryCountRef = useRef(0);
 
   const processAudio = useCallback(async (
     audioData: Float32Array,
@@ -38,18 +45,34 @@ export const useAIProcessing = () => {
     parameters: AIProcessingParams,
     trackId: string
   ): Promise<AIProcessingResult> => {
+    // Cancel any existing processing
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    abortControllerRef.current = new AbortController();
     setIsProcessing(true);
     setProcessingProgress(0);
 
+    // Save processing state
+    stateManager.saveState(PROCESSING_STATE_KEY, {
+      trackId,
+      effectType,
+      parameters,
+      timestamp: Date.now()
+    }, 0);
+
+    let progressInterval: NodeJS.Timeout | null = null;
+
     try {
       // Simulate processing progress
-      const progressInterval = setInterval(() => {
+      progressInterval = setInterval(() => {
         setProcessingProgress(prev => Math.min(prev + 10, 90));
       }, 100);
 
       const { data, error } = await supabase.functions.invoke('ai-audio-processing', {
         body: {
-          audioData: Array.from(audioData), // Convert to regular array for JSON
+          audioData: Array.from(audioData).slice(0, 100000), // Limit data size
           effectType,
           parameters,
           trackId,
@@ -57,7 +80,10 @@ export const useAIProcessing = () => {
         }
       });
 
-      clearInterval(progressInterval);
+      if (progressInterval) {
+        clearInterval(progressInterval);
+        progressInterval = null;
+      }
       setProcessingProgress(100);
 
       if (error) {
@@ -86,7 +112,27 @@ export const useAIProcessing = () => {
       return result;
 
     } catch (error) {
+      if (progressInterval) {
+        clearInterval(progressInterval);
+      }
+
+      // Check if aborted
+      if (error instanceof Error && error.name === 'AbortError') {
+        return {
+          success: false,
+          error: 'Processing cancelled'
+        };
+      }
+
       console.error('AI Processing Error:', error);
+
+      // Retry logic
+      if (retryCountRef.current < MAX_RETRIES) {
+        retryCountRef.current++;
+        console.log(`Retrying AI processing (${retryCountRef.current}/${MAX_RETRIES})`);
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * retryCountRef.current));
+        return processAudio(audioData, effectType, parameters, trackId);
+      }
       
       const result: AIProcessingResult = {
         success: false,
@@ -103,9 +149,12 @@ export const useAIProcessing = () => {
 
     } finally {
       setIsProcessing(false);
+      retryCountRef.current = 0;
+      abortControllerRef.current = null;
+      stateManager.clearState(PROCESSING_STATE_KEY);
       setTimeout(() => setProcessingProgress(0), 1000);
     }
-  }, [toast]);
+  }, [toast, user]);
 
   const batchProcessAudio = useCallback(async (
     audioDataArray: Float32Array[],
@@ -219,12 +268,34 @@ export const useAIProcessing = () => {
     return suggestions;
   }, []);
 
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
+
+  const cancelProcessing = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      setIsProcessing(false);
+      setProcessingProgress(0);
+      toast({
+        title: "Processing Cancelled",
+        description: "Audio processing has been stopped"
+      });
+    }
+  }, [toast]);
+
   return {
     isProcessing,
     processingProgress,
     processAudio,
     batchProcessAudio,
     analyzeAudio,
-    getSuggestions
+    getSuggestions,
+    cancelProcessing
   };
 };

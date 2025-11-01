@@ -1,13 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { stateManager } from '@/utils/stateManager';
 
 interface Message {
   role: 'user' | 'assistant';
   content: string;
 }
 
+const CHAT_STATE_KEY = 'ai_copilot_chat';
+const MAX_CHAT_AGE = 24 * 60 * 60 * 1000; // 24 hours
+
 export const useAICopilotChat = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(() => {
+    // Load persisted messages on init
+    return stateManager.loadState<Message[]>(CHAT_STATE_KEY, MAX_CHAT_AGE) || [];
+  });
   const [isStreaming, setIsStreaming] = useState(false);
 
   const sendMessage = async (userMessage: string) => {
@@ -95,7 +102,22 @@ export const useAICopilotChat = () => {
 
   const clearChat = () => {
     setMessages([]);
+    stateManager.clearState(CHAT_STATE_KEY);
   };
+
+  // Persist messages whenever they change
+  useEffect(() => {
+    if (messages.length > 0) {
+      stateManager.saveState(CHAT_STATE_KEY, messages, 1000);
+    }
+  }, [messages]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      stateManager.cleanup();
+    };
+  }, []);
 
   return { messages, sendMessage, isStreaming, clearChat };
 };
