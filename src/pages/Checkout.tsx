@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { Card } from '@/components/ui/card';
@@ -142,9 +142,9 @@ export default function Checkout() {
             <div className="mt-6 text-center text-sm text-muted-foreground">
               <p>By completing this purchase, you agree to our</p>
               <p>
-                <a href="/terms" className="text-primary hover:underline">Terms of Service</a>
+                <Link to="/terms" className="text-primary hover:underline">Terms of Service</Link>
                 {' & '}
-                <a href="/privacy" className="text-primary hover:underline">Privacy Policy</a>
+                <Link to="/privacy" className="text-primary hover:underline">Privacy Policy</Link>
               </p>
             </div>
           </div>
