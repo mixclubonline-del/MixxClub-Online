@@ -117,94 +117,124 @@ export default {
         220: '220%',
       },
       keyframes: {
+        // UI Interactions - Fast & Responsive
         "accordion-down": {
-          from: { height: "0" },
-          to: { height: "var(--radix-accordion-content-height)" },
+          from: { height: "0", opacity: "0" },
+          to: { height: "var(--radix-accordion-content-height)", opacity: "1" },
         },
         "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
+          from: { height: "var(--radix-accordion-content-height)", opacity: "1" },
+          to: { height: "0", opacity: "0" },
         },
+        
+        // Float & Ambient - Relaxed & Natural
         float: {
           "0%, 100%": { transform: "translateY(0px)" },
-          "50%": { transform: "translateY(-20px)" },
-        },
-        "pulse-glow": {
-          "0%, 100%": { boxShadow: "0 0 20px hsl(263 70% 63% / 0.3)" },
-          "50%": { boxShadow: "0 0 40px hsl(263 70% 63% / 0.6)" },
-        },
-        "swipe-card": {
-          "0%": { transform: "translateX(0) rotate(0deg)", opacity: "1" },
-          "100%": { transform: "translateX(120%) rotate(15deg)", opacity: "0" },
-        },
-        "swipe-card-left": {
-          "0%": { transform: "translateX(0) rotate(0deg)", opacity: "1" },
-          "100%": { transform: "translateX(-120%) rotate(-15deg)", opacity: "0" },
-        },
-        "coin-flip": {
-          "0%": { transform: "rotateY(0deg) translateY(0)" },
-          "50%": { transform: "rotateY(180deg) translateY(-20px)" },
-          "100%": { transform: "rotateY(360deg) translateY(0)" },
-        },
-        "pulse-opportunity": {
-          "0%, 100%": { transform: "scale(1)", opacity: "1" },
-          "50%": { transform: "scale(1.05)", opacity: "0.8" },
-        },
-        "level-up": {
-          "0%": { transform: "scale(0.5)", opacity: "0" },
-          "50%": { transform: "scale(1.2)", opacity: "1" },
-          "100%": { transform: "scale(1)", opacity: "1" },
+          "50%": { transform: "translateY(-12px)" },
         },
         "float-badge": {
-          "0%": { transform: "translateY(0px) rotate(-3deg)" },
-          "50%": { transform: "translateY(-15px) rotate(3deg)" },
-          "100%": { transform: "translateY(0px) rotate(-3deg)" },
+          "0%, 100%": { transform: "translateY(0px) rotate(-2deg)" },
+          "50%": { transform: "translateY(-10px) rotate(2deg)" },
         },
-        "slide-up-fade": {
-          "0%": { transform: "translateY(20px)", opacity: "0" },
-          "100%": { transform: "translateY(0)", opacity: "1" },
-        },
-        "confetti": {
-          "0%": { transform: "translateY(-100%) scale(0)", opacity: "0" },
-          "50%": { opacity: "1" },
-          "100%": { transform: "translateY(100vh) scale(1)", opacity: "0" },
-        },
-        "shake-gentle": {
-          "0%, 100%": { transform: "translateX(0)" },
-          "25%": { transform: "translateX(-5px)" },
-          "75%": { transform: "translateX(5px)" },
-        },
-        "pulse-ring": {
-          "0%": { transform: "scale(0.8)", opacity: "1" },
-          "100%": { transform: "scale(2)", opacity: "0" },
-        },
-        bloom: {
-          "0%": { transform: "scale(0.95)", filter: "brightness(1)" },
-          "50%": { transform: "scale(1.05)", filter: "brightness(1.2)" },
-          "100%": { transform: "scale(1)", filter: "brightness(1)" },
+        
+        // Glow Effects - Mesmerizing
+        "pulse-glow": {
+          "0%, 100%": { 
+            boxShadow: "0 0 20px hsl(15 95% 58% / 0.4)",
+            filter: "brightness(1)"
+          },
+          "50%": { 
+            boxShadow: "0 0 40px hsl(15 95% 58% / 0.6)",
+            filter: "brightness(1.1)"
+          },
         },
         "glow-pulse": {
           "0%, 100%": { opacity: "1", filter: "brightness(1)" },
-          "50%": { opacity: "0.85", filter: "brightness(1.2)" },
+          "50%": { opacity: "0.9", filter: "brightness(1.15)" },
+        },
+        
+        // Interactive - Snappy & Playful
+        "swipe-card": {
+          "0%": { transform: "translateX(0) rotate(0deg)", opacity: "1" },
+          "100%": { transform: "translateX(120%) rotate(12deg)", opacity: "0" },
+        },
+        "swipe-card-left": {
+          "0%": { transform: "translateX(0) rotate(0deg)", opacity: "1" },
+          "100%": { transform: "translateX(-120%) rotate(-12deg)", opacity: "0" },
+        },
+        "coin-flip": {
+          "0%": { transform: "rotateY(0deg) translateY(0)" },
+          "50%": { transform: "rotateY(180deg) translateY(-16px)" },
+          "100%": { transform: "rotateY(360deg) translateY(0)" },
+        },
+        "shake-gentle": {
+          "0%, 100%": { transform: "translateX(0)" },
+          "25%": { transform: "translateX(-4px)" },
+          "75%": { transform: "translateX(4px)" },
+        },
+        
+        // Success & Celebration - Energetic
+        "pulse-opportunity": {
+          "0%, 100%": { transform: "scale(1)", opacity: "1" },
+          "50%": { transform: "scale(1.03)", opacity: "0.9" },
+        },
+        "level-up": {
+          "0%": { transform: "scale(0.8)", opacity: "0" },
+          "50%": { transform: "scale(1.1)", opacity: "1" },
+          "100%": { transform: "scale(1)", opacity: "1" },
+        },
+        bloom: {
+          "0%": { transform: "scale(0.97)", filter: "brightness(1)" },
+          "50%": { transform: "scale(1.03)", filter: "brightness(1.15)" },
+          "100%": { transform: "scale(1)", filter: "brightness(1)" },
+        },
+        confetti: {
+          "0%": { transform: "translateY(-100%) scale(0) rotate(0deg)", opacity: "0" },
+          "10%": { opacity: "1" },
+          "90%": { opacity: "1" },
+          "100%": { transform: "translateY(100vh) scale(1) rotate(720deg)", opacity: "0" },
+        },
+        
+        // Notifications - Attention Grabbing
+        "pulse-ring": {
+          "0%": { transform: "scale(0.85)", opacity: "0.8" },
+          "100%": { transform: "scale(1.8)", opacity: "0" },
+        },
+        "slide-up-fade": {
+          "0%": { transform: "translateY(16px)", opacity: "0" },
+          "100%": { transform: "translateY(0)", opacity: "1" },
         },
       },
       animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
-        float: "float 6s ease-in-out infinite",
-        "pulse-glow": "pulse-glow 2s ease-in-out infinite",
-        "swipe-card": "swipe-card 0.5s ease-out forwards",
-        "swipe-card-left": "swipe-card-left 0.5s ease-out forwards",
-        "coin-flip": "coin-flip 0.8s ease-in-out",
-        "pulse-opportunity": "pulse-opportunity 2s ease-in-out infinite",
-        "level-up": "level-up 0.6s ease-out",
-        "float-badge": "float-badge 3s ease-in-out infinite",
-        "slide-up-fade": "slide-up-fade 0.4s ease-out",
-        confetti: "confetti 3s ease-out forwards",
-        "shake-gentle": "shake-gentle 0.5s ease-in-out",
-        "pulse-ring": "pulse-ring 1.5s ease-out infinite",
-        bloom: "bloom 0.8s ease-in-out",
-        "glow-pulse": "glow-pulse 2s ease-in-out infinite",
+        // UI Interactions - 150-250ms for instant feedback
+        "accordion-down": "accordion-down 0.2s cubic-bezier(0.32, 0.72, 0, 1)",
+        "accordion-up": "accordion-up 0.2s cubic-bezier(0.32, 0.72, 0, 1)",
+        
+        // Ambient Float - Slow & Natural (4-6s)
+        float: "float 5s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "float-badge": "float-badge 4s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        
+        // Glow Effects - Medium Pace (2-3s)
+        "pulse-glow": "pulse-glow 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "glow-pulse": "glow-pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        
+        // Interactive Gestures - Quick (300-500ms)
+        "swipe-card": "swipe-card 0.4s cubic-bezier(0.32, 0.72, 0, 1) forwards",
+        "swipe-card-left": "swipe-card-left 0.4s cubic-bezier(0.32, 0.72, 0, 1) forwards",
+        "coin-flip": "coin-flip 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "shake-gentle": "shake-gentle 0.4s cubic-bezier(0.36, 0, 0.66, -0.56)",
+        
+        // Success States - Bouncy (400-600ms)
+        "pulse-opportunity": "pulse-opportunity 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "level-up": "level-up 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
+        bloom: "bloom 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
+        
+        // Celebrations - Extended (2-3s)
+        confetti: "confetti 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards",
+        
+        // Notifications - Fast Attention (1-1.5s)
+        "pulse-ring": "pulse-ring 1.2s cubic-bezier(0.16, 1, 0.3, 1) infinite",
+        "slide-up-fade": "slide-up-fade 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
       },
     },
   },
