@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { AudioWaveformBg } from "@/components/brand/AudioWaveformBg";
 import { ParticleBackground } from "@/components/home/2030/ParticleBackground";
 import { HolographicPlatform } from "@/components/brand/HolographicPlatform";
+import { HoverCard3D } from "@/components/interactive/HoverCard3D";
+import { CursorTrail } from "@/components/effects/CursorTrail";
 import { useState, useEffect } from "react";
 
 // Live stats animation
@@ -131,6 +133,9 @@ const serviceCards = [
 export default function PrimeLanding() {
   return (
     <div className="min-h-screen bg-[hsl(var(--background))] text-foreground overflow-hidden relative">
+      {/* Cursor Trail Effect */}
+      <CursorTrail />
+      
       {/* 2030 Particle Network Background */}
       <ParticleBackground />
       
@@ -299,7 +304,8 @@ export default function PrimeLanding() {
                 transition={{ delay: index * 0.1 }}
               >
                 <Link to={card.route}>
-                  <div className="group h-full glass rounded-2xl p-8 hover:shadow-[0_0_60px_hsl(var(--primary)/0.5)] transition-all duration-300 hover:scale-105 cursor-pointer border border-[hsl(var(--border)/0.5)] hover:border-[hsl(var(--primary)/0.5)]">
+                  <HoverCard3D intensity="high" className="h-full">
+                    <div className="group h-full glass rounded-2xl p-8 transition-all duration-300 cursor-pointer border border-[hsl(var(--border)/0.5)] hover:border-[hsl(var(--primary)/0.5)]">
                     {/* Icon with gradient background */}
                     <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${card.gradient} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
                       <card.icon className="w-8 h-8 text-white" />
@@ -332,6 +338,7 @@ export default function PrimeLanding() {
                       <ArrowRight className="w-4 h-4" />
                     </div>
                   </div>
+                  </HoverCard3D>
                 </Link>
               </motion.div>
             ))}
@@ -362,7 +369,8 @@ export default function PrimeLanding() {
                 transition={{ delay: index * 0.1 }}
               >
                 <Link to={service.route}>
-                  <div className="group glass rounded-xl p-6 hover:shadow-[0_0_50px_hsl(var(--primary)/0.4)] transition-all duration-300 hover:scale-105 cursor-pointer h-full border border-[hsl(var(--border)/0.3)] hover:border-[hsl(var(--primary)/0.4)]">
+                  <HoverCard3D intensity="medium" glowColor={service.color} className="h-full">
+                    <div className="group glass rounded-xl p-6 transition-all duration-300 cursor-pointer h-full border border-[hsl(var(--border)/0.3)] hover:border-[hsl(var(--primary)/0.4)]">
                     <div 
                       className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"
                       style={{
@@ -378,6 +386,7 @@ export default function PrimeLanding() {
                     <h3 className="text-lg font-bold mb-2">{service.title}</h3>
                     <p className="text-sm text-muted-foreground">{service.description}</p>
                   </div>
+                  </HoverCard3D>
                 </Link>
               </motion.div>
             ))}

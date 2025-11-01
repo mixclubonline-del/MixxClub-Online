@@ -119,32 +119,33 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* MixClub Glass Aesthetic - Deep Space Navy & Purple/Cyan */
-    --background: 225 50% 5%;
+    /* Midnight Ember - Unique Deep Space & Fire */
+    --background: 245 35% 4%;
     --foreground: 0 0% 98%;
 
-    --card: 235 45% 10%;
+    --card: 245 30% 8%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 235 45% 10%;
+    --popover: 245 30% 8%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 270 100% 70%;
+    --primary: 15 95% 58%;
     --primary-foreground: 0 0% 98%;
-    --primary-glow: 270 100% 80%;
-    --primary-muted: 270 60% 45%;
-    --primary-deep: 270 100% 60%;
+    --primary-glow: 25 100% 65%;
+    --primary-muted: 15 75% 45%;
+    --primary-deep: 10 100% 50%;
 
-    --secondary: 225 40% 12%;
+    --secondary: 280 75% 55%;
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 225 30% 15%;
+    --muted: 245 25% 15%;
     --muted-foreground: 0 0% 65%;
 
-    --accent: 185 100% 50%;
+    --accent: 185 90% 52%;
     --accent-foreground: 0 0% 98%;
-    --accent-cyan: 185 100% 50%;
-    --accent-blue: 210 100% 55%;
+    --accent-cyan: 185 90% 52%;
+    --accent-blue: 210 85% 55%;
+    --accent-warm: 45 100% 60%;
 
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 98%;
@@ -161,19 +162,19 @@ All colors MUST be HSL.
 
     --radius: 0.75rem;
 
-    /* MixClub Glass Gradients - Purple to Cyan */
-    --gradient-primary: linear-gradient(135deg, hsl(270 100% 70%), hsl(185 100% 50%));
-    --gradient-primary-hover: linear-gradient(135deg, hsl(270 100% 75%), hsl(185 100% 55%));
-    --gradient-network: linear-gradient(135deg, hsl(270 100% 70%), hsl(210 100% 55%), hsl(185 100% 50%));
-    --gradient-glass: linear-gradient(135deg, hsl(235 45% 10% / 0.6), hsl(235 45% 14% / 0.4));
-    --gradient-glass-hover: linear-gradient(135deg, hsl(235 45% 14% / 0.8), hsl(235 45% 18% / 0.6));
-    --gradient-card: linear-gradient(135deg, hsl(235 45% 10% / 0.85), hsl(235 45% 12% / 0.9));
-    --gradient-hero: linear-gradient(180deg, hsl(225 50% 4%), hsl(235 45% 8%), hsl(225 50% 5%));
-    --gradient-studio: linear-gradient(90deg, hsl(235 45% 10%), hsl(270 40% 12%), hsl(235 45% 10%));
-    --gradient-audio-wave: linear-gradient(90deg, transparent 0%, hsl(270 100% 70% / 0.4) 50%, transparent 100%));
-    --gradient-workspace: linear-gradient(135deg, hsl(225 50% 5%), hsl(235 40% 8%), hsl(225 50% 5%));
-    --gradient-card-elevated: linear-gradient(135deg, hsl(235 45% 12%), hsl(235 45% 10%));
-    --gradient-interactive: linear-gradient(135deg, hsl(270 80% 60%), hsl(185 100% 50%));
+    /* Midnight Ember Gradients - Fire meets Ice */
+    --gradient-primary: linear-gradient(135deg, hsl(15 95% 58%), hsl(280 75% 55%));
+    --gradient-primary-hover: linear-gradient(135deg, hsl(25 100% 65%), hsl(280 80% 60%));
+    --gradient-network: linear-gradient(135deg, hsl(15 95% 58%), hsl(280 75% 55%), hsl(185 90% 52%));
+    --gradient-glass: linear-gradient(135deg, hsl(245 30% 8% / 0.6), hsl(245 30% 12% / 0.4));
+    --gradient-glass-hover: linear-gradient(135deg, hsl(245 30% 12% / 0.8), hsl(245 30% 16% / 0.6));
+    --gradient-card: linear-gradient(135deg, hsl(245 30% 8% / 0.85), hsl(245 30% 10% / 0.9));
+    --gradient-hero: linear-gradient(180deg, hsl(245 35% 4%), hsl(245 30% 8%), hsl(245 35% 4%));
+    --gradient-studio: linear-gradient(90deg, hsl(245 30% 8%), hsl(280 40% 10%), hsl(245 30% 8%));
+    --gradient-audio-wave: linear-gradient(90deg, transparent 0%, hsl(15 95% 58% / 0.4) 50%, transparent 100%));
+    --gradient-workspace: linear-gradient(135deg, hsl(245 35% 4%), hsl(245 30% 8%), hsl(245 35% 4%));
+    --gradient-card-elevated: linear-gradient(135deg, hsl(245 30% 10%), hsl(245 30% 8%));
+    --gradient-interactive: linear-gradient(135deg, hsl(15 95% 58%), hsl(185 90% 52%));
     --gradient-metallic: linear-gradient(135deg, hsl(0 0% 65%), hsl(0 0% 85%), hsl(0 0% 65%));
     
     /* CRM Future-Forward Gradients */
@@ -184,16 +185,17 @@ All colors MUST be HSL.
     --gradient-streak-blaze: linear-gradient(135deg, hsl(25 95% 55%), hsl(15 90% 55%), hsl(0 85% 60%));
     --gradient-success-celebration: linear-gradient(135deg, hsl(142 76% 36%), hsl(160 84% 39%), hsl(180 100% 50%));
     
-    /* Glass Glow Effects - Purple & Cyan */
-    --shadow-glow: 0 0 60px hsl(270 100% 70% / 0.5);
-    --shadow-glow-sm: 0 0 30px hsl(270 100% 70% / 0.3);
-    --shadow-glow-lg: 0 0 100px hsl(270 100% 70% / 0.4);
-    --shadow-glow-cyan: 0 0 50px hsl(185 100% 50% / 0.5);
-    --shadow-glow-blue: 0 0 50px hsl(210 100% 55% / 0.4);
-    --shadow-network: 0 15px 60px hsl(270 100% 70% / 0.35), 0 0 30px hsl(185 100% 50% / 0.25);
+    /* Ember Glow Effects - Orange & Teal */
+    --shadow-glow: 0 0 60px hsl(15 95% 58% / 0.6);
+    --shadow-glow-sm: 0 0 30px hsl(15 95% 58% / 0.4);
+    --shadow-glow-lg: 0 0 100px hsl(15 95% 58% / 0.5);
+    --shadow-glow-cyan: 0 0 50px hsl(185 90% 52% / 0.5);
+    --shadow-glow-blue: 0 0 50px hsl(210 85% 55% / 0.4);
+    --shadow-glow-purple: 0 0 50px hsl(280 75% 55% / 0.4);
+    --shadow-network: 0 15px 60px hsl(15 95% 58% / 0.4), 0 0 30px hsl(185 90% 52% / 0.3);
     --shadow-elegant: 0 20px 60px hsl(0 0% 0% / 0.8);
-    --shadow-glass: 0 8px 32px hsl(270 100% 70% / 0.2), inset 0 1px 2px hsl(0 0% 100% / 0.05);
-    --shadow-glass-lg: 0 16px 64px hsl(270 100% 70% / 0.25), inset 0 1px 2px hsl(0 0% 100% / 0.08);
+    --shadow-glass: 0 8px 32px hsl(15 95% 58% / 0.2), inset 0 1px 2px hsl(0 0% 100% / 0.05);
+    --shadow-glass-lg: 0 16px 64px hsl(15 95% 58% / 0.3), inset 0 1px 2px hsl(0 0% 100% / 0.08);
     --shadow-inner: inset 0 2px 8px hsl(0 0% 0% / 0.6);
     --shadow-studio: 0 4px 20px hsl(0 0% 0% / 0.5), inset 0 1px 2px hsl(0 0% 100% / 0.04);
     

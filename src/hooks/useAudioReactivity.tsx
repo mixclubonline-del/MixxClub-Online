@@ -26,12 +26,20 @@ export const useAudioReactivity = (options?: UseAudioReactivityOptions) => {
       const realData = options.audioDataCallback();
       setAudioState(realData);
     } else if (options?.simulationMode !== false) {
-      // Fallback to simulation mode
+      // Enhanced simulation with more natural patterns
+      const time = Date.now() / 1000;
+      const bass = Math.sin(time * 2) * 50 + 50;
+      const mid = Math.sin(time * 3.5) * 40 + 50;
+      const high = Math.sin(time * 5) * 30 + 40;
+      
       setAudioState({
-        isPlaying: Math.random() > 0.3,
-        amplitude: Math.random() * 100,
-        frequency: Math.random() * 20000,
-        beats: Array.from({ length: 8 }, () => Math.random() * 100)
+        isPlaying: Math.random() > 0.2,
+        amplitude: (bass + mid + high) / 3,
+        frequency: 440 + Math.sin(time) * 200,
+        beats: Array.from({ length: 8 }, (_, i) => {
+          const bandFreq = (i + 1) * 0.5;
+          return Math.abs(Math.sin(time * bandFreq)) * 100;
+        })
       });
     }
   }, [options]);
