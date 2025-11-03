@@ -136,7 +136,7 @@ export const PersistentChatbot = () => {
 
   if (!isOpen) {
     return (
-      <div className="fixed bottom-6 left-6 z-50">
+      <div className="fixed bottom-6 right-6 z-50">
         <Button
           onClick={() => setIsOpen(true)}
           className="h-16 w-16 rounded-full bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 shadow-xl hover:shadow-2xl transition-all duration-300 group relative overflow-hidden"
@@ -166,7 +166,7 @@ export const PersistentChatbot = () => {
   }
 
   return (
-    <div className="fixed bottom-6 left-6 z-50">
+    <div className="fixed bottom-6 right-6 z-50">
       <Card className={`w-96 bg-background border-primary/20 shadow-2xl transition-all duration-300 ${
         isMinimized ? 'h-16' : 'h-[600px]'
       }`}>
