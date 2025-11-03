@@ -4,7 +4,9 @@ import { AppSidebar } from '@/components/AppSidebar';
 import { RealTimeNotifications } from '@/components/RealTimeNotifications';
 import { useAuth } from '@/hooks/useAuth';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useMobileDetect } from '@/hooks/useMobileDetect';
 import { MobileEnhancedNav } from '@/components/mobile/MobileEnhancedNav';
+import { TabletLayout } from './TabletLayout';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -13,9 +15,10 @@ interface AppLayoutProps {
 export function AppLayout({ children }: AppLayoutProps) {
   const { user } = useAuth();
   const isMobile = useIsMobile();
+  const { deviceType } = useMobileDetect();
 
-  // On mobile, don't show sidebar - use mobile nav instead
-  if (isMobile) {
+  // On phone, use mobile navigation
+  if (deviceType === 'phone') {
     return (
       <>
         <MobileEnhancedNav />
@@ -26,6 +29,12 @@ export function AppLayout({ children }: AppLayoutProps) {
     );
   }
 
+  // On tablet, use tablet-optimized layout
+  if (deviceType === 'tablet') {
+    return <TabletLayout>{children}</TabletLayout>;
+  }
+
+  // On desktop, use full sidebar layout
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="flex min-h-screen w-full">

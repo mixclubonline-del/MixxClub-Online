@@ -15,6 +15,7 @@ import { usePageTracking } from "@/hooks/useAnalytics";
 import { PrimeProvider } from "@/contexts/PrimeContext";
 import PrimeConsole from "@/components/prime/PrimeConsole";
 import PrimeStatusBar from "@/components/prime/PrimeStatusBar";
+import { useMobileDetect } from "@/hooks/useMobileDetect";
 
 // Lazy load heavy components
 const MixClubHome = React.lazy(() => import("./pages/MixClubHome"));
@@ -156,6 +157,24 @@ import { PageTransition } from "@/components/layouts/PageTransition";
 import { DashboardSkeleton } from "@/components/ui/loading-skeleton";
 import { PerformanceMonitor } from "@/components/PerformanceMonitor";
 import { CookieConsent } from "@/components/legal/CookieConsent";
+
+// Desktop-only components wrapper
+const DesktopOnlyComponents = () => {
+  const { deviceType } = useMobileDetect();
+  
+  // Only render on desktop
+  if (deviceType !== 'desktop') {
+    return null;
+  }
+  
+  return (
+    <>
+      <PersistentChatbot />
+      <PrimeConsole />
+      <PrimeStatusBar />
+    </>
+  );
+};
 
 // App content wrapper for analytics tracking
 const AppContent = () => {
@@ -347,9 +366,7 @@ const App = () => (
             <PrimeProvider>
               <PWAInstallPrompt />
               <AppContent />
-              <PersistentChatbot />
-              <PrimeConsole />
-              <PrimeStatusBar />
+              <DesktopOnlyComponents />
               <PerformanceMonitor />
               <CookieConsent />
             </PrimeProvider>
