@@ -34,9 +34,9 @@ export default function PrimeStatusBar() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: -20 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="fixed top-4 right-4 z-50 bg-background/80 backdrop-blur-sm border border-border rounded-lg p-2"
+      className="fixed bottom-6 left-6 z-50 bg-background/80 backdrop-blur-sm border border-border rounded-lg p-2"
     >
       <div className="flex items-center gap-4">
         {statusItems.map((item, index) => (
