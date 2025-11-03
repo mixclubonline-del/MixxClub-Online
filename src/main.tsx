@@ -11,6 +11,15 @@ import "./index.css";
 // initFBPixel();
 
 // Service worker auto-registered by vite-plugin-pwa
+// In dev/preview, unregister any existing SW to avoid stale UI/layouts
+if (import.meta.env.DEV && 'serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then((regs) => {
+    for (const reg of regs) reg.unregister();
+  });
+  if ('caches' in window) {
+    caches.keys().then((keys) => keys.forEach((k) => caches.delete(k)));
+  }
+}
 
 createRoot(document.getElementById("root")!).render(
   <HelmetProvider>
