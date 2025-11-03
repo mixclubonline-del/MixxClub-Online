@@ -152,7 +152,6 @@ import MobileAdminUsers from "./pages/MobileAdminUsers";
 import MobileMixxBot from "./pages/MobileMixxBot";
 import { PersistentChatbot } from "@/components/PersistentChatbot";
 import { AppLayout } from "@/components/layouts/AppLayout";
-import { AppStyleLayout } from "@/components/layouts/AppStyleLayout";
 import { PageTransition } from "@/components/layouts/PageTransition";
 import { DashboardSkeleton } from "@/components/ui/loading-skeleton";
 import { PerformanceMonitor } from "@/components/PerformanceMonitor";
@@ -162,11 +161,10 @@ import { CookieConsent } from "@/components/legal/CookieConsent";
 const AppContent = () => {
   usePageTracking();
   return (
-    <AppStyleLayout>
-      <PageTransition>
-        <MobileRouteGuard />
-        <OfflineIndicator />
-        <React.Suspense fallback={<DashboardSkeleton />}>
+    <PageTransition>
+      <MobileRouteGuard />
+      <OfflineIndicator />
+      <React.Suspense fallback={<DashboardSkeleton />}>
         <Routes>
         <Route path="/" element={<MixClubHome />} />
         <Route path="/mixclub" element={<MixClubHome />} />
@@ -335,7 +333,6 @@ const AppContent = () => {
         </React.Suspense>
         <PWAInstallPrompt />
       </PageTransition>
-    </AppStyleLayout>
   );
 };
 
