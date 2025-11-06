@@ -32,6 +32,7 @@ const Admin = React.lazy(() => import("./pages/Admin"));
 const AIMastering = React.lazy(() => import("./pages/AIMastering"));
 const HybridDAW = React.lazy(() => import("./pages/HybridDAW"));
 const HapticStudio = React.lazy(() => import("./pages/HapticStudio"));
+const AIStudio = React.lazy(() => import("./pages/AIStudio"));
 
 // Keep critical routes non-lazy
 import MixBattles from "./pages/MixBattles";
@@ -194,7 +195,7 @@ const AppContent = () => {
             <Route path="/network" element={<Navigate to="/" replace />} />
             <Route path="/artist" element={<Artist />} />
             <Route path="/engineer" element={<Engineer />} />
-            <Route path="/ai-studio" element={<Navigate to="/artist-crm?tab=studio" replace />} />
+            <Route path="/ai-studio" element={<AdminRoute section="AI Studio"><AIStudio /></AdminRoute>} />
             {/* Unified Community Hub */}
             <Route path="/community" element={<Community />} />
             
