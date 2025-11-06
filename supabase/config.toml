@@ -161,3 +161,9 @@ verify_jwt = true
 
 [functions.generate-social-posts]
 verify_jwt = true
+
+[functions.analyze-mix-readiness]
+verify_jwt = true
+
+[functions.compare-reference-track]
+verify_jwt = true
