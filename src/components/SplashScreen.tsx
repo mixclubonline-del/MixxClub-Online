@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Haptics, ImpactStyle } from "@capacitor/haptics";
 
 interface SplashScreenProps {
   onComplete?: () => void;
@@ -10,7 +11,15 @@ export const SplashScreen = ({ onComplete, duration = 2500 }: SplashScreenProps)
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const timer = setTimeout(async () => {
+      // Trigger haptic feedback on mobile before hiding splash
+      try {
+        await Haptics.impact({ style: ImpactStyle.Medium });
+      } catch (error) {
+        // Haptics not available (desktop or unsupported device)
+        console.log('Haptics not available');
+      }
+      
       setIsVisible(false);
       setTimeout(() => {
         onComplete?.();
