@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
-import { Smartphone, Volume2, VolumeX } from "lucide-react";
+import { Smartphone, Volume2, VolumeX, ZoomIn, ZoomOut, Trash2, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { useGestureControls } from "@/hooks/useGestureControls";
+import { Badge } from "@/components/ui/badge";
 
 interface HapticWaveformVisualizerProps {
   audioUrl?: string;
@@ -28,6 +30,11 @@ export const HapticWaveformVisualizer = ({
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const animationFrameRef = useRef<number>();
+  const waveformContainerRef = useRef<HTMLDivElement>(null);
+  
+  // Gesture controls
+  const { zoom, pan, markers, addMarker, removeMarker, resetZoom, clearMarkers } = 
+    useGestureControls(waveformContainerRef);
 
   useEffect(() => {
     // Initialize audio context
@@ -168,10 +175,23 @@ export const HapticWaveformVisualizer = ({
         </Button>
       </div>
 
+      {/* Gesture Controls Info */}
+      <div className="flex items-center justify-between text-xs text-muted-foreground bg-muted/50 rounded-lg p-3">
+        <div className="flex items-center gap-4">
+          <span>🤏 Pinch to zoom</span>
+          <span>👆 Swipe to pan</span>
+          <span>👆👆 Double-tap for marker</span>
+        </div>
+        <Badge variant="outline">Zoom: {zoom.toFixed(1)}x</Badge>
+      </div>
+
       {/* Waveform Display */}
-      <div className="relative h-48 bg-background rounded-lg border border-border p-4 overflow-hidden">
+      <div 
+        ref={waveformContainerRef}
+        className="relative h-48 bg-background rounded-lg border border-border p-4 overflow-hidden touch-none select-none"
+      >
         {/* Background grid */}
-        <div className="absolute inset-0 opacity-20">
+        <div className="absolute inset-0 opacity-20 pointer-events-none">
           {[...Array(5)].map((_, i) => (
             <div
               key={i}
@@ -181,8 +201,34 @@ export const HapticWaveformVisualizer = ({
           ))}
         </div>
 
+        {/* Markers */}
+        {markers.map((markerPos, index) => (
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="absolute top-0 bottom-0 w-0.5 bg-accent z-10 cursor-pointer group"
+            style={{ left: `${markerPos * 100}%` }}
+            onClick={(e) => {
+              e.stopPropagation();
+              removeMarker(index);
+            }}
+          >
+            <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-accent rounded-full" />
+            <div className="absolute top-6 left-1/2 -translate-x-1/2 bg-accent text-accent-foreground text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+              {(markerPos * 100).toFixed(0)}% - Click to remove
+            </div>
+          </motion.div>
+        ))}
+
         {/* Waveform bars */}
-        <div className="relative h-full flex items-end justify-center gap-[2px]">
+        <div 
+          className="relative h-full flex items-end justify-center gap-[2px] transition-transform"
+          style={{
+            transform: `scale(${zoom}) translateX(${pan}px)`,
+            transformOrigin: 'center bottom',
+          }}
+        >
           {audioData.map((value, index) => (
             <motion.div
               key={index}
@@ -226,7 +272,39 @@ export const HapticWaveformVisualizer = ({
         </div>
 
         {/* Center line */}
-        <div className="absolute top-1/2 left-0 right-0 h-px bg-primary/20 -translate-y-1/2" />
+        <div className="absolute top-1/2 left-0 right-0 h-px bg-primary/20 -translate-y-1/2 pointer-events-none" />
+      </div>
+
+      {/* Zoom & Marker Controls */}
+      <div className="flex items-center gap-2 justify-between">
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={resetZoom}
+            disabled={zoom === 1 && pan === 0}
+            className="gap-2"
+          >
+            <ZoomOut className="w-4 h-4" />
+            Reset View
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={clearMarkers}
+            disabled={markers.length === 0}
+            className="gap-2"
+          >
+            <Trash2 className="w-4 h-4" />
+            Clear Markers
+          </Button>
+        </div>
+        <div className="flex items-center gap-2">
+          <MapPin className="w-4 h-4 text-muted-foreground" />
+          <span className="text-sm text-muted-foreground">
+            {markers.length} {markers.length === 1 ? 'marker' : 'markers'}
+          </span>
+        </div>
       </div>
 
       {/* Controls */}
