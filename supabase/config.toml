@@ -152,3 +152,12 @@ verify_jwt = false
 
 [functions.separate-stems]
 verify_jwt = true
+
+[functions.generate-track-name]
+verify_jwt = true
+
+[functions.generate-album-art]
+verify_jwt = true
+
+[functions.generate-social-posts]
+verify_jwt = true

@@ -16,16 +16,41 @@ export const useVoiceCommands = (sessionId: string, userId: string) => {
     let commandType = 'unknown';
     const parameters: Record<string, any> = {};
 
-    // Parse common mixing commands
-    if (commandText.includes('add reverb') || commandText.includes('more reverb')) {
-      commandType = 'audio_effect';
-      parameters.effect = 'reverb';
-      parameters.action = 'add';
-    } else if (commandText.includes('remove reverb') || commandText.includes('less reverb')) {
-      commandType = 'audio_effect';
-      parameters.effect = 'reverb';
-      parameters.action = 'remove';
-    } else if (commandText.includes('increase volume') || commandText.includes('louder')) {
+    // Playback controls
+    if (commandText.includes('play') || commandText.includes('start playback')) {
+      commandType = 'playback';
+      parameters.action = 'play';
+    } else if (commandText.includes('pause') || commandText.includes('stop')) {
+      commandType = 'playback';
+      parameters.action = 'pause';
+    } else if (commandText.includes('record')) {
+      commandType = 'playback';
+      parameters.action = 'record';
+    } else if (commandText.includes('loop')) {
+      commandType = 'playback';
+      parameters.action = 'loop';
+    }
+    
+    // Track controls
+    else if (commandText.includes('mute track')) {
+      commandType = 'track_control';
+      parameters.action = 'mute';
+      const trackMatch = commandText.match(/track (\d+)/);
+      if (trackMatch) parameters.trackNumber = parseInt(trackMatch[1]);
+    } else if (commandText.includes('solo track')) {
+      commandType = 'track_control';
+      parameters.action = 'solo';
+      const trackMatch = commandText.match(/track (\d+)/);
+      if (trackMatch) parameters.trackNumber = parseInt(trackMatch[1]);
+    } else if (commandText.includes('unmute track')) {
+      commandType = 'track_control';
+      parameters.action = 'unmute';
+      const trackMatch = commandText.match(/track (\d+)/);
+      if (trackMatch) parameters.trackNumber = parseInt(trackMatch[1]);
+    }
+    
+    // Volume controls
+    else if (commandText.includes('increase volume') || commandText.includes('louder')) {
       commandType = 'mixer_control';
       parameters.control = 'volume';
       parameters.action = 'increase';
@@ -33,16 +58,40 @@ export const useVoiceCommands = (sessionId: string, userId: string) => {
       commandType = 'mixer_control';
       parameters.control = 'volume';
       parameters.action = 'decrease';
+    }
+    
+    // Effects
+    else if (commandText.includes('add reverb') || commandText.includes('more reverb')) {
+      commandType = 'audio_effect';
+      parameters.effect = 'reverb';
+      parameters.action = 'add';
+    } else if (commandText.includes('remove reverb') || commandText.includes('less reverb')) {
+      commandType = 'audio_effect';
+      parameters.effect = 'reverb';
+      parameters.action = 'remove';
     } else if (commandText.includes('add compression')) {
       commandType = 'audio_effect';
       parameters.effect = 'compression';
       parameters.action = 'add';
-    } else if (commandText.includes('play') || commandText.includes('start playback')) {
-      commandType = 'playback';
-      parameters.action = 'play';
-    } else if (commandText.includes('pause') || commandText.includes('stop')) {
-      commandType = 'playback';
-      parameters.action = 'pause';
+    } else if (commandText.includes('add delay')) {
+      commandType = 'audio_effect';
+      parameters.effect = 'delay';
+      parameters.action = 'add';
+    }
+    
+    // Edit commands
+    else if (commandText.includes('undo')) {
+      commandType = 'edit';
+      parameters.action = 'undo';
+    } else if (commandText.includes('redo')) {
+      commandType = 'edit';
+      parameters.action = 'redo';
+    } else if (commandText.includes('save') || commandText.includes('save project')) {
+      commandType = 'edit';
+      parameters.action = 'save';
+    } else if (commandText.includes('export')) {
+      commandType = 'edit';
+      parameters.action = 'export';
     }
 
     // Log the command
