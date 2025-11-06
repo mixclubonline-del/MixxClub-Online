@@ -176,3 +176,15 @@ verify_jwt = true
 
 [functions.business-analytics]
 verify_jwt = true
+
+[functions.restore-audio]
+verify_jwt = true
+
+[functions.generate-chords]
+verify_jwt = true
+
+[functions.generate-automation]
+verify_jwt = true
+
+[functions.quality-control]
+verify_jwt = true
