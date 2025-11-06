@@ -31,6 +31,7 @@ const AudioLab = React.lazy(() => import("./pages/AudioLab"));
 const Admin = React.lazy(() => import("./pages/Admin"));
 const AIMastering = React.lazy(() => import("./pages/AIMastering"));
 const HybridDAW = React.lazy(() => import("./pages/HybridDAW"));
+const HapticStudio = React.lazy(() => import("./pages/HapticStudio"));
 
 // Keep critical routes non-lazy
 import MixBattles from "./pages/MixBattles";
@@ -273,6 +274,7 @@ const AppContent = () => {
             <Route path="/engineers" element={<EngineerDirectory />} />
             <Route path="/engineer/:userId" element={<EngineerProfile />} />
             <Route path="/audio-lab" element={<AudioLab />} />
+            <Route path="/haptic-studio" element={<HapticStudio />} />
             <Route path="/project/:projectId" element={<AppLayout><ProjectDetail /></AppLayout>} />
             <Route path="/coming-soon" element={<ComingSoon />} />
             <Route path="/faq" element={<FAQ />} />
