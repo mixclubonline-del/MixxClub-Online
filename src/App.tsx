@@ -16,6 +16,8 @@ import { PrimeProvider } from "@/contexts/PrimeContext";
 import PrimeConsole from "@/components/prime/PrimeConsole";
 import PrimeStatusBar from "@/components/prime/PrimeStatusBar";
 import { useMobileDetect } from "@/hooks/useMobileDetect";
+import { SplashScreen } from "@/components/SplashScreen";
+import { useSplashScreen } from "@/hooks/useSplashScreen";
 
 // Lazy load heavy components
 const MixClubHome = React.lazy(() => import("./pages/MixClubHome"));
@@ -355,26 +357,36 @@ const AppContent = () => {
   );
 };
 
-const App = () => (
-  <ErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AuthProvider>
-            <PrimeProvider>
-              <PWAInstallPrompt />
-              <AppContent />
-              <DesktopOnlyComponents />
-              <PerformanceMonitor />
-              <CookieConsent />
-            </PrimeProvider>
-          </AuthProvider>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </ErrorBoundary>
-);
+const App = () => {
+  const { showSplash, handleSplashComplete } = useSplashScreen();
+
+  return (
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          {showSplash && (
+            <SplashScreen 
+              onComplete={handleSplashComplete}
+              duration={2500}
+            />
+          )}
+          <BrowserRouter>
+            <AuthProvider>
+              <PrimeProvider>
+                <PWAInstallPrompt />
+                <AppContent />
+                <DesktopOnlyComponents />
+                <PerformanceMonitor />
+                <CookieConsent />
+              </PrimeProvider>
+            </AuthProvider>
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
+  );
+};
 
 export default App;
