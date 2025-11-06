@@ -54,10 +54,16 @@ export default function Crowd() {
             </div>
           </div>
 
-          <div className="text-center">
+          <div className="text-center space-x-4">
+            <a 
+              href="/premieres" 
+              className="inline-block px-8 py-4 rounded-full bg-gradient-to-r from-accent to-accent-blue text-foreground hover:shadow-[0_0_30px_hsl(var(--accent)/0.5)] transition-all font-medium"
+            >
+              🎵 Track Premieres
+            </a>
             <a 
               href="/network" 
-              className="inline-block px-8 py-4 rounded-full bg-gradient-to-r from-accent to-accent-blue text-foreground hover:shadow-[0_0_30px_hsl(var(--accent)/0.5)] transition-all font-medium"
+              className="inline-block px-8 py-4 rounded-full bg-card/30 border border-white/10 text-foreground hover:bg-card/50 transition-all font-medium"
             >
               ← Back to Hub
             </a>

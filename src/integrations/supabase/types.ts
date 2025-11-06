@@ -3359,6 +3359,45 @@ export type Database = {
         }
         Relationships: []
       }
+      fan_stats: {
+        Row: {
+          badges: Json | null
+          created_at: string | null
+          discovery_count: number | null
+          taste_maker_score: number | null
+          total_listens: number | null
+          total_votes: number | null
+          updated_at: string | null
+          user_id: string
+          week_reset_at: string | null
+          weekly_votes: number | null
+        }
+        Insert: {
+          badges?: Json | null
+          created_at?: string | null
+          discovery_count?: number | null
+          taste_maker_score?: number | null
+          total_listens?: number | null
+          total_votes?: number | null
+          updated_at?: string | null
+          user_id: string
+          week_reset_at?: string | null
+          weekly_votes?: number | null
+        }
+        Update: {
+          badges?: Json | null
+          created_at?: string | null
+          discovery_count?: number | null
+          taste_maker_score?: number | null
+          total_listens?: number | null
+          total_votes?: number | null
+          updated_at?: string | null
+          user_id?: string
+          week_reset_at?: string | null
+          weekly_votes?: number | null
+        }
+        Relationships: []
+      }
       file_analysis: {
         Row: {
           analysis_data: Json
@@ -6062,6 +6101,225 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      premiere_comments: {
+        Row: {
+          comment: string
+          created_at: string | null
+          id: string
+          likes_count: number | null
+          parent_id: string | null
+          premiere_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          comment: string
+          created_at?: string | null
+          id?: string
+          likes_count?: number | null
+          parent_id?: string | null
+          premiere_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          comment?: string
+          created_at?: string | null
+          id?: string
+          likes_count?: number | null
+          parent_id?: string | null
+          premiere_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "premiere_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "premiere_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "premiere_comments_premiere_id_fkey"
+            columns: ["premiere_id"]
+            isOneToOne: false
+            referencedRelation: "premieres"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "premiere_comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "premiere_comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      premiere_votes: {
+        Row: {
+          created_at: string | null
+          feedback: string | null
+          id: string
+          premiere_id: string
+          updated_at: string | null
+          user_id: string
+          vote_type: string
+          vote_value: number
+        }
+        Insert: {
+          created_at?: string | null
+          feedback?: string | null
+          id?: string
+          premiere_id: string
+          updated_at?: string | null
+          user_id: string
+          vote_type: string
+          vote_value: number
+        }
+        Update: {
+          created_at?: string | null
+          feedback?: string | null
+          id?: string
+          premiere_id?: string
+          updated_at?: string | null
+          user_id?: string
+          vote_type?: string
+          vote_value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "premiere_votes_premiere_id_fkey"
+            columns: ["premiere_id"]
+            isOneToOne: false
+            referencedRelation: "premieres"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "premiere_votes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "premiere_votes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      premieres: {
+        Row: {
+          artist_id: string
+          artwork_url: string | null
+          audio_url: string
+          average_rating: number | null
+          bpm: number | null
+          created_at: string | null
+          description: string | null
+          engineer_id: string | null
+          genre: string | null
+          id: string
+          key_signature: string | null
+          play_count: number | null
+          premiere_date: string
+          project_id: string | null
+          status: string
+          title: string
+          total_votes: number | null
+          updated_at: string | null
+          view_count: number | null
+        }
+        Insert: {
+          artist_id: string
+          artwork_url?: string | null
+          audio_url: string
+          average_rating?: number | null
+          bpm?: number | null
+          created_at?: string | null
+          description?: string | null
+          engineer_id?: string | null
+          genre?: string | null
+          id?: string
+          key_signature?: string | null
+          play_count?: number | null
+          premiere_date: string
+          project_id?: string | null
+          status?: string
+          title: string
+          total_votes?: number | null
+          updated_at?: string | null
+          view_count?: number | null
+        }
+        Update: {
+          artist_id?: string
+          artwork_url?: string | null
+          audio_url?: string
+          average_rating?: number | null
+          bpm?: number | null
+          created_at?: string | null
+          description?: string | null
+          engineer_id?: string | null
+          genre?: string | null
+          id?: string
+          key_signature?: string | null
+          play_count?: number | null
+          premiere_date?: string
+          project_id?: string | null
+          status?: string
+          title?: string
+          total_votes?: number | null
+          updated_at?: string | null
+          view_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "premieres_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "premieres_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "premieres_engineer_id_fkey"
+            columns: ["engineer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "premieres_engineer_id_fkey"
+            columns: ["engineer_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "premieres_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       presentation_shares: {
         Row: {
