@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Star, CheckCircle } from 'lucide-react';
+import { Star, CheckCircle, Calendar, Sparkles } from 'lucide-react';
 import { ProjectReviewDialog } from '@/components/review/ProjectReviewDialog';
+import PremiereScheduler from '@/components/premieres/PremiereScheduler';
 import { supabase } from '@/integrations/supabase/client';
 import { useEffect } from 'react';
 
@@ -15,10 +16,15 @@ interface CompletedProjectCardProps {
 export const CompletedProjectCard = ({ project }: CompletedProjectCardProps) => {
   const navigate = useNavigate();
   const [showReviewDialog, setShowReviewDialog] = useState(false);
+  const [showPremiereScheduler, setShowPremiereScheduler] = useState(false);
   const [hasReviewed, setHasReviewed] = useState(false);
+  const [hasPremiere, setHasPremiere] = useState(false);
+  const [audioUrl, setAudioUrl] = useState<string>('');
 
   useEffect(() => {
     checkReviewStatus();
+    checkPremiereStatus();
+    fetchAudioUrl();
   }, [project.id]);
 
   const checkReviewStatus = async () => {
@@ -31,6 +37,44 @@ export const CompletedProjectCard = ({ project }: CompletedProjectCardProps) => 
       .maybeSingle();
     
     setHasReviewed(!!data);
+  };
+
+  const checkPremiereStatus = async () => {
+    const { data } = await supabase
+      .from('premieres')
+      .select('id')
+      .eq('project_id', project.id)
+      .maybeSingle();
+    
+    setHasPremiere(!!data);
+  };
+
+  const fetchAudioUrl = async () => {
+    // Get the latest deliverable or audio file for the project
+    const { data: deliverable } = await supabase
+      .from('engineer_deliverables')
+      .select('file_path')
+      .eq('project_id', project.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (deliverable?.file_path) {
+      setAudioUrl(deliverable.file_path);
+    } else {
+      // Fallback to audio_files if no deliverable
+      const { data: audioFile } = await supabase
+        .from('audio_files')
+        .select('file_path')
+        .eq('project_id', project.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      
+      if (audioFile?.file_path) {
+        setAudioUrl(audioFile.file_path);
+      }
+    }
   };
 
   const isCompleted = project.status === 'completed';
@@ -92,6 +136,26 @@ export const CompletedProjectCard = ({ project }: CompletedProjectCardProps) => 
                 </Button>
               )
             )}
+            
+            {isCompleted && audioUrl && (
+              hasPremiere ? (
+                <Badge variant="secondary" className="px-3 py-1 bg-gradient-to-r from-accent to-accent-blue">
+                  <Sparkles className="w-3 h-3 mr-1" />
+                  Premiered
+                </Badge>
+              ) : (
+                <Button 
+                  variant="default" 
+                  size="sm"
+                  className="bg-gradient-to-r from-accent to-accent-blue"
+                  onClick={() => setShowPremiereScheduler(true)}
+                >
+                  <Calendar className="w-4 h-4 mr-1" />
+                  Schedule Premiere
+                </Button>
+              )
+            )}
+            
             <Button variant="ghost" size="sm">
               View Details
             </Button>
@@ -109,6 +173,19 @@ export const CompletedProjectCard = ({ project }: CompletedProjectCardProps) => 
           onReviewSubmitted={() => {
             setHasReviewed(true);
             checkReviewStatus();
+          }}
+        />
+      )}
+
+      {audioUrl && (
+        <PremiereScheduler
+          projectId={project.id}
+          audioUrl={audioUrl}
+          open={showPremiereScheduler}
+          onClose={() => setShowPremiereScheduler(false)}
+          onSuccess={() => {
+            setHasPremiere(true);
+            checkPremiereStatus();
           }}
         />
       )}
