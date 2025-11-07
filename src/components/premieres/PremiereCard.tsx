@@ -3,11 +3,12 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Play, Pause, Heart, MessageCircle, Share2, Star } from 'lucide-react';
+import { MessageCircle, Share2, Star } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import VotingInterface from './VotingInterface';
+import PremiereAudioPlayer from './PremiereAudioPlayer';
 import { formatDistanceToNow } from 'date-fns';
 
 interface PremiereCardProps {
@@ -151,23 +152,14 @@ export default function PremiereCard({ premiere, onUpdate }: PremiereCardProps) 
             </p>
           )}
 
-          {/* Audio player placeholder */}
-          <div className="relative h-20 bg-gradient-to-r from-accent/5 to-accent-blue/5 rounded-lg mb-4 flex items-center justify-center border border-white/5">
-            <Button
-              variant="ghost"
-              size="lg"
-              onClick={handlePlay}
-              className="hover:bg-accent/20"
-            >
-              {isPlaying ? (
-                <Pause className="h-8 w-8" />
-              ) : (
-                <Play className="h-8 w-8" />
-              )}
-            </Button>
-            <div className="absolute bottom-2 right-2 text-xs text-muted-foreground">
-              {premiere.play_count} plays
-            </div>
+          {/* Audio player with waveform */}
+          <div className="mb-4">
+            <PremiereAudioPlayer
+              audioUrl={premiere.audio_url}
+              isPlaying={isPlaying}
+              onPlayPause={handlePlay}
+              playCount={premiere.play_count}
+            />
           </div>
 
           <div className="flex items-center gap-2">
