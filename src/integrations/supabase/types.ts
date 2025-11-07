@@ -3364,6 +3364,7 @@ export type Database = {
           badges: Json | null
           created_at: string | null
           discovery_count: number | null
+          leaderboard_badges: Json | null
           taste_maker_score: number | null
           total_listens: number | null
           total_votes: number | null
@@ -3376,6 +3377,7 @@ export type Database = {
           badges?: Json | null
           created_at?: string | null
           discovery_count?: number | null
+          leaderboard_badges?: Json | null
           taste_maker_score?: number | null
           total_listens?: number | null
           total_votes?: number | null
@@ -3388,6 +3390,7 @@ export type Database = {
           badges?: Json | null
           created_at?: string | null
           discovery_count?: number | null
+          leaderboard_badges?: Json | null
           taste_maker_score?: number | null
           total_listens?: number | null
           total_votes?: number | null
@@ -4247,6 +4250,53 @@ export type Database = {
           signups?: number | null
         }
         Relationships: []
+      }
+      leaderboard_prizes: {
+        Row: {
+          awarded_at: string | null
+          created_at: string | null
+          id: string
+          period_end: string
+          period_start: string
+          premiere_id: string | null
+          prize_details: Json | null
+          prize_type: string | null
+          rank: number | null
+          user_id: string | null
+        }
+        Insert: {
+          awarded_at?: string | null
+          created_at?: string | null
+          id?: string
+          period_end: string
+          period_start: string
+          premiere_id?: string | null
+          prize_details?: Json | null
+          prize_type?: string | null
+          rank?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          awarded_at?: string | null
+          created_at?: string | null
+          id?: string
+          period_end?: string
+          period_start?: string
+          premiere_id?: string | null
+          prize_details?: Json | null
+          prize_type?: string | null
+          rank?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leaderboard_prizes_premiere_id_fkey"
+            columns: ["premiere_id"]
+            isOneToOne: false
+            referencedRelation: "premieres"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       legal_documents: {
         Row: {
@@ -6232,14 +6282,17 @@ export type Database = {
           genre: string | null
           id: string
           key_signature: string | null
+          monthly_rank: number | null
           play_count: number | null
           premiere_date: string
           project_id: string | null
           status: string
           title: string
           total_votes: number | null
+          trending_score: number | null
           updated_at: string | null
           view_count: number | null
+          weekly_rank: number | null
         }
         Insert: {
           artist_id: string
@@ -6253,14 +6306,17 @@ export type Database = {
           genre?: string | null
           id?: string
           key_signature?: string | null
+          monthly_rank?: number | null
           play_count?: number | null
           premiere_date: string
           project_id?: string | null
           status?: string
           title: string
           total_votes?: number | null
+          trending_score?: number | null
           updated_at?: string | null
           view_count?: number | null
+          weekly_rank?: number | null
         }
         Update: {
           artist_id?: string
@@ -6274,14 +6330,17 @@ export type Database = {
           genre?: string | null
           id?: string
           key_signature?: string | null
+          monthly_rank?: number | null
           play_count?: number | null
           premiere_date?: string
           project_id?: string | null
           status?: string
           title?: string
           total_votes?: number | null
+          trending_score?: number | null
           updated_at?: string | null
           view_count?: number | null
+          weekly_rank?: number | null
         }
         Relationships: [
           {
@@ -8854,6 +8913,15 @@ export type Database = {
       calculate_monthly_awards: {
         Args: { p_month: number; p_year: number }
         Returns: undefined
+      }
+      calculate_trending_score: {
+        Args: {
+          average_rating: number
+          play_count: number
+          premiere_date: string
+          total_votes: number
+        }
+        Returns: number
       }
       check_admin_chatbot_rate_limit: {
         Args: { p_admin_id: string; p_limit_per_minute?: number }
