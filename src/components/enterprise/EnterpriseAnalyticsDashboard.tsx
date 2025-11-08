@@ -7,47 +7,78 @@ import {
 } from "recharts";
 import { 
   Users, Activity, TrendingUp, DollarSign, 
-  Clock, FileAudio, Zap, Building2 
+  Clock, FileAudio, Zap, AlertCircle, Loader2 
 } from "lucide-react";
-
-// Mock data - replace with real API calls
-const usageMetricsData = [
-  { month: "Jan", projects: 45, users: 120, storage: 2.4 },
-  { month: "Feb", projects: 52, users: 135, storage: 2.8 },
-  { month: "Mar", projects: 61, users: 148, storage: 3.2 },
-  { month: "Apr", projects: 68, users: 162, storage: 3.6 },
-  { month: "May", projects: 75, users: 178, storage: 4.1 },
-  { month: "Jun", projects: 82, users: 195, storage: 4.5 },
-];
-
-const teamActivityData = [
-  { day: "Mon", logins: 145, collaborations: 23, uploads: 67 },
-  { day: "Tue", logins: 162, collaborations: 31, uploads: 82 },
-  { day: "Wed", logins: 178, collaborations: 28, uploads: 75 },
-  { day: "Thu", logins: 151, collaborations: 35, uploads: 91 },
-  { day: "Fri", logins: 188, collaborations: 42, uploads: 103 },
-  { day: "Sat", logins: 92, collaborations: 15, uploads: 34 },
-  { day: "Sun", logins: 76, collaborations: 12, uploads: 28 },
-];
-
-const revenueData = [
-  { month: "Jan", revenue: 24000, contracts: 3, renewals: 2 },
-  { month: "Feb", revenue: 28000, contracts: 4, renewals: 3 },
-  { month: "Mar", revenue: 32000, contracts: 5, renewals: 2 },
-  { month: "Apr", revenue: 35000, contracts: 4, renewals: 4 },
-  { month: "May", revenue: 42000, contracts: 6, renewals: 3 },
-  { month: "Jun", revenue: 48000, contracts: 7, renewals: 5 },
-];
-
-const departmentUsage = [
-  { name: "Engineering", value: 35, color: "hsl(var(--primary))" },
-  { name: "Marketing", value: 25, color: "hsl(var(--secondary))" },
-  { name: "Sales", value: 20, color: "hsl(var(--accent))" },
-  { name: "Operations", value: 15, color: "hsl(var(--muted))" },
-  { name: "Other", value: 5, color: "hsl(var(--border))" },
-];
+import {
+  useEnterpriseQuickStats,
+  useEnterpriseUsageMetrics,
+  useEnterpriseTeamActivity,
+  useEnterpriseRevenueData,
+  useEnterpriseDepartmentUsage,
+} from "@/hooks/useEnterpriseAnalytics";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export function EnterpriseAnalyticsDashboard() {
+  const { data: quickStats, isLoading: statsLoading, error: statsError } = useEnterpriseQuickStats();
+  const { data: usageMetrics, isLoading: usageLoading } = useEnterpriseUsageMetrics();
+  const { data: teamActivity, isLoading: activityLoading } = useEnterpriseTeamActivity();
+  const { data: revenueData, isLoading: revenueLoading } = useEnterpriseRevenueData();
+  const { data: departmentUsage, isLoading: deptLoading } = useEnterpriseDepartmentUsage();
+
+  const isLoading = statsLoading || usageLoading || activityLoading || revenueLoading || deptLoading;
+
+  if (statsError) {
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          Failed to load analytics data. Please try again later.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="ml-2 text-muted-foreground">Loading analytics...</span>
+      </div>
+    );
+  }
+
+  // Calculate derived metrics
+  const avgDailyLogins = teamActivity 
+    ? Math.round(teamActivity.slice(0, 5).reduce((sum, d) => sum + d.logins, 0) / 5)
+    : 0;
+  
+  const totalCollaborations = teamActivity 
+    ? teamActivity.reduce((sum, d) => sum + d.collaborations, 0)
+    : 0;
+  
+  const totalUploads = teamActivity 
+    ? teamActivity.reduce((sum, d) => sum + d.uploads, 0)
+    : 0;
+
+  const totalRevenue = revenueData 
+    ? revenueData.reduce((sum, d) => sum + d.revenue, 0)
+    : 0;
+
+  const arr = quickStats ? quickStats.monthlyRevenue * 12 : 0;
+  
+  const avgContractValue = revenueData && revenueData.length > 0
+    ? totalRevenue / revenueData.reduce((sum, d) => sum + d.contracts + d.renewals, 0)
+    : 0;
+
+  const renewalRate = revenueData && revenueData.length > 0
+    ? (revenueData.reduce((sum, d) => sum + d.renewals, 0) / 
+       revenueData.reduce((sum, d) => sum + d.contracts + d.renewals, 0)) * 100
+    : 0;
+
+  const storagePercent = quickStats 
+    ? Math.round((quickStats.storageUsed / quickStats.storageCapacity) * 100)
+    : 0;
+
   return (
     <div className="space-y-6">
       {/* Quick Stats */}
@@ -58,9 +89,9 @@ export function EnterpriseAnalyticsDashboard() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">195</div>
+            <div className="text-2xl font-bold">{quickStats?.activeUsers || 0}</div>
             <p className="text-xs text-muted-foreground">
-              <TrendingUp className="inline h-3 w-3 text-green-500" /> +12% from last month
+              <TrendingUp className="inline h-3 w-3 text-green-500" /> +{quickStats?.userGrowth || 0}% from last month
             </p>
           </CardContent>
         </Card>
@@ -71,9 +102,9 @@ export function EnterpriseAnalyticsDashboard() {
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">82</div>
+            <div className="text-2xl font-bold">{quickStats?.totalProjects || 0}</div>
             <p className="text-xs text-muted-foreground">
-              <TrendingUp className="inline h-3 w-3 text-green-500" /> +9% from last month
+              <TrendingUp className="inline h-3 w-3 text-green-500" /> +{quickStats?.projectGrowth || 0}% from last month
             </p>
           </CardContent>
         </Card>
@@ -84,9 +115,11 @@ export function EnterpriseAnalyticsDashboard() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$48,000</div>
+            <div className="text-2xl font-bold">
+              ${quickStats?.monthlyRevenue.toLocaleString() || 0}
+            </div>
             <p className="text-xs text-muted-foreground">
-              <TrendingUp className="inline h-3 w-3 text-green-500" /> +14% from last month
+              <TrendingUp className="inline h-3 w-3 text-green-500" /> +{quickStats?.revenueGrowth || 0}% from last month
             </p>
           </CardContent>
         </Card>
@@ -97,9 +130,11 @@ export function EnterpriseAnalyticsDashboard() {
             <FileAudio className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">4.5 TB</div>
+            <div className="text-2xl font-bold">
+              {quickStats?.storageUsed.toFixed(1) || 0} TB
+            </div>
             <p className="text-xs text-muted-foreground">
-              68% of 6.6 TB capacity
+              {storagePercent}% of {quickStats?.storageCapacity || 0} TB capacity
             </p>
           </CardContent>
         </Card>
@@ -132,7 +167,7 @@ export function EnterpriseAnalyticsDashboard() {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <AreaChart data={usageMetricsData}>
+                  <AreaChart data={usageMetrics || []}>
                     <defs>
                       <linearGradient id="colorProjects" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
@@ -184,7 +219,7 @@ export function EnterpriseAnalyticsDashboard() {
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
                     <Pie
-                      data={departmentUsage}
+                      data={departmentUsage || []}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
@@ -193,7 +228,7 @@ export function EnterpriseAnalyticsDashboard() {
                       fill="hsl(var(--primary))"
                       dataKey="value"
                     >
-                      {departmentUsage.map((entry, index) => (
+                      {(departmentUsage || []).map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
@@ -217,7 +252,7 @@ export function EnterpriseAnalyticsDashboard() {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={250}>
-                <LineChart data={usageMetricsData}>
+                <LineChart data={usageMetrics || []}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                   <XAxis dataKey="month" className="text-xs" />
                   <YAxis className="text-xs" />
@@ -252,7 +287,7 @@ export function EnterpriseAnalyticsDashboard() {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={350}>
-                <BarChart data={teamActivityData}>
+                <BarChart data={teamActivity || []}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                   <XAxis dataKey="day" className="text-xs" />
                   <YAxis className="text-xs" />
@@ -279,7 +314,7 @@ export function EnterpriseAnalyticsDashboard() {
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">142</div>
+                <div className="text-2xl font-bold">{avgDailyLogins}</div>
                 <p className="text-xs text-muted-foreground">Per business day this week</p>
               </CardContent>
             </Card>
@@ -290,7 +325,7 @@ export function EnterpriseAnalyticsDashboard() {
                 <Activity className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">176</div>
+                <div className="text-2xl font-bold">{totalCollaborations}</div>
                 <p className="text-xs text-muted-foreground">Total sessions this week</p>
               </CardContent>
             </Card>
@@ -301,7 +336,7 @@ export function EnterpriseAnalyticsDashboard() {
                 <FileAudio className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">480</div>
+                <div className="text-2xl font-bold">{totalUploads}</div>
                 <p className="text-xs text-muted-foreground">Audio files this week</p>
               </CardContent>
             </Card>
@@ -317,7 +352,7 @@ export function EnterpriseAnalyticsDashboard() {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={350}>
-                <AreaChart data={revenueData}>
+                <AreaChart data={revenueData || []}>
                   <defs>
                     <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
@@ -357,7 +392,7 @@ export function EnterpriseAnalyticsDashboard() {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={revenueData}>
+                  <BarChart data={revenueData || []}>
                     <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                     <XAxis dataKey="month" className="text-xs" />
                     <YAxis className="text-xs" />
@@ -384,22 +419,24 @@ export function EnterpriseAnalyticsDashboard() {
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">ARR</span>
-                  <span className="text-lg font-bold">$576,000</span>
+                  <span className="text-lg font-bold">${arr.toLocaleString()}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Avg Contract Value</span>
-                  <span className="text-lg font-bold">$14,118</span>
+                  <span className="text-lg font-bold">
+                    ${avgContractValue > 0 ? avgContractValue.toLocaleString(undefined, { maximumFractionDigits: 0 }) : 0}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Renewal Rate</span>
                   <Badge variant="outline" className="text-green-500 border-green-500">
-                    92%
+                    {renewalRate > 0 ? renewalRate.toFixed(0) : 0}%
                   </Badge>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Growth Rate (MoM)</span>
                   <Badge variant="outline" className="text-primary border-primary">
-                    +14%
+                    +{quickStats?.revenueGrowth || 0}%
                   </Badge>
                 </div>
               </CardContent>
