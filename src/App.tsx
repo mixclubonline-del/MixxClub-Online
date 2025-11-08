@@ -63,8 +63,6 @@ import Services from "./pages/Services";
 import StudioPlaceholder from "./pages/StudioPlaceholder";
 import BattleTournaments from "./pages/BattleTournaments";
 import StudioDirectory from "./pages/StudioDirectory";
-import EducationalHub from "./pages/EducationalHub";
-import CourseViewer from "./pages/CourseViewer";
 import MyCertifications from "./pages/MyCertifications";
 import Marketplace from "./pages/Marketplace";
 import LabelServices from "./pages/LabelServices";
@@ -88,7 +86,6 @@ import ForArtists from "./pages/ForArtists";
 
 // Enterprise System - System #11
 const Enterprise = React.lazy(() => import("./pages/Enterprise"));
-const EnterpriseDashboard = React.lazy(() => import("./pages/EnterpriseDashboard"));
 
 // Lazy load all admin pages for better performance
 const AdminUsers = React.lazy(() => import("./pages/AdminUsers"));
@@ -240,7 +237,6 @@ const AppContent = () => {
 
           {/* Enterprise Solutions - System #11 */}
           <Route path="/enterprise" element={<Enterprise />} />
-          <Route path="/enterprise/dashboard" element={<AppLayout><EnterpriseDashboard /></AppLayout>} />
 
           {/* Legacy service redirects */}
           <Route path="/mixing" element={<Navigate to="/services/mixing" replace />} />
@@ -346,8 +342,6 @@ const AppContent = () => {
           <Route path="/studio-directory" element={<StudioDirectory />} />
 
           {/* Tier 2 Features */}
-          <Route path="/education" element={<EducationalHub />} />
-          <Route path="/course/:courseId" element={<CourseViewer />} />
           <Route path="/my-certifications" element={<MyCertifications />} />
 
           {/* Tier 3 Features */}

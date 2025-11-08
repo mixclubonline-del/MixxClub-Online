@@ -344,7 +344,7 @@ const PRESET_PACKAGES: EnterprisePackage[] = [
     },
 ];
 
-export const useEnterpriseStore = create<EnterpriseState>(
+export const useEnterpriseStore = create<EnterpriseState>()(
     persist(
         (set, get) => ({
             accounts: [],

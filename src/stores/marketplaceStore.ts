@@ -163,7 +163,7 @@ const DEFAULT_PRODUCTS: Product[] = [
     },
 ];
 
-export const useMarketplaceStore = create<MarketplaceStore>(
+export const useMarketplaceStore = create<MarketplaceStore>()(
     persist(
         (set, get) => ({
             products: DEFAULT_PRODUCTS,

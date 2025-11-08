@@ -38,15 +38,13 @@ export type {
 // SERVICE EXPORTS
 // ============================================================================
 
-export { EnterpriseService } from '@/services/enterpriseService';
+// Service exports removed - tables don't exist in database
 
 // ============================================================================
 // HOOK EXPORTS
 // ============================================================================
 
 export { useEnterpriseManagement } from '@/hooks/useEnterpriseManagement';
-export { useTeamManagement } from '@/hooks/useTeamManagement';
-export { useContractManagement } from '@/hooks/useContractManagement';
 
 // ============================================================================
 // PRESET PACKAGES

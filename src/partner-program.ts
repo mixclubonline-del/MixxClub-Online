@@ -8,7 +8,7 @@
 // ============================================================================
 // Stores
 // ============================================================================
-export { usePartnerStore, type Partner, type Commission, type Payout, type AffiliateLink, type PartnerMetrics, type PartnerTierBenefit } from '@/stores/partnerStore';
+export { usePartnerStore, type Partner, type Commission, type Payout, type AffiliateLink, type PartnerMetrics, type PartnerTierBenefits } from '@/stores/partnerStore';
 
 // ============================================================================
 // Services
@@ -18,9 +18,9 @@ export { default as PartnerService } from '@/services/PartnerService';
 // ============================================================================
 // Hooks
 // ============================================================================
-export { usePartnerManagement, type UsePartnerManagementResult } from '@/hooks/usePartnerManagement';
+export { usePartnerManagement, type UsePartnerResult } from '@/hooks/usePartnerManagement';
 export { useCommissionTracking, type UseCommissionResult } from '@/hooks/useCommissionTracking';
-export { useAffiliateLinks, type UseAffiliateLinkResult } from '@/hooks/useAffiliateLinks';
+export { useAffiliateLinks, type UseAffiliateResult } from '@/hooks/useAffiliateLinks';
 
 // ============================================================================
 // Components

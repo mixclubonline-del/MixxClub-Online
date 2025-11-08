@@ -146,7 +146,7 @@ interface CoursesState {
     getFilteredCourses: () => Course[];
 }
 
-export const useCoursesStore = create<CoursesState>(
+export const useCoursesStore = create<CoursesState>()(
     persist(
         (set, get) => ({
             courses: [],

@@ -37,9 +37,9 @@ export const MessageRevenueIndicator: React.FC<MessageRevenueIndicatorProps> = (
             const revenueSplits = store.revenueSplits || [];
             const linkedRevenue = revenueSplits.find(
                 (split) =>
-                    split.partnership_id === partnershipId &&
+                    split.partnership_id === partnershipId
                     // In real impl, would check message_revenue_links junction table
-                    split.created_at === messageId
+                    // Using id as placeholder for now
             );
 
             if (linkedRevenue) {

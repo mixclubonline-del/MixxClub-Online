@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useMarketplaceItems, useMarketplaceCategories } from "@/hooks/useMarketplace";
+import { useMarketplaceItems, useMarketplaceCategories } from "@/hooks/useMarketplace.tsx";
 import { isFeatureEnabled } from "@/config/featureFlags";
 import { Lock, Search, ShoppingCart, Star, Download } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";

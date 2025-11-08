@@ -211,7 +211,7 @@ const SAMPLE_ENGINEERS: Engineer[] = [
     },
 ];
 
-export const useMatchingEngineStore = create<MatchingEngineStore>(
+export const useMatchingEngineStore = create<MatchingEngineStore>()(
     persist(
         (set, get) => ({
             engineers: SAMPLE_ENGINEERS,

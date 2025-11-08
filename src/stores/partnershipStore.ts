@@ -297,7 +297,7 @@ export const usePartnershipStore = create<PartnershipStore>()(
 
                 const recentProjects = state.projects
                     .filter((p) => partnerships.some((pp) => pp.id === p.partnership_id))
-                    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                    .sort((a, b) => new Date(b.start_date).getTime() - new Date(a.start_date).getTime())
                     .slice(0, 5);
 
                 return {

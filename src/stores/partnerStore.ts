@@ -216,7 +216,7 @@ const defaultTierBenefits: Record<string, PartnerTierBenefits> = {
     },
 };
 
-export const usePartnerStore = create<PartnerState>(
+export const usePartnerStore = create<PartnerState>()(
     persist(
         (set, get) => ({
             partners: [],
