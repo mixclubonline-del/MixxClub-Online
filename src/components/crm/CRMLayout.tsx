@@ -11,7 +11,6 @@ import { cn } from '@/lib/utils';
 import { RoleSwitcher } from './RoleSwitcher';
 import { ResizableAICopilot } from './dashboard/ResizableAICopilot';
 import { useAIDashboardInsights } from '@/hooks/useAIDashboardInsights';
-import { CursorTrail } from '@/components/effects/CursorTrail';
 import { HoverCard3D } from '@/components/interactive/HoverCard3D';
 
 interface CRMLayoutProps {
@@ -123,7 +122,6 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions, is
   if (isMobile) {
     return (
       <>
-        <CursorTrail />
         {!isStudioMode && <RoleSwitcher />}
         <div className="min-h-screen relative">
           {/* Multi-layer glass depth background */}
@@ -251,7 +249,6 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions, is
   // Desktop layout - full width
   return (
     <>
-      <CursorTrail />
       {!isStudioMode && <RoleSwitcher />}
       <div className="min-h-screen relative">
         {/* Multi-layer glass depth background */}
