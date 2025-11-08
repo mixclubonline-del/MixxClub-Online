@@ -1,5 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
 /**
  * Enterprise analytics data structures
@@ -51,15 +53,19 @@ export function useEnterpriseQuickStats() {
     queryFn: async () => {
       try {
         // Get active users count
-        const { count: activeUsersCount } = await supabase
+        // @ts-ignore - Supabase type inference depth issue
+        const profilesResult = (await supabase
           .from('profiles')
           .select('id', { count: 'exact', head: true })
-          .eq('is_active', true) as any;
+          .eq('is_active', true)) as any;
+        const activeUsersCount = profilesResult.count || 0;
 
         // Get total projects count
-        const { count: totalProjectsCount } = await supabase
+        // @ts-ignore - Supabase type inference depth issue
+        const projectsResult = (await supabase
           .from('projects')
-          .select('id', { count: 'exact', head: true }) as any;
+          .select('id', { count: 'exact', head: true })) as any;
+        const totalProjectsCount = projectsResult.count || 0;
 
         // Get current month revenue from active contracts
         const { data: contracts, error: contractsError } = await supabase
@@ -91,29 +97,37 @@ export function useEnterpriseQuickStats() {
         const sixtyDaysAgo = new Date();
         sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
 
-        const { count: recentUsers } = await supabase
+        // @ts-ignore - Supabase type inference depth issue
+        const recentUsersResult = (await supabase
           .from('profiles')
           .select('id', { count: 'exact', head: true })
-          .gte('created_at', thirtyDaysAgo.toISOString()) as any;
+          .gte('created_at', thirtyDaysAgo.toISOString())) as any;
+        const recentUsers = recentUsersResult.count || 0;
 
-        const { count: previousUsers } = await supabase
+        // @ts-ignore - Supabase type inference depth issue
+        const previousUsersResult = (await supabase
           .from('profiles')
           .select('id', { count: 'exact', head: true })
           .gte('created_at', sixtyDaysAgo.toISOString())
-          .lt('created_at', thirtyDaysAgo.toISOString()) as any;
+          .lt('created_at', thirtyDaysAgo.toISOString())) as any;
+        const previousUsers = previousUsersResult.count || 0;
 
         const userGrowth = previousUsers ? ((recentUsers || 0) - previousUsers) / previousUsers * 100 : 0;
 
-        const { count: recentProjects } = await supabase
+        // @ts-ignore - Supabase type inference depth issue
+        const recentProjectsResult = (await supabase
           .from('projects')
           .select('id', { count: 'exact', head: true })
-          .gte('created_at', thirtyDaysAgo.toISOString()) as any;
+          .gte('created_at', thirtyDaysAgo.toISOString())) as any;
+        const recentProjects = recentProjectsResult.count || 0;
 
-        const { count: previousProjects } = await supabase
+        // @ts-ignore - Supabase type inference depth issue
+        const previousProjectsResult = (await supabase
           .from('projects')
           .select('id', { count: 'exact', head: true })
           .gte('created_at', sixtyDaysAgo.toISOString())
-          .lt('created_at', thirtyDaysAgo.toISOString()) as any;
+          .lt('created_at', thirtyDaysAgo.toISOString())) as any;
+        const previousProjects = previousProjectsResult.count || 0;
 
         const projectGrowth = previousProjects ? ((recentProjects || 0) - previousProjects) / previousProjects * 100 : 0;
 
@@ -414,4 +428,88 @@ export function useEnterpriseDepartmentUsage() {
     },
     staleTime: 15 * 60 * 1000, // 15 minutes
   });
+}
+
+/**
+ * Hook to subscribe to real-time analytics updates
+ */
+export function useEnterpriseAnalyticsRealtime() {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    // Subscribe to profiles changes
+    const profilesChannel = supabase
+      .channel('profiles-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'profiles' },
+        () => {
+          // Invalidate relevant queries when profiles change
+          queryClient.invalidateQueries({ queryKey: ['enterprise-quick-stats'] });
+          queryClient.invalidateQueries({ queryKey: ['enterprise-usage-metrics'] });
+        }
+      )
+      .subscribe();
+
+    // Subscribe to projects changes
+    const projectsChannel = supabase
+      .channel('projects-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'projects' },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['enterprise-quick-stats'] });
+          queryClient.invalidateQueries({ queryKey: ['enterprise-usage-metrics'] });
+        }
+      )
+      .subscribe();
+
+    // Subscribe to contracts changes
+    const contractsChannel = supabase
+      .channel('contracts-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'enterprise_contracts' },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['enterprise-quick-stats'] });
+          queryClient.invalidateQueries({ queryKey: ['enterprise-revenue-data'] });
+        }
+      )
+      .subscribe();
+
+    // Subscribe to audio files changes
+    const audioChannel = supabase
+      .channel('audio-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'audio_files' },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['enterprise-quick-stats'] });
+          queryClient.invalidateQueries({ queryKey: ['enterprise-usage-metrics'] });
+          queryClient.invalidateQueries({ queryKey: ['enterprise-team-activity'] });
+        }
+      )
+      .subscribe();
+
+    // Subscribe to collaboration sessions changes
+    const sessionsChannel = supabase
+      .channel('sessions-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'collaboration_sessions' },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['enterprise-team-activity'] });
+        }
+      )
+      .subscribe();
+
+    // Cleanup subscriptions on unmount
+    return () => {
+      profilesChannel.unsubscribe();
+      projectsChannel.unsubscribe();
+      contractsChannel.unsubscribe();
+      audioChannel.unsubscribe();
+      sessionsChannel.unsubscribe();
+    };
+  }, [queryClient]);
 }

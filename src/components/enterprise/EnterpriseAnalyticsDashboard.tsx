@@ -7,7 +7,7 @@ import {
 } from "recharts";
 import { 
   Users, Activity, TrendingUp, DollarSign, 
-  Clock, FileAudio, Zap, AlertCircle, Loader2 
+  Clock, FileAudio, Zap, AlertCircle, Loader2, Radio 
 } from "lucide-react";
 import {
   useEnterpriseQuickStats,
@@ -15,10 +15,15 @@ import {
   useEnterpriseTeamActivity,
   useEnterpriseRevenueData,
   useEnterpriseDepartmentUsage,
+  useEnterpriseAnalyticsRealtime,
 } from "@/hooks/useEnterpriseAnalytics";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AnalyticsExportButton } from "./AnalyticsExportButton";
 
 export function EnterpriseAnalyticsDashboard() {
+  // Enable real-time updates
+  useEnterpriseAnalyticsRealtime();
+  
   const { data: quickStats, isLoading: statsLoading, error: statsError } = useEnterpriseQuickStats();
   const { data: usageMetrics, isLoading: usageLoading } = useEnterpriseUsageMetrics();
   const { data: teamActivity, isLoading: activityLoading } = useEnterpriseTeamActivity();
@@ -81,6 +86,14 @@ export function EnterpriseAnalyticsDashboard() {
 
   return (
     <div className="space-y-6">
+      {/* Real-time indicator */}
+      <div className="flex items-center justify-between">
+        <Badge variant="outline" className="gap-2">
+          <Radio className="h-3 w-3 text-green-500 animate-pulse" />
+          Live Updates Enabled
+        </Badge>
+      </div>
+
       {/* Quick Stats */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
@@ -162,8 +175,13 @@ export function EnterpriseAnalyticsDashboard() {
           <div className="grid gap-4 md:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle>Projects & Users Growth</CardTitle>
-                <CardDescription>Monthly trend over last 6 months</CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Projects & Users Growth</CardTitle>
+                    <CardDescription>Monthly trend over last 6 months</CardDescription>
+                  </div>
+                  <AnalyticsExportButton data={usageMetrics} filename="usage-metrics" title="Export" />
+                </div>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
@@ -282,8 +300,13 @@ export function EnterpriseAnalyticsDashboard() {
         <TabsContent value="activity" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Weekly Team Activity</CardTitle>
-              <CardDescription>User engagement metrics for the current week</CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Weekly Team Activity</CardTitle>
+                  <CardDescription>User engagement metrics for the current week</CardDescription>
+                </div>
+                <AnalyticsExportButton data={teamActivity} filename="team-activity" title="Export" />
+              </div>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={350}>
@@ -347,8 +370,13 @@ export function EnterpriseAnalyticsDashboard() {
         <TabsContent value="revenue" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Revenue Growth</CardTitle>
-              <CardDescription>Monthly recurring revenue and contract performance</CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Revenue Growth</CardTitle>
+                  <CardDescription>Monthly recurring revenue and contract performance</CardDescription>
+                </div>
+                <AnalyticsExportButton data={revenueData} filename="revenue-data" title="Export" />
+              </div>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={350}>
