@@ -5,7 +5,7 @@
  * collaborative projects, revenue splits, and earnings data.
  */
 
-import create from 'zustand';
+import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type {
     Partnership,
