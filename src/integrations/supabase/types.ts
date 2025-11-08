@@ -8768,6 +8768,45 @@ export type Database = {
           },
         ]
       }
+      usage_metrics: {
+        Row: {
+          api_calls_used: number
+          created_at: string
+          engineer_matches_used: number
+          id: string
+          masters_completed: number
+          month: string
+          storage_used_gb: number
+          tracks_processed: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          api_calls_used?: number
+          created_at?: string
+          engineer_matches_used?: number
+          id?: string
+          masters_completed?: number
+          month: string
+          storage_used_gb?: number
+          tracks_processed?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          api_calls_used?: number
+          created_at?: string
+          engineer_matches_used?: number
+          id?: string
+          masters_completed?: number
+          month?: string
+          storage_used_gb?: number
+          tracks_processed?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_credits: {
         Row: {
           created_at: string | null
@@ -9156,6 +9195,51 @@ export type Database = {
           created_at?: string | null
           id?: string
           role?: Database["public"]["Enums"]["user_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_subscriptions: {
+        Row: {
+          auto_renew: boolean
+          cancel_at_period_end: boolean
+          created_at: string
+          current_period_end: string
+          current_period_start: string
+          id: string
+          status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          tier: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auto_renew?: boolean
+          cancel_at_period_end?: boolean
+          created_at?: string
+          current_period_end: string
+          current_period_start?: string
+          id?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          tier?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auto_renew?: boolean
+          cancel_at_period_end?: boolean
+          created_at?: string
+          current_period_end?: string
+          current_period_start?: string
+          id?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          tier?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []

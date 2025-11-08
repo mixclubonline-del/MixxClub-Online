@@ -53,21 +53,44 @@ export const usePartnershipEarnings = (options: UsePartnershipEarningsOptions = 
 
         try {
             setLoading(true);
-            // @ts-expect-error - Table not yet in generated types
             const { data, error: err } = await supabase
                 .from('partnerships')
-                .select(
-                    `
-                    *,
-                    artist:profiles!partnerships_artist_id_fkey(*),
-                    engineer:profiles!partnerships_engineer_id_fkey(*)
-                    `
-                )
+                .select('*')
                 .or(`artist_id.eq.${user.id},engineer_id.eq.${user.id}`)
                 .order('created_at', { ascending: false });
 
             if (err) throw err;
-            setPartnerships((data || []) as Partnership[]);
+            
+            // Fetch profiles separately to avoid join issues
+            const artistIds = [...new Set(data?.map(p => p.artist_id) || [])];
+            const engineerIds = [...new Set(data?.map(p => p.engineer_id) || [])];
+            const allIds = [...new Set([...artistIds, ...engineerIds])];
+            
+            const { data: profiles } = await supabase
+                .from('profiles')
+                .select('id, full_name, avatar_url')
+                .in('id', allIds);
+            
+            const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
+            
+            // Map partnerships with profile data
+            const mappedData: Partnership[] = (data || []).map(p => ({
+                ...p,
+                status: p.status as 'proposed' | 'accepted' | 'active' | 'paused' | 'completed' | 'dissolved',
+                revenue_split: p.revenue_split as 'equal' | 'custom' | 'percentage' | 'milestone',
+                artist: {
+                    id: p.artist_id,
+                    display_name: profileMap.get(p.artist_id)?.full_name || 'Unknown',
+                    avatar_url: profileMap.get(p.artist_id)?.avatar_url,
+                },
+                engineer: {
+                    id: p.engineer_id,
+                    display_name: profileMap.get(p.engineer_id)?.full_name || 'Unknown',
+                    avatar_url: profileMap.get(p.engineer_id)?.avatar_url,
+                },
+            }));
+            
+            setPartnerships(mappedData);
         } catch (err) {
             const message = err instanceof Error ? err.message : 'Failed to fetch partnerships';
             setError(message);
@@ -144,7 +167,7 @@ export const usePartnershipEarnings = (options: UsePartnershipEarningsOptions = 
 
         try {
             const { data, error: err } = await supabase
-                .rpc('get_partnership_metrics', { user_id: user.id });
+                .rpc('get_partnership_metrics', { p_user_id: user.id });
 
             if (err) throw err;
             setMetrics((data || []) as PartnershipMetrics[]);
@@ -161,7 +184,7 @@ export const usePartnershipEarnings = (options: UsePartnershipEarningsOptions = 
 
         try {
             const { data, error: err } = await supabase
-                .rpc('get_partnership_health_scores', { user_id: user.id });
+                .rpc('get_partnership_health_scores', { p_user_id: user.id });
 
             if (err) throw err;
             setHealthScores((data || []) as PartnershipHealth[]);
@@ -373,11 +396,12 @@ export const usePartnershipEarnings = (options: UsePartnershipEarningsOptions = 
         const partnershipsChannel = supabase
             .channel(`partnerships:${user.id}`)
             .on(
-                'postgres_changes',
+                'postgres_changes' as any,
                 {
                     event: '*',
+                    schema: 'public',
                     table: 'partnerships',
-                    filter: `or(artist_id.eq.${user.id},engineer_id.eq.${user.id})`,
+                    filter: `artist_id=eq.${user.id}`,
                 },
                 () => fetchPartnerships()
             )
@@ -387,8 +411,12 @@ export const usePartnershipEarnings = (options: UsePartnershipEarningsOptions = 
         const revenueSplitsChannel = supabase
             .channel(`revenue_splits:${user.id}`)
             .on(
-                'postgres_changes',
-                { event: 'INSERT', table: 'revenue_splits' },
+                'postgres_changes' as any,
+                { 
+                    event: 'INSERT',
+                    schema: 'public', 
+                    table: 'revenue_splits' 
+                },
                 () => {
                     fetchRevenueSplits();
                     fetchMetrics();

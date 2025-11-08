@@ -32,7 +32,6 @@ export function useReferralSystem() {
                 setLoading(true);
 
                 // Get user's referral code
-                // @ts-expect-error - Table not yet in generated types
                 const { data: codeData, error: codeError } = await supabase
                     .from('referral_codes')
                     .select('*')
@@ -46,7 +45,19 @@ export function useReferralSystem() {
                     // Generate new code if doesn't exist
                     await generateNewReferralCode();
                 } else {
-                    setMyReferralCode(codeData as ReferralCode);
+                    // Map snake_case to camelCase
+                    const mappedCode: ReferralCode = {
+                        id: codeData.id,
+                        code: codeData.code,
+                        userId: codeData.user_id,
+                        createdAt: new Date(codeData.created_at),
+                        expiresAt: codeData.expires_at ? new Date(codeData.expires_at) : undefined,
+                        isActive: codeData.is_active,
+                        rewardType: codeData.reward_type as 'credit' | 'discount' | 'subscription-month',
+                        rewardValue: codeData.reward_value,
+                        rewardDescription: codeData.reward_description,
+                    };
+                    setMyReferralCode(mappedCode);
                 }
 
                 // Get referrals made by this user
@@ -56,7 +67,20 @@ export function useReferralSystem() {
                     .eq('referrer_id', user.id);
 
                 if (outgoingError) throw outgoingError;
-                setOutgoingReferrals((outgoingData as ReferralReward[]) || []);
+                
+                // Map snake_case to camelCase
+                const mappedOutgoing: ReferralReward[] = (outgoingData || []).map(r => ({
+                    id: r.id,
+                    referrerId: r.referrer_id,
+                    referredUserId: r.referred_user_id,
+                    referralCode: r.referral_code,
+                    rewardGiven: r.reward_given,
+                    rewardType: r.reward_type as 'credit' | 'discount' | 'subscription-month',
+                    rewardValue: r.reward_value,
+                    createdAt: new Date(r.created_at),
+                    rewardedAt: r.rewarded_at ? new Date(r.rewarded_at) : undefined,
+                }));
+                setOutgoingReferrals(mappedOutgoing);
 
                 // Get referrals received by this user
                 const { data: incomingData, error: incomingError } = await supabase
@@ -65,7 +89,20 @@ export function useReferralSystem() {
                     .eq('referred_user_id', user.id);
 
                 if (incomingError) throw incomingError;
-                setIncomingReferrals((incomingData as ReferralReward[]) || []);
+                
+                // Map snake_case to camelCase
+                const mappedIncoming: ReferralReward[] = (incomingData || []).map(r => ({
+                    id: r.id,
+                    referrerId: r.referrer_id,
+                    referredUserId: r.referred_user_id,
+                    referralCode: r.referral_code,
+                    rewardGiven: r.reward_given,
+                    rewardType: r.reward_type as 'credit' | 'discount' | 'subscription-month',
+                    rewardValue: r.reward_value,
+                    createdAt: new Date(r.created_at),
+                    rewardedAt: r.rewarded_at ? new Date(r.rewarded_at) : undefined,
+                }));
+                setIncomingReferrals(mappedIncoming);
 
                 setError(null);
             } catch (err) {

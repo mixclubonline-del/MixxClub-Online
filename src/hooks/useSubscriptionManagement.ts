@@ -54,8 +54,8 @@ export function useSubscriptionManagement() {
                                 user_id: user.id,
                                 tier: 'free',
                                 status: 'active',
-                                current_period_start: newSub.currentPeriodStart,
-                                current_period_end: newSub.currentPeriodEnd,
+                                current_period_start: newSub.currentPeriodStart.toISOString(),
+                                current_period_end: newSub.currentPeriodEnd.toISOString(),
                                 cancel_at_period_end: false,
                                 auto_renew: true,
                             },
@@ -64,7 +64,19 @@ export function useSubscriptionManagement() {
                     if (insertError) throw insertError;
                     setCurrentSubscription(newSub);
                 } else {
-                    setCurrentSubscription(subData as UserSubscription);
+                    // Map snake_case to camelCase
+                    const mappedSub: UserSubscription = {
+                        userId: subData.user_id,
+                        tier: subData.tier as SubscriptionTier,
+                        stripeCustomerId: subData.stripe_customer_id || undefined,
+                        stripeSubscriptionId: subData.stripe_subscription_id || undefined,
+                        currentPeriodStart: new Date(subData.current_period_start),
+                        currentPeriodEnd: new Date(subData.current_period_end),
+                        status: subData.status as 'active' | 'past_due' | 'canceled' | 'trialing',
+                        cancelAtPeriodEnd: subData.cancel_at_period_end,
+                        autoRenew: subData.auto_renew,
+                    };
+                    setCurrentSubscription(mappedSub);
                 }
 
                 // Get current month usage
@@ -90,7 +102,17 @@ export function useSubscriptionManagement() {
                     };
                     setUsageMetrics(newMetrics);
                 } else {
-                    setUsageMetrics(metricsData as UsageMetrics);
+                    // Map snake_case to camelCase
+                    const mappedMetrics: UsageMetrics = {
+                        userId: metricsData.user_id,
+                        month: metricsData.month,
+                        tracksProcessed: metricsData.tracks_processed,
+                        mastersCompleted: metricsData.masters_completed,
+                        storageUsedGb: Number(metricsData.storage_used_gb),
+                        apiCallsUsed: metricsData.api_calls_used,
+                        engineerMatchesUsed: metricsData.engineer_matches_used,
+                    };
+                    setUsageMetrics(mappedMetrics);
                 }
             } catch (err) {
                 console.error('Failed to load subscription:', err);
@@ -134,22 +156,35 @@ export function useSubscriptionManagement() {
 
                 recordUsage(usageTypeMap[featureType], amount);
 
-                // Update in Supabase
+                // Update in Supabase directly with column names
                 const currentMonth = new Date().toISOString().slice(0, 7);
-                const { error: updateError } = await supabase
-                    .from('usage_metrics')
-                    .update({
-                        [usageTypeMap[featureType]]: supabase.rpc('increment_usage', {
-                            p_user_id: user.id,
-                            p_month: currentMonth,
-                            p_column: usageTypeMap[featureType],
-                            p_amount: amount,
-                        }),
-                    })
-                    .eq('user_id', user.id)
-                    .eq('month', currentMonth);
+                const columnNames: Record<typeof featureType, string> = {
+                    'track': 'tracks_processed',
+                    'master': 'masters_completed',
+                    'api-call': 'api_calls_used',
+                    'engineer-match': 'engineer_matches_used',
+                    'storage': 'storage_used_gb',
+                };
 
-                if (updateError) throw updateError;
+                const { data: current } = await supabase
+                    .from('usage_metrics')
+                    .select(columnNames[featureType])
+                    .eq('user_id', user.id)
+                    .eq('month', currentMonth)
+                    .single();
+
+                if (current) {
+                    const currentValue = current[columnNames[featureType]] || 0;
+                    const { error: updateError } = await supabase
+                        .from('usage_metrics')
+                        .update({
+                            [columnNames[featureType]]: currentValue + amount,
+                        })
+                        .eq('user_id', user.id)
+                        .eq('month', currentMonth);
+
+                    if (updateError) throw updateError;
+                }
 
                 setError(null);
                 return true;
