@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Building2, Users, FileText } from 'lucide-react';
+import { Building2, Users, FileText, CreditCard } from 'lucide-react';
 import { AccountManagementDemo } from '@/components/enterprise/AccountManagementDemo';
 import { TeamManagementDemo } from '@/components/enterprise/TeamManagementDemo';
 import { ContractManagementDemo } from '@/components/enterprise/ContractManagementDemo';
+import { PaymentLinkGenerator } from '@/components/enterprise/PaymentLinkGenerator';
 
 export default function EnterpriseDemo() {
   const [selectedAccountId, setSelectedAccountId] = useState<string>('');
@@ -20,7 +21,7 @@ export default function EnterpriseDemo() {
         </div>
 
         <Tabs defaultValue="accounts" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="accounts" className="flex items-center gap-2">
               <Building2 className="h-4 w-4" />
               Accounts
@@ -32,6 +33,10 @@ export default function EnterpriseDemo() {
             <TabsTrigger value="contracts" className="flex items-center gap-2" disabled={!selectedAccountId}>
               <FileText className="h-4 w-4" />
               Contracts
+            </TabsTrigger>
+            <TabsTrigger value="payments" className="flex items-center gap-2">
+              <CreditCard className="h-4 w-4" />
+              Payments
             </TabsTrigger>
           </TabsList>
 
@@ -65,6 +70,10 @@ export default function EnterpriseDemo() {
                 </CardContent>
               </Card>
             )}
+          </TabsContent>
+
+          <TabsContent value="payments">
+            <PaymentLinkGenerator accountId={selectedAccountId} />
           </TabsContent>
         </Tabs>
       </div>
