@@ -154,6 +154,7 @@ import ProjectDetail from "./pages/ProjectDetail";
 import MerchStore from "./pages/MerchStore";
 import ArtistStorefront from "./pages/ArtistStorefront";
 import ArtistMerchManager from "./pages/ArtistMerchManager";
+import MessagingTest from "./pages/MessagingTest";
 import NotFound from "./pages/NotFound";
 import MobileHome from "./pages/MobileHome";
 import MobileLanding from "./pages/MobileLanding";
@@ -253,6 +254,7 @@ const AppContent = () => {
           <Route path="/studio" element={<StudioPlaceholder />} />
           {/* Legacy studio routes - removed. Use /artist-crm?tab=studio or /engineer-crm?tab=studio */}
           <Route path="/jobs" element={<AppLayout><JobBoard /></AppLayout>} />
+          <Route path="/messaging-test" element={<MessagingTest />} />
           <Route path="/admin" element={<AdminRoute section="Admin Dashboard"><Admin /></AdminRoute>} />
           <Route path="/admin/users" element={<AdminRoute section="Users"><AdminUsers /></AdminRoute>} />
           <Route path="/admin/beat-files" element={<AdminRoute section="Beat Files"><AdminBeatFiles /></AdminRoute>} />

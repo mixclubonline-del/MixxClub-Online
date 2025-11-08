@@ -53,8 +53,12 @@ export const DirectMessaging: React.FC<DirectMessagingProps> = ({
     useEffect(() => {
         if (selectedConversation && selectedConversation.other_user?.id) {
             loadConversationMessages(selectedConversation.other_user.id);
+        }
+    }, [selectedConversation]);
 
-            // Mark messages as read
+    // Mark messages as read when viewing conversation
+    useEffect(() => {
+        if (selectedConversation && conversationMessages.length > 0) {
             const unreadMessages = conversationMessages.filter(
                 (msg) =>
                     msg.recipient_id === user?.id &&
@@ -65,7 +69,40 @@ export const DirectMessaging: React.FC<DirectMessagingProps> = ({
                 markAsRead(unreadMessages.map((msg) => msg.id));
             }
         }
-    }, [selectedConversation]);
+    }, [conversationMessages, selectedConversation]);
+
+    // Real-time message updates for current conversation
+    useEffect(() => {
+        if (!selectedConversation?.other_user?.id || !user) return;
+
+        const channel = supabase
+            .channel(`messages_${selectedConversation.other_user.id}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'direct_messages',
+                },
+                (payload) => {
+                    console.log('📨 Message change detected:', payload);
+                    const message = payload.new as any;
+                    
+                    // Only refresh if message involves this conversation
+                    if (
+                        (message.sender_id === user.id && message.recipient_id === selectedConversation.other_user?.id) ||
+                        (message.sender_id === selectedConversation.other_user?.id && message.recipient_id === user.id)
+                    ) {
+                        loadConversationMessages(selectedConversation.other_user.id);
+                    }
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [selectedConversation, user]);
 
     const loadConversationMessages = async (recipientId: string) => {
         setFetchingMessages(true);

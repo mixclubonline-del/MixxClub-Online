@@ -130,23 +130,50 @@ export const useDirectMessaging = () => {
         if (!user) return [];
 
         try {
-            const { data, error: err } = await supabase
+            // Fetch messages
+            const { data: messagesData, error: messagesError } = await supabase
                 .from('direct_messages')
-                .select(
-                    `
-          *,
-          sender:sender_id(id, display_name, avatar_url),
-          recipient:recipient_id(id, display_name, avatar_url)
-          `
-                )
+                .select('*')
                 .or(
                     `and(sender_id.eq.${user.id},recipient_id.eq.${recipientId}),and(sender_id.eq.${recipientId},recipient_id.eq.${user.id})`
                 )
                 .order('created_at', { ascending: true });
 
-            if (err) throw err;
+            if (messagesError) throw messagesError;
 
-            return data || [];
+            if (!messagesData || messagesData.length === 0) return [];
+
+            // Get unique user IDs
+            const userIds = new Set<string>();
+            messagesData.forEach((msg: any) => {
+                userIds.add(msg.sender_id);
+                userIds.add(msg.recipient_id);
+            });
+
+            // Fetch profiles for all users
+            const { data: profiles } = await supabase
+                .from('profiles')
+                .select('id, full_name, avatar_url')
+                .in('id', Array.from(userIds));
+
+            const profileMap = new Map(
+                profiles?.map(p => [p.id, { ...p, display_name: p.full_name }]) || []
+            );
+
+            // Map messages with profile data
+            const messages = messagesData.map((msg: any) => ({
+                ...msg,
+                sender: profileMap.get(msg.sender_id) || {
+                    id: msg.sender_id,
+                    display_name: 'Unknown',
+                },
+                recipient: profileMap.get(msg.recipient_id) || {
+                    id: msg.recipient_id,
+                    display_name: 'Unknown',
+                },
+            }));
+
+            return messages;
         } catch (err) {
             const errorMessage =
                 err instanceof Error ? err.message : 'Failed to fetch messages';
@@ -229,25 +256,41 @@ export const useDirectMessaging = () => {
         fetchConversations();
 
         // Subscribe to new messages
-        const subscription = supabase
-            .channel('direct_messages')
+        const channel = supabase
+            .channel('direct_messages_realtime')
             .on(
                 'postgres_changes',
                 {
                     event: 'INSERT',
                     schema: 'public',
                     table: 'direct_messages',
-                    filter: `or(sender_id.eq.${user.id},recipient_id.eq.${user.id})`,
                 },
                 (payload) => {
+                    console.log('📨 New message received:', payload);
                     // Refresh conversations on new message
                     fetchConversations();
                 }
             )
-            .subscribe();
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'direct_messages',
+                },
+                (payload) => {
+                    console.log('✓ Message updated (read status):', payload);
+                    // Refresh conversations when messages are marked as read
+                    fetchConversations();
+                }
+            )
+            .subscribe((status) => {
+                console.log('🔌 Real-time subscription status:', status);
+            });
 
         return () => {
-            subscription.unsubscribe();
+            console.log('🔌 Unsubscribing from real-time updates');
+            supabase.removeChannel(channel);
         };
     }, [user]);
 
