@@ -103,6 +103,7 @@ const AdminFinancial = React.lazy(() => import('./pages/AdminFinancial'));
 const AdminAnalytics = React.lazy(() => import('./pages/AdminAnalytics'));
 const AdminContent = React.lazy(() => import('./pages/AdminContent'));
 const AdminTestPayments = React.lazy(() => import('./pages/AdminTestPayments'));
+const AdminStripeSync = React.lazy(() => import('./pages/AdminStripeSync'));
 const AdminBeatFiles = React.lazy(() => import('./pages/AdminBeatFiles'));
 const AdminContacts = React.lazy(() => import('./pages/AdminContacts'));
 const AdminJobs = React.lazy(() => import('./pages/AdminJobs'));
@@ -275,6 +276,7 @@ const AppContent = () => {
           <Route path="/admin/media" element={<AdminRoute section="Media"><AdminMedia /></AdminRoute>} />
           <Route path="/admin/payouts" element={<AdminRoute section="Payouts"><AdminPayouts /></AdminRoute>} />
           <Route path="/admin/test-payments" element={<AdminRoute section="Test Payments"><AdminTestPayments /></AdminRoute>} />
+          <Route path="/admin/stripe-sync" element={<AdminRoute section="Stripe Sync"><AdminStripeSync /></AdminRoute>} />
           <Route path="/admin/legal-documents" element={<AdminRoute section="Legal Documents"><AdminLegalDocuments /></AdminRoute>} />
           <Route path="/admin/system-presentation" element={<AdminRoute section="System Presentation"><AdminSystemPresentation /></AdminRoute>} />
           <Route path="/admin/launch-presentation" element={<AdminRoute section="Launch Presentation"><AdminLaunchPresentation /></AdminRoute>} />
