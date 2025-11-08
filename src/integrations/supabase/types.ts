@@ -2152,6 +2152,44 @@ export type Database = {
         }
         Relationships: []
       }
+      contract_expiration_notifications: {
+        Row: {
+          contract_id: string
+          created_at: string
+          days_threshold: number
+          id: string
+          notification_type: string
+          recipient_email: string
+          sent_at: string
+        }
+        Insert: {
+          contract_id: string
+          created_at?: string
+          days_threshold: number
+          id?: string
+          notification_type?: string
+          recipient_email: string
+          sent_at?: string
+        }
+        Update: {
+          contract_id?: string
+          created_at?: string
+          days_threshold?: number
+          id?: string
+          notification_type?: string
+          recipient_email?: string
+          sent_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_expiration_notifications_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "enterprise_contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       course_lessons: {
         Row: {
           content_data: Json | null

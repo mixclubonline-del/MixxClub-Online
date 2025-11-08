@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Building2, Users, FileText, CreditCard } from 'lucide-react';
+import { Building2, Users, FileText, CreditCard, Bell } from 'lucide-react';
 import { AccountManagementDemo } from '@/components/enterprise/AccountManagementDemo';
 import { TeamManagementDemo } from '@/components/enterprise/TeamManagementDemo';
 import { ContractManagementDemo } from '@/components/enterprise/ContractManagementDemo';
 import { PaymentLinkGenerator } from '@/components/enterprise/PaymentLinkGenerator';
+import { ContractExpirationAlerts } from '@/components/enterprise/ContractExpirationAlerts';
 
 export default function EnterpriseDemo() {
   const [selectedAccountId, setSelectedAccountId] = useState<string>('');
@@ -21,7 +22,7 @@ export default function EnterpriseDemo() {
         </div>
 
         <Tabs defaultValue="accounts" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="accounts" className="flex items-center gap-2">
               <Building2 className="h-4 w-4" />
               Accounts
@@ -37,6 +38,10 @@ export default function EnterpriseDemo() {
             <TabsTrigger value="payments" className="flex items-center gap-2">
               <CreditCard className="h-4 w-4" />
               Payments
+            </TabsTrigger>
+            <TabsTrigger value="alerts" className="flex items-center gap-2">
+              <Bell className="h-4 w-4" />
+              Alerts
             </TabsTrigger>
           </TabsList>
 
@@ -74,6 +79,10 @@ export default function EnterpriseDemo() {
 
           <TabsContent value="payments">
             <PaymentLinkGenerator accountId={selectedAccountId} />
+          </TabsContent>
+
+          <TabsContent value="alerts">
+            <ContractExpirationAlerts />
           </TabsContent>
         </Tabs>
       </div>

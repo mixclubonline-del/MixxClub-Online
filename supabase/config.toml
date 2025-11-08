@@ -192,3 +192,9 @@ verify_jwt = false
 
 [functions.create-enterprise-payment-link]
 verify_jwt = true
+
+[functions.check-contract-expiration]
+verify_jwt = false
+
+[functions.trigger-contract-check]
+verify_jwt = false
