@@ -25,7 +25,6 @@ import ProfileEditor from '@/components/crm/ProfileEditor';
 import ProfileInsights from '@/components/crm/ProfileInsights';
 import SessionManager from '@/components/collaboration/SessionManager';
 import CollaborationWorkspace from '@/components/collaboration/CollaborationWorkspace';
-import { RealTimeCollaboration } from '@/components/RealTimeCollaboration';
 import HybridDAW from '@/pages/HybridDAW';
 import { ArtistCRMChatbot } from '@/components/crm/ArtistCRMChatbot';
 import { ArtistCRMSlideshow } from '@/components/crm/ArtistCRMSlideshow';
@@ -286,12 +285,6 @@ const ArtistCRM = () => {
 
   const quickActions = [
     {
-      label: 'Open Studio',
-      icon: <Headphones className="w-4 h-4" />,
-      onClick: () => navigate('/artist-crm?tab=studio'),
-      variant: 'default' as const,
-    },
-    {
       label: 'New Project',
       icon: <Plus className="w-4 h-4" />,
       onClick: () => navigate('/artist-crm?tab=active-work'),
@@ -317,28 +310,15 @@ const ArtistCRM = () => {
         return (
           <ActiveWorkHub
             userRole="client"
-            onStartSession={() => {
-              navigate('/artist-crm?tab=studio');
-              setTimeout(() => {
-                const createBtn = document.querySelector('[data-create-session]');
-                if (createBtn instanceof HTMLElement) createBtn.click();
-              }, 100);
-            }}
-            onUploadStems={() => navigate('/artist-crm?tab=studio')}
-            onJoinSession={() => navigate('/artist-crm?tab=studio')}
+            onStartSession={() => navigate('/collaborate/new')}
+            onUploadStems={() => navigate('/artist-crm?tab=active-work')}
+            onJoinSession={() => navigate('/collaborate/join')}
             onReviewApprove={() => navigate('/artist-crm?tab=profile')}
           />
         );
 
       case 'opportunities':
         return <OpportunitiesHub userRole="client" />;
-
-      case 'studio':
-        return (
-          <div className="h-[calc(100vh-4rem)]">
-            <HybridDAW />
-          </div>
-        );
 
       case 'business':
         return (
@@ -437,7 +417,6 @@ const ArtistCRM = () => {
         profile={profile}
         stats={stats}
         quickActions={quickActions}
-        isStudioMode={currentTab === 'studio'}
       >
         {renderContent()}
       </CRMLayout>

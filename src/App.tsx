@@ -32,8 +32,6 @@ const Admin = React.lazy(() => import("./pages/Admin"));
 const AIMastering = React.lazy(() => import("./pages/AIMastering"));
 const HybridDAW = React.lazy(() => import("./pages/HybridDAW"));
 const CollaborativeWorkspace = React.lazy(() => import("./pages/CollaborativeWorkspace"));
-const HapticStudio = React.lazy(() => import("./pages/HapticStudio"));
-const AIStudio = React.lazy(() => import("./pages/AIStudio"));
 const Premieres = React.lazy(() => import("./pages/Premieres"));
 
 // Keep critical routes non-lazy
@@ -53,7 +51,7 @@ import HybridOnboarding from "./pages/HybridOnboarding";
 import Dashboard from "./pages/Dashboard";
 import ArtistDashboard from "./pages/ArtistDashboard";
 import EngineerDashboard from "./pages/EngineerDashboard";
-import { SessionManager } from "./components/studio/SessionManager";
+
 import SessionWorkspace from "./pages/SessionWorkspace";
 import { SessionWorkspacePage } from "./pages/SessionWorkspacePage";
 import Mixing from "./pages/Mixing";
@@ -61,9 +59,9 @@ import Mastering from "./pages/Mastering";
 import MixingShowcase from "./pages/MixingShowcase";
 import MasteringShowcase from "./pages/MasteringShowcase";
 import Services from "./pages/Services";
-import StudioPlaceholder from "./pages/StudioPlaceholder";
+
 import BattleTournaments from "./pages/BattleTournaments";
-import StudioDirectory from "./pages/StudioDirectory";
+
 import MyCertifications from "./pages/MyCertifications";
 import Marketplace from "./pages/Marketplace";
 import LabelServices from "./pages/LabelServices";
@@ -202,7 +200,7 @@ const AppContent = () => {
           <Route path="/network" element={<Navigate to="/" replace />} />
           <Route path="/artist" element={<Artist />} />
           <Route path="/engineer" element={<Engineer />} />
-          <Route path="/ai-studio" element={<AdminRoute section="AI Studio"><AIStudio /></AdminRoute>} />
+          
           <Route path="/premieres" element={<Premieres />} />
           {/* Unified Community Hub */}
           <Route path="/community" element={<Community />} />
@@ -225,11 +223,7 @@ const AppContent = () => {
           <Route path="/engineer-dashboard" element={<Navigate to="/engineer-crm" replace />} />
           <Route path="/artist-crm" element={<AppLayout><ArtistCRM /></AppLayout>} />
           <Route path="/engineer-crm" element={<AppLayout><EngineerCRM /></AppLayout>} />
-          <Route path="/artist-studio" element={<Navigate to="/artist-crm?tab=studio" replace />} />
-          <Route path="/engineer-studio" element={<Navigate to="/artist-crm?tab=studio" replace />} />
           <Route path="/hybrid-daw" element={<HybridDAW />} />
-          <Route path="/studio/create-session" element={<AppLayout><SessionManager /></AppLayout>} />
-          <Route path="/studio/join-session" element={<AppLayout><SessionManager /></AppLayout>} />
           <Route path="/session/:sessionId" element={<AppLayout><SessionWorkspacePage /></AppLayout>} />
           <Route path="/collaborate/:sessionId" element={<CollaborativeWorkspace />} />
           {/* Services Hub */}
@@ -248,12 +242,6 @@ const AppContent = () => {
           <Route path="/mastering" element={<Navigate to="/services/mastering" replace />} />
           <Route path="/ai-mastering" element={<Navigate to="/services/ai-mastering" replace />} />
           <Route path="/distribution" element={<Navigate to="/services/distribution" replace />} />
-          <Route path="/mixing-studio" element={<Mixing />} />
-          <Route path="/mastering-studio" element={<Mastering />} />
-
-          {/* Studio Placeholder */}
-          <Route path="/studio" element={<StudioPlaceholder />} />
-          {/* Legacy studio routes - removed. Use /artist-crm?tab=studio or /engineer-crm?tab=studio */}
           <Route path="/jobs" element={<AppLayout><JobBoard /></AppLayout>} />
           <Route path="/messaging-test" element={<MessagingTest />} />
           <Route path="/admin" element={<AdminRoute section="Admin Dashboard"><Admin /></AdminRoute>} />
@@ -290,7 +278,7 @@ const AppContent = () => {
           <Route path="/engineers" element={<EngineerDirectory />} />
           <Route path="/engineer/:userId" element={<EngineerProfile />} />
           <Route path="/audio-lab" element={<AudioLab />} />
-          <Route path="/haptic-studio" element={<HapticStudio />} />
+          
           <Route path="/project/:projectId" element={<AppLayout><ProjectDetail /></AppLayout>} />
           <Route path="/coming-soon" element={<ComingSoon />} />
           <Route path="/faq" element={<FAQ />} />
@@ -345,7 +333,7 @@ const AppContent = () => {
 
           {/* Tier 1 Features */}
           <Route path="/battle-tournaments" element={<BattleTournaments />} />
-          <Route path="/studio-directory" element={<StudioDirectory />} />
+          
 
           {/* Tier 2 Features */}
           <Route path="/my-certifications" element={<MyCertifications />} />

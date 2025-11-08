@@ -29,10 +29,9 @@ interface CRMLayoutProps {
     onClick: () => void;
     variant?: 'default' | 'outline';
   }>;
-  isStudioMode?: boolean;
 }
 
-export const CRMLayout = ({ children, userType, profile, stats, quickActions, isStudioMode = false }: CRMLayoutProps) => {
+export const CRMLayout = ({ children, userType, profile, stats, quickActions }: CRMLayoutProps) => {
   const isMobile = useIsMobile();
   const { insights, isLoading: insightsLoading } = useAIDashboardInsights();
 
@@ -122,7 +121,7 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions, is
   if (isMobile) {
     return (
       <>
-        {!isStudioMode && <RoleSwitcher />}
+        <RoleSwitcher />
         <div className="min-h-screen relative">
           {/* Multi-layer glass depth background */}
           <div className="fixed inset-0 -z-10 bg-gradient-to-br from-midnight via-midnight-light to-ember/10" />
@@ -139,13 +138,12 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions, is
               backgroundSize: '50px 50px'
             }}
           />
-          {!isStudioMode && <Navigation />}
+          <Navigation />
 
-          <div className={isStudioMode ? "" : "pt-20 pb-20 px-4 md:px-6"}>
-            {!isStudioMode && (
-              <>
-                {/* Mobile Header with Gamification */}
-                <div className="mb-6 animate-fade-in">
+          <div className="pt-20 pb-20 px-4 md:px-6">
+            <>
+              {/* Mobile Header with Gamification */}
+              <div className="mb-6 animate-fade-in">
                   <div className="flex items-center gap-3 mb-2">
                     <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary via-primary-glow to-accent bg-clip-text text-transparent">
                       {userType === 'engineer' ? 'Pro Studio' : 'Your Studio'}
@@ -232,11 +230,10 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions, is
                   </div>
                 </Card>
               </>
-            )}
 
             {/* Main Content with Resizable AI Copilot */}
-            <div className={isStudioMode ? "" : "animate-in fade-in duration-1000"}>
-              <ResizableAICopilot insights={insights} isLoading={insightsLoading} defaultOpen={!isStudioMode}>
+            <div className="animate-in fade-in duration-1000">
+              <ResizableAICopilot insights={insights} isLoading={insightsLoading} defaultOpen={true}>
                 {children}
               </ResizableAICopilot>
             </div>
@@ -249,7 +246,7 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions, is
   // Desktop layout - full width
   return (
     <>
-      {!isStudioMode && <RoleSwitcher />}
+      <RoleSwitcher />
       <div className="min-h-screen relative">
         {/* Multi-layer glass depth background */}
         <div className="fixed inset-0 -z-10 bg-gradient-to-br from-midnight via-midnight-light to-ember/10" />
@@ -266,13 +263,12 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions, is
             backgroundSize: '50px 50px'
           }}
         />
-        {!isStudioMode && <Navigation />}
+        <Navigation />
 
-        <div className={isStudioMode ? "" : "pt-20 px-4 md:px-6 max-w-[1800px] mx-auto"}>
-          {!isStudioMode && (
-            <>
-              {/* Header with Quick Actions */}
-              <div className="mb-3 animate-fade-in">
+        <div className="pt-20 px-4 md:px-6 max-w-[1800px] mx-auto">
+          <>
+            {/* Header with Quick Actions */}
+            <div className="mb-3 animate-fade-in">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
                     <Sparkles className="w-6 h-6 text-primary animate-pulse-glow" />
@@ -315,11 +311,10 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions, is
                 </div>
               </div>
             </>
-          )}
 
           {/* Main Content with Resizable AI Copilot */}
-          <div className={isStudioMode ? "" : "animate-in fade-in duration-700"}>
-            <ResizableAICopilot insights={insights} isLoading={insightsLoading} defaultOpen={!isStudioMode}>
+          <div className="animate-in fade-in duration-700">
+            <ResizableAICopilot insights={insights} isLoading={insightsLoading} defaultOpen={true}>
               {children}
             </ResizableAICopilot>
           </div>

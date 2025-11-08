@@ -329,12 +329,6 @@ const EngineerCRM = () => {
 
   const quickActions = [
     {
-      label: 'Open Studio',
-      icon: <Headphones className="w-4 h-4" />,
-      onClick: () => navigate('/artist-crm?tab=studio'),
-      variant: 'default' as const,
-    },
-    {
       label: 'Find New Projects',
       icon: <Music className="w-4 h-4" />,
       onClick: () => navigate('/engineer-crm?tab=opportunities'),
@@ -365,25 +359,15 @@ const EngineerCRM = () => {
         return (
           <ActiveWorkHub
             userRole="engineer"
-            onStartSession={() => {
-              navigate('/artist-crm?tab=studio');
-              setTimeout(() => {
-                const createBtn = document.querySelector('[data-create-session]');
-                if (createBtn instanceof HTMLElement) createBtn.click();
-              }, 100);
-            }}
-            onUploadStems={() => navigate('/artist-crm?tab=studio')}
-            onJoinSession={() => navigate('/artist-crm?tab=studio')}
+            onStartSession={() => navigate('/collaborate/new')}
+            onUploadStems={() => navigate('/engineer-crm?tab=active-work')}
+            onJoinSession={() => navigate('/collaborate/join')}
             onReviewApprove={() => navigate('/engineer-crm?tab=profile')}
           />
         );
 
       case 'opportunities':
         return <OpportunitiesHub userRole="engineer" />;
-
-      case 'studio':
-        navigate('/artist-crm?tab=studio');
-        return null;
 
       case 'business':
         return (
@@ -475,7 +459,6 @@ const EngineerCRM = () => {
         profile={profile}
         stats={stats}
         quickActions={quickActions}
-        isStudioMode={currentTab === 'studio'}
       >
         {renderContent()}
       </CRMLayout>

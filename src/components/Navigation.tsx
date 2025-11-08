@@ -123,7 +123,6 @@ const Navigation = () => {
       },
       { to: "/for-artists", label: "For Artists" },
       { to: "/enterprise/dashboard", label: "Enterprise Portal" },
-      ...(isFeatureEnabled('THE_LAB_ENABLED') ? [{ to: "/artist-crm?tab=studio", label: "Studio" }] : []),
     ];
   };
 
