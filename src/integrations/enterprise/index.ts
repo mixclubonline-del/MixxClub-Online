@@ -39,12 +39,17 @@ export type {
 // ============================================================================
 
 export { EnterpriseService } from '@/services/EnterpriseService';
+export { TeamManagementService } from '@/services/TeamManagementService';
+export { ContractManagementService } from '@/services/ContractManagementService';
+export { AnalyticsService } from '@/services/AnalyticsService';
 
 // ============================================================================
 // HOOK EXPORTS
 // ============================================================================
 
 export { useEnterpriseManagement } from '@/hooks/useEnterpriseManagement';
+export { useTeamManagement } from '@/hooks/useTeamManagement';
+export { useContractManagement } from '@/hooks/useContractManagement';
 
 // ============================================================================
 // PRESET PACKAGES

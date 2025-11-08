@@ -189,3 +189,6 @@ verify_jwt = true
 
 [functions.calculate-trending]
 verify_jwt = false
+
+[functions.create-enterprise-payment-link]
+verify_jwt = true
