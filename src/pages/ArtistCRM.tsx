@@ -36,13 +36,18 @@ import { ActiveWorkHub } from '@/components/crm/ActiveWorkHub';
 import { DashboardHub } from '@/components/crm/DashboardHub';
 import { OpportunitiesHub } from '@/components/crm/OpportunitiesHub';
 import { YourMatches } from '@/components/crm/YourMatches';
+import { RevenueHub } from '@/components/crm/RevenueHub';
+import { CommunityHub } from '@/components/crm/CommunityHub';
+import { GrowthHub } from '@/components/crm/GrowthHub';
+import { DirectMessaging } from '@/components/crm/DirectMessaging';
+import { CollaborativeEarnings } from '@/components/crm/CollaborativeEarnings';
 
 const ArtistCRM = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const currentTab = searchParams.get('tab') || 'dashboard';
-  
+
   const [profile, setProfile] = useState<any>(null);
   const [projects, setProjects] = useState<any[]>([]);
   const [achievements, setAchievements] = useState<any[]>([]);
@@ -52,14 +57,14 @@ const ArtistCRM = () => {
   const [showAssistantIntro, setShowAssistantIntro] = useState(false);
   const [showSlideshow, setShowSlideshow] = useState(false);
   const [checkingSlideshow, setCheckingSlideshow] = useState(true);
-  
-  const { 
-    mixingAccess, 
-    masteringAccess, 
-    collaborationAccess, 
+
+  const {
+    mixingAccess,
+    masteringAccess,
+    collaborationAccess,
     mixingSubscription,
     masteringSubscription,
-    loading: servicesLoading 
+    loading: servicesLoading
   } = useServiceAccess();
 
   useEffect(() => {
@@ -70,8 +75,8 @@ const ArtistCRM = () => {
       }
 
       // Check if user is admin - admins should use admin panel
-      const { data: isAdmin } = await supabase.rpc('is_admin', { 
-        user_uuid: user.id 
+      const { data: isAdmin } = await supabase.rpc('is_admin', {
+        user_uuid: user.id
       });
 
       if (isAdmin) {
@@ -112,7 +117,7 @@ const ArtistCRM = () => {
           }
         }
       }
-      
+
       setCheckingSlideshow(false);
       fetchData();
     };
@@ -233,7 +238,7 @@ const ArtistCRM = () => {
   // Show slideshow first, then assistant intro
   if (showSlideshow) {
     return (
-      <ArtistCRMSlideshow 
+      <ArtistCRMSlideshow
         onComplete={handleSlideshowComplete}
         onSkip={handleSlideshowSkip}
       />
@@ -243,7 +248,7 @@ const ArtistCRM = () => {
   // Show assistant intro after slideshow
   if (showAssistantIntro) {
     return (
-      <ArtistAssistantIntro 
+      <ArtistAssistantIntro
         open={showAssistantIntro}
         onClose={handleAssistantIntroClose}
         onNavigate={handleAssistantNavigate}
@@ -307,11 +312,11 @@ const ArtistCRM = () => {
     switch (currentTab) {
       case 'matches':
         return <YourMatches />;
-        
+
       case 'active-work':
         return (
-          <ActiveWorkHub 
-            userRole="client" 
+          <ActiveWorkHub
+            userRole="client"
             onStartSession={() => {
               navigate('/artist-crm?tab=studio');
               setTimeout(() => {
@@ -343,7 +348,7 @@ const ArtistCRM = () => {
               <p className="text-muted-foreground">Upgrade your studio capabilities</p>
             </div>
             <PackagesShop />
-            
+
             {masteringAccess ? (
               <div className="mt-8">
                 <h3 className="text-xl font-bold mb-4">AI Mastering Studio</h3>
@@ -351,7 +356,7 @@ const ArtistCRM = () => {
               </div>
             ) : (
               <div className="mt-8">
-                <LockedServiceTab 
+                <LockedServiceTab
                   serviceName="AI Mastering"
                   serviceType="mastering"
                   description="Upgrade to access AI-powered mastering"
@@ -404,6 +409,21 @@ const ArtistCRM = () => {
             </div>
           </div>
         );
+
+      case 'revenue':
+        return <RevenueHub userType="artist" userId={user?.id} />;
+
+      case 'community':
+        return <CommunityHub userType="artist" />;
+
+      case 'growth':
+        return <GrowthHub userType="artist" />;
+
+      case 'messages':
+        return <DirectMessaging userType="artist" />;
+
+      case 'earnings':
+        return <CollaborativeEarnings userType="artist" />;
 
       default:
         return <DashboardHub />;

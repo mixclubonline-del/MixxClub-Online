@@ -85,6 +85,11 @@ import Pricing from "./pages/Pricing";
 import Contact from "./pages/Contact";
 import About from "./pages/About";
 import ForArtists from "./pages/ForArtists";
+
+// Enterprise System - System #11
+const Enterprise = React.lazy(() => import("./pages/Enterprise"));
+const EnterpriseDashboard = React.lazy(() => import("./pages/EnterpriseDashboard"));
+
 // Lazy load all admin pages for better performance
 const AdminUsers = React.lazy(() => import("./pages/AdminUsers"));
 const AdminAudio = React.lazy(() => import('./pages/AdminAudio'));
@@ -166,12 +171,12 @@ import { CookieConsent } from "@/components/legal/CookieConsent";
 // Desktop-only components wrapper
 const DesktopOnlyComponents = () => {
   const { deviceType } = useMobileDetect();
-  
+
   // Only render on desktop
   if (deviceType !== 'desktop') {
     return null;
   }
-  
+
   return (
     <>
       <PersistentChatbot />
@@ -190,115 +195,119 @@ const AppContent = () => {
       <OfflineIndicator />
       <React.Suspense fallback={<DashboardSkeleton />}>
         <Routes>
-        <Route path="/" element={<MixClubHome />} />
-        <Route path="/mixclub" element={<MixClubHome />} />
-            <Route path="/install" element={<Install />} />
-            <Route path="/network" element={<Navigate to="/" replace />} />
-            <Route path="/artist" element={<Artist />} />
-            <Route path="/engineer" element={<Engineer />} />
-            <Route path="/ai-studio" element={<AdminRoute section="AI Studio"><AIStudio /></AdminRoute>} />
-            <Route path="/premieres" element={<Premieres />} />
-            {/* Unified Community Hub */}
-            <Route path="/community" element={<Community />} />
-            
-            {/* Legacy redirects to Community Hub */}
-            <Route path="/pulse" element={<Navigate to="/community?tab=feed" replace />} />
-            <Route path="/arena" element={<Navigate to="/community?tab=arena" replace />} />
-            <Route path="/crowd" element={<Navigate to="/community?tab=crowd" replace />} />
-            <Route path="/feed" element={<Navigate to="/community?tab=feed" replace />} />
-            <Route path="/mix-battles" element={<Navigate to="/community?tab=arena" replace />} />
-            <Route path="/leaderboard" element={<CommunityLeaderboard />} />
-            <Route path="/how-it-works" element={<HowItWorks />} />
-            <Route path="/auth" element={<Auth />} />
-        <Route path="/auth/callback" element={<AuthCallback />} />
-        <Route path="/onboarding/artist" element={<ArtistOnboarding />} />
-        <Route path="/onboarding/engineer" element={<EngineerOnboarding />} />
-        <Route path="/onboarding/hybrid" element={<HybridOnboarding />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/artist-dashboard" element={<Navigate to="/artist-crm" replace />} />
-            <Route path="/engineer-dashboard" element={<Navigate to="/engineer-crm" replace />} />
-        <Route path="/artist-crm" element={<AppLayout><ArtistCRM /></AppLayout>} />
-        <Route path="/engineer-crm" element={<AppLayout><EngineerCRM /></AppLayout>} />
-        <Route path="/artist-studio" element={<Navigate to="/artist-crm?tab=studio" replace />} />
-        <Route path="/engineer-studio" element={<Navigate to="/artist-crm?tab=studio" replace />} />
-        <Route path="/hybrid-daw" element={<HybridDAW />} />
-        <Route path="/studio/create-session" element={<AppLayout><SessionManager /></AppLayout>} />
-        <Route path="/studio/join-session" element={<AppLayout><SessionManager /></AppLayout>} />
-        <Route path="/session/:sessionId" element={<AppLayout><SessionWorkspacePage /></AppLayout>} />
-            {/* Services Hub */}
-            <Route path="/services" element={<Services />} />
-            <Route path="/services/mixing" element={<MixingShowcase />} />
-            <Route path="/services/mastering" element={<MasteringShowcase />} />
-            <Route path="/services/ai-mastering" element={<AIMastering />} />
-            <Route path="/services/distribution" element={<DistributionHub />} />
-            
-            {/* Legacy service redirects */}
-            <Route path="/mixing" element={<Navigate to="/services/mixing" replace />} />
-            <Route path="/mastering" element={<Navigate to="/services/mastering" replace />} />
-            <Route path="/ai-mastering" element={<Navigate to="/services/ai-mastering" replace />} />
-            <Route path="/distribution" element={<Navigate to="/services/distribution" replace />} />
-            <Route path="/mixing-studio" element={<Mixing />} />
-            <Route path="/mastering-studio" element={<Mastering />} />
-            
-            {/* Studio Placeholder */}
-            <Route path="/studio" element={<StudioPlaceholder />} />
-            {/* Legacy studio routes - removed. Use /artist-crm?tab=studio or /engineer-crm?tab=studio */}
-            <Route path="/jobs" element={<AppLayout><JobBoard /></AppLayout>} />
-            <Route path="/admin" element={<AdminRoute section="Admin Dashboard"><Admin /></AdminRoute>} />
-            <Route path="/admin/users" element={<AdminRoute section="Users"><AdminUsers /></AdminRoute>} />
-            <Route path="/admin/beat-files" element={<AdminRoute section="Beat Files"><AdminBeatFiles /></AdminRoute>} />
-            <Route path="/admin/contacts" element={<AdminRoute section="Contacts"><AdminContacts /></AdminRoute>} />
-            <Route path="/admin/jobs" element={<AdminRoute section="Jobs"><AdminJobs /></AdminRoute>} />
-            <Route path="/admin/notifications" element={<AdminRoute section="Notifications"><AdminNotifications /></AdminRoute>} />
-            <Route path="/admin/sessions" element={<AdminRoute section="Sessions"><AdminSessions /></AdminRoute>} />
-            <Route path="/admin/security" element={<AdminRoute section="Security"><AdminSecurity /></AdminRoute>} />
-            <Route path="/admin/achievements" element={<AdminRoute section="Achievements"><AdminAchievements /></AdminRoute>} />
-            <Route path="/admin/packages" element={<AdminRoute section="Packages"><AdminPackages /></AdminRoute>} />
-            <Route path="/admin/features" element={<AdminRoute section="Features"><AdminFeatures /></AdminRoute>} />
-            <Route path="/admin/education" element={<AdminRoute section="Education"><AdminEducation /></AdminRoute>} />
-            <Route path="/admin/marketplace" element={<AdminRoute section="Marketplace"><AdminMarketplace /></AdminRoute>} />
-            <Route path="/admin/integrations" element={<AdminRoute section="Integrations"><AdminIntegrations /></AdminRoute>} />
-            <Route path="/admin/milestones" element={<AdminRoute section="Milestones"><AdminMilestones /></AdminRoute>} />
-            <Route path="/admin/financial" element={<AdminRoute section="Financial"><AdminFinancial /></AdminRoute>} />
-            <Route path="/admin/analytics" element={<AdminRoute section="Analytics"><AdminAnalytics /></AdminRoute>} />
-            <Route path="/admin/content" element={<AdminRoute section="Content"><AdminContent /></AdminRoute>} />
-            <Route path="/admin/audio" element={<AdminRoute section="Audio"><AdminAudio /></AdminRoute>} />
-            <Route path="/admin/media" element={<AdminRoute section="Media"><AdminMedia /></AdminRoute>} />
-            <Route path="/admin/payouts" element={<AdminRoute section="Payouts"><AdminPayouts /></AdminRoute>} />
-            <Route path="/admin/test-payments" element={<AdminRoute section="Test Payments"><AdminTestPayments /></AdminRoute>} />
-            <Route path="/admin/legal-documents" element={<AdminRoute section="Legal Documents"><AdminLegalDocuments /></AdminRoute>} />
-            <Route path="/admin/system-presentation" element={<AdminRoute section="System Presentation"><AdminSystemPresentation /></AdminRoute>} />
-            <Route path="/admin/launch-presentation" element={<AdminRoute section="Launch Presentation"><AdminLaunchPresentation /></AdminRoute>} />
-            <Route path="/admin/launch-dashboard" element={<AdminRoute section="Launch Dashboard"><AdminLaunchDashboard /></AdminRoute>} />
-            <Route path="/admin/launch-readiness" element={<AdminRoute section="Launch Readiness"><AdminLaunchReadiness /></AdminRoute>} />
-            <Route path="/presentation/share/:token" element={<PresentationShare />} />
-            <Route path="/for-artists" element={<ForArtists />} />
-            <Route path="/for-engineers" element={<ForEngineers />} />
-            <Route path="/engineers" element={<EngineerDirectory />} />
-            <Route path="/engineer/:userId" element={<EngineerProfile />} />
-            <Route path="/audio-lab" element={<AudioLab />} />
-            <Route path="/haptic-studio" element={<HapticStudio />} />
-            <Route path="/project/:projectId" element={<AppLayout><ProjectDetail /></AppLayout>} />
-            <Route path="/coming-soon" element={<ComingSoon />} />
-            <Route path="/faq" element={<FAQ />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/settings" element={<AppLayout><Settings /></AppLayout>} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/order-success/:paymentId" element={<OrderSuccess />} />
-            <Route path="/pricing" element={<Pricing />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/about" element={<About />} />
-            
-            {/* Mobile Routes */}
+          <Route path="/" element={<MixClubHome />} />
+          <Route path="/mixclub" element={<MixClubHome />} />
+          <Route path="/install" element={<Install />} />
+          <Route path="/network" element={<Navigate to="/" replace />} />
+          <Route path="/artist" element={<Artist />} />
+          <Route path="/engineer" element={<Engineer />} />
+          <Route path="/ai-studio" element={<AdminRoute section="AI Studio"><AIStudio /></AdminRoute>} />
+          <Route path="/premieres" element={<Premieres />} />
+          {/* Unified Community Hub */}
+          <Route path="/community" element={<Community />} />
+
+          {/* Legacy redirects to Community Hub */}
+          <Route path="/pulse" element={<Navigate to="/community?tab=feed" replace />} />
+          <Route path="/arena" element={<Navigate to="/community?tab=arena" replace />} />
+          <Route path="/crowd" element={<Navigate to="/community?tab=crowd" replace />} />
+          <Route path="/feed" element={<Navigate to="/community?tab=feed" replace />} />
+          <Route path="/mix-battles" element={<Navigate to="/community?tab=arena" replace />} />
+          <Route path="/leaderboard" element={<CommunityLeaderboard />} />
+          <Route path="/how-it-works" element={<HowItWorks />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/onboarding/artist" element={<ArtistOnboarding />} />
+          <Route path="/onboarding/engineer" element={<EngineerOnboarding />} />
+          <Route path="/onboarding/hybrid" element={<HybridOnboarding />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/artist-dashboard" element={<Navigate to="/artist-crm" replace />} />
+          <Route path="/engineer-dashboard" element={<Navigate to="/engineer-crm" replace />} />
+          <Route path="/artist-crm" element={<AppLayout><ArtistCRM /></AppLayout>} />
+          <Route path="/engineer-crm" element={<AppLayout><EngineerCRM /></AppLayout>} />
+          <Route path="/artist-studio" element={<Navigate to="/artist-crm?tab=studio" replace />} />
+          <Route path="/engineer-studio" element={<Navigate to="/artist-crm?tab=studio" replace />} />
+          <Route path="/hybrid-daw" element={<HybridDAW />} />
+          <Route path="/studio/create-session" element={<AppLayout><SessionManager /></AppLayout>} />
+          <Route path="/studio/join-session" element={<AppLayout><SessionManager /></AppLayout>} />
+          <Route path="/session/:sessionId" element={<AppLayout><SessionWorkspacePage /></AppLayout>} />
+          {/* Services Hub */}
+          <Route path="/services" element={<Services />} />
+          <Route path="/services/mixing" element={<MixingShowcase />} />
+          <Route path="/services/mastering" element={<MasteringShowcase />} />
+          <Route path="/services/ai-mastering" element={<AIMastering />} />
+          <Route path="/services/distribution" element={<DistributionHub />} />
+
+          {/* Enterprise Solutions - System #11 */}
+          <Route path="/enterprise" element={<Enterprise />} />
+          <Route path="/enterprise/dashboard" element={<AppLayout><EnterpriseDashboard /></AppLayout>} />
+
+          {/* Legacy service redirects */}
+          <Route path="/mixing" element={<Navigate to="/services/mixing" replace />} />
+          <Route path="/mastering" element={<Navigate to="/services/mastering" replace />} />
+          <Route path="/ai-mastering" element={<Navigate to="/services/ai-mastering" replace />} />
+          <Route path="/distribution" element={<Navigate to="/services/distribution" replace />} />
+          <Route path="/mixing-studio" element={<Mixing />} />
+          <Route path="/mastering-studio" element={<Mastering />} />
+
+          {/* Studio Placeholder */}
+          <Route path="/studio" element={<StudioPlaceholder />} />
+          {/* Legacy studio routes - removed. Use /artist-crm?tab=studio or /engineer-crm?tab=studio */}
+          <Route path="/jobs" element={<AppLayout><JobBoard /></AppLayout>} />
+          <Route path="/admin" element={<AdminRoute section="Admin Dashboard"><Admin /></AdminRoute>} />
+          <Route path="/admin/users" element={<AdminRoute section="Users"><AdminUsers /></AdminRoute>} />
+          <Route path="/admin/beat-files" element={<AdminRoute section="Beat Files"><AdminBeatFiles /></AdminRoute>} />
+          <Route path="/admin/contacts" element={<AdminRoute section="Contacts"><AdminContacts /></AdminRoute>} />
+          <Route path="/admin/jobs" element={<AdminRoute section="Jobs"><AdminJobs /></AdminRoute>} />
+          <Route path="/admin/notifications" element={<AdminRoute section="Notifications"><AdminNotifications /></AdminRoute>} />
+          <Route path="/admin/sessions" element={<AdminRoute section="Sessions"><AdminSessions /></AdminRoute>} />
+          <Route path="/admin/security" element={<AdminRoute section="Security"><AdminSecurity /></AdminRoute>} />
+          <Route path="/admin/achievements" element={<AdminRoute section="Achievements"><AdminAchievements /></AdminRoute>} />
+          <Route path="/admin/packages" element={<AdminRoute section="Packages"><AdminPackages /></AdminRoute>} />
+          <Route path="/admin/features" element={<AdminRoute section="Features"><AdminFeatures /></AdminRoute>} />
+          <Route path="/admin/education" element={<AdminRoute section="Education"><AdminEducation /></AdminRoute>} />
+          <Route path="/admin/marketplace" element={<AdminRoute section="Marketplace"><AdminMarketplace /></AdminRoute>} />
+          <Route path="/admin/integrations" element={<AdminRoute section="Integrations"><AdminIntegrations /></AdminRoute>} />
+          <Route path="/admin/milestones" element={<AdminRoute section="Milestones"><AdminMilestones /></AdminRoute>} />
+          <Route path="/admin/financial" element={<AdminRoute section="Financial"><AdminFinancial /></AdminRoute>} />
+          <Route path="/admin/analytics" element={<AdminRoute section="Analytics"><AdminAnalytics /></AdminRoute>} />
+          <Route path="/admin/content" element={<AdminRoute section="Content"><AdminContent /></AdminRoute>} />
+          <Route path="/admin/audio" element={<AdminRoute section="Audio"><AdminAudio /></AdminRoute>} />
+          <Route path="/admin/media" element={<AdminRoute section="Media"><AdminMedia /></AdminRoute>} />
+          <Route path="/admin/payouts" element={<AdminRoute section="Payouts"><AdminPayouts /></AdminRoute>} />
+          <Route path="/admin/test-payments" element={<AdminRoute section="Test Payments"><AdminTestPayments /></AdminRoute>} />
+          <Route path="/admin/legal-documents" element={<AdminRoute section="Legal Documents"><AdminLegalDocuments /></AdminRoute>} />
+          <Route path="/admin/system-presentation" element={<AdminRoute section="System Presentation"><AdminSystemPresentation /></AdminRoute>} />
+          <Route path="/admin/launch-presentation" element={<AdminRoute section="Launch Presentation"><AdminLaunchPresentation /></AdminRoute>} />
+          <Route path="/admin/launch-dashboard" element={<AdminRoute section="Launch Dashboard"><AdminLaunchDashboard /></AdminRoute>} />
+          <Route path="/admin/launch-readiness" element={<AdminRoute section="Launch Readiness"><AdminLaunchReadiness /></AdminRoute>} />
+          <Route path="/presentation/share/:token" element={<PresentationShare />} />
+          <Route path="/for-artists" element={<ForArtists />} />
+          <Route path="/for-engineers" element={<ForEngineers />} />
+          <Route path="/engineers" element={<EngineerDirectory />} />
+          <Route path="/engineer/:userId" element={<EngineerProfile />} />
+          <Route path="/audio-lab" element={<AudioLab />} />
+          <Route path="/haptic-studio" element={<HapticStudio />} />
+          <Route path="/project/:projectId" element={<AppLayout><ProjectDetail /></AppLayout>} />
+          <Route path="/coming-soon" element={<ComingSoon />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/settings" element={<AppLayout><Settings /></AppLayout>} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/order-success/:paymentId" element={<OrderSuccess />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/about" element={<About />} />
+
+          {/* Mobile Routes */}
           <Route path="/mobile-home" element={<MobileHome />} />
           <Route path="/mobile-landing" element={<MobileLanding />} />
-            <Route path="/mobile-admin" element={<MobileAdmin />} />
-            <Route path="/mobile-mixxbot" element={<MobileMixxBot />} />
-            <Route path="/mobile-admin/payouts" element={<MobileAdminPayouts />} />
-            <Route path="/mobile-admin/users" element={<MobileAdminUsers />} />
-            <Route path="/admin-launch-readiness" element={<AdminLaunchReadiness />} />
-            <Route path="/mobile-admin-bot" element={<MobileAdminBot />} />
+          <Route path="/mobile-admin" element={<MobileAdmin />} />
+          <Route path="/mobile-mixxbot" element={<MobileMixxBot />} />
+          <Route path="/mobile-admin/payouts" element={<MobileAdminPayouts />} />
+          <Route path="/mobile-admin/users" element={<MobileAdminUsers />} />
+          <Route path="/admin-launch-readiness" element={<AdminLaunchReadiness />} />
+          <Route path="/mobile-admin-bot" element={<MobileAdminBot />} />
           <Route path="/admin-security" element={<AdminSecurityCenter />} />
           <Route path="/admin/launch-control" element={<AdminLaunchControl />} />
           <Route path="/admin/mobile-testing" element={<MobileTesting />} />
@@ -314,51 +323,51 @@ const AppContent = () => {
           <Route path="/admin/launch-readiness" element={<LaunchReadiness />} />
           <Route path="/admin/communications" element={<CommunicationCenter />} />
           <Route path="/admin/advanced-analytics" element={<AdvancedAnalytics />} />
-            <Route path="/admin/content-management" element={<ContentManagement />} />
-            <Route path="/admin/configuration" element={<PlatformConfiguration />} />
-            <Route path="/admin/users" element={<UserManagement />} />
-            <Route path="/admin/control" element={<AdminRoute section="Control Panel"><AdminControl /></AdminRoute>} />
+          <Route path="/admin/content-management" element={<ContentManagement />} />
+          <Route path="/admin/configuration" element={<PlatformConfiguration />} />
+          <Route path="/admin/users" element={<UserManagement />} />
+          <Route path="/admin/control" element={<AdminRoute section="Control Panel"><AdminControl /></AdminRoute>} />
           <Route path="/admin/monitoring" element={<SystemMonitoring />} />
-            <Route path="/admin/audit-log" element={<AuditLog />} />
-            <Route path="/admin/advanced-features" element={<AdvancedFeatures />} />
-            <Route path="/admin/realtime-dashboard" element={<RealtimeDashboard />} />
-            <Route path="/admin/database" element={<DatabaseManagement />} />
-            <Route path="/search" element={<Search />} />
-            <Route path="/notifications" element={<Notifications />} />
+          <Route path="/admin/audit-log" element={<AuditLog />} />
+          <Route path="/admin/advanced-features" element={<AdvancedFeatures />} />
+          <Route path="/admin/realtime-dashboard" element={<RealtimeDashboard />} />
+          <Route path="/admin/database" element={<DatabaseManagement />} />
+          <Route path="/search" element={<Search />} />
+          <Route path="/notifications" element={<Notifications />} />
           <Route path="/admin/audit-compliance" element={<AuditCompliance />} />
           <Route path="/admin/backup-recovery" element={<BackupRecovery />} />
           <Route path="/admin/automation" element={<AutomationHub />} />
           <Route path="/admin/multi-tenancy" element={<MultiTenancy />} />
-            
-            {/* Tier 1 Features */}
-            <Route path="/battle-tournaments" element={<BattleTournaments />} />
-            <Route path="/studio-directory" element={<StudioDirectory />} />
-            
-            {/* Tier 2 Features */}
-            <Route path="/education" element={<EducationalHub />} />
-            <Route path="/course/:courseId" element={<CourseViewer />} />
-            <Route path="/my-certifications" element={<MyCertifications />} />
-            
-            {/* Tier 3 Features */}
-            <Route path="/marketplace" element={<Marketplace />} />
-            <Route path="/label-services" element={<LabelServices />} />
-            
-            {/* Tier 4 Features */}
-            <Route path="/integrations" element={<Integrations />} />
-            <Route path="/ai-audio-intelligence" element={<AIAudioIntelligence />} />
-            <Route path="/distribution" element={<AppLayout><DistributionHub /></AppLayout>} />
-            
-            {/* Merch Store */}
-            <Route path="/merch" element={<AppLayout><MerchStore /></AppLayout>} />
-            <Route path="/merch/:username" element={<AppLayout><ArtistStorefront /></AppLayout>} />
-            <Route path="/artist/merch-manager" element={<AppLayout><ArtistMerchManager /></AppLayout>} />
-            
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </React.Suspense>
-        <PWAInstallPrompt />
-      </PageTransition>
+
+          {/* Tier 1 Features */}
+          <Route path="/battle-tournaments" element={<BattleTournaments />} />
+          <Route path="/studio-directory" element={<StudioDirectory />} />
+
+          {/* Tier 2 Features */}
+          <Route path="/education" element={<EducationalHub />} />
+          <Route path="/course/:courseId" element={<CourseViewer />} />
+          <Route path="/my-certifications" element={<MyCertifications />} />
+
+          {/* Tier 3 Features */}
+          <Route path="/marketplace" element={<Marketplace />} />
+          <Route path="/label-services" element={<LabelServices />} />
+
+          {/* Tier 4 Features */}
+          <Route path="/integrations" element={<Integrations />} />
+          <Route path="/ai-audio-intelligence" element={<AIAudioIntelligence />} />
+          <Route path="/distribution" element={<AppLayout><DistributionHub /></AppLayout>} />
+
+          {/* Merch Store */}
+          <Route path="/merch" element={<AppLayout><MerchStore /></AppLayout>} />
+          <Route path="/merch/:username" element={<AppLayout><ArtistStorefront /></AppLayout>} />
+          <Route path="/artist/merch-manager" element={<AppLayout><ArtistMerchManager /></AppLayout>} />
+
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </React.Suspense>
+      <PWAInstallPrompt />
+    </PageTransition>
   );
 };
 
@@ -372,7 +381,7 @@ const App = () => {
           <Toaster />
           <Sonner />
           {showSplash && (
-            <SplashScreen 
+            <SplashScreen
               onComplete={handleSplashComplete}
               duration={2500}
             />

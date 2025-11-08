@@ -30,13 +30,18 @@ import { ActiveWorkHub } from '@/components/crm/ActiveWorkHub';
 import { DashboardHub } from '@/components/crm/DashboardHub';
 import { OpportunitiesHub } from '@/components/crm/OpportunitiesHub';
 import { EngineerCRMDashboard } from '@/components/crm/EngineerCRMDashboard';
+import { RevenueHub } from '@/components/crm/RevenueHub';
+import { CommunityHub } from '@/components/crm/CommunityHub';
+import { GrowthHub } from '@/components/crm/GrowthHub';
+import { DirectMessaging } from '@/components/crm/DirectMessaging';
+import { CollaborativeEarnings } from '@/components/crm/CollaborativeEarnings';
 
 const EngineerCRM = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const currentTab = searchParams.get('tab') || 'sessions';
-  
+
   const [profile, setProfile] = useState<any>(null);
   const [tasks, setTasks] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
@@ -61,8 +66,8 @@ const EngineerCRM = () => {
       }
 
       // Check if user is admin - admins should use admin panel
-      const { data: isAdmin } = await supabase.rpc('is_admin', { 
-        user_uuid: user.id 
+      const { data: isAdmin } = await supabase.rpc('is_admin', {
+        user_uuid: user.id
       });
 
       if (isAdmin) {
@@ -74,7 +79,7 @@ const EngineerCRM = () => {
       // Check if slideshow should be shown first
       const slideshowKey = `engineer_crm_slideshow_seen_${user.id}`;
       const slideshowSeen = localStorage.getItem(slideshowKey);
-      
+
       if (!slideshowSeen) {
         const { data: onboardingData } = await supabase
           .from('onboarding_profiles')
@@ -89,7 +94,7 @@ const EngineerCRM = () => {
         // Check if assistant intro should be shown after slideshow
         const assistantIntroKey = `engineer_assistant_intro_seen_${user.id}`;
         const assistantIntroSeen = localStorage.getItem(assistantIntroKey);
-        
+
         if (!assistantIntroSeen) {
           const { data: onboardingData } = await supabase
             .from('onboarding_profiles')
@@ -165,7 +170,7 @@ const EngineerCRM = () => {
       const pendingEarnings = earningsData?.filter(e => e.status === 'pending').reduce((sum, e) => sum + Number(e.total_amount || 0), 0) || 0;
       const paidEarnings = earningsData?.filter(e => e.status === 'paid').reduce((sum, e) => sum + Number(e.total_amount || 0), 0) || 0;
       const bonuses = earningsData?.reduce((sum, e) => sum + Number(e.bonus_amount || 0), 0) || 0;
-      
+
       setEarnings({
         total: totalEarnings,
         pending: pendingEarnings,
@@ -271,7 +276,7 @@ const EngineerCRM = () => {
   // Show assistant intro after slideshow
   if (showAssistantIntro) {
     return (
-      <EngineerAssistantIntro 
+      <EngineerAssistantIntro
         open={showAssistantIntro}
         onClose={handleAssistantIntroClose}
         onNavigate={handleAssistantNavigate}
@@ -358,8 +363,8 @@ const EngineerCRM = () => {
 
       case 'active-work':
         return (
-          <ActiveWorkHub 
-            userRole="engineer" 
+          <ActiveWorkHub
+            userRole="engineer"
             onStartSession={() => {
               navigate('/artist-crm?tab=studio');
               setTimeout(() => {
@@ -387,13 +392,13 @@ const EngineerCRM = () => {
               <h2 className="text-2xl font-bold mb-2">Earnings & Payments</h2>
               <p className="text-muted-foreground">Track your income and manage payouts</p>
             </div>
-            <EarningsOverview 
+            <EarningsOverview
               totalEarnings={earnings.total}
               pendingEarnings={earnings.pending}
               paidEarnings={earnings.paid}
               totalBonuses={earnings.bonuses}
             />
-            <PayoutManagement 
+            <PayoutManagement
               engineerId={user?.id || ''}
               availableBalance={earnings.available}
             />
@@ -435,13 +440,28 @@ const EngineerCRM = () => {
                 </div>
               )}
             </div>
-            
+
             <div className="lg:col-span-3 mt-8">
               <h3 className="text-xl font-bold mb-4">Client Reviews</h3>
               <EngineerReviews engineerId={user?.id || ''} />
             </div>
           </div>
         );
+
+      case 'revenue':
+        return <RevenueHub userType="engineer" userId={user?.id} />;
+
+      case 'community':
+        return <CommunityHub userType="engineer" />;
+
+      case 'growth':
+        return <GrowthHub userType="engineer" />;
+
+      case 'messages':
+        return <DirectMessaging userType="engineer" />;
+
+      case 'earnings':
+        return <CollaborativeEarnings userType="engineer" />;
 
       default:
         return <DashboardHub />;

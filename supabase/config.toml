@@ -28,7 +28,7 @@ max_client_conn = 100
 
 [realtime]
 enabled = true
-ip_version = "ipv4"
+ip_version = "IPv4"
 
 [studio]
 enabled = true
@@ -41,12 +41,10 @@ site_url = "http://localhost:3000"
 additional_redirect_urls = ["https://localhost:3000"]
 jwt_expiry = 3600
 enable_signup = true
-enable_confirmations = false
 
 [auth.email]
 enable_signup = true
 double_confirm_changes = true
-enable_confirmations = false
 
 [functions.analyze-audio]
 verify_jwt = true

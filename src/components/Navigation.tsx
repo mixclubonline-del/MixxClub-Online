@@ -40,8 +40,8 @@ const Navigation = () => {
   const getNavLinks = () => {
     if (!user) {
       return [
-        { 
-          label: "Services", 
+        {
+          label: "Services",
           isDropdown: true,
           items: [
             { to: "/services", label: "All Services" },
@@ -51,8 +51,8 @@ const Navigation = () => {
             { to: "/services/distribution", label: "Distribution" },
           ]
         },
-        { 
-          label: "Community", 
+        {
+          label: "Community",
           isDropdown: true,
           items: [
             { to: "/community?tab=feed", label: "The Feed" },
@@ -64,6 +64,7 @@ const Navigation = () => {
         },
         { to: "/for-artists", label: "For Artists" },
         { to: "/for-engineers", label: "For Engineers" },
+        { to: "/enterprise", label: "Enterprise", badge: "NEW" },
       ];
     }
 
@@ -71,8 +72,8 @@ const Navigation = () => {
       return [
         { to: "/engineer", label: "Dashboard" },
         { to: "/jobs", label: "Job Board" },
-        { 
-          label: "Services", 
+        {
+          label: "Services",
           isDropdown: true,
           items: [
             { to: "/services", label: "All Services" },
@@ -81,8 +82,8 @@ const Navigation = () => {
             { to: "/services/distribution", label: "Distribution" },
           ]
         },
-        { 
-          label: "Community", 
+        {
+          label: "Community",
           isDropdown: true,
           items: [
             { to: "/community?tab=feed", label: "The Feed" },
@@ -98,8 +99,8 @@ const Navigation = () => {
     // Artists and clients
     return [
       { to: "/artist", label: "Dashboard" },
-      { 
-        label: "Services", 
+      {
+        label: "Services",
         isDropdown: true,
         items: [
           { to: "/services", label: "All Services" },
@@ -109,8 +110,8 @@ const Navigation = () => {
           { to: "/services/distribution", label: "Distribution", badge: "NEW" },
         ]
       },
-      { 
-        label: "Community", 
+      {
+        label: "Community",
         isDropdown: true,
         items: [
           { to: "/community?tab=feed", label: "The Feed" },
@@ -121,6 +122,7 @@ const Navigation = () => {
         ]
       },
       { to: "/for-artists", label: "For Artists" },
+      { to: "/enterprise/dashboard", label: "Enterprise Portal" },
       ...(isFeatureEnabled('THE_LAB_ENABLED') ? [{ to: "/artist-crm?tab=studio", label: "Studio" }] : []),
     ];
   };
@@ -130,24 +132,23 @@ const Navigation = () => {
   const isActiveRoute = (path: string) => location.pathname === path;
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${
-      scrolled 
-        ? 'glass-ultra border-b border-[hsl(var(--glass-border-strong))] shadow-glass-lg animate-glass-breathe' 
+    <nav className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${scrolled
+        ? 'glass-ultra border-b border-[hsl(var(--glass-border-strong))] shadow-glass-lg animate-glass-breathe'
         : 'glass-mid border-b border-[hsl(var(--glass-border))]'
-    }`}>
+      }`}>
       <div className="container px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link 
-            to={getLogoDestination()} 
+          <Link
+            to={getLogoDestination()}
             className="flex items-center gap-3 group transition-all duration-300 hover:scale-105"
           >
             <div className="relative">
               <div className="absolute inset-0 rounded-lg blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-glass-glow-pulse" style={{ boxShadow: '0 0 40px hsl(var(--primary))' }}></div>
-              <img 
-                src={mixclub3DLogo} 
-                alt="MixClub 3D Logo" 
-                className="w-12 h-9 object-contain relative z-10 transition-transform duration-300 group-hover:rotate-3" 
+              <img
+                src={mixclub3DLogo}
+                alt="MixClub 3D Logo"
+                className="w-12 h-9 object-contain relative z-10 transition-transform duration-300 group-hover:rotate-3"
               />
             </div>
             <span className="font-black text-xl tracking-wider bg-gradient-to-r from-white via-white/80 via-purple-300 to-primary bg-clip-text text-transparent bg-[length:200%_auto] animate-[gradient-shift_3s_ease-in-out_infinite] group-hover:animate-[gradient-shift_1s_ease-in-out_infinite] transition-all duration-300">
@@ -158,7 +159,7 @@ const Navigation = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
             {user && <RealTimeNotifications userId={user.id} />}
-            
+
             {navLinks.map((link, index) => {
               // Check if it's a dropdown menu
               if ((link as any).isDropdown) {
@@ -198,22 +199,20 @@ const Navigation = () => {
                 <Link
                   key={link.to}
                   to={link.to}
-                  className={`relative text-foreground hover:text-primary transition-all duration-300 font-medium ${
-                    isActiveRoute(link.to) ? 'text-primary' : ''
-                  }`}
+                  className={`relative text-foreground hover:text-primary transition-all duration-300 font-medium ${isActiveRoute(link.to) ? 'text-primary' : ''
+                    }`}
                 >
                   {link.label}
-                  <span className={`absolute bottom-0 left-0 w-full h-0.5 bg-primary transform transition-transform duration-300 ${
-                    isActiveRoute(link.to) ? 'scale-x-100' : 'scale-x-0 hover:scale-x-100'
-                  }`}></span>
+                  <span className={`absolute bottom-0 left-0 w-full h-0.5 bg-primary transform transition-transform duration-300 ${isActiveRoute(link.to) ? 'scale-x-100' : 'scale-x-0 hover:scale-x-100'
+                    }`}></span>
                 </Link>
               );
             })}
 
             {user ? (
-              <Button 
-                onClick={signOut} 
-                variant="ghost" 
+              <Button
+                onClick={signOut}
+                variant="ghost"
                 size="sm"
                 className="hover:bg-primary/10 hover:text-primary transition-all duration-300"
               >
@@ -222,8 +221,8 @@ const Navigation = () => {
             ) : (
               <>
                 <Link to="/auth">
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    variant="ghost"
                     size="sm"
                     className="hover:bg-primary/10 hover:text-primary transition-all duration-300"
                   >
@@ -231,8 +230,8 @@ const Navigation = () => {
                   </Button>
                 </Link>
                 <Link to="/auth?mode=signup">
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     className="gap-2 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/25"
                   >
                     <Sparkles className="w-4 h-4" />
@@ -256,9 +255,8 @@ const Navigation = () => {
         </div>
 
         {/* Mobile Menu */}
-        <div className={`md:hidden overflow-hidden transition-all duration-500 ease-out ${
-          isOpen ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'
-        }`}>
+        <div className={`md:hidden overflow-hidden transition-all duration-500 ease-out ${isOpen ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'
+          }`}>
           <div className="pt-4 pb-2 space-y-2 glass-frosted border-t border-[hsl(var(--glass-border))] mt-4 rounded-b-lg">
             {navLinks.map((link, index) => {
               // Check if it's a dropdown menu
@@ -272,9 +270,8 @@ const Navigation = () => {
                       <Link
                         key={item.to}
                         to={item.to}
-                        className={`block px-6 py-2 rounded-lg text-sm text-foreground hover:text-primary hover:bg-primary/5 transition-all duration-300 ${
-                          isActiveRoute(item.to) ? 'text-primary bg-primary/5' : ''
-                        }`}
+                        className={`block px-6 py-2 rounded-lg text-sm text-foreground hover:text-primary hover:bg-primary/5 transition-all duration-300 ${isActiveRoute(item.to) ? 'text-primary bg-primary/5' : ''
+                          }`}
                       >
                         <div className="flex items-center justify-between">
                           <span>{item.label}</span>
@@ -295,9 +292,8 @@ const Navigation = () => {
                 <Link
                   key={link.to}
                   to={link.to}
-                  className={`block px-4 py-3 rounded-lg text-foreground hover:text-primary hover:bg-primary/5 transition-all duration-300 transform ${
-                    isOpen ? 'translate-x-0 opacity-100' : 'translate-x-4 opacity-0'
-                  } ${isActiveRoute(link.to) ? 'text-primary bg-primary/5' : ''}`}
+                  className={`block px-4 py-3 rounded-lg text-foreground hover:text-primary hover:bg-primary/5 transition-all duration-300 transform ${isOpen ? 'translate-x-0 opacity-100' : 'translate-x-4 opacity-0'
+                    } ${isActiveRoute(link.to) ? 'text-primary bg-primary/5' : ''}`}
                   style={{ transitionDelay: `${index * 50}ms` }}
                 >
                   {link.label}
@@ -305,19 +301,18 @@ const Navigation = () => {
               );
             })}
 
-            <div className={`pt-2 space-y-2 transform transition-all duration-300 ${
-              isOpen ? 'translate-x-0 opacity-100' : 'translate-x-4 opacity-0'
-            }`} style={{ transitionDelay: `${navLinks.length * 50}ms` }}>
+            <div className={`pt-2 space-y-2 transform transition-all duration-300 ${isOpen ? 'translate-x-0 opacity-100' : 'translate-x-4 opacity-0'
+              }`} style={{ transitionDelay: `${navLinks.length * 50}ms` }}>
               {user && (
                 <div className="px-4 mb-2">
                   <RealTimeNotifications userId={user.id} />
                 </div>
               )}
               {user ? (
-                <Button 
-                  onClick={signOut} 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  onClick={signOut}
+                  variant="ghost"
+                  size="sm"
                   className="w-full justify-start hover:bg-primary/10 hover:text-primary transition-all duration-300"
                 >
                   Sign Out
@@ -325,17 +320,17 @@ const Navigation = () => {
               ) : (
                 <>
                   <Link to="/auth" className="block">
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       className="w-full justify-start hover:bg-primary/10 hover:text-primary transition-all duration-300"
                     >
                       Login
                     </Button>
                   </Link>
                   <Link to="/auth?mode=signup" className="block">
-                    <Button 
-                      size="sm" 
+                    <Button
+                      size="sm"
                       className="w-full gap-2 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 transition-all duration-300"
                     >
                       <Sparkles className="w-4 h-4" />
