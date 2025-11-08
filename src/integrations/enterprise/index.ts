@@ -38,7 +38,7 @@ export type {
 // SERVICE EXPORTS
 // ============================================================================
 
-// Service exports removed - tables don't exist in database
+export { EnterpriseService } from '@/services/EnterpriseService';
 
 // ============================================================================
 // HOOK EXPORTS

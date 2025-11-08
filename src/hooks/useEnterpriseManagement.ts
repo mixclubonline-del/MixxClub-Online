@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useEnterpriseStore, EnterpriseAccount, AccountStatus, EnterprisePackageType } from '@/stores/enterpriseStore';
-// TODO: Implement EnterpriseService with Supabase integration
+import { EnterpriseService } from '@/services/EnterpriseService';
 
 /**
  * useEnterpriseManagement
@@ -18,19 +18,19 @@ export function useEnterpriseManagement() {
       setLoading(true);
       setError(null);
       try {
-        // TODO: Save to database
-        // const dbAccount = await EnterpriseService.createAccount(accountData);
+        // Save to database
+        const dbAccount = await EnterpriseService.createAccount(accountData);
 
         // Update local store
-        const localId = await store.addAccount(accountData);
+        await store.addAccount(dbAccount);
 
-        // TODO: Log audit event
-        // await EnterpriseService.logAuditEvent(localId, 'ACCOUNT_CREATED', {
-        //   organizationName: accountData.organizationName,
-        //   type: accountData.type,
-        // });
+        // Log audit event
+        await EnterpriseService.logAuditEvent(dbAccount.id, 'ACCOUNT_CREATED', {
+          organizationName: accountData.organizationName,
+          type: accountData.type,
+        });
 
-        return { ...accountData, id: localId, createdAt: new Date(), updatedAt: new Date() };
+        return dbAccount;
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to create account';
         setError(message);
@@ -48,14 +48,14 @@ export function useEnterpriseManagement() {
       setLoading(true);
       setError(null);
       try {
-        // TODO: Update database
-        // await EnterpriseService.updateAccount(accountId, updates);
+        // Update database
+        const updatedAccount = await EnterpriseService.updateAccount(accountId, updates);
 
         // Update local store
-        await store.updateAccount(accountId, updates);
+        await store.updateAccount(accountId, updatedAccount);
 
-        // TODO: Log audit event
-        // await EnterpriseService.logAuditEvent(accountId, 'ACCOUNT_UPDATED', updates);
+        // Log audit event
+        await EnterpriseService.logAuditEvent(accountId, 'ACCOUNT_UPDATED', updates);
 
         return true;
       } catch (err) {
@@ -75,14 +75,14 @@ export function useEnterpriseManagement() {
       setLoading(true);
       setError(null);
       try {
-        // TODO: Delete from database
-        // await EnterpriseService.deleteAccount(accountId);
+        // Delete from database
+        await EnterpriseService.deleteAccount(accountId);
 
         // Update local store
         await store.deleteAccount(accountId);
 
-        // TODO: Log audit event
-        // await EnterpriseService.logAuditEvent(accountId, 'ACCOUNT_DELETED', {});
+        // Log audit event (best effort)
+        await EnterpriseService.logAuditEvent(accountId, 'ACCOUNT_DELETED', {});
 
         return true;
       } catch (err) {
@@ -102,13 +102,13 @@ export function useEnterpriseManagement() {
       setLoading(true);
       setError(null);
       try {
-        // TODO: Load from database
-        // const accounts = await EnterpriseService.listAccounts(filters);
-        return store.accounts.filter(acc => {
-          if (filters?.status && acc.status !== filters.status) return false;
-          if (filters?.type && acc.type !== filters.type) return false;
-          return true;
-        });
+        // Load from database
+        const accounts = await EnterpriseService.listAccounts(filters);
+        
+        // Update local store with fetched accounts
+        accounts.forEach(account => store.addAccount(account));
+        
+        return accounts;
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to load accounts';
         setError(message);
@@ -117,7 +117,7 @@ export function useEnterpriseManagement() {
         setLoading(false);
       }
     },
-    []
+    [store]
   );
 
   // Get single account
@@ -126,10 +126,16 @@ export function useEnterpriseManagement() {
       setLoading(true);
       setError(null);
       try {
-        // TODO: Load from database
-        // const account = await EnterpriseService.getAccount(accountId);
-        store.selectAccount(accountId);
-        return store.accounts.find(a => a.id === accountId);
+        // Load from database
+        const account = await EnterpriseService.getAccount(accountId);
+        
+        if (account) {
+          // Update local store
+          await store.addAccount(account);
+          store.selectAccount(accountId);
+        }
+        
+        return account;
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to fetch account';
         setError(message);
@@ -147,21 +153,19 @@ export function useEnterpriseManagement() {
       setLoading(true);
       setError(null);
       try {
-        await store.updateAccount(accountId, {
+        // Update database
+        const updatedAccount = await EnterpriseService.updateAccount(accountId, {
           packageId: newPackageId,
           type: newPackageType,
         });
 
-        // TODO: Update database
-        // await EnterpriseService.updateAccount(accountId, {
-        //   packageId: newPackageId,
-        //   type: newPackageType,
-        // });
+        // Update local store
+        await store.updateAccount(accountId, updatedAccount);
 
-        // TODO: Log audit event
-        // await EnterpriseService.logAuditEvent(accountId, 'PACKAGE_UPGRADED', {
-        //   newPackageType,
-        // });
+        // Log audit event
+        await EnterpriseService.logAuditEvent(accountId, 'PACKAGE_UPGRADED', {
+          newPackageType,
+        });
 
         return true;
       } catch (err) {
@@ -181,19 +185,18 @@ export function useEnterpriseManagement() {
       setLoading(true);
       setError(null);
       try {
-        await store.updateAccount(accountId, {
+        // Update database
+        const updatedAccount = await EnterpriseService.updateAccount(accountId, {
           status: AccountStatus.Paused,
         });
 
-        // TODO: Update database
-        // await EnterpriseService.updateAccount(accountId, {
-        //   status: AccountStatus.Paused,
-        // });
+        // Update local store
+        await store.updateAccount(accountId, updatedAccount);
 
-        // TODO: Log audit event
-        // await EnterpriseService.logAuditEvent(accountId, 'ACCOUNT_PAUSED', {
-        //   reason,
-        // });
+        // Log audit event
+        await EnterpriseService.logAuditEvent(accountId, 'ACCOUNT_PAUSED', {
+          reason,
+        });
 
         return true;
       } catch (err) {
@@ -213,17 +216,16 @@ export function useEnterpriseManagement() {
       setLoading(true);
       setError(null);
       try {
-        await store.updateAccount(accountId, {
+        // Update database
+        const updatedAccount = await EnterpriseService.updateAccount(accountId, {
           status: AccountStatus.Active,
         });
 
-        // TODO: Update database
-        // await EnterpriseService.updateAccount(accountId, {
-        //   status: AccountStatus.Active,
-        // });
+        // Update local store
+        await store.updateAccount(accountId, updatedAccount);
 
-        // TODO: Log audit event
-        // await EnterpriseService.logAuditEvent(accountId, 'ACCOUNT_REACTIVATED', {});
+        // Log audit event
+        await EnterpriseService.logAuditEvent(accountId, 'ACCOUNT_REACTIVATED', {});
 
         return true;
       } catch (err) {

@@ -3373,6 +3373,237 @@ export type Database = {
           },
         ]
       }
+      enterprise_accounts: {
+        Row: {
+          billing_cycle: string | null
+          contact_email: string
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string | null
+          custom_domain: string | null
+          id: string
+          max_api_calls: number | null
+          max_storage_gb: number | null
+          max_team_members: number | null
+          metadata: Json | null
+          mrr: number | null
+          organization_name: string
+          package_id: string | null
+          sso_enabled: boolean | null
+          status: string
+          type: string
+          updated_at: string | null
+          white_label_enabled: boolean | null
+        }
+        Insert: {
+          billing_cycle?: string | null
+          contact_email: string
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          custom_domain?: string | null
+          id?: string
+          max_api_calls?: number | null
+          max_storage_gb?: number | null
+          max_team_members?: number | null
+          metadata?: Json | null
+          mrr?: number | null
+          organization_name: string
+          package_id?: string | null
+          sso_enabled?: boolean | null
+          status?: string
+          type: string
+          updated_at?: string | null
+          white_label_enabled?: boolean | null
+        }
+        Update: {
+          billing_cycle?: string | null
+          contact_email?: string
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          custom_domain?: string | null
+          id?: string
+          max_api_calls?: number | null
+          max_storage_gb?: number | null
+          max_team_members?: number | null
+          metadata?: Json | null
+          mrr?: number | null
+          organization_name?: string
+          package_id?: string | null
+          sso_enabled?: boolean | null
+          status?: string
+          type?: string
+          updated_at?: string | null
+          white_label_enabled?: boolean | null
+        }
+        Relationships: []
+      }
+      enterprise_audit_log: {
+        Row: {
+          account_id: string
+          action: string
+          created_at: string | null
+          details: Json | null
+          event_type: string
+          id: string
+          ip_address: string | null
+          resource_id: string | null
+          resource_type: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          account_id: string
+          action: string
+          created_at?: string | null
+          details?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          resource_id?: string | null
+          resource_type?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          account_id?: string
+          action?: string
+          created_at?: string | null
+          details?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          resource_id?: string | null
+          resource_type?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enterprise_audit_log_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "enterprise_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      enterprise_contracts: {
+        Row: {
+          account_id: string
+          auto_renew: boolean | null
+          contract_type: string
+          created_at: string | null
+          document_url: string | null
+          end_date: string | null
+          id: string
+          signed_at: string | null
+          signed_by: string | null
+          sla_terms: Json | null
+          start_date: string
+          status: string
+          terms: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          account_id: string
+          auto_renew?: boolean | null
+          contract_type: string
+          created_at?: string | null
+          document_url?: string | null
+          end_date?: string | null
+          id?: string
+          signed_at?: string | null
+          signed_by?: string | null
+          sla_terms?: Json | null
+          start_date: string
+          status?: string
+          terms?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          account_id?: string
+          auto_renew?: boolean | null
+          contract_type?: string
+          created_at?: string | null
+          document_url?: string | null
+          end_date?: string | null
+          id?: string
+          signed_at?: string | null
+          signed_by?: string | null
+          sla_terms?: Json | null
+          start_date?: string
+          status?: string
+          terms?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enterprise_contracts_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "enterprise_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      enterprise_team_members: {
+        Row: {
+          account_id: string
+          created_at: string | null
+          email: string
+          id: string
+          invited_at: string | null
+          invited_by: string | null
+          joined_at: string | null
+          last_active_at: string | null
+          name: string
+          permissions: Json | null
+          role: string
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          account_id: string
+          created_at?: string | null
+          email: string
+          id?: string
+          invited_at?: string | null
+          invited_by?: string | null
+          joined_at?: string | null
+          last_active_at?: string | null
+          name: string
+          permissions?: Json | null
+          role: string
+          status?: string
+          user_id?: string | null
+        }
+        Update: {
+          account_id?: string
+          created_at?: string | null
+          email?: string
+          id?: string
+          invited_at?: string | null
+          invited_by?: string | null
+          joined_at?: string | null
+          last_active_at?: string | null
+          name?: string
+          permissions?: Json | null
+          role?: string
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enterprise_team_members_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "enterprise_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events_schedule: {
         Row: {
           card: Json | null
