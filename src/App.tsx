@@ -31,6 +31,7 @@ const AudioLab = React.lazy(() => import("./pages/AudioLab"));
 const Admin = React.lazy(() => import("./pages/Admin"));
 const AIMastering = React.lazy(() => import("./pages/AIMastering"));
 const HybridDAW = React.lazy(() => import("./pages/HybridDAW"));
+const CollaborativeWorkspace = React.lazy(() => import("./pages/CollaborativeWorkspace"));
 const HapticStudio = React.lazy(() => import("./pages/HapticStudio"));
 const AIStudio = React.lazy(() => import("./pages/AIStudio"));
 const Premieres = React.lazy(() => import("./pages/Premieres"));
@@ -230,6 +231,7 @@ const AppContent = () => {
           <Route path="/studio/create-session" element={<AppLayout><SessionManager /></AppLayout>} />
           <Route path="/studio/join-session" element={<AppLayout><SessionManager /></AppLayout>} />
           <Route path="/session/:sessionId" element={<AppLayout><SessionWorkspacePage /></AppLayout>} />
+          <Route path="/collaborate/:sessionId" element={<CollaborativeWorkspace />} />
           {/* Services Hub */}
           <Route path="/services" element={<Services />} />
           <Route path="/services/mixing" element={<MixingShowcase />} />

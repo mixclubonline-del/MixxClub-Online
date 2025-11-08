@@ -4,7 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { CollaborationUser } from "@/pages/HybridDAW";
 
 interface CollaborationMessage {
-  type: 'join' | 'leave' | 'cursor_move' | 'track_update' | 'effect_change' | 'chat_message' | 'recording_start' | 'recording_stop' | 'session_info';
+  type: 'join' | 'leave' | 'cursor_move' | 'track_update' | 'effect_change' | 'chat_message' | 'recording_start' | 'recording_stop' | 'session_info' | 'playback_state' | 'timeline_seek';
   sessionId: string;
   userId: string;
   userName?: string;
