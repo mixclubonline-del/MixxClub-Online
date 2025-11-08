@@ -63,27 +63,35 @@ export const useDirectMessaging = () => {
 
             // Get all messages where user is sender or recipient
             const { data: userMessages, error: messagesError } = await supabase
-                .from('direct_messages')
-                .select(
-                    `
-          *,
-          sender:sender_id(id, display_name, avatar_url),
-          recipient:recipient_id(id, display_name, avatar_url)
-          `
-                )
+                .from('direct_messages' as any)
+                .select('*')
                 .or(`sender_id.eq.${user.id},recipient_id.eq.${user.id}`)
                 .order('created_at', { ascending: false })
                 .limit(1000);
 
             if (messagesError) throw messagesError;
 
+            // Get unique user IDs
+            const userIds = new Set<string>();
+            userMessages?.forEach((msg: any) => {
+                userIds.add(msg.sender_id);
+                userIds.add(msg.recipient_id);
+            });
+
+            // Fetch profiles for all users
+            const { data: profiles } = await supabase
+                .from('profiles')
+                .select('id, full_name, avatar_url')
+                .in('id', Array.from(userIds));
+
+            const profileMap = new Map(profiles?.map(p => [p.id, { ...p, display_name: p.full_name }]) || []);
+
             // Build conversation map
             const conversationMap = new Map<string, Conversation>();
 
-            userMessages?.forEach((msg) => {
+            userMessages?.forEach((msg: any) => {
                 const otherUserId = msg.sender_id === user.id ? msg.recipient_id : msg.sender_id;
-                const otherUser =
-                    msg.sender_id === user.id ? msg.recipient : msg.sender;
+                const otherUser = profileMap.get(otherUserId);
                 const key = [user.id, otherUserId].sort().join('-');
 
                 if (!conversationMap.has(key)) {

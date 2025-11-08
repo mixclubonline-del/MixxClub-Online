@@ -113,7 +113,7 @@ export function useProgressTracking(enrollmentId: string): UseProgressResult {
         progress,
         loading,
         error,
-        updateLessonProgress,
+        updateLessonProgress: updateLessonProgress as any,
         submitQuiz,
         saveNotes: saveNotesLocal,
         getLessonProgress,

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MessageCircle, TrendingUp, Zap, CheckCircle2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { partnershipStore } from '@/stores/partnershipStore';
+import { usePartnershipStore } from '@/stores/partnershipStore';
 import { MessageRevenueLink } from '@/types/partnership';
 
 interface MessageRevenueIndicatorProps {
@@ -33,7 +33,8 @@ export const MessageRevenueIndicator: React.FC<MessageRevenueIndicatorProps> = (
         // In a real implementation, this would fetch from the messageRevenueLInks table
         // For now, we simulate checking if this message generated revenue
         if (messageId && partnershipId) {
-            const revenueSplits = partnershipStore.getState().revenue_splits || [];
+            const store = usePartnershipStore.getState();
+            const revenueSplits = store.revenueSplits || [];
             const linkedRevenue = revenueSplits.find(
                 (split) =>
                     split.partnership_id === partnershipId &&
@@ -96,7 +97,8 @@ export const ConversationRevenueHeader: React.FC<ConversationRevenueHeaderProps>
     useEffect(() => {
         if (partnershipId) {
             // Fetch conversation revenue metrics
-            const partnership = partnershipStore.getState().selected_partnership;
+            const store = usePartnershipStore.getState();
+            const partnership = store.partnerships.find(p => p.id === partnershipId);
             if (partnership) {
                 // In real impl, would sum revenue_splits where message_revenue_links.conversation_id = conversationId
                 setTotalRevenue(partnership.total_earnings || 0);

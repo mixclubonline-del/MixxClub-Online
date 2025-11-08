@@ -32,6 +32,7 @@ export function useReferralSystem() {
                 setLoading(true);
 
                 // Get user's referral code
+                // @ts-expect-error - Table not yet in generated types
                 const { data: codeData, error: codeError } = await supabase
                     .from('referral_codes')
                     .select('*')

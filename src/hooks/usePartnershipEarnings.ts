@@ -53,6 +53,7 @@ export const usePartnershipEarnings = (options: UsePartnershipEarningsOptions = 
 
         try {
             setLoading(true);
+            // @ts-expect-error - Table not yet in generated types
             const { data, error: err } = await supabase
                 .from('partnerships')
                 .select(

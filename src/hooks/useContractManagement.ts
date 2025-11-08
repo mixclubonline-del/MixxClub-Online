@@ -116,9 +116,14 @@ export function useContractManagement(accountId: string) {
         // Update in store
         await store.renewContract(contractId, newEndDate);
 
-        // Update in database
+        // Get current contract to preserve other term properties
+        const contract = store.contracts.find(c => c.id === contractId);
+        if (!contract) throw new Error('Contract not found');
+
+        // Update in database with all required properties
         await EnterpriseService.updateContract(contractId, {
           terms: {
+            ...contract.terms,
             endDate: newEndDate,
           },
         });
