@@ -86,6 +86,7 @@ import ForArtists from "./pages/ForArtists";
 
 // Enterprise System - System #11
 const Enterprise = React.lazy(() => import("./pages/Enterprise"));
+const EnterpriseDemo = React.lazy(() => import("./pages/EnterpriseDemo"));
 
 // Lazy load all admin pages for better performance
 const AdminUsers = React.lazy(() => import("./pages/AdminUsers"));
@@ -237,6 +238,7 @@ const AppContent = () => {
 
           {/* Enterprise Solutions - System #11 */}
           <Route path="/enterprise" element={<Enterprise />} />
+          <Route path="/enterprise-demo" element={<AdminRoute section="Enterprise Demo"><EnterpriseDemo /></AdminRoute>} />
 
           {/* Legacy service redirects */}
           <Route path="/mixing" element={<Navigate to="/services/mixing" replace />} />
