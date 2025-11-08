@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Building2, Users, FileText, CreditCard, Bell } from 'lucide-react';
+import { Building2, Users, FileText, CreditCard, Bell, BarChart3 } from 'lucide-react';
 import { AccountManagementDemo } from '@/components/enterprise/AccountManagementDemo';
 import { TeamManagementDemo } from '@/components/enterprise/TeamManagementDemo';
 import { ContractManagementDemo } from '@/components/enterprise/ContractManagementDemo';
 import { PaymentLinkGenerator } from '@/components/enterprise/PaymentLinkGenerator';
 import { ContractExpirationAlerts } from '@/components/enterprise/ContractExpirationAlerts';
+import { EnterpriseAnalyticsDashboard } from '@/components/enterprise/EnterpriseAnalyticsDashboard';
 
 export default function EnterpriseDemo() {
   const [selectedAccountId, setSelectedAccountId] = useState<string>('');
@@ -22,7 +23,7 @@ export default function EnterpriseDemo() {
         </div>
 
         <Tabs defaultValue="accounts" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="accounts" className="flex items-center gap-2">
               <Building2 className="h-4 w-4" />
               Accounts
@@ -42,6 +43,10 @@ export default function EnterpriseDemo() {
             <TabsTrigger value="alerts" className="flex items-center gap-2">
               <Bell className="h-4 w-4" />
               Alerts
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Analytics
             </TabsTrigger>
           </TabsList>
 
@@ -83,6 +88,10 @@ export default function EnterpriseDemo() {
 
           <TabsContent value="alerts">
             <ContractExpirationAlerts />
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <EnterpriseAnalyticsDashboard />
           </TabsContent>
         </Tabs>
       </div>
