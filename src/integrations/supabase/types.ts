@@ -2003,6 +2003,74 @@ export type Database = {
           },
         ]
       }
+      collaborative_projects: {
+        Row: {
+          artist_earnings: number
+          completed_date: string | null
+          completed_milestones: number
+          created_at: string
+          description: string | null
+          engineer_earnings: number
+          id: string
+          last_message_at: string | null
+          messages_count: number
+          milestone_count: number
+          partnership_id: string
+          project_type: string
+          start_date: string
+          status: string
+          target_completion: string | null
+          title: string
+          total_revenue: number
+        }
+        Insert: {
+          artist_earnings?: number
+          completed_date?: string | null
+          completed_milestones?: number
+          created_at?: string
+          description?: string | null
+          engineer_earnings?: number
+          id?: string
+          last_message_at?: string | null
+          messages_count?: number
+          milestone_count?: number
+          partnership_id: string
+          project_type?: string
+          start_date?: string
+          status?: string
+          target_completion?: string | null
+          title: string
+          total_revenue?: number
+        }
+        Update: {
+          artist_earnings?: number
+          completed_date?: string | null
+          completed_milestones?: number
+          created_at?: string
+          description?: string | null
+          engineer_earnings?: number
+          id?: string
+          last_message_at?: string | null
+          messages_count?: number
+          milestone_count?: number
+          partnership_id?: string
+          project_type?: string
+          start_date?: string
+          status?: string
+          target_completion?: string | null
+          title?: string
+          total_revenue?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collaborative_projects_partnership_id_fkey"
+            columns: ["partnership_id"]
+            isOneToOne: false
+            referencedRelation: "partnerships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       community_milestones: {
         Row: {
           created_at: string | null
@@ -2456,6 +2524,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      direct_messages: {
+        Row: {
+          created_at: string
+          file_name: string | null
+          file_url: string | null
+          id: string
+          message_text: string
+          read_at: string | null
+          recipient_id: string
+          sender_id: string
+        }
+        Insert: {
+          created_at?: string
+          file_name?: string | null
+          file_url?: string | null
+          id?: string
+          message_text: string
+          read_at?: string | null
+          recipient_id: string
+          sender_id: string
+        }
+        Update: {
+          created_at?: string
+          file_name?: string | null
+          file_url?: string | null
+          id?: string
+          message_text?: string
+          read_at?: string | null
+          recipient_id?: string
+          sender_id?: string
+        }
+        Relationships: []
       }
       discount_codes: {
         Row: {
@@ -5755,6 +5856,183 @@ export type Database = {
         }
         Relationships: []
       }
+      partnerships: {
+        Row: {
+          accepted_at: string | null
+          artist_earnings: number
+          artist_id: string
+          artist_split: number
+          completed_at: string | null
+          created_at: string
+          engineer_earnings: number
+          engineer_id: string
+          engineer_split: number
+          id: string
+          notes: string | null
+          revenue_split: string
+          status: string
+          total_earnings: number
+        }
+        Insert: {
+          accepted_at?: string | null
+          artist_earnings?: number
+          artist_id: string
+          artist_split?: number
+          completed_at?: string | null
+          created_at?: string
+          engineer_earnings?: number
+          engineer_id: string
+          engineer_split?: number
+          id?: string
+          notes?: string | null
+          revenue_split?: string
+          status?: string
+          total_earnings?: number
+        }
+        Update: {
+          accepted_at?: string | null
+          artist_earnings?: number
+          artist_id?: string
+          artist_split?: number
+          completed_at?: string | null
+          created_at?: string
+          engineer_earnings?: number
+          engineer_id?: string
+          engineer_split?: number
+          id?: string
+          notes?: string | null
+          revenue_split?: string
+          status?: string
+          total_earnings?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partnerships_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partnerships_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partnerships_engineer_id_fkey"
+            columns: ["engineer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partnerships_engineer_id_fkey"
+            columns: ["engineer_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_links: {
+        Row: {
+          amount: number
+          created_at: string
+          creator_id: string
+          currency: string
+          description: string
+          expires_at: string | null
+          id: string
+          paid_at: string | null
+          partnership_id: string | null
+          payment_method: string
+          project_id: string | null
+          recipient_id: string
+          status: string
+          token: string
+          url: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          creator_id: string
+          currency?: string
+          description: string
+          expires_at?: string | null
+          id?: string
+          paid_at?: string | null
+          partnership_id?: string | null
+          payment_method: string
+          project_id?: string | null
+          recipient_id: string
+          status?: string
+          token: string
+          url: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          creator_id?: string
+          currency?: string
+          description?: string
+          expires_at?: string | null
+          id?: string
+          paid_at?: string | null
+          partnership_id?: string | null
+          payment_method?: string
+          project_id?: string | null
+          recipient_id?: string
+          status?: string
+          token?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_links_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_links_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_links_partnership_id_fkey"
+            columns: ["partnership_id"]
+            isOneToOne: false
+            referencedRelation: "partnerships"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_links_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "collaborative_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_links_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_links_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payments: {
         Row: {
           amount: number
@@ -6973,6 +7251,125 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_codes: {
+        Row: {
+          code: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          reward_description: string
+          reward_type: string
+          reward_value: number
+          usage_count: number
+          user_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          reward_description: string
+          reward_type?: string
+          reward_value: number
+          usage_count?: number
+          user_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          reward_description?: string
+          reward_type?: string
+          reward_value?: number
+          usage_count?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_codes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referral_codes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referral_rewards: {
+        Row: {
+          created_at: string
+          id: string
+          referral_code: string
+          referred_user_id: string
+          referrer_id: string
+          reward_given: boolean
+          reward_type: string
+          reward_value: number
+          rewarded_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          referral_code: string
+          referred_user_id: string
+          referrer_id: string
+          reward_given?: boolean
+          reward_type: string
+          reward_value: number
+          rewarded_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          referral_code?: string
+          referred_user_id?: string
+          referrer_id?: string
+          reward_given?: boolean
+          reward_type?: string
+          reward_value?: number
+          rewarded_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_rewards_referred_user_id_fkey"
+            columns: ["referred_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referral_rewards_referred_user_id_fkey"
+            columns: ["referred_user_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referral_rewards_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referral_rewards_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       remote_chat: {
         Row: {
           created_at: string | null
@@ -7237,6 +7634,69 @@ export type Database = {
           revenue_by_service?: Json | null
         }
         Relationships: []
+      }
+      revenue_splits: {
+        Row: {
+          artist_amount: number
+          artist_percentage: number
+          created_at: string
+          engineer_amount: number
+          engineer_percentage: number
+          id: string
+          notes: string | null
+          partnership_id: string
+          project_id: string | null
+          split_date: string
+          split_status: string
+          total_amount: number
+          transaction_id: string | null
+        }
+        Insert: {
+          artist_amount: number
+          artist_percentage: number
+          created_at?: string
+          engineer_amount: number
+          engineer_percentage: number
+          id?: string
+          notes?: string | null
+          partnership_id: string
+          project_id?: string | null
+          split_date?: string
+          split_status?: string
+          total_amount: number
+          transaction_id?: string | null
+        }
+        Update: {
+          artist_amount?: number
+          artist_percentage?: number
+          created_at?: string
+          engineer_amount?: number
+          engineer_percentage?: number
+          id?: string
+          notes?: string | null
+          partnership_id?: string
+          project_id?: string | null
+          split_date?: string
+          split_status?: string
+          total_amount?: number
+          transaction_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "revenue_splits_partnership_id_fkey"
+            columns: ["partnership_id"]
+            isOneToOne: false
+            referencedRelation: "partnerships"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "revenue_splits_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "collaborative_projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       saved_jobs: {
         Row: {
@@ -9007,6 +9467,30 @@ export type Database = {
           progress_percentage: number
           target_value: number
           unlocked_at: string
+        }[]
+      }
+      get_partnership_health_scores: {
+        Args: { p_user_id: string }
+        Returns: {
+          activity_level: number
+          health_score: number
+          last_assessed: string
+          partnership_id: string
+          payment_reliability: number
+          risk_level: string
+        }[]
+      }
+      get_partnership_metrics: {
+        Args: { p_user_id: string }
+        Returns: {
+          active_conversations: number
+          artist_total: number
+          completed_projects: number
+          engineer_total: number
+          last_activity: string
+          partnership_id: string
+          total_projects: number
+          total_revenue: number
         }[]
       }
       get_security_dashboard_stats: { Args: never; Returns: Json }
