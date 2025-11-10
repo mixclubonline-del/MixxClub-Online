@@ -5,6 +5,7 @@ import { Music, Search } from 'lucide-react';
 import { SessionQueueCard } from '@/components/engineer/SessionQueueCard';
 import { SessionPrepModal } from '@/components/engineer/SessionPrepModal';
 import { SessionInvitationsList } from '@/components/collaboration/SessionInvitationsList';
+import { PublicSessionBrowser } from '@/components/collaboration/PublicSessionBrowser';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
@@ -110,6 +111,12 @@ export const EngineerCRMDashboard = () => {
         <div className="space-y-3">
           <h2 className="text-xl font-bold">Session Invitations</h2>
           <SessionInvitationsList />
+        </div>
+
+        {/* Public Session Browser */}
+        <div className="space-y-3">
+          <h2 className="text-xl font-bold">Discover Public Sessions</h2>
+          <PublicSessionBrowser />
         </div>
         {newSessions.length > 0 && (
           <div className="space-y-3">

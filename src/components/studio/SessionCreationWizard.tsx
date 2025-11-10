@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Switch } from '@/components/ui/switch';
 import {
   Music,
   Users,
@@ -15,7 +16,9 @@ import {
   ChevronRight,
   ChevronLeft,
   Mic,
-  Headphones
+  Headphones,
+  Globe,
+  Lock
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -34,7 +37,8 @@ const SessionCreationWizard = ({ onComplete, onCancel }: SessionCreationWizardPr
     collaborators: [] as string[],
     audioQuality: 'high',
     maxParticipants: 4,
-    mode: 'solo' as 'solo' | 'collaborative'
+    mode: 'solo' as 'solo' | 'collaborative',
+    visibility: 'private' as 'public' | 'private'
   });
 
   const totalSteps = sessionData.mode === 'solo' ? 3 : 4;
@@ -218,6 +222,37 @@ const SessionCreationWizard = ({ onComplete, onCancel }: SessionCreationWizardPr
                   className="mt-1"
                 />
               </div>
+
+              {sessionData.mode === 'collaborative' && (
+                <Card className="p-4 bg-muted/50">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        {sessionData.visibility === 'public' ? (
+                          <Globe className="w-4 h-4 text-primary" />
+                        ) : (
+                          <Lock className="w-4 h-4 text-muted-foreground" />
+                        )}
+                        <Label htmlFor="visibility" className="text-sm font-medium cursor-pointer">
+                          Make session discoverable
+                        </Label>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {sessionData.visibility === 'public'
+                          ? 'Engineers can discover and request to join your session'
+                          : 'Only people you invite can see this session'}
+                      </p>
+                    </div>
+                    <Switch
+                      id="visibility"
+                      checked={sessionData.visibility === 'public'}
+                      onCheckedChange={(checked) =>
+                        setSessionData({ ...sessionData, visibility: checked ? 'public' : 'private' })
+                      }
+                    />
+                  </div>
+                </Card>
+              )}
             </div>
           </div>
         )}

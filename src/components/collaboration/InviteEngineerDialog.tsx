@@ -37,31 +37,11 @@ export const InviteEngineerDialog = ({ sessionId, sessionName }: InviteEngineerD
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      // Find engineer by email (query auth.users via RPC or profiles)
-      // First get user from auth by email
-      const { data: users, error: userError } = await supabase.auth.admin.listUsers();
-      
-      if (userError) throw userError;
-      
-      const engineerUser = users.users.find(
-        u => u.email?.toLowerCase() === engineerEmail.toLowerCase().trim()
-      );
-
-      if (!engineerUser) {
-        toast({
-          title: "Engineer not found",
-          description: "No engineer found with that email address",
-          variant: "destructive",
-        });
-        setLoading(false);
-        return;
-      }
-
-      // Get profile
+      // Find engineer by email via profiles
       const { data: engineerProfile, error: profileError } = await supabase
         .from("profiles")
-        .select("id")
-        .eq("id", engineerUser.id)
+        .select("id, email")
+        .eq("email", engineerEmail.toLowerCase().trim())
         .single();
 
       if (profileError || !engineerProfile) {

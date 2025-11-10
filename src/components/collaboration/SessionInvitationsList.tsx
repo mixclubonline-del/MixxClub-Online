@@ -56,20 +56,20 @@ export const SessionInvitationsList = () => {
 
       const { data: artists } = await supabase
         .from("profiles")
-        .select("id, full_name")
+        .select("id, full_name, email")
         .in("id", artistIds);
 
       const { data: sessions } = await supabase
         .from("collaboration_sessions")
-        .select("id, session_name, description")
+        .select("id, session_name, session_state")
         .in("id", sessionIds);
 
-      // Get emails from auth
-      const { data: authUsers } = await supabase.auth.admin.listUsers();
-      const emailMap = new Map(authUsers.users.map(u => [u.id, u.email || '']));
-
       const artistMap = new Map(artists?.map(a => [a.id, a]) || []);
-      const sessionMap = new Map(sessions?.map(s => [s.id, s]) || []);
+      const sessionMap = new Map(sessions?.map(s => [s.id, { 
+        id: s.id, 
+        session_name: s.session_name, 
+        description: (s.session_state as any)?.description || null 
+      }]) || []);
 
       const formattedData = data?.map(inv => {
         const artist = artistMap.get(inv.artist_id);
@@ -78,7 +78,7 @@ export const SessionInvitationsList = () => {
           artist: {
             id: inv.artist_id,
             full_name: artist?.full_name || 'Unknown',
-            email: emailMap.get(inv.artist_id) || ''
+            email: artist?.email || ''
           },
           session: sessionMap.get(inv.session_id) || { id: inv.session_id, session_name: 'Unknown', description: null }
         };

@@ -1958,6 +1958,7 @@ export type Database = {
           started_at: string | null
           status: string
           updated_at: string
+          visibility: string | null
         }
         Insert: {
           audio_quality?: string | null
@@ -1975,6 +1976,7 @@ export type Database = {
           started_at?: string | null
           status?: string
           updated_at?: string
+          visibility?: string | null
         }
         Update: {
           audio_quality?: string | null
@@ -1992,6 +1994,7 @@ export type Database = {
           started_at?: string | null
           status?: string
           updated_at?: string
+          visibility?: string | null
         }
         Relationships: [
           {
@@ -6984,6 +6987,7 @@ export type Database = {
           badges: Json | null
           bio: string | null
           created_at: string | null
+          email: string | null
           full_name: string | null
           id: string
           level: number | null
@@ -6999,6 +7003,7 @@ export type Database = {
           badges?: Json | null
           bio?: string | null
           created_at?: string | null
+          email?: string | null
           full_name?: string | null
           id: string
           level?: number | null
@@ -7014,6 +7019,7 @@ export type Database = {
           badges?: Json | null
           bio?: string | null
           created_at?: string | null
+          email?: string | null
           full_name?: string | null
           id?: string
           level?: number | null
@@ -8203,6 +8209,58 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "session_invitations_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "collaboration_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      session_join_requests: {
+        Row: {
+          created_at: string
+          engineer_id: string
+          id: string
+          message: string | null
+          responded_at: string | null
+          session_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          engineer_id: string
+          id?: string
+          message?: string | null
+          responded_at?: string | null
+          session_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          engineer_id?: string
+          id?: string
+          message?: string | null
+          responded_at?: string | null
+          session_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_join_requests_engineer_id_fkey"
+            columns: ["engineer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_join_requests_engineer_id_fkey"
+            columns: ["engineer_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_join_requests_session_id_fkey"
             columns: ["session_id"]
             isOneToOne: false
             referencedRelation: "collaboration_sessions"

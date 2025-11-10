@@ -29,6 +29,7 @@ export const SessionManager = () => {
           status: 'active',
           audio_quality: sessionData.audioQuality,
           max_participants: sessionData.maxParticipants,
+          visibility: sessionData.visibility || 'private',
           session_state: {
             description: sessionData.description,
             genre: sessionData.genre
