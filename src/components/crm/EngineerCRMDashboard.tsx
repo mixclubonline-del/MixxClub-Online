@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Music, Search } from 'lucide-react';
 import { SessionQueueCard } from '@/components/engineer/SessionQueueCard';
 import { SessionPrepModal } from '@/components/engineer/SessionPrepModal';
+import { SessionInvitationsList } from '@/components/collaboration/SessionInvitationsList';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
@@ -105,6 +106,11 @@ export const EngineerCRMDashboard = () => {
   return (
     <>
       <div className="space-y-6">
+        {/* Session Invitations */}
+        <div className="space-y-3">
+          <h2 className="text-xl font-bold">Session Invitations</h2>
+          <SessionInvitationsList />
+        </div>
         {newSessions.length > 0 && (
           <div className="space-y-3">
             <div className="flex items-center gap-2">
