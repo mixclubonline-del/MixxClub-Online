@@ -1839,7 +1839,7 @@ export type Database = {
           p_action_url?: string
           p_message: string
           p_title: string
-          p_type?: string
+          p_type: string
           p_user_id: string
         }
         Returns: string
