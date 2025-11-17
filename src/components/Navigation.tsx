@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import mixclub3DLogo from "@/assets/mixclub-3d-logo.png";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { RealTimeNotifications } from "./RealTimeNotifications";
+import { NotificationCenter } from "./notifications/NotificationCenter";
 import { isFeatureEnabled } from "@/config/featureFlags";
 
 const Navigation = () => {
@@ -157,7 +157,7 @@ const Navigation = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
-            {user && <RealTimeNotifications userId={user.id} />}
+            {user && <NotificationCenter />}
 
             {navLinks.map((link, index) => {
               // Check if it's a dropdown menu
@@ -302,11 +302,11 @@ const Navigation = () => {
 
             <div className={`pt-2 space-y-2 transform transition-all duration-300 ${isOpen ? 'translate-x-0 opacity-100' : 'translate-x-4 opacity-0'
               }`} style={{ transitionDelay: `${navLinks.length * 50}ms` }}>
-              {user && (
-                <div className="px-4 mb-2">
-                  <RealTimeNotifications userId={user.id} />
-                </div>
-              )}
+            {user && (
+              <div className="px-4 mb-2 flex justify-center">
+                <NotificationCenter />
+              </div>
+            )}
               {user ? (
                 <Button
                   onClick={signOut}
