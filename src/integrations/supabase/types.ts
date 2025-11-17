@@ -412,28 +412,40 @@ export type Database = {
           created_at: string
           id: string
           is_active: boolean | null
+          is_muted: boolean | null
+          is_solo: boolean | null
           quality_settings: Json | null
           session_id: string
+          stream_name: string | null
           stream_type: string | null
           user_id: string
+          volume: number | null
         }
         Insert: {
           created_at?: string
           id?: string
           is_active?: boolean | null
+          is_muted?: boolean | null
+          is_solo?: boolean | null
           quality_settings?: Json | null
           session_id: string
+          stream_name?: string | null
           stream_type?: string | null
           user_id: string
+          volume?: number | null
         }
         Update: {
           created_at?: string
           id?: string
           is_active?: boolean | null
+          is_muted?: boolean | null
+          is_solo?: boolean | null
           quality_settings?: Json | null
           session_id?: string
+          stream_name?: string | null
           stream_type?: string | null
           user_id?: string
+          volume?: number | null
         }
         Relationships: [
           {
@@ -681,6 +693,7 @@ export type Database = {
           created_at: string
           id: string
           is_resolved: boolean | null
+          project_id: string | null
           session_id: string
           timestamp_seconds: number | null
           user_id: string
@@ -690,6 +703,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_resolved?: boolean | null
+          project_id?: string | null
           session_id: string
           timestamp_seconds?: number | null
           user_id: string
@@ -699,6 +713,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_resolved?: boolean | null
+          project_id?: string | null
           session_id?: string
           timestamp_seconds?: number | null
           user_id?: string
@@ -721,6 +736,8 @@ export type Database = {
           id: string
           scheduled_end: string | null
           scheduled_start: string | null
+          session_name: string | null
+          session_type: string | null
           status: string | null
           title: string
           updated_at: string
@@ -733,6 +750,8 @@ export type Database = {
           id?: string
           scheduled_end?: string | null
           scheduled_start?: string | null
+          session_name?: string | null
+          session_type?: string | null
           status?: string | null
           title: string
           updated_at?: string
@@ -745,6 +764,8 @@ export type Database = {
           id?: string
           scheduled_end?: string | null
           scheduled_start?: string | null
+          session_name?: string | null
+          session_type?: string | null
           status?: string | null
           title?: string
           updated_at?: string
@@ -989,8 +1010,11 @@ export type Database = {
           applicant_id: string
           cover_letter: string | null
           created_at: string
+          engineer_id: string | null
+          estimated_delivery: string | null
           id: string
           job_id: string
+          message: string | null
           proposed_rate: number | null
           status: string | null
           updated_at: string
@@ -999,8 +1023,11 @@ export type Database = {
           applicant_id: string
           cover_letter?: string | null
           created_at?: string
+          engineer_id?: string | null
+          estimated_delivery?: string | null
           id?: string
           job_id: string
+          message?: string | null
           proposed_rate?: number | null
           status?: string | null
           updated_at?: string
@@ -1009,8 +1036,11 @@ export type Database = {
           applicant_id?: string
           cover_letter?: string | null
           created_at?: string
+          engineer_id?: string | null
+          estimated_delivery?: string | null
           id?: string
           job_id?: string
+          message?: string | null
           proposed_rate?: number | null
           status?: string | null
           updated_at?: string
@@ -1293,12 +1323,15 @@ export type Database = {
       projects: {
         Row: {
           bpm: number | null
+          client_id: string | null
           created_at: string
           description: string | null
           genre: string | null
           id: string
           key: string | null
           metadata: Json | null
+          mixing_goals: Json | null
+          special_instructions: string | null
           status: string | null
           title: string
           updated_at: string
@@ -1306,12 +1339,15 @@ export type Database = {
         }
         Insert: {
           bpm?: number | null
+          client_id?: string | null
           created_at?: string
           description?: string | null
           genre?: string | null
           id?: string
           key?: string | null
           metadata?: Json | null
+          mixing_goals?: Json | null
+          special_instructions?: string | null
           status?: string | null
           title: string
           updated_at?: string
@@ -1319,12 +1355,15 @@ export type Database = {
         }
         Update: {
           bpm?: number | null
+          client_id?: string | null
           created_at?: string
           description?: string | null
           genre?: string | null
           id?: string
           key?: string | null
           metadata?: Json | null
+          mixing_goals?: Json | null
+          special_instructions?: string | null
           status?: string | null
           title?: string
           updated_at?: string
@@ -1408,6 +1447,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      session_comments: {
+        Row: {
+          comment_text: string
+          created_at: string
+          id: string
+          session_id: string
+          timestamp_seconds: number | null
+          user_id: string
+        }
+        Insert: {
+          comment_text: string
+          created_at?: string
+          id?: string
+          session_id: string
+          timestamp_seconds?: number | null
+          user_id: string
+        }
+        Update: {
+          comment_text?: string
+          created_at?: string
+          id?: string
+          session_id?: string
+          timestamp_seconds?: number | null
+          user_id?: string
+        }
+        Relationships: []
       }
       session_invitations: {
         Row: {
@@ -1665,16 +1731,25 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      cleanup_old_audit_logs: { Args: never; Returns: number }
-      cleanup_old_chatbot_messages: { Args: never; Returns: number }
-      cleanup_old_notifications: { Args: never; Returns: number }
+      cleanup_old_audit_logs: {
+        Args: { days_to_keep: number }
+        Returns: number
+      }
+      cleanup_old_chatbot_messages: {
+        Args: { days_to_keep: number }
+        Returns: number
+      }
+      cleanup_old_notifications: {
+        Args: { days_to_keep: number }
+        Returns: number
+      }
       create_notification: {
         Args: {
-          _action_url?: string
-          _message: string
-          _title: string
-          _type?: string
-          _user_id: string
+          p_action_url?: string
+          p_message: string
+          p_title: string
+          p_type?: string
+          p_user_id: string
         }
         Returns: string
       }
