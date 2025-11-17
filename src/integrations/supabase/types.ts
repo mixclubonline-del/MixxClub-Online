@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          achievement_type: string
+          badge_name: string | null
+          description: string | null
+          earned_at: string
+          icon: string | null
+          id: string
+          metadata: Json | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          achievement_type: string
+          badge_name?: string | null
+          description?: string | null
+          earned_at?: string
+          icon?: string | null
+          id?: string
+          metadata?: Json | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          achievement_type?: string
+          badge_name?: string | null
+          description?: string | null
+          earned_at?: string
+          icon?: string | null
+          id?: string
+          metadata?: Json | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       admin_quick_actions: {
         Row: {
           action_type: string
@@ -255,38 +291,103 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_mixing_suggestions: {
+        Row: {
+          applied: boolean | null
+          confidence_score: number | null
+          created_at: string
+          description: string
+          id: string
+          is_applied: boolean | null
+          priority: string | null
+          project_id: string
+          suggestion_type: string
+          technical_details: Json | null
+          title: string
+          user_feedback: string | null
+          user_id: string
+        }
+        Insert: {
+          applied?: boolean | null
+          confidence_score?: number | null
+          created_at?: string
+          description: string
+          id?: string
+          is_applied?: boolean | null
+          priority?: string | null
+          project_id: string
+          suggestion_type: string
+          technical_details?: Json | null
+          title: string
+          user_feedback?: string | null
+          user_id: string
+        }
+        Update: {
+          applied?: boolean | null
+          confidence_score?: number | null
+          created_at?: string
+          description?: string
+          id?: string
+          is_applied?: boolean | null
+          priority?: string | null
+          project_id?: string
+          suggestion_type?: string
+          technical_details?: Json | null
+          title?: string
+          user_feedback?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_mixing_suggestions_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audio_files: {
         Row: {
           created_at: string
           duration: number | null
+          duration_seconds: number | null
           file_name: string
           file_path: string
           file_size: number | null
           id: string
           job_id: string | null
           mime_type: string | null
+          project_id: string | null
+          uploaded_by: string | null
           user_id: string
         }
         Insert: {
           created_at?: string
           duration?: number | null
+          duration_seconds?: number | null
           file_name: string
           file_path: string
           file_size?: number | null
           id?: string
           job_id?: string | null
           mime_type?: string | null
+          project_id?: string | null
+          uploaded_by?: string | null
           user_id: string
         }
         Update: {
           created_at?: string
           duration?: number | null
+          duration_seconds?: number | null
           file_name?: string
           file_path?: string
           file_size?: number | null
           id?: string
           job_id?: string | null
           mime_type?: string | null
+          project_id?: string | null
+          uploaded_by?: string | null
           user_id?: string
         }
         Relationships: [
@@ -295,6 +396,51 @@ export type Database = {
             columns: ["job_id"]
             isOneToOne: false
             referencedRelation: "job_postings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audio_files_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audio_streams: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean | null
+          quality_settings: Json | null
+          session_id: string
+          stream_type: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          quality_settings?: Json | null
+          session_id: string
+          stream_type?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          quality_settings?: Json | null
+          session_id?: string
+          stream_type?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audio_streams_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "collaboration_sessions"
             referencedColumns: ["id"]
           },
         ]
@@ -386,12 +532,48 @@ export type Database = {
         }
         Relationships: []
       }
+      battle_votes: {
+        Row: {
+          battle_id: string
+          created_at: string
+          id: string
+          user_id: string
+          voted_for: string
+          winner: string | null
+        }
+        Insert: {
+          battle_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+          voted_for: string
+          winner?: string | null
+        }
+        Update: {
+          battle_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+          voted_for?: string
+          winner?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "battle_votes_battle_id_fkey"
+            columns: ["battle_id"]
+            isOneToOne: false
+            referencedRelation: "battles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       battler_stats: {
         Row: {
           battler_name: string
           created_at: string
           id: string
           losses: number | null
+          overall_score: number | null
           ranking_points: number | null
           total_battles: number | null
           user_id: string
@@ -403,6 +585,7 @@ export type Database = {
           created_at?: string
           id?: string
           losses?: number | null
+          overall_score?: number | null
           ranking_points?: number | null
           total_battles?: number | null
           user_id: string
@@ -414,6 +597,7 @@ export type Database = {
           created_at?: string
           id?: string
           losses?: number | null
+          overall_score?: number | null
           ranking_points?: number | null
           total_battles?: number | null
           user_id?: string
@@ -491,6 +675,44 @@ export type Database = {
         }
         Relationships: []
       }
+      collaboration_comments: {
+        Row: {
+          comment_text: string
+          created_at: string
+          id: string
+          is_resolved: boolean | null
+          session_id: string
+          timestamp_seconds: number | null
+          user_id: string
+        }
+        Insert: {
+          comment_text: string
+          created_at?: string
+          id?: string
+          is_resolved?: boolean | null
+          session_id: string
+          timestamp_seconds?: number | null
+          user_id: string
+        }
+        Update: {
+          comment_text?: string
+          created_at?: string
+          id?: string
+          is_resolved?: boolean | null
+          session_id?: string
+          timestamp_seconds?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collaboration_comments_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "collaboration_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       collaboration_sessions: {
         Row: {
           created_at: string
@@ -562,6 +784,56 @@ export type Database = {
           status?: string | null
         }
         Relationships: []
+      }
+      engineer_deliverables: {
+        Row: {
+          created_at: string
+          engineer_id: string
+          file_name: string
+          file_path: string
+          file_size: number | null
+          file_type: string | null
+          id: string
+          notes: string | null
+          project_id: string
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          engineer_id: string
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          notes?: string | null
+          project_id: string
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          engineer_id?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          notes?: string | null
+          project_id?: string
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "engineer_deliverables_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       engineer_earnings: {
         Row: {
@@ -1218,25 +1490,37 @@ export type Database = {
       }
       session_participants: {
         Row: {
+          audio_input_enabled: boolean | null
           id: string
+          is_active: boolean | null
           joined_at: string
+          permissions: Json | null
           role: string | null
           session_id: string
           user_id: string
+          video_enabled: boolean | null
         }
         Insert: {
+          audio_input_enabled?: boolean | null
           id?: string
+          is_active?: boolean | null
           joined_at?: string
+          permissions?: Json | null
           role?: string | null
           session_id: string
           user_id: string
+          video_enabled?: boolean | null
         }
         Update: {
+          audio_input_enabled?: boolean | null
           id?: string
+          is_active?: boolean | null
           joined_at?: string
+          permissions?: Json | null
           role?: string | null
           session_id?: string
           user_id?: string
+          video_enabled?: boolean | null
         }
         Relationships: [
           {
