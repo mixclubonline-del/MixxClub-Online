@@ -1163,6 +1163,45 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_preferences: {
+        Row: {
+          collaboration_updates: boolean | null
+          created_at: string | null
+          email_notifications: boolean | null
+          id: string
+          payment_updates: boolean | null
+          project_updates: boolean | null
+          session_invitations: boolean | null
+          system_notifications: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          collaboration_updates?: boolean | null
+          created_at?: string | null
+          email_notifications?: boolean | null
+          id?: string
+          payment_updates?: boolean | null
+          project_updates?: boolean | null
+          session_invitations?: boolean | null
+          system_notifications?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          collaboration_updates?: boolean | null
+          created_at?: string | null
+          email_notifications?: boolean | null
+          id?: string
+          payment_updates?: boolean | null
+          project_updates?: boolean | null
+          session_invitations?: boolean | null
+          system_notifications?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           action_url: string | null
