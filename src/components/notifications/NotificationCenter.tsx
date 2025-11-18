@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, X, Check, Trash2, Filter } from 'lucide-react';
+import { Bell, X, Check, Trash2, Filter, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -180,6 +180,16 @@ export function NotificationCenter() {
         <div className="flex items-center justify-between p-4 border-b">
           <h3 className="font-semibold">Notifications</h3>
           <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                setIsOpen(false);
+                navigate("/notification-preferences");
+              }}
+            >
+              <Settings className="w-4 h-4" />
+            </Button>
             <Button
               variant="ghost"
               size="sm"

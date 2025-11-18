@@ -76,6 +76,7 @@ import FAQ from "./pages/FAQ";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Settings from "./pages/Settings";
+import NotificationPreferences from "./pages/NotificationPreferences";
 import Checkout from "./pages/Checkout";
 import OrderSuccess from "./pages/OrderSuccess";
 import Pricing from "./pages/Pricing";
@@ -285,6 +286,7 @@ const AppContent = () => {
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/settings" element={<AppLayout><Settings /></AppLayout>} />
+          <Route path="/notification-preferences" element={<NotificationPreferences />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/order-success/:paymentId" element={<OrderSuccess />} />
           <Route path="/pricing" element={<Pricing />} />
