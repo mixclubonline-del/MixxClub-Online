@@ -93,7 +93,7 @@ export const IntelligentProjectUpload = ({ onUploadComplete }: IntelligentProjec
         .from('projects')
         .insert({
           title: projectTitle,
-          client_id: user?.id,
+          user_id: user?.id,
           status: 'pending',
           mixing_goals: selectedGoals,
           special_instructions: specialInstructions.trim() || null,
@@ -124,8 +124,8 @@ export const IntelligentProjectUpload = ({ onUploadComplete }: IntelligentProjec
             file_name: stem.name,
             file_path: fileName,
             file_size: stem.size,
-            uploaded_by: user?.id,
-            is_stem: true,
+            user_id: user?.id,
+            uploaded_by: user?.id
           });
 
         if (audioError) throw audioError;
@@ -150,9 +150,8 @@ export const IntelligentProjectUpload = ({ onUploadComplete }: IntelligentProjec
             file_name: referenceTrack.name,
             file_path: refFileName,
             file_size: referenceTrack.size,
-            uploaded_by: user?.id,
-            is_stem: false,
-            stem_type: 'reference',
+            user_id: user?.id,
+            uploaded_by: user?.id
           });
 
         uploadedFiles++;

@@ -9,10 +9,10 @@ import { useToast } from "@/hooks/use-toast";
 interface Suggestion {
   id: string;
   suggestion_type: string;
-  suggestion_title: string;
-  suggestion_description: string;
+  title: string;
+  description: string;
   confidence_score: number;
-  parameters: any;
+  technical_details: any;
   applied: boolean;
 }
 
@@ -55,12 +55,11 @@ export const AIMixingSuggestions = ({ sessionId, audioFileId }: AIMixingSuggesti
     const { data, error } = await supabase
       .from("ai_mixing_suggestions")
       .select("*")
-      .eq("session_id", sessionId)
-      .eq("audio_file_id", audioFileId)
+      .eq("project_id", sessionId)
       .order("created_at", { ascending: false });
 
     if (!error && data) {
-      setSuggestions(data as Suggestion[]);
+      setSuggestions(data as any);
     }
     setLoading(false);
   };
@@ -119,13 +118,13 @@ export const AIMixingSuggestions = ({ sessionId, audioFileId }: AIMixingSuggesti
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <h4 className="font-medium">{suggestion.suggestion_title}</h4>
+                      <h4 className="font-medium">{suggestion.title}</h4>
                       {suggestion.applied && (
                         <CheckCircle className="w-4 h-4 text-primary" />
                       )}
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      {suggestion.suggestion_description}
+                      {suggestion.description}
                     </p>
                   </div>
                   <Badge variant="outline" className="ml-2">

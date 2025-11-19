@@ -317,8 +317,7 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
           .from('screen_shares')
           .insert({
             session_id: sessionId,
-            shared_by: user?.id,
-            screen_type: 'full',
+            user_id: user?.id,
             is_active: true
           });
         

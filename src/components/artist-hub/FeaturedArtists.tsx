@@ -16,7 +16,7 @@ export default function FeaturedArtists() {
           id,
           full_name,
           avatar_url,
-          projects!projects_client_id_fkey(id, status)
+          projects!projects_user_id_fkey(id, status)
         `)
         .limit(8);
       

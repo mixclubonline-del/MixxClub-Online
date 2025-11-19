@@ -77,7 +77,8 @@ export const InviteEngineerDialog = ({ sessionId, sessionName }: InviteEngineerD
         .from("session_invitations")
         .insert({
           session_id: sessionId,
-          artist_id: user.id,
+          inviter_id: user.id,
+          invitee_email: engineerEmail,
           engineer_id: engineerProfile.id,
           message: message.trim() || null,
         })

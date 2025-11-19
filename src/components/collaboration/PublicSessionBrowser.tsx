@@ -153,7 +153,7 @@ export const PublicSessionBrowser = () => {
         .from("session_join_requests")
         .insert({
           session_id: selectedSession.id,
-          engineer_id: user.id,
+          user_id: user.id,
           message: requestMessage.trim() || null,
         });
 

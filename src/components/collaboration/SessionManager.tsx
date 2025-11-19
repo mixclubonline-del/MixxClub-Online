@@ -19,8 +19,6 @@ interface Session {
   status: string;
   host_user_id: string;
   max_participants: number;
-  started_at: string | null;
-  project_id: string | null;
   audio_quality: string;
   participants?: Array<{
     id: string;
@@ -237,12 +235,12 @@ const SessionManager: React.FC<SessionManagerProps> = ({ projectId, onEnterSessi
       const { data: sessionData, error: sessionError } = await supabase
         .from('collaboration_sessions')
         .insert({
+          title: sessionName,
           session_name: sessionName,
           session_type: sessionType,
           host_user_id: user.id,
           max_participants: maxParticipants,
           audio_quality: audioQuality,
-          project_id: projectId || null,
           status: 'waiting'
         })
         .select()
@@ -533,13 +531,6 @@ const SessionManager: React.FC<SessionManagerProps> = ({ projectId, onEnterSessi
                           <span>Host: {session.host?.full_name}</span>
                           <span>•</span>
                           <span>{session.participants?.length || 0}/{session.max_participants} participants</span>
-                          {session.started_at && (
-                            <>
-                              <span>•</span>
-                              <Clock className="w-3 h-3" />
-                              <span>{new Date(session.started_at).toLocaleTimeString()}</span>
-                            </>
-                          )}
                         </div>
                       </div>
                     </div>
