@@ -217,6 +217,7 @@ export const RealTimeCollaboration = () => {
         .from('collaboration_sessions')
         .insert({
           host_user_id: currentUser?.id,
+          title: 'Listening Session',
           session_name: 'Listening Session',
           session_type: 'listening',
           status: 'active'

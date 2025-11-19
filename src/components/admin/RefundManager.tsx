@@ -33,7 +33,7 @@ export function RefundManager() {
         .from('payments')
         .select(`
           *,
-          project:projects(title, client:profiles!projects_client_id_fkey(full_name))
+          project:projects(title, user:profiles!projects_user_id_fkey(full_name))
         `)
         .in('status', ['completed', 'pending'])
         .order('created_at', { ascending: false })
@@ -145,7 +145,7 @@ export function RefundManager() {
                     <tr key={payment.id} className="border-b hover:bg-muted/50">
                       <td className="p-3 font-mono text-sm">{payment.id.substring(0, 8)}</td>
                       <td className="p-3">{payment.project?.title || 'N/A'}</td>
-                      <td className="p-3">{payment.project?.client?.full_name || 'N/A'}</td>
+                      <td className="p-3">{(payment.project?.user as any)?.full_name || 'N/A'}</td>
                       <td className="p-3 font-semibold">{formatCurrency(payment.amount)}</td>
                       <td className="p-3">{getStatusBadge(payment.status)}</td>
                       <td className="p-3 text-sm text-muted-foreground">
@@ -177,7 +177,7 @@ export function RefundManager() {
                       <div>
                         <p className="font-medium">{payment.project?.title || 'N/A'}</p>
                         <p className="text-sm text-muted-foreground">
-                          {payment.project?.client?.full_name || 'N/A'}
+                          {(payment.project?.user as any)?.full_name || 'N/A'}
                         </p>
                       </div>
                       {getStatusBadge(payment.status)}

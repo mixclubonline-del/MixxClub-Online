@@ -36,7 +36,7 @@ interface SecurityEvent {
   details: any;
   is_resolved: boolean;
   created_at: string;
-  auto_action_taken: string | null;
+  auto_action_taken: boolean | null;
 }
 
 interface SecurityStats {

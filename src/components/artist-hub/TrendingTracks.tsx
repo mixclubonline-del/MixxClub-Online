@@ -64,7 +64,7 @@ export default function TrendingTracks() {
       {tracks?.map((track, index) => {
         const profile = track.ai_audio_profiles?.[0];
         const genre = profile?.genre_prediction 
-          ? Object.entries(profile.genre_prediction as Record<string, number>)[0]?.[0] 
+          ? (typeof profile.genre_prediction === 'string' ? profile.genre_prediction : Object.entries(profile.genre_prediction as unknown as Record<string, number>)[0]?.[0])
           : 'Unknown';
 
         return (

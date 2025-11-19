@@ -99,11 +99,10 @@ export const AudioComments = ({ projectId, audioFiles }: AudioCommentsProps) => 
       const { error } = await supabase
         .from('collaboration_comments')
         .insert({
-          project_id: projectId,
+          session_id: projectId,
           user_id: user.id,
           comment_text: newComment.trim(),
-          timestamp_seconds: selectedTimestamp,
-          audio_file_id: selectedFileId
+          timestamp_seconds: selectedTimestamp
         });
 
       if (error) throw error;

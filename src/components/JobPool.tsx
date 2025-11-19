@@ -137,7 +137,7 @@ export const JobPool = () => {
         .from('job_applications')
         .insert({
           job_id: jobId,
-          engineer_id: user.id,
+          applicant_id: user.id,
           message: application.message,
           proposed_rate: application.proposed_rate,
           estimated_delivery: application.estimated_delivery
