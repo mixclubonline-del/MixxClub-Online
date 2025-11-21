@@ -10,22 +10,28 @@ export default function FeaturedArtists() {
   const { data: artists, isLoading } = useQuery({
     queryKey: ['featured-artists'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Fetch profiles
+      const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select(`
-          id,
-          full_name,
-          avatar_url,
-          projects!projects_user_id_fkey(id, status)
-        `)
+        .select('id, full_name, avatar_url')
         .limit(8);
       
-      if (error) throw error;
+      if (profilesError) throw profilesError;
+      if (!profiles) return [];
 
-      return data
+      // Fetch projects separately
+      const { data: projects, error: projectsError } = await supabase
+        .from('projects')
+        .select('user_id, status')
+        .eq('status', 'completed');
+      
+      if (projectsError) throw projectsError;
+
+      // Combine data
+      return profiles
         .map(artist => ({
           ...artist,
-          projectCount: artist.projects?.filter((p: any) => p.status === 'completed').length || 0
+          projectCount: projects?.filter(p => p.user_id === artist.id).length || 0
         }))
         .filter(a => a.projectCount > 0)
         .sort((a, b) => b.projectCount - a.projectCount)

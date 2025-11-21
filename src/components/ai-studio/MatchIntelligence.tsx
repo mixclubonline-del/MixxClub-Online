@@ -16,20 +16,29 @@ export default function MatchIntelligence() {
     queryFn: async () => {
       if (!user?.id) return [];
 
-      const { data, error } = await supabase
+      const { data: matchData, error } = await supabase
         .from('ai_collaboration_matches')
-        .select(`
-          *,
-          artist:profiles!ai_collaboration_matches_artist_id_fkey(full_name, avatar_url),
-          engineer:profiles!ai_collaboration_matches_engineer_id_fkey(full_name, avatar_url)
-        `)
-        .or(`artist_id.eq.${user.id},engineer_id.eq.${user.id}`)
-        .eq('match_status', 'suggested')
+        .select('*')
+        .eq('matched_user_id', user.id)
+        .eq('status', 'suggested')
         .order('compatibility_score', { ascending: false })
         .limit(5);
 
       if (error) throw error;
-      return data;
+      if (!matchData) return [];
+
+      // Fetch profiles for matched users
+      const userIds = matchData.map(m => m.artist_id || m.engineer_id).filter(Boolean);
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, full_name, avatar_url')
+        .in('id', userIds);
+
+      // Combine data
+      return matchData.map(match => ({
+        ...match,
+        matchedProfile: profiles?.find(p => p.id === (match.artist_id || match.engineer_id))
+      }));
     },
     enabled: !!user?.id,
   });
@@ -79,8 +88,7 @@ export default function MatchIntelligence() {
   return (
     <div className="space-y-3">
       {matches.map((match) => {
-        const isArtist = match.artist_id === user?.id;
-        const otherUser = isArtist ? match.engineer : match.artist;
+        const otherUser = match.matchedProfile;
         const compatScore = Math.round((match.compatibility_score || 0) * 100);
 
         return (
@@ -88,13 +96,13 @@ export default function MatchIntelligence() {
             <CardContent className="p-4">
               <div className="flex items-center gap-3 mb-3">
                 <Avatar className="w-12 h-12 ring-2 ring-primary/20 group-hover:ring-primary/50 transition-all">
-                  <AvatarImage src={(otherUser as any)?.avatar_url || ''} />
-                  <AvatarFallback>{((otherUser as any)?.full_name || 'U')[0]}</AvatarFallback>
+                  <AvatarImage src={otherUser?.avatar_url || ''} />
+                  <AvatarFallback>{(otherUser?.full_name || 'U')[0]}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <h4 className="font-semibold truncate">{(otherUser as any)?.full_name || 'User'}</h4>
+                  <h4 className="font-semibold truncate">{otherUser?.full_name || 'User'}</h4>
                   <p className="text-xs text-muted-foreground">
-                    {isArtist ? 'Engineer Match' : 'Artist Match'}
+                    {match.artist_id === user?.id ? 'Engineer Match' : 'Artist Match'}
                   </p>
                 </div>
                 <Badge className="bg-primary/20 text-primary border-primary/30 gap-1">

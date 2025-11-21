@@ -17,10 +17,9 @@ export const CashFlowManagement = () => {
       const { data, error } = await supabase
         .from('financial_forecasts')
         .select('*')
-        .eq('forecast_type', 'cash_flow')
         .order('forecast_date', { ascending: true });
       if (error) throw error;
-      return data;
+      return data || [];
     }
   });
 
