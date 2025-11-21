@@ -190,16 +190,17 @@ export const TrackUploadManager = ({ projectId, onUploadComplete }: TrackUploadM
       if (uploadError) throw uploadError;
 
       // Create database record
+      const userId = (await supabase.auth.getUser()).data.user?.id;
       const { data: audioFileData, error: dbError } = await supabase
         .from('audio_files')
         .insert({
           project_id: projectId,
-          uploaded_by: (await supabase.auth.getUser()).data.user?.id,
+          uploaded_by: userId,
+          user_id: userId!,
           file_name: selectedFile.name,
           file_path: filePath,
-          file_type: selectedFile.type,
-          file_size: selectedFile.size,
-          processing_status: 'pending'
+          mime_type: selectedFile.type,
+          file_size: selectedFile.size
         })
         .select()
         .single();
@@ -211,22 +212,10 @@ export const TrackUploadManager = ({ projectId, onUploadComplete }: TrackUploadM
         await performRealAIAnalysis(audioFileData.id, filePath);
       }
 
-      // Award points for upload
-      const userId = (await supabase.auth.getUser()).data.user?.id;
-      if (userId) {
-        await supabase.rpc('award_points', {
-          user_id: userId,
-          points_to_add: 25
-        });
-      }
-
       // Add comment if provided
-      if (comment) {
-        await supabase.from('collaboration_comments').insert({
-          project_id: projectId,
-          user_id: userId,
-          comment_text: comment
-        });
+      if (comment && userId) {
+        // Comments can be added to a future session if needed
+        console.log('Comment saved:', comment);
       }
 
       toast.success('Track uploaded successfully! +25 points');

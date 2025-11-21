@@ -34,25 +34,22 @@ export const EngineerBusinessHub = () => {
     try {
       const { data: earningsData, error: earningsError } = await supabase
         .from('engineer_earnings')
-        .select(`
-          *,
-          project:projects(title, client:profiles!projects_client_id_fkey(full_name))
-        `)
+        .select('*')
         .eq('engineer_id', user?.id)
         .order('created_at', { ascending: false });
 
       if (earningsError) throw earningsError;
 
-      const total = earningsData?.reduce((sum, e) => sum + Number(e.total_amount || 0), 0) || 0;
-      const pending = earningsData?.filter(e => e.status === 'pending').reduce((sum, e) => sum + Number(e.total_amount || 0), 0) || 0;
-      const paid = earningsData?.filter(e => e.status === 'paid').reduce((sum, e) => sum + Number(e.total_amount || 0), 0) || 0;
-      const bonuses = earningsData?.reduce((sum, e) => sum + Number(e.bonus_amount || 0), 0) || 0;
+      const total = earningsData?.reduce((sum, e) => sum + Number(e.amount || 0), 0) || 0;
+      const pending = earningsData?.filter(e => e.status === 'pending').reduce((sum, e) => sum + Number(e.amount || 0), 0) || 0;
+      const paid = earningsData?.filter(e => e.status === 'paid').reduce((sum, e) => sum + Number(e.amount || 0), 0) || 0;
+      const bonuses = 0;
       
       const now = new Date();
       const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
       const thisMonth = earningsData?.filter(e => 
         new Date(e.created_at) >= firstDayOfMonth
-      ).reduce((sum, e) => sum + Number(e.total_amount || 0), 0) || 0;
+      ).reduce((sum, e) => sum + Number(e.amount || 0), 0) || 0;
 
       setStats({
         totalEarnings: total,
@@ -243,10 +240,7 @@ export const EngineerBusinessHub = () => {
                     </div>
                     <div>
                       <p className="font-medium">
-                        {earning.project?.title || 'Unknown Project'}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Client: {earning.project?.client?.full_name || 'Unknown'}
+                        Project Earnings
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {new Date(earning.created_at).toLocaleDateString()}
@@ -255,13 +249,8 @@ export const EngineerBusinessHub = () => {
                   </div>
                   <div className="text-right">
                     <p className="text-lg font-bold">
-                      ${Number(earning.total_amount).toFixed(2)}
+                      ${Number(earning.amount).toFixed(2)}
                     </p>
-                    {earning.bonus_amount > 0 && (
-                      <p className="text-sm text-green-500">
-                        +${Number(earning.bonus_amount).toFixed(2)} bonus
-                      </p>
-                    )}
                     <Badge 
                       variant={earning.status === 'paid' ? 'default' : 'secondary'}
                       className="mt-1"
