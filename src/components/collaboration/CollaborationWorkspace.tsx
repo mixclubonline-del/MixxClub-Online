@@ -326,9 +326,9 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
         // End screen share
         await supabase
           .from('screen_shares')
-          .update({ is_active: false, ended_at: new Date().toISOString() })
+          .update({ is_active: false })
           .eq('session_id', sessionId)
-          .eq('shared_by', user?.id)
+          .eq('user_id', user?.id)
           .eq('is_active', true);
         
         toast.success('Screen sharing stopped');
