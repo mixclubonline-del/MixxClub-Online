@@ -347,6 +347,39 @@ export type Database = {
           },
         ]
       }
+      application_templates: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_default: boolean | null
+          service_type: string | null
+          template_content: string
+          template_name: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_default?: boolean | null
+          service_type?: string | null
+          template_content: string
+          template_name: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_default?: boolean | null
+          service_type?: string | null
+          template_content?: string
+          template_name?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       audio_files: {
         Row: {
           created_at: string
@@ -954,6 +987,39 @@ export type Database = {
         }
         Relationships: []
       }
+      engineer_streaks: {
+        Row: {
+          created_at: string | null
+          current_streak: number | null
+          id: string
+          last_session_date: string | null
+          longest_streak: number | null
+          total_sessions: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_streak?: number | null
+          id?: string
+          last_session_date?: string | null
+          longest_streak?: number | null
+          total_sessions?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          current_streak?: number | null
+          id?: string
+          last_session_date?: string | null
+          longest_streak?: number | null
+          total_sessions?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       financial_actions_log: {
         Row: {
           action_type: string
@@ -1209,6 +1275,8 @@ export type Database = {
           id: string
           is_read: boolean | null
           message: string
+          related_id: string | null
+          related_type: string | null
           title: string
           type: string | null
           user_id: string
@@ -1219,6 +1287,8 @@ export type Database = {
           id?: string
           is_read?: boolean | null
           message: string
+          related_id?: string | null
+          related_type?: string | null
           title: string
           type?: string | null
           user_id: string
@@ -1229,6 +1299,8 @@ export type Database = {
           id?: string
           is_read?: boolean | null
           message?: string
+          related_id?: string | null
+          related_type?: string | null
           title?: string
           type?: string | null
           user_id?: string
@@ -1324,6 +1396,53 @@ export type Database = {
         }
         Relationships: []
       }
+      premieres: {
+        Row: {
+          created_at: string | null
+          id: string
+          premiere_date: string
+          premiere_description: string | null
+          premiere_title: string
+          project_id: string
+          status: string | null
+          streaming_url: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          premiere_date: string
+          premiere_description?: string | null
+          premiere_title: string
+          project_id: string
+          status?: string | null
+          streaming_url?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          premiere_date?: string
+          premiere_description?: string | null
+          premiere_title?: string
+          project_id?: string
+          status?: string | null
+          streaming_url?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "premieres_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1332,6 +1451,8 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
+          level: number | null
+          points: number | null
           project_id: string | null
           role: string | null
           updated_at: string
@@ -1343,6 +1464,8 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id: string
+          level?: number | null
+          points?: number | null
           project_id?: string | null
           role?: string | null
           updated_at?: string
@@ -1354,6 +1477,8 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          level?: number | null
+          points?: number | null
           project_id?: string | null
           role?: string | null
           updated_at?: string
@@ -1361,6 +1486,79 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "profiles_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_messages: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          project_id: string
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          project_id: string
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          project_id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_messages_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_reviews: {
+        Row: {
+          created_at: string | null
+          id: string
+          project_id: string
+          rating: number | null
+          review_text: string | null
+          reviewer_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          project_id: string
+          rating?: number | null
+          review_text?: string | null
+          reviewer_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          project_id?: string
+          rating?: number | null
+          review_text?: string | null
+          reviewer_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_reviews_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
@@ -1724,6 +1922,56 @@ export type Database = {
             columns: ["session_id"]
             isOneToOne: false
             referencedRelation: "collaboration_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tasks: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          description: string | null
+          due_date: string | null
+          id: string
+          priority: string | null
+          project_id: string | null
+          status: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string | null
+          project_id?: string | null
+          status?: string | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string | null
+          project_id?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
