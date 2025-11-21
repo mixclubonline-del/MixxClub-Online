@@ -233,8 +233,9 @@ const EnhancedCRM: React.FC<Props> = ({ projectId }) => {
           file_name: file.name,
           file_path: uploadData.path,
           uploaded_by: user.id,
+          user_id: user.id,
           file_size: file.size,
-          file_type: file.type
+          mime_type: file.type
         });
 
       if (dbError) {
