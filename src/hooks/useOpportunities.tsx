@@ -41,8 +41,8 @@ export const useOpportunities = (userRole: 'artist' | 'engineer') => {
             matchScore: 85,
             skills: [job.genre, job.service_type].filter(Boolean),
             description: job.description || '',
-            urgency: job.urgency || 'medium',
-            responseTime: `${job.response_time_hours || 24} hours`,
+            urgency: 'medium',
+            responseTime: '24 hours',
             rating: 4.8
           };
         }) || [];
@@ -51,8 +51,8 @@ export const useOpportunities = (userRole: 'artist' | 'engineer') => {
         const { data: matches, error } = await supabase
           .from('ai_collaboration_matches')
           .select('*')
-          .eq('artist_id', user.id)
-          .eq('match_status', 'suggested')
+          .or(`artist_id.eq.${user.id},matched_user_id.eq.${user.id}`)
+          .eq('status', 'pending')
           .order('compatibility_score', { ascending: false })
           .limit(10);
         
@@ -83,8 +83,8 @@ export const useOpportunities = (userRole: 'artist' | 'engineer') => {
             skills: match.complementary_skills || [],
             description: engineer?.bio || 'Experienced audio engineer',
             urgency: 'medium',
-            responseTime: `${details?.response_time_avg_hours || 24} hours`,
-            rating: details?.rating_average || 4.5
+            responseTime: '24 hours',
+            rating: details?.rating || 4.5
           };
         }) || [];
       }
@@ -114,12 +114,11 @@ export const useOpportunityAction = () => {
         const { data, error } = await supabase
           .from('job_applications')
           .upsert({
+            applicant_id: user.id,
             job_id: opportunityId,
-            engineer_id: user.id,
-            status: action === 'interested' ? 'applied' : 'dismissed',
-          }, {
-            onConflict: 'job_id,engineer_id'
-          });
+            status: action === 'interested' ? 'pending' : 'withdrawn',
+          })
+          .select();
         
         if (error) throw error;
         return data;
@@ -128,9 +127,7 @@ export const useOpportunityAction = () => {
         const { data, error } = await supabase
           .from('ai_collaboration_matches')
           .update({
-            match_status: action === 'interested' ? 'contacted' : 'dismissed',
-            artist_interested: action === 'interested',
-            viewed_by_artist: true
+            status: action === 'interested' ? 'accepted' : 'declined',
           })
           .eq('id', opportunityId);
         

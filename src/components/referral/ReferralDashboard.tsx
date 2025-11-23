@@ -33,7 +33,7 @@ export function ReferralDashboard() {
 
     const handleCopyLink = async () => {
         try {
-            await shareReferralLink('copy');
+            await shareReferralLink?.('copy');
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
             toast({
@@ -51,7 +51,7 @@ export function ReferralDashboard() {
 
     const handleShare = async (method: 'twitter' | 'facebook' | 'email' | 'whatsapp') => {
         try {
-            await shareReferralLink(method);
+            await shareReferralLink?.(method);
             toast({
                 title: 'Shared!',
                 description: `Shared on ${method}`,
@@ -85,7 +85,7 @@ export function ReferralDashboard() {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm text-muted-foreground mb-1">Total Referred</p>
-                            <p className="text-3xl font-bold">{referralStats.totalReferred}</p>
+                            <p className="text-3xl font-bold">{referralStats.total}</p>
                         </div>
                         <Users className="w-8 h-8 text-blue-500 opacity-50" />
                     </div>
@@ -95,7 +95,7 @@ export function ReferralDashboard() {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm text-muted-foreground mb-1">Successful</p>
-                            <p className="text-3xl font-bold">{referralStats.successfulReferrals}</p>
+                            <p className="text-3xl font-bold">{referralStats.active}</p>
                         </div>
                         <TrendingUp className="w-8 h-8 text-green-500 opacity-50" />
                     </div>

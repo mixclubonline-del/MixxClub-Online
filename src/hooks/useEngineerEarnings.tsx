@@ -164,7 +164,7 @@ export function useEngineerEarnings(engineerId: string | undefined) {
       const { data: streakData, error: streakError } = await supabase
         .from('engineer_streaks')
         .select('*')
-        .eq('engineer_id', engineerId)
+        .eq('user_id', engineerId)
         .single();
 
       if (streakError && streakError.code !== 'PGRST116') {
@@ -173,7 +173,11 @@ export function useEngineerEarnings(engineerId: string | undefined) {
       }
 
       if (streakData) {
-        setStreak(streakData);
+        setStreak({
+          current_streak: streakData.current_streak || 0,
+          longest_streak: streakData.longest_streak || 0,
+          last_activity_date: streakData.last_session_date || streakData.last_activity_date || null,
+        });
       }
     } catch (error: any) {
       console.error('Error fetching engineer data:', error);
