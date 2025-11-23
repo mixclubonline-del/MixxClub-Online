@@ -112,7 +112,7 @@ Keep it to 2-3 paragraphs, highlighting their unique value proposition and what 
         profile?.bio,
         profile?.avatar_url,
         engineerProfile?.specialties?.length,
-        engineerProfile?.portfolio_links?.length,
+        engineerProfile?.portfolio_url,
       ].filter(Boolean).length;
 
       if (completeness < 5) {
@@ -127,7 +127,7 @@ Keep it to 2-3 paragraphs, highlighting their unique value proposition and what 
       }
 
       // Portfolio check
-      if (!engineerProfile?.portfolio_links?.length) {
+      if (!engineerProfile?.portfolio_url) {
         insights.push("Add portfolio links to showcase your work and increase your credibility.");
       }
 
