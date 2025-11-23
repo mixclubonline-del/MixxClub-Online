@@ -47,3 +47,26 @@ export const useAIAudioAnalysis = (fileId?: string) => {
     requestMatch: async () => {}
   };
 };
+
+export const useAIMasteringPresets = () => {
+  return {
+    data: [],
+    isLoading: false,
+    error: null,
+  };
+};
+
+export const useAICollaborationMatches = () => {
+  return {
+    data: [],
+    isLoading: false,
+    error: null,
+  };
+};
+
+export const useUpdateMatchStatus = () => {
+  return {
+    mutate: async () => {},
+    isLoading: false,
+  };
+};
