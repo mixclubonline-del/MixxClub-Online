@@ -17,7 +17,9 @@ export type Database = {
       achievements: {
         Row: {
           achievement_type: string
+          badge_description: string | null
           badge_name: string | null
+          badge_type: string | null
           description: string | null
           earned_at: string
           icon: string | null
@@ -28,7 +30,9 @@ export type Database = {
         }
         Insert: {
           achievement_type: string
+          badge_description?: string | null
           badge_name?: string | null
+          badge_type?: string | null
           description?: string | null
           earned_at?: string
           icon?: string | null
@@ -39,7 +43,9 @@ export type Database = {
         }
         Update: {
           achievement_type?: string
+          badge_description?: string | null
           badge_name?: string | null
+          badge_type?: string | null
           description?: string | null
           earned_at?: string
           icon?: string | null
@@ -544,6 +550,7 @@ export type Database = {
           current_participants: number | null
           description: string | null
           end_date: string | null
+          entry_fee: number | null
           id: string
           max_participants: number | null
           prize_pool: number | null
@@ -556,6 +563,7 @@ export type Database = {
           current_participants?: number | null
           description?: string | null
           end_date?: string | null
+          entry_fee?: number | null
           id?: string
           max_participants?: number | null
           prize_pool?: number | null
@@ -568,6 +576,7 @@ export type Database = {
           current_participants?: number | null
           description?: string | null
           end_date?: string | null
+          entry_fee?: number | null
           id?: string
           max_participants?: number | null
           prize_pool?: number | null
@@ -695,6 +704,7 @@ export type Database = {
       }
       chatbot_messages: {
         Row: {
+          chatbot_type: string | null
           context: Json | null
           created_at: string
           id: string
@@ -703,6 +713,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          chatbot_type?: string | null
           context?: Json | null
           created_at?: string
           id?: string
@@ -711,6 +722,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          chatbot_type?: string | null
           context?: Json | null
           created_at?: string
           id?: string
@@ -847,6 +859,76 @@ export type Database = {
           status?: string | null
         }
         Relationships: []
+      }
+      contract_expiration_notifications: {
+        Row: {
+          contract_id: string
+          created_at: string | null
+          days_until_expiration: number
+          id: string
+          is_sent: boolean | null
+          notification_date: string
+        }
+        Insert: {
+          contract_id: string
+          created_at?: string | null
+          days_until_expiration: number
+          id?: string
+          is_sent?: boolean | null
+          notification_date: string
+        }
+        Update: {
+          contract_id?: string
+          created_at?: string | null
+          days_until_expiration?: number
+          id?: string
+          is_sent?: boolean | null
+          notification_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_expiration_notifications_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "enterprise_contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      engineer_badges: {
+        Row: {
+          badge_name: string
+          badge_rarity: string | null
+          created_at: string | null
+          earned_at: string | null
+          engineer_id: string
+          id: string
+        }
+        Insert: {
+          badge_name: string
+          badge_rarity?: string | null
+          created_at?: string | null
+          earned_at?: string | null
+          engineer_id: string
+          id?: string
+        }
+        Update: {
+          badge_name?: string
+          badge_rarity?: string | null
+          created_at?: string | null
+          earned_at?: string | null
+          engineer_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "engineer_badges_engineer_id_fkey"
+            columns: ["engineer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       engineer_deliverables: {
         Row: {
@@ -1019,6 +1101,88 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      enterprise_contracts: {
+        Row: {
+          client_id: string
+          contract_name: string
+          contract_value: number
+          created_at: string | null
+          end_date: string
+          id: string
+          start_date: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          client_id: string
+          contract_name: string
+          contract_value: number
+          created_at?: string | null
+          end_date: string
+          id?: string
+          start_date: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          client_id?: string
+          contract_name?: string
+          contract_value?: number
+          created_at?: string | null
+          end_date?: string
+          id?: string
+          start_date?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enterprise_contracts_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fan_stats: {
+        Row: {
+          created_at: string | null
+          id: string
+          total_comments: number | null
+          total_premieres_attended: number | null
+          total_votes: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          total_comments?: number | null
+          total_premieres_attended?: number | null
+          total_votes?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          total_comments?: number | null
+          total_premieres_attended?: number | null
+          total_votes?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fan_stats_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       financial_actions_log: {
         Row: {
@@ -1396,10 +1560,50 @@ export type Database = {
         }
         Relationships: []
       }
+      premiere_votes: {
+        Row: {
+          created_at: string | null
+          id: string
+          premiere_id: string
+          user_id: string
+          vote_type: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          premiere_id: string
+          user_id: string
+          vote_type: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          premiere_id?: string
+          user_id?: string
+          vote_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "premiere_votes_premiere_id_fkey"
+            columns: ["premiere_id"]
+            isOneToOne: false
+            referencedRelation: "premieres"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "premiere_votes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       premieres: {
         Row: {
           created_at: string | null
           id: string
+          play_count: number | null
           premiere_date: string
           premiere_description: string | null
           premiere_title: string
@@ -1412,6 +1616,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           id?: string
+          play_count?: number | null
           premiere_date: string
           premiere_description?: string | null
           premiere_title: string
@@ -1424,6 +1629,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           id?: string
+          play_count?: number | null
           premiere_date?: string
           premiere_description?: string | null
           premiere_title?: string
@@ -1452,9 +1658,11 @@ export type Database = {
           full_name: string | null
           id: string
           level: number | null
+          notification_preferences: Json | null
           points: number | null
           project_id: string | null
           role: string | null
+          stripe_connect_account_id: string | null
           updated_at: string
         }
         Insert: {
@@ -1465,9 +1673,11 @@ export type Database = {
           full_name?: string | null
           id: string
           level?: number | null
+          notification_preferences?: Json | null
           points?: number | null
           project_id?: string | null
           role?: string | null
+          stripe_connect_account_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -1478,9 +1688,11 @@ export type Database = {
           full_name?: string | null
           id?: string
           level?: number | null
+          notification_preferences?: Json | null
           points?: number | null
           project_id?: string | null
           role?: string | null
+          stripe_connect_account_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -1530,33 +1742,55 @@ export type Database = {
       }
       project_reviews: {
         Row: {
+          artist_id: string | null
+          communication_rating: number | null
           created_at: string | null
           id: string
           project_id: string
+          quality_rating: number | null
           rating: number | null
           review_text: string | null
           reviewer_id: string
+          timeliness_rating: number | null
           updated_at: string | null
+          would_recommend: boolean | null
         }
         Insert: {
+          artist_id?: string | null
+          communication_rating?: number | null
           created_at?: string | null
           id?: string
           project_id: string
+          quality_rating?: number | null
           rating?: number | null
           review_text?: string | null
           reviewer_id: string
+          timeliness_rating?: number | null
           updated_at?: string | null
+          would_recommend?: boolean | null
         }
         Update: {
+          artist_id?: string | null
+          communication_rating?: number | null
           created_at?: string | null
           id?: string
           project_id?: string
+          quality_rating?: number | null
           rating?: number | null
           review_text?: string | null
           reviewer_id?: string
+          timeliness_rating?: number | null
           updated_at?: string | null
+          would_recommend?: boolean | null
         }
         Relationships: [
+          {
+            foreignKeyName: "project_reviews_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "project_reviews_project_id_fkey"
             columns: ["project_id"]
@@ -1571,7 +1805,9 @@ export type Database = {
           bpm: number | null
           client_id: string | null
           created_at: string
+          deadline: string | null
           description: string | null
+          engineer_id: string | null
           genre: string | null
           id: string
           key: string | null
@@ -1587,7 +1823,9 @@ export type Database = {
           bpm?: number | null
           client_id?: string | null
           created_at?: string
+          deadline?: string | null
           description?: string | null
+          engineer_id?: string | null
           genre?: string | null
           id?: string
           key?: string | null
@@ -1603,7 +1841,9 @@ export type Database = {
           bpm?: number | null
           client_id?: string | null
           created_at?: string
+          deadline?: string | null
           description?: string | null
+          engineer_id?: string | null
           genre?: string | null
           id?: string
           key?: string | null
@@ -1615,7 +1855,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "projects_engineer_id_fkey"
+            columns: ["engineer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       revenue_analytics: {
         Row: {
@@ -1926,6 +2174,57 @@ export type Database = {
           },
         ]
       }
+      studio_partnerships: {
+        Row: {
+          created_at: string | null
+          day_rate: number | null
+          equipment_list: string[] | null
+          hourly_rate: number | null
+          id: string
+          is_active: boolean | null
+          location_city: string
+          location_country: string
+          location_state: string | null
+          rating_average: number | null
+          studio_name: string
+          studio_type: string
+          total_reviews: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          day_rate?: number | null
+          equipment_list?: string[] | null
+          hourly_rate?: number | null
+          id?: string
+          is_active?: boolean | null
+          location_city: string
+          location_country: string
+          location_state?: string | null
+          rating_average?: number | null
+          studio_name: string
+          studio_type: string
+          total_reviews?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          day_rate?: number | null
+          equipment_list?: string[] | null
+          hourly_rate?: number | null
+          id?: string
+          is_active?: boolean | null
+          location_city?: string
+          location_country?: string
+          location_state?: string | null
+          rating_average?: number | null
+          studio_name?: string
+          studio_type?: string
+          total_reviews?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
           completed_at: string | null
@@ -2106,7 +2405,17 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      engineer_leaderboard: {
+        Row: {
+          average_rating: number | null
+          completed_projects: number | null
+          engineer_id: string | null
+          rank: number | null
+          total_earnings: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       cleanup_old_audit_logs: {
