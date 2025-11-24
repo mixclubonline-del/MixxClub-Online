@@ -61,14 +61,14 @@ import MixingShowcase from "./pages/MixingShowcase";
 import MasteringShowcase from "./pages/MasteringShowcase";
 import Services from "./pages/Services";
 
-import BattleTournaments from "./pages/BattleTournaments";
+
 
 import MyCertifications from "./pages/MyCertifications";
 import Marketplace from "./pages/Marketplace";
 import LabelServices from "./pages/LabelServices";
 import Integrations from "./pages/Integrations";
 import AIAudioIntelligence from "./pages/AIAudioIntelligence";
-import DistributionHub from "./pages/DistributionHub";
+
 import ForEngineers from "./pages/ForEngineers";
 import EngineerDirectory from "./pages/EngineerDirectory";
 import EngineerProfile from "./pages/EngineerProfile";
@@ -78,7 +78,7 @@ import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Settings from "./pages/Settings";
 import NotificationPreferences from "./pages/NotificationPreferences";
-import Checkout from "./pages/Checkout";
+
 import OrderSuccess from "./pages/OrderSuccess";
 import Pricing from "./pages/Pricing";
 import Contact from "./pages/Contact";
