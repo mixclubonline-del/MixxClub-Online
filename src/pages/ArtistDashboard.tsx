@@ -78,21 +78,7 @@ const ArtistDashboard = () => {
 
       if (error) throw error;
 
-      // Award points for creating first project
-      await supabase.rpc('award_points', {
-        user_id: user.id,
-        points_to_add: 100
-      });
-
-      // Add first project achievement
-      await supabase.rpc('add_achievement', {
-        p_user_id: user.id,
-        p_badge_type: 'milestone',
-        p_badge_name: 'First Project',
-        p_badge_description: 'Created your first project on MixClub'
-      });
-
-      toast.success('Project created successfully! +100 points');
+      toast.success('Project created successfully!');
       setTitle("");
       setDescription("");
       setBudget("");

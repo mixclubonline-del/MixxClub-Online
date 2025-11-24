@@ -66,46 +66,15 @@ const EngineerCRM = () => {
       }
 
       // Check if user is admin - admins should use admin panel
-      const { data: isAdmin } = await supabase.rpc('is_admin', {
-        user_uuid: user.id
+      const { data: isAdmin } = await supabase.rpc('has_role', {
+        _user_id: user.id,
+        _role: 'admin'
       });
 
       if (isAdmin) {
         toast.error('Please use the Admin Panel');
         navigate('/admin');
         return;
-      }
-
-      // Check if slideshow should be shown first
-      const slideshowKey = `engineer_crm_slideshow_seen_${user.id}`;
-      const slideshowSeen = localStorage.getItem(slideshowKey);
-
-      if (!slideshowSeen) {
-        const { data: onboardingData } = await supabase
-          .from('onboarding_profiles')
-          .select('onboarding_completed')
-          .eq('user_id', user.id)
-          .single();
-
-        if (onboardingData?.onboarding_completed) {
-          setShowSlideshow(true);
-        }
-      } else {
-        // Check if assistant intro should be shown after slideshow
-        const assistantIntroKey = `engineer_assistant_intro_seen_${user.id}`;
-        const assistantIntroSeen = localStorage.getItem(assistantIntroKey);
-
-        if (!assistantIntroSeen) {
-          const { data: onboardingData } = await supabase
-            .from('onboarding_profiles')
-            .select('onboarding_completed')
-            .eq('user_id', user.id)
-            .single();
-
-          if (onboardingData?.onboarding_completed) {
-            setShowAssistantIntro(true);
-          }
-        }
       }
 
       fetchData();
@@ -191,10 +160,6 @@ const EngineerCRM = () => {
       const updates: any = { status: newStatus };
       if (newStatus === 'completed') {
         updates.completed_at = new Date().toISOString();
-        await supabase.rpc('award_points', {
-          user_id: user?.id,
-          points_to_add: 50
-        });
       }
 
       const { error } = await supabase
