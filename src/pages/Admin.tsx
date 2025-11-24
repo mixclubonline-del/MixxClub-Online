@@ -30,7 +30,7 @@ export default function Admin() {
         return;
       }
 
-      const { data, error } = await supabase.rpc('is_admin', { user_uuid: user.id });
+      const { data, error } = await supabase.rpc('has_role', { _user_id: user.id, _role: 'admin' });
       console.log('Admin check:', { user: user.id, data, error });
       
       if (error || !data) {

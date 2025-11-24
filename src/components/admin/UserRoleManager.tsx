@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/select";
 import { useState } from "react";
 
-const AVAILABLE_ROLES = ["admin", "engineer", "client"];
+const AVAILABLE_ROLES = ["admin", "engineer", "artist"];
 
 export const UserRoleManager = () => {
   const { users, assignRole, removeRole } = useUsers();
@@ -21,7 +21,7 @@ export const UserRoleManager = () => {
 
   const handleAssignRole = () => {
     if (selectedUserId && selectedRole) {
-      assignRole({ userId: selectedUserId, role: selectedRole as 'admin' | 'client' | 'engineer' });
+      assignRole({ userId: selectedUserId, role: selectedRole as 'admin' | 'artist' | 'engineer' });
       setSelectedUserId("");
       setSelectedRole("");
     }
