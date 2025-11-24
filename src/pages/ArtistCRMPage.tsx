@@ -45,7 +45,7 @@ export default function ArtistCRMPage() {
         <title>Artist CRM — MIXXCLUB</title>
         <meta name="description" content="Manage your music career, find collaborators, and grow your audience" />
       </Helmet>
-      <CRMLayout role="artist">
+      <CRMLayout>
         {renderHub()}
       </CRMLayout>
     </>

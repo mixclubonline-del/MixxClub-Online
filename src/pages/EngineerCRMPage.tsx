@@ -47,7 +47,7 @@ export default function EngineerCRMPage() {
         <title>Engineer CRM — MIXXCLUB</title>
         <meta name="description" content="Manage your audio business, find clients, and scale your income" />
       </Helmet>
-      <CRMLayout role="engineer">
+      <CRMLayout>
         {renderHub()}
       </CRMLayout>
     </>
