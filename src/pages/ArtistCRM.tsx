@@ -74,47 +74,15 @@ const ArtistCRM = () => {
       }
 
       // Check if user is admin - admins should use admin panel
-      const { data: isAdmin } = await supabase.rpc('is_admin', {
-        user_uuid: user.id
+      const { data: isAdmin } = await supabase.rpc('has_role', {
+        _user_id: user.id,
+        _role: 'admin'
       });
 
       if (isAdmin) {
         toast.error('Please use the Admin Panel');
         navigate('/admin');
         return;
-      }
-
-      // Check if slideshow should be shown first
-      const slideshowKey = `artist_crm_slideshow_seen_${user.id}`;
-      const slideshowSeen = localStorage.getItem(slideshowKey);
-
-      if (!slideshowSeen) {
-        // Check if user has completed onboarding
-        const { data: onboardingData } = await supabase
-          .from('onboarding_profiles')
-          .select('onboarding_completed')
-          .eq('user_id', user.id)
-          .single();
-
-        if (onboardingData?.onboarding_completed) {
-          setShowSlideshow(true);
-        }
-      } else {
-        // Check if assistant intro should be shown after slideshow
-        const assistantIntroKey = `artist_assistant_intro_seen_${user.id}`;
-        const assistantIntroSeen = localStorage.getItem(assistantIntroKey);
-
-        if (!assistantIntroSeen) {
-          const { data: onboardingData } = await supabase
-            .from('onboarding_profiles')
-            .select('onboarding_completed')
-            .eq('user_id', user.id)
-            .single();
-
-          if (onboardingData?.onboarding_completed) {
-            setShowAssistantIntro(true);
-          }
-        }
       }
 
       setCheckingSlideshow(false);
