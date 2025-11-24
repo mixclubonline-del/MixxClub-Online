@@ -1,8 +1,4 @@
-interface GrowthHubProps {
-  userType?: string;
-}
-
-export const GrowthHub = (props: GrowthHubProps) => {
+export const GrowthHub = () => {
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-bold">Growth Hub</h2>

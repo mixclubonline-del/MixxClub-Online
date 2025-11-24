@@ -21,7 +21,7 @@ import { MobileBottomNav } from '@/components/mobile/MobileBottomNav';
 
 interface PayoutRequest {
   id: string;
-  engineer_id: string;
+  user_id: string;
   amount: number;
   status: string;
   requested_at: string;
@@ -57,7 +57,7 @@ export default function MobileAdminPayouts() {
   }, [user, loading, navigate]);
 
   const checkAdminStatus = async () => {
-    const { data, error } = await supabase.rpc('is_admin', { user_uuid: user?.id });
+    const { data, error } = await supabase.rpc('has_role', { _user_id: user?.id, _role: 'admin' });
     if (error || !data) {
       navigate('/');
     }
@@ -73,7 +73,7 @@ export default function MobileAdminPayouts() {
       if (error) throw error;
 
       if (data && data.length > 0) {
-        const engineerIds = data.map(r => r.engineer_id);
+        const engineerIds = data.map(r => r.user_id);
         const { data: profilesData } = await supabase
           .from('profiles')
           .select('id, full_name')
@@ -81,7 +81,7 @@ export default function MobileAdminPayouts() {
 
         const requestsWithProfiles = data.map(request => ({
           ...request,
-          profiles: profilesData?.find(p => p.id === request.engineer_id) || null
+          profiles: profilesData?.find(p => p.id === request.user_id) || null
         }));
 
         setRequests(requestsWithProfiles as any);
