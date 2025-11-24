@@ -105,7 +105,7 @@ import DAW3DView from "@/components/daw/DAW3DView";
 import DAWEffectsPanel from "@/components/daw/DAWEffectsPanel";
 import DAWGamification from "@/components/daw/DAWGamification";
 import AudioImportDialog from "@/components/AudioImportDialog";
-import StemSeparationWindow from "@/components/studio/StemSeparationWindow";
+import { StemSeparationWindow } from "@/components/studio/StemSeparationWindow";
 import { CloudProjectManager } from "@/components/daw/CloudProjectManager";
 import { PrimeBotAssistant } from "@/components/studio/PrimeBotAssistant";
 import { AIAssistantPanel } from "@/components/studio/AIAssistantPanel";
