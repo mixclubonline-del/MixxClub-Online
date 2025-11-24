@@ -73,7 +73,7 @@ export default function MobileAdminPayouts() {
       if (error) throw error;
 
       if (data && data.length > 0) {
-        const engineerIds = data.map(r => r.engineer_id);
+        const engineerIds = data.map(r => r.user_id);
         const { data: profilesData } = await supabase
           .from('profiles')
           .select('id, full_name')
@@ -81,7 +81,7 @@ export default function MobileAdminPayouts() {
 
         const requestsWithProfiles = data.map(request => ({
           ...request,
-          profiles: profilesData?.find(p => p.id === request.engineer_id) || null
+          profiles: profilesData?.find(p => p.id === request.user_id) || null
         }));
 
         setRequests(requestsWithProfiles as any);
