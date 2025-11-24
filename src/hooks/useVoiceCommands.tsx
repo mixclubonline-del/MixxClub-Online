@@ -97,21 +97,8 @@ export const useVoiceCommands = (sessionId: string, userId: string) => {
       parameters.action = 'pause';
     }
 
-    // Log the command
-    const { error } = await supabase
-      .from("voice_commands_log")
-      .insert({
-        session_id: sessionId,
-        user_id: userId,
-        command_text: commandText,
-        command_type: commandType,
-        parameters: parameters,
-        executed_successfully: commandType !== 'unknown',
-      });
-
-    if (error) {
-      console.error('Failed to log voice command:', error);
-    }
+    // Voice command logging disabled (table not implemented yet)
+    console.log('Voice command:', { commandType, parameters, commandText });
 
     // Execute the command
     if (commandType !== 'unknown') {

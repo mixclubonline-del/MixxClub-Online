@@ -33,7 +33,7 @@ export function ReferralDashboard() {
 
     const handleCopyLink = async () => {
         try {
-            await shareReferralLink?.('copy');
+            await shareReferralLink?.();
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
             toast({
@@ -51,7 +51,7 @@ export function ReferralDashboard() {
 
     const handleShare = async (method: 'twitter' | 'facebook' | 'email' | 'whatsapp') => {
         try {
-            await shareReferralLink?.(method);
+            await shareReferralLink?.();
             toast({
                 title: 'Shared!',
                 description: `Shared on ${method}`,

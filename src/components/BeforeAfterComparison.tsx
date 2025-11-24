@@ -3,10 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Play, Pause, Volume2, VolumeX, ArrowLeftRight, Users, Check, X, Frown } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
-import { useShowcaseAudio } from '@/hooks/useShowcaseAudio';
 
 export function BeforeAfterComparison() {
-  const { samples, loading: audioLoading } = useShowcaseAudio('mixing');
+  const samples: any[] = [];
+  const audioLoading = false;
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
