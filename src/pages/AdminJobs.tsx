@@ -23,7 +23,6 @@ interface JobPosting {
   status: string;
   created_at: string;
   artist_id: string;
-  assigned_engineer_id: string | null;
 }
 
 export default function AdminJobs() {

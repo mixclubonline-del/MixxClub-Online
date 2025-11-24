@@ -46,16 +46,12 @@ export const SessionPackageBuilder = ({ projectId, projectTitle, stemCount }: Se
   }, [projectId]);
 
   const loadPackageStatus = async () => {
-    const status = await getPackageStatus(projectId);
+    const status = await getPackageStatus();
     setExistingPackage(status);
   };
 
   const handleGeneratePackage = async () => {
-    const result = await generatePackage(projectId, {
-      dawFormat: dawFormat as any,
-      sampleRate: sampleRate as any,
-      bitDepth: bitDepth as any,
-    });
+    const result = await generatePackage();
 
     if (result) {
       setExistingPackage(result);
@@ -64,7 +60,7 @@ export const SessionPackageBuilder = ({ projectId, projectTitle, stemCount }: Se
 
   const handleDownload = async () => {
     if (existingPackage?.id) {
-      await downloadPackage(existingPackage.id);
+      await downloadPackage();
     }
   };
 

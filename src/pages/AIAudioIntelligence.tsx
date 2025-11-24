@@ -122,10 +122,10 @@ const AIAudioIntelligence = () => {
                         <Badge>{(match.compatibility_score * 100).toFixed(0)}% Compatible</Badge>
                       </div>
                       <div className="flex gap-2">
-                        <Button onClick={() => updateMatch.mutate({ matchId: match.id, status: "contacted", interested: true })}>
+                        <Button onClick={() => updateMatch.mutate()}>
                           <ThumbsUp className="h-4 w-4 mr-2" />Interested
                         </Button>
-                        <Button variant="outline" onClick={() => updateMatch.mutate({ matchId: match.id, status: "dismissed", interested: false })}>
+                        <Button variant="outline" onClick={() => updateMatch.mutate()}>
                           <ThumbsDown className="h-4 w-4 mr-2" />Not Now
                         </Button>
                       </div>

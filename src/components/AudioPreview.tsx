@@ -1,10 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Play, Pause, Loader2 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
-import { useShowcaseAudio } from "@/hooks/useShowcaseAudio";
 
 const AudioPreview = () => {
-  const { samples, loading: audioLoading } = useShowcaseAudio();
+  const samples: any[] = [];
+  const audioLoading = false;
   const [playingTrack, setPlayingTrack] = useState<{ index: number; type: 'before' | 'after' } | null>(null);
   const audioRefs = useRef<{ [key: string]: HTMLAudioElement }>({});
   const canvasRefs = useRef<{ [key: string]: HTMLCanvasElement }>({});

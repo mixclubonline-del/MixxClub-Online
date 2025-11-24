@@ -50,10 +50,10 @@ export const useUsers = () => {
   });
 
   const assignRoleMutation = useMutation({
-    mutationFn: async ({ userId, role }: { userId: string; role: 'admin' | 'client' | 'engineer' }) => {
+    mutationFn: async ({ userId, role }: { userId: string; role: 'admin' | 'artist' | 'engineer' }) => {
       const { error } = await supabase
         .from("user_roles")
-        .insert({ user_id: userId, role });
+        .insert([{ user_id: userId, role }]);
       
       if (error) throw error;
     },
@@ -67,7 +67,7 @@ export const useUsers = () => {
   });
 
   const removeRoleMutation = useMutation({
-    mutationFn: async ({ userId, role }: { userId: string; role: 'admin' | 'client' | 'engineer' }) => {
+    mutationFn: async ({ userId, role }: { userId: string; role: 'admin' | 'artist' | 'engineer' }) => {
       const { error } = await supabase
         .from("user_roles")
         .delete()
