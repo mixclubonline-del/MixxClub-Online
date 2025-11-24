@@ -11,10 +11,10 @@ import { useToast } from "@/hooks/use-toast";
 import { useOpportunities, useOpportunityAction, useMatchAnalytics } from "@/hooks/useOpportunities";
 
 interface OpportunitiesHubProps {
-  userRole: "client" | "engineer";
+  userRole?: "client" | "engineer";
 }
 
-export const OpportunitiesHub = ({ userRole }: OpportunitiesHubProps) => {
+export const OpportunitiesHub = ({ userRole = 'client' }: OpportunitiesHubProps) => {
   const { toast } = useToast();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [swipeDirection, setSwipeDirection] = useState<"left" | "right" | null>(null);

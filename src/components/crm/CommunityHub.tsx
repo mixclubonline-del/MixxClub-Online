@@ -10,7 +10,7 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 
 interface CommunityHubProps {
-    userType: 'artist' | 'engineer';
+    userType?: 'artist' | 'engineer';
 }
 
 export const CommunityHub: React.FC<CommunityHubProps> = ({ userType }) => {

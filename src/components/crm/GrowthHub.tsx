@@ -10,7 +10,7 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 
 interface GrowthHubProps {
-    userType: 'artist' | 'engineer';
+    userType?: 'artist' | 'engineer';
 }
 
 export const GrowthHub: React.FC<GrowthHubProps> = ({ userType }) => {

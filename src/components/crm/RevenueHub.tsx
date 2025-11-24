@@ -10,7 +10,7 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 
 interface RevenueHubProps {
-    userType: 'artist' | 'engineer';
+    userType?: 'artist' | 'engineer';
     userId?: string;
 }
 
