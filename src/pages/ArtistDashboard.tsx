@@ -67,10 +67,10 @@ const ArtistDashboard = () => {
       const { data, error } = await supabase
         .from('projects')
         .insert({
-          title: title.trim(),
+          name: title.trim(),
           description: description.trim(),
           budget: budget ? parseFloat(budget) : null,
-          client_id: user.id,
+          user_id: user.id,
           status: 'pending'
         })
         .select()

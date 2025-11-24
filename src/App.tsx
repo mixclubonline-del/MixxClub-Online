@@ -234,7 +234,7 @@ const AppContent = () => {
           <Route path="/services/mixing" element={<MixingShowcase />} />
           <Route path="/services/mastering" element={<MasteringShowcase />} />
           <Route path="/services/ai-mastering" element={<AIMastering />} />
-          <Route path="/services/distribution" element={<DistributionHub />} />
+          <Route path="/services/distribution" element={<ComingSoon />} />
 
           {/* Enterprise Solutions - System #11 */}
           <Route path="/enterprise" element={<Enterprise />} />
@@ -289,7 +289,7 @@ const AppContent = () => {
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/settings" element={<AppLayout><Settings /></AppLayout>} />
           <Route path="/notification-preferences" element={<NotificationPreferences />} />
-          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/checkout" element={<ComingSoon />} />
           <Route path="/order-success/:paymentId" element={<OrderSuccess />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/contact" element={<Contact />} />
@@ -336,7 +336,7 @@ const AppContent = () => {
           <Route path="/admin/multi-tenancy" element={<MultiTenancy />} />
 
           {/* Tier 1 Features */}
-          <Route path="/battle-tournaments" element={<BattleTournaments />} />
+          <Route path="/battle-tournaments" element={<ComingSoon />} />
           
 
           {/* Tier 2 Features */}
@@ -349,7 +349,7 @@ const AppContent = () => {
           {/* Tier 4 Features */}
           <Route path="/integrations" element={<Integrations />} />
           <Route path="/ai-audio-intelligence" element={<AIAudioIntelligence />} />
-          <Route path="/distribution" element={<AppLayout><DistributionHub /></AppLayout>} />
+          <Route path="/distribution" element={<AppLayout><ComingSoon /></AppLayout>} />
 
           {/* Merch Store */}
           <Route path="/merch" element={<AppLayout><MerchStore /></AppLayout>} />
