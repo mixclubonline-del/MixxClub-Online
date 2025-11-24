@@ -20,8 +20,9 @@ const AuthCallback = () => {
 
         if (session?.user) {
           // Check if user is admin first
-          const { data: isAdminUser } = await supabase.rpc('is_admin', { 
-            user_uuid: session.user.id 
+          const { data: isAdminUser } = await supabase.rpc('has_role', { 
+            _user_id: session.user.id,
+            _role: 'admin'
           });
 
           if (isAdminUser) {

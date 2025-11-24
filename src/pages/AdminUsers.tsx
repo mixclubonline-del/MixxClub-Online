@@ -52,7 +52,7 @@ export default function AdminUsers() {
         return;
       }
 
-      const { data, error } = await supabase.rpc('is_admin', { user_uuid: user.id });
+      const { data, error } = await supabase.rpc('has_role', { _user_id: user.id, _role: 'admin' });
       
       if (error || !data) {
         navigate('/');

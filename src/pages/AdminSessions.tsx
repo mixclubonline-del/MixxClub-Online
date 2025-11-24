@@ -15,8 +15,8 @@ interface CollaborationSession {
   session_type: string;
   status: string;
   created_at: string;
-  started_at: string | null;
-  ended_at: string | null;
+  started_at?: string | null;
+  ended_at?: string | null;
   max_participants: number;
   host_user_id: string;
 }
