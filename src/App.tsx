@@ -54,7 +54,7 @@ import ArtistDashboard from "./pages/ArtistDashboard";
 import EngineerDashboard from "./pages/EngineerDashboard";
 
 import SessionWorkspace from "./pages/SessionWorkspace";
-import { SessionWorkspacePage } from "./pages/SessionWorkspacePage";
+import SessionWorkspacePage from "./pages/SessionWorkspacePage";
 import Mixing from "./pages/Mixing";
 import Mastering from "./pages/Mastering";
 import MixingShowcase from "./pages/MixingShowcase";
