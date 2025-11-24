@@ -4,12 +4,12 @@ import { Construction } from 'lucide-react';
 
 export default function AdminStub({ title }: { title: string }) {
   return (
-    <AdminLayout title={title}>
+    <AdminLayout>
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Construction className="h-5 w-5" />
-            Coming Soon
+            {title}
           </CardTitle>
         </CardHeader>
         <CardContent>
