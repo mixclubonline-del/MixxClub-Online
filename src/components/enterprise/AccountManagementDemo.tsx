@@ -36,7 +36,12 @@ export function AccountManagementDemo({ onAccountSelect }: AccountManagementDemo
     }
 
     try {
-      const newAccount = await createAccount();
+      const newAccount = await createAccount({
+        organizationName,
+        contactName,
+        contactEmail,
+        packageType,
+      });
 
       toast({
         title: 'Account created',
