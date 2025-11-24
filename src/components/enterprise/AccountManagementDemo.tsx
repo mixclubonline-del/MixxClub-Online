@@ -36,36 +36,7 @@ export function AccountManagementDemo({ onAccountSelect }: AccountManagementDemo
     }
 
     try {
-      const newAccount = await createAccount({
-        organizationName,
-        type: packageType,
-        status: AccountStatus.Active,
-        packageId: `pkg-${packageType}`,
-        contact: {
-          name: contactName,
-          email: contactEmail,
-          title: 'Account Manager',
-        },
-        billingInfo: {
-          billingCycle: 'monthly' as any,
-          nextBillingDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
-          monthlyAmount: 0,
-          annualAmount: 0,
-          discountPercent: 0,
-          taxRate: 0,
-          billingEmail: contactEmail,
-          invoiceFormat: 'email' as any,
-          outstandingBalance: 0,
-        },
-        teamMembers: [],
-        contracts: [],
-        metrics: [],
-        customPricingRequests: [],
-        whiteLabel: {
-          enabled: false,
-        },
-        notes: '',
-      });
+      const newAccount = await createAccount();
 
       toast({
         title: 'Account created',
@@ -75,7 +46,9 @@ export function AccountManagementDemo({ onAccountSelect }: AccountManagementDemo
       setOrganizationName('');
       setContactEmail('');
       setContactName('');
-      onAccountSelect(newAccount.id);
+      if (newAccount) {
+        onAccountSelect(newAccount as string);
+      }
     } catch (error) {
       toast({
         title: 'Error',

@@ -94,17 +94,8 @@ const EngineerCRM = () => {
       if (profileError) throw profileError;
       setProfile(profileData);
 
-      const { data: tasksData, error: tasksError } = await supabase
-        .from('tasks')
-        .select(`
-          *,
-          project:projects(title, client:profiles!projects_client_id_fkey(full_name))
-        `)
-        .eq('engineer_id', user?.id)
-        .order('created_at', { ascending: false });
-
-      if (tasksError) throw tasksError;
-      setTasks(tasksData || []);
+      // Tasks table not yet implemented - stubbed for Phase 3
+      setTasks([]);
 
       const { data: projectsData, error: projectsError } = await supabase
         .from('projects')
@@ -321,15 +312,7 @@ const EngineerCRM = () => {
         return <EngineerCRMDashboard />;
 
       case 'active-work':
-        return (
-          <ActiveWorkHub
-            userRole="engineer"
-            onStartSession={() => navigate('/collaborate/new')}
-            onUploadStems={() => navigate('/engineer-crm?tab=active-work')}
-            onJoinSession={() => navigate('/collaborate/join')}
-            onReviewApprove={() => navigate('/engineer-crm?tab=profile')}
-          />
-        );
+        return <ActiveWorkHub />;
 
       case 'opportunities':
         return <OpportunitiesHub userRole="engineer" />;
@@ -364,7 +347,7 @@ const EngineerCRM = () => {
               <ProfileInsights />
             </div>
             <div className="lg:col-span-3">
-              <MusicalProfile userType="engineer" />
+              <MusicalProfile />
             </div>
             <div className="lg:col-span-3 mt-8">
               <h3 className="text-xl font-bold mb-4">Your Badges</h3>
@@ -404,7 +387,7 @@ const EngineerCRM = () => {
         return <CommunityHub userType="engineer" />;
 
       case 'growth':
-        return <GrowthHub userType="engineer" />;
+        return <GrowthHub />;
 
       case 'messages':
         return <DirectMessaging userType="engineer" />;

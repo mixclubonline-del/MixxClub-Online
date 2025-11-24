@@ -275,15 +275,7 @@ const ArtistCRM = () => {
         return <YourMatches />;
 
       case 'active-work':
-        return (
-          <ActiveWorkHub
-            userRole="client"
-            onStartSession={() => navigate('/collaborate/new')}
-            onUploadStems={() => navigate('/artist-crm?tab=active-work')}
-            onJoinSession={() => navigate('/collaborate/join')}
-            onReviewApprove={() => navigate('/artist-crm?tab=profile')}
-          />
-        );
+        return <ActiveWorkHub />;
 
       case 'opportunities':
         return <OpportunitiesHub userRole="client" />;
@@ -330,7 +322,7 @@ const ArtistCRM = () => {
               <ProfileInsights />
             </div>
             <div className="lg:col-span-3">
-              <MusicalProfile userType="artist" />
+              <MusicalProfile />
             </div>
             <div className="lg:col-span-3 mt-4 md:mt-8">
               <h3 className="text-xl font-bold mb-4">Your Badges</h3>
@@ -365,7 +357,7 @@ const ArtistCRM = () => {
         return <CommunityHub userType="artist" />;
 
       case 'growth':
-        return <GrowthHub userType="artist" />;
+        return <GrowthHub />;
 
       case 'messages':
         return <DirectMessaging userType="artist" />;

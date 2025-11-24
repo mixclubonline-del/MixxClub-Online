@@ -10,8 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import {
     LABEL_ESSENTIALS,
     STUDIO_PROFESSIONAL,
-    UNIVERSITY_ENTERPRISE,
-    ENTERPRISE_SYSTEM
+    UNIVERSITY_ENTERPRISE
 } from '@/integrations/enterprise';
 
 export default function Enterprise() {

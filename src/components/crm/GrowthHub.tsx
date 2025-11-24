@@ -10,10 +10,10 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 
 interface GrowthHubProps {
-    userType: 'artist' | 'engineer';
+    userType?: 'artist' | 'engineer';
 }
 
-export const GrowthHub: React.FC<GrowthHubProps> = ({ userType }) => {
+export const GrowthHub: React.FC<GrowthHubProps> = ({ userType = 'artist' }) => {
     const { user } = useAuth();
     const [selectedPath, setSelectedPath] = useState<string | null>(null);
 

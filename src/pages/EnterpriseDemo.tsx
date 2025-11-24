@@ -56,7 +56,7 @@ export default function EnterpriseDemo() {
 
           <TabsContent value="team">
             {selectedAccountId ? (
-              <TeamManagementDemo accountId={selectedAccountId} />
+              <TeamManagementDemo />
             ) : (
               <Card>
                 <CardContent className="pt-6">
@@ -70,7 +70,7 @@ export default function EnterpriseDemo() {
 
           <TabsContent value="contracts">
             {selectedAccountId ? (
-              <ContractManagementDemo accountId={selectedAccountId} />
+              <ContractManagementDemo />
             ) : (
               <Card>
                 <CardContent className="pt-6">
