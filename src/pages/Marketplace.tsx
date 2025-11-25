@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useMarketplaceItems, useMarketplaceCategories, usePurchaseItem } from "@/hooks/useMarketplace.tsx";
-import { useMarketplace as useMarketplaceStore } from "@/hooks/useMarketplace.ts";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,13 +19,36 @@ export default function Marketplace() {
   const { data: categories } = useMarketplaceCategories();
   const purchaseItem = usePurchaseItem();
   
-  const {
-    cart,
-    cartTotal,
-    handleAddToCart,
-    handleRemoveFromCart,
-    handleUpdateQuantity,
-  } = useMarketplaceStore();
+  const [cart, setCart] = useState<any[]>([]);
+  const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+  const handleAddToCart = (product: any) => {
+    setCart(prev => {
+      const existing = prev.find(item => item.id === product.id);
+      if (existing) {
+        return prev.map(item => 
+          item.id === product.id 
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        );
+      }
+      return [...prev, { ...product, quantity: 1 }];
+    });
+  };
+
+  const handleRemoveFromCart = (productId: string) => {
+    setCart(prev => prev.filter(item => item.id !== productId));
+  };
+
+  const handleUpdateQuantity = (productId: string, quantity: number) => {
+    if (quantity <= 0) {
+      handleRemoveFromCart(productId);
+    } else {
+      setCart(prev => prev.map(item => 
+        item.id === productId ? { ...item, quantity } : item
+      ));
+    }
+  };
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -77,22 +99,8 @@ export default function Marketplace() {
     handleAddToCart({
       id: item.id,
       title: item.item_name,
-      description: item.item_description || "",
       price: item.price,
       image: item.preview_urls?.[0] || "",
-      category: item.marketplace_categories?.category_name || "Uncategorized",
-      rating: 4.5,
-      downloads: item.sales_count || 0,
-      creator: {
-        id: item.seller_id,
-        name: "Seller",
-        verified: false,
-      },
-      reviews: 0,
-      files: [],
-      tags: [],
-      createdAt: new Date(item.created_at),
-      updatedAt: new Date(item.updated_at || item.created_at),
     });
     toast({
       title: "Added to cart",
@@ -161,25 +169,25 @@ export default function Marketplace() {
                 ) : (
                   <>
                     {cart.map((item) => (
-                      <Card key={item.productId}>
+                      <Card key={item.id}>
                         <CardContent className="p-4">
                           <div className="flex items-center gap-4">
                             <div className="flex-1">
-                              <h4 className="font-semibold">{item.product.title}</h4>
-                              <p className="text-sm text-muted-foreground">${item.product.price}</p>
+                              <h4 className="font-semibold">{item.title}</h4>
+                              <p className="text-sm text-muted-foreground">${item.price}</p>
                             </div>
                             <div className="flex items-center gap-2">
                               <Input
                                 type="number"
                                 min="1"
                                 value={item.quantity}
-                                onChange={(e) => handleUpdateQuantity(item.productId, parseInt(e.target.value))}
+                                onChange={(e) => handleUpdateQuantity(item.id, parseInt(e.target.value))}
                                 className="w-16"
                               />
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={() => handleRemoveFromCart(item.productId)}
+                                onClick={() => handleRemoveFromCart(item.id)}
                               >
                                 <X className="h-4 w-4" />
                               </Button>
