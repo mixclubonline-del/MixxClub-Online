@@ -116,13 +116,6 @@ export const usePurchaseItem = () => {
 
       if (error) throw error;
 
-      // Update sales count
-      await supabase.rpc("increment", {
-        table_name: "marketplace_items",
-        row_id: itemId,
-        column_name: "sales_count",
-      });
-
       return data;
     },
     onSuccess: () => {
