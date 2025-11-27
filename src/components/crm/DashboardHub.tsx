@@ -1,5 +1,9 @@
-import { RevolutionaryDashboard } from './dashboard/RevolutionaryDashboard';
+import { EnhancedDashboardHub } from './dashboard/EnhancedDashboardHub';
+import { useAuth } from '@/hooks/useAuth';
 
 export const DashboardHub = () => {
-  return <RevolutionaryDashboard />;
+  const { activeRole } = useAuth();
+  const userType = activeRole === 'engineer' ? 'engineer' : 'artist';
+  
+  return <EnhancedDashboardHub userType={userType} />;
 };
