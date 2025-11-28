@@ -149,6 +149,12 @@ const MultiTenancy = React.lazy(() => import("./pages/MultiTenancy"));
 const AdminSecurityCenter = React.lazy(() => import('./pages/AdminSecurityCenter'));
 const AdminLaunchControl = React.lazy(() => import('./pages/AdminLaunchControl'));
 const PresentationShare = React.lazy(() => import('./pages/PresentationShare'));
+const AdminRevenue = React.lazy(() => import('./pages/AdminRevenue'));
+const AdminUserAnalytics = React.lazy(() => import('./pages/AdminUserAnalytics'));
+const AdminContentModeration = React.lazy(() => import('./pages/AdminContentModeration'));
+const AdminSystemMonitoring = React.lazy(() => import('./pages/AdminSystemMonitoring'));
+const AdminMarketing = React.lazy(() => import('./pages/AdminMarketing'));
+const AdminGrowth = React.lazy(() => import('./pages/AdminGrowth'));
 import { JobBoard } from './pages/JobBoard';
 import ProjectDetail from "./pages/ProjectDetail";
 import MerchStore from "./pages/MerchStore";
@@ -272,6 +278,12 @@ const AppContent = () => {
           <Route path="/admin/stripe-sync" element={<AdminRoute section="Stripe Sync"><AdminStripeSync /></AdminRoute>} />
           <Route path="/admin/legal-documents" element={<AdminRoute section="Legal Documents"><AdminLegalDocuments /></AdminRoute>} />
           <Route path="/admin/system-presentation" element={<AdminRoute section="System Presentation"><AdminSystemPresentation /></AdminRoute>} />
+          <Route path="/admin/revenue-management" element={<AdminRoute section="Revenue Management"><AdminRevenue /></AdminRoute>} />
+          <Route path="/admin/user-analytics" element={<AdminRoute section="User Analytics"><AdminUserAnalytics /></AdminRoute>} />
+          <Route path="/admin/content-moderation" element={<AdminRoute section="Content Moderation"><AdminContentModeration /></AdminRoute>} />
+          <Route path="/admin/system-monitoring" element={<AdminRoute section="System Monitoring"><AdminSystemMonitoring /></AdminRoute>} />
+          <Route path="/admin/marketing-tools" element={<AdminRoute section="Marketing Tools"><AdminMarketing /></AdminRoute>} />
+          <Route path="/admin/growth-analytics" element={<AdminRoute section="Growth Analytics"><AdminGrowth /></AdminRoute>} />
           <Route path="/admin/launch-presentation" element={<AdminRoute section="Launch Presentation"><AdminLaunchPresentation /></AdminRoute>} />
           <Route path="/admin/launch-dashboard" element={<AdminRoute section="Launch Dashboard"><AdminLaunchDashboard /></AdminRoute>} />
           <Route path="/admin/launch-readiness" element={<AdminRoute section="Launch Readiness"><AdminLaunchReadiness /></AdminRoute>} />
