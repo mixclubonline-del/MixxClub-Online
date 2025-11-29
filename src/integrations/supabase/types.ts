@@ -3373,6 +3373,95 @@ export type Database = {
           },
         ]
       }
+      tutorial_steps: {
+        Row: {
+          action_target: string | null
+          action_type: string | null
+          created_at: string | null
+          description: string
+          id: string
+          media_url: string | null
+          position: string | null
+          step_order: number
+          target_element: string | null
+          title: string
+          tutorial_id: string
+        }
+        Insert: {
+          action_target?: string | null
+          action_type?: string | null
+          created_at?: string | null
+          description: string
+          id?: string
+          media_url?: string | null
+          position?: string | null
+          step_order: number
+          target_element?: string | null
+          title: string
+          tutorial_id: string
+        }
+        Update: {
+          action_target?: string | null
+          action_type?: string | null
+          created_at?: string | null
+          description?: string
+          id?: string
+          media_url?: string | null
+          position?: string | null
+          step_order?: number
+          target_element?: string | null
+          title?: string
+          tutorial_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tutorial_steps_tutorial_id_fkey"
+            columns: ["tutorial_id"]
+            isOneToOne: false
+            referencedRelation: "tutorials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tutorials: {
+        Row: {
+          category: string
+          created_at: string | null
+          description: string | null
+          estimated_minutes: number | null
+          id: string
+          is_active: boolean | null
+          slug: string
+          sort_order: number | null
+          target_roles: string[] | null
+          title: string
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          description?: string | null
+          estimated_minutes?: number | null
+          id?: string
+          is_active?: boolean | null
+          slug: string
+          sort_order?: number | null
+          target_roles?: string[] | null
+          title: string
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          estimated_minutes?: number | null
+          id?: string
+          is_active?: boolean | null
+          slug?: string
+          sort_order?: number | null
+          target_roles?: string[] | null
+          title?: string
+        }
+        Relationships: []
+      }
       user_distribution_subscriptions: {
         Row: {
           created_at: string
@@ -3596,6 +3685,44 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_tutorial_progress: {
+        Row: {
+          completed_at: string | null
+          current_step: number | null
+          id: string
+          is_completed: boolean | null
+          started_at: string | null
+          tutorial_id: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          current_step?: number | null
+          id?: string
+          is_completed?: boolean | null
+          started_at?: string | null
+          tutorial_id: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          current_step?: number | null
+          id?: string
+          is_completed?: boolean | null
+          started_at?: string | null
+          tutorial_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_tutorial_progress_tutorial_id_fkey"
+            columns: ["tutorial_id"]
+            isOneToOne: false
+            referencedRelation: "tutorials"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
