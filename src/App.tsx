@@ -18,6 +18,8 @@ import PrimeStatusBar from "@/components/prime/PrimeStatusBar";
 import { useMobileDetect } from "@/hooks/useMobileDetect";
 import { SplashScreen } from "@/components/SplashScreen";
 import { useSplashScreen } from "@/hooks/useSplashScreen";
+import { TutorialProvider } from "@/contexts/TutorialContext";
+import { TutorialOverlay } from "@/components/tutorial/TutorialOverlay";
 
 // Lazy load heavy components
 const MixClubHome = React.lazy(() => import("./pages/MixClubHome"));
@@ -161,6 +163,7 @@ import MerchStore from "./pages/MerchStore";
 import ArtistStorefront from "./pages/ArtistStorefront";
 import ArtistMerchManager from "./pages/ArtistMerchManager";
 import MessagingTest from "./pages/MessagingTest";
+import Tutorials from "./pages/Tutorials";
 import NotFound from "./pages/NotFound";
 import MobileHome from "./pages/MobileHome";
 import MobileLanding from "./pages/MobileLanding";
@@ -353,6 +356,7 @@ const AppContent = () => {
 
           {/* Tier 2 Features */}
           <Route path="/my-certifications" element={<MyCertifications />} />
+          <Route path="/tutorials" element={<Tutorials />} />
 
           {/* Tier 3 Features */}
           <Route path="/marketplace" element={<Marketplace />} />
@@ -395,11 +399,14 @@ const App = () => {
           <BrowserRouter>
             <AuthProvider>
               <PrimeProvider>
-                <PWAInstallPrompt />
-                <AppContent />
-                <DesktopOnlyComponents />
-                <PerformanceMonitor />
-                <CookieConsent />
+                <TutorialProvider>
+                  <PWAInstallPrompt />
+                  <AppContent />
+                  <DesktopOnlyComponents />
+                  <TutorialOverlay />
+                  <PerformanceMonitor />
+                  <CookieConsent />
+                </TutorialProvider>
               </PrimeProvider>
             </AuthProvider>
           </BrowserRouter>

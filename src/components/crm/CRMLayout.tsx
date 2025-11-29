@@ -12,6 +12,7 @@ import { RoleSwitcher } from './RoleSwitcher';
 import { ResizableAICopilot } from './dashboard/ResizableAICopilot';
 import { useAIDashboardInsights } from '@/hooks/useAIDashboardInsights';
 import { HoverCard3D } from '@/components/interactive/HoverCard3D';
+import { TutorialLauncher } from '@/components/tutorial/TutorialLauncher';
 
 interface CRMLayoutProps {
   children: ReactNode;
@@ -149,6 +150,9 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions }: 
                       {userType === 'engineer' ? 'Pro Studio' : 'Your Studio'}
                     </h1>
                     <Sparkles className="w-6 h-6 text-primary animate-pulse-glow" />
+                    <div className="ml-auto">
+                      <TutorialLauncher />
+                    </div>
                   </div>
                   <p className="text-muted-foreground text-lg">
                     {userType === 'engineer'
@@ -279,6 +283,7 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions }: 
 
                   {/* Quick Actions Toolbar */}
                   <div className="hidden lg:flex items-center gap-2">
+                    <TutorialLauncher />
                     {quickActions.map((action, index) => (
                       <Button
                         key={index}
