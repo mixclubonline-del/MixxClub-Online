@@ -11,10 +11,39 @@ serve(async (req) => {
   }
 
   try {
+    // Authentication check
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - No authorization header' }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 401,
+        }
+      );
+    }
+
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
+
+    // Verify authenticated user
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token);
+
+    if (authError || !user) {
+      console.error('Authentication error:', authError);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - Invalid token' }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 401,
+        }
+      );
+    }
+
+    console.log('Authenticated user:', user.id);
 
     const { payoutRequestId } = await req.json();
 
@@ -32,6 +61,27 @@ serve(async (req) => {
     if (fetchError || !payoutRequest) {
       throw new Error('Payout request not found');
     }
+
+    // Authorization check: User must be admin OR the engineer receiving the payout
+    const { data: isAdmin, error: roleError } = await supabaseClient.rpc('has_role', {
+      _user_id: user.id,
+      _role: 'admin',
+    });
+
+    const isPayoutOwner = payoutRequest.engineer_id === user.id;
+
+    if (!isAdmin && !isPayoutOwner) {
+      console.error('Authorization failed:', { userId: user.id, engineerId: payoutRequest.engineer_id, isAdmin });
+      return new Response(
+        JSON.stringify({ error: 'Forbidden - You are not authorized to process this payout' }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 403,
+        }
+      );
+    }
+
+    console.log('Authorization passed:', { isAdmin, isPayoutOwner });
 
     if (!payoutRequest.profiles?.stripe_connect_account_id) {
       throw new Error('Engineer has not connected their bank account');
