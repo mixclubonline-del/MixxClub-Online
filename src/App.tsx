@@ -49,6 +49,7 @@ import Install from "./pages/Install";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
 import DemoLogin from "./pages/DemoLogin";
+import InsiderDemo from "./pages/InsiderDemo";
 import ArtistOnboarding from "./pages/ArtistOnboarding";
 import EngineerOnboarding from "./pages/EngineerOnboarding";
 import HybridOnboarding from "./pages/HybridOnboarding";
@@ -228,6 +229,7 @@ const AppContent = () => {
           <Route path="/auth" element={<Auth />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/demo" element={<DemoLogin />} />
+          <Route path="/insider-demo" element={<InsiderDemo />} />
           <Route path="/onboarding/artist" element={<ArtistOnboarding />} />
           <Route path="/onboarding/engineer" element={<EngineerOnboarding />} />
           <Route path="/onboarding/hybrid" element={<HybridOnboarding />} />
