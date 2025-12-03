@@ -347,6 +347,22 @@ const Auth = () => {
           </p>
         </div>
 
+        {/* Demo Banner */}
+        <div 
+          onClick={() => navigate('/insider-demo')}
+          className="mb-6 p-4 rounded-xl bg-gradient-to-r from-primary/20 via-primary/10 to-accent-blue/20 border border-primary/30 cursor-pointer hover:border-primary/50 hover:shadow-lg hover:shadow-primary/20 transition-all group"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-primary/30 flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-primary group-hover:animate-pulse" />
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold text-sm">Experience PRIME'S WORLD</p>
+              <p className="text-xs text-muted-foreground">See the full MixClub demo →</p>
+            </div>
+          </div>
+        </div>
+
         <Card className="p-8 bg-card/80 backdrop-blur-sm border-primary/20 shadow-xl">
           {/* Social Sign-in Buttons */}
           <div className="space-y-3 mb-6">
