@@ -169,6 +169,11 @@ import MessagingTest from "./pages/MessagingTest";
 import Tutorials from "./pages/Tutorials";
 import NotFound from "./pages/NotFound";
 import MobileHome from "./pages/MobileHome";
+
+// MixClub City Pages
+const CityGates = React.lazy(() => import("./pages/city/CityGates"));
+const MixxTechTower = React.lazy(() => import("./pages/city/MixxTechTower"));
+const RSDChamber = React.lazy(() => import("./pages/city/RSDChamber"));
 import MobileLanding from "./pages/MobileLanding";
 import MobileAdmin from "./pages/MobileAdmin";
 import MobileAdminPayouts from "./pages/MobileAdminPayouts";
@@ -376,6 +381,11 @@ const AppContent = () => {
           <Route path="/merch" element={<AppLayout><MerchStore /></AppLayout>} />
           <Route path="/merch/:username" element={<AppLayout><ArtistStorefront /></AppLayout>} />
           <Route path="/artist/merch-manager" element={<AppLayout><ArtistMerchManager /></AppLayout>} />
+
+          {/* MixClub City */}
+          <Route path="/city" element={<CityGates />} />
+          <Route path="/city/tower" element={<MixxTechTower />} />
+          <Route path="/city/studio" element={<RSDChamber />} />
 
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
