@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -8,8 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { 
-  Upload, Music, Check, X, Trash2, Play, Pause, 
-  ArrowLeft, Copy, ExternalLink, Loader2, FileAudio
+  Upload, Music, Check, Trash2, Play, Pause, 
+  ArrowLeft, Copy, ExternalLink, Loader2, FileAudio, LogIn, Sparkles
 } from 'lucide-react';
 import mixclubLogo from '@/assets/mixclub-3d-logo.png';
 
@@ -28,8 +28,52 @@ export default function AudioUpload() {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [currentlyPlaying, setCurrentlyPlaying] = useState<string | null>(null);
   const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [creatingDemo, setCreatingDemo] = useState(false);
   
   const navigate = useNavigate();
+
+  // Check auth state on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session);
+    };
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      setIsAuthenticated(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Create demo session for insider access
+  const createDemoSession = async () => {
+    setCreatingDemo(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-demo-session', {
+        body: { role: 'client' }
+      });
+
+      if (error) throw error;
+
+      // Sign in with the temporary credentials
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password
+      });
+
+      if (signInError) throw signInError;
+
+      toast.success('Demo session started! You can now upload audio.');
+    } catch (error) {
+      console.error('Demo session error:', error);
+      toast.error('Failed to create demo session');
+    } finally {
+      setCreatingDemo(false);
+    }
+  };
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -182,59 +226,99 @@ export default function AudioUpload() {
       </header>
 
       <main className="max-w-5xl mx-auto px-6 py-12">
-        {/* Upload Zone */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <Card
-            className={`p-12 border-2 border-dashed transition-all duration-300 cursor-pointer ${
-              isDragging 
-                ? 'border-primary bg-primary/10 scale-[1.02]' 
-                : 'border-border hover:border-primary/50 hover:bg-card/80'
-            }`}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-            onClick={() => document.getElementById('file-input')?.click()}
+        {/* Auth Check - Show Demo Login if not authenticated */}
+        {isAuthenticated === false && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8"
           >
-            <input
-              id="file-input"
-              type="file"
-              accept="audio/*,.mp3,.wav,.ogg,.flac,.m4a,.aac"
-              multiple
-              className="hidden"
-              onChange={handleFileInput}
-            />
-            
-            <div className="text-center">
-              <motion.div
-                animate={isDragging ? { scale: 1.1, rotate: 5 } : { scale: 1, rotate: 0 }}
-                className="inline-flex p-6 rounded-full bg-primary/10 mb-6"
-              >
-                {uploading ? (
-                  <Loader2 className="w-12 h-12 text-primary animate-spin" />
-                ) : (
-                  <Upload className="w-12 h-12 text-primary" />
-                )}
-              </motion.div>
-              
-              <h2 className="text-2xl font-bold mb-2">
-                {uploading ? 'Uploading...' : isDragging ? 'Drop files here!' : 'Drag & Drop Audio Files'}
-              </h2>
-              <p className="text-muted-foreground mb-4">
-                or click to browse • MP3, WAV, OGG, FLAC, M4A, AAC • Max 50MB
-              </p>
-              
-              {uploading && (
-                <div className="max-w-xs mx-auto">
-                  <Progress value={uploadProgress} className="h-2" />
-                  <p className="text-sm text-muted-foreground mt-2">{Math.round(uploadProgress)}%</p>
+            <Card className="p-8 bg-gradient-to-br from-primary/10 to-accent/10 border-primary/30">
+              <div className="text-center">
+                <div className="inline-flex p-4 rounded-full bg-primary/20 mb-4">
+                  <LogIn className="w-8 h-8 text-primary" />
                 </div>
-              )}
-            </div>
-          </Card>
-        </motion.div>
+                <h2 className="text-xl font-bold mb-2">Login Required</h2>
+                <p className="text-muted-foreground mb-6">
+                  You need to be logged in to upload audio files.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <Button onClick={() => navigate('/auth')} variant="outline">
+                    <LogIn className="w-4 h-4 mr-2" />
+                    Sign In
+                  </Button>
+                  <Button onClick={createDemoSession} disabled={creatingDemo} className="bg-gradient-to-r from-primary to-accent">
+                    {creatingDemo ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <Sparkles className="w-4 h-4 mr-2" />
+                    )}
+                    {creatingDemo ? 'Starting Demo...' : 'Start Demo Session'}
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground mt-4">
+                  Demo sessions are temporary and expire after 4 hours
+                </p>
+              </div>
+            </Card>
+          </motion.div>
+        )}
+
+        {/* Upload Zone - Only show when authenticated */}
+        {isAuthenticated && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <Card
+              className={`p-12 border-2 border-dashed transition-all duration-300 cursor-pointer ${
+                isDragging 
+                  ? 'border-primary bg-primary/10 scale-[1.02]' 
+                  : 'border-border hover:border-primary/50 hover:bg-card/80'
+              }`}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              onClick={() => document.getElementById('file-input')?.click()}
+            >
+              <input
+                id="file-input"
+                type="file"
+                accept="audio/*,.mp3,.wav,.ogg,.flac,.m4a,.aac"
+                multiple
+                className="hidden"
+                onChange={handleFileInput}
+              />
+              
+              <div className="text-center">
+                <motion.div
+                  animate={isDragging ? { scale: 1.1, rotate: 5 } : { scale: 1, rotate: 0 }}
+                  className="inline-flex p-6 rounded-full bg-primary/10 mb-6"
+                >
+                  {uploading ? (
+                    <Loader2 className="w-12 h-12 text-primary animate-spin" />
+                  ) : (
+                    <Upload className="w-12 h-12 text-primary" />
+                  )}
+                </motion.div>
+                
+                <h2 className="text-2xl font-bold mb-2">
+                  {uploading ? 'Uploading...' : isDragging ? 'Drop files here!' : 'Drag & Drop Audio Files'}
+                </h2>
+                <p className="text-muted-foreground mb-4">
+                  or click to browse • MP3, WAV, OGG, FLAC, M4A, AAC • Max 50MB
+                </p>
+                
+                {uploading && (
+                  <div className="max-w-xs mx-auto">
+                    <Progress value={uploadProgress} className="h-2" />
+                    <p className="text-sm text-muted-foreground mt-2">{Math.round(uploadProgress)}%</p>
+                  </div>
+                )}
+              </div>
+            </Card>
+          </motion.div>
+        )}
 
         {/* Uploaded Files */}
         <AnimatePresence>
