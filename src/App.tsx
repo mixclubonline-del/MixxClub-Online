@@ -51,6 +51,7 @@ import AuthCallback from "./pages/AuthCallback";
 import DemoLogin from "./pages/DemoLogin";
 import InsiderDemo from "./pages/InsiderDemo";
 import AudioUpload from "./pages/AudioUpload";
+import SunoTest from "./pages/SunoTest";
 import ArtistOnboarding from "./pages/ArtistOnboarding";
 import EngineerOnboarding from "./pages/EngineerOnboarding";
 import HybridOnboarding from "./pages/HybridOnboarding";
@@ -266,6 +267,7 @@ const AppContent = () => {
           <Route path="/distribution" element={<Navigate to="/services/distribution" replace />} />
           <Route path="/jobs" element={<AppLayout><JobBoard /></AppLayout>} />
           <Route path="/messaging-test" element={<MessagingTest />} />
+          <Route path="/suno-test" element={<SunoTest />} />
           <Route path="/admin" element={<AdminRoute section="Admin Dashboard"><Admin /></AdminRoute>} />
           <Route path="/admin/users" element={<AdminRoute section="Users"><AdminUsers /></AdminRoute>} />
           <Route path="/admin/beat-files" element={<AdminRoute section="Beat Files"><AdminBeatFiles /></AdminRoute>} />
