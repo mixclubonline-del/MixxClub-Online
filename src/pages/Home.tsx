@@ -2,11 +2,12 @@ import { SEOHead } from "@/components/SEOHead";
 import { organizationSchema, serviceSchema } from "@/lib/seo-schema";
 import Navigation from "@/components/Navigation";
 import { EnhancedHero } from "@/components/home/EnhancedHero";
+import { LivePlatformStats } from "@/components/home/LivePlatformStats";
+import { LiveEngineersShowcase } from "@/components/home/LiveEngineersShowcase";
+import { ActiveSessionsPreview } from "@/components/home/ActiveSessionsPreview";
+import { RoleSelectionCTA } from "@/components/home/RoleSelectionCTA";
 import { BedroomToBillboard } from "@/components/home/BedroomToBillboard";
 import { AIMasteringCTA } from "@/components/home/AIMasteringCTA";
-import { AISessionPrepShowcase } from "@/components/home/AISessionPrepShowcase";
-import { CommunityMilestonesShowcase } from "@/components/home/CommunityMilestonesShowcase";
-import { TierShowcase } from "@/components/home/TierShowcase";
 import { SimplePackagePreview } from "@/components/home/SimplePackagePreview";
 import { ParticleBackground } from "@/components/home/2030/ParticleBackground";
 import { useNavigate } from "react-router-dom";
@@ -33,78 +34,88 @@ const Home = () => {
         {/* Content */}
         <div className="relative z-10">
           <Navigation />
-          <main className="snap-container h-screen overflow-y-auto">
-            <section className="snap-section">
+          <main>
+            {/* Hero Section */}
+            <section>
               <EnhancedHero />
             </section>
-            <section className="snap-section">
+
+            {/* Live Platform Stats */}
+            <LivePlatformStats />
+
+            {/* Live Engineers Showcase */}
+            <LiveEngineersShowcase />
+
+            {/* Active Sessions Preview */}
+            <ActiveSessionsPreview />
+
+            {/* Role Selection CTA */}
+            <RoleSelectionCTA />
+
+            {/* Mission Statement */}
+            <section>
               <BedroomToBillboard />
             </section>
-            <section className="snap-section">
+
+            {/* AI Mastering */}
+            <section>
               <AIMasteringCTA />
             </section>
-            <section className="snap-section">
-              <AISessionPrepShowcase />
-            </section>
-            <section className="snap-section">
-              <CommunityMilestonesShowcase />
-            </section>
-            <section className="snap-section">
-              <TierShowcase />
-            </section>
-            <section className="snap-section">
+
+            {/* Packages Preview */}
+            <section>
               <SimplePackagePreview />
             </section>
         
             {/* Footer */}
-            <footer className="snap-section bg-muted/30 border-t mt-20 relative">
-          <div className="container mx-auto px-4 py-12">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-              {/* Brand */}
-              <div className="space-y-4">
-                <h3 className="text-xl font-bold">MixClub</h3>
-                <p className="text-sm text-muted-foreground">
-                  Professional mixing from $29 to $149+. Find your perfect engineer match.
-                </p>
-              </div>
+            <footer className="bg-muted/30 border-t mt-20 relative">
+              <div className="container mx-auto px-4 py-12">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                  {/* Brand */}
+                  <div className="space-y-4">
+                    <h3 className="text-xl font-bold">MixClub</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Professional mixing from $29 to $149+. Find your perfect engineer match.
+                    </p>
+                  </div>
 
-              {/* Services */}
-              <div className="space-y-4">
-                <h4 className="font-semibold">Services</h4>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li><button onClick={() => navigate('/services/mixing')} className="hover:text-primary transition-colors">Mixing</button></li>
-                  <li><button onClick={() => navigate('/services/mastering')} className="hover:text-primary transition-colors">Mastering</button></li>
-                  <li><button onClick={() => navigate('/services/ai-mastering')} className="hover:text-primary transition-colors">AI Mastering</button></li>
-                  <li><button onClick={() => navigate('/services/distribution')} className="hover:text-primary transition-colors">Distribution</button></li>
-                </ul>
-              </div>
+                  {/* Services */}
+                  <div className="space-y-4">
+                    <h4 className="font-semibold">Services</h4>
+                    <ul className="space-y-2 text-sm text-muted-foreground">
+                      <li><button onClick={() => navigate('/services/mixing')} className="hover:text-primary transition-colors">Mixing</button></li>
+                      <li><button onClick={() => navigate('/services/mastering')} className="hover:text-primary transition-colors">Mastering</button></li>
+                      <li><button onClick={() => navigate('/services/ai-mastering')} className="hover:text-primary transition-colors">AI Mastering</button></li>
+                      <li><button onClick={() => navigate('/services/distribution')} className="hover:text-primary transition-colors">Distribution</button></li>
+                    </ul>
+                  </div>
 
-              {/* Company */}
-              <div className="space-y-4">
-                <h4 className="font-semibold">Company</h4>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li><button onClick={() => navigate('/how-it-works')} className="hover:text-primary transition-colors">How It Works</button></li>
-                  <li><button onClick={() => navigate('/for-engineers')} className="hover:text-primary transition-colors">For Engineers</button></li>
-                  <li><button onClick={() => navigate('/faq')} className="hover:text-primary transition-colors">FAQ</button></li>
-                </ul>
-              </div>
+                  {/* Company */}
+                  <div className="space-y-4">
+                    <h4 className="font-semibold">Company</h4>
+                    <ul className="space-y-2 text-sm text-muted-foreground">
+                      <li><button onClick={() => navigate('/how-it-works')} className="hover:text-primary transition-colors">How It Works</button></li>
+                      <li><button onClick={() => navigate('/for-engineers')} className="hover:text-primary transition-colors">For Engineers</button></li>
+                      <li><button onClick={() => navigate('/faq')} className="hover:text-primary transition-colors">FAQ</button></li>
+                    </ul>
+                  </div>
 
-              {/* Connect */}
-              <div className="space-y-4">
-                <h4 className="font-semibold">Connect</h4>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li><a href="mailto:support@mixclub.com" className="hover:text-primary transition-colors">Support</a></li>
-                  <li><a href="mailto:legal@mixclub.com" className="hover:text-primary transition-colors">Legal</a></li>
-                </ul>
-              </div>
-            </div>
+                  {/* Connect */}
+                  <div className="space-y-4">
+                    <h4 className="font-semibold">Connect</h4>
+                    <ul className="space-y-2 text-sm text-muted-foreground">
+                      <li><a href="mailto:support@mixclub.com" className="hover:text-primary transition-colors">Support</a></li>
+                      <li><a href="mailto:legal@mixclub.com" className="hover:text-primary transition-colors">Legal</a></li>
+                    </ul>
+                  </div>
+                </div>
 
-            <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
-              <p>&copy; 2024 MixClub. All rights reserved.</p>
+                <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
+                  <p>&copy; 2024 MixClub. All rights reserved.</p>
+                </div>
               </div>
-            </div>
-          </footer>
-        </main>
+            </footer>
+          </main>
         </div>
       </div>
     </>
