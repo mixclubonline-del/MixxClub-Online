@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.prime-speak]
 verify_jwt = false
+
+[functions.get-demo-data]
+verify_jwt = false
