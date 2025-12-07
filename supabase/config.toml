@@ -1,1 +1,13 @@
 project_id = "kbbrehnyqpulbxyesril"
+
+[functions.google-ai-gateway]
+verify_jwt = false
+
+[functions.prime-chat]
+verify_jwt = false
+
+[functions.generate-image-gemini]
+verify_jwt = false
+
+[functions.prime-speak]
+verify_jwt = false
