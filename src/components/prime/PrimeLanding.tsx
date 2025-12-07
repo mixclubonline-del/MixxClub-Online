@@ -208,7 +208,7 @@ export default function PrimeLanding() {
             <div className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl glass-floating border border-[hsl(var(--glass-border-glow))] shadow-glass-glow animate-glass-glow-pulse">
               <Sparkles className="w-5 h-5 text-[hsl(var(--accent-cyan))] animate-pulse" />
               <span className="text-lg md:text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[hsl(var(--primary))] via-[hsl(var(--accent-blue))] to-[hsl(var(--accent-cyan))]">
-                AI-Powered Stem Separation
+                AI-Powered Collaboration
               </span>
               <Zap className="w-5 h-5 text-[hsl(var(--primary))] animate-pulse" />
             </div>
