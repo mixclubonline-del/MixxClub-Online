@@ -7,17 +7,26 @@ interface Message {
   content: string;
 }
 
+interface ChatContext {
+  userRole?: 'artist' | 'engineer';
+  currentPage?: string;
+  sessionId?: string;
+  projectId?: string;
+  userName?: string;
+  earnings?: number;
+  projectsCompleted?: number;
+}
+
 const CHAT_STATE_KEY = 'ai_copilot_chat';
 const MAX_CHAT_AGE = 24 * 60 * 60 * 1000; // 24 hours
 
-export const useAICopilotChat = () => {
+export const useAICopilotChat = (context?: ChatContext) => {
   const [messages, setMessages] = useState<Message[]>(() => {
-    // Load persisted messages on init
     return stateManager.loadState<Message[]>(CHAT_STATE_KEY, MAX_CHAT_AGE) || [];
   });
   const [isStreaming, setIsStreaming] = useState(false);
 
-  const sendMessage = async (userMessage: string) => {
+  const sendMessage = async (userMessage: string, useDeepThink = false) => {
     if (!userMessage.trim()) return;
 
     const newUserMessage: Message = { role: 'user', content: userMessage };
@@ -26,23 +35,29 @@ export const useAICopilotChat = () => {
     setIsStreaming(true);
 
     try {
+      // Use the new Prime chat endpoint with Gemini
       const response = await fetch(
-        'https://htvmkylgrrlaydhdbonl.supabase.co/functions/v1/copilot-chat',
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/prime-chat`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0dm1reWxncnJsYXlkaGRib25sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkwMTUwODIsImV4cCI6MjA3NDU5MTA4Mn0.peKF6_Gf15ZJCrwlnS2Kizy0tOkJ_9BJxXcs1TGM5Cc',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
           },
-          body: JSON.stringify({ messages: updatedMessages }),
+          body: JSON.stringify({ 
+            messages: updatedMessages,
+            context,
+            useDeepThink
+          }),
         }
       );
 
       if (!response.ok || !response.body) {
-        throw new Error('Failed to start AI stream');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to start AI stream');
       }
 
-      // Stream response
+      // Stream response - handle both Gemini and OpenAI formats
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let textBuffer = '';
@@ -57,35 +72,89 @@ export const useAICopilotChat = () => {
         
         textBuffer += decoder.decode(value, { stream: true });
 
-        let newlineIndex: number;
-        while ((newlineIndex = textBuffer.indexOf('\n')) !== -1) {
-          let line = textBuffer.slice(0, newlineIndex);
-          textBuffer = textBuffer.slice(newlineIndex + 1);
-
-          if (line.endsWith('\r')) line = line.slice(0, -1);
-          if (line.startsWith(':') || line.trim() === '') continue;
-          if (!line.startsWith('data: ')) continue;
-
-          const jsonStr = line.slice(6).trim();
-          if (jsonStr === '[DONE]') break;
-
-          try {
-            const parsed = JSON.parse(jsonStr);
-            const delta = parsed.choices?.[0]?.delta?.content;
-            
-            if (delta) {
-              assistantContent += delta;
-              setMessages(prev => {
-                const newMessages = [...prev];
-                newMessages[newMessages.length - 1] = {
-                  role: 'assistant',
-                  content: assistantContent
-                };
-                return newMessages;
-              });
+        // Try to parse Gemini streaming format
+        try {
+          // Gemini returns JSON objects directly
+          const lines = textBuffer.split('\n').filter(line => line.trim());
+          
+          for (const line of lines) {
+            try {
+              const parsed = JSON.parse(line);
+              
+              // Gemini format
+              if (parsed.candidates?.[0]?.content?.parts) {
+                const text = parsed.candidates[0].content.parts
+                  .filter((p: any) => p.text)
+                  .map((p: any) => p.text)
+                  .join('');
+                
+                if (text) {
+                  assistantContent = text;
+                  setMessages(prev => {
+                    const newMessages = [...prev];
+                    newMessages[newMessages.length - 1] = {
+                      role: 'assistant',
+                      content: assistantContent
+                    };
+                    return newMessages;
+                  });
+                }
+              }
+              
+              // OpenAI SSE format (fallback)
+              if (parsed.choices?.[0]?.delta?.content) {
+                assistantContent += parsed.choices[0].delta.content;
+                setMessages(prev => {
+                  const newMessages = [...prev];
+                  newMessages[newMessages.length - 1] = {
+                    role: 'assistant',
+                    content: assistantContent
+                  };
+                  return newMessages;
+                });
+              }
+            } catch {
+              // Line not complete JSON yet
             }
-          } catch (e) {
-            // Incomplete JSON, wait for more data
+          }
+          
+          // Keep incomplete lines in buffer
+          const lastNewline = textBuffer.lastIndexOf('\n');
+          if (lastNewline !== -1) {
+            textBuffer = textBuffer.slice(lastNewline + 1);
+          }
+        } catch {
+          // Handle SSE format as fallback
+          let newlineIndex: number;
+          while ((newlineIndex = textBuffer.indexOf('\n')) !== -1) {
+            let line = textBuffer.slice(0, newlineIndex);
+            textBuffer = textBuffer.slice(newlineIndex + 1);
+
+            if (line.endsWith('\r')) line = line.slice(0, -1);
+            if (line.startsWith(':') || line.trim() === '') continue;
+            if (!line.startsWith('data: ')) continue;
+
+            const jsonStr = line.slice(6).trim();
+            if (jsonStr === '[DONE]') break;
+
+            try {
+              const parsed = JSON.parse(jsonStr);
+              const delta = parsed.choices?.[0]?.delta?.content;
+              
+              if (delta) {
+                assistantContent += delta;
+                setMessages(prev => {
+                  const newMessages = [...prev];
+                  newMessages[newMessages.length - 1] = {
+                    role: 'assistant',
+                    content: assistantContent
+                  };
+                  return newMessages;
+                });
+              }
+            } catch {
+              // Incomplete JSON, wait for more data
+            }
           }
         }
       }
@@ -93,7 +162,7 @@ export const useAICopilotChat = () => {
       console.error('Error sending message:', error);
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: 'Sorry, I encountered an error. Please try again.'
+        content: `Sorry, I encountered an error: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`
       }]);
     } finally {
       setIsStreaming(false);
