@@ -1,11 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { Menu, Sparkles, X } from "lucide-react";
+import { Menu, Sparkles, X, Trophy } from "lucide-react";
 import { useState, useEffect } from "react";
 import mixclub3DLogo from "@/assets/mixclub-3d-logo.png";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { NotificationCenter } from "./notifications/NotificationCenter";
 import { isFeatureEnabled } from "@/config/featureFlags";
+import { UserLevelBadge } from "./gamification/UserLevelBadge";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -209,14 +210,19 @@ const Navigation = () => {
             })}
 
             {user ? (
-              <Button
-                onClick={signOut}
-                variant="ghost"
-                size="sm"
-                className="hover:bg-primary/10 hover:text-primary transition-all duration-300"
-              >
-                Sign Out
-              </Button>
+              <div className="flex items-center gap-3">
+                <Link to="/achievements" className="hover:opacity-80 transition-opacity">
+                  <UserLevelBadge compact />
+                </Link>
+                <Button
+                  onClick={signOut}
+                  variant="ghost"
+                  size="sm"
+                  className="hover:bg-primary/10 hover:text-primary transition-all duration-300"
+                >
+                  Sign Out
+                </Button>
+              </div>
             ) : (
               <>
                 <Link to="/auth">
