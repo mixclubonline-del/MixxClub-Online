@@ -1,4 +1,4 @@
-import { Home, Briefcase, DollarSign, User, Plus, Shield, Bot } from 'lucide-react';
+import { Home, Briefcase, Users, Plus, Trophy, Search } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
@@ -6,58 +6,72 @@ import { cn } from '@/lib/utils';
 export const MobileBottomNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
 
-  // Determine user role from current path
-  const isEngineer = location.pathname.includes('engineer');
-  const isArtist = location.pathname.includes('artist');
-  const isAdmin = location.pathname.includes('mobile-admin');
+  // Core navigation tabs based on role
+  const getNavTabs = () => {
+    if (userRole === 'engineer') {
+      return [
+        { icon: Home, label: 'Home', path: '/engineer-crm' },
+        { icon: Search, label: 'Sessions', path: '/sessions' },
+        { icon: Briefcase, label: 'Jobs', path: '/jobs' },
+        { icon: Trophy, label: 'Progress', path: '/achievements' },
+      ];
+    }
 
-  const engineerTabs = [
-    { icon: Home, label: 'Home', path: '/engineer-crm' },
-    { icon: Briefcase, label: 'Jobs', path: '/job-board' },
-    { icon: DollarSign, label: 'Earnings', path: '/engineer-dashboard' },
-    { icon: User, label: 'Profile', path: '/engineer-profile' },
-  ];
+    if (userRole === 'admin') {
+      return [
+        { icon: Home, label: 'Dashboard', path: '/admin' },
+        { icon: Users, label: 'Users', path: '/admin/users' },
+        { icon: Briefcase, label: 'Sessions', path: '/admin/sessions' },
+        { icon: Trophy, label: 'Analytics', path: '/admin/analytics' },
+      ];
+    }
 
-  const artistTabs = [
-    { icon: Home, label: 'Home', path: '/artist-crm' },
-    { icon: Plus, label: 'Post Job', path: '/job-board' },
-    { icon: Briefcase, label: 'Projects', path: '/artist-dashboard' },
-    { icon: User, label: 'Profile', path: '/artist-crm' },
-  ];
+    // Default: Artist
+    return [
+      { icon: Home, label: 'Home', path: '/artist-crm' },
+      { icon: Plus, label: 'Create', path: '/create-session' },
+      { icon: Users, label: 'Engineers', path: '/engineers' },
+      { icon: Trophy, label: 'Progress', path: '/achievements' },
+    ];
+  };
 
-  const adminTabs = [
-    { icon: Home, label: 'Dashboard', path: '/mobile-admin' },
-    { icon: Bot, label: 'Mixx Bot', path: '/mobile-mixxbot' },
-    { icon: User, label: 'Users', path: '/mobile-admin/users' },
-    { icon: DollarSign, label: 'Payouts', path: '/mobile-admin/payouts' },
-  ];
+  const tabs = getNavTabs();
 
-  const tabs = isAdmin ? adminTabs : isEngineer ? engineerTabs : artistTabs;
+  // Don't show on auth pages or when not logged in
+  if (!user || location.pathname.startsWith('/auth')) return null;
 
-  if (!user) return null;
+  // Don't show on pages with their own nav
+  const excludedPaths = ['/insider-demo', '/primes-world', '/city-gates'];
+  if (excludedPaths.some(path => location.pathname.startsWith(path))) return null;
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-lg border-t border-border z-50">
-      <div className="flex justify-around items-center h-16 px-2">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-xl border-t border-border/50 z-50">
+      <div className="flex justify-around items-center h-16 px-2 pb-2">
         {tabs.map((tab) => {
           const Icon = tab.icon;
-          const isActive = location.pathname === tab.path;
+          const isActive = location.pathname === tab.path || 
+            (tab.path !== '/' && location.pathname.startsWith(tab.path));
           
           return (
             <button
               key={tab.path}
               onClick={() => navigate(tab.path)}
               className={cn(
-                "flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors",
+                "flex flex-col items-center justify-center flex-1 h-full gap-1 transition-all duration-200",
                 isActive 
-                  ? "text-primary" 
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "text-primary scale-105" 
+                  : "text-muted-foreground hover:text-foreground active:scale-95"
               )}
             >
-              <Icon className="h-5 w-5" />
-              <span className="text-xs font-medium">{tab.label}</span>
+              <div className={cn(
+                "p-1.5 rounded-xl transition-all duration-200",
+                isActive && "bg-primary/10"
+              )}>
+                <Icon className={cn("h-5 w-5", isActive && "animate-pulse")} />
+              </div>
+              <span className="text-[10px] font-medium">{tab.label}</span>
             </button>
           );
         })}
