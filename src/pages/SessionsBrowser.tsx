@@ -268,7 +268,7 @@ export default function SessionsBrowser() {
                 Create your own session and invite engineers to work on your track.
               </p>
               <Button asChild className="bg-gradient-to-r from-green-500 to-accent-cyan hover:opacity-90">
-                <Link to="/auth">
+                <Link to="/create-session">
                   Start a Session
                   <ChevronRight className="w-4 h-4 ml-1" />
                 </Link>
