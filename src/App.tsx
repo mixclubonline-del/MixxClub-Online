@@ -21,6 +21,7 @@ import { useSplashScreen } from "@/hooks/useSplashScreen";
 import { TutorialProvider } from "@/contexts/TutorialContext";
 import { TutorialOverlay } from "@/components/tutorial/TutorialOverlay";
 import { TutorialLauncher } from "@/components/tutorial/TutorialLauncher";
+import { GlobalAudioPlayer } from "@/components/audio/GlobalAudioPlayer";
 
 // Lazy load heavy components
 const MixClubHome = React.lazy(() => import("./pages/MixClubHome"));
@@ -427,7 +428,8 @@ const App = () => {
                   <AppContent />
                   <DesktopOnlyComponents />
                   <TutorialOverlay />
-                  <div className="fixed bottom-4 right-4 z-50">
+                  <GlobalAudioPlayer />
+                  <div className="fixed bottom-4 left-4 z-50">
                     <TutorialLauncher contextTutorials={['welcome-to-mixxclub', 'setting-up-profile']} />
                   </div>
                   <PerformanceMonitor />
