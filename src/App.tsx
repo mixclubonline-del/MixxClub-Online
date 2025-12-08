@@ -79,6 +79,7 @@ import ForEngineers from "./pages/ForEngineers";
 import EngineerDirectory from "./pages/EngineerDirectory";
 import EngineerProfile from "./pages/EngineerProfile";
 import SessionsBrowser from "./pages/SessionsBrowser";
+import CreateSession from "./pages/CreateSession";
 import ComingSoon from "./pages/ComingSoon";
 import FAQ from "./pages/FAQ";
 import Terms from "./pages/Terms";
@@ -309,6 +310,7 @@ const AppContent = () => {
           <Route path="/engineers" element={<EngineerDirectory />} />
           <Route path="/engineer/:userId" element={<EngineerProfile />} />
           <Route path="/sessions" element={<SessionsBrowser />} />
+          <Route path="/create-session" element={<CreateSession />} />
           <Route path="/audio-lab" element={<AudioLab />} />
           
           <Route path="/project/:projectId" element={<AppLayout><ProjectDetail /></AppLayout>} />
