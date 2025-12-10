@@ -62,6 +62,7 @@ import EngineerDashboard from "./pages/EngineerDashboard";
 
 import SessionWorkspace from "./pages/SessionWorkspace";
 import { SessionWorkspacePage } from "./pages/SessionWorkspacePage";
+import SessionDetail from "./pages/SessionDetail";
 import Mixing from "./pages/Mixing";
 import Mastering from "./pages/Mastering";
 import MixingShowcase from "./pages/MixingShowcase";
@@ -251,7 +252,7 @@ const AppContent = () => {
           <Route path="/artist-crm" element={<AppLayout><ArtistCRM /></AppLayout>} />
           <Route path="/engineer-crm" element={<AppLayout><EngineerCRM /></AppLayout>} />
           <Route path="/hybrid-daw" element={<HybridDAW />} />
-          <Route path="/session/:sessionId" element={<AppLayout><SessionWorkspacePage /></AppLayout>} />
+          <Route path="/session/:sessionId" element={<SessionDetail />} />
           <Route path="/collaborate/:sessionId" element={<CollaborativeWorkspace />} />
           {/* Services Hub */}
           <Route path="/services" element={<Services />} />
