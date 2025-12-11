@@ -13,25 +13,46 @@ export default function HomeSimple() {
         />
       </Helmet>
 
-      <main className="min-h-screen bg-gradient-to-b from-background via-[hsl(265_50%_10%)] to-background text-foreground">
-        <GlobalHeader />
+      <main className="min-h-screen text-foreground relative overflow-hidden">
+        {/* Prime Studio Background */}
+        <div 
+          className="fixed inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: 'url(/assets/prime-pointing.jpg)',
+            filter: 'brightness(0.4) saturate(1.2)',
+          }}
+        />
+        <div className="fixed inset-0 bg-gradient-to-t from-background via-background/70 to-transparent" />
+        <div className="fixed inset-0 bg-gradient-to-r from-background/80 via-transparent to-background/80" />
         
-        {/* Hero */}
-        <section className="pt-32 pb-12 text-center relative">
-          <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent-blue))]">
-            Welcome to Mixx Club
-          </h1>
-          <p className="mt-3 text-lg text-muted-foreground">From bedroom to billboard.</p>
-          <a 
-            href="/network" 
-            className="mt-6 inline-block px-6 py-3 rounded-full bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent-blue))] text-foreground hover:shadow-[0_0_30px_hsl(var(--primary)/0.5)] transition-all"
-          >
-            Enter the Hub →
-          </a>
-        </section>
-        
-        {/* Ecosystem */}
-        <EcosystemSection />
+        <div className="relative z-10">
+          <GlobalHeader />
+          
+          {/* Hero */}
+          <section className="pt-32 pb-12 text-center">
+            <h1 className="text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent-blue))]">
+              Welcome to Mixx Club
+            </h1>
+            <p className="mt-3 text-xl text-foreground/80">From bedroom to billboard.</p>
+            <div className="flex gap-4 justify-center mt-8">
+              <a 
+                href="/network" 
+                className="px-8 py-4 rounded-full bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent-blue))] text-foreground font-semibold hover:shadow-[0_0_30px_hsl(var(--primary)/0.5)] transition-all"
+              >
+                Enter the Hub →
+              </a>
+              <a 
+                href="/brand-forge" 
+                className="px-8 py-4 rounded-full border border-primary/50 text-foreground font-semibold hover:bg-primary/10 transition-all"
+              >
+                Brand Forge
+              </a>
+            </div>
+          </section>
+          
+          {/* Ecosystem */}
+          <EcosystemSection />
+        </div>
       </main>
     </>
   );
