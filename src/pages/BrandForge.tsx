@@ -8,7 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Loader2, Sparkles, Video, Image, Wand2, Download, Check } from 'lucide-react';
+import { Loader2, Sparkles, Video, Image, Wand2, Download, Check, Crown } from 'lucide-react';
+import LogoShowcase from '@/components/brand/LogoShowcase';
 import GlobalHeader from '@/components/GlobalHeader';
 
 const logoPrompts = [
@@ -25,7 +26,7 @@ const videoPrompts = [
 ];
 
 export default function BrandForge() {
-  const [activeTab, setActiveTab] = useState('logo');
+  const [activeTab, setActiveTab] = useState('assets');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedLogos, setGeneratedLogos] = useState<{ id: string; url: string }[]>([]);
   const [generatedVideos, setGeneratedVideos] = useState<{ id: string; url: string }[]>([]);
@@ -120,7 +121,11 @@ export default function BrandForge() {
           </motion.div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="max-w-5xl mx-auto">
-            <TabsList className="grid w-full grid-cols-3 mb-8">
+            <TabsList className="grid w-full grid-cols-4 mb-8">
+              <TabsTrigger value="assets" className="flex items-center gap-2">
+                <Crown className="w-4 h-4" />
+                Official Assets
+              </TabsTrigger>
               <TabsTrigger value="logo" className="flex items-center gap-2">
                 <Image className="w-4 h-4" />
                 Logo Generator
@@ -134,6 +139,10 @@ export default function BrandForge() {
                 Custom Prompt
               </TabsTrigger>
             </TabsList>
+
+            <TabsContent value="assets">
+              <LogoShowcase />
+            </TabsContent>
 
             <TabsContent value="logo">
               <div className="space-y-8">
