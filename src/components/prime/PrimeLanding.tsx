@@ -133,6 +133,18 @@ const serviceCards = [
 export default function PrimeLanding() {
   return (
     <div className="min-h-screen bg-[hsl(var(--background))] text-foreground overflow-hidden relative">
+      {/* Prime Studio Background */}
+      <div className="fixed inset-0 z-0">
+        <img 
+          src="/assets/prime-pointing.jpg" 
+          alt="Prime's Studio"
+          className="w-full h-full object-cover"
+          style={{ filter: 'brightness(0.35) saturate(1.3)' }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/70 via-transparent to-background/70" />
+      </div>
+      
       {/* Cursor Trail Effect */}
       <CursorTrail />
       
@@ -140,7 +152,7 @@ export default function PrimeLanding() {
       <ParticleBackground />
       
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center justify-center px-6 py-20">
+      <section className="relative min-h-[90vh] flex items-center justify-center px-6 py-20 z-10">
         {/* Animated background */}
         <div className="absolute inset-0 overflow-hidden">
           {/* Radial gradients */}
@@ -272,6 +284,11 @@ export default function PrimeLanding() {
             <Link to="/how-it-works">
               <Button size="lg" variant="outline" className="glass border-[hsl(var(--border))] hover:border-[hsl(var(--primary))] hover:bg-[hsl(var(--primary)/0.1)] hover:shadow-[0_0_30px_hsl(var(--primary)/0.4)] transition-all">
                 How It Works
+              </Button>
+            </Link>
+            <Link to="/brand-forge">
+              <Button size="lg" variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-primary/10">
+                Brand Forge →
               </Button>
             </Link>
           </motion.div>

@@ -96,7 +96,11 @@ export default function BrandForge() {
         <meta name="description" content="Generate unique brand assets using MixClub's AI" />
       </Helmet>
 
-      <main className="min-h-screen bg-background">
+      <main className="min-h-screen bg-background relative">
+        {/* Background gradient */}
+        <div className="fixed inset-0 bg-gradient-to-b from-background via-background to-background/90 -z-10" />
+        <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.15),transparent_50%)] -z-10" />
+        
         <GlobalHeader />
         
         <div className="container mx-auto px-4 pt-24 pb-12">
