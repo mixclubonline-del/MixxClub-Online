@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-export const useSplashScreen = (minDuration = 2500) => {
+export const useSplashScreen = (minDuration = 500) => {
   const [showSplash, setShowSplash] = useState(true);
   const [isReady, setIsReady] = useState(false);
 
