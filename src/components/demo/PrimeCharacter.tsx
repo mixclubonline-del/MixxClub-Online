@@ -87,13 +87,17 @@ export const PrimeCharacter = ({
         }}
       >
         <img
-          src="/prime-avatar.png"
-          alt="Prime"
+          src="/assets/prime-pointing.jpg"
+          alt="Prime - MixClub Head Engineer"
           className="w-full h-full object-cover"
           style={{
             filter: isPlaying 
               ? `saturate(${1 + amplitude / 500}) brightness(${1 + amplitude / 1000}) hue-rotate(${hueShift}deg)`
               : 'none'
+          }}
+          onError={(e) => {
+            // Fallback to placeholder if image doesn't load
+            (e.target as HTMLImageElement).src = '/prime-avatar.png';
           }}
         />
 
@@ -101,7 +105,7 @@ export const PrimeCharacter = ({
         {isPlaying && bass > 150 && (
           <>
             <motion.img
-              src="/prime-avatar.png"
+              src="/assets/prime-pointing.jpg"
               alt=""
               className="absolute inset-0 w-full h-full object-cover mix-blend-screen opacity-30"
               style={{ 
@@ -110,7 +114,7 @@ export const PrimeCharacter = ({
               }}
             />
             <motion.img
-              src="/prime-avatar.png"
+              src="/assets/prime-pointing.jpg"
               alt=""
               className="absolute inset-0 w-full h-full object-cover mix-blend-screen opacity-30"
               style={{ 
