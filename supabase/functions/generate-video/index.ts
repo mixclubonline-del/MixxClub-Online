@@ -27,50 +27,38 @@ serve(async (req) => {
 
     switch (type) {
       case "image-to-video":
-        // Stable Video Diffusion - animate a still image
+        // Use minimax video-01 for image-to-video
         output = await replicate.run(
-          "stability-ai/stable-video-diffusion:3f0457e4619daac51203dedb472816fd4af51f3149fa7a9e0b5ffcf1b8172438",
+          "minimax/video-01",
           {
             input: {
-              input_image: imageUrl,
-              video_length: "14_frames_with_svd",
-              sizing_strategy: "maintain_aspect_ratio",
-              frames_per_second: 6,
-              motion_bucket_id: 127,
-              cond_aug: 0.02,
+              prompt: prompt || "Smooth cinematic animation with subtle movement",
+              first_frame_image: imageUrl,
             },
           }
         );
         break;
 
       case "text-to-video":
-        // AnimateDiff for text-to-video
+        // Use minimax video-01 for text-to-video
         output = await replicate.run(
-          "lucataco/animate-diff:beecf59c4aee8d81bf04f0381033dfa10dc16e845b4ae00d281e2fa377e48571",
+          "minimax/video-01",
           {
             input: {
               prompt: prompt,
-              n_prompt: "bad quality, worse quality, low resolution",
-              num_frames: 16,
-              num_inference_steps: 25,
-              guidance_scale: 7.5,
             },
           }
         );
         break;
 
       case "logo-animation":
-        // Use image-to-video for logo animation with subtle motion
+        // Use minimax for logo animation with subtle motion
         output = await replicate.run(
-          "stability-ai/stable-video-diffusion:3f0457e4619daac51203dedb472816fd4af51f3149fa7a9e0b5ffcf1b8172438",
+          "minimax/video-01",
           {
             input: {
-              input_image: imageUrl,
-              video_length: "14_frames_with_svd",
-              sizing_strategy: "maintain_aspect_ratio",
-              frames_per_second: 8,
-              motion_bucket_id: 40, // Lower motion for subtle logo animation
-              cond_aug: 0.01,
+              prompt: "Subtle logo animation, gentle glow effect, professional brand reveal, minimal movement",
+              first_frame_image: imageUrl,
             },
           }
         );
@@ -79,14 +67,10 @@ serve(async (req) => {
       case "studio-ambiance":
         // Generate ambient studio background video
         output = await replicate.run(
-          "lucataco/animate-diff:beecf59c4aee8d81bf04f0381033dfa10dc16e845b4ae00d281e2fa377e48571",
+          "minimax/video-01",
           {
             input: {
-              prompt: prompt || "cyberpunk music studio interior, neon lights pulsing, mixing console with glowing screens, audio equipment, ambient lighting, professional recording studio, purple and blue neon glow, subtle camera movement",
-              n_prompt: "people, faces, text, watermark, low quality",
-              num_frames: 24,
-              num_inference_steps: 30,
-              guidance_scale: 7.5,
+              prompt: prompt || "Cyberpunk music studio interior, neon lights pulsing rhythmically, mixing console with glowing screens, professional recording equipment, purple and blue ambient lighting, cinematic atmosphere",
             },
           }
         );
