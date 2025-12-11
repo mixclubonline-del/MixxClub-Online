@@ -420,7 +420,7 @@ const App = () => {
           {showSplash && (
             <SplashScreen
               onComplete={handleSplashComplete}
-              duration={2500}
+              duration={500}
             />
           )}
           <BrowserRouter>
