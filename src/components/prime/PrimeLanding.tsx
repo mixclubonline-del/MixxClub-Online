@@ -9,7 +9,7 @@ import { AudioWaveformBg } from "@/components/brand/AudioWaveformBg";
 import { ParticleBackground } from "@/components/home/2030/ParticleBackground";
 import { HolographicPlatform } from "@/components/brand/HolographicPlatform";
 import { HoverCard3D } from "@/components/interactive/HoverCard3D";
-import { CursorTrail } from "@/components/effects/CursorTrail";
+
 import { useState, useEffect } from "react";
 
 // Live stats animation
@@ -145,8 +145,6 @@ export default function PrimeLanding() {
         <div className="absolute inset-0 bg-gradient-to-r from-background/70 via-transparent to-background/70" />
       </div>
       
-      {/* Cursor Trail Effect */}
-      <CursorTrail />
       
       {/* 2030 Particle Network Background */}
       <ParticleBackground />
