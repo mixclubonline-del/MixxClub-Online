@@ -85,6 +85,7 @@ import EngineerProfile from "./pages/EngineerProfile";
 import SessionsBrowser from "./pages/SessionsBrowser";
 import CreateSession from "./pages/CreateSession";
 import Achievements from "./pages/Achievements";
+import UnlockablesHub from "./pages/UnlockablesHub";
 import ComingSoon from "./pages/ComingSoon";
 import FAQ from "./pages/FAQ";
 import Terms from "./pages/Terms";
@@ -239,6 +240,7 @@ const AppContent = () => {
           <Route path="/feed" element={<Navigate to="/community?tab=feed" replace />} />
           <Route path="/mix-battles" element={<Navigate to="/community?tab=arena" replace />} />
           <Route path="/leaderboard" element={<CommunityLeaderboard />} />
+          <Route path="/unlockables" element={<UnlockablesHub />} />
           <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
