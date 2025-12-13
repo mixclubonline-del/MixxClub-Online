@@ -46,13 +46,7 @@ export default function Premieres() {
       setLoading(true);
       let query = supabase
         .from('premieres')
-        .select(`
-          *,
-          artist_profile:profiles!artist_id (
-            display_name,
-            avatar_url
-          )
-        `)
+        .select('*')
         .order('premiere_date', { ascending: false });
 
       if (activeTab === 'live') {

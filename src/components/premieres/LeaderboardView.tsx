@@ -17,10 +17,8 @@ interface LeaderboardPremiere {
   weekly_rank: number | null;
   monthly_rank: number | null;
   premiere_date: string;
-  artist_profile: {
-    display_name: string;
-    avatar_url: string;
-  };
+  artwork_url?: string;
+  genre?: string;
 }
 
 export default function LeaderboardView() {
@@ -52,10 +50,8 @@ export default function LeaderboardView() {
         weekly_rank,
         monthly_rank,
         premiere_date,
-        artist_profile:profiles!premieres_artist_id_fkey (
-          display_name,
-          avatar_url
-        )
+        artwork_url,
+        genre
       `)
       .eq('status', 'live')
       .gte('premiere_date', sevenDaysAgo.toISOString())
@@ -79,10 +75,8 @@ export default function LeaderboardView() {
         weekly_rank,
         monthly_rank,
         premiere_date,
-        artist_profile:profiles!premieres_artist_id_fkey (
-          display_name,
-          avatar_url
-        )
+        artwork_url,
+        genre
       `)
       .eq('status', 'live')
       .gte('premiere_date', thirtyDaysAgo.toISOString())
@@ -133,10 +127,6 @@ export default function LeaderboardView() {
   };
 
   const renderLeaderboardItem = (premiere: LeaderboardPremiere, rank: number) => {
-    const artistProfile = Array.isArray(premiere.artist_profile) 
-      ? premiere.artist_profile[0] 
-      : premiere.artist_profile;
-
     return (
       <Card
         key={premiere.id}
@@ -150,8 +140,8 @@ export default function LeaderboardView() {
           </div>
 
           <Avatar className="h-14 w-14">
-            <AvatarImage src={artistProfile?.avatar_url} />
-            <AvatarFallback>{artistProfile?.display_name?.[0] || 'A'}</AvatarFallback>
+            <AvatarImage src={premiere.artwork_url} />
+            <AvatarFallback>{premiere.title?.[0] || 'T'}</AvatarFallback>
           </Avatar>
 
           <div className="flex-1 min-w-0">
@@ -160,7 +150,7 @@ export default function LeaderboardView() {
               {getRankBadge(rank)}
             </div>
             <p className="text-sm text-muted-foreground truncate">
-              by {artistProfile?.display_name || 'Unknown Artist'}
+              {premiere.genre || 'Unknown Genre'}
             </p>
           </div>
 
