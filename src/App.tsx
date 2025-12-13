@@ -46,6 +46,7 @@ import Network from "./pages/Network";
 import Artist from "./pages/Artist";
 import Engineer from "./pages/Engineer";
 import Community from "./pages/Community";
+import Crowd from "./pages/Crowd";
 import Install from "./pages/Install";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
@@ -234,7 +235,7 @@ const AppContent = () => {
           {/* Legacy redirects to Community Hub */}
           <Route path="/pulse" element={<Navigate to="/community?tab=feed" replace />} />
           <Route path="/arena" element={<Navigate to="/community?tab=arena" replace />} />
-          <Route path="/crowd" element={<Navigate to="/community?tab=crowd" replace />} />
+          <Route path="/crowd" element={<Crowd />} />
           <Route path="/feed" element={<Navigate to="/community?tab=feed" replace />} />
           <Route path="/mix-battles" element={<Navigate to="/community?tab=arena" replace />} />
           <Route path="/leaderboard" element={<CommunityLeaderboard />} />

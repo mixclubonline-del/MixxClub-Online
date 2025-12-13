@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { MessageCircle, Share2, Star } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -107,10 +106,13 @@ export default function PremiereCard({ premiere, onUpdate }: PremiereCardProps) 
       <Card className="overflow-hidden bg-card/30 backdrop-blur-sm border-white/10 hover:border-accent/30 transition-all">
         <div className="p-6">
           <div className="flex items-start gap-4 mb-4">
-            <Avatar className="h-12 w-12">
-              <AvatarImage src={premiere.artist_profile?.avatar_url} />
-              <AvatarFallback>{premiere.artist_profile?.display_name?.[0] || 'A'}</AvatarFallback>
-            </Avatar>
+            {premiere.artwork_url && (
+              <img 
+                src={premiere.artwork_url} 
+                alt={premiere.title}
+                className="w-16 h-16 rounded-lg object-cover"
+              />
+            )}
             
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
@@ -126,9 +128,6 @@ export default function PremiereCard({ premiere, onUpdate }: PremiereCardProps) 
                   </Badge>
                 )}
               </div>
-              <p className="text-sm text-muted-foreground">
-                by {premiere.artist_profile?.display_name || 'Unknown Artist'}
-              </p>
               <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
                 {premiere.genre && <span className="px-2 py-1 rounded-full bg-accent/10">{premiere.genre}</span>}
                 {premiere.bpm && <span>{premiere.bpm} BPM</span>}

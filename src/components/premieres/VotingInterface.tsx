@@ -45,7 +45,7 @@ export default function VotingInterface({ premiere, existingVotes, onClose }: Vo
     try {
       setSubmitting(true);
 
-      // Insert or update votes
+      // Insert votes for each category
       for (const [voteType, voteValue] of Object.entries(votes)) {
         const { error } = await supabase
           .from('premiere_votes')
@@ -53,18 +53,46 @@ export default function VotingInterface({ premiere, existingVotes, onClose }: Vo
             premiere_id: premiere.id,
             user_id: user.id,
             vote_type: voteType,
-            vote_value: voteValue,
-            feedback: voteType === 'overall' ? feedback : null,
           }, {
             onConflict: 'premiere_id,user_id,vote_type',
           });
 
-        if (error) throw error;
+        if (error && !error.message.includes('duplicate')) {
+          console.error('Vote error:', error);
+        }
+      }
+
+      // Update fan stats - increment total_votes
+      const { error: statsError } = await supabase
+        .from('fan_stats')
+        .upsert({
+          user_id: user.id,
+          total_votes: 1,
+        }, {
+          onConflict: 'user_id',
+        });
+      
+      if (statsError) {
+        console.error('Fan stats error:', statsError);
+      }
+
+      // Award XP points to user profile for gamification
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('points')
+        .eq('id', user.id)
+        .single();
+
+      if (profile) {
+        await supabase
+          .from('profiles')
+          .update({ points: (profile.points || 0) + 10 })
+          .eq('id', user.id);
       }
 
       toast({
-        title: "Vote submitted!",
-        description: "Thank you for your feedback. You earned 10 points!",
+        title: "Vote submitted! 🎉",
+        description: "Thank you for your feedback. You earned 10 XP!",
       });
 
       onClose();
