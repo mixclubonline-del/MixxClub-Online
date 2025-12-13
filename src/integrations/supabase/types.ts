@@ -2944,6 +2944,33 @@ export type Database = {
           },
         ]
       }
+      rate_limits: {
+        Row: {
+          action: string
+          attempt_count: number
+          created_at: string
+          id: string
+          identifier: string
+          updated_at: string | null
+        }
+        Insert: {
+          action: string
+          attempt_count?: number
+          created_at?: string
+          id?: string
+          identifier: string
+          updated_at?: string | null
+        }
+        Update: {
+          action?: string
+          attempt_count?: number
+          created_at?: string
+          id?: string
+          identifier?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       referrals: {
         Row: {
           commission_earned: number | null
