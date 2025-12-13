@@ -1,6 +1,8 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { X, ChevronLeft, ChevronRight, SkipForward } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, SkipForward, Volume2, VolumeX, Loader2 } from 'lucide-react';
+import { useEffect } from 'react';
 import { useTutorial } from '@/contexts/TutorialContext';
+import { usePrimeNarration } from '@/hooks/usePrimeNarration';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -17,6 +19,31 @@ export const TutorialOverlay = () => {
     skipTutorial,
   } = useTutorial();
 
+  const { isPlaying, isLoading, speak, stop } = usePrimeNarration();
+
+  // Auto-narrate when step changes
+  useEffect(() => {
+    if (!isActive || !activeTutorial) return;
+    
+    const steps = activeTutorial.steps || [];
+    const step = steps[currentStep];
+    
+    if (step?.description) {
+      // Slight delay for natural feel
+      const timer = setTimeout(() => {
+        speak(`${step.title}. ${step.description}`);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [currentStep, isActive, activeTutorial]);
+
+  // Stop narration when tutorial closes
+  useEffect(() => {
+    if (!isActive) {
+      stop();
+    }
+  }, [isActive, stop]);
+
   if (!isActive || !activeTutorial) return null;
 
   const steps = activeTutorial.steps || [];
@@ -25,6 +52,14 @@ export const TutorialOverlay = () => {
   if (!step) return null;
 
   const progressPercent = ((currentStep + 1) / totalSteps) * 100;
+
+  const handleNarrationToggle = () => {
+    if (isPlaying) {
+      stop();
+    } else {
+      speak(`${step.title}. ${step.description}`);
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -50,14 +85,33 @@ export const TutorialOverlay = () => {
                 </div>
                 <h3 className="text-xl font-bold">{step.title}</h3>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={skipTutorial}
-                className="shrink-0"
-              >
-                <X className="h-4 w-4" />
-              </Button>
+              <div className="flex items-center gap-1">
+                {/* Prime narration toggle */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleNarrationToggle}
+                  disabled={isLoading}
+                  className="shrink-0"
+                  title={isPlaying ? 'Stop narration' : 'Play narration'}
+                >
+                  {isLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : isPlaying ? (
+                    <VolumeX className="h-4 w-4" />
+                  ) : (
+                    <Volume2 className="h-4 w-4" />
+                  )}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={skipTutorial}
+                  className="shrink-0"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
 
             {/* Progress bar */}
@@ -76,6 +130,31 @@ export const TutorialOverlay = () => {
                 </div>
               )}
             </div>
+
+            {/* Prime indicator */}
+            {isPlaying && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                className="mb-4 flex items-center gap-2 text-sm text-primary"
+              >
+                <div className="flex gap-0.5">
+                  {[...Array(3)].map((_, i) => (
+                    <motion.div
+                      key={i}
+                      className="w-1 bg-primary rounded-full"
+                      animate={{ height: [4, 12, 4] }}
+                      transition={{ 
+                        repeat: Infinity, 
+                        duration: 0.5, 
+                        delay: i * 0.1 
+                      }}
+                    />
+                  ))}
+                </div>
+                <span>Prime is speaking...</span>
+              </motion.div>
+            )}
 
             {/* Actions */}
             <div className="flex items-center justify-between gap-2">
