@@ -1079,6 +1079,72 @@ export type Database = {
           },
         ]
       }
+      demo_beats: {
+        Row: {
+          ai_prompt: string | null
+          audio_url: string | null
+          bpm: number | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          download_count: number | null
+          duration_seconds: number | null
+          generation_model: string | null
+          genre: string
+          id: string
+          intensity: number | null
+          is_featured: boolean | null
+          mood: string
+          play_count: number | null
+          storage_path: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          ai_prompt?: string | null
+          audio_url?: string | null
+          bpm?: number | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          download_count?: number | null
+          duration_seconds?: number | null
+          generation_model?: string | null
+          genre?: string
+          id?: string
+          intensity?: number | null
+          is_featured?: boolean | null
+          mood?: string
+          play_count?: number | null
+          storage_path?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          ai_prompt?: string | null
+          audio_url?: string | null
+          bpm?: number | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          download_count?: number | null
+          duration_seconds?: number | null
+          generation_model?: string | null
+          genre?: string
+          id?: string
+          intensity?: number | null
+          is_featured?: boolean | null
+          mood?: string
+          play_count?: number | null
+          storage_path?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       direct_messages: {
         Row: {
           created_at: string | null
