@@ -3489,6 +3489,66 @@ export type Database = {
         }
         Relationships: []
       }
+      unlockables: {
+        Row: {
+          ai_reasoning: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          feature_flag_key: string | null
+          icon_name: string | null
+          id: string
+          is_unlocked: boolean | null
+          metric_type: string
+          name: string
+          reward_description: string | null
+          sort_order: number | null
+          target_value: number
+          tier: number | null
+          unlock_type: string
+          unlocked_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          ai_reasoning?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          feature_flag_key?: string | null
+          icon_name?: string | null
+          id?: string
+          is_unlocked?: boolean | null
+          metric_type: string
+          name: string
+          reward_description?: string | null
+          sort_order?: number | null
+          target_value: number
+          tier?: number | null
+          unlock_type: string
+          unlocked_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ai_reasoning?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          feature_flag_key?: string | null
+          icon_name?: string | null
+          id?: string
+          is_unlocked?: boolean | null
+          metric_type?: string
+          name?: string
+          reward_description?: string | null
+          sort_order?: number | null
+          target_value?: number
+          tier?: number | null
+          unlock_type?: string
+          unlocked_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_distribution_subscriptions: {
         Row: {
           created_at: string
@@ -3747,6 +3807,47 @@ export type Database = {
             columns: ["tutorial_id"]
             isOneToOne: false
             referencedRelation: "tutorials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_unlockables: {
+        Row: {
+          created_at: string
+          current_value: number | null
+          id: string
+          is_unlocked: boolean | null
+          unlockable_id: string
+          unlocked_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_value?: number | null
+          id?: string
+          is_unlocked?: boolean | null
+          unlockable_id: string
+          unlocked_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_value?: number | null
+          id?: string
+          is_unlocked?: boolean | null
+          unlockable_id?: string
+          unlocked_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_unlockables_unlockable_id_fkey"
+            columns: ["unlockable_id"]
+            isOneToOne: false
+            referencedRelation: "unlockables"
             referencedColumns: ["id"]
           },
         ]
