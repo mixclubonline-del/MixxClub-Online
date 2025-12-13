@@ -2497,43 +2497,70 @@ export type Database = {
       }
       premieres: {
         Row: {
+          artist_id: string
+          artwork_url: string | null
+          audio_url: string | null
+          average_rating: number | null
+          bpm: number | null
           created_at: string | null
+          description: string | null
+          engineer_id: string | null
+          genre: string | null
           id: string
+          monthly_rank: number | null
           play_count: number | null
           premiere_date: string
-          premiere_description: string | null
-          premiere_title: string
           project_id: string
           status: string | null
-          streaming_url: string | null
+          title: string
+          total_votes: number | null
+          trending_score: number | null
           updated_at: string | null
-          user_id: string
+          weekly_rank: number | null
         }
         Insert: {
+          artist_id: string
+          artwork_url?: string | null
+          audio_url?: string | null
+          average_rating?: number | null
+          bpm?: number | null
           created_at?: string | null
+          description?: string | null
+          engineer_id?: string | null
+          genre?: string | null
           id?: string
+          monthly_rank?: number | null
           play_count?: number | null
           premiere_date: string
-          premiere_description?: string | null
-          premiere_title: string
           project_id: string
           status?: string | null
-          streaming_url?: string | null
+          title: string
+          total_votes?: number | null
+          trending_score?: number | null
           updated_at?: string | null
-          user_id: string
+          weekly_rank?: number | null
         }
         Update: {
+          artist_id?: string
+          artwork_url?: string | null
+          audio_url?: string | null
+          average_rating?: number | null
+          bpm?: number | null
           created_at?: string | null
+          description?: string | null
+          engineer_id?: string | null
+          genre?: string | null
           id?: string
+          monthly_rank?: number | null
           play_count?: number | null
           premiere_date?: string
-          premiere_description?: string | null
-          premiere_title?: string
           project_id?: string
           status?: string | null
-          streaming_url?: string | null
+          title?: string
+          total_votes?: number | null
+          trending_score?: number | null
           updated_at?: string | null
-          user_id?: string
+          weekly_rank?: number | null
         }
         Relationships: [
           {
