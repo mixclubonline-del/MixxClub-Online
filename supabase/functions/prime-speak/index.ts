@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createLogger } from "../_shared/logger.ts";
+import { checkRateLimit, rateLimitHeaders } from "../_shared/rate-limit.ts";
 
 const logger = createLogger("prime-speak");
 
@@ -14,6 +15,24 @@ serve(async (req) => {
   }
 
   try {
+    // Rate limiting for public endpoint
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const clientIP = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    
+    const rateLimit = await checkRateLimit(clientIP, {
+      maxRequests: 15,
+      windowMs: 60000, // 1 minute
+      keyPrefix: 'prime-speak'
+    }, supabaseUrl, supabaseKey);
+
+    if (!rateLimit.allowed) {
+      return new Response(
+        JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }),
+        { status: 429, headers: { ...corsHeaders, ...rateLimitHeaders(rateLimit), 'Content-Type': 'application/json' } }
+      );
+    }
+
     const { text, voice = 'alloy' } = await req.json();
     
     if (!text) {

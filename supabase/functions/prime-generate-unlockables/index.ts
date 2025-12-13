@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { checkRateLimit, rateLimitHeaders } from "../_shared/rate-limit.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -14,6 +15,23 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    
+    // Rate limiting - stricter limits since it modifies DB with service role
+    const clientIP = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    
+    const rateLimit = await checkRateLimit(clientIP, {
+      maxRequests: 5,
+      windowMs: 300000, // 5 minutes - stricter because it modifies database
+      keyPrefix: 'unlockables'
+    }, supabaseUrl, supabaseKey);
+
+    if (!rateLimit.allowed) {
+      return new Response(
+        JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }),
+        { status: 429, headers: { ...corsHeaders, ...rateLimitHeaders(rateLimit), 'Content-Type': 'application/json' } }
+      );
+    }
+    
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Get current platform stats for context
