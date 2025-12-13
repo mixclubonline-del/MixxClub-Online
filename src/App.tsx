@@ -55,6 +55,7 @@ import InsiderDemo from "./pages/InsiderDemo";
 import AudioUpload from "./pages/AudioUpload";
 import SunoTest from "./pages/SunoTest";
 import BrandForge from "./pages/BrandForge";
+import PrimeBeatForge from "./pages/PrimeBeatForge";
 import ArtistOnboarding from "./pages/ArtistOnboarding";
 import EngineerOnboarding from "./pages/EngineerOnboarding";
 import HybridOnboarding from "./pages/HybridOnboarding";
@@ -278,6 +279,7 @@ const AppContent = () => {
           <Route path="/messaging-test" element={<MessagingTest />} />
           <Route path="/suno-test" element={<SunoTest />} />
           <Route path="/brand-forge" element={<BrandForge />} />
+          <Route path="/prime-beat-forge" element={<PrimeBeatForge />} />
           <Route path="/admin" element={<AdminRoute section="Admin Dashboard"><Admin /></AdminRoute>} />
           <Route path="/admin/users" element={<AdminRoute section="Users"><AdminUsers /></AdminRoute>} />
           <Route path="/admin/beat-files" element={<AdminRoute section="Beat Files"><AdminBeatFiles /></AdminRoute>} />
