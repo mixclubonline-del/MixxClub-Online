@@ -2510,7 +2510,7 @@ export type Database = {
           monthly_rank: number | null
           play_count: number | null
           premiere_date: string
-          project_id: string
+          project_id: string | null
           status: string | null
           title: string
           total_votes: number | null
@@ -2532,7 +2532,7 @@ export type Database = {
           monthly_rank?: number | null
           play_count?: number | null
           premiere_date: string
-          project_id: string
+          project_id?: string | null
           status?: string | null
           title: string
           total_votes?: number | null
@@ -2554,7 +2554,7 @@ export type Database = {
           monthly_rank?: number | null
           play_count?: number | null
           premiere_date?: string
-          project_id?: string
+          project_id?: string | null
           status?: string | null
           title?: string
           total_votes?: number | null
