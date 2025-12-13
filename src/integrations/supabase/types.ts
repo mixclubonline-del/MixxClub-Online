@@ -705,6 +705,83 @@ export type Database = {
         }
         Relationships: []
       }
+      brand_assets: {
+        Row: {
+          asset_context: string | null
+          asset_type: string
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean | null
+          metadata: Json | null
+          name: string
+          prompt_used: string | null
+          public_url: string
+          storage_path: string
+          thumbnail_url: string | null
+        }
+        Insert: {
+          asset_context?: string | null
+          asset_type: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          name: string
+          prompt_used?: string | null
+          public_url: string
+          storage_path: string
+          thumbnail_url?: string | null
+        }
+        Update: {
+          asset_context?: string | null
+          asset_type?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          name?: string
+          prompt_used?: string | null
+          public_url?: string
+          storage_path?: string
+          thumbnail_url?: string | null
+        }
+        Relationships: []
+      }
+      brand_settings: {
+        Row: {
+          active_asset_id: string | null
+          id: string
+          setting_value: Json | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          active_asset_id?: string | null
+          id: string
+          setting_value?: Json | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          active_asset_id?: string | null
+          id?: string
+          setting_value?: Json | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brand_settings_active_asset_id_fkey"
+            columns: ["active_asset_id"]
+            isOneToOne: false
+            referencedRelation: "brand_assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chatbot_messages: {
         Row: {
           chatbot_type: string | null
