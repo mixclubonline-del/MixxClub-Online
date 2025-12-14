@@ -201,6 +201,7 @@ import { DashboardSkeleton } from "@/components/ui/loading-skeleton";
 import { PerformanceMonitor } from "@/components/PerformanceMonitor";
 import { CookieConsent } from "@/components/legal/CookieConsent";
 import { GlobalKeyboardShortcuts } from "@/components/GlobalKeyboardShortcuts";
+import { MobileOptimizations } from "@/components/MobileOptimizations";
 
 // Desktop-only components wrapper
 const DesktopOnlyComponents = () => {
@@ -468,6 +469,7 @@ const App = () => {
                   <GlobalNavigation />
                   <GlobalInteractions />
                   <GlobalKeyboardShortcuts />
+                  <MobileOptimizations />
                   <DesktopOnlyComponents />
                   <TutorialOverlay />
                   <GlobalAudioPlayer />
