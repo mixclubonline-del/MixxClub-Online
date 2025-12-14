@@ -9,6 +9,8 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { PWAInstallPrompt } from "@/components/mobile/PWAInstallPrompt";
 import { MobileRouteGuard } from "@/components/mobile/MobileRouteGuard";
 import { OfflineIndicator } from "@/components/mobile/OfflineIndicator";
+import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
+import { TabletSideNav } from "@/components/mobile/TabletSideNav";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AdminRoute } from "@/components/admin/AdminRoute";
 import { usePageTracking } from "@/hooks/useAnalytics";
@@ -16,6 +18,7 @@ import { PrimeProvider } from "@/contexts/PrimeContext";
 import PrimeConsole from "@/components/prime/PrimeConsole";
 import PrimeStatusBar from "@/components/prime/PrimeStatusBar";
 import { useMobileDetect } from "@/hooks/useMobileDetect";
+import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { SplashScreen } from "@/components/SplashScreen";
 import { useSplashScreen } from "@/hooks/useSplashScreen";
 import { TutorialProvider } from "@/contexts/TutorialContext";
@@ -415,6 +418,20 @@ const AppContent = () => {
   );
 };
 
+// Global navigation wrapper component
+const GlobalNavigation = () => {
+  const { isPhone, isTablet, isDesktop } = useBreakpoint();
+
+  return (
+    <>
+      {/* Phone: Bottom navigation */}
+      {isPhone && <MobileBottomNav />}
+      {/* Tablet: Side navigation */}
+      {isTablet && <TabletSideNav />}
+    </>
+  );
+};
+
 const App = () => {
   const { showSplash, handleSplashComplete } = useSplashScreen();
 
@@ -436,10 +453,11 @@ const App = () => {
                 <TutorialProvider>
                   <PWAInstallPrompt />
                   <AppContent />
+                  <GlobalNavigation />
                   <DesktopOnlyComponents />
                   <TutorialOverlay />
                   <GlobalAudioPlayer />
-                  <div className="fixed bottom-4 left-4 z-50">
+                  <div className="fixed bottom-4 left-4 z-50 hidden lg:block">
                     <TutorialLauncher contextTutorials={['welcome-to-mixxclub', 'setting-up-profile']} />
                   </div>
                   <PerformanceMonitor />
