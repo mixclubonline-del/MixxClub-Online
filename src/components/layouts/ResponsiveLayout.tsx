@@ -1,7 +1,6 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
-import { MobileBottomNav } from '@/components/mobile/MobileBottomNav';
 
 interface ResponsiveLayoutProps {
   children: React.ReactNode;
@@ -24,7 +23,7 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
         'w-full',
         // Safe area insets for notches and home indicators
         'pb-safe-area-inset-bottom pt-safe-area-inset-top',
-        // Bottom padding for mobile nav
+        // Bottom padding for mobile nav (nav rendered globally in App.tsx)
         isPhone && !hideBottomNav && 'pb-20',
         // Height handling
         fullHeight ? 'min-h-screen' : 'min-h-0',
@@ -36,8 +35,6 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
       )}
     >
       {children}
-      {/* Global mobile bottom nav */}
-      {isPhone && !hideBottomNav && <MobileBottomNav />}
     </div>
   );
 };
