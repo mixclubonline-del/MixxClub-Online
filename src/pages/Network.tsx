@@ -1,5 +1,5 @@
 import { Helmet } from 'react-helmet-async';
-import GlobalHeader from "@/components/GlobalHeader";
+import Navigation from "@/components/Navigation";
 
 export default function Network() {
   return (
@@ -13,7 +13,7 @@ export default function Network() {
       </Helmet>
 
       <div className="min-h-screen bg-[hsl(var(--background))] text-foreground">
-        <GlobalHeader />
+        <Navigation />
         
         {/* Onboarding overlay */}
         <section className="fixed inset-0 z-30 flex items-center justify-center bg-[radial-gradient(circle_at_center,hsl(235_60%_6%)_0%,hsl(235_60%_8%)_100%)] animate-fade-in">
