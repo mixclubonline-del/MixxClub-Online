@@ -18,13 +18,14 @@ import { PrimeProvider } from "@/contexts/PrimeContext";
 import PrimeConsole from "@/components/prime/PrimeConsole";
 import PrimeStatusBar from "@/components/prime/PrimeStatusBar";
 import { useMobileDetect } from "@/hooks/useMobileDetect";
-import { useBreakpoint } from "@/hooks/useBreakpoint";
-import { SplashScreen } from "@/components/SplashScreen";
-import { useSplashScreen } from "@/hooks/useSplashScreen";
-import { TutorialProvider } from "@/contexts/TutorialContext";
-import { TutorialOverlay } from "@/components/tutorial/TutorialOverlay";
-import { TutorialLauncher } from "@/components/tutorial/TutorialLauncher";
-import { GlobalAudioPlayer } from "@/components/audio/GlobalAudioPlayer";
+import { useBreakpoint } from '@/hooks/useBreakpoint';
+import { useSwipeNavigation } from '@/hooks/useSwipeNavigation';
+import { SplashScreen } from '@/components/SplashScreen';
+import { useSplashScreen } from '@/hooks/useSplashScreen';
+import { TutorialProvider } from '@/contexts/TutorialContext';
+import { TutorialOverlay } from '@/components/tutorial/TutorialOverlay';
+import { TutorialLauncher } from '@/components/tutorial/TutorialLauncher';
+import { GlobalAudioPlayer } from '@/components/audio/GlobalAudioPlayer';
 
 // Lazy load heavy components
 const MixClubHome = React.lazy(() => import("./pages/MixClubHome"));
@@ -199,6 +200,7 @@ import { PageTransition } from "@/components/layouts/PageTransition";
 import { DashboardSkeleton } from "@/components/ui/loading-skeleton";
 import { PerformanceMonitor } from "@/components/PerformanceMonitor";
 import { CookieConsent } from "@/components/legal/CookieConsent";
+import { GlobalKeyboardShortcuts } from "@/components/GlobalKeyboardShortcuts";
 
 // Desktop-only components wrapper
 const DesktopOnlyComponents = () => {
@@ -420,7 +422,7 @@ const AppContent = () => {
 
 // Global navigation wrapper component
 const GlobalNavigation = () => {
-  const { isPhone, isTablet, isDesktop } = useBreakpoint();
+  const { isPhone, isTablet } = useBreakpoint();
 
   return (
     <>
@@ -430,6 +432,16 @@ const GlobalNavigation = () => {
       {isTablet && <TabletSideNav />}
     </>
   );
+};
+
+// Global interactions - swipe navigation and keyboard shortcuts
+const GlobalInteractions = () => {
+  const { isPhone, isTablet } = useBreakpoint();
+  
+  // Enable swipe navigation on touch devices
+  useSwipeNavigation({ enabled: isPhone || isTablet });
+  
+  return null;
 };
 
 const App = () => {
@@ -454,6 +466,8 @@ const App = () => {
                   <PWAInstallPrompt />
                   <AppContent />
                   <GlobalNavigation />
+                  <GlobalInteractions />
+                  <GlobalKeyboardShortcuts />
                   <DesktopOnlyComponents />
                   <TutorialOverlay />
                   <GlobalAudioPlayer />

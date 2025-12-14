@@ -41,11 +41,19 @@ export const useKeyboardShortcuts = (config: ShortcutConfig = {}) => {
         switch (e.key.toLowerCase()) {
           case 'k':
             e.preventDefault();
-            onCommandPalette?.() || navigate('/search');
+            if (onCommandPalette) {
+              onCommandPalette();
+            } else {
+              navigate('/search');
+            }
             break;
           case 'n':
             e.preventDefault();
-            onNewSession?.() || navigate('/create-session');
+            if (onNewSession) {
+              onNewSession();
+            } else {
+              navigate('/create-session');
+            }
             break;
           case '/':
             e.preventDefault();
@@ -54,7 +62,11 @@ export const useKeyboardShortcuts = (config: ShortcutConfig = {}) => {
           case 'f':
             if (e.shiftKey) {
               e.preventDefault();
-              onSearch?.() || navigate('/search');
+              if (onSearch) {
+                onSearch();
+              } else {
+                navigate('/search');
+              }
             }
             break;
         }
