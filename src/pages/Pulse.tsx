@@ -1,5 +1,5 @@
 import { Helmet } from 'react-helmet-async';
-import GlobalHeader from '@/components/GlobalHeader';
+import Navigation from '@/components/Navigation';
 import LiveActivityStream from '@/components/pulse-hub/LiveActivityStream';
 import TrendingContent from '@/components/pulse-hub/TrendingContent';
 import CommunityStats from '@/components/pulse-hub/CommunityStats';
@@ -22,7 +22,7 @@ export default function Pulse() {
       </Helmet>
 
       <div className="min-h-screen bg-[#0a0a1a]">
-        <GlobalHeader />
+        <Navigation />
         
         <main className="max-w-7xl mx-auto px-6 py-16">
           <PrimeGlow intensity={0.7}>

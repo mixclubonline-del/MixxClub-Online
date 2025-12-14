@@ -1,5 +1,5 @@
 import { Helmet } from 'react-helmet-async';
-import GlobalHeader from "@/components/GlobalHeader";
+import Navigation from "@/components/Navigation";
 import EcosystemSection from "@/components/mixclub/EcosystemSection";
 
 export default function HomeSimple() {
@@ -26,7 +26,7 @@ export default function HomeSimple() {
         <div className="fixed inset-0 bg-gradient-to-r from-background/80 via-transparent to-background/80" />
         
         <div className="relative z-10">
-          <GlobalHeader />
+          <Navigation />
           
           {/* Hero */}
           <section className="pt-32 pb-12 text-center">
@@ -40,12 +40,6 @@ export default function HomeSimple() {
                 className="px-8 py-4 rounded-full bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent-blue))] text-foreground font-semibold hover:shadow-[0_0_30px_hsl(var(--primary)/0.5)] transition-all"
               >
                 Enter the Hub →
-              </a>
-              <a 
-                href="/brand-forge" 
-                className="px-8 py-4 rounded-full border border-primary/50 text-foreground font-semibold hover:bg-primary/10 transition-all"
-              >
-                Brand Forge
               </a>
             </div>
           </section>

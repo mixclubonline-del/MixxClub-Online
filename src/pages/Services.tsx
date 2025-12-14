@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import GlobalHeader from '@/components/GlobalHeader';
+import Navigation from '@/components/Navigation';
 import { usePrime } from '@/contexts/PrimeContext';
 import PrimeGlow from '@/components/prime/PrimeGlow';
 import { Music, Sparkles, Radio, Upload } from 'lucide-react';
@@ -58,7 +58,7 @@ export default function Services() {
       </Helmet>
 
       <div className="min-h-screen bg-[#0a0a1a]">
-        <GlobalHeader />
+        <Navigation />
         
         <main className="max-w-7xl mx-auto px-6 py-16">
           <PrimeGlow intensity={0.6}>
