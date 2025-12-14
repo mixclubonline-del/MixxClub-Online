@@ -284,11 +284,6 @@ export default function PrimeLanding() {
                 How It Works
               </Button>
             </Link>
-            <Link to="/brand-forge">
-              <Button size="lg" variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-primary/10">
-                Brand Forge →
-              </Button>
-            </Link>
           </motion.div>
 
           {/* Live Stats */}
