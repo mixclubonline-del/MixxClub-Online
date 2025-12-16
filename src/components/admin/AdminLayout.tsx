@@ -99,8 +99,16 @@ const navigationGroups = [
   {
     label: 'Communications',
     items: [
+      { name: 'Communication Center', href: '/admin/communications', icon: Mail, featured: true },
       { name: 'Notifications', href: '/admin/notifications', icon: Bell },
       { name: 'Contacts', href: '/admin/contacts', icon: Mail },
+    ],
+  },
+  {
+    label: 'Reports & Security',
+    items: [
+      { name: 'Reports', href: '/admin/reports', icon: FileText },
+      { name: 'Security Dashboard', href: '/admin/security-dashboard', icon: Shield },
     ],
   },
   {
