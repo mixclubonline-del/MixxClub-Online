@@ -175,6 +175,9 @@ const AdminContentModeration = React.lazy(() => import('./pages/AdminContentMode
 const AdminSystemMonitoring = React.lazy(() => import('./pages/AdminSystemMonitoring'));
 const AdminMarketing = React.lazy(() => import('./pages/AdminMarketing'));
 const AdminGrowth = React.lazy(() => import('./pages/AdminGrowth'));
+const AdminCommunications = React.lazy(() => import('./pages/AdminCommunications'));
+const AdminReports = React.lazy(() => import('./pages/AdminReports'));
+const AdminSecurityDashboard = React.lazy(() => import('./pages/AdminSecurityDashboard'));
 import { JobBoard } from './pages/JobBoard';
 import ProjectDetail from "./pages/ProjectDetail";
 import MerchStore from "./pages/MerchStore";
@@ -322,6 +325,9 @@ const AppContent = () => {
           <Route path="/admin/launch-presentation" element={<AdminRoute section="Launch Presentation"><AdminLaunchPresentation /></AdminRoute>} />
           <Route path="/admin/launch-dashboard" element={<AdminRoute section="Launch Dashboard"><AdminLaunchDashboard /></AdminRoute>} />
           <Route path="/admin/launch-readiness" element={<AdminRoute section="Launch Readiness"><AdminLaunchReadiness /></AdminRoute>} />
+          <Route path="/admin/communications" element={<AdminRoute section="Communications"><AdminCommunications /></AdminRoute>} />
+          <Route path="/admin/reports" element={<AdminRoute section="Reports"><AdminReports /></AdminRoute>} />
+          <Route path="/admin/security-dashboard" element={<AdminRoute section="Security Dashboard"><AdminSecurityDashboard /></AdminRoute>} />
           <Route path="/presentation/share/:token" element={<PresentationShare />} />
           <Route path="/for-artists" element={<ForArtists />} />
           <Route path="/for-engineers" element={<ForEngineers />} />

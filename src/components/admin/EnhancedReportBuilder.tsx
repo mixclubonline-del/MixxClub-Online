@@ -137,7 +137,7 @@ export function EnhancedReportBuilder() {
 
       setReportResult({
         columns: selectedFields,
-        rows: (data || []) as Record<string, unknown>[],
+        rows: (data || []) as unknown as Record<string, unknown>[],
         totalCount: count || 0,
       });
 
