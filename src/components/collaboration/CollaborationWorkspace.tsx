@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useSessionCleanup } from '@/hooks/useSessionCleanup';
 import { useRealTimePresence } from '@/hooks/useRealTimePresence';
+import { useWebRTC } from '@/hooks/useWebRTC';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +10,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { 
   Mic, 
@@ -30,7 +32,8 @@ import {
   Upload,
   Phone,
   PhoneOff,
-  Music
+  Music,
+  Camera
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -81,6 +84,7 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
   const [audioStreams, setAudioStreams] = useState<AudioStream[]>([]);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
+  const [activeTab, setActiveTab] = useState<'workspace' | 'video'>('workspace');
   
   // Audio/Video controls
   const [isMicEnabled, setIsMicEnabled] = useState(false);
@@ -88,13 +92,17 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
   const [isScreenSharing, setIsScreenSharing] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [masterVolume, setMasterVolume] = useState([80]);
+  const [isInCall, setIsInCall] = useState(false);
+  
+  // Remote video streams
+  const [remoteStreams, setRemoteStreams] = useState<Map<string, MediaStream>>(new Map());
   
   // Recording state
   const [recordingDuration, setRecordingDuration] = useState(0);
   const recordingInterval = useRef<NodeJS.Timeout>();
   
   // WebRTC refs
-  const localStreamRef = useRef<MediaStream>();
+  const localVideoRef = useRef<HTMLVideoElement>(null);
   const audioContextRef = useRef<AudioContext>();
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -104,12 +112,44 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
   // Real-time presence
   const { onlineUsers, isConnected: presenceConnected } = useRealTimePresence(`session-${sessionId}`);
 
+  // WebRTC hook for video/audio calls
+  const {
+    localStream,
+    screenStream,
+    isAudioEnabled: webrtcAudioEnabled,
+    isVideoEnabled: webrtcVideoEnabled,
+    isScreenSharing: webrtcScreenSharing,
+    connectedPeers,
+    startLocalStream,
+    stopLocalStream,
+    toggleAudio,
+    toggleVideo,
+    startScreenShare: webrtcStartScreenShare,
+    stopScreenShare: webrtcStopScreenShare,
+    connectToPeers,
+  } = useWebRTC({
+    sessionId,
+    userId: user?.id || '',
+    onRemoteStream: (stream, peerId) => {
+      console.log('[Workspace] Received remote stream from:', peerId);
+      setRemoteStreams(prev => new Map(prev).set(peerId, stream));
+    },
+  });
+
+  // Sync local video to video element
+  useEffect(() => {
+    if (localVideoRef.current && localStream) {
+      localVideoRef.current.srcObject = localStream;
+    }
+  }, [localStream]);
+
   // Memoize active participants count
   const activeParticipantsCount = useMemo(
     () => participants.filter(p => p.is_active).length,
     [participants]
   );
 
+  // Load session data and setup subscriptions
   useEffect(() => {
     if (sessionId && user) {
       loadSessionData();
@@ -121,8 +161,8 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
     };
   }, [sessionId, user]);
 
+  // Auto-scroll chat to bottom
   useEffect(() => {
-    // Auto-scroll chat to bottom
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
@@ -237,72 +277,77 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
     return () => supabase.removeChannel(channel);
   };
 
-  const toggleMicrophone = async () => {
+  // Start/join video call
+  const handleStartCall = async () => {
     try {
-      if (!isMicEnabled) {
-        localStreamRef.current = await navigator.mediaDevices.getUserMedia({
-          audio: {
-            sampleRate: 48000,
-            channelCount: 1,
-            echoCancellation: true,
-            noiseSuppression: true,
-            autoGainControl: true
-          }
-        });
-        
-        // Create audio stream record
-        await supabase
-          .from('audio_streams')
-          .insert({
-            session_id: sessionId,
-            user_id: user?.id,
-            stream_name: `${user?.email}-mic`,
-            stream_type: 'microphone',
-            volume: 0.8,
-            is_active: true
-          });
-      } else {
-        if (localStreamRef.current) {
-          localStreamRef.current.getTracks().forEach(track => track.stop());
-          localStreamRef.current = undefined;
-        }
-        
-        // Remove audio stream record
-        await supabase
-          .from('audio_streams')
-          .delete()
-          .eq('session_id', sessionId)
-          .eq('user_id', user?.id)
-          .eq('stream_type', 'microphone');
+      await startLocalStream({ audio: true, video: true });
+      setIsInCall(true);
+      setIsMicEnabled(true);
+      setIsVideoEnabled(true);
+      
+      // Connect to existing participants
+      const otherParticipants = participants
+        .filter(p => p.user_id !== user?.id)
+        .map(p => p.user_id);
+      
+      if (otherParticipants.length > 0) {
+        await connectToPeers(otherParticipants);
       }
       
-      // Update participant state
+      // Create audio stream record
       await supabase
-        .from('session_participants')
-        .update({ audio_input_enabled: !isMicEnabled })
-        .eq('session_id', sessionId)
-        .eq('user_id', user?.id);
-
-      setIsMicEnabled(!isMicEnabled);
+        .from('audio_streams')
+        .insert({
+          session_id: sessionId,
+          user_id: user?.id,
+          stream_name: `${user?.email}-video-call`,
+          stream_type: 'video_call',
+          volume: 0.8,
+          is_active: true
+        });
+        
+      toast.success('Joined video call');
     } catch (error) {
-      console.error('Error toggling microphone:', error);
-      toast.error('Failed to toggle microphone');
+      console.error('Error starting call:', error);
+      toast.error('Failed to start video call');
     }
   };
 
-  const toggleVideo = async () => {
-    try {
-      await supabase
-        .from('session_participants')
-        .update({ video_enabled: !isVideoEnabled })
-        .eq('session_id', sessionId)
-        .eq('user_id', user?.id);
+  const handleEndCall = async () => {
+    stopLocalStream();
+    setRemoteStreams(new Map());
+    setIsInCall(false);
+    setIsMicEnabled(false);
+    setIsVideoEnabled(false);
+    
+    // Remove audio stream record
+    await supabase
+      .from('audio_streams')
+      .delete()
+      .eq('session_id', sessionId)
+      .eq('user_id', user?.id)
+      .eq('stream_type', 'video_call');
+      
+    toast.success('Left video call');
+  };
 
-      setIsVideoEnabled(!isVideoEnabled);
-    } catch (error) {
-      console.error('Error toggling video:', error);
-      toast.error('Failed to toggle video');
+  const handleToggleMic = () => {
+    toggleAudio();
+    setIsMicEnabled(!isMicEnabled);
+  };
+
+  const handleToggleVideo = () => {
+    toggleVideo();
+    setIsVideoEnabled(!isVideoEnabled);
+  };
+
+  const handleToggleScreenShare = async () => {
+    if (isScreenSharing) {
+      await webrtcStopScreenShare();
+    } else {
+      await webrtcStartScreenShare();
     }
+    setIsScreenSharing(!isScreenSharing);
   };
 
   const toggleScreenShare = async () => {
@@ -440,8 +485,8 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
   };
 
   const cleanupSession = () => {
-    if (localStreamRef.current) {
-      localStreamRef.current.getTracks().forEach(track => track.stop());
+    if (localStream) {
+      localStream.getTracks().forEach(track => track.stop());
     }
     if (audioContextRef.current) {
       audioContextRef.current.close();
@@ -529,75 +574,164 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
           </div>
         </div>
 
-        {/* Waveform Display Area - Much Larger Now */}
-        <div className="flex-1 bg-gradient-to-br from-muted/30 to-background flex flex-col items-center justify-center relative p-8">
-          {isScreenSharing ? (
-            <div className="text-center animate-fade-in">
-              <div className="p-6 bg-primary/10 rounded-full w-fit mx-auto mb-4 bloom-hover">
-                <Monitor className="w-20 h-20 text-primary" />
+        {/* Main Content Area - Video/Workspace */}
+        <div className="flex-1 bg-gradient-to-br from-muted/30 to-background flex flex-col relative">
+          {isInCall ? (
+            // Video Call View
+            <div className="flex-1 p-4 overflow-auto">
+              <div className="grid gap-4 h-full" style={{
+                gridTemplateColumns: remoteStreams.size === 0 ? '1fr' : 
+                  remoteStreams.size === 1 ? 'repeat(2, 1fr)' : 
+                  remoteStreams.size <= 3 ? 'repeat(2, 1fr)' : 
+                  'repeat(3, 1fr)',
+              }}>
+                {/* Local Video */}
+                <div className="relative aspect-video bg-black rounded-lg overflow-hidden shadow-glow">
+                  <video
+                    ref={localVideoRef}
+                    autoPlay
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute bottom-2 left-2 bg-black/60 px-3 py-1 rounded-full text-white text-sm flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full pulse-live" />
+                    You {isScreenSharing && '(Screen)'}
+                  </div>
+                  <div className="absolute top-2 right-2 flex gap-1">
+                    {!isMicEnabled && (
+                      <div className="bg-red-500/80 p-1 rounded">
+                        <MicOff className="w-4 h-4 text-white" />
+                      </div>
+                    )}
+                    {!isVideoEnabled && (
+                      <div className="bg-red-500/80 p-1 rounded">
+                        <VideoOff className="w-4 h-4 text-white" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Remote Videos */}
+                {Array.from(remoteStreams.entries()).map(([peerId, stream]) => (
+                  <RemoteVideoFeed key={peerId} stream={stream} peerId={peerId} />
+                ))}
               </div>
-              <p className="text-xl font-semibold mb-2">Screen Sharing Active</p>
-              <p className="text-muted-foreground">Collaborators can see your screen</p>
+              
+              {/* Connected peers indicator */}
+              {connectedPeers.length > 0 && (
+                <div className="absolute top-4 right-4 bg-green-500/20 border border-green-500/50 rounded-full px-3 py-1 text-sm text-green-500">
+                  {connectedPeers.length} peer(s) connected
+                </div>
+              )}
+            </div>
+          ) : isScreenSharing ? (
+            <div className="flex-1 flex items-center justify-center animate-fade-in">
+              <div className="text-center">
+                <div className="p-6 bg-primary/10 rounded-full w-fit mx-auto mb-4 bloom-hover">
+                  <Monitor className="w-20 h-20 text-primary" />
+                </div>
+                <p className="text-xl font-semibold mb-2">Screen Sharing Active</p>
+                <p className="text-muted-foreground">Collaborators can see your screen</p>
+              </div>
             </div>
           ) : (
-            <div className="text-center max-w-2xl animate-scale-in">
-              <div className="p-8 bg-gradient-to-br from-primary/20 to-accent-cyan/20 rounded-2xl w-fit mx-auto mb-6 shadow-glow-lg bloom-hover">
-                <Users className="w-24 h-24 text-primary" />
-              </div>
-              <h3 className="text-3xl font-bold mb-3 bg-gradient-to-r from-primary to-accent-cyan bg-clip-text text-transparent">
-                Global Collaboration Studio
-              </h3>
-              <p className="text-muted-foreground mb-6">
-                Create music with artists and engineers from anywhere in the world 🌍
-              </p>
-              <div className="flex items-center justify-center gap-4">
-                <Card className="p-4 bg-muted/50">
-                  <div className="text-2xl font-bold text-primary">{activeParticipantsCount}</div>
-                  <div className="text-xs text-muted-foreground">Active Users</div>
-                </Card>
-                <Card className="p-4 bg-muted/50">
-                  <div className="text-2xl font-bold text-accent-cyan">{audioStreams.length}</div>
-                  <div className="text-xs text-muted-foreground">Audio Streams</div>
-                </Card>
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center max-w-2xl animate-scale-in">
+                <div className="p-8 bg-gradient-to-br from-primary/20 to-accent-cyan/20 rounded-2xl w-fit mx-auto mb-6 shadow-glow-lg bloom-hover">
+                  <Camera className="w-24 h-24 text-primary" />
+                </div>
+                <h3 className="text-3xl font-bold mb-3 bg-gradient-to-r from-primary to-accent-cyan bg-clip-text text-transparent">
+                  Global Collaboration Studio
+                </h3>
+                <p className="text-muted-foreground mb-6">
+                  Create music with artists and engineers from anywhere in the world 🌍
+                </p>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Click "Join Video Call" below to start collaborating in real-time
+                </p>
+                <div className="flex items-center justify-center gap-4">
+                  <Card className="p-4 bg-muted/50">
+                    <div className="text-2xl font-bold text-primary">{activeParticipantsCount}</div>
+                    <div className="text-xs text-muted-foreground">Active Users</div>
+                  </Card>
+                  <Card className="p-4 bg-muted/50">
+                    <div className="text-2xl font-bold text-accent-cyan">{connectedPeers.length}</div>
+                    <div className="text-xs text-muted-foreground">Peers Connected</div>
+                  </Card>
+                </div>
               </div>
             </div>
           )}
 
-          {/* Floating Cursors Placeholder */}
-          <div className="absolute top-4 left-4 text-xs text-muted-foreground">
-            💡 Real-time cursors and edits appear here
+          {/* Floating status indicator */}
+          <div className="absolute top-4 left-4 text-xs text-muted-foreground flex items-center gap-2">
+            {presenceConnected ? (
+              <>
+                <div className="w-2 h-2 bg-green-500 rounded-full" />
+                Real-time connected
+              </>
+            ) : (
+              <>
+                <div className="w-2 h-2 bg-yellow-500 rounded-full" />
+                Connecting...
+              </>
+            )}
           </div>
         </div>
 
         {/* Control Bar - More Prominent */}
         <div className="border-t p-6 bg-card/90 backdrop-blur-md">
           <div className="flex items-center justify-center gap-6">
-            <Button
-              variant={isMicEnabled ? "default" : "secondary"}
-              size="lg"
-              onClick={toggleMicrophone}
-              className="rounded-full w-14 h-14 bloom-hover"
-            >
-              {isMicEnabled ? <Mic className="w-6 h-6" /> : <MicOff className="w-6 h-6" />}
-            </Button>
-            
-            <Button
-              variant={isVideoEnabled ? "default" : "secondary"}
-              size="lg"
-              onClick={toggleVideo}
-              className="rounded-full w-14 h-14 bloom-hover"
-            >
-              {isVideoEnabled ? <Video className="w-6 h-6" /> : <VideoOff className="w-6 h-6" />}
-            </Button>
-            
-            <Button
-              variant={isScreenSharing ? "default" : "secondary"}
-              size="lg"
-              onClick={toggleScreenShare}
-              className="rounded-full w-14 h-14 bloom-hover"
-            >
-              {isScreenSharing ? <MonitorOff className="w-6 h-6" /> : <Monitor className="w-6 h-6" />}
-            </Button>
+            {!isInCall ? (
+              <Button
+                variant="default"
+                size="lg"
+                onClick={handleStartCall}
+                className="rounded-full px-6 h-14 bloom-hover gap-2"
+              >
+                <Phone className="w-6 h-6" />
+                Join Video Call
+              </Button>
+            ) : (
+              <>
+                <Button
+                  variant={isMicEnabled ? "default" : "secondary"}
+                  size="lg"
+                  onClick={handleToggleMic}
+                  className="rounded-full w-14 h-14 bloom-hover"
+                >
+                  {isMicEnabled ? <Mic className="w-6 h-6" /> : <MicOff className="w-6 h-6" />}
+                </Button>
+                
+                <Button
+                  variant={isVideoEnabled ? "default" : "secondary"}
+                  size="lg"
+                  onClick={handleToggleVideo}
+                  className="rounded-full w-14 h-14 bloom-hover"
+                >
+                  {isVideoEnabled ? <Video className="w-6 h-6" /> : <VideoOff className="w-6 h-6" />}
+                </Button>
+                
+                <Button
+                  variant={isScreenSharing ? "default" : "secondary"}
+                  size="lg"
+                  onClick={handleToggleScreenShare}
+                  className="rounded-full w-14 h-14 bloom-hover"
+                >
+                  {isScreenSharing ? <MonitorOff className="w-6 h-6" /> : <Monitor className="w-6 h-6" />}
+                </Button>
+                
+                <Button
+                  variant="destructive"
+                  size="lg"
+                  onClick={handleEndCall}
+                  className="rounded-full w-14 h-14 bloom-hover"
+                >
+                  <PhoneOff className="w-6 h-6" />
+                </Button>
+              </>
+            )}
             
             <Separator orientation="vertical" className="h-10" />
             
@@ -789,5 +923,30 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
     </div>
   );
 };
+
+// Remote video feed component
+function RemoteVideoFeed({ stream, peerId }: { stream: MediaStream; peerId: string }) {
+  const videoRef = React.useRef<HTMLVideoElement>(null);
+
+  React.useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.srcObject = stream;
+    }
+  }, [stream]);
+
+  return (
+    <div className="relative aspect-video bg-black rounded-lg overflow-hidden shadow-glow">
+      <video
+        ref={videoRef}
+        autoPlay
+        playsInline
+        className="w-full h-full object-cover"
+      />
+      <div className="absolute bottom-2 left-2 bg-black/60 px-3 py-1 rounded-full text-white text-sm">
+        Participant {peerId.slice(-4)}
+      </div>
+    </div>
+  );
+}
 
 export default CollaborationWorkspace;
