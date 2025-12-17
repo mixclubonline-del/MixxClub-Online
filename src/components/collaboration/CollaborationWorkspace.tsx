@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { useSessionCleanup } from '@/hooks/useSessionCleanup';
 import { useRealTimePresence } from '@/hooks/useRealTimePresence';
 import { useWebRTC } from '@/hooks/useWebRTC';
+import { useAudioMixer } from '@/hooks/useAudioMixer';
+import { LevelMeter } from './LevelMeter';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -112,6 +114,23 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
   // Real-time presence
   const { onlineUsers, isConnected: presenceConnected } = useRealTimePresence(`session-${sessionId}`);
 
+  // Audio Mixer for real audio routing
+  const {
+    channels: mixerChannels,
+    masterVolume: mixerMasterVolume,
+    masterLevel,
+    addChannel,
+    removeChannel,
+    setChannelVolume,
+    setChannelMute,
+    setChannelSolo,
+    setMasterVolume: setMixerMasterVolume,
+    connectStreamToChannel,
+    startRecording: startMixerRecording,
+    stopRecording: stopMixerRecording,
+    isRecording: isMixerRecording,
+  } = useAudioMixer();
+
   // WebRTC hook for video/audio calls
   const {
     localStream,
@@ -133,6 +152,10 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
     onRemoteStream: (stream, peerId) => {
       console.log('[Workspace] Received remote stream from:', peerId);
       setRemoteStreams(prev => new Map(prev).set(peerId, stream));
+      
+      // Add stream to audio mixer for real audio routing
+      const channelName = `Peer-${peerId.slice(0, 8)}`;
+      addChannel(peerId, channelName, stream);
     },
   });
 
@@ -315,6 +338,12 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
 
   const handleEndCall = async () => {
     stopLocalStream();
+    
+    // Remove all peer channels from mixer
+    remoteStreams.forEach((_, peerId) => {
+      removeChannel(peerId);
+    });
+    
     setRemoteStreams(new Map());
     setIsInCall(false);
     setIsMicEnabled(false);
@@ -394,14 +423,17 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
           session_id: sessionId,
           recorded_by: user?.id,
           recording_name: `Session Recording ${new Date().toISOString()}`,
-          file_path: `recordings/session-${sessionId}-${Date.now()}.wav`,
-          audio_format: 'wav'
+          file_path: `recordings/session-${sessionId}-${Date.now()}.webm`,
+          audio_format: 'webm'
         })
         .select()
         .single();
 
       if (error) throw error;
 
+      // Start real audio recording from mixer
+      startMixerRecording();
+      
       setIsRecording(true);
       setRecordingDuration(0);
       
@@ -416,9 +448,32 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
     }
   };
 
-  const stopRecording = () => {
+  const stopRecording = async () => {
     if (recordingInterval.current) {
       clearInterval(recordingInterval.current);
+    }
+    
+    // Stop mixer recording and get blob
+    const recordingBlob = await stopMixerRecording();
+    
+    if (recordingBlob && recordingBlob.size > 0) {
+      // Upload to Supabase Storage
+      try {
+        const fileName = `session-${sessionId}-${Date.now()}.webm`;
+        const { error: uploadError } = await supabase.storage
+          .from('audio-files')
+          .upload(`recordings/${fileName}`, recordingBlob, {
+            contentType: 'audio/webm'
+          });
+          
+        if (uploadError) {
+          console.error('Error uploading recording:', uploadError);
+        } else {
+          toast.success(`Recording saved (${(recordingBlob.size / 1024 / 1024).toFixed(2)} MB)`);
+        }
+      } catch (err) {
+        console.error('Error saving recording:', err);
+      }
     }
     
     setIsRecording(false);
@@ -449,14 +504,21 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
 
   const updateStreamVolume = async (streamId: string, volume: number) => {
     try {
+      // Update real audio routing
+      const stream = audioStreams.find(s => s.id === streamId);
+      if (stream?.user_id) {
+        setChannelVolume(stream.user_id, volume / 100);
+      }
+      
+      // Persist to database
       await supabase
         .from('audio_streams')
         .update({ volume: volume / 100 })
         .eq('id', streamId);
       
       setAudioStreams(prev => 
-        prev.map(stream => 
-          stream.id === streamId ? { ...stream, volume: volume / 100 } : stream
+        prev.map(s => 
+          s.id === streamId ? { ...s, volume: volume / 100 } : s
         )
       );
     } catch (error) {
@@ -469,14 +531,22 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
       const stream = audioStreams.find(s => s.id === streamId);
       if (!stream) return;
 
+      const newMuteState = !stream.is_muted;
+      
+      // Update real audio routing
+      if (stream.user_id) {
+        setChannelMute(stream.user_id, newMuteState);
+      }
+
+      // Persist to database
       await supabase
         .from('audio_streams')
-        .update({ is_muted: !stream.is_muted })
+        .update({ is_muted: newMuteState })
         .eq('id', streamId);
       
       setAudioStreams(prev => 
         prev.map(s => 
-          s.id === streamId ? { ...s, is_muted: !s.is_muted } : s
+          s.id === streamId ? { ...s, is_muted: newMuteState } : s
         )
       );
     } catch (error) {
@@ -827,44 +897,114 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
             <Volume2 className="w-4 h-4 text-accent-cyan" />
             Audio Mixer
           </h3>
+          
+          {/* Master Output */}
+          <Card className="p-3 bg-primary/10 mb-3">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-semibold">Master Output</span>
+              <span className="text-xs text-muted-foreground">
+                {Math.round(mixerMasterVolume * 100)}%
+              </span>
+            </div>
+            <div className="flex items-center gap-2 mb-2">
+              <Slider
+                value={[mixerMasterVolume * 100]}
+                onValueChange={([value]) => {
+                  setMixerMasterVolume(value / 100);
+                  setMasterVolume([value]);
+                }}
+                max={100}
+                step={1}
+                className="flex-1"
+              />
+            </div>
+            <LevelMeter level={masterLevel} className="h-3" />
+          </Card>
+          
           <ScrollArea className="max-h-48">
             <div className="space-y-3 pr-4">
-              {audioStreams.map((stream, index) => (
-                <Card 
-                  key={stream.id} 
-                  className="p-3 bg-muted/50 animate-fade-in"
-                  style={{ animationDelay: `${index * 50}ms` }}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-medium truncate flex-1">{stream.stream_name}</span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => toggleStreamMute(stream.id)}
-                      className="h-7 w-7 p-0 hover:bg-primary/10"
-                    >
-                      {stream.is_muted ? (
-                        <VolumeX className="w-4 h-4 text-muted-foreground" />
-                      ) : (
-                        <Volume2 className="w-4 h-4 text-primary" />
-                      )}
-                    </Button>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Slider
-                      value={[stream.volume * 100]}
-                      onValueChange={([value]) => updateStreamVolume(stream.id, value)}
-                      max={100}
-                      step={1}
-                      className="flex-1"
-                      disabled={stream.is_muted}
-                    />
-                    <span className="text-xs text-muted-foreground w-10 text-right">
-                      {Math.round(stream.volume * 100)}%
-                    </span>
-                  </div>
-                </Card>
-              ))}
+              {audioStreams.map((stream, index) => {
+                // Get real-time level from mixer
+                const mixerChannel = mixerChannels.get(stream.user_id);
+                const channelLevel = mixerChannel?.level || 0;
+                
+                return (
+                  <Card 
+                    key={stream.id} 
+                    className="p-3 bg-muted/50 animate-fade-in"
+                    style={{ animationDelay: `${index * 50}ms` }}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-medium truncate flex-1">{stream.stream_name}</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toggleStreamMute(stream.id)}
+                        className="h-7 w-7 p-0 hover:bg-primary/10"
+                      >
+                        {stream.is_muted ? (
+                          <VolumeX className="w-4 h-4 text-muted-foreground" />
+                        ) : (
+                          <Volume2 className="w-4 h-4 text-primary" />
+                        )}
+                      </Button>
+                    </div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Slider
+                        value={[stream.volume * 100]}
+                        onValueChange={([value]) => updateStreamVolume(stream.id, value)}
+                        max={100}
+                        step={1}
+                        className="flex-1"
+                        disabled={stream.is_muted}
+                      />
+                      <span className="text-xs text-muted-foreground w-10 text-right">
+                        {Math.round(stream.volume * 100)}%
+                      </span>
+                    </div>
+                    {/* Real-time level meter */}
+                    <LevelMeter level={stream.is_muted ? 0 : channelLevel} className="h-2" />
+                  </Card>
+                );
+              })}
+              
+              {/* Show connected peers without database streams */}
+              {Array.from(mixerChannels.entries())
+                .filter(([id]) => !audioStreams.find(s => s.user_id === id))
+                .map(([peerId, channel]) => (
+                  <Card key={peerId} className="p-3 bg-accent-cyan/10 animate-fade-in">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-medium truncate flex-1">{channel.name}</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setChannelMute(peerId, !channel.isMuted)}
+                        className="h-7 w-7 p-0 hover:bg-primary/10"
+                      >
+                        {channel.isMuted ? (
+                          <VolumeX className="w-4 h-4 text-muted-foreground" />
+                        ) : (
+                          <Volume2 className="w-4 h-4 text-accent-cyan" />
+                        )}
+                      </Button>
+                    </div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Slider
+                        value={[channel.volume * 100]}
+                        onValueChange={([value]) => setChannelVolume(peerId, value / 100)}
+                        max={100}
+                        step={1}
+                        className="flex-1"
+                        disabled={channel.isMuted}
+                      />
+                      <span className="text-xs text-muted-foreground w-10 text-right">
+                        {Math.round(channel.volume * 100)}%
+                      </span>
+                    </div>
+                    <LevelMeter level={channel.isMuted ? 0 : channel.level} className="h-2" />
+                  </Card>
+                ))
+              }
             </div>
           </ScrollArea>
         </div>
