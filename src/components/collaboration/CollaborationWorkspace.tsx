@@ -3,7 +3,9 @@ import { useSessionCleanup } from '@/hooks/useSessionCleanup';
 import { useRealTimePresence } from '@/hooks/useRealTimePresence';
 import { useWebRTC } from '@/hooks/useWebRTC';
 import { useAudioMixer } from '@/hooks/useAudioMixer';
+import { useConnectionRecovery } from '@/hooks/useConnectionRecovery';
 import { LevelMeter } from './LevelMeter';
+import { ConnectionStatusIndicator } from './ConnectionStatusIndicator';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -113,6 +115,33 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
 
   // Real-time presence
   const { onlineUsers, isConnected: presenceConnected } = useRealTimePresence(`session-${sessionId}`);
+
+  // Connection recovery for reconnection handling
+  const {
+    connectionState,
+    initializeConnection,
+    forceReconnect,
+    saveSessionState,
+    restoreSessionState,
+  } = useConnectionRecovery({
+    sessionId,
+    userId: user?.id || '',
+    onReconnect: () => {
+      // Reload session data on reconnect
+      loadSessionData();
+      toast.success('Connection restored');
+    },
+    onDisconnect: () => {
+      toast.warning('Connection lost, attempting to reconnect...');
+    }
+  });
+
+  // Initialize connection recovery on mount
+  useEffect(() => {
+    if (user?.id) {
+      initializeConnection();
+    }
+  }, [user?.id, initializeConnection]);
 
   // Audio Mixer for real audio routing
   const {
@@ -627,6 +656,14 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
                 {onlineUsers.length} online
               </Badge>
             )}
+            <ConnectionStatusIndicator
+              isConnected={connectionState.isConnected}
+              isReconnecting={connectionState.isReconnecting}
+              connectionQuality={connectionState.connectionQuality}
+              reconnectAttempts={connectionState.reconnectAttempts}
+              maxAttempts={5}
+              onReconnect={forceReconnect}
+            />
           </div>
           
           <div className="flex items-center gap-2">
