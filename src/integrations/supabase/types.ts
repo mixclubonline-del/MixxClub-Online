@@ -3189,6 +3189,8 @@ export type Database = {
           comment_text: string
           created_at: string
           id: string
+          is_pinned: boolean | null
+          metadata: Json | null
           session_id: string
           timestamp_seconds: number | null
           user_id: string
@@ -3197,6 +3199,8 @@ export type Database = {
           comment_text: string
           created_at?: string
           id?: string
+          is_pinned?: boolean | null
+          metadata?: Json | null
           session_id: string
           timestamp_seconds?: number | null
           user_id: string
@@ -3205,6 +3209,8 @@ export type Database = {
           comment_text?: string
           created_at?: string
           id?: string
+          is_pinned?: boolean | null
+          metadata?: Json | null
           session_id?: string
           timestamp_seconds?: number | null
           user_id?: string
