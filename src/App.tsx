@@ -33,6 +33,7 @@ const Home = React.lazy(() => import("./pages/Home"));
 
 // Keep IntroScene non-lazy since it's the landing page
 import IntroScene from "./pages/IntroScene";
+const LaunchWaitlist = React.lazy(() => import("./pages/LaunchWaitlist"));
 const ArtistCRM = React.lazy(() => import("./pages/ArtistCRM"));
 const EngineerCRM = React.lazy(() => import("./pages/EngineerCRM"));
 const AudioLab = React.lazy(() => import("./pages/AudioLab"));
@@ -237,6 +238,7 @@ const AppContent = () => {
           <Routes>
           <Route path="/" element={<MixClubHome />} />
           <Route path="/mixclub" element={<MixClubHome />} />
+          <Route path="/launch" element={<LaunchWaitlist />} />
           <Route path="/install" element={<Install />} />
           <Route path="/network" element={<Navigate to="/" replace />} />
           <Route path="/artist" element={<Artist />} />
