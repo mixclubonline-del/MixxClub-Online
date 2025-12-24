@@ -4028,6 +4028,33 @@ export type Database = {
           },
         ]
       }
+      waitlist_signups: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          referral_code: string | null
+          role: string
+          source: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          referral_code?: string | null
+          role: string
+          source?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          referral_code?: string | null
+          role?: string
+          source?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       engineer_leaderboard: {
