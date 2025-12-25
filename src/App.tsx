@@ -238,7 +238,7 @@ const AppContent = () => {
           <Routes>
           <Route path="/" element={<MixClubHome />} />
           <Route path="/mixclub" element={<MixClubHome />} />
-          <Route path="/launch" element={<LaunchWaitlist />} />
+          <Route path="/launch" element={<InsiderDemo />} />
           <Route path="/install" element={<Install />} />
           <Route path="/network" element={<Navigate to="/" replace />} />
           <Route path="/artist" element={<Artist />} />

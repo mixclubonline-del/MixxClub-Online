@@ -15,6 +15,8 @@ import { useInsiderAudio } from '@/hooks/useInsiderAudio';
 import { PrimeCharacter } from '@/components/demo/PrimeCharacter';
 import { AudioVisualizer } from '@/components/demo/AudioVisualizer';
 import { ParticleStorm } from '@/components/demo/ParticleStorm';
+import { WaitlistSignupForm } from '@/components/waitlist/WaitlistSignupForm';
+import { SocialProofCounter } from '@/components/waitlist/SocialProofCounter';
 import mixclubLogo from '@/assets/mixclub-3d-logo.png';
 
 // Demo phases - THE DROP to CALL TO ACTION
@@ -805,21 +807,21 @@ export default function InsiderDemo() {
               key="cta"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-center"
+              className="text-center w-full max-w-xl mx-auto"
             >
-              <PrimeCharacter bass={bass} amplitude={amplitude} isPlaying={isPlaying} size="xl" />
+              <PrimeCharacter bass={bass} amplitude={amplitude} isPlaying={isPlaying} size="lg" />
               
               <motion.h1 
-                className="text-5xl md:text-7xl font-black mt-8 mb-4"
+                className="text-4xl md:text-6xl font-black mt-6 mb-2"
                 animate={{ scale: 1 + (bass / 255) * 0.05 }}
               >
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-500 to-cyan-500">
-                  Your Turn
+                  Ready to Join?
                 </span>
               </motion.h1>
 
               <motion.p 
-                className="text-xl text-muted-foreground max-w-lg mx-auto mb-8"
+                className="text-lg text-muted-foreground max-w-lg mx-auto mb-6"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}
@@ -827,27 +829,39 @@ export default function InsiderDemo() {
                 {typedText}
               </motion.p>
 
-              <motion.div 
-                className="flex gap-4 justify-center"
+              {/* Waitlist Signup Form */}
+              <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
+                className="mb-6"
+              >
+                <WaitlistSignupForm />
+              </motion.div>
+
+              {/* Social Proof */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.7 }}
+              >
+                <SocialProofCounter />
+              </motion.div>
+
+              {/* Secondary CTA */}
+              <motion.div 
+                className="flex gap-4 justify-center mt-8"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.9 }}
               >
                 <Button
-                  size="lg"
-                  onClick={() => navigate('/auth')}
-                  className="text-lg px-8 py-6 bg-gradient-to-r from-primary to-purple-600 hover:opacity-90"
-                >
-                  <Rocket className="w-5 h-5 mr-2" />
-                  Start Free
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
+                  size="sm"
+                  variant="ghost"
                   onClick={() => navigate('/')}
-                  className="text-lg px-8 py-6 border-primary/50"
+                  className="text-muted-foreground hover:text-foreground"
                 >
-                  <ChevronRight className="w-5 h-5 mr-2" />
+                  <ChevronRight className="w-4 h-4 mr-1" />
                   Explore More
                 </Button>
               </motion.div>
