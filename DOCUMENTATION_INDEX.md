@@ -185,6 +185,22 @@
 
 ---
 
+### [`docs/release-plan.md`](./docs/release-plan.md)
+
+**Size:** ~6K | **Read Time:** 10 min  
+**Purpose:** Phased release plan aligned to revenue, engagement, and expansion priorities
+
+**Contains:**
+
+- Phase-based milestones and deliverables
+- Explicit route/component mapping from `src/App.tsx`
+- Acceptance criteria per milestone
+- Alignment references to website flow and user guide
+
+**When to use:** To align delivery sequencing with business priorities
+
+---
+
 ### [`BACKEND_INTEGRATION_FILES_CREATED.txt`](./BACKEND_INTEGRATION_FILES_CREATED.txt)
 
 **Size:** 3.3K | **Read Time:** 2 min  
