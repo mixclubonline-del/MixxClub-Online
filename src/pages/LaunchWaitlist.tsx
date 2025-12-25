@@ -1,40 +1,35 @@
 import { motion } from 'framer-motion';
-import { ConnectionTriangle } from '@/components/waitlist/ConnectionTriangle';
+import { useState } from 'react';
+import { AudioReactiveConnectionTriangle } from '@/components/waitlist/AudioReactiveConnectionTriangle';
+import { AudioReactiveParticles } from '@/components/waitlist/AudioReactiveParticles';
+import { FloatingAudioControls } from '@/components/waitlist/FloatingAudioControls';
 import { ThreeStories } from '@/components/waitlist/ThreeStories';
 import { PremierePromise } from '@/components/waitlist/PremierePromise';
 import { WaitlistSignupForm } from '@/components/waitlist/WaitlistSignupForm';
 import { SocialProofCounter } from '@/components/waitlist/SocialProofCounter';
+import { AudioVisualizer } from '@/components/demo/AudioVisualizer';
+import { useInsiderAudio } from '@/hooks/useInsiderAudio';
 import { Helmet } from 'react-helmet-async';
 
-// Floating particles component
-function FloatingParticles() {
-  return (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden">
-      {Array.from({ length: 30 }).map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute w-1 h-1 rounded-full bg-primary/30"
-          style={{
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-          }}
-          animate={{
-            y: [0, -30, 0],
-            x: [0, Math.random() * 20 - 10, 0],
-            opacity: [0.2, 0.5, 0.2],
-          }}
-          transition={{
-            duration: 5 + Math.random() * 5,
-            repeat: Infinity,
-            delay: Math.random() * 5,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
 export default function LaunchWaitlist() {
+  const { 
+    isPlaying, 
+    isLoading, 
+    analysis, 
+    toggle, 
+    setVolume 
+  } = useInsiderAudio();
+  
+  const [volume, setVolumeState] = useState(0.7);
+
+  const handleVolumeChange = (v: number) => {
+    setVolumeState(v);
+    setVolume(v);
+  };
+
+  // Audio values for reactivity
+  const { bass, mid, high, amplitude, beats } = analysis;
+
   return (
     <>
       <Helmet>
@@ -48,58 +43,125 @@ export default function LaunchWaitlist() {
       </Helmet>
 
       <div className="min-h-screen bg-background relative overflow-hidden">
-        {/* Background gradients */}
+        {/* Audio-reactive background gradients */}
         <div className="fixed inset-0 pointer-events-none">
-          <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px]" />
-          <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-accent-magenta/5 rounded-full blur-[120px]" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-accent-blue/3 rounded-full blur-[150px]" />
+          <motion.div 
+            className="absolute top-0 left-1/4 w-[600px] h-[600px] rounded-full blur-[120px]"
+            style={{
+              background: `hsl(var(--primary) / ${0.05 + (bass / 255) * 0.15})`,
+            }}
+            animate={{
+              scale: isPlaying ? 1 + (bass / 255) * 0.2 : 1,
+            }}
+            transition={{ duration: 0.1 }}
+          />
+          <motion.div 
+            className="absolute bottom-0 right-1/4 w-[600px] h-[600px] rounded-full blur-[120px]"
+            style={{
+              background: `hsl(var(--accent-magenta) / ${0.05 + (mid / 255) * 0.1})`,
+            }}
+            animate={{
+              scale: isPlaying ? 1 + (mid / 255) * 0.15 : 1,
+            }}
+            transition={{ duration: 0.1 }}
+          />
+          <motion.div 
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full blur-[150px]"
+            style={{
+              background: `hsl(var(--accent-blue) / ${0.03 + (high / 255) * 0.08})`,
+            }}
+            animate={{
+              scale: isPlaying ? 1 + (high / 255) * 0.1 : 1,
+            }}
+            transition={{ duration: 0.1 }}
+          />
         </div>
 
-        <FloatingParticles />
+        {/* Audio-reactive particles */}
+        <AudioReactiveParticles 
+          amplitude={amplitude}
+          bass={bass}
+          high={high}
+          isPlaying={isPlaying}
+        />
+
+        {/* Floating audio controls */}
+        <FloatingAudioControls
+          isPlaying={isPlaying}
+          isLoading={isLoading}
+          volume={volume}
+          onToggle={toggle}
+          onVolumeChange={handleVolumeChange}
+          amplitude={amplitude}
+        />
 
         {/* Content */}
         <div className="relative z-10">
           {/* Hero Section */}
           <section className="min-h-screen flex flex-col items-center justify-center px-4 py-12">
-            {/* Logo/Brand */}
+            {/* Logo/Brand with audio-reactive pulse */}
             <motion.div
               className="text-center mb-8"
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
             >
-              <p className="text-sm uppercase tracking-[0.3em] text-muted-foreground mb-2">
+              <motion.p 
+                className="text-sm uppercase tracking-[0.3em] text-muted-foreground mb-2"
+                animate={{
+                  opacity: isPlaying ? 0.6 + (amplitude / 255) * 0.4 : 1,
+                }}
+              >
                 Something's Connecting
-              </p>
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold">
+              </motion.p>
+              <motion.h1 
+                className="text-4xl md:text-6xl lg:text-7xl font-bold"
+                animate={{
+                  scale: isPlaying ? 1 + (bass / 255) * 0.02 : 1,
+                }}
+                transition={{ duration: 0.1 }}
+              >
                 <span className="bg-gradient-to-r from-primary via-accent-magenta to-accent-blue bg-clip-text text-transparent">
                   MixClub
                 </span>
                 <span className="text-foreground"> Online</span>
-              </h1>
+              </motion.h1>
             </motion.div>
 
-            {/* Triangle Animation */}
+            {/* Audio-reactive Triangle Animation */}
             <motion.div
               className="w-full mb-12"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5, duration: 1 }}
             >
-              <ConnectionTriangle />
+              <AudioReactiveConnectionTriangle 
+                bass={bass}
+                mid={mid}
+                high={high}
+                amplitude={amplitude}
+                isPlaying={isPlaying}
+              />
             </motion.div>
 
-            {/* Scroll indicator */}
+            {/* Scroll indicator with beat sync */}
             <motion.div
               className="absolute bottom-8 left-1/2 -translate-x-1/2"
-              animate={{ y: [0, 10, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
+              animate={{ 
+                y: isPlaying ? [0, 10 + (bass / 255) * 5, 0] : [0, 10, 0] 
+              }}
+              transition={{ duration: isPlaying ? 0.5 : 2, repeat: Infinity }}
             >
               <div className="w-6 h-10 rounded-full border-2 border-muted-foreground/30 flex items-start justify-center p-2">
                 <motion.div
                   className="w-1 h-2 rounded-full bg-muted-foreground/50"
-                  animate={{ y: [0, 8, 0] }}
-                  transition={{ duration: 2, repeat: Infinity }}
+                  animate={{ 
+                    y: isPlaying ? [0, 8 + (bass / 255) * 4, 0] : [0, 8, 0],
+                    backgroundColor: isPlaying && bass > 150 
+                      ? 'hsl(var(--primary))' 
+                      : 'hsl(var(--muted-foreground) / 0.5)'
+                  }}
+                  transition={{ duration: isPlaying ? 0.5 : 2, repeat: Infinity }}
                 />
               </div>
             </motion.div>
@@ -144,6 +206,25 @@ export default function LaunchWaitlist() {
               <SocialProofCounter />
             </motion.div>
           </section>
+
+          {/* Audio Visualizer at bottom */}
+          {isPlaying && (
+            <motion.div
+              className="fixed bottom-0 left-0 right-0 h-16 z-40 pointer-events-none"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
+              <AudioVisualizer 
+                beats={beats}
+                amplitude={amplitude}
+                bass={bass}
+                variant="wave"
+                className="absolute bottom-0 left-0 right-0 h-12 opacity-50"
+              />
+            </motion.div>
+          )}
 
           {/* Footer */}
           <footer className="py-8 px-4 text-center border-t border-border/20">
