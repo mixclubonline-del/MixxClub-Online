@@ -31,21 +31,8 @@ export default function CityGates() {
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-background to-accent-blue/5" />
         
-        {/* City Skyline Silhouette */}
-        <div className="absolute bottom-0 left-0 right-0 h-64">
-          <svg viewBox="0 0 1200 200" className="w-full h-full" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="cityGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.3" />
-                <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.1" />
-              </linearGradient>
-            </defs>
-            <path 
-              d="M0,200 L0,150 L50,150 L50,100 L80,100 L80,80 L100,80 L100,120 L150,120 L150,60 L180,60 L180,90 L220,90 L220,40 L250,40 L250,100 L300,100 L300,70 L350,70 L350,110 L400,110 L400,50 L420,50 L420,30 L450,30 L450,80 L500,80 L500,120 L550,120 L550,60 L600,60 L600,100 L650,100 L650,40 L700,40 L700,90 L750,90 L750,70 L800,70 L800,110 L850,110 L850,50 L900,50 L900,100 L950,100 L950,80 L1000,80 L1000,120 L1050,120 L1050,60 L1100,60 L1100,100 L1150,100 L1150,130 L1200,130 L1200,200 Z" 
-              fill="url(#cityGradient)"
-            />
-          </svg>
-        </div>
+        {/* Abstract gradient bottom glow instead of wireframe */}
+        <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-primary/20 via-primary/5 to-transparent" />
 
         {/* Floating Particles */}
         {[...Array(30)].map((_, i) => (
