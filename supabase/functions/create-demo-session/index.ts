@@ -69,8 +69,12 @@ Deno.serve(async (req) => {
 
     logger.info('Demo user created', { userId: authData.user.id });
 
-    // Set up profile
-    const profileRole = role === 'admin' ? 'client' : role;
+    // Set up profile - map role to valid profile role
+    const profileRole = role === 'admin' ? 'artist' : role === 'client' ? 'artist' : role;
+    
+    // Wait a moment for the profile trigger to create the profile
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
     const { error: profileError } = await supabaseAdmin
       .from('profiles')
       .update({ 
@@ -81,33 +85,31 @@ Deno.serve(async (req) => {
 
     if (profileError) {
       logger.warn('Profile update failed', profileError);
-    }
-
-    // Add admin role if needed
-    if (role === 'admin') {
-      const { error: roleError } = await supabaseAdmin
-        .from('user_roles')
-        .insert({ 
-          user_id: authData.user.id, 
-          role: 'admin' 
+      // Try to insert if update failed (profile might not exist yet)
+      const { error: insertError } = await supabaseAdmin
+        .from('profiles')
+        .insert({
+          id: authData.user.id,
+          role: profileRole,
+          full_name: authData.user.user_metadata.full_name,
+          email: tempEmail
         });
-
-      if (roleError) {
-        logger.warn('Admin role assignment failed', roleError);
+      if (insertError) {
+        logger.warn('Profile insert also failed', insertError);
       }
     }
 
-    // Set up onboarding profile for slideshow
-    const { error: onboardingError } = await supabaseAdmin
-      .from('onboarding_profiles')
-      .insert({
-        user_id: authData.user.id,
-        user_type: role === 'engineer' ? 'engineer' : 'artist',
-        onboarding_completed: true
+    // Add role to user_roles table - use valid enum values
+    const userRole = role === 'admin' ? 'admin' : role === 'client' ? 'artist' : role;
+    const { error: roleError } = await supabaseAdmin
+      .from('user_roles')
+      .insert({ 
+        user_id: authData.user.id, 
+        role: userRole 
       });
 
-    if (onboardingError) {
-      logger.warn('Onboarding profile creation failed', onboardingError);
+    if (roleError) {
+      logger.warn('Role assignment failed', roleError);
     }
 
     logger.info('Demo session created successfully', { 
