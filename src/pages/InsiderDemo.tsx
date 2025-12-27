@@ -29,9 +29,9 @@ const DEMO_PHASES = [
   },
   {
     id: 'awakening',
-    title: 'Prime Awakens',
+    title: 'MIXXCLUB Awakens',
     duration: 10000,
-    primeMessage: "Welcome to the future of music. I'm Prime 4.0, and this... is MixClub.",
+    primeMessage: "Welcome to the future of music. This is MIXXCLUB — where your sound becomes unstoppable.",
   },
   {
     id: 'mission',
@@ -43,7 +43,7 @@ const DEMO_PHASES = [
     id: 'analysis',
     title: 'AI Analysis',
     duration: 15000,
-    primeMessage: "Watch me work. Genre detection. BPM analysis. Key signature. I see everything in your track.",
+    primeMessage: "Watch the magic. Genre detection. BPM analysis. Key signature. MIXXCLUB sees everything in your track.",
   },
   {
     id: 'studio',
@@ -55,7 +55,7 @@ const DEMO_PHASES = [
     id: 'collaboration',
     title: 'Collaboration',
     duration: 12000,
-    primeMessage: "Artists and engineers, working together in real-time. I match you with the perfect partner.",
+    primeMessage: "Artists and engineers, working together in real-time. Perfect matches, perfect sound.",
   },
   {
     id: 'results',
@@ -73,7 +73,7 @@ const DEMO_PHASES = [
     id: 'cta',
     title: 'Join the Movement',
     duration: 999999,
-    primeMessage: "Your music deserves this. Welcome to MixClub.",
+    primeMessage: "Your music deserves this. Welcome to MIXXCLUB.",
   },
 ];
 
@@ -242,7 +242,7 @@ export default function InsiderDemo() {
             transition={{ delay: 0.3 }}
           >
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-500 to-cyan-500">
-              PRIME'S WORLD
+              MIXXCLUB
             </span>
           </motion.h1>
 
@@ -252,7 +252,7 @@ export default function InsiderDemo() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
           >
-            The Full MixClub Experience
+            From Bedroom to Billboard
           </motion.p>
 
           <motion.div
@@ -358,9 +358,9 @@ export default function InsiderDemo() {
               <img src={mixclubLogo} alt="MixClub" className="w-10 h-10" />
             </motion.div>
             <div>
-              <h2 className="font-bold text-lg">MIXCLUB</h2>
+              <h2 className="font-bold text-lg">MIXXCLUB</h2>
               <Badge variant="outline" className="text-xs border-primary/50 text-primary">
-                <Rocket className="w-3 h-3 mr-1" /> PRIME'S WORLD
+                <Rocket className="w-3 h-3 mr-1" /> From Bedroom to Billboard
               </Badge>
             </div>
           </div>
@@ -471,7 +471,7 @@ export default function InsiderDemo() {
                 transition={{ delay: 0.3 }}
               >
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-500 to-cyan-500">
-                  PRIME 4.0
+                  MIXXCLUB
                 </span>
               </motion.h1>
               

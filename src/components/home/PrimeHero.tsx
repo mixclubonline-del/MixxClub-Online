@@ -28,7 +28,7 @@ export const PrimeHero = () => {
             transition={{ duration: 0.8 }}
             className="space-y-8"
           >
-            {/* Prime Badge */}
+            {/* MIXXCLUB Badge */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -38,7 +38,7 @@ export const PrimeHero = () => {
               <PrimeAvatar size="md" />
               <Badge variant="secondary" className="gap-2 py-1.5 px-4">
                 <Sparkles className="w-3 h-3" />
-                Powered by Prime AI
+                AI-Powered Audio Engineering
               </Badge>
               <Badge variant="destructive" className="gap-2 animate-pulse py-1.5 px-4">
                 <Clock className="w-3 h-3" />
@@ -195,7 +195,7 @@ export const PrimeHero = () => {
               </div>
             </div>
 
-            {/* Floating Prime Assistant */}
+            {/* Floating MIXXCLUB Assistant */}
             <motion.div
               animate={{ y: [0, -10, 0] }}
               transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
@@ -204,7 +204,7 @@ export const PrimeHero = () => {
               <div className="flex items-center gap-3">
                 <PrimeAvatar size="sm" />
                 <div className="text-sm">
-                  <div className="font-semibold">Prime is ready</div>
+                  <div className="font-semibold">MIXXCLUB is ready</div>
                   <div className="text-muted-foreground">Let's make magic ✨</div>
                 </div>
               </div>

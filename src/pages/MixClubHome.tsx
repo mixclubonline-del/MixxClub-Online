@@ -11,7 +11,7 @@ export default function MixClubHome() {
           name="description" 
           content="Transform your sound with AI-powered tools, professional engineers, and a collaborative network. From bedroom recordings to radio-ready tracks." 
         />
-        <meta name="keywords" content="music mixing, mastering, AI studio, music collaboration, professional engineers, music production" />
+        <meta name="keywords" content="MIXXCLUB, music mixing, mastering, AI studio, music collaboration, professional engineers, music production" />
       </Helmet>
 
       <div className="min-h-screen">

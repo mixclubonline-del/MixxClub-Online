@@ -357,8 +357,8 @@ const Auth = () => {
               <Sparkles className="w-5 h-5 text-primary group-hover:animate-pulse" />
             </div>
             <div className="flex-1">
-              <p className="font-semibold text-sm">Experience PRIME'S WORLD</p>
-              <p className="text-xs text-muted-foreground">See the full MixClub demo →</p>
+              <p className="font-semibold text-sm">Experience MIXXCLUB</p>
+              <p className="text-xs text-muted-foreground">See the full experience demo →</p>
             </div>
           </div>
         </div>

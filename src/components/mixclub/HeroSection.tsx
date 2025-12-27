@@ -48,7 +48,7 @@ export const HeroSection = () => {
         transition={{ duration: 1 }}
         className="relative z-10 text-center max-w-5xl"
       >
-        {/* Prime badge */}
+        {/* MIXXCLUB badge */}
         <motion.div
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -56,7 +56,7 @@ export const HeroSection = () => {
           className="inline-flex items-center gap-3 mb-8 px-6 py-3 rounded-full glass border border-primary/40 shadow-glow-sm"
         >
           <Sparkles className="w-5 h-5 text-primary animate-pulse" />
-          <span className="text-sm font-semibold">Empowered by Prime 4.0</span>
+          <span className="text-sm font-semibold">AI-Powered Audio Engineering</span>
         </motion.div>
 
         {/* Main headline */}
