@@ -4070,6 +4070,7 @@ export type Database = {
       }
     }
     Functions: {
+      can_view_profile: { Args: { profile_id: string }; Returns: boolean }
       cleanup_old_audit_logs: {
         Args: { days_to_keep: number }
         Returns: number
