@@ -47,7 +47,7 @@ export const SplashScreen = () => {
                   transition={{ delay: 0.2, duration: 0.6 }}
                   className="text-5xl font-bold bg-gradient-to-r from-mixx-pink via-mixx-lavender to-mixx-cyan bg-clip-text text-transparent mb-4"
                 >
-                  MixClub
+                  MIXXCLUB
                 </motion.h1>
                 
                 <motion.div
@@ -64,7 +64,7 @@ export const SplashScreen = () => {
                   transition={{ delay: 0.6, duration: 0.6 }}
                   className="text-muted-foreground text-sm"
                 >
-                  Professional Audio Engineering
+                  From Bedroom to Billboard
                 </motion.p>
               </div>
             </motion.div>

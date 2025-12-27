@@ -43,7 +43,7 @@ export const MobileBottomNav = () => {
   if (!user || location.pathname.startsWith('/auth')) return null;
 
   // Don't show on pages with their own nav
-  const excludedPaths = ['/insider-demo', '/primes-world', '/city-gates'];
+  const excludedPaths = ['/insider-demo', '/mixxclub-demo', '/city-gates'];
   if (excludedPaths.some(path => location.pathname.startsWith(path))) return null;
 
   return (

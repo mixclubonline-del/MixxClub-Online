@@ -103,7 +103,7 @@ export const SessionPrepModal = ({
                   <div className="flex items-start gap-3">
                     <PrimeAvatar size="md" />
                     <div className="flex-1">
-                      <h3 className="font-bold mb-2">Prime's Session Brief</h3>
+                      <h3 className="font-bold mb-2">MIXXCLUB Session Brief</h3>
                       <div className="space-y-3 text-sm">
                         <p>
                           This track is a <strong>{aiAnalysis?.detected_genre || 'modern'}</strong> production 
@@ -152,7 +152,7 @@ export const SessionPrepModal = ({
                 <Sparkles className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
                 <h3 className="font-bold mb-2">AI Analysis Pending</h3>
                 <p className="text-sm text-muted-foreground">
-                  Prime will analyze this track when you start the session
+                  MIXXCLUB will analyze this track when you start the session
                 </p>
               </Card>
             )}

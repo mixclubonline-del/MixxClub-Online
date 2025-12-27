@@ -7,7 +7,7 @@ const MOBILE_EXCLUDED_ROUTES = [
   '/auth',
   '/auth/callback',
   '/insider-demo',
-  '/primes-world',
+  '/mixxclub-demo',
   '/city-gates'
 ];
 

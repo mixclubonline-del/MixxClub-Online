@@ -205,7 +205,7 @@ export const InspectorSidebar = () => {
           <div className="space-y-3">
             <h4 className="text-xs font-mono uppercase text-[hsl(var(--studio-text))] mb-2 flex items-center gap-2">
               <Sparkles className="w-3 h-3 text-[hsl(var(--studio-accent))]" />
-              Prime Analysis
+              AI Analysis
             </h4>
             <div className="space-y-2 text-xs text-[hsl(var(--studio-text))] leading-relaxed">
               <div className="p-3 rounded bg-[hsl(var(--studio-black))] border border-[hsl(var(--studio-border))]">

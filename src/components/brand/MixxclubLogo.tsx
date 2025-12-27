@@ -118,7 +118,7 @@ export const MixxclubLogo = ({
               className="text-muted-foreground font-medium"
               style={{ fontSize: dimensions.text * 0.5, marginTop: dimensions.gap * 0.5 }}
             >
-              Powered by Prime AI
+              From Bedroom to Billboard
             </span>
           )}
         </div>
