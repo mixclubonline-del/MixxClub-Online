@@ -907,6 +907,53 @@ export type Database = {
         }
         Relationships: []
       }
+      collaborative_projects: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          partnership_id: string
+          project_type: string | null
+          release_date: string | null
+          status: string | null
+          title: string
+          total_revenue: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          partnership_id: string
+          project_type?: string | null
+          release_date?: string | null
+          status?: string | null
+          title: string
+          total_revenue?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          partnership_id?: string
+          project_type?: string | null
+          release_date?: string | null
+          status?: string | null
+          title?: string
+          total_revenue?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collaborative_projects_partnership_id_fkey"
+            columns: ["partnership_id"]
+            isOneToOne: false
+            referencedRelation: "partnerships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_submissions: {
         Row: {
           budget: string | null
@@ -2327,6 +2374,38 @@ export type Database = {
           },
         ]
       }
+      message_revenue_links: {
+        Row: {
+          created_at: string
+          id: string
+          link_type: string | null
+          message_id: string
+          revenue_split_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          link_type?: string | null
+          message_id: string
+          revenue_split_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          link_type?: string | null
+          message_id?: string
+          revenue_split_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_revenue_links_revenue_split_id_fkey"
+            columns: ["revenue_split_id"]
+            isOneToOne: false
+            referencedRelation: "revenue_splits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mixing_packages: {
         Row: {
           created_at: string | null
@@ -2509,6 +2588,196 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      partnership_health: {
+        Row: {
+          activity_score: number | null
+          communication_score: number | null
+          factors: Json | null
+          health_score: number | null
+          id: string
+          last_calculated_at: string
+          partnership_id: string
+          payment_score: number | null
+        }
+        Insert: {
+          activity_score?: number | null
+          communication_score?: number | null
+          factors?: Json | null
+          health_score?: number | null
+          id?: string
+          last_calculated_at?: string
+          partnership_id: string
+          payment_score?: number | null
+        }
+        Update: {
+          activity_score?: number | null
+          communication_score?: number | null
+          factors?: Json | null
+          health_score?: number | null
+          id?: string
+          last_calculated_at?: string
+          partnership_id?: string
+          payment_score?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partnership_health_partnership_id_fkey"
+            columns: ["partnership_id"]
+            isOneToOne: true
+            referencedRelation: "partnerships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partnership_metrics: {
+        Row: {
+          average_project_value: number | null
+          calculated_at: string
+          completed_projects: number | null
+          id: string
+          last_activity_at: string | null
+          partnership_id: string
+          total_projects: number | null
+          total_revenue: number | null
+        }
+        Insert: {
+          average_project_value?: number | null
+          calculated_at?: string
+          completed_projects?: number | null
+          id?: string
+          last_activity_at?: string | null
+          partnership_id: string
+          total_projects?: number | null
+          total_revenue?: number | null
+        }
+        Update: {
+          average_project_value?: number | null
+          calculated_at?: string
+          completed_projects?: number | null
+          id?: string
+          last_activity_at?: string | null
+          partnership_id?: string
+          total_projects?: number | null
+          total_revenue?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partnership_metrics_partnership_id_fkey"
+            columns: ["partnership_id"]
+            isOneToOne: true
+            referencedRelation: "partnerships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partnerships: {
+        Row: {
+          accepted_at: string | null
+          artist_earnings: number | null
+          artist_id: string
+          artist_percentage: number | null
+          created_at: string
+          default_split_type: string
+          engineer_earnings: number | null
+          engineer_id: string
+          engineer_percentage: number | null
+          id: string
+          status: string
+          terms: string | null
+          total_revenue: number | null
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          artist_earnings?: number | null
+          artist_id: string
+          artist_percentage?: number | null
+          created_at?: string
+          default_split_type?: string
+          engineer_earnings?: number | null
+          engineer_id: string
+          engineer_percentage?: number | null
+          id?: string
+          status?: string
+          terms?: string | null
+          total_revenue?: number | null
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          artist_earnings?: number | null
+          artist_id?: string
+          artist_percentage?: number | null
+          created_at?: string
+          default_split_type?: string
+          engineer_earnings?: number | null
+          engineer_id?: string
+          engineer_percentage?: number | null
+          id?: string
+          status?: string
+          terms?: string | null
+          total_revenue?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      payment_links: {
+        Row: {
+          amount: number | null
+          created_at: string
+          created_by: string
+          currency: string | null
+          expires_at: string | null
+          id: string
+          link_url: string
+          partnership_id: string
+          project_id: string | null
+          status: string | null
+          used_at: string | null
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string
+          created_by: string
+          currency?: string | null
+          expires_at?: string | null
+          id?: string
+          link_url: string
+          partnership_id: string
+          project_id?: string | null
+          status?: string | null
+          used_at?: string | null
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string
+          created_by?: string
+          currency?: string | null
+          expires_at?: string | null
+          id?: string
+          link_url?: string
+          partnership_id?: string
+          project_id?: string | null
+          status?: string | null
+          used_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_links_partnership_id_fkey"
+            columns: ["partnership_id"]
+            isOneToOne: false
+            referencedRelation: "partnerships"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_links_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "collaborative_projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       payments: {
         Row: {
@@ -2806,6 +3075,53 @@ export type Database = {
           },
         ]
       }
+      project_milestones: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          deliverables: Json | null
+          description: string | null
+          due_date: string | null
+          id: string
+          payment_amount: number | null
+          project_id: string
+          status: string | null
+          title: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          deliverables?: Json | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          payment_amount?: number | null
+          project_id: string
+          status?: string | null
+          title: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          deliverables?: Json | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          payment_amount?: number | null
+          project_id?: string
+          status?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_milestones_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "collaborative_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_reviews: {
         Row: {
           artist_id: string | null
@@ -3072,6 +3388,69 @@ export type Database = {
           total_revenue?: number | null
         }
         Relationships: []
+      }
+      revenue_splits: {
+        Row: {
+          artist_amount: number
+          artist_percentage: number | null
+          created_at: string
+          description: string | null
+          engineer_amount: number
+          engineer_percentage: number | null
+          id: string
+          partnership_id: string
+          processed_at: string | null
+          project_id: string | null
+          split_type: string
+          status: string | null
+          total_amount: number
+        }
+        Insert: {
+          artist_amount?: number
+          artist_percentage?: number | null
+          created_at?: string
+          description?: string | null
+          engineer_amount?: number
+          engineer_percentage?: number | null
+          id?: string
+          partnership_id: string
+          processed_at?: string | null
+          project_id?: string | null
+          split_type?: string
+          status?: string | null
+          total_amount?: number
+        }
+        Update: {
+          artist_amount?: number
+          artist_percentage?: number | null
+          created_at?: string
+          description?: string | null
+          engineer_amount?: number
+          engineer_percentage?: number | null
+          id?: string
+          partnership_id?: string
+          processed_at?: string | null
+          project_id?: string | null
+          split_type?: string
+          status?: string | null
+          total_amount?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "revenue_splits_partnership_id_fkey"
+            columns: ["partnership_id"]
+            isOneToOne: false
+            referencedRelation: "partnerships"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "revenue_splits_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "collaborative_projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       revenue_streams: {
         Row: {
@@ -4070,6 +4449,14 @@ export type Database = {
       }
     }
     Functions: {
+      calculate_partnership_health: {
+        Args: { p_partnership_id: string }
+        Returns: number
+      }
+      calculate_partnership_metrics: {
+        Args: { p_partnership_id: string }
+        Returns: undefined
+      }
       can_view_profile: { Args: { profile_id: string }; Returns: boolean }
       cleanup_old_audit_logs: {
         Args: { days_to_keep: number }
