@@ -1,0 +1,1 @@
+export { NotificationsHub } from './NotificationsHub';
