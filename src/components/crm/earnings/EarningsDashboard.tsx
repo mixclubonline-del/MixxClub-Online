@@ -1,17 +1,24 @@
+import { useState } from 'react';
 import { usePartnershipEarnings } from '@/hooks/usePartnershipEarnings';
 import { EarningsStats } from './EarningsStats';
 import { PartnershipList } from './PartnershipList';
 import { RevenueChart } from './RevenueChart';
 import { NewPartnershipDialog } from './NewPartnershipDialog';
+import { ProjectBoard, CreateProjectModal } from '../projects';
+import { NotificationsHub } from '../notifications';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { DollarSign, Kanban, Bell } from 'lucide-react';
 
 interface EarningsDashboardProps {
   userType: 'artist' | 'engineer';
 }
 
 export const EarningsDashboard = ({ userType }: EarningsDashboardProps) => {
+  const [createProjectOpen, setCreateProjectOpen] = useState(false);
+  
   const {
     summary,
     partnerships,
@@ -58,7 +65,7 @@ export const EarningsDashboard = ({ userType }: EarningsDashboardProps) => {
         <div>
           <h2 className="text-2xl font-bold text-foreground">Collaborative Earnings</h2>
           <p className="text-muted-foreground">
-            Track revenue splits and manage partnerships
+            Track revenue splits, projects, and notifications
           </p>
         </div>
         <NewPartnershipDialog
@@ -70,17 +77,49 @@ export const EarningsDashboard = ({ userType }: EarningsDashboardProps) => {
       {/* Stats Overview */}
       <EarningsStats summary={summary} />
 
-      {/* Revenue Chart */}
-      <RevenueChart revenueSplits={revenueSplits} />
+      {/* Tabs for different views */}
+      <Tabs defaultValue="earnings" className="space-y-4">
+        <TabsList className="bg-muted/50">
+          <TabsTrigger value="earnings" className="gap-2">
+            <DollarSign className="w-4 h-4" />
+            Earnings
+          </TabsTrigger>
+          <TabsTrigger value="projects" className="gap-2">
+            <Kanban className="w-4 h-4" />
+            Project Board
+          </TabsTrigger>
+          <TabsTrigger value="notifications" className="gap-2">
+            <Bell className="w-4 h-4" />
+            Notifications
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Partnership List */}
-      <PartnershipList
-        partnerships={partnerships}
-        projects={projects}
-        healthScores={healthScores}
-        userType={userType}
-        onAcceptPartnership={acceptPartnership}
-      />
+        <TabsContent value="earnings" className="space-y-6">
+          {/* Revenue Chart */}
+          <RevenueChart revenueSplits={revenueSplits} />
+
+          {/* Partnership List */}
+          <PartnershipList
+            partnerships={partnerships}
+            projects={projects}
+            healthScores={healthScores}
+            userType={userType}
+            onAcceptPartnership={acceptPartnership}
+          />
+        </TabsContent>
+
+        <TabsContent value="projects">
+          <ProjectBoard onCreateProject={() => setCreateProjectOpen(true)} />
+          <CreateProjectModal 
+            open={createProjectOpen} 
+            onOpenChange={setCreateProjectOpen} 
+          />
+        </TabsContent>
+
+        <TabsContent value="notifications">
+          <NotificationsHub />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
