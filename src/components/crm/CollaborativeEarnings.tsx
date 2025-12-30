@@ -135,10 +135,10 @@ export const CollaborativeEarnings: React.FC<CollaborativeEarningsProps> = ({ us
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">
-                            {formatCurrency(summary.total_partnership_revenue)}
+                            {formatCurrency(summary.totalEarnings)}
                         </div>
                         <p className="text-xs text-slate-400 mt-1">
-                            {summary.active_partnerships} active partnership{summary.active_partnerships !== 1 ? 's' : ''}
+                            {summary.activePartnerships} active partnership{summary.activePartnerships !== 1 ? 's' : ''}
                         </p>
                     </CardContent>
                 </Card>
@@ -152,9 +152,9 @@ export const CollaborativeEarnings: React.FC<CollaborativeEarningsProps> = ({ us
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{summary.active_partnerships}</div>
+                        <div className="text-2xl font-bold">{summary.activePartnerships}</div>
                         <p className="text-xs text-slate-400 mt-1">
-                            {summary.recent_projects.length} active projects
+                            {summary.topPartners.reduce((sum, p) => sum + p.projectCount, 0)} active projects
                         </p>
                     </CardContent>
                 </Card>
@@ -169,7 +169,7 @@ export const CollaborativeEarnings: React.FC<CollaborativeEarningsProps> = ({ us
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">
-                            {formatCurrency(summary.pending_payments_total)}
+                            {formatCurrency(summary.pendingPayments)}
                         </div>
                         <p className="text-xs text-slate-400 mt-1">Awaiting settlement</p>
                     </CardContent>
@@ -185,7 +185,7 @@ export const CollaborativeEarnings: React.FC<CollaborativeEarningsProps> = ({ us
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">
-                            {formatCurrency(summary.average_partnership_value)}
+                            {formatCurrency(summary.activePartnerships > 0 ? summary.totalEarnings / summary.activePartnerships : 0)}
                         </div>
                         <p className="text-xs text-slate-400 mt-1">Per partnership</p>
                     </CardContent>
@@ -211,7 +211,7 @@ export const CollaborativeEarnings: React.FC<CollaborativeEarningsProps> = ({ us
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            {summary.recent_projects.length === 0 ? (
+                            {summary.topPartners.length === 0 ? (
                                 <div className="text-center py-8">
                                     <Music className="w-12 h-12 mx-auto text-slate-400 mb-2" />
                                     <p className="text-slate-400">
@@ -220,34 +220,26 @@ export const CollaborativeEarnings: React.FC<CollaborativeEarningsProps> = ({ us
                                 </div>
                             ) : (
                                 <div className="space-y-4">
-                                    {summary.recent_projects.map((project) => (
+                                    {summary.topPartners.map((partner) => (
                                         <div
-                                            key={project.id}
+                                            key={partner.partnerId}
                                             className="flex items-center justify-between p-4 bg-slate-700 rounded-lg border border-slate-600 hover:border-blue-500 transition-colors"
                                         >
                                             <div className="flex items-center gap-3 flex-1">
                                                 <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                                                    <Music className="w-5 h-5" />
+                                                    <Users className="w-5 h-5" />
                                                 </div>
                                                 <div className="flex-1">
-                                                    <h4 className="font-semibold">{project.title}</h4>
+                                                    <h4 className="font-semibold">{partner.partnerName}</h4>
                                                     <p className="text-sm text-slate-400">
-                                                        {project.project_type} • {project.messages_count} messages
+                                                        {partner.projectCount} projects
                                                     </p>
                                                 </div>
                                             </div>
                                             <div className="text-right">
                                                 <div className="font-semibold text-green-400">
-                                                    {formatCurrency(project.total_revenue)}
+                                                    {formatCurrency(partner.totalEarnings)}
                                                 </div>
-                                                <Badge
-                                                    variant={
-                                                        project.status === 'completed' ? 'default' : 'secondary'
-                                                    }
-                                                    className="text-xs"
-                                                >
-                                                    {project.status}
-                                                </Badge>
                                             </div>
                                         </div>
                                     ))}
@@ -259,7 +251,7 @@ export const CollaborativeEarnings: React.FC<CollaborativeEarningsProps> = ({ us
 
                 {/* Partners Tab */}
                 <TabsContent value="partners" className="space-y-4">
-                    {summary.top_partners.length === 0 ? (
+                    {summary.topPartners.length === 0 ? (
                         <Card className="bg-slate-800 border-slate-700">
                             <CardContent className="pt-6 text-center">
                                 <Users className="w-12 h-12 mx-auto text-slate-400 mb-2" />
@@ -268,70 +260,41 @@ export const CollaborativeEarnings: React.FC<CollaborativeEarningsProps> = ({ us
                         </Card>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {summary.top_partners.map((partner) => (
+                            {summary.topPartners.map((partner) => (
                                 <Card
-                                    key={partner.partnership_id}
+                                    key={partner.partnerId}
                                     className="bg-slate-800 border-slate-700 hover:border-blue-500 transition-colors"
                                 >
                                     <CardHeader className="pb-3">
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-3">
-                                                {partner.partner_avatar ? (
-                                                    <img
-                                                        src={partner.partner_avatar}
-                                                        alt={partner.partner_name}
-                                                        className="w-10 h-10 rounded-full"
-                                                    />
-                                                ) : (
-                                                    <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-                                                        <Users className="w-5 h-5" />
-                                                    </div>
-                                                )}
+                                                <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                                                    <Users className="w-5 h-5" />
+                                                </div>
                                                 <div>
-                                                    <h4 className="font-semibold">{partner.partner_name}</h4>
+                                                    <h4 className="font-semibold">{partner.partnerName}</h4>
                                                     <p className="text-xs text-slate-400 capitalize">
-                                                        {partner.partner_type}
+                                                        Partner
                                                     </p>
                                                 </div>
-                                            </div>
-                                            <div className="text-right">
-                                                <div
-                                                    className={cn(
-                                                        'text-2xl font-bold',
-                                                        partner.health_score >= 75
-                                                            ? 'text-green-400'
-                                                            : partner.health_score >= 50
-                                                                ? 'text-yellow-400'
-                                                                : 'text-red-400'
-                                                    )}
-                                                >
-                                                    {Math.round(partner.health_score)}
-                                                </div>
-                                                <p className="text-xs text-slate-400">Health</p>
                                             </div>
                                         </div>
                                     </CardHeader>
                                     <CardContent className="space-y-4">
                                         {/* Revenue */}
                                         <div className="bg-slate-700 p-3 rounded-lg">
-                                            <p className="text-sm text-slate-400 mb-1">Year to Date</p>
+                                            <p className="text-sm text-slate-400 mb-1">Total Earnings</p>
                                             <div className="text-2xl font-bold text-green-400">
-                                                {formatCurrency(partner.year_to_date)}
+                                                {formatCurrency(partner.totalEarnings)}
                                             </div>
                                         </div>
 
                                         {/* Projects */}
                                         <div className="flex gap-4">
                                             <div className="flex-1">
-                                                <p className="text-xs text-slate-400 mb-1">Active Projects</p>
+                                                <p className="text-xs text-slate-400 mb-1">Projects</p>
                                                 <p className="text-lg font-semibold">
-                                                    {partner.active_projects}
-                                                </p>
-                                            </div>
-                                            <div className="flex-1">
-                                                <p className="text-xs text-slate-400 mb-1">Pending Payments</p>
-                                                <p className="text-lg font-semibold text-yellow-400">
-                                                    {formatCurrency(partner.pending_payments)}
+                                                    {partner.projectCount}
                                                 </p>
                                             </div>
                                         </div>
@@ -364,69 +327,40 @@ export const CollaborativeEarnings: React.FC<CollaborativeEarningsProps> = ({ us
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            {summary.recent_projects.length === 0 ? (
+                            {summary.topPartners.length === 0 ? (
                                 <div className="text-center py-8">
                                     <Music className="w-12 h-12 mx-auto text-slate-400 mb-2" />
                                     <p className="text-slate-400">No projects yet</p>
                                 </div>
                             ) : (
                                 <div className="space-y-3">
-                                    {summary.recent_projects.map((project) => (
+                                    {summary.topPartners.map((partner) => (
                                         <div
-                                            key={project.id}
+                                            key={partner.partnerId}
                                             className="p-4 bg-slate-700 rounded-lg border border-slate-600 hover:border-blue-500 transition-colors cursor-pointer"
                                         >
                                             <div className="flex items-center justify-between mb-3">
                                                 <div>
                                                     <h4 className="font-semibold flex items-center gap-2">
-                                                        {project.title}
-                                                        <Badge variant="secondary" className="text-xs">
-                                                            {project.project_type}
-                                                        </Badge>
+                                                        {partner.partnerName}
                                                     </h4>
                                                     <p className="text-sm text-slate-400 mt-1">
-                                                        {project.messages_count} messages • {project.milestone_count} milestones
+                                                        {partner.projectCount} projects
                                                     </p>
                                                 </div>
-                                                <Badge
-                                                    className={cn(
-                                                        project.status === 'completed'
-                                                            ? 'bg-green-600'
-                                                            : project.status === 'in_progress'
-                                                                ? 'bg-blue-600'
-                                                                : 'bg-slate-600'
-                                                    )}
-                                                >
-                                                    {project.status}
-                                                </Badge>
                                             </div>
 
-                                            <div className="grid grid-cols-3 gap-4">
+                                            <div className="grid grid-cols-2 gap-4">
                                                 <div>
-                                                    <p className="text-xs text-slate-400">Total Revenue</p>
+                                                    <p className="text-xs text-slate-400">Total Earnings</p>
                                                     <p className="font-semibold text-green-400">
-                                                        {formatCurrency(project.total_revenue)}
+                                                        {formatCurrency(partner.totalEarnings)}
                                                     </p>
                                                 </div>
                                                 <div>
-                                                    <p className="text-xs text-slate-400">Your Share</p>
+                                                    <p className="text-xs text-slate-400">Projects</p>
                                                     <p className="font-semibold">
-                                                        {formatCurrency(
-                                                            userType === 'artist'
-                                                                ? project.artist_earnings
-                                                                : project.engineer_earnings
-                                                        )}
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <p className="text-xs text-slate-400">Last Updated</p>
-                                                    <p className="font-semibold text-xs">
-                                                        {project.last_message_at
-                                                            ? formatDistanceToNow(
-                                                                new Date(project.last_message_at),
-                                                                { addSuffix: true }
-                                                            )
-                                                            : 'Never'}
+                                                        {partner.projectCount}
                                                     </p>
                                                 </div>
                                             </div>
