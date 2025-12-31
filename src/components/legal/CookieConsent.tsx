@@ -29,9 +29,12 @@ export function CookieConsent() {
 
   useEffect(() => {
     const consent = localStorage.getItem('cookieConsent');
-    if (!consent) {
-      setShowBanner(true);
-    } else {
+    const dismissed = localStorage.getItem('cookieConsentDismissed');
+    if (!consent && !dismissed) {
+      // Delay showing the banner to be less intrusive
+      const timer = setTimeout(() => setShowBanner(true), 2000);
+      return () => clearTimeout(timer);
+    } else if (consent) {
       const saved = JSON.parse(consent);
       setPreferences(saved);
     }
@@ -104,7 +107,10 @@ export function CookieConsent() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={acceptNecessary}
+            onClick={() => {
+              localStorage.setItem('cookieConsentDismissed', 'true');
+              setShowBanner(false);
+            }}
             className="flex-shrink-0"
           >
             <X className="h-4 w-4" />
