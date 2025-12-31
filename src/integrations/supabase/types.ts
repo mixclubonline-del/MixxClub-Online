@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      achievement_definitions: {
+        Row: {
+          achievement_type: string
+          badge_name: string | null
+          badge_type: string | null
+          category: string | null
+          created_at: string | null
+          criteria: Json | null
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          sort_order: number | null
+          title: string
+          xp_reward: number | null
+        }
+        Insert: {
+          achievement_type: string
+          badge_name?: string | null
+          badge_type?: string | null
+          category?: string | null
+          created_at?: string | null
+          criteria?: Json | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          sort_order?: number | null
+          title: string
+          xp_reward?: number | null
+        }
+        Update: {
+          achievement_type?: string
+          badge_name?: string | null
+          badge_type?: string | null
+          category?: string | null
+          created_at?: string | null
+          criteria?: Json | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          sort_order?: number | null
+          title?: string
+          xp_reward?: number | null
+        }
+        Relationships: []
+      }
       achievements: {
         Row: {
           achievement_type: string
@@ -3001,6 +3049,7 @@ export type Database = {
           project_id: string | null
           role: string | null
           stripe_connect_account_id: string | null
+          total_xp: number | null
           updated_at: string
         }
         Insert: {
@@ -3016,6 +3065,7 @@ export type Database = {
           project_id?: string | null
           role?: string | null
           stripe_connect_account_id?: string | null
+          total_xp?: number | null
           updated_at?: string
         }
         Update: {
@@ -3031,6 +3081,7 @@ export type Database = {
           project_id?: string | null
           role?: string | null
           stripe_connect_account_id?: string | null
+          total_xp?: number | null
           updated_at?: string
         }
         Relationships: [
@@ -4609,6 +4660,10 @@ export type Database = {
         Returns: undefined
       }
       can_view_profile: { Args: { profile_id: string }; Returns: boolean }
+      check_and_award_achievements: {
+        Args: { p_user_id: string }
+        Returns: number
+      }
       check_milestone_achievements: {
         Args: { p_user_id: string }
         Returns: undefined

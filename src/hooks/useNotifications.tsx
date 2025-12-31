@@ -14,9 +14,9 @@ export interface Notification {
   related_id: string | null;
   related_type: string | null;
   is_read: boolean;
-  metadata: any;
+  metadata?: any;
   created_at: string;
-  read_at: string | null;
+  read_at?: string | null;
 }
 
 export const useNotifications = () => {
