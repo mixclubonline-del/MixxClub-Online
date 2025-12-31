@@ -5,7 +5,7 @@
 
 import { useEffect, useState } from 'react';
 import { SubscriptionService, type Subscription } from '@/services/subscriptionService';
-import { supabase } from '@/services/supabaseClient';
+import { supabase } from '@/integrations/supabase/client';
 
 export function useBackendSubscription(userId: string) {
     const [subscription, setSubscription] = useState<Subscription | null>(null);

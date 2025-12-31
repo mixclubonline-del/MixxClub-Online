@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ArrowLeft, Music, Sparkles, Users, Zap, Headphones, Mic2, Apple } from "lucide-react";
+import { ArrowLeft, Music, Sparkles, Users, Zap, Headphones, Mic2, Apple, KeyRound } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useAnalytics } from "@/hooks/useAnalytics";
@@ -28,7 +28,7 @@ const authSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
   fullName: z.string().min(2, "Full name must be at least 2 characters").optional(),
-  role: z.enum(["client", "engineer"]).optional(),
+  role: z.enum(["artist", "engineer"]).optional(),
 });
 
 const Auth = () => {
@@ -40,12 +40,32 @@ const Auth = () => {
   
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  const [role, setRole] = useState<"client" | "engineer">("client");
+  const [role, setRole] = useState<"artist" | "engineer">("artist");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [resetMode, setResetMode] = useState(false);
   const [resetEmailSent, setResetEmailSent] = useState(false);
+  const [updatePasswordMode, setUpdatePasswordMode] = useState(false);
+
+  // Listen for PASSWORD_RECOVERY event to show update password form
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setUpdatePasswordMode(true);
+        setResetMode(false);
+        toast.info("Please set your new password below.");
+      }
+    });
+
+    // Check if we're in update-password mode from URL
+    if (mode === 'update-password' || mode === 'reset') {
+      setUpdatePasswordMode(true);
+    }
+
+    return () => subscription.unsubscribe();
+  }, [mode]);
 
   const handleDemoLogin = async (role: 'client' | 'engineer' | 'admin') => {
     setLoading(true);
@@ -131,6 +151,49 @@ const Auth = () => {
     }
   };
 
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      if (password.length < 6) {
+        setError("Password must be at least 6 characters");
+        setLoading(false);
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        setError("Passwords do not match");
+        setLoading(false);
+        return;
+      }
+
+      const { error } = await supabase.auth.updateUser({ password });
+
+      if (error) {
+        if (error.message.includes("same password")) {
+          setError("Please choose a different password than your current one.");
+        } else {
+          setError(error.message);
+        }
+        return;
+      }
+
+      toast.success("Password updated successfully! You can now sign in.");
+      setUpdatePasswordMode(false);
+      setPassword("");
+      setConfirmPassword("");
+      
+      // Navigate to login
+      navigate("/auth");
+    } catch (err) {
+      setError("Failed to update password. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -169,12 +232,16 @@ const Auth = () => {
           return;
         }
 
-        // Update the profile with the selected role
+        // Insert role into user_roles table (not profiles.role)
         if (data.user) {
-          await supabase
-            .from('profiles')
-            .update({ role })
-            .eq('id', data.user.id);
+          const roleToInsert = role === "artist" ? "artist" : "engineer";
+          const { error: roleError } = await supabase
+            .from('user_roles')
+            .insert({ user_id: data.user.id, role: roleToInsert });
+          
+          if (roleError) {
+            console.error('Failed to assign role:', roleError);
+          }
           
           // Track signup
           trackSignup('email');
@@ -200,6 +267,8 @@ const Auth = () => {
         if (error) {
           if (error.message.includes("Invalid login credentials")) {
             setError("Invalid email or password. Please try again.");
+          } else if (error.message.includes("Email not confirmed")) {
+            setError("Please confirm your email before signing in.");
           } else {
             setError(error.message);
           }
@@ -218,12 +287,11 @@ const Auth = () => {
             return;
           }
 
-          // Check regular role for non-admin users
-          const { data: profile } = await supabase
-            .from('profiles')
+          // Check user_roles table for role
+          const { data: userRoles } = await supabase
+            .from('user_roles')
             .select('role')
-            .eq('id', authUser.id)
-            .single();
+            .eq('user_id', authUser.id);
 
           toast.success("Welcome back!");
           
@@ -231,8 +299,9 @@ const Auth = () => {
           if (redirectPath) {
             navigate(redirectPath);
           } else {
-            // Redirect based on user role
-            if (profile?.role === 'engineer') {
+            // Redirect based on user role from user_roles table
+            const roles = userRoles?.map(r => r.role) || [];
+            if (roles.includes('engineer')) {
               navigate("/engineer-crm");
             } else {
               navigate("/artist-crm");
@@ -265,7 +334,7 @@ const Auth = () => {
         return;
       }
 
-      const redirectUrl = `${window.location.origin}/auth`;
+      const redirectUrl = `${window.location.origin}/auth?mode=update-password`;
       
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: redirectUrl,
@@ -311,6 +380,127 @@ const Auth = () => {
       setLoading(false);
     }
   };
+
+  // Update Password Form
+  if (updatePasswordMode) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5 flex items-center justify-center p-6">
+        {/* Background Effects */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-20 left-10 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-float"></div>
+          <div className="absolute bottom-20 right-10 w-[32rem] h-[32rem] bg-primary/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
+        </div>
+
+        <div className="relative z-10 w-full max-w-md">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="flex justify-center mb-6">
+              <div className="relative group">
+                <div className="absolute inset-0 bg-primary/30 rounded-full blur-2xl animate-pulse-glow"></div>
+                <img 
+                  src={mixclub3DLogo} 
+                  alt="MixClub 3D Logo" 
+                  className="w-20 h-15 object-contain relative z-10"
+                />
+              </div>
+            </div>
+            <h1 className="text-3xl font-bold mb-2">
+              <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+                Set New Password
+              </span>
+            </h1>
+            <p className="text-muted-foreground">
+              Create a secure password for your account
+            </p>
+          </div>
+
+          <Card className="p-8 bg-card/80 backdrop-blur-sm border-primary/20 shadow-xl">
+            <form onSubmit={handleUpdatePassword} className="space-y-6">
+              <div className="flex justify-center mb-4">
+                <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
+                  <KeyRound className="w-8 h-8 text-primary" />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password">New Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Enter new password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="bg-background/50 border-primary/20 focus:border-primary/50"
+                  required
+                  minLength={6}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Password must be at least 6 characters
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  placeholder="Confirm new password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="bg-background/50 border-primary/20 focus:border-primary/50"
+                  required
+                  minLength={6}
+                />
+              </div>
+
+              {error && (
+                <Alert className="border-destructive/20 bg-destructive/10">
+                  <AlertDescription className="text-destructive">
+                    {error}
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              <Button 
+                type="submit" 
+                className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary"
+                disabled={loading}
+              >
+                {loading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                    Updating Password...
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <KeyRound className="w-4 h-4" />
+                    Update Password
+                  </div>
+                )}
+              </Button>
+            </form>
+
+            <Separator className="my-6" />
+
+            <div className="text-center">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setUpdatePasswordMode(false);
+                  setError("");
+                  navigate("/auth");
+                }}
+                className="w-full border-primary/20 hover:border-primary/40 hover:bg-primary/5"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Sign In
+              </Button>
+            </div>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5 flex items-center justify-center p-6">
@@ -403,7 +593,7 @@ const Auth = () => {
                 <h2 className="text-xl font-semibold mb-2">Reset Password</h2>
                 <p className="text-sm text-muted-foreground">
                   {resetEmailSent 
-                    ? "Check your email for a password reset link"
+                    ? "Check your email for a password reset link. Use only the most recent link—each link can only be used once."
                     : "Enter your email to receive a password reset link"
                   }
                 </p>
@@ -449,6 +639,26 @@ const Auth = () => {
                 </form>
               )}
 
+              {resetEmailSent && (
+                <div className="text-center space-y-4">
+                  <div className="w-16 h-16 mx-auto rounded-full bg-primary/20 flex items-center justify-center">
+                    <Sparkles className="w-8 h-8 text-primary" />
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Didn't receive the email? Check your spam folder or request a new link.
+                  </p>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setResetEmailSent(false);
+                    }}
+                    className="border-primary/20 hover:border-primary/40 hover:bg-primary/5"
+                  >
+                    Send Another Link
+                  </Button>
+                </div>
+              )}
+
               <Separator className="my-6" />
 
               <div className="text-center">
@@ -473,12 +683,12 @@ const Auth = () => {
               <>
                 <div className="space-y-4">
                   <Label>I am a...</Label>
-                  <RadioGroup value={role} onValueChange={(value: "client" | "engineer") => setRole(value)}>
+                  <RadioGroup value={role} onValueChange={(value: "artist" | "engineer") => setRole(value)}>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="relative">
-                        <RadioGroupItem value="client" id="client" className="peer sr-only" />
+                        <RadioGroupItem value="artist" id="artist" className="peer sr-only" />
                         <Label
-                          htmlFor="client"
+                          htmlFor="artist"
                           className="flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-muted bg-card/50 p-6 hover:bg-accent/10 peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 cursor-pointer transition-all"
                         >
                           <Mic2 className="w-8 h-8 text-primary" />

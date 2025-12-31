@@ -88,7 +88,7 @@ export const PrimeProvider = ({ children }: { children: ReactNode }) => {
       setAccentColor('hsl(var(--accent-magenta))');
     } else if (systemMode === 'syncing') {
       setAccentColor('hsl(var(--accent-cyan))');
-    } else if (activeRole === 'client') {
+    } else if (activeRole === 'artist') {
       setAccentColor('hsl(var(--accent-magenta))');
     } else if (activeRole === 'engineer') {
       setAccentColor('hsl(var(--accent-cyan))');
