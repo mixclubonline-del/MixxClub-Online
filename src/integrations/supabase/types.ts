@@ -4452,6 +4452,15 @@ export type Database = {
       }
     }
     Functions: {
+      award_points: {
+        Args: {
+          p_action_description?: string
+          p_action_type: string
+          p_points: number
+          p_user_id: string
+        }
+        Returns: number
+      }
       calculate_partnership_health: {
         Args: { p_partnership_id: string }
         Returns: number
@@ -4461,6 +4470,10 @@ export type Database = {
         Returns: undefined
       }
       can_view_profile: { Args: { profile_id: string }; Returns: boolean }
+      check_milestone_achievements: {
+        Args: { p_user_id: string }
+        Returns: undefined
+      }
       cleanup_old_audit_logs: {
         Args: { days_to_keep: number }
         Returns: number
