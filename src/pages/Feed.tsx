@@ -119,7 +119,7 @@ export default function Feed() {
                 <GamificationHub />
               </div>
               <div>
-                <QuickAchievements userId={user.id} />
+                <QuickAchievements />
               </div>
             </motion.div>
           )}

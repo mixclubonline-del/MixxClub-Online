@@ -150,7 +150,7 @@ const EngineerDashboard = () => {
         {/* Quick Achievements for Mobile */}
         {isMobile && user && (
           <div className="mb-6">
-            <QuickAchievements userId={user.id} />
+            <QuickAchievements />
           </div>
         )}
 
