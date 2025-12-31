@@ -3529,6 +3529,65 @@ export type Database = {
           },
         ]
       }
+      reviews: {
+        Row: {
+          communication_rating: number | null
+          created_at: string
+          id: string
+          is_public: boolean | null
+          professionalism_rating: number | null
+          quality_rating: number | null
+          rating: number
+          review_text: string | null
+          review_type: string
+          reviewed_id: string
+          reviewer_id: string
+          session_id: string
+          updated_at: string
+          would_work_again: boolean | null
+        }
+        Insert: {
+          communication_rating?: number | null
+          created_at?: string
+          id?: string
+          is_public?: boolean | null
+          professionalism_rating?: number | null
+          quality_rating?: number | null
+          rating: number
+          review_text?: string | null
+          review_type: string
+          reviewed_id: string
+          reviewer_id: string
+          session_id: string
+          updated_at?: string
+          would_work_again?: boolean | null
+        }
+        Update: {
+          communication_rating?: number | null
+          created_at?: string
+          id?: string
+          is_public?: boolean | null
+          professionalism_rating?: number | null
+          quality_rating?: number | null
+          rating?: number
+          review_text?: string | null
+          review_type?: string
+          reviewed_id?: string
+          reviewer_id?: string
+          session_id?: string
+          updated_at?: string
+          would_work_again?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "collaboration_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       saved_jobs: {
         Row: {
           created_at: string
@@ -3751,6 +3810,59 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "session_participants_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "collaboration_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      session_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          payee_id: string
+          payer_id: string
+          released_at: string | null
+          session_id: string
+          status: string
+          stripe_payment_intent_id: string | null
+          stripe_transfer_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          id?: string
+          payee_id: string
+          payer_id: string
+          released_at?: string | null
+          session_id: string
+          status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_transfer_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          payee_id?: string
+          payer_id?: string
+          released_at?: string | null
+          session_id?: string
+          status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_transfer_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_payments_session_id_fkey"
             columns: ["session_id"]
             isOneToOne: false
             referencedRelation: "collaboration_sessions"
