@@ -71,6 +71,7 @@ const navigationGroups = [
       { name: 'Beat Files', href: '/admin/beat-files', icon: Music },
       { name: 'Media', href: '/admin/media', icon: Image },
       { name: 'Content', href: '/admin/content', icon: FileText },
+      { name: 'Asset Gallery', href: '/admin/asset-gallery', icon: Image, featured: true },
     ],
   },
   {

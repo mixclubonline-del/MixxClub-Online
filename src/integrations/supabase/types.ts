@@ -709,6 +709,7 @@ export type Database = {
         Row: {
           asset_context: string | null
           asset_type: string
+          category: string | null
           created_at: string
           created_by: string | null
           id: string
@@ -723,6 +724,7 @@ export type Database = {
         Insert: {
           asset_context?: string | null
           asset_type: string
+          category?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
@@ -737,6 +739,7 @@ export type Database = {
         Update: {
           asset_context?: string | null
           asset_type?: string
+          category?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
