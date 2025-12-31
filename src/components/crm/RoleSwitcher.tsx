@@ -10,10 +10,10 @@ export const RoleSwitcher = () => {
 
   if (!isHybridUser || userRoles.length <= 1) return null;
 
-  const handleRoleSwitch = (role: 'client' | 'engineer') => {
+  const handleRoleSwitch = (role: 'artist' | 'engineer') => {
     setActiveRole(role);
     // Navigate to appropriate dashboard
-    if (role === 'client') {
+    if (role === 'artist') {
       navigate('/artist-crm');
     } else {
       navigate('/engineer-crm');
@@ -29,8 +29,8 @@ export const RoleSwitcher = () => {
       >
         <Button
           size="sm"
-          variant={activeRole === 'client' ? 'default' : 'ghost'}
-          onClick={() => handleRoleSwitch('client')}
+          variant={activeRole === 'artist' ? 'default' : 'ghost'}
+          onClick={() => handleRoleSwitch('artist')}
           className="rounded-full"
         >
           <Mic2 className="w-4 h-4 mr-2" />

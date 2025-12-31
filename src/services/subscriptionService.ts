@@ -1,5 +1,4 @@
-import { SupabaseService } from './supabaseClient';
-import { supabase } from './supabaseClient';
+import { supabase } from '@/integrations/supabase/client';
 
 /**
  * SUBSCRIPTION SERVICE - Backend Integration

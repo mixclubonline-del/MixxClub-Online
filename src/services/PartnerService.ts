@@ -4,7 +4,7 @@
  * Integrates with Supabase for database operations and Stripe for payments
  */
 
-import { supabase } from '@/services/supabaseClient';
+import { supabase } from '@/integrations/supabase/client';
 import type { Partner, Commission, Payout, AffiliateLink, PartnerMetrics } from '@/stores/partnerStore';
 
 export class PartnerService {
