@@ -138,6 +138,7 @@ const AdminSystemPresentation = React.lazy(() => import('./pages/AdminSystemPres
 const AdminLaunchPresentation = React.lazy(() => import('./pages/AdminLaunchPresentation'));
 const AdminLaunchDashboard = React.lazy(() => import('./pages/AdminLaunchDashboard'));
 const AdminLaunchReadiness = React.lazy(() => import('./pages/AdminLaunchReadiness'));
+const AdminAssetGallery = React.lazy(() => import('./pages/AdminAssetGallery'));
 const MobileAdminBot = React.lazy(() => import('./pages/MobileAdminBot'));
 const MobileTesting = React.lazy(() => import("./pages/MobileTesting"));
 const CoreFeaturesTesting = React.lazy(() => import("./pages/CoreFeaturesTesting"));
@@ -333,6 +334,7 @@ const AppContent = () => {
           <Route path="/admin/communications" element={<AdminRoute section="Communications"><AdminCommunications /></AdminRoute>} />
           <Route path="/admin/reports" element={<AdminRoute section="Reports"><AdminReports /></AdminRoute>} />
           <Route path="/admin/security-dashboard" element={<AdminRoute section="Security Dashboard"><AdminSecurityDashboard /></AdminRoute>} />
+          <Route path="/admin/asset-gallery" element={<AdminRoute section="Asset Gallery"><AdminAssetGallery /></AdminRoute>} />
           <Route path="/presentation/share/:token" element={<PresentationShare />} />
           <Route path="/for-artists" element={<ForArtists />} />
           <Route path="/for-engineers" element={<ForEngineers />} />
