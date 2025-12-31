@@ -1,9 +1,7 @@
-import { supabase } from './supabaseClient';
-import { SupabaseService } from './supabaseClient';
-
 /**
- * MARKETPLACE SERVICE - Backend Integration
- * Handles product listings, purchases, and seller analytics
+ * MARKETPLACE SERVICE - Stubbed Implementation
+ * The marketplace_products/orders tables don't exist in the database.
+ * This provides a mock implementation.
  */
 
 export interface MarketplaceProduct {
@@ -50,6 +48,10 @@ export interface SellerAnalytics {
     recent_sales: PurchaseOrder[];
 }
 
+// In-memory mock data
+const mockProducts: MarketplaceProduct[] = [];
+const mockOrders: PurchaseOrder[] = [];
+
 export const MarketplaceService = {
     /**
      * Get all products with filters
@@ -60,62 +62,41 @@ export const MarketplaceService = {
         minRating?: number;
         sortBy?: 'trending' | 'newest' | 'bestselling' | 'rating';
     }): Promise<MarketplaceProduct[]> {
-        let query = supabase.from('marketplace_products').select('*');
+        console.warn('MarketplaceService: Using mock data - marketplace_products table not configured');
+        let result = [...mockProducts];
 
         if (filters?.category) {
-            query = query.eq('category', filters.category);
+            result = result.filter(p => p.category === filters.category);
         }
-
         if (filters?.tags?.length) {
-            query = query.contains('tags', filters.tags);
+            result = result.filter(p => p.tags.some(t => filters.tags!.includes(t)));
         }
-
         if (filters?.minRating) {
-            query = query.gte('rating', filters.minRating);
+            result = result.filter(p => p.rating >= filters.minRating!);
         }
 
-        // Apply sorting
         switch (filters?.sortBy) {
             case 'trending':
-                query = query.order('downloads', { ascending: false });
-                break;
             case 'bestselling':
-                query = query.order('downloads', { ascending: false });
+                result.sort((a, b) => b.downloads - a.downloads);
                 break;
             case 'newest':
-                query = query.order('created_at', { ascending: false });
+                result.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
                 break;
             case 'rating':
-                query = query.order('rating', { ascending: false });
+                result.sort((a, b) => b.rating - a.rating);
                 break;
         }
 
-        const { data, error } = await query;
-
-        if (error) {
-            console.error('Failed to fetch products:', error);
-            return [];
-        }
-
-        return data as MarketplaceProduct[];
+        return result;
     },
 
     /**
      * Get product by ID
      */
     async getProduct(productId: string): Promise<MarketplaceProduct | null> {
-        const { data, error } = await supabase
-            .from('marketplace_products')
-            .select('*')
-            .eq('id', productId)
-            .single();
-
-        if (error) {
-            console.error('Failed to fetch product:', error);
-            return null;
-        }
-
-        return data as MarketplaceProduct;
+        console.warn('MarketplaceService: Using mock data - marketplace_products table not configured');
+        return mockProducts.find(p => p.id === productId) || null;
     },
 
     /**
@@ -125,23 +106,18 @@ export const MarketplaceService = {
         sellerId: string,
         product: Omit<MarketplaceProduct, 'id' | 'seller_id' | 'created_at' | 'updated_at' | 'downloads' | 'reviews_count'>
     ): Promise<MarketplaceProduct> {
-        const { data, error } = await supabase
-            .from('marketplace_products')
-            .insert({
-                seller_id: sellerId,
-                ...product,
-                downloads: 0,
-                reviews_count: 0,
-            })
-            .select()
-            .single();
-
-        if (error) {
-            console.error('Failed to create product:', error);
-            throw error;
-        }
-
-        return data as MarketplaceProduct;
+        console.warn('MarketplaceService: Using mock data - marketplace_products table not configured');
+        const newProduct: MarketplaceProduct = {
+            ...product,
+            id: crypto.randomUUID(),
+            seller_id: sellerId,
+            downloads: 0,
+            reviews_count: 0,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+        };
+        mockProducts.push(newProduct);
+        return newProduct;
     },
 
     /**
@@ -151,122 +127,67 @@ export const MarketplaceService = {
         buyerId: string,
         items: CartItem[]
     ): Promise<{ client_secret: string; order_id: string }> {
-        try {
-            const totalAmount = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        console.warn('MarketplaceService: Using mock data - marketplace_orders table not configured');
+        const totalAmount = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        const orderId = crypto.randomUUID();
+        
+        const order: PurchaseOrder = {
+            id: orderId,
+            buyer_id: buyerId,
+            items,
+            total_amount: totalAmount,
+            stripe_payment_intent_id: `mock_pi_${orderId}`,
+            status: 'pending',
+            created_at: new Date().toISOString(),
+        };
+        mockOrders.push(order);
 
-            // Create order in database
-            const { data: orderData, error: orderError } = await supabase
-                .from('marketplace_orders')
-                .insert({
-                    buyer_id: buyerId,
-                    items,
-                    total_amount: totalAmount,
-                    status: 'pending',
-                })
-                .select()
-                .single();
-
-            if (orderError) throw orderError;
-
-            // Call edge function to create Stripe payment intent
-            const response = await SupabaseService.callEdgeFunction<{
-                client_secret: string;
-            }>('create-marketplace-checkout', {
-                order_id: orderData.id,
-                amount: totalAmount,
-                buyer_id: buyerId,
-                items,
-            });
-
-            // Update order with Stripe ID
-            await supabase
-                .from('marketplace_orders')
-                .update({
-                    stripe_payment_intent_id: response.client_secret.split('_secret_')[0],
-                })
-                .eq('id', orderData.id);
-
-            return {
-                client_secret: response.client_secret,
-                order_id: orderData.id,
-            };
-        } catch (error) {
-            console.error('Failed to create order:', error);
-            throw error;
-        }
+        return {
+            client_secret: `mock_secret_${orderId}`,
+            order_id: orderId,
+        };
     },
 
     /**
      * Confirm purchase and distribute earnings
      */
     async confirmPurchase(orderId: string): Promise<boolean> {
-        try {
-            // Update order status
-            const { error } = await supabase
-                .from('marketplace_orders')
-                .update({ status: 'completed' })
-                .eq('id', orderId);
-
-            if (error) throw error;
-
-            // Call edge function to process seller payouts (70/30 split)
-            await SupabaseService.callEdgeFunction('process-marketplace-payouts', {
-                order_id: orderId,
-            });
-
-            // Increment product download counts
-            const { data: order } = await supabase.from('marketplace_orders').select('items').eq('id', orderId).single();
-
-            if (order?.items) {
-                for (const item of order.items) {
-                    await supabase.rpc('increment_product_downloads', {
-                        product_id: item.product_id,
-                        count: item.quantity,
-                    });
-                }
-            }
-
+        console.warn('MarketplaceService: Using mock data - marketplace_orders table not configured');
+        const order = mockOrders.find(o => o.id === orderId);
+        if (order) {
+            order.status = 'completed';
             return true;
-        } catch (error) {
-            console.error('Failed to confirm purchase:', error);
-            return false;
         }
+        return false;
     },
 
     /**
      * Get seller analytics
      */
     async getSellerAnalytics(sellerId: string): Promise<SellerAnalytics> {
-        try {
-            const { data, error } = await supabase.rpc('get_seller_analytics', {
-                seller_id_param: sellerId,
-            });
-
-            if (error) throw error;
-            return data as SellerAnalytics;
-        } catch (error) {
-            console.error('Failed to get seller analytics:', error);
-            throw error;
-        }
+        console.warn('MarketplaceService: Using mock data - get_seller_analytics RPC not available');
+        return {
+            total_sales: 0,
+            total_earnings: 0,
+            monthly_revenue: 0,
+            total_products: mockProducts.filter(p => p.seller_id === sellerId).length,
+            total_downloads: 0,
+            average_rating: 0,
+            recent_sales: [],
+        };
     },
 
     /**
      * Track product download
      */
     async trackDownload(productId: string, buyerId: string): Promise<boolean> {
-        try {
-            const { error } = await supabase.from('product_downloads').insert({
-                product_id: productId,
-                buyer_id: buyerId,
-                downloaded_at: new Date().toISOString(),
-            });
-
-            if (error) throw error;
+        console.warn('MarketplaceService: Using mock data - product_downloads table not configured');
+        const product = mockProducts.find(p => p.id === productId);
+        if (product) {
+            product.downloads += 1;
             return true;
-        } catch (error) {
-            console.error('Failed to track download:', error);
-            return false;
         }
+        return false;
     },
 
     /**
@@ -278,45 +199,23 @@ export const MarketplaceService = {
         rating: number,
         comment: string
     ): Promise<boolean> {
-        try {
-            const { error } = await supabase.from('product_reviews').insert({
-                product_id: productId,
-                buyer_id: buyerId,
-                rating,
-                comment,
-                created_at: new Date().toISOString(),
-            });
-
-            if (error) throw error;
-
-            // Update product rating
-            await supabase.rpc('update_product_rating', {
-                product_id: productId,
-            });
-
+        console.warn('MarketplaceService: Using mock data - product_reviews table not configured');
+        const product = mockProducts.find(p => p.id === productId);
+        if (product) {
+            product.reviews_count += 1;
+            // Simple average update
+            product.rating = (product.rating * (product.reviews_count - 1) + rating) / product.reviews_count;
             return true;
-        } catch (error) {
-            console.error('Failed to add review:', error);
-            return false;
         }
+        return false;
     },
 
     /**
      * Get seller's products
      */
     async getSellerProducts(sellerId: string): Promise<MarketplaceProduct[]> {
-        const { data, error } = await supabase
-            .from('marketplace_products')
-            .select('*')
-            .eq('seller_id', sellerId)
-            .order('created_at', { ascending: false });
-
-        if (error) {
-            console.error('Failed to fetch seller products:', error);
-            return [];
-        }
-
-        return data as MarketplaceProduct[];
+        console.warn('MarketplaceService: Using mock data - marketplace_products table not configured');
+        return mockProducts.filter(p => p.seller_id === sellerId);
     },
 
     /**
@@ -326,32 +225,25 @@ export const MarketplaceService = {
         productId: string,
         updates: Partial<MarketplaceProduct>
     ): Promise<MarketplaceProduct | null> {
-        const { data, error } = await supabase
-            .from('marketplace_products')
-            .update(updates)
-            .eq('id', productId)
-            .select()
-            .single();
-
-        if (error) {
-            console.error('Failed to update product:', error);
-            return null;
+        console.warn('MarketplaceService: Using mock data - marketplace_products table not configured');
+        const index = mockProducts.findIndex(p => p.id === productId);
+        if (index !== -1) {
+            mockProducts[index] = { ...mockProducts[index], ...updates, updated_at: new Date().toISOString() };
+            return mockProducts[index];
         }
-
-        return data as MarketplaceProduct;
+        return null;
     },
 
     /**
      * Delete product
      */
     async deleteProduct(productId: string): Promise<boolean> {
-        const { error } = await supabase.from('marketplace_products').delete().eq('id', productId);
-
-        if (error) {
-            console.error('Failed to delete product:', error);
-            return false;
+        console.warn('MarketplaceService: Using mock data - marketplace_products table not configured');
+        const index = mockProducts.findIndex(p => p.id === productId);
+        if (index !== -1) {
+            mockProducts.splice(index, 1);
+            return true;
         }
-
-        return true;
+        return false;
     },
 };
