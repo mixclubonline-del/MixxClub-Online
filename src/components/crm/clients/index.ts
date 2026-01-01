@@ -1,0 +1,11 @@
+export { ClientsHub } from './ClientsHub';
+export { ClientList } from './ClientList';
+export { ClientCard } from './ClientCard';
+export { ClientDetailPanel } from './ClientDetailPanel';
+export { AddClientDialog } from './AddClientDialog';
+export { DealPipeline } from './DealPipeline';
+export { DealCard } from './DealCard';
+export { AddDealDialog } from './AddDealDialog';
+export { ClientNotes } from './ClientNotes';
+export { InteractionTimeline } from './InteractionTimeline';
+export { ClientInsights } from './ClientInsights';
