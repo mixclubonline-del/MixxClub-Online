@@ -35,13 +35,13 @@ import { ActiveWorkHub } from '@/components/crm/ActiveWorkHub';
 import { DashboardHub } from '@/components/crm/DashboardHub';
 import { OpportunitiesHub } from '@/components/crm/opportunities';
 import { YourMatches } from '@/components/crm/YourMatches';
-import { AIMatchesHub } from '@/components/crm/matches';
+import { MatchesHub } from '@/components/crm/matches/MatchesHub';
 import { RevenueHub } from '@/components/crm/RevenueHub';
 import { CommunityHub } from '@/components/crm/community';
 import { GrowthHub } from '@/components/crm/growth';
 import { MessagingHub } from '@/components/crm/messaging';
 import { CollaborativeEarnings } from '@/components/crm/CollaborativeEarnings';
-import { SessionsHub } from '@/components/crm/sessions';
+import { SessionsHub } from '@/components/crm/sessions/SessionsHub';
 
 const ArtistCRM = () => {
   const { user } = useAuth();
@@ -274,8 +274,10 @@ const ArtistCRM = () => {
   const renderContent = () => {
     switch (currentTab) {
       case 'matches':
-        return <AIMatchesHub userType="artist" />;
+        return <MatchesHub userType="artist" />;
 
+      case 'sessions':
+        return <SessionsHub userType="artist" />;
       case 'active-work':
         return <ActiveWorkHub />;
 
