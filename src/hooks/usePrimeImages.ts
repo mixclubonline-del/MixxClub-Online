@@ -3,15 +3,15 @@ const STORAGE_BASE = 'https://kbbrehnyqpulbxyesril.supabase.co/storage/v1/object
 
 // Phase-to-image mapping using uploaded Prime images
 const phaseImageMap: Record<string, string> = {
-  drop: `${STORAGE_BASE}/IMG_0502.jpeg`,
-  awakening: `${STORAGE_BASE}/IMG_0489.jpeg`,
-  mission: `${STORAGE_BASE}/IMG_0491.jpeg`,
-  analysis: `${STORAGE_BASE}/IMG_0495.jpeg`,
-  studio: `${STORAGE_BASE}/IMG_0497.jpeg`,
-  collaboration: `${STORAGE_BASE}/IMG_0499.jpeg`,
-  results: `${STORAGE_BASE}/IMG_0501.jpeg`,
-  crm: `${STORAGE_BASE}/IMG_0503.jpeg`,
-  cta: `${STORAGE_BASE}/IMG_0505.jpeg`,
+  drop: `${STORAGE_BASE}/IMG_0502.png`,
+  awakening: `${STORAGE_BASE}/IMG_0489.png`,
+  mission: `${STORAGE_BASE}/IMG_0491.png`,
+  analysis: `${STORAGE_BASE}/IMG_0495.png`,
+  studio: `${STORAGE_BASE}/IMG_0497.png`,
+  collaboration: `${STORAGE_BASE}/IMG_0499.png`,
+  results: `${STORAGE_BASE}/IMG_0501.png`,
+  crm: `${STORAGE_BASE}/IMG_0503.png`,
+  cta: `${STORAGE_BASE}/IMG_0505.png`,
 };
 
 export const usePrimeImages = () => {
