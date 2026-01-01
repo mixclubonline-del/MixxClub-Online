@@ -4,11 +4,11 @@ import { Download, Eye, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-// Import all logo variants
-import eqCrownLogo from '@/assets/brand/eq-crown-logo.png';
-import waveformCircuitLogo from '@/assets/brand/waveform-circuit-logo.png';
-import infinityCircuitLogo from '@/assets/brand/infinity-circuit-logo.png';
-import vinylWaveformLogo from '@/assets/brand/vinyl-waveform-logo.png';
+// Import all logo variants (optimized WebP)
+import eqCrownLogo from '@/assets/brand/eq-crown-logo.webp';
+import waveformCircuitLogo from '@/assets/brand/waveform-circuit-logo.webp';
+import infinityCircuitLogo from '@/assets/brand/infinity-circuit-logo.webp';
+import vinylWaveformLogo from '@/assets/brand/vinyl-waveform-logo.webp';
 
 import AnimatedBrandLogo, { LogoVariant, LogoContext } from './AnimatedBrandLogo';
 

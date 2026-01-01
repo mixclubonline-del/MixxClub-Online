@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// Import all logo variants
-import eqCrownLogo from '@/assets/brand/eq-crown-logo.png';
-import waveformCircuitLogo from '@/assets/brand/waveform-circuit-logo.png';
-import infinityCircuitLogo from '@/assets/brand/infinity-circuit-logo.png';
-import vinylWaveformLogo from '@/assets/brand/vinyl-waveform-logo.png';
+// Import all logo variants (optimized WebP)
+import eqCrownLogo from '@/assets/brand/eq-crown-logo.webp';
+import waveformCircuitLogo from '@/assets/brand/waveform-circuit-logo.webp';
+import infinityCircuitLogo from '@/assets/brand/infinity-circuit-logo.webp';
+import vinylWaveformLogo from '@/assets/brand/vinyl-waveform-logo.webp';
 
 export type LogoVariant = 'crown' | 'waveform' | 'infinity' | 'vinyl';
 export type LogoContext = 'hero' | 'navigation' | 'loading' | 'splash' | 'static';
