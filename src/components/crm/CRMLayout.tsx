@@ -5,7 +5,7 @@ import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Home, Briefcase, Search, DollarSign, User, Music, Award, Headphones, Truck, Sparkles, Zap, TrendingUp, Users, Target, MessageSquare, Handshake } from 'lucide-react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { RoleSwitcher } from './RoleSwitcher';
@@ -13,6 +13,8 @@ import { ResizableAICopilot } from './dashboard/ResizableAICopilot';
 import { useAIDashboardInsights } from '@/hooks/useAIDashboardInsights';
 import { HoverCard3D } from '@/components/interactive/HoverCard3D';
 import { TutorialLauncher } from '@/components/tutorial/TutorialLauncher';
+import { ProactivePrimeBot } from './ai/ProactivePrimeBot';
+import { StreakTracker } from './gamification/StreakTracker';
 
 interface CRMLayoutProps {
   children: ReactNode;
@@ -34,7 +36,12 @@ interface CRMLayoutProps {
 
 export const CRMLayout = ({ children, userType, profile, stats, quickActions }: CRMLayoutProps) => {
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const { insights, isLoading: insightsLoading } = useAIDashboardInsights();
+  
+  const handleNavigate = (path: string) => {
+    navigate(path);
+  };
 
   const getLevelProgress = () => {
     if (!profile) return 0;
@@ -235,6 +242,11 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions }: 
                 </Card>
               </>
 
+            {/* Streak Tracker */}
+            <div className="mb-6">
+              <StreakTracker />
+            </div>
+
             {/* Main Content with Resizable AI Copilot */}
             <div className="animate-in fade-in duration-1000">
               <ResizableAICopilot insights={insights} isLoading={insightsLoading} defaultOpen={true}>
@@ -242,6 +254,9 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions }: 
               </ResizableAICopilot>
             </div>
           </div>
+          
+          {/* Proactive Prime Bot */}
+          <ProactivePrimeBot userType={userType} onNavigate={handleNavigate} />
         </div>
       </>
     );
@@ -324,6 +339,9 @@ export const CRMLayout = ({ children, userType, profile, stats, quickActions }: 
             </ResizableAICopilot>
           </div>
         </div>
+        
+        {/* Proactive Prime Bot */}
+        <ProactivePrimeBot userType={userType} onNavigate={handleNavigate} />
       </div>
     </>
   );
