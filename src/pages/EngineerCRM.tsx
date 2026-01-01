@@ -28,7 +28,7 @@ import { EngineerAssistantIntro } from '@/components/crm/EngineerAssistantIntro'
 import { DynamicAppAccessHub } from '@/components/crm/DynamicAppAccessHub';
 import { ActiveWorkHub } from '@/components/crm/ActiveWorkHub';
 import { DashboardHub } from '@/components/crm/DashboardHub';
-import { OpportunitiesHub } from '@/components/crm/OpportunitiesHub';
+import { OpportunitiesHub } from '@/components/crm/opportunities';
 import { EngineerCRMDashboard } from '@/components/crm/EngineerCRMDashboard';
 import { RevenueHub } from '@/components/crm/RevenueHub';
 import { CommunityHub } from '@/components/crm/CommunityHub';
