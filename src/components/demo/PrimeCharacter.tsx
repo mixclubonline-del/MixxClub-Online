@@ -8,6 +8,7 @@ interface PrimeCharacterProps {
   isPlaying: boolean;
   size?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
+  imageUrl?: string; // Optional custom image URL for phase-specific images
 }
 
 const sizeMap = {
@@ -22,8 +23,10 @@ export const PrimeCharacter = ({
   amplitude, 
   isPlaying,
   size = 'lg',
-  className = ''
+  className = '',
+  imageUrl
 }: PrimeCharacterProps) => {
+  const imageSrc = imageUrl || primeLaunchHero;
   const { container, glow } = sizeMap[size];
   
   // Audio-reactive values
@@ -88,7 +91,7 @@ export const PrimeCharacter = ({
         }}
       >
         <img
-          src={primeLaunchHero}
+          src={imageSrc}
           alt="Prime - MixClub Head Engineer"
           className="w-full h-full object-cover"
           style={{
@@ -102,7 +105,7 @@ export const PrimeCharacter = ({
         {isPlaying && bass > 150 && (
           <>
             <motion.img
-              src={primeLaunchHero}
+              src={imageSrc}
               alt=""
               className="absolute inset-0 w-full h-full object-cover mix-blend-screen opacity-30"
               style={{ 
@@ -111,7 +114,7 @@ export const PrimeCharacter = ({
               }}
             />
             <motion.img
-              src={primeLaunchHero}
+              src={imageSrc}
               alt=""
               className="absolute inset-0 w-full h-full object-cover mix-blend-screen opacity-30"
               style={{ 

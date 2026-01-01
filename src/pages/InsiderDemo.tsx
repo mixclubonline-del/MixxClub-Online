@@ -12,6 +12,7 @@ import {
   Sliders, Waves, Radio, Activity, Target, Gauge
 } from 'lucide-react';
 import { useInsiderAudio } from '@/hooks/useInsiderAudio';
+import { usePrimeImages } from '@/hooks/usePrimeImages';
 import { PrimeCharacter } from '@/components/demo/PrimeCharacter';
 import { AudioVisualizer } from '@/components/demo/AudioVisualizer';
 import { ParticleStorm } from '@/components/demo/ParticleStorm';
@@ -124,6 +125,11 @@ export default function InsiderDemo() {
   } = useInsiderAudio();
 
   const { amplitude, bass, mid, high, beats } = analysis;
+  const { getImageForPhase } = usePrimeImages();
+  
+  // Get current phase image
+  const currentPhaseId = DEMO_PHASES[currentPhase]?.id || 'drop';
+  const currentPrimeImage = getImageForPhase(currentPhaseId);
 
   // Start experience
   const startExperience = useCallback(async () => {
@@ -424,6 +430,7 @@ export default function InsiderDemo() {
                   amplitude={amplitude} 
                   isPlaying={isPlaying}
                   size="xl"
+                  imageUrl={currentPrimeImage}
                 />
               </motion.div>
             </motion.div>
@@ -443,6 +450,7 @@ export default function InsiderDemo() {
                 amplitude={amplitude} 
                 isPlaying={isPlaying}
                 size="lg"
+                imageUrl={currentPrimeImage}
               />
               
               <motion.h1 
@@ -520,7 +528,7 @@ export default function InsiderDemo() {
               </div>
 
               <div className="flex items-center justify-center gap-4">
-                <PrimeCharacter bass={bass} amplitude={amplitude} isPlaying={isPlaying} size="sm" />
+                <PrimeCharacter bass={bass} amplitude={amplitude} isPlaying={isPlaying} size="sm" imageUrl={currentPrimeImage} />
                 <p className="text-lg text-muted-foreground max-w-lg">{typedText}</p>
               </div>
             </motion.div>
@@ -536,7 +544,7 @@ export default function InsiderDemo() {
               className="w-full max-w-4xl"
             >
               <div className="flex items-center gap-4 mb-8">
-                <PrimeCharacter bass={bass} amplitude={amplitude} isPlaying={isPlaying} size="sm" />
+                <PrimeCharacter bass={bass} amplitude={amplitude} isPlaying={isPlaying} size="sm" imageUrl={currentPrimeImage} />
                 <p className="text-lg text-muted-foreground">{typedText}</p>
               </div>
 
@@ -594,7 +602,7 @@ export default function InsiderDemo() {
               className="w-full max-w-5xl"
             >
               <div className="flex items-center gap-4 mb-8 justify-center">
-                <PrimeCharacter bass={bass} amplitude={amplitude} isPlaying={isPlaying} size="sm" />
+                <PrimeCharacter bass={bass} amplitude={amplitude} isPlaying={isPlaying} size="sm" imageUrl={currentPrimeImage} />
                 <p className="text-lg text-muted-foreground">{typedText}</p>
               </div>
 
@@ -655,7 +663,7 @@ export default function InsiderDemo() {
               className="w-full max-w-5xl"
             >
               <div className="flex items-center gap-4 mb-8 justify-center">
-                <PrimeCharacter bass={bass} amplitude={amplitude} isPlaying={isPlaying} size="sm" />
+                <PrimeCharacter bass={bass} amplitude={amplitude} isPlaying={isPlaying} size="sm" imageUrl={currentPrimeImage} />
                 <p className="text-lg text-muted-foreground">{typedText}</p>
               </div>
 
@@ -672,7 +680,7 @@ export default function InsiderDemo() {
 
                 {/* Prime in center */}
                 <div className="flex flex-col items-center">
-                  <PrimeCharacter bass={bass} amplitude={amplitude} isPlaying={isPlaying} size="md" />
+                  <PrimeCharacter bass={bass} amplitude={amplitude} isPlaying={isPlaying} size="md" imageUrl={currentPrimeImage} />
                   <motion.div 
                     className="mt-4 flex gap-2"
                     animate={{ opacity: [0.5, 1, 0.5] }}
@@ -708,7 +716,7 @@ export default function InsiderDemo() {
               className="w-full max-w-5xl text-center"
             >
               <div className="flex items-center gap-4 mb-8 justify-center">
-                <PrimeCharacter bass={bass} amplitude={amplitude} isPlaying={isPlaying} size="sm" />
+                <PrimeCharacter bass={bass} amplitude={amplitude} isPlaying={isPlaying} size="sm" imageUrl={currentPrimeImage} />
                 <p className="text-lg text-muted-foreground">{typedText}</p>
               </div>
 
@@ -750,7 +758,7 @@ export default function InsiderDemo() {
               className="w-full max-w-5xl"
             >
               <div className="flex items-center gap-4 mb-8 justify-center">
-                <PrimeCharacter bass={bass} amplitude={amplitude} isPlaying={isPlaying} size="sm" />
+                <PrimeCharacter bass={bass} amplitude={amplitude} isPlaying={isPlaying} size="sm" imageUrl={currentPrimeImage} />
                 <p className="text-lg text-muted-foreground">{typedText}</p>
               </div>
 
@@ -790,7 +798,7 @@ export default function InsiderDemo() {
               animate={{ opacity: 1 }}
               className="text-center w-full max-w-xl mx-auto"
             >
-              <PrimeCharacter bass={bass} amplitude={amplitude} isPlaying={isPlaying} size="lg" />
+              <PrimeCharacter bass={bass} amplitude={amplitude} isPlaying={isPlaying} size="lg" imageUrl={currentPrimeImage} />
               
               <motion.h1 
                 className="text-4xl md:text-6xl font-black mt-6 mb-2"
