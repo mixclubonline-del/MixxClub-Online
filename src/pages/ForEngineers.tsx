@@ -18,10 +18,43 @@ import {
   ArrowRight
 } from "lucide-react";
 
+import { Badge } from "@/components/ui/badge";
+import { Sparkles, Crown } from "lucide-react";
+import { motion } from "framer-motion";
+
 export default function ForEngineers() {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
+      
+      {/* Founding Engineer Banner */}
+      <section className="py-6 bg-gradient-to-r from-purple-500/20 via-purple-400/10 to-purple-500/20 border-b border-purple-500/30 mt-16">
+        <div className="container px-6">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex flex-col md:flex-row items-center justify-center gap-4 text-center md:text-left"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center shadow-lg">
+                <Award className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <p className="font-bold text-lg text-purple-100">
+                  ⚡ Founding Engineer Program
+                </p>
+                <p className="text-purple-200/80 text-sm">
+                  First 50 engineers get <span className="font-bold text-purple-100">Platinum tier locked forever</span> + priority matching
+                </p>
+              </div>
+            </div>
+            <Badge className="bg-purple-500/30 text-purple-100 border-purple-400/50 animate-pulse">
+              <Sparkles className="w-3 h-3 mr-1" />
+              23 spots left
+            </Badge>
+          </motion.div>
+        </div>
+      </section>
       
       <EngineerShowcaseSlideshow />
       

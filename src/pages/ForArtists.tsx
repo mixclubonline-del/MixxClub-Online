@@ -128,6 +128,35 @@ const ForArtists = () => {
       <Navigation />
       
       <div className="pt-20">
+        {/* Founding Member Banner */}
+        <section className="py-6 bg-gradient-to-r from-amber-500/20 via-amber-400/10 to-amber-500/20 border-b border-amber-500/30">
+          <div className="container px-6">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex flex-col md:flex-row items-center justify-center gap-4 text-center md:text-left"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg">
+                  <Crown className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <p className="font-bold text-lg text-amber-100">
+                    🚀 Founding Artist Program
+                  </p>
+                  <p className="text-amber-200/80 text-sm">
+                    First 100 artists get <span className="font-bold text-amber-100">lifetime 20% discount</span> + exclusive badge
+                  </p>
+                </div>
+              </div>
+              <Badge className="bg-amber-500/30 text-amber-100 border-amber-400/50 animate-pulse">
+                <Sparkles className="w-3 h-3 mr-1" />
+                73 spots left
+              </Badge>
+            </motion.div>
+          </div>
+        </section>
+
         {/* Hero Section */}
         <section className="py-20 md:py-32 bg-gradient-to-br from-primary/5 via-background to-secondary/5 relative overflow-hidden">
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iY3VycmVudENvbG9yIiBzdHJva2Utb3BhY2l0eT0iMC4wNSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-40"></div>
