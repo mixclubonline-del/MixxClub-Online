@@ -1,23 +1,38 @@
-// Maps each InsiderDemo phase to a specific Prime image from brand-assets bucket
-const STORAGE_BASE = 'https://kbbrehnyqpulbxyesril.supabase.co/storage/v1/object/public/brand-assets';
-
-// Phase-to-image mapping using uploaded Prime images
-const phaseImageMap: Record<string, string> = {
-  drop: `${STORAGE_BASE}/IMG_0502.png`,
-  awakening: `${STORAGE_BASE}/IMG_0489.png`,
-  mission: `${STORAGE_BASE}/IMG_0491.png`,
-  analysis: `${STORAGE_BASE}/IMG_0495.png`,
-  studio: `${STORAGE_BASE}/IMG_0497.png`,
-  collaboration: `${STORAGE_BASE}/IMG_0499.png`,
-  results: `${STORAGE_BASE}/IMG_0501.png`,
-  crm: `${STORAGE_BASE}/IMG_0503.png`,
-  cta: `${STORAGE_BASE}/IMG_0505.png`,
-};
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 export const usePrimeImages = () => {
+  const [phaseImageMap, setPhaseImageMap] = useState<Record<string, string>>({});
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPrimeImages = async () => {
+      const { data, error } = await supabase
+        .from('brand_assets')
+        .select('asset_context, public_url')
+        .like('asset_context', 'prime_%')
+        .eq('is_active', true);
+
+      if (data && !error) {
+        const mapping: Record<string, string> = {};
+        data.forEach((asset) => {
+          if (asset.asset_context) {
+            // Convert 'prime_drop' -> 'drop'
+            const phaseId = asset.asset_context.replace('prime_', '');
+            mapping[phaseId] = asset.public_url;
+          }
+        });
+        setPhaseImageMap(mapping);
+      }
+      setIsLoading(false);
+    };
+
+    fetchPrimeImages();
+  }, []);
+
   const getImageForPhase = (phaseId: string): string | undefined => {
     return phaseImageMap[phaseId];
   };
 
-  return { getImageForPhase, phaseImageMap };
+  return { getImageForPhase, phaseImageMap, isLoading };
 };
