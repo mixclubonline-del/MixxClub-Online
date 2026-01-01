@@ -18,6 +18,7 @@ import { ParticleStorm } from '@/components/demo/ParticleStorm';
 import { WaitlistSignupForm } from '@/components/waitlist/WaitlistSignupForm';
 import { SocialProofCounter } from '@/components/waitlist/SocialProofCounter';
 import mixclubLogo from '@/assets/mixclub-3d-logo.png';
+import primeHeroMain from '@/assets/prime-hero-main.jpeg';
 
 // Demo phases - THE DROP to CALL TO ACTION
 const DEMO_PHASES = [
@@ -225,7 +226,7 @@ export default function InsiderDemo() {
             }}
             transition={{ duration: 4, repeat: Infinity }}
           >
-            <img src="/prime-avatar.png" alt="Prime" className="w-48 h-48 mx-auto rounded-full shadow-2xl shadow-primary/30" />
+            <img src={primeHeroMain} alt="Prime" className="w-64 h-64 mx-auto rounded-full shadow-2xl shadow-primary/30 object-cover" />
           </motion.div>
 
           <motion.h1 
@@ -235,7 +236,7 @@ export default function InsiderDemo() {
             transition={{ delay: 0.3 }}
           >
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-500 to-cyan-500">
-              MIXXCLUB
+              Mixxclub Online
             </span>
           </motion.h1>
 
