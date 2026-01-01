@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import { hubEventBus, HubEventType, HubEvent } from '@/lib/hubEventBus';
 import { supabase } from '@/integrations/supabase/client';
 

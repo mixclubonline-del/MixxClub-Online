@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import { HubType, useHubData } from '@/contexts/HubDataContext';
 
 export type PrimeBotMode = 'collapsed' | 'expanded' | 'command-palette';
