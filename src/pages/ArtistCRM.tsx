@@ -33,7 +33,7 @@ import { DistributionWorkflow } from '@/components/crm/DistributionWorkflow';
 import { DynamicAppAccessHub } from '@/components/crm/DynamicAppAccessHub';
 import { ActiveWorkHub } from '@/components/crm/ActiveWorkHub';
 import { DashboardHub } from '@/components/crm/DashboardHub';
-import { OpportunitiesHub } from '@/components/crm/OpportunitiesHub';
+import { OpportunitiesHub } from '@/components/crm/opportunities';
 import { YourMatches } from '@/components/crm/YourMatches';
 import { AIMatchesHub } from '@/components/crm/matches';
 import { RevenueHub } from '@/components/crm/RevenueHub';
