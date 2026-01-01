@@ -3652,6 +3652,51 @@ export type Database = {
         }
         Relationships: []
       }
+      revenue_goals: {
+        Row: {
+          achieved_at: string | null
+          created_at: string
+          current_amount: number
+          end_date: string | null
+          id: string
+          is_achieved: boolean | null
+          period: string
+          start_date: string
+          stream_type: string | null
+          target_amount: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          achieved_at?: string | null
+          created_at?: string
+          current_amount?: number
+          end_date?: string | null
+          id?: string
+          is_achieved?: boolean | null
+          period?: string
+          start_date?: string
+          stream_type?: string | null
+          target_amount?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          achieved_at?: string | null
+          created_at?: string
+          current_amount?: number
+          end_date?: string | null
+          id?: string
+          is_achieved?: boolean | null
+          period?: string
+          start_date?: string
+          stream_type?: string | null
+          target_amount?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       revenue_splits: {
         Row: {
           artist_amount: number
