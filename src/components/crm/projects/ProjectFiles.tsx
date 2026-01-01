@@ -106,6 +106,10 @@ export const ProjectFiles = ({ projectId }: ProjectFilesProps) => {
       else if (file.type.startsWith('image/')) category = 'artwork';
       else if (file.type.includes('pdf') || file.type.includes('document')) category = 'document';
 
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
       const { error: dbError } = await supabase
         .from('project_files')
         .insert({
@@ -116,6 +120,7 @@ export const ProjectFiles = ({ projectId }: ProjectFilesProps) => {
           file_size: file.size,
           category,
           version: 1,
+          user_id: user.id
         });
 
       if (dbError) throw dbError;

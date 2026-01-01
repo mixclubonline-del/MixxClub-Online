@@ -78,25 +78,46 @@ export const ProjectComments = ({ projectId }: ProjectCommentsProps) => {
 
   const fetchComments = async () => {
     try {
-      const { data, error } = await supabase
+      // Fetch all comments for this project
+      const { data: commentsData, error: commentsError } = await supabase
         .from('project_comments')
-        .select(`
-          *,
-          user:profiles(full_name, avatar_url)
-        `)
+        .select('*')
         .eq('project_id', projectId)
         .order('is_pinned', { ascending: false })
         .order('created_at', { ascending: true });
 
-      if (error) throw error;
+      if (commentsError) throw commentsError;
+      if (!commentsData || commentsData.length === 0) {
+        setComments([]);
+        setLoading(false);
+        return;
+      }
+
+      // Get unique user IDs
+      const userIds = [...new Set(commentsData.map(c => c.user_id))];
+      
+      // Fetch user profiles
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, full_name, avatar_url')
+        .in('id', userIds);
+
+      const profileMap = new Map(profiles?.map(p => [p.id, { full_name: p.full_name || 'Unknown', avatar_url: p.avatar_url || '' }]) || []);
 
       // Organize into threads
-      const topLevel = (data || []).filter(c => !c.parent_id);
-      const replies = (data || []).filter(c => c.parent_id);
+      const topLevel = commentsData.filter(c => !c.parent_id);
+      const replies = commentsData.filter(c => c.parent_id);
       
-      const threaded = topLevel.map(comment => ({
+      const threaded: Comment[] = topLevel.map(comment => ({
         ...comment,
-        replies: replies.filter(r => r.parent_id === comment.id),
+        user: profileMap.get(comment.user_id) || { full_name: 'Unknown', avatar_url: '' },
+        replies: replies
+          .filter(r => r.parent_id === comment.id)
+          .map(reply => ({
+            ...reply,
+            user: profileMap.get(reply.user_id) || { full_name: 'Unknown', avatar_url: '' },
+            replies: []
+          }))
       }));
 
       setComments(threaded);
