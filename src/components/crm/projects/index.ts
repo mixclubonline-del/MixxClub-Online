@@ -1,2 +1,10 @@
 export { ProjectBoard } from './ProjectBoard';
 export { CreateProjectModal } from './CreateProjectModal';
+export { ProjectsHub } from './ProjectsHub';
+export { ProjectsList } from './ProjectsList';
+export { ProjectTimeline } from './ProjectTimeline';
+export { ProjectAnalytics } from './ProjectAnalytics';
+export { ProjectDetailPanel } from './ProjectDetailPanel';
+export { MilestoneTracker } from './MilestoneTracker';
+export { ProjectFiles } from './ProjectFiles';
+export { ProjectComments } from './ProjectComments';
