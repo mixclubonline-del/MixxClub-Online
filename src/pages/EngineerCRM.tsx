@@ -31,7 +31,7 @@ import { DashboardHub } from '@/components/crm/DashboardHub';
 import { OpportunitiesHub } from '@/components/crm/opportunities';
 import { EngineerCRMDashboard } from '@/components/crm/EngineerCRMDashboard';
 import { RevenueHub } from '@/components/crm/RevenueHub';
-import { CommunityHub } from '@/components/crm/CommunityHub';
+import { CommunityHub } from '@/components/crm/community';
 import { GrowthHub } from '@/components/crm/GrowthHub';
 import { MessagingHub } from '@/components/crm/messaging';
 import { CollaborativeEarnings } from '@/components/crm/CollaborativeEarnings';
