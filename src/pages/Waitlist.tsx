@@ -58,12 +58,13 @@ const Waitlist = () => {
       const newPosition = (maxData?.length || 0) + 1;
       
       const { error } = await supabase
-        .from('waitlist_signups' as any)
+        .from('waitlist_signups')
         .insert({
           email,
           referral_code: newReferralCode,
-          referred_by: referredBy || null,
-        } as any);
+          role: 'artist',
+          source: referredBy || null,
+        });
 
       if (error) {
         if (error.code === '23505') {
