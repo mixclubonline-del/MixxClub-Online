@@ -32,7 +32,7 @@ import { OpportunitiesHub } from '@/components/crm/opportunities';
 import { EngineerCRMDashboard } from '@/components/crm/EngineerCRMDashboard';
 import { RevenueHub } from '@/components/crm/RevenueHub';
 import { CommunityHub } from '@/components/crm/community';
-import { GrowthHub } from '@/components/crm/GrowthHub';
+import { GrowthHub } from '@/components/crm/growth';
 import { MessagingHub } from '@/components/crm/messaging';
 import { CollaborativeEarnings } from '@/components/crm/CollaborativeEarnings';
 import { AIMatchesHub } from '@/components/crm/matches';
@@ -391,7 +391,7 @@ const EngineerCRM = () => {
         return <CommunityHub userType="engineer" />;
 
       case 'growth':
-        return <GrowthHub />;
+        return <GrowthHub userType="engineer" />;
 
       case 'messages':
         return <MessagingHub userType="engineer" />;
