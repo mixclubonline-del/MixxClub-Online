@@ -262,8 +262,9 @@ serve(async (req) => {
         }
 
       } catch (e) {
-        console.error(`Unexpected error for ${engineer.email}:`, e);
-        results.errors.push(`Unexpected: ${engineer.email} - ${e.message}`);
+        const error = e as Error;
+        console.error(`Unexpected error for ${engineer.email}:`, error);
+        results.errors.push(`Unexpected: ${engineer.email} - ${error.message}`);
       }
     }
 
@@ -334,7 +335,8 @@ serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
-  } catch (error) {
+  } catch (err) {
+    const error = err as Error;
     console.error("Seeding error:", error);
     return new Response(
       JSON.stringify({ success: false, error: error.message }),
