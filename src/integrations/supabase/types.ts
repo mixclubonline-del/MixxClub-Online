@@ -1047,42 +1047,73 @@ export type Database = {
       }
       collaborative_projects: {
         Row: {
+          actual_hours: number | null
+          client_id: string | null
+          cover_image_url: string | null
           created_at: string
+          deadline: string | null
           description: string | null
+          estimated_hours: number | null
           id: string
           partnership_id: string
+          priority: string | null
+          progress_percentage: number | null
           project_type: string | null
           release_date: string | null
           status: string | null
+          tags: string[] | null
           title: string
           total_revenue: number | null
           updated_at: string
         }
         Insert: {
+          actual_hours?: number | null
+          client_id?: string | null
+          cover_image_url?: string | null
           created_at?: string
+          deadline?: string | null
           description?: string | null
+          estimated_hours?: number | null
           id?: string
           partnership_id: string
+          priority?: string | null
+          progress_percentage?: number | null
           project_type?: string | null
           release_date?: string | null
           status?: string | null
+          tags?: string[] | null
           title: string
           total_revenue?: number | null
           updated_at?: string
         }
         Update: {
+          actual_hours?: number | null
+          client_id?: string | null
+          cover_image_url?: string | null
           created_at?: string
+          deadline?: string | null
           description?: string | null
+          estimated_hours?: number | null
           id?: string
           partnership_id?: string
+          priority?: string | null
+          progress_percentage?: number | null
           project_type?: string | null
           release_date?: string | null
           status?: string | null
+          tags?: string[] | null
           title?: string
           total_revenue?: number | null
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "collaborative_projects_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "crm_clients"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "collaborative_projects_partnership_id_fkey"
             columns: ["partnership_id"]
@@ -3573,6 +3604,142 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_activities: {
+        Row: {
+          activity_type: string
+          created_at: string
+          description: string
+          id: string
+          metadata: Json | null
+          project_id: string
+          user_id: string
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string
+          description: string
+          id?: string
+          metadata?: Json | null
+          project_id: string
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string
+          description?: string
+          id?: string
+          metadata?: Json | null
+          project_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_activities_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "collaborative_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_comments: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_pinned: boolean | null
+          parent_id: string | null
+          project_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_pinned?: boolean | null
+          parent_id?: string | null
+          project_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_pinned?: boolean | null
+          parent_id?: string | null
+          project_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "project_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_comments_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "collaborative_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_files: {
+        Row: {
+          category: string | null
+          created_at: string
+          file_name: string
+          file_path: string
+          file_size: number | null
+          file_type: string | null
+          id: string
+          notes: string | null
+          project_id: string
+          user_id: string
+          version: number | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          notes?: string | null
+          project_id: string
+          user_id: string
+          version?: number | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          notes?: string | null
+          project_id?: string
+          user_id?: string
+          version?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_files_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "collaborative_projects"
             referencedColumns: ["id"]
           },
         ]
