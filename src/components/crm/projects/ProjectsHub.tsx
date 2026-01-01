@@ -41,9 +41,9 @@ export const ProjectsHub = ({ userRole }: ProjectsHubProps) => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [priorityFilter, setPriorityFilter] = useState<string>('all');
 
-  const { 
-    projects, 
-    loading, 
+  const {
+    projects,
+    isLoading: loading,
     stats,
     refetch 
   } = useProjectsHub();
@@ -105,7 +105,7 @@ export const ProjectsHub = ({ userRole }: ProjectsHubProps) => {
           transition={{ delay: 0.2 }}
           className="bg-warning/10 border border-warning/20 rounded-lg p-4"
         >
-          <div className="text-2xl font-bold text-warning">{stats.inReview}</div>
+          <div className="text-2xl font-bold text-warning">{stats.review}</div>
           <div className="text-sm text-muted-foreground">In Review</div>
         </motion.div>
         <motion.div 
@@ -219,10 +219,9 @@ export const ProjectsHub = ({ userRole }: ProjectsHubProps) => {
       {/* Create Project Modal */}
       <CreateProjectModal
         open={showCreateModal}
-        onOpenChange={setShowCreateModal}
-        onSuccess={() => {
-          refetch();
-          setShowCreateModal(false);
+        onOpenChange={(open) => {
+          setShowCreateModal(open);
+          if (!open) refetch();
         }}
       />
 
