@@ -277,7 +277,7 @@ const ArtistCRM = () => {
         return <MatchesHub userType="artist" />;
 
       case 'sessions':
-        return <SessionsHub userType="artist" />;
+        return <SessionsHub />;
       case 'active-work':
         return <ActiveWorkHub />;
 
