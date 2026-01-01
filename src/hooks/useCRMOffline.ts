@@ -95,7 +95,7 @@ export function useCRMOffline() {
         case 'insert': {
           const { error } = await supabase
             .from(action.table as 'crm_clients')
-            .insert(action.data);
+            .insert(action.data as never);
           if (error) throw error;
           break;
         }
@@ -103,7 +103,7 @@ export function useCRMOffline() {
           const { id, ...updateData } = action.data;
           const { error } = await supabase
             .from(action.table as 'crm_clients')
-            .update(updateData)
+            .update(updateData as never)
             .eq('id', id as string);
           if (error) throw error;
           break;

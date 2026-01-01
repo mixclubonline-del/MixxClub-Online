@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 
 export interface Project {
@@ -80,7 +80,7 @@ export interface Milestone {
   payment_amount: number | null;
   due_date: string | null;
   completed_at: string | null;
-  deliverables: unknown[];
+  deliverables: Record<string, unknown>[] | null;
   created_at: string;
 }
 
@@ -119,9 +119,21 @@ export function useProjectsHub() {
   // Create project mutation
   const createProjectMutation = useMutation({
     mutationFn: async (projectData: Partial<Project>) => {
+      const insertData = {
+        partnership_id: projectData.partnership_id!,
+        title: projectData.title || 'Untitled Project',
+        description: projectData.description,
+        status: projectData.status,
+        project_type: projectData.project_type,
+        priority: projectData.priority,
+        deadline: projectData.deadline,
+        estimated_hours: projectData.estimated_hours,
+        tags: projectData.tags,
+        client_id: projectData.client_id,
+      };
       const { data, error } = await supabase
         .from('collaborative_projects')
-        .insert(projectData)
+        .insert(insertData)
         .select()
         .single();
 
@@ -369,7 +381,15 @@ export function useProjectDetail(projectId: string | null) {
       if (milestoneData.id) {
         const { data, error } = await supabase
           .from('project_milestones')
-          .update(milestoneData)
+          .update({
+            title: milestoneData.title,
+            description: milestoneData.description,
+            status: milestoneData.status,
+            payment_amount: milestoneData.payment_amount,
+            due_date: milestoneData.due_date,
+            completed_at: milestoneData.completed_at,
+            deliverables: milestoneData.deliverables ? JSON.parse(JSON.stringify(milestoneData.deliverables)) : undefined,
+          })
           .eq('id', milestoneData.id)
           .select()
           .single();
@@ -378,7 +398,15 @@ export function useProjectDetail(projectId: string | null) {
       } else {
         const { data, error } = await supabase
           .from('project_milestones')
-          .insert({ ...milestoneData, project_id: projectId })
+          .insert({
+            project_id: projectId!,
+            title: milestoneData.title || 'Untitled Milestone',
+            description: milestoneData.description,
+            status: milestoneData.status,
+            payment_amount: milestoneData.payment_amount,
+            due_date: milestoneData.due_date,
+            deliverables: milestoneData.deliverables ? JSON.parse(JSON.stringify(milestoneData.deliverables)) : undefined,
+          })
           .select()
           .single();
         if (error) throw error;
