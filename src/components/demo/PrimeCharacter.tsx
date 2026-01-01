@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useMemo } from 'react';
+import primeLaunchHero from '@/assets/prime-launch-hero.png';
 
 interface PrimeCharacterProps {
   bass: number;
@@ -87,7 +88,7 @@ export const PrimeCharacter = ({
         }}
       >
         <img
-          src="/assets/prime-pointing.jpg"
+          src={primeLaunchHero}
           alt="Prime - MixClub Head Engineer"
           className="w-full h-full object-cover"
           style={{
@@ -95,17 +96,13 @@ export const PrimeCharacter = ({
               ? `saturate(${1 + amplitude / 500}) brightness(${1 + amplitude / 1000}) hue-rotate(${hueShift}deg)`
               : 'none'
           }}
-          onError={(e) => {
-            // Fallback to placeholder if image doesn't load
-            (e.target as HTMLImageElement).src = '/prime-avatar.png';
-          }}
         />
 
         {/* Chromatic Aberration Effect on Beat */}
         {isPlaying && bass > 150 && (
           <>
             <motion.img
-              src="/assets/prime-pointing.jpg"
+              src={primeLaunchHero}
               alt=""
               className="absolute inset-0 w-full h-full object-cover mix-blend-screen opacity-30"
               style={{ 
@@ -114,7 +111,7 @@ export const PrimeCharacter = ({
               }}
             />
             <motion.img
-              src="/assets/prime-pointing.jpg"
+              src={primeLaunchHero}
               alt=""
               className="absolute inset-0 w-full h-full object-cover mix-blend-screen opacity-30"
               style={{ 
