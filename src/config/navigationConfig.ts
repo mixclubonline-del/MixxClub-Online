@@ -13,6 +13,7 @@ import {
   Headphones,
   Mic2,
   Award,
+  UserCircle,
   LucideIcon
 } from 'lucide-react';
 
@@ -55,6 +56,22 @@ const navigationItems: NavItem[] = [
     icon: BarChart3,
     roles: ['admin'],
     category: 'Main',
+  },
+
+  // CRM
+  {
+    label: 'Clients',
+    path: '/artist-crm?tab=clients',
+    icon: UserCircle,
+    roles: ['artist'],
+    category: 'CRM',
+  },
+  {
+    label: 'Clients',
+    path: '/engineer-crm?tab=clients',
+    icon: UserCircle,
+    roles: ['engineer'],
+    category: 'CRM',
   },
 
   // Services

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -54,8 +54,9 @@ export const AddDealDialog: React.FC<AddDealDialogProps> = ({
   onOpenChange,
   preselectedClientId,
 }) => {
-  const { createDeal, isCreating } = useCRMDeals();
+  const { createDeal } = useCRMDeals();
   const { clients } = useCRMClients();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<DealFormData>({
     resolver: zodResolver(dealSchema),

@@ -42,6 +42,7 @@ import { GrowthHub } from '@/components/crm/growth';
 import { MessagingHub } from '@/components/crm/messaging';
 import { CollaborativeEarnings } from '@/components/crm/CollaborativeEarnings';
 import { SessionsHub } from '@/components/crm/sessions/SessionsHub';
+import { ClientsHub } from '@/components/crm/clients';
 
 const ArtistCRM = () => {
   const { user } = useAuth();
@@ -273,6 +274,9 @@ const ArtistCRM = () => {
 
   const renderContent = () => {
     switch (currentTab) {
+      case 'clients':
+        return <ClientsHub userType="artist" />;
+
       case 'matches':
         return <MatchesHub userType="artist" />;
 

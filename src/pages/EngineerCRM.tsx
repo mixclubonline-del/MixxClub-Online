@@ -37,6 +37,7 @@ import { MessagingHub } from '@/components/crm/messaging';
 import { CollaborativeEarnings } from '@/components/crm/CollaborativeEarnings';
 import { AIMatchesHub } from '@/components/crm/matches';
 import { SessionsHub } from '@/components/crm/sessions';
+import { ClientsHub } from '@/components/crm/clients';
 
 const EngineerCRM = () => {
   const { user } = useAuth();
@@ -310,6 +311,9 @@ const EngineerCRM = () => {
 
   const renderContent = () => {
     switch (currentTab) {
+      case 'clients':
+        return <ClientsHub userType="engineer" />;
+
       case 'matches':
         return <AIMatchesHub userType="engineer" />;
 
