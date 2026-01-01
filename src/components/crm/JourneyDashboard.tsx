@@ -1,3 +1,4 @@
+// Journey Dashboard Component - User progression tracking
 import { motion } from 'framer-motion';
 import { Trophy, Flame, Target, ChevronRight, Sparkles, Zap } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
