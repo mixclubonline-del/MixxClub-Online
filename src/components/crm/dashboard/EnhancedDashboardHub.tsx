@@ -32,6 +32,7 @@ import { useNavigate } from 'react-router-dom';
 import { HipHopPulse } from './HipHopPulse';
 import { StreakTracker } from '../gamification/StreakTracker';
 import { AchievementsBadges } from '../gamification/AchievementsBadges';
+import { RevenueAnalyticsDashboard } from '../revenue/RevenueAnalyticsDashboard';
 
 interface DashboardMetrics {
   careerMomentum: {
@@ -300,48 +301,8 @@ export const EnhancedDashboardHub = ({ userType }: EnhancedDashboardHubProps) =>
         </CardContent>
       </Card>
 
-      {/* Revenue Analytics */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <DollarSign className="w-5 h-5 text-primary" />
-            Revenue Analytics - 10 Stream System
-          </CardTitle>
-          <CardDescription>Track income across all revenue channels</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 rounded-lg bg-gradient-to-r from-primary/20 to-primary/10 border border-primary/30">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Revenue</p>
-                <p className="text-3xl font-bold">${metrics.revenue.total.toFixed(2)}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-sm text-muted-foreground">Monthly Growth</p>
-                <p className="text-xl font-bold text-green-500">+{metrics.revenue.monthlyGrowth}%</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {revenueStreams.map((stream, idx) => (
-                <motion.div
-                  key={stream.label}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: idx * 0.05 }}
-                  className="p-3 rounded-lg bg-card/50 border border-border/50 hover:border-primary/30 transition-colors"
-                >
-                  <div className={cn("flex items-center gap-2 mb-2", stream.color)}>
-                    {stream.icon}
-                    <span className="text-xs font-medium">{stream.label}</span>
-                  </div>
-                  <p className="text-lg font-bold">${stream.value.toFixed(0)}</p>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Revenue Analytics Dashboard - Full 10 Stream System */}
+      <RevenueAnalyticsDashboard />
 
       {/* AI Insights from PrimeBot 4.0 */}
       <Card>
