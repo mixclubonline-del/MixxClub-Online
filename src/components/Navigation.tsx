@@ -37,93 +37,86 @@ const Navigation = () => {
     return "/artist-crm";
   };
 
-  // Role-specific navigation with new structure
+  // Role-specific navigation - Story-driven structure
   const getNavLinks = () => {
     if (!user) {
+      // Logged out: Focus on story - Studio, Community, Roles, Showcase
       return [
         {
-          label: "Services",
+          label: "The Studio",
           isDropdown: true,
           items: [
-            { to: "/services", label: "All Services" },
-            { to: "/services/mixing", label: "Mixing" },
+            { to: "/services/mixing", label: "Mixing Magic" },
             { to: "/services/mastering", label: "Mastering" },
             { to: "/services/ai-mastering", label: "AI Mastering" },
             { to: "/services/distribution", label: "Distribution" },
+            { to: "/showcase", label: "The Technology", badge: "NEW" },
           ]
         },
         {
           label: "Community",
           isDropdown: true,
           items: [
-            { to: "/community?tab=feed", label: "The Feed" },
-            { to: "/community?tab=arena", label: "The Arena" },
-            { to: "/community?tab=crowd", label: "The Crowd" },
+            { to: "/community", label: "The Network" },
+            { to: "/community?tab=arena", label: "Mix Battles" },
             { to: "/community?tab=leaderboard", label: "Leaderboard" },
             { to: "/marketplace", label: "Marketplace" },
           ]
         },
         { to: "/for-artists", label: "For Artists" },
         { to: "/for-engineers", label: "For Engineers" },
-        { to: "/enterprise", label: "Enterprise", badge: "NEW" },
+        { to: "/showcase", label: "Showcase" },
       ];
     }
 
     if (userRole === 'engineer') {
       return [
-        { to: "/engineer", label: "Dashboard" },
-        { to: "/jobs", label: "Job Board" },
+        { to: "/engineer-crm", label: "Dashboard" },
+        { to: "/jobs", label: "Find Work" },
         {
-          label: "Services",
+          label: "The Studio",
           isDropdown: true,
           items: [
-            { to: "/services", label: "All Services" },
             { to: "/services/mixing", label: "Mixing" },
             { to: "/services/mastering", label: "Mastering" },
-            { to: "/services/distribution", label: "Distribution" },
+            { to: "/showcase", label: "Technology" },
           ]
         },
         {
           label: "Community",
           isDropdown: true,
           items: [
-            { to: "/community?tab=feed", label: "The Feed" },
-            { to: "/community?tab=arena", label: "The Arena" },
-            { to: "/community?tab=crowd", label: "The Crowd" },
+            { to: "/community", label: "The Network" },
+            { to: "/community?tab=arena", label: "Mix Battles" },
             { to: "/community?tab=leaderboard", label: "Leaderboard" },
-            { to: "/marketplace", label: "Marketplace" },
           ]
         },
       ];
     }
 
-    // Artists and clients
+    // Artists
     return [
-      { to: "/artist", label: "Dashboard" },
+      { to: "/artist-crm", label: "Dashboard" },
       {
-        label: "Services",
+        label: "The Studio",
         isDropdown: true,
         items: [
-          { to: "/services", label: "All Services" },
-          { to: "/services/mixing", label: "Mixing" },
+          { to: "/services/mixing", label: "Mixing Magic" },
           { to: "/services/mastering", label: "Mastering" },
           { to: "/services/ai-mastering", label: "AI Mastering" },
-          { to: "/services/distribution", label: "Distribution", badge: "NEW" },
+          { to: "/services/distribution", label: "Distribution" },
         ]
       },
       {
         label: "Community",
         isDropdown: true,
         items: [
-          { to: "/community?tab=feed", label: "The Feed" },
-          { to: "/community?tab=arena", label: "The Arena" },
-          { to: "/community?tab=crowd", label: "The Crowd" },
-          { to: "/community?tab=leaderboard", label: "Leaderboard" },
+          { to: "/community", label: "The Network" },
+          { to: "/community?tab=arena", label: "Mix Battles" },
           { to: "/marketplace", label: "Marketplace" },
         ]
       },
-      { to: "/for-artists", label: "For Artists" },
-      { to: "/enterprise/dashboard", label: "Enterprise Portal" },
+      { to: "/for-artists", label: "Resources" },
     ];
   };
 
