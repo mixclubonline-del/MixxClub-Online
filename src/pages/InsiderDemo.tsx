@@ -796,7 +796,7 @@ export default function InsiderDemo() {
               key="cta"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-center w-full max-w-xl mx-auto"
+              className="text-center w-full max-w-2xl mx-auto"
             >
               <PrimeCharacter bass={bass} amplitude={amplitude} isPlaying={isPlaying} size="lg" imageUrl={currentPrimeImage} />
               
@@ -805,12 +805,12 @@ export default function InsiderDemo() {
                 animate={{ scale: 1 + (bass / 255) * 0.05 }}
               >
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-500 to-cyan-500">
-                  Ready to Join?
+                  The Revolution Awaits
                 </span>
               </motion.h1>
 
               <motion.p 
-                className="text-lg text-muted-foreground max-w-lg mx-auto mb-6"
+                className="text-lg text-muted-foreground max-w-lg mx-auto mb-8"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}
@@ -818,13 +818,49 @@ export default function InsiderDemo() {
                 {typedText}
               </motion.p>
 
+              {/* Primary CTAs - Technology & Waitlist */}
+              <motion.div 
+                className="flex flex-col sm:flex-row gap-4 justify-center mb-8"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+              >
+                <Button
+                  size="lg"
+                  onClick={() => navigate('/showcase')}
+                  className="text-lg px-8 py-6 bg-gradient-to-r from-primary via-purple-600 to-cyan-600 hover:opacity-90 shadow-lg shadow-primary/30"
+                >
+                  <Zap className="w-5 h-5 mr-2" />
+                  See The Technology
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={() => navigate('/for-artists')}
+                  className="text-lg px-8 py-6 border-primary/50 hover:bg-primary/10"
+                >
+                  <Music className="w-5 h-5 mr-2" />
+                  I'm an Artist
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={() => navigate('/for-engineers')}
+                  className="text-lg px-8 py-6 border-accent-pink/50 hover:bg-accent-pink/10"
+                >
+                  <Sliders className="w-5 h-5 mr-2" />
+                  I'm an Engineer
+                </Button>
+              </motion.div>
+
               {/* Waitlist Signup Form */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
+                transition={{ delay: 0.7 }}
                 className="mb-6"
               >
+                <p className="text-sm text-muted-foreground mb-4">Or join the waitlist for early access:</p>
                 <WaitlistSignupForm />
               </motion.div>
 
@@ -832,27 +868,9 @@ export default function InsiderDemo() {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.7 }}
-              >
-                <SocialProofCounter />
-              </motion.div>
-
-              {/* Secondary CTA */}
-              <motion.div 
-                className="flex gap-4 justify-center mt-8"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.9 }}
               >
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => navigate('/home')}
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  <ChevronRight className="w-4 h-4 mr-1" />
-                  Explore More
-                </Button>
+                <SocialProofCounter />
               </motion.div>
             </motion.div>
           )}
