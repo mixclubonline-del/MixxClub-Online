@@ -30,6 +30,8 @@ import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { HipHopPulse } from './HipHopPulse';
+import { StreakTracker } from '../gamification/StreakTracker';
+import { AchievementsBadges } from '../gamification/AchievementsBadges';
 
 interface DashboardMetrics {
   careerMomentum: {
@@ -217,6 +219,12 @@ export const EnhancedDashboardHub = ({ userType }: EnhancedDashboardHubProps) =>
           <Zap className="w-4 h-4 mr-2" />
           Refresh
         </Button>
+      </div>
+
+      {/* Gamification - Streaks & Achievements */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <StreakTracker />
+        <AchievementsBadges />
       </div>
 
       {/* Hip-Hop Pulse - Real-time Activity */}

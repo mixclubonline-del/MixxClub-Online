@@ -9,12 +9,24 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useOpportunities, useOpportunityAction, useMatchAnalytics } from "@/hooks/useOpportunities";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { MobileOpportunitiesHub } from "./mobile/MobileOpportunitiesHub";
 
 interface OpportunitiesHubProps {
   userRole: "client" | "engineer";
 }
 
 export const OpportunitiesHub = ({ userRole }: OpportunitiesHubProps) => {
+  const isMobile = useIsMobile();
+  
+  // Map client to artist for consistency
+  const mappedRole = userRole === 'client' ? 'artist' : 'engineer';
+  
+  // Use mobile-optimized version on mobile devices
+  if (isMobile) {
+    return <MobileOpportunitiesHub userRole={mappedRole} />;
+  }
+  
   const { toast } = useToast();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [swipeDirection, setSwipeDirection] = useState<"left" | "right" | null>(null);
