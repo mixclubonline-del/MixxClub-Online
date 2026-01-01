@@ -242,7 +242,7 @@ export default function InsiderDemo() {
             transition={{ delay: 0.3 }}
           >
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-500 to-cyan-500">
-              Mixxclub Online
+              MIXXCLUB
             </span>
           </motion.h1>
 
