@@ -94,6 +94,7 @@ import CreateSession from "./pages/CreateSession";
 import Achievements from "./pages/Achievements";
 import UnlockablesHub from "./pages/UnlockablesHub";
 import ComingSoon from "./pages/ComingSoon";
+import Showcase from "./pages/Showcase";
 import FAQ from "./pages/FAQ";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
@@ -139,6 +140,7 @@ const AdminLaunchPresentation = React.lazy(() => import('./pages/AdminLaunchPres
 const AdminLaunchDashboard = React.lazy(() => import('./pages/AdminLaunchDashboard'));
 const AdminLaunchReadiness = React.lazy(() => import('./pages/AdminLaunchReadiness'));
 const AdminAssetGallery = React.lazy(() => import('./pages/AdminAssetGallery'));
+const AdminPromoCapture = React.lazy(() => import('./pages/AdminPromoCapture'));
 const MobileAdminBot = React.lazy(() => import('./pages/MobileAdminBot'));
 const MobileTesting = React.lazy(() => import("./pages/MobileTesting"));
 const CoreFeaturesTesting = React.lazy(() => import("./pages/CoreFeaturesTesting"));
@@ -259,6 +261,7 @@ const AppContent = () => {
           <Route path="/leaderboard" element={<CommunityLeaderboard />} />
           <Route path="/unlockables" element={<UnlockablesHub />} />
           <Route path="/how-it-works" element={<HowItWorks />} />
+          <Route path="/showcase" element={<Showcase />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/demo" element={<DemoLogin />} />
@@ -335,6 +338,7 @@ const AppContent = () => {
           <Route path="/admin/reports" element={<AdminRoute section="Reports"><AdminReports /></AdminRoute>} />
           <Route path="/admin/security-dashboard" element={<AdminRoute section="Security Dashboard"><AdminSecurityDashboard /></AdminRoute>} />
           <Route path="/admin/asset-gallery" element={<AdminRoute section="Asset Gallery"><AdminAssetGallery /></AdminRoute>} />
+          <Route path="/admin/promo-capture" element={<AdminRoute section="Promo Capture"><AdminPromoCapture /></AdminRoute>} />
           <Route path="/presentation/share/:token" element={<PresentationShare />} />
           <Route path="/for-artists" element={<ForArtists />} />
           <Route path="/for-engineers" element={<ForEngineers />} />
