@@ -36,6 +36,7 @@ import { GrowthHub } from '@/components/crm/GrowthHub';
 import { MessagingHub } from '@/components/crm/messaging';
 import { CollaborativeEarnings } from '@/components/crm/CollaborativeEarnings';
 import { AIMatchesHub } from '@/components/crm/matches';
+import { SessionsHub } from '@/components/crm/sessions';
 
 const EngineerCRM = () => {
   const { user } = useAuth();
@@ -313,7 +314,7 @@ const EngineerCRM = () => {
         return <AIMatchesHub userType="engineer" />;
 
       case 'sessions':
-
+        return <SessionsHub />;
       case 'active-work':
         return <ActiveWorkHub />;
 

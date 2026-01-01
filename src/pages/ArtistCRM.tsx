@@ -41,6 +41,7 @@ import { CommunityHub } from '@/components/crm/CommunityHub';
 import { GrowthHub } from '@/components/crm/GrowthHub';
 import { MessagingHub } from '@/components/crm/messaging';
 import { CollaborativeEarnings } from '@/components/crm/CollaborativeEarnings';
+import { SessionsHub } from '@/components/crm/sessions';
 
 const ArtistCRM = () => {
   const { user } = useAuth();
