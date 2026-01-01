@@ -2688,6 +2688,42 @@ export type Database = {
           },
         ]
       }
+      loyalty_tiers: {
+        Row: {
+          badge_icon: string | null
+          benefits: Json | null
+          color: string | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          min_points: number
+          tier_level: number
+          tier_name: string
+        }
+        Insert: {
+          badge_icon?: string | null
+          benefits?: Json | null
+          color?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          min_points?: number
+          tier_level: number
+          tier_name: string
+        }
+        Update: {
+          badge_icon?: string | null
+          benefits?: Json | null
+          color?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          min_points?: number
+          tier_level?: number
+          tier_name?: string
+        }
+        Relationships: []
+      }
       marketplace_categories: {
         Row: {
           category_description: string | null
@@ -5078,6 +5114,81 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_journeys: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          current_step: string
+          id: string
+          journey_type: string
+          metadata: Json | null
+          started_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          current_step: string
+          id?: string
+          journey_type: string
+          metadata?: Json | null
+          started_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          current_step?: string
+          id?: string
+          journey_type?: string
+          metadata?: Json | null
+          started_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_loyalty: {
+        Row: {
+          created_at: string
+          current_period_points: number | null
+          current_tier: string
+          id: string
+          lifetime_points: number
+          metadata: Json | null
+          tier_expires_at: string | null
+          tier_updated_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_period_points?: number | null
+          current_tier?: string
+          id?: string
+          lifetime_points?: number
+          metadata?: Json | null
+          tier_expires_at?: string | null
+          tier_updated_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_period_points?: number | null
+          current_tier?: string
+          id?: string
+          lifetime_points?: number
+          metadata?: Json | null
+          tier_expires_at?: string | null
+          tier_updated_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_mastering_subscriptions: {
         Row: {
