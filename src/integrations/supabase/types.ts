@@ -1308,6 +1308,307 @@ export type Database = {
           },
         ]
       }
+      crm_client_tags: {
+        Row: {
+          client_id: string
+          created_at: string
+          tag_id: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          tag_id: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_client_tags_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "crm_clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_client_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "crm_tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_clients: {
+        Row: {
+          avatar_url: string | null
+          client_type: string
+          client_user_id: string | null
+          company: string | null
+          created_at: string
+          deals_count: number | null
+          email: string | null
+          id: string
+          last_interaction_at: string | null
+          metadata: Json | null
+          name: string
+          notes_count: number | null
+          phone: string | null
+          source: string | null
+          status: string | null
+          total_value: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          client_type?: string
+          client_user_id?: string | null
+          company?: string | null
+          created_at?: string
+          deals_count?: number | null
+          email?: string | null
+          id?: string
+          last_interaction_at?: string | null
+          metadata?: Json | null
+          name: string
+          notes_count?: number | null
+          phone?: string | null
+          source?: string | null
+          status?: string | null
+          total_value?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          client_type?: string
+          client_user_id?: string | null
+          company?: string | null
+          created_at?: string
+          deals_count?: number | null
+          email?: string | null
+          id?: string
+          last_interaction_at?: string | null
+          metadata?: Json | null
+          name?: string
+          notes_count?: number | null
+          phone?: string | null
+          source?: string | null
+          status?: string | null
+          total_value?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_clients_client_user_id_fkey"
+            columns: ["client_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_deals: {
+        Row: {
+          client_id: string
+          closed_at: string | null
+          created_at: string
+          currency: string | null
+          description: string | null
+          expected_close_date: string | null
+          id: string
+          lost_reason: string | null
+          metadata: Json | null
+          probability: number | null
+          project_id: string | null
+          stage: string
+          title: string
+          updated_at: string
+          user_id: string
+          value: number | null
+          won_at: string | null
+        }
+        Insert: {
+          client_id: string
+          closed_at?: string | null
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          expected_close_date?: string | null
+          id?: string
+          lost_reason?: string | null
+          metadata?: Json | null
+          probability?: number | null
+          project_id?: string | null
+          stage?: string
+          title: string
+          updated_at?: string
+          user_id: string
+          value?: number | null
+          won_at?: string | null
+        }
+        Update: {
+          client_id?: string
+          closed_at?: string | null
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          expected_close_date?: string | null
+          id?: string
+          lost_reason?: string | null
+          metadata?: Json | null
+          probability?: number | null
+          project_id?: string | null
+          stage?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          value?: number | null
+          won_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_deals_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "crm_clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_deals_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_interactions: {
+        Row: {
+          client_id: string
+          created_at: string
+          id: string
+          interaction_type: string
+          metadata: Json | null
+          occurred_at: string
+          reference_id: string | null
+          sentiment: string | null
+          summary: string
+          user_id: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          id?: string
+          interaction_type: string
+          metadata?: Json | null
+          occurred_at?: string
+          reference_id?: string | null
+          sentiment?: string | null
+          summary: string
+          user_id: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          id?: string
+          interaction_type?: string
+          metadata?: Json | null
+          occurred_at?: string
+          reference_id?: string | null
+          sentiment?: string | null
+          summary?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_interactions_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "crm_clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_notes: {
+        Row: {
+          client_id: string
+          content: string
+          created_at: string
+          deal_id: string | null
+          id: string
+          is_pinned: boolean | null
+          note_type: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          client_id: string
+          content: string
+          created_at?: string
+          deal_id?: string | null
+          id?: string
+          is_pinned?: boolean | null
+          note_type?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          client_id?: string
+          content?: string
+          created_at?: string
+          deal_id?: string | null
+          id?: string
+          is_pinned?: boolean | null
+          note_type?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_notes_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "crm_clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_notes_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "crm_deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_tags: {
+        Row: {
+          color: string | null
+          created_at: string
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       demo_beats: {
         Row: {
           ai_prompt: string | null
