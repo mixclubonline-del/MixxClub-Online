@@ -35,6 +35,7 @@ import { ActiveWorkHub } from '@/components/crm/ActiveWorkHub';
 import { DashboardHub } from '@/components/crm/DashboardHub';
 import { OpportunitiesHub } from '@/components/crm/OpportunitiesHub';
 import { YourMatches } from '@/components/crm/YourMatches';
+import { AIMatchesHub } from '@/components/crm/matches';
 import { RevenueHub } from '@/components/crm/RevenueHub';
 import { CommunityHub } from '@/components/crm/CommunityHub';
 import { GrowthHub } from '@/components/crm/GrowthHub';
@@ -272,7 +273,7 @@ const ArtistCRM = () => {
   const renderContent = () => {
     switch (currentTab) {
       case 'matches':
-        return <YourMatches />;
+        return <AIMatchesHub userType="artist" />;
 
       case 'active-work':
         return <ActiveWorkHub />;

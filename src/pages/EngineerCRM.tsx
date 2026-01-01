@@ -35,6 +35,7 @@ import { CommunityHub } from '@/components/crm/CommunityHub';
 import { GrowthHub } from '@/components/crm/GrowthHub';
 import { MessagingHub } from '@/components/crm/messaging';
 import { CollaborativeEarnings } from '@/components/crm/CollaborativeEarnings';
+import { AIMatchesHub } from '@/components/crm/matches';
 
 const EngineerCRM = () => {
   const { user } = useAuth();
@@ -308,8 +309,10 @@ const EngineerCRM = () => {
 
   const renderContent = () => {
     switch (currentTab) {
+      case 'matches':
+        return <AIMatchesHub userType="engineer" />;
+
       case 'sessions':
-        return <EngineerCRMDashboard />;
 
       case 'active-work':
         return <ActiveWorkHub />;
