@@ -106,6 +106,8 @@ import Pricing from "./pages/Pricing";
 import Contact from "./pages/Contact";
 import About from "./pages/About";
 import ForArtists from "./pages/ForArtists";
+import Waitlist from "./pages/Waitlist";
+import Press from "./pages/Press";
 
 // Enterprise System - System #11
 const Enterprise = React.lazy(() => import("./pages/Enterprise"));
@@ -361,7 +363,8 @@ const AppContent = () => {
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
-
+          <Route path="/waitlist" element={<Waitlist />} />
+          <Route path="/press" element={<Press />} />
           {/* Mobile Routes */}
           <Route path="/mobile-home" element={<MobileHome />} />
           <Route path="/mobile-landing" element={<MobileLanding />} />
