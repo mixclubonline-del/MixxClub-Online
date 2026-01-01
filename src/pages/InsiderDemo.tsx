@@ -838,7 +838,7 @@ export default function InsiderDemo() {
                 <Button
                   size="sm"
                   variant="ghost"
-                  onClick={() => navigate('/')}
+                  onClick={() => navigate('/home')}
                   className="text-muted-foreground hover:text-foreground"
                 >
                   <ChevronRight className="w-4 h-4 mr-1" />
