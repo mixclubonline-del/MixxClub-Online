@@ -29,6 +29,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { HipHopPulse } from './HipHopPulse';
 
 interface DashboardMetrics {
   careerMomentum: {
@@ -217,6 +218,9 @@ export const EnhancedDashboardHub = ({ userType }: EnhancedDashboardHubProps) =>
           Refresh
         </Button>
       </div>
+
+      {/* Hip-Hop Pulse - Real-time Activity */}
+      <HipHopPulse />
 
       {/* Career Momentum Section */}
       <Card>

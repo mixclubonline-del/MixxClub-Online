@@ -104,6 +104,39 @@ export type Database = {
         }
         Relationships: []
       }
+      activity_feed: {
+        Row: {
+          activity_type: string
+          created_at: string
+          description: string | null
+          id: string
+          is_public: boolean | null
+          metadata: Json | null
+          title: string
+          user_id: string | null
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          metadata?: Json | null
+          title: string
+          user_id?: string | null
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          metadata?: Json | null
+          title?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       admin_quick_actions: {
         Row: {
           action_type: string
@@ -1593,6 +1626,7 @@ export type Database = {
           portfolio_url: string | null
           rating: number | null
           specialties: string[] | null
+          trending_score: number | null
           updated_at: string
           user_id: string
           years_experience: number | null
@@ -1608,6 +1642,7 @@ export type Database = {
           portfolio_url?: string | null
           rating?: number | null
           specialties?: string[] | null
+          trending_score?: number | null
           updated_at?: string
           user_id: string
           years_experience?: number | null
@@ -1623,6 +1658,7 @@ export type Database = {
           portfolio_url?: string | null
           rating?: number | null
           specialties?: string[] | null
+          trending_score?: number | null
           updated_at?: string
           user_id?: string
           years_experience?: number | null
@@ -3185,6 +3221,7 @@ export type Database = {
           created_at: string
           email: string | null
           full_name: string | null
+          genre_specialties: Json | null
           id: string
           level: number | null
           notification_preferences: Json | null
@@ -3201,6 +3238,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           full_name?: string | null
+          genre_specialties?: Json | null
           id: string
           level?: number | null
           notification_preferences?: Json | null
@@ -3217,6 +3255,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           full_name?: string | null
+          genre_specialties?: Json | null
           id?: string
           level?: number | null
           notification_preferences?: Json | null
@@ -4568,6 +4607,54 @@ export type Database = {
           },
         ]
       }
+      user_matches: {
+        Row: {
+          ai_explanation: string | null
+          contacted_at: string | null
+          created_at: string
+          id: string
+          match_criteria: Json | null
+          match_reason: string | null
+          match_score: number
+          matched_user_id: string
+          saved: boolean | null
+          status: string
+          updated_at: string
+          user_id: string
+          viewed_at: string | null
+        }
+        Insert: {
+          ai_explanation?: string | null
+          contacted_at?: string | null
+          created_at?: string
+          id?: string
+          match_criteria?: Json | null
+          match_reason?: string | null
+          match_score?: number
+          matched_user_id: string
+          saved?: boolean | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          viewed_at?: string | null
+        }
+        Update: {
+          ai_explanation?: string | null
+          contacted_at?: string | null
+          created_at?: string
+          id?: string
+          match_criteria?: Json | null
+          match_reason?: string | null
+          match_score?: number
+          matched_user_id?: string
+          saved?: boolean | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          viewed_at?: string | null
+        }
+        Relationships: []
+      }
       user_mixing_subscriptions: {
         Row: {
           created_at: string
@@ -4618,6 +4705,39 @@ export type Database = {
           created_at?: string
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_streaks: {
+        Row: {
+          created_at: string
+          current_count: number | null
+          id: string
+          last_activity_at: string | null
+          longest_count: number | null
+          streak_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_count?: number | null
+          id?: string
+          last_activity_at?: string | null
+          longest_count?: number | null
+          streak_type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_count?: number | null
+          id?: string
+          last_activity_at?: string | null
+          longest_count?: number | null
+          streak_type?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []

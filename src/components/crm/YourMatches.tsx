@@ -1,13 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Star, Mail, Loader2, Heart, MessageCircle } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Star, Loader2, Heart, MessageCircle, Sparkles, RefreshCw, History, Info } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 interface EngineerMatch {
+  id: string;
   engineerId: string;
   engineerName: string;
   avatarUrl?: string;
@@ -17,88 +22,122 @@ interface EngineerMatch {
   totalReviews: number;
   hourlyRate: number;
   matchScore: number;
-  matchingGenres: string[];
-  portfolioLinks: any[];
+  matchReason?: string;
+  aiExplanation?: string;
+  saved: boolean;
+  status: string;
+  createdAt: Date;
 }
 
 export const YourMatches = () => {
+  const { user } = useAuth();
   const [matches, setMatches] = useState<EngineerMatch[]>([]);
   const [loading, setLoading] = useState(true);
-  const [savedEngineers, setSavedEngineers] = useState<Set<string>>(new Set());
+  const [refreshing, setRefreshing] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    loadMatches();
-  }, []);
+  const loadMatches = useCallback(async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
 
-  const loadMatches = async () => {
     try {
-      // Get qualifier data from localStorage
-      const qualifierData = localStorage.getItem('qualifierData');
-      
-      if (!qualifierData) {
-        setLoading(false);
-        return;
-      }
+      // Fetch matches from database
+      const { data: matchData, error } = await supabase
+        .from('user_matches')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('match_score', { ascending: false });
 
-      const data = JSON.parse(qualifierData);
-      
-      // If we already have matchedEngineers, fetch their full data
-      if (data.matchedEngineers && data.matchedEngineers.length > 0) {
-        await fetchEngineerDetails(data.matchedEngineers);
-      } else if (data.budget && data.genre) {
-        // Otherwise, re-run the matching
-        await runMatching(data);
+      if (error) throw error;
+
+      if (matchData && matchData.length > 0) {
+        // Get engineer profile data
+        const engineerIds = matchData.map(m => m.matched_user_id);
+        const { data: engineers } = await supabase
+          .from('engineer_profiles')
+          .select(`
+            user_id,
+            specialties,
+            years_experience,
+            rating,
+            completed_projects,
+            hourly_rate
+          `)
+          .in('user_id', engineerIds);
+
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('id, full_name, avatar_url')
+          .in('id', engineerIds);
+
+        const engineerMap = new Map(engineers?.map(e => [e.user_id, e]) || []);
+        const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
+
+        const formattedMatches: EngineerMatch[] = matchData.map(match => {
+          const engineer = engineerMap.get(match.matched_user_id);
+          const profile = profileMap.get(match.matched_user_id);
+          return {
+            id: match.id,
+            engineerId: match.matched_user_id,
+            engineerName: profile?.full_name || 'Unknown Engineer',
+            avatarUrl: profile?.avatar_url,
+            specialties: Array.isArray(engineer?.specialties) ? engineer.specialties : [],
+            experience: engineer?.years_experience || 0,
+            rating: engineer?.rating || 4.5,
+            totalReviews: engineer?.completed_projects || 0,
+            hourlyRate: engineer?.hourly_rate || 50,
+            matchScore: match.match_score || 0,
+            matchReason: match.match_reason,
+            aiExplanation: match.ai_explanation,
+            saved: match.saved || false,
+            status: match.status,
+            createdAt: new Date(match.created_at),
+          };
+        });
+
+        setMatches(formattedMatches);
+      } else {
+        // Try to migrate from localStorage if no database matches
+        await migrateFromLocalStorage();
       }
     } catch (error) {
       console.error('Error loading matches:', error);
-      toast.error('Failed to load your matches');
+      toast.error('Failed to load matches');
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
-  const fetchEngineerDetails = async (engineerIds: string[]) => {
-    const { data: engineers } = await supabase
-      .from('engineer_profiles')
-      .select(`
-        user_id,
-        specialties,
-        years_of_experience,
-        rating_average,
-        total_reviews,
-        hourly_rate,
-        is_available,
-        portfolio_links,
-        profile:profiles!engineer_profiles_user_id_fkey (
-          full_name,
-          avatar_url
-        )
-      `)
-      .in('user_id', engineerIds);
+  const migrateFromLocalStorage = async () => {
+    if (!user) return;
 
-    if (engineers) {
-      const formattedMatches: EngineerMatch[] = engineers.map((eng: any) => ({
-        engineerId: eng.user_id,
-        engineerName: eng.profile?.full_name || 'Unknown',
-        avatarUrl: eng.profile?.avatar_url,
-        specialties: eng.specialties || [],
-        experience: eng.years_of_experience,
-        rating: eng.rating_average,
-        totalReviews: eng.total_reviews,
-        hourlyRate: eng.hourly_rate,
-        matchScore: 95, // Default high score since these were pre-matched
-        matchingGenres: eng.specialties || [],
-        portfolioLinks: eng.portfolio_links || [],
-      }));
+    try {
+      const qualifierData = localStorage.getItem('qualifierData');
+      if (!qualifierData) return;
+
+      const data = JSON.parse(qualifierData);
+      if (!data.matchedEngineers || data.matchedEngineers.length === 0) return;
+
+      // Run fresh matching and save to database
+      await runMatching(data);
       
-      setMatches(formattedMatches);
+      // Clear localStorage after successful migration
+      localStorage.removeItem('qualifierData');
+      toast.success('Matches imported successfully!');
+    } catch (error) {
+      console.error('Migration failed:', error);
     }
   };
 
   const runMatching = async (data: any) => {
+    if (!user) return;
+
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      setRefreshing(true);
+      const { data: session } = await supabase.auth.getSession();
       
       const response = await supabase.functions.invoke('match-engineers', {
         body: {
@@ -106,40 +145,99 @@ export const YourMatches = () => {
           genres: [data.genre],
           projectType: data.projectType,
         },
-        headers: session ? { Authorization: `Bearer ${session.access_token}` } : {},
+        headers: session?.session ? { Authorization: `Bearer ${session.session.access_token}` } : {},
       });
 
       if (response.data?.matches) {
-        setMatches(response.data.matches);
-        
-        // Update localStorage with matched engineer IDs
-        localStorage.setItem('qualifierData', JSON.stringify({
-          ...data,
-          matchedEngineers: response.data.matches.map((m: EngineerMatch) => m.engineerId),
+        // Save matches to database
+        const matchInserts = response.data.matches.map((m: any) => ({
+          user_id: user.id,
+          matched_user_id: m.engineerId,
+          match_score: m.matchScore,
+          match_reason: `Genre match: ${m.matchingGenres?.join(', ') || 'Various'}`,
+          ai_explanation: `This engineer specializes in ${m.specialties?.join(', ')} with a ${m.rating?.toFixed(1)} rating.`,
+          status: 'pending',
+          match_criteria: { budget: data.budget, genre: data.genre, projectType: data.projectType },
         }));
+
+        const { error } = await supabase
+          .from('user_matches')
+          .upsert(matchInserts, { onConflict: 'user_id,matched_user_id' });
+
+        if (error) throw error;
+
+        // Reload matches from database
+        await loadMatches();
+        toast.success('Found new matches!');
       }
     } catch (error) {
       console.error('Error running matching:', error);
       toast.error('Failed to find matches');
+    } finally {
+      setRefreshing(false);
     }
   };
 
-  const handleSaveEngineer = async (engineerId: string) => {
-    if (savedEngineers.has(engineerId)) {
-      setSavedEngineers(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(engineerId);
-        return newSet;
+  useEffect(() => {
+    loadMatches();
+  }, [loadMatches]);
+
+  const handleSaveEngineer = async (matchId: string, currentSaved: boolean) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('user_matches')
+        .update({ saved: !currentSaved })
+        .eq('id', matchId);
+
+      if (error) throw error;
+
+      setMatches(prev => prev.map(m => 
+        m.id === matchId ? { ...m, saved: !currentSaved } : m
+      ));
+
+      toast.success(currentSaved ? 'Removed from favorites' : 'Added to favorites');
+    } catch (error) {
+      console.error('Error saving engineer:', error);
+      toast.error('Failed to update favorite');
+    }
+  };
+
+  const handleContactEngineer = async (match: EngineerMatch) => {
+    if (!user) return;
+
+    try {
+      // Update match status to contacted
+      await supabase
+        .from('user_matches')
+        .update({ status: 'contacted', contacted_at: new Date().toISOString() })
+        .eq('id', match.id);
+
+      // Log activity
+      await supabase.from('activity_feed').insert({
+        user_id: user.id,
+        activity_type: 'collab',
+        title: `Started project with ${match.engineerName}`,
+        description: 'New collaboration initiated',
+        is_public: true,
+        metadata: { engineer_id: match.engineerId },
       });
-      toast.success('Engineer removed from saved list');
-    } else {
-      setSavedEngineers(prev => new Set(prev).add(engineerId));
-      toast.success('Engineer saved!');
+
+      navigate(`/artist-crm?tab=projects&action=new&engineer=${match.engineerId}`);
+    } catch (error) {
+      console.error('Error contacting engineer:', error);
     }
   };
 
-  const handleContactEngineer = (engineerId: string) => {
-    navigate(`/artist-crm?tab=projects&action=new&engineer=${engineerId}`);
+  const handleRefreshMatches = () => {
+    const qualifierData = localStorage.getItem('qualifierData');
+    if (qualifierData) {
+      runMatching(JSON.parse(qualifierData));
+    } else {
+      toast.info('Complete the smart qualifier to find new matches');
+      navigate('/');
+    }
   };
 
   if (loading) {
@@ -151,18 +249,22 @@ export const YourMatches = () => {
     );
   }
 
+  const activeMatches = matches.filter(m => m.status !== 'rejected');
+  const savedMatches = matches.filter(m => m.saved);
+
   if (matches.length === 0) {
     return (
       <div className="text-center py-12">
-        <div className="w-20 h-20 rounded-full bg-muted mx-auto mb-6 flex items-center justify-center">
-          <Star className="w-10 h-10 text-muted-foreground" />
+        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-purple-500/20 mx-auto mb-6 flex items-center justify-center">
+          <Sparkles className="w-10 h-10 text-primary" />
         </div>
         <h3 className="text-2xl font-bold mb-2">No matches yet</h3>
-        <p className="text-muted-foreground mb-6">
-          Complete the smart qualifier to find engineers perfect for your music
+        <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+          Complete the smart qualifier to find engineers perfect for your sound. Our AI will match you based on genre, budget, and style.
         </p>
-        <Button onClick={() => navigate('/')}>
-          Find Your Engineer Match
+        <Button onClick={() => navigate('/')} className="bg-gradient-to-r from-primary to-purple-600">
+          <Sparkles className="w-4 h-4 mr-2" />
+          Find Your Match
         </Button>
       </div>
     );
@@ -170,99 +272,144 @@ export const YourMatches = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h2 className="text-3xl font-bold">Your Engineer Matches</h2>
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">
+            Your Engineer Matches
+          </h2>
           <p className="text-muted-foreground mt-1">
-            We found {matches.length} engineers perfect for your needs
+            {activeMatches.length} engineers matched to your sound
           </p>
         </div>
-        <Button variant="outline" onClick={() => navigate('/')}>
-          Refine Matches
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={() => setShowHistory(!showHistory)}
+            className={cn(showHistory && "border-primary")}
+          >
+            <History className="w-4 h-4 mr-2" />
+            {savedMatches.length} Saved
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={handleRefreshMatches}
+            disabled={refreshing}
+          >
+            <RefreshCw className={cn("w-4 h-4 mr-2", refreshing && "animate-spin")} />
+            Refresh
+          </Button>
+        </div>
       </div>
 
-      <div className="grid gap-6">
-        {matches.map((engineer) => (
-          <Card key={engineer.engineerId} className="p-6 hover:border-primary transition-all">
-            <div className="flex items-start gap-6">
-              <div 
-                className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-purple-600 bg-cover bg-center flex-shrink-0"
-                style={engineer.avatarUrl ? { backgroundImage: `url(${engineer.avatarUrl})` } : {}}
-              />
-              
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-4 mb-3">
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-2xl font-bold">{engineer.engineerName}</h3>
-                      <Badge className="bg-green-500/10 text-green-700 dark:text-green-400">
-                        {engineer.matchScore}% Match
-                      </Badge>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                        <span className="font-medium">{engineer.rating.toFixed(1)}</span>
-                      </div>
-                      <span className="text-sm text-muted-foreground">
-                        {engineer.totalReviews} reviews
-                      </span>
-                      {engineer.experience > 0 && (
-                        <Badge variant="outline">{engineer.experience}+ years experience</Badge>
-                      )}
-                    </div>
-                  </div>
+      <AnimatePresence mode="popLayout">
+        <div className="grid gap-6">
+          {(showHistory ? savedMatches : activeMatches).map((engineer, idx) => (
+            <motion.div
+              key={engineer.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ delay: idx * 0.05 }}
+            >
+              <Card className="p-6 hover:border-primary/50 transition-all group">
+                <div className="flex items-start gap-6 flex-wrap md:flex-nowrap">
+                  <Avatar className="w-24 h-24 flex-shrink-0">
+                    <AvatarImage src={engineer.avatarUrl} />
+                    <AvatarFallback className="bg-gradient-to-br from-primary to-purple-600 text-white text-2xl">
+                      {engineer.engineerName.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
                   
-                  <div className="text-right flex-shrink-0">
-                    <p className="text-3xl font-bold">${engineer.hourlyRate}</p>
-                    <p className="text-sm text-muted-foreground">per track</p>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-4 mb-3 flex-wrap">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <h3 className="text-2xl font-bold">{engineer.engineerName}</h3>
+                          <Badge className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-400 border-green-500/30">
+                            {engineer.matchScore}% Match
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <div className="flex items-center gap-1">
+                            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                            <span className="font-medium">{engineer.rating.toFixed(1)}</span>
+                          </div>
+                          <span className="text-sm text-muted-foreground">
+                            {engineer.totalReviews} projects
+                          </span>
+                          {engineer.experience > 0 && (
+                            <Badge variant="outline">{engineer.experience}+ years</Badge>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="text-right flex-shrink-0">
+                        <p className="text-3xl font-bold">${engineer.hourlyRate}</p>
+                        <p className="text-sm text-muted-foreground">per track</p>
+                      </div>
+                    </div>
+
+                    {/* AI Explanation */}
+                    {engineer.aiExplanation && (
+                      <div className="mb-4 p-3 rounded-lg bg-primary/5 border border-primary/10">
+                        <div className="flex items-start gap-2">
+                          <Sparkles className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                          <p className="text-sm text-muted-foreground">{engineer.aiExplanation}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="mb-4">
+                      <p className="text-sm font-medium text-muted-foreground mb-2">Specialties:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {engineer.specialties.map((specialty, idx) => (
+                          <Badge key={idx} variant="secondary">
+                            {specialty}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+
+                    {engineer.matchReason && (
+                      <div className="mb-4">
+                        <p className="text-sm text-muted-foreground flex items-center gap-1">
+                          <Info className="w-3 h-3" />
+                          {engineer.matchReason}
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="flex gap-3 flex-wrap">
+                      <Button 
+                        onClick={() => handleContactEngineer(engineer)}
+                        className="flex-1 min-w-[200px] bg-gradient-to-r from-primary to-purple-600 hover:opacity-90"
+                      >
+                        <MessageCircle className="w-4 h-4 mr-2" />
+                        Start Project
+                      </Button>
+                      <Button 
+                        variant="outline"
+                        onClick={() => handleSaveEngineer(engineer.id, engineer.saved)}
+                        className={cn(
+                          "transition-colors",
+                          engineer.saved && "border-primary bg-primary/10"
+                        )}
+                      >
+                        <Heart 
+                          className={cn(
+                            "w-4 h-4",
+                            engineer.saved && "fill-primary text-primary"
+                          )} 
+                        />
+                      </Button>
+                    </div>
                   </div>
                 </div>
-
-                <div className="mb-4">
-                  <p className="text-sm font-medium text-muted-foreground mb-2">Specialties:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {engineer.specialties.map((specialty, idx) => (
-                      <Badge key={idx} variant="secondary">
-                        {specialty}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-
-                {engineer.matchingGenres.length > 0 && (
-                  <div className="mb-4">
-                    <p className="text-sm text-muted-foreground">
-                      <span className="font-medium">Matching your preferences:</span>{' '}
-                      {engineer.matchingGenres.join(', ')}
-                    </p>
-                  </div>
-                )}
-
-                <div className="flex gap-3">
-                  <Button 
-                    onClick={() => handleContactEngineer(engineer.engineerId)}
-                    className="flex-1"
-                  >
-                    <MessageCircle className="w-4 h-4 mr-2" />
-                    Start Project
-                  </Button>
-                  <Button 
-                    variant="outline"
-                    onClick={() => handleSaveEngineer(engineer.engineerId)}
-                    className={savedEngineers.has(engineer.engineerId) ? 'border-primary' : ''}
-                  >
-                    <Heart 
-                      className={`w-4 h-4 ${savedEngineers.has(engineer.engineerId) ? 'fill-primary text-primary' : ''}`} 
-                    />
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </Card>
-        ))}
-      </div>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+      </AnimatePresence>
     </div>
   );
 };
