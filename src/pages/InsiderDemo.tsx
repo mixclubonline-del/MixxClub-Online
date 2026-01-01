@@ -226,7 +226,7 @@ export default function InsiderDemo() {
             }}
             transition={{ duration: 4, repeat: Infinity }}
           >
-            <img src={primeLaunchHero} alt="Prime" className="w-64 h-64 mx-auto rounded-full shadow-2xl shadow-primary/30 object-cover" />
+            <img src={primeLaunchHero} alt="Prime" className="w-80 h-80 md:w-96 md:h-96 mx-auto rounded-2xl shadow-2xl shadow-primary/30 object-cover" />
           </motion.div>
 
           <motion.h1 
