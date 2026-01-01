@@ -200,6 +200,7 @@ export const JOURNEYS = {
   ARTIST_ONBOARDING: {
     id: 'artist_onboarding',
     name: 'Artist First Week',
+    description: 'Complete your first week as an artist on MixClub',
     steps: [
       { id: 'welcome', name: 'Welcome', xp: 10 },
       { id: 'profile_complete', name: 'Complete Profile', xp: 50 },
@@ -211,6 +212,7 @@ export const JOURNEYS = {
   ENGINEER_ACTIVATION: {
     id: 'engineer_activation',
     name: 'Engineer Launch',
+    description: 'Launch your engineering career on MixClub',
     steps: [
       { id: 'verification', name: 'Get Verified', xp: 25 },
       { id: 'portfolio_setup', name: 'Setup Portfolio', xp: 50 },
@@ -222,6 +224,7 @@ export const JOURNEYS = {
   PRODUCERS_QUEST: {
     id: 'producers_quest',
     name: "Producer's Journey",
+    description: 'Master the art of production from beat to release',
     steps: [
       { id: 'beat_upload', name: 'Drop Your First Beat', xp: 50 },
       { id: 'collab_invite', name: 'Invite a Collaborator', xp: 50 },

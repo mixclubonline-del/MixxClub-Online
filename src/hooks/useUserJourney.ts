@@ -113,7 +113,7 @@ export const useUserJourney = (journeyType?: string) => {
     if (!user?.id) return false;
 
     try {
-      await completeJourneyStep(user.id, journeyType, stepId, nextStepId);
+      await completeJourneyStep(user.id, journeyType, stepId, nextStepId ? { nextStep: nextStepId } : undefined);
       await fetchJourneys();
       return true;
     } catch (error) {

@@ -69,7 +69,7 @@ export const JourneyProgress = ({ journeyType, onStepAction, compact = false }: 
           <div className="flex items-center gap-2 text-sm">
             <Badge variant="secondary">{definition.steps.length} Steps</Badge>
             <Badge variant="outline" className="text-primary border-primary/50">
-              +{definition.steps.reduce((acc, s) => acc + s.xpReward, 0)} XP
+              +{definition.steps.reduce((acc, s) => acc + s.xp, 0)} XP
             </Badge>
           </div>
           <Button onClick={handleStart} className="w-full">

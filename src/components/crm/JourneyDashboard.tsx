@@ -153,7 +153,6 @@ export const JourneyDashboard = ({ onNavigate }: JourneyDashboardProps) => {
                   onStepAction={(stepId) => {
                     console.log('Step action:', stepId);
                   }}
-                  }}
                 />
               </motion.div>
             ))}
