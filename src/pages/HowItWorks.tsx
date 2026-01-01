@@ -109,7 +109,7 @@ const HowItWorks = () => {
 
       <footer className="border-t border-border py-8 bg-card">
         <div className="container px-6 text-center text-sm text-muted-foreground">
-          <p>© 2025 MixClubOnline. Make your music sound as good as the pros.</p>
+          <p>© 2026 MixClub. Make your music sound as good as the pros.</p>
         </div>
       </footer>
     </div>

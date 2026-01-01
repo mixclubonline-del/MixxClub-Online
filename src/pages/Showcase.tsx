@@ -372,7 +372,7 @@ export default function Showcase() {
                 THE ECONOMIC REVOLUTION
               </Badge>
               <h2 className="text-4xl md:text-5xl font-bold mb-6">
-                10 Ways to <span className="text-accent-pink">Get Paid</span>
+                6 Ways to <span className="text-accent-pink">Get Paid</span>
               </h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
                 Not just a platform. A complete revenue ecosystem for music creators.

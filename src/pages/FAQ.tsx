@@ -198,7 +198,7 @@ export default function FAQ() {
               <Button variant="outline" className="flex flex-col h-auto py-4">
                 <Mail className="w-6 h-6 mb-2" />
                 <span className="font-semibold">Email Support</span>
-                <span className="text-xs text-muted-foreground">support@mixclubonline.com</span>
+                <span className="text-xs text-muted-foreground">support@mixclub.com</span>
               </Button>
               <Button variant="outline" className="flex flex-col h-auto py-4">
                 <Phone className="w-6 h-6 mb-2" />
