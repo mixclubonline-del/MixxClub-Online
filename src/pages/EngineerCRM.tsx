@@ -33,7 +33,7 @@ import { EngineerCRMDashboard } from '@/components/crm/EngineerCRMDashboard';
 import { RevenueHub } from '@/components/crm/RevenueHub';
 import { CommunityHub } from '@/components/crm/CommunityHub';
 import { GrowthHub } from '@/components/crm/GrowthHub';
-import { DirectMessaging } from '@/components/crm/DirectMessaging';
+import { MessagingHub } from '@/components/crm/messaging';
 import { CollaborativeEarnings } from '@/components/crm/CollaborativeEarnings';
 
 const EngineerCRM = () => {
@@ -390,7 +390,7 @@ const EngineerCRM = () => {
         return <GrowthHub />;
 
       case 'messages':
-        return <DirectMessaging userType="engineer" />;
+        return <MessagingHub userType="engineer" />;
 
       case 'earnings':
         return <CollaborativeEarnings userType="engineer" />;

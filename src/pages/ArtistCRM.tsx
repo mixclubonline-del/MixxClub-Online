@@ -38,7 +38,7 @@ import { YourMatches } from '@/components/crm/YourMatches';
 import { RevenueHub } from '@/components/crm/RevenueHub';
 import { CommunityHub } from '@/components/crm/CommunityHub';
 import { GrowthHub } from '@/components/crm/GrowthHub';
-import { DirectMessaging } from '@/components/crm/DirectMessaging';
+import { MessagingHub } from '@/components/crm/messaging';
 import { CollaborativeEarnings } from '@/components/crm/CollaborativeEarnings';
 
 const ArtistCRM = () => {
@@ -360,7 +360,7 @@ const ArtistCRM = () => {
         return <GrowthHub />;
 
       case 'messages':
-        return <DirectMessaging userType="artist" />;
+        return <MessagingHub userType="artist" />;
 
       case 'earnings':
         return <CollaborativeEarnings userType="artist" />;
