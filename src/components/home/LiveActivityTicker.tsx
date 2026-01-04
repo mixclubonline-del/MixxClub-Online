@@ -10,11 +10,12 @@ interface Activity {
 }
 
 const activities: Activity[] = [
-  { id: 1, type: 'booking', message: 'Sarah just booked a Professional engineer for Hip-Hop mixing', icon: Music },
-  { id: 2, type: 'availability', message: '12 engineers available now in your genre', icon: Users },
-  { id: 3, type: 'booking', message: 'Marcus from Atlanta just completed a Premium mastering project', icon: Music },
-  { id: 4, type: 'availability', message: '8 Hip-Hop engineers ready to start today', icon: Users },
-  { id: 5, type: 'booking', message: 'Emma just upgraded to MixClub Pro subscription', icon: Music },
+  { id: 1, type: 'booking', message: 'Artist in Miami just joined the network', icon: Music },
+  { id: 2, type: 'availability', message: 'Engineer in London signed up 2 min ago', icon: Users },
+  { id: 3, type: 'booking', message: 'Producer from Lagos connected with a rapper in Chicago', icon: Music },
+  { id: 4, type: 'availability', message: 'New mastering session started: Artist in Tokyo × Engineer in LA', icon: Users },
+  { id: 5, type: 'booking', message: 'Beat dropped: Producer in Atlanta just uploaded fire', icon: Music },
+  { id: 6, type: 'availability', message: 'Artist in Brooklyn found her engineer in 12 minutes', icon: Users },
 ];
 
 export const LiveActivityTicker = () => {
