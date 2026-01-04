@@ -35,10 +35,7 @@ import { ImmersiveAppShell } from "@/components/immersive/ImmersiveAppShell";
 import { MobileOptimizations } from "@/components/MobileOptimizations";
 
 // Route modules - organized by domain
-import { publicRoutes, appRoutes, adminRoutes, mobileRoutes, cityRoutes } from "@/routes";
-
-// Presentation share route (special case - public access)
-const PresentationShare = React.lazy(() => import("@/pages/PresentationShare"));
+import { publicRoutes, appRoutes, mobileRoutes, cityRoutes } from "@/routes";
 
 // Desktop-only components wrapper
 const DesktopOnlyComponents = () => {
@@ -71,12 +68,8 @@ const AppContent = () => {
             {/* Domain-specific route modules */}
             {publicRoutes}
             {appRoutes}
-            {adminRoutes}
             {mobileRoutes}
             {cityRoutes}
-            
-            {/* Special routes */}
-            <Route path="/presentation/share/:token" element={<PresentationShare />} />
           </Routes>
         </React.Suspense>
         <PWAInstallPrompt />
