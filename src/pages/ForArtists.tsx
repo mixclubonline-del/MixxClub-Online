@@ -7,25 +7,22 @@ import {
   Users, 
   Download, 
   Headphones,
-  Mic2,
   Award,
   TrendingUp,
   Zap,
   Music,
-  Play,
   Share2,
   Crown,
   Star,
-  Trophy
+  Trophy,
+  ArrowRight,
+  Play
 } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { CommunityMilestonesShowcase } from "@/components/home/CommunityMilestonesShowcase";
-import { TierShowcase } from "@/components/home/TierShowcase";
-import { AISessionPrepShowcase } from "@/components/home/AISessionPrepShowcase";
-import { AIMasteringCTA } from "@/components/home/AIMasteringCTA";
-import { SimplePackagePreview } from "@/components/home/SimplePackagePreview";
+import { SessionPreview } from "@/components/home/SessionPreview";
+import { TransformationDemo } from "@/components/home/TransformationDemo";
 
 const ForArtists = () => {
   const journeySteps = [
@@ -34,28 +31,28 @@ const ForArtists = () => {
       icon: <Upload className="w-6 h-6" />,
       title: "Upload Your Track",
       description: "Drop your stems or mixdown into our secure cloud workspace",
-      color: "bg-blue-500/10 text-blue-500 border-blue-500/20"
+      color: "bg-primary/10 text-primary border-primary/20"
     },
     {
       number: 2,
       icon: <Sparkles className="w-6 h-6" />,
       title: "AI Session Prep",
       description: "Our AI analyzes your track and prepares detailed session notes",
-      color: "bg-purple-500/10 text-purple-500 border-purple-500/20"
+      color: "bg-secondary/10 text-secondary border-secondary/20"
     },
     {
       number: 3,
       icon: <Users className="w-6 h-6" />,
       title: "Perfect Match",
       description: "Get paired with an engineer who specializes in your genre",
-      color: "bg-green-500/10 text-green-500 border-green-500/20"
+      color: "bg-accent/10 text-accent border-accent/20"
     },
     {
       number: 4,
       icon: <Headphones className="w-6 h-6" />,
       title: "Real-Time Collaboration",
       description: "Work together in our live studio workspace with instant feedback",
-      color: "bg-orange-500/10 text-orange-500 border-orange-500/20"
+      color: "bg-green-500/10 text-green-500 border-green-500/20"
     },
     {
       number: 5,
@@ -69,58 +66,15 @@ const ForArtists = () => {
       icon: <Share2 className="w-6 h-6" />,
       title: "Release & Grow",
       description: "Distribute to all platforms and track your success",
-      color: "bg-primary/10 text-primary border-primary/20"
+      color: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20"
     }
   ];
 
-  const aiFeatures = [
-    {
-      icon: <Sparkles className="w-5 h-5" />,
-      title: "Smart Genre Detection",
-      description: "AI automatically identifies your style and matches you with the right engineer"
-    },
-    {
-      icon: <TrendingUp className="w-5 h-5" />,
-      title: "Quality Analysis",
-      description: "Real-time feedback on mix balance, dynamics, and frequency response"
-    },
-    {
-      icon: <Zap className="w-5 h-5" />,
-      title: "Instant Session Prep",
-      description: "Automated technical analysis saves hours of prep time"
-    },
-    {
-      icon: <Award className="w-5 h-5" />,
-      title: "Reference Matching",
-      description: "Compare your track to industry standards in your genre"
-    }
-  ];
-
-  const communityFeatures = [
-    {
-      icon: <Trophy className="w-5 h-5" />,
-      title: "Mix Battles Arena",
-      description: "Compete with other artists, win prizes, get discovered",
-      badge: "Coming Soon"
-    },
-    {
-      icon: <Star className="w-5 h-5" />,
-      title: "Achievement System",
-      description: "Earn badges for uploads, collaborations, and milestones",
-      badge: "Active"
-    },
-    {
-      icon: <Crown className="w-5 h-5" />,
-      title: "Tier Progression",
-      description: "Unlock features as the community grows together",
-      badge: "Active"
-    },
-    {
-      icon: <Users className="w-5 h-5" />,
-      title: "Leaderboards",
-      description: "See top artists, most active creators, trending tracks",
-      badge: "Active"
-    }
+  const stats = [
+    { value: "10,000+", label: "Artists Trust MixClub" },
+    { value: "2.3 sec", label: "Average Match Time" },
+    { value: "98%", label: "Satisfaction Rate" },
+    { value: "24/7", label: "Global Collaboration" },
   ];
 
   return (
@@ -129,7 +83,7 @@ const ForArtists = () => {
       
       <div className="pt-20">
         {/* Founding Member Banner */}
-        <section className="py-6 bg-gradient-to-r from-amber-500/20 via-amber-400/10 to-amber-500/20 border-b border-amber-500/30">
+        <section className="py-4 bg-gradient-to-r from-amber-500/20 via-amber-400/10 to-amber-500/20 border-b border-amber-500/30">
           <div className="container px-6">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
@@ -137,20 +91,12 @@ const ForArtists = () => {
               className="flex flex-col md:flex-row items-center justify-center gap-4 text-center md:text-left"
             >
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg">
-                  <Crown className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <p className="font-bold text-lg text-amber-100">
-                    🚀 Founding Artist Program
-                  </p>
-                  <p className="text-amber-200/80 text-sm">
-                    First 100 artists get <span className="font-bold text-amber-100">lifetime 20% discount</span> + exclusive badge
-                  </p>
-                </div>
+                <Crown className="w-6 h-6 text-amber-400" />
+                <p className="font-bold text-amber-100">
+                  🚀 Founding Artist Program - First 100 get <span className="text-amber-300">lifetime 20% discount</span>
+                </p>
               </div>
               <Badge className="bg-amber-500/30 text-amber-100 border-amber-400/50 animate-pulse">
-                <Sparkles className="w-3 h-3 mr-1" />
                 73 spots left
               </Badge>
             </motion.div>
@@ -159,7 +105,7 @@ const ForArtists = () => {
 
         {/* Hero Section */}
         <section className="py-20 md:py-32 bg-gradient-to-br from-primary/5 via-background to-secondary/5 relative overflow-hidden">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iY3VycmVudENvbG9yIiBzdHJva2Utb3BhY2l0eT0iMC4wNSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-40"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,hsl(var(--primary)/0.1),transparent_70%)]" />
           
           <div className="container px-6 relative z-10">
             <motion.div 
@@ -173,14 +119,23 @@ const ForArtists = () => {
                 For Artists
               </Badge>
               
-              <h1 className="text-5xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent bg-[length:200%_auto] animate-[gradient-shift_3s_ease-in-out_infinite]">
+              <h1 className="text-5xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
                 Turn Bedroom Beats Into Billboard Bangers
               </h1>
               
-              <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
-                Join <span className="text-primary font-bold">10,000+ artists</span> getting professional mixes, AI-powered mastering, 
-                and real-time collaboration with world-class engineers.
+              <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto">
+                Professional mixing, AI-powered mastering, and real-time collaboration with world-class engineers.
               </p>
+
+              {/* Stats */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto mb-12">
+                {stats.map((stat, i) => (
+                  <div key={i} className="text-center">
+                    <div className="text-2xl md:text-3xl font-bold text-primary">{stat.value}</div>
+                    <div className="text-sm text-muted-foreground">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link to="/auth?mode=signup">
@@ -189,16 +144,22 @@ const ForArtists = () => {
                     Start Your Journey Free
                   </Button>
                 </Link>
-                <Link to="/pricing">
+                <Link to="/showcase">
                   <Button variant="outline" size="lg" className="gap-2 text-lg px-8 py-6">
-                    <Crown className="w-5 h-5" />
-                    View Pricing
+                    <Play className="w-5 h-5" />
+                    See The Technology
                   </Button>
                 </Link>
               </div>
             </motion.div>
           </div>
         </section>
+
+        {/* Live Session Preview */}
+        <SessionPreview />
+
+        {/* Before/After Transformation */}
+        <TransformationDemo />
 
         {/* The Journey Section */}
         <section className="py-20 bg-background">
@@ -211,7 +172,7 @@ const ForArtists = () => {
                 From Upload to Release
               </h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                We've streamlined the entire production process. Here's how it works.
+                We've streamlined the entire production process.
               </p>
             </div>
 
@@ -225,7 +186,7 @@ const ForArtists = () => {
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
                   >
-                    <Card className={`relative border-2 ${step.color} hover:shadow-xl transition-all duration-300 group`}>
+                    <Card className={`relative border-2 ${step.color} hover:shadow-xl transition-all duration-300 group h-full`}>
                       <div className="absolute -top-4 -left-4 w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold text-lg shadow-lg">
                         {step.number}
                       </div>
@@ -247,94 +208,48 @@ const ForArtists = () => {
           </div>
         </section>
 
-        {/* AI Features Section */}
-        <AISessionPrepShowcase />
-        <AIMasteringCTA />
-
-        {/* AI Feature Cards */}
-        <section className="py-20 bg-muted/30">
+        {/* CRM Preview Section */}
+        <section className="py-20 bg-muted/20">
           <div className="container px-6">
-            <div className="text-center mb-16">
+            <div className="text-center mb-12">
               <Badge variant="secondary" className="mb-4">
-                <Sparkles className="w-4 h-4 mr-2" />
-                Powered by AI
+                <Star className="w-4 h-4 mr-2" />
+                Your Command Center
               </Badge>
               <h2 className="text-4xl md:text-5xl font-bold mb-6">
-                Intelligent Production Assistant
+                This is YOUR Artist CRM
               </h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Our AI doesn't replace humans—it empowers them with superhuman capabilities
+                Everything you need to manage your music career in one place.
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-              {aiFeatures.map((feature, index) => (
+            <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+              {[
+                { icon: TrendingUp, title: "Dashboard", description: "Track your career momentum and key metrics" },
+                { icon: Users, title: "Sessions", description: "Manage all your collaboration sessions" },
+                { icon: Sparkles, title: "AI Matching", description: "Find the perfect engineer for your sound" },
+                { icon: Headphones, title: "Projects", description: "Track every project from upload to release" },
+                { icon: Award, title: "Achievements", description: "Earn badges and unlock rewards" },
+                { icon: Trophy, title: "Community", description: "Connect with other artists and grow together" },
+              ].map((feature, index) => (
                 <motion.div
                   key={index}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: index * 0.1 }}
+                  transition={{ delay: index * 0.1 }}
                 >
-                  <Card className="text-center hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                    <CardContent className="pt-6">
-                      <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center mx-auto mb-4">
-                        {feature.icon}
-                      </div>
-                      <h3 className="font-semibold mb-2">{feature.title}</h3>
-                      <p className="text-sm text-muted-foreground">{feature.description}</p>
-                    </CardContent>
+                  <Card className="p-6 hover:shadow-lg transition-all hover:-translate-y-1">
+                    <feature.icon className="w-10 h-10 text-primary mb-4" />
+                    <h3 className="font-semibold text-lg mb-2">{feature.title}</h3>
+                    <p className="text-sm text-muted-foreground">{feature.description}</p>
                   </Card>
                 </motion.div>
               ))}
             </div>
           </div>
         </section>
-
-        {/* Community & Gamification */}
-        <section className="py-20 bg-background">
-          <div className="container px-6">
-            <div className="text-center mb-16">
-              <Badge variant="secondary" className="mb-4">
-                <Trophy className="w-4 h-4 mr-2" />
-                Community & Growth
-              </Badge>
-              <h2 className="text-4xl md:text-5xl font-bold mb-6">
-                Grow Together, Unlock Together
-              </h2>
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Every artist who joins unlocks features for the entire community. 
-                Your success is our success.
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto mb-20">
-              {communityFeatures.map((feature, index) => (
-                <Card key={index} className="hover:shadow-lg transition-all duration-300">
-                  <CardHeader>
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="w-12 h-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-                        {feature.icon}
-                      </div>
-                      <Badge variant={feature.badge === "Active" ? "default" : "secondary"} className="text-xs">
-                        {feature.badge}
-                      </Badge>
-                    </div>
-                    <CardTitle className="text-lg mb-2">{feature.title}</CardTitle>
-                    <CardDescription>{feature.description}</CardDescription>
-                  </CardHeader>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Community Milestones & Tiers */}
-        <CommunityMilestonesShowcase />
-        <TierShowcase />
-
-        {/* Pricing Preview */}
-        <SimplePackagePreview />
 
         {/* Final CTA */}
         <section className="py-20 bg-gradient-to-br from-primary/5 via-background to-secondary/5">
@@ -346,29 +261,15 @@ const ForArtists = () => {
                   Ready to Elevate Your Music?
                 </h2>
                 <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-                  Join thousands of artists who've transformed their sound with professional 
-                  mixing, AI mastering, and real-time collaboration.
+                  Join thousands of artists who've transformed their sound.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Link to="/auth?mode=signup">
-                    <Button size="lg" className="gap-2 text-lg px-8 py-6">
-                      <Sparkles className="w-5 h-5" />
-                      Start Free Today
-                    </Button>
-                  </Link>
-                  <Link to="/mixing">
-                    <Button variant="outline" size="lg" className="gap-2 text-lg px-8 py-6">
-                      <Headphones className="w-5 h-5" />
-                      Explore Mixing Studio
-                    </Button>
-                  </Link>
-                  <Link to="/mastering">
-                    <Button variant="outline" size="lg" className="gap-2 text-lg px-8 py-6">
-                      <Mic2 className="w-5 h-5" />
-                      Try AI Mastering
-                    </Button>
-                  </Link>
-                </div>
+                <Link to="/auth?mode=signup">
+                  <Button size="lg" className="gap-2 text-lg px-8 py-6">
+                    <Sparkles className="w-5 h-5" />
+                    Start Free Today
+                    <ArrowRight className="w-5 h-5" />
+                  </Button>
+                </Link>
                 
                 <div className="mt-8 pt-8 border-t border-border/50">
                   <p className="text-sm text-muted-foreground">
