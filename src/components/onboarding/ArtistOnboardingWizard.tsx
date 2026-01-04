@@ -9,13 +9,14 @@ import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
 import { 
   User, Music, Upload, CheckCircle, ArrowRight, ArrowLeft, 
-  Sparkles, Mic2, Headphones, Zap
+  Sparkles, Mic2, Headphones, Zap, AtSign, Loader2, Check, X
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
+import { useUsernameValidation } from '@/hooks/useUsernameValidation';
 
 const GENRES = [
   'Hip-Hop', 'R&B', 'Pop', 'Trap', 'Drill', 'Electronic', 
@@ -54,6 +55,9 @@ export function ArtistOnboardingWizard() {
   const [bio, setBio] = useState('');
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
+  
+  // Username validation
+  const { username, setUsername, isChecking, isAvailable, error: usernameError, isValid: isUsernameValid } = useUsernameValidation();
 
   const progress = ((currentStep + 1) / steps.length) * 100;
 
@@ -75,7 +79,7 @@ export function ArtistOnboardingWizard() {
 
   const canProceed = () => {
     switch (currentStep) {
-      case 0: return fullName.trim().length > 0;
+      case 0: return fullName.trim().length > 0 && isUsernameValid;
       case 1: return selectedGenres.length > 0;
       case 2: return selectedGoals.length > 0;
       default: return true;
@@ -101,11 +105,12 @@ export function ArtistOnboardingWizard() {
     
     setIsSubmitting(true);
     try {
-      // Update profile
+      // Update profile with username
       const { error } = await supabase
         .from('profiles')
         .update({
           full_name: fullName,
+          username: username,
           bio: bio || `${artistName ? `${artistName} - ` : ''}Artist on MIXXCLUB`,
           genre_specialties: selectedGenres,
           role: 'artist'
@@ -225,6 +230,41 @@ export function ArtistOnboardingWizard() {
                       onChange={(e) => setFullName(e.target.value)}
                       className="mt-1"
                     />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="username">Claim Your Username *</Label>
+                    <div className="relative mt-1">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                        <AtSign className="h-4 w-4" />
+                      </span>
+                      <Input
+                        id="username"
+                        placeholder="yourname"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        className="pl-9 pr-10"
+                      />
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        {isChecking && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+                        {!isChecking && isAvailable === true && <Check className="h-4 w-4 text-green-500" />}
+                        {!isChecking && isAvailable === false && <X className="h-4 w-4 text-destructive" />}
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between mt-1">
+                      <p className="text-xs text-muted-foreground">
+                        Your profile URL: /u/{username || '...'}
+                      </p>
+                      {usernameError && (
+                        <p className="text-xs text-destructive">{usernameError}</p>
+                      )}
+                      {!usernameError && isAvailable === false && (
+                        <p className="text-xs text-destructive">Username taken</p>
+                      )}
+                      {!usernameError && isAvailable === true && (
+                        <p className="text-xs text-green-500">Available!</p>
+                      )}
+                    </div>
                   </div>
                   
                   <div>

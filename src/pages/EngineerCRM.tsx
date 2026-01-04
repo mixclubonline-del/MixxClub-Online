@@ -20,8 +20,7 @@ import { PayoutManagement } from '@/components/engineer/PayoutManagement';
 import { RecommendedArtists } from '@/components/crm/RecommendedArtists';
 import { MusicalProfile } from '@/components/crm/MusicalProfile';
 import { EngineerReviews } from '@/components/review/EngineerReviews';
-import ProfileEditor from '@/components/crm/ProfileEditor';
-import ProfileInsights from '@/components/crm/ProfileInsights';
+import { BrandHub } from '@/components/crm/BrandHub';
 import { EngineerCRMChatbot } from '@/components/crm/EngineerCRMChatbot';
 import EngineerCRMSlideshow from '@/components/crm/EngineerCRMSlideshow';
 import { EngineerAssistantIntro } from '@/components/crm/EngineerAssistantIntro';
@@ -355,44 +354,12 @@ const EngineerCRM = () => {
 
       case 'profile':
         return (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
-              <ProfileEditor />
-            </div>
-            <div>
-              <ProfileInsights />
-            </div>
-            <div className="lg:col-span-3">
-              <MusicalProfile />
-            </div>
-            <div className="lg:col-span-3 mt-8">
-              <h3 className="text-xl font-bold mb-4">Your Badges</h3>
-              {achievements.length === 0 ? (
-                <Card className="p-12 text-center">
-                  <Award className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                  <h3 className="text-xl font-semibold mb-2">No badges yet</h3>
-                  <p className="text-muted-foreground">Complete projects to unlock achievements</p>
-                </Card>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {achievements.map((achievement) => (
-                    <Card key={achievement.id} className="p-6 text-center">
-                      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
-                        <Award className="w-8 h-8 text-white" />
-                      </div>
-                      <h3 className="font-semibold mb-2">{achievement.badge_name}</h3>
-                      <p className="text-sm text-muted-foreground mb-2">{achievement.badge_description}</p>
-                      <Badge variant="outline">{achievement.badge_type}</Badge>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="lg:col-span-3 mt-8">
+          <div className="space-y-6">
+            <BrandHub />
+            <Card className="p-6">
               <h3 className="text-xl font-bold mb-4">Client Reviews</h3>
               <EngineerReviews engineerId={user?.id || ''} />
-            </div>
+            </Card>
           </div>
         );
 

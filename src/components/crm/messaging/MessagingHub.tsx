@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -44,6 +45,9 @@ const QUICK_REPLIES = [
 
 export const MessagingHub = ({ userType }: MessagingHubProps) => {
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  const recipientParam = searchParams.get('recipient');
+  
   const {
     conversations,
     loading,
@@ -63,6 +67,45 @@ export const MessagingHub = ({ userType }: MessagingHubProps) => {
   const [filter, setFilter] = useState<'all' | 'unread' | 'starred'>('all');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Auto-select conversation from URL param
+  useEffect(() => {
+    if (recipientParam && conversations.length > 0 && !selectedConversation) {
+      const conv = conversations.find(c => c.other_user?.id === recipientParam);
+      if (conv) {
+        setSelectedConversation(conv);
+      } else {
+        // Create a placeholder conversation for new recipient
+        fetchRecipientProfile(recipientParam);
+      }
+    }
+  }, [recipientParam, conversations, selectedConversation]);
+
+  const fetchRecipientProfile = async (recipientId: string) => {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id, full_name, avatar_url, role')
+      .eq('id', recipientId)
+      .single();
+
+    if (profile) {
+      const newConv: Conversation = {
+        id: `new_${recipientId}`,
+        artist_id: user?.id || '',
+        engineer_id: recipientId,
+        other_user: {
+          id: profile.id,
+          display_name: profile.full_name || 'Unknown',
+          avatar_url: profile.avatar_url,
+          user_type: profile.role || undefined,
+        },
+        last_message_text: undefined,
+        last_message_time: undefined,
+        unread_count: 0,
+      };
+      setSelectedConversation(newConv);
+    }
+  };
 
   // Load messages when conversation selected
   useEffect(() => {
