@@ -3,6 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Upload, CheckCircle, Trophy, Award, UserPlus } from 'lucide-react';
+import { OnlineNowCounter } from '@/components/community/OnlineNowCounter';
 import { useDemoData } from '@/hooks/useDemoData';
 
 export default function LiveActivityStream() {
@@ -51,7 +52,12 @@ export default function LiveActivityStream() {
   };
 
   return (
-    <div className="space-y-2 max-h-[600px] overflow-y-auto pr-2">
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold">Live Activity</h3>
+        <OnlineNowCounter />
+      </div>
+      <div className="space-y-2 max-h-[550px] overflow-y-auto pr-2">
       {activities.map((activity, i) => (
         <Card key={i} className="bg-card/20 backdrop-blur-sm border-white/5 hover:border-primary/20 transition-all">
           <CardContent className="p-3 flex items-center gap-3">
@@ -78,6 +84,7 @@ export default function LiveActivityStream() {
           </CardContent>
         </Card>
       ))}
+      </div>
     </div>
   );
 }
