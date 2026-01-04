@@ -21,7 +21,7 @@ import { PackagesShop } from '@/components/crm/PackagesShop';
 import { RecommendedEngineers } from '@/components/crm/RecommendedEngineers';
 import { AIMatchingEngine } from '@/components/ai/AIMatchingEngine';
 import { MusicalProfile } from '@/components/crm/MusicalProfile';
-import ProfileEditor from '@/components/crm/ProfileEditor';
+import { BrandHub } from '@/components/crm/BrandHub';
 import ProfileInsights from '@/components/crm/ProfileInsights';
 import SessionManager from '@/components/collaboration/SessionManager';
 import CollaborationWorkspace from '@/components/collaboration/CollaborationWorkspace';
@@ -329,42 +329,7 @@ const ArtistCRM = () => {
         );
 
       case 'profile':
-        return (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-            <div className="lg:col-span-2">
-              <ProfileEditor />
-            </div>
-            <div>
-              <ProfileInsights />
-            </div>
-            <div className="lg:col-span-3">
-              <MusicalProfile />
-            </div>
-            <div className="lg:col-span-3 mt-4 md:mt-8">
-              <h3 className="text-xl font-bold mb-4">Your Badges</h3>
-              {achievements.length === 0 ? (
-                <Card className="p-12 text-center">
-                  <Award className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                  <h3 className="text-xl font-semibold mb-2">No badges yet</h3>
-                  <p className="text-muted-foreground">Complete sessions to unlock achievements</p>
-                </Card>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                  {achievements.map((achievement) => (
-                    <Card key={achievement.id} className="p-4 md:p-6 text-center">
-                      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
-                        <Award className="w-8 h-8 text-white" />
-                      </div>
-                      <h3 className="font-semibold mb-2">{achievement.badge_name}</h3>
-                      <p className="text-sm text-muted-foreground mb-2">{achievement.badge_description}</p>
-                      <Badge variant="outline">{achievement.badge_type}</Badge>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        );
+        return <BrandHub />;
 
       case 'revenue':
         return <RevenueHub userType="artist" userId={user?.id} />;

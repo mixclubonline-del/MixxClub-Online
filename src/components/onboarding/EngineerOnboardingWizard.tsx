@@ -10,13 +10,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
 import { 
   User, Settings, DollarSign, CheckCircle, ArrowRight, ArrowLeft,
-  Mic2, Headphones, Sliders, AudioWaveform
+  Mic2, Headphones, Sliders, AudioWaveform, AtSign, Loader2, Check, X
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
+import { useUsernameValidation } from '@/hooks/useUsernameValidation';
 
 const SPECIALTIES = [
   'Mixing', 'Mastering', 'Vocal Production', 'Beat Making',
@@ -64,6 +65,9 @@ export function EngineerOnboardingWizard() {
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const [hourlyRate, setHourlyRate] = useState(100);
 
+  // Username validation
+  const { username, setUsername, isChecking, isAvailable, error: usernameError, isValid: isUsernameValid } = useUsernameValidation();
+
   const progress = ((currentStep + 1) / steps.length) * 100;
 
   const toggleSpecialty = (specialty: string) => {
@@ -84,7 +88,7 @@ export function EngineerOnboardingWizard() {
 
   const canProceed = () => {
     switch (currentStep) {
-      case 0: return fullName.trim().length > 0 && bio.trim().length > 20;
+      case 0: return fullName.trim().length > 0 && bio.trim().length > 20 && isUsernameValid;
       case 1: return selectedSpecialties.length > 0 && selectedGenres.length > 0;
       case 2: return hourlyRate >= 25;
       default: return true;
@@ -110,11 +114,12 @@ export function EngineerOnboardingWizard() {
     
     setIsSubmitting(true);
     try {
-      // Update profile
+      // Update profile with username
       const { error: profileError } = await supabase
         .from('profiles')
         .update({
           full_name: fullName,
+          username: username,
           bio: bio,
           role: 'engineer'
         })
@@ -260,6 +265,41 @@ export function EngineerOnboardingWizard() {
                       onChange={(e) => setFullName(e.target.value)}
                       className="mt-1"
                     />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="username">Claim Your Username *</Label>
+                    <div className="relative mt-1">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                        <AtSign className="h-4 w-4" />
+                      </span>
+                      <Input
+                        id="username"
+                        placeholder="yourname"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        className="pl-9 pr-10"
+                      />
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        {isChecking && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+                        {!isChecking && isAvailable === true && <Check className="h-4 w-4 text-green-500" />}
+                        {!isChecking && isAvailable === false && <X className="h-4 w-4 text-destructive" />}
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between mt-1">
+                      <p className="text-xs text-muted-foreground">
+                        Your profile URL: /u/{username || '...'}
+                      </p>
+                      {usernameError && (
+                        <p className="text-xs text-destructive">{usernameError}</p>
+                      )}
+                      {!usernameError && isAvailable === false && (
+                        <p className="text-xs text-destructive">Username taken</p>
+                      )}
+                      {!usernameError && isAvailable === true && (
+                        <p className="text-xs text-green-500">Available!</p>
+                      )}
+                    </div>
                   </div>
                   
                   <div>

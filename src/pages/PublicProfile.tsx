@@ -1,12 +1,15 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { usePublicProfile } from "@/hooks/usePublicProfile";
 import { useAuth } from "@/hooks/useAuth";
+import { useStartConversation } from "@/hooks/useStartConversation";
 import { ProfileHero } from "@/components/profile/ProfileHero";
 import { ProfileActivityFeed } from "@/components/profile/ProfileActivityFeed";
 import { ProfileBadges } from "@/components/profile/ProfileBadges";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ProfileMusicSection } from "@/components/profile/ProfileMusicSection";
+import { ProfileNetworkSection } from "@/components/profile/ProfileNetworkSection";
+import { HireModal } from "@/components/profile/HireModal";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
@@ -22,6 +25,8 @@ export default function PublicProfile() {
   const { username } = useParams<{ username: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { startConversation } = useStartConversation();
+  const [showHireModal, setShowHireModal] = useState(false);
   
   const { 
     profile, 
@@ -41,22 +46,27 @@ export default function PublicProfile() {
     }
   }, [profile?.id, isOwnProfile, logProfileView]);
 
-  const handleMessage = () => {
+  const handleMessage = async () => {
     if (!user) {
       toast.error("Please sign in to send messages");
+      navigate("/auth");
       return;
     }
-    // TODO: Navigate to messages with this user
-    toast.info("Messaging coming soon!");
+    
+    if (!profile?.id) return;
+    
+    // Determine user role to navigate to correct CRM
+    const userRole = user?.user_metadata?.role === 'engineer' ? 'engineer' : 'artist';
+    await startConversation(profile.id, userRole);
   };
 
   const handleHire = () => {
     if (!user) {
       toast.error("Please sign in to hire");
+      navigate("/auth");
       return;
     }
-    // TODO: Open hire/collab flow
-    toast.info("Hiring flow coming soon!");
+    setShowHireModal(true);
   };
 
   if (isLoadingProfile) {
@@ -143,39 +153,34 @@ export default function PublicProfile() {
             </TabsContent>
 
             <TabsContent value="music">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Music className="h-5 w-5" />
-                    Music & Releases
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground text-center py-8">
-                    Music section coming soon...
-                  </p>
-                </CardContent>
-              </Card>
+              <ProfileMusicSection 
+                userId={profile.id} 
+                pinnedTrackId={profile.pinned_track_id}
+              />
             </TabsContent>
 
             <TabsContent value="network">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="h-5 w-5" />
-                    Collaborators & Network
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground text-center py-8">
-                    Network section coming soon...
-                  </p>
-                </CardContent>
-              </Card>
+              <ProfileNetworkSection 
+                userId={profile.id}
+                followerCount={profile.follower_count || 0}
+                followingCount={profile.following_count || 0}
+              />
             </TabsContent>
           </Tabs>
         </div>
       </div>
+
+      {/* Hire Modal */}
+      <HireModal
+        open={showHireModal}
+        onOpenChange={setShowHireModal}
+        profile={{
+          id: profile.id,
+          full_name: profile.full_name,
+          username: profile.username,
+          role: profile.role,
+        }}
+      />
     </>
   );
 }
