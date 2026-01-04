@@ -2844,6 +2844,170 @@ export type Database = {
           },
         ]
       }
+      live_chat_messages: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_highlighted: boolean | null
+          message: string
+          message_type: string | null
+          metadata: Json | null
+          stream_id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_highlighted?: boolean | null
+          message: string
+          message_type?: string | null
+          metadata?: Json | null
+          stream_id: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_highlighted?: boolean | null
+          message?: string
+          message_type?: string | null
+          metadata?: Json | null
+          stream_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_chat_messages_stream_id_fkey"
+            columns: ["stream_id"]
+            isOneToOne: false
+            referencedRelation: "live_streams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "live_chat_messages_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      live_gifts: {
+        Row: {
+          animation_type: string | null
+          coin_cost: number
+          created_at: string | null
+          creator_value: number
+          emoji: string
+          id: string
+          is_active: boolean | null
+          name: string
+          sort_order: number | null
+        }
+        Insert: {
+          animation_type?: string | null
+          coin_cost: number
+          created_at?: string | null
+          creator_value: number
+          emoji: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          sort_order?: number | null
+        }
+        Update: {
+          animation_type?: string | null
+          coin_cost?: number
+          created_at?: string | null
+          creator_value?: number
+          emoji?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          sort_order?: number | null
+        }
+        Relationships: []
+      }
+      live_streams: {
+        Row: {
+          category: string | null
+          co_hosts: Json | null
+          created_at: string | null
+          description: string | null
+          ended_at: string | null
+          host_id: string
+          id: string
+          is_live: boolean | null
+          is_recorded: boolean | null
+          peak_viewers: number | null
+          playback_url: string | null
+          recording_url: string | null
+          started_at: string | null
+          stream_key: string | null
+          stream_type: string | null
+          thumbnail_url: string | null
+          title: string
+          total_gifts_value: number | null
+          updated_at: string | null
+          viewer_count: number | null
+          visibility: string | null
+        }
+        Insert: {
+          category?: string | null
+          co_hosts?: Json | null
+          created_at?: string | null
+          description?: string | null
+          ended_at?: string | null
+          host_id: string
+          id?: string
+          is_live?: boolean | null
+          is_recorded?: boolean | null
+          peak_viewers?: number | null
+          playback_url?: string | null
+          recording_url?: string | null
+          started_at?: string | null
+          stream_key?: string | null
+          stream_type?: string | null
+          thumbnail_url?: string | null
+          title: string
+          total_gifts_value?: number | null
+          updated_at?: string | null
+          viewer_count?: number | null
+          visibility?: string | null
+        }
+        Update: {
+          category?: string | null
+          co_hosts?: Json | null
+          created_at?: string | null
+          description?: string | null
+          ended_at?: string | null
+          host_id?: string
+          id?: string
+          is_live?: boolean | null
+          is_recorded?: boolean | null
+          peak_viewers?: number | null
+          playback_url?: string | null
+          recording_url?: string | null
+          started_at?: string | null
+          stream_key?: string | null
+          stream_type?: string | null
+          thumbnail_url?: string | null
+          title?: string
+          total_gifts_value?: number | null
+          updated_at?: string | null
+          viewer_count?: number | null
+          visibility?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_streams_host_id_fkey"
+            columns: ["host_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       loyalty_tiers: {
         Row: {
           badge_icon: string | null
@@ -5077,6 +5241,135 @@ export type Database = {
           },
         ]
       }
+      stream_analytics: {
+        Row: {
+          chat_count: number | null
+          gift_count: number | null
+          id: string
+          reaction_count: number | null
+          stream_id: string
+          timestamp: string | null
+          viewer_count: number | null
+        }
+        Insert: {
+          chat_count?: number | null
+          gift_count?: number | null
+          id?: string
+          reaction_count?: number | null
+          stream_id: string
+          timestamp?: string | null
+          viewer_count?: number | null
+        }
+        Update: {
+          chat_count?: number | null
+          gift_count?: number | null
+          id?: string
+          reaction_count?: number | null
+          stream_id?: string
+          timestamp?: string | null
+          viewer_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stream_analytics_stream_id_fkey"
+            columns: ["stream_id"]
+            isOneToOne: false
+            referencedRelation: "live_streams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stream_followers: {
+        Row: {
+          created_at: string | null
+          creator_id: string
+          follower_id: string
+          id: string
+          notify_live: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          creator_id: string
+          follower_id: string
+          id?: string
+          notify_live?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          creator_id?: string
+          follower_id?: string
+          id?: string
+          notify_live?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stream_followers_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stream_followers_follower_id_fkey"
+            columns: ["follower_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stream_gifts: {
+        Row: {
+          created_at: string | null
+          gift_id: string
+          id: string
+          message: string | null
+          quantity: number | null
+          sender_id: string | null
+          stream_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          gift_id: string
+          id?: string
+          message?: string | null
+          quantity?: number | null
+          sender_id?: string | null
+          stream_id: string
+        }
+        Update: {
+          created_at?: string | null
+          gift_id?: string
+          id?: string
+          message?: string | null
+          quantity?: number | null
+          sender_id?: string | null
+          stream_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stream_gifts_gift_id_fkey"
+            columns: ["gift_id"]
+            isOneToOne: false
+            referencedRelation: "live_gifts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stream_gifts_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stream_gifts_stream_id_fkey"
+            columns: ["stream_id"]
+            isOneToOne: false
+            referencedRelation: "live_streams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       streaming_connections: {
         Row: {
           access_token: string | null
@@ -5373,6 +5666,41 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      user_coins: {
+        Row: {
+          balance: number | null
+          id: string
+          total_purchased: number | null
+          total_spent: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          balance?: number | null
+          id?: string
+          total_purchased?: number | null
+          total_spent?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          balance?: number | null
+          id?: string
+          total_purchased?: number | null
+          total_spent?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_coins_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_distribution_subscriptions: {
         Row: {
@@ -6059,6 +6387,20 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      process_stream_gift: {
+        Args: {
+          p_gift_id: string
+          p_message?: string
+          p_quantity?: number
+          p_sender_id: string
+          p_stream_id: string
+        }
+        Returns: string
+      }
+      update_stream_viewer_count: {
+        Args: { p_count: number; p_stream_id: string }
+        Returns: undefined
       }
     }
     Enums: {
