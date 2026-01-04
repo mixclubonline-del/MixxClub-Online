@@ -38,6 +38,8 @@ import { CollaborativeEarnings } from '@/components/crm/CollaborativeEarnings';
 import { AIMatchesHub } from '@/components/crm/matches';
 import { SessionsHub } from '@/components/crm/sessions';
 import { ClientsHub } from '@/components/crm/clients';
+import { MusicHub } from '@/components/crm/MusicHub';
+import { StoreHub } from '@/components/crm/StoreHub';
 
 const EngineerCRM = () => {
   const { user } = useAuth();
@@ -321,6 +323,12 @@ const EngineerCRM = () => {
         return <SessionsHub />;
       case 'active-work':
         return <ActiveWorkHub />;
+
+      case 'music':
+        return <MusicHub />;
+
+      case 'store':
+        return <StoreHub />;
 
       case 'opportunities':
         return <OpportunitiesHub userRole="engineer" />;

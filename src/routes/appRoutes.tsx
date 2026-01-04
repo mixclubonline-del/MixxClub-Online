@@ -150,6 +150,7 @@ export const appRoutes = (
     {/* Merch Store */}
     <Route path="/merch" element={<AppLayout><MerchStore /></AppLayout>} />
     <Route path="/merch/:username" element={<AppLayout><ArtistStorefront /></AppLayout>} />
+    <Route path="/store/:username" element={<AppLayout><ArtistStorefront /></AppLayout>} />
     <Route path="/artist/merch-manager" element={<AppLayout><ArtistMerchManager /></AppLayout>} />
 
     {/* Enterprise */}
