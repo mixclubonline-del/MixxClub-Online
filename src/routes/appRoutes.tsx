@@ -64,6 +64,9 @@ const LivePage = React.lazy(() => import("@/pages/LivePage"));
 const WatchStreamPage = React.lazy(() => import("@/pages/WatchStreamPage"));
 const BroadcastPage = React.lazy(() => import("@/pages/BroadcastPage"));
 
+// Public Profile
+const PublicProfile = React.lazy(() => import("@/pages/PublicProfile"));
+
 // Job Board
 import { JobBoard } from "@/pages/JobBoard";
 
@@ -165,5 +168,8 @@ export const appRoutes = (
 
     {/* Enterprise */}
     <Route path="/enterprise-demo" element={<EnterpriseDemo />} />
+
+    {/* Public Profiles */}
+    <Route path="/u/:username" element={<AppLayout><PublicProfile /></AppLayout>} />
   </>
 );
