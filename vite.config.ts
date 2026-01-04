@@ -78,6 +78,8 @@ export default defineConfig(({ mode }) => ({
     include: ["react", "react-dom", "@tanstack/react-query"],
   },
   build: {
+    target: 'esnext',
+    cssCodeSplit: true,
     rollupOptions: {
       output: {
         manualChunks: {
@@ -95,10 +97,12 @@ export default defineConfig(({ mode }) => ({
           'chart-vendor': ['recharts'],
           'form-vendor': ['react-hook-form', 'zod', '@hookform/resolvers'],
           'three-vendor': ['three', '@react-three/fiber', '@react-three/drei'],
+          'audio-vendor': ['wavesurfer.js', 'peaks.js', 'waveform-data'],
+          'ai-vendor': ['@huggingface/transformers'],
         },
       },
     },
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 2000,
     sourcemap: mode === 'development',
     minify: mode === 'production' ? 'esbuild' : false,
     esbuild: mode === 'production' ? {
