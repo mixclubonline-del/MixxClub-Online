@@ -56,6 +56,5 @@ export const publicRoutes = (
     <Route path="/waitlist" element={<Waitlist />} />
     <Route path="/press" element={<Press />} />
     <Route path="/enterprise" element={<Enterprise />} />
-    <Route path="*" element={<NotFound />} />
   </>
 );

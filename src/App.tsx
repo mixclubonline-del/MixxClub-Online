@@ -36,6 +36,7 @@ import { MobileOptimizations } from "@/components/MobileOptimizations";
 
 // Route modules - organized by domain
 import { publicRoutes, appRoutes, mobileRoutes, cityRoutes } from "@/routes";
+import NotFound from "@/pages/NotFound";
 
 // Desktop-only components wrapper
 const DesktopOnlyComponents = () => {
@@ -70,6 +71,8 @@ const AppContent = () => {
             {appRoutes}
             {mobileRoutes}
             {cityRoutes}
+            {/* Catch-all 404 - must be last */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </React.Suspense>
         <PWAInstallPrompt />
