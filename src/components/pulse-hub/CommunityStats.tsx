@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Users, Radio, CheckCircle, DollarSign } from 'lucide-react';
 import { useDemoData } from '@/hooks/useDemoData';
+import { motion } from 'framer-motion';
 
 export default function CommunityStats() {
   const { data, isLoading } = useDemoData('stats');
@@ -58,15 +59,30 @@ export default function CommunityStats() {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
       {statCards.map((stat, i) => (
-        <Card key={i} className="bg-card/30 backdrop-blur-sm border-white/5 hover:border-primary/20 transition-all">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <stat.icon className={`w-5 h-5 ${stat.color}`} />
-              <span className="text-2xl font-bold">{stat.value}</span>
-            </div>
-            <p className="text-sm text-muted-foreground">{stat.label}</p>
-          </CardContent>
-        </Card>
+        <motion.div
+          key={i}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: i * 0.1 }}
+        >
+          <Card className="bg-card/30 backdrop-blur-sm border-white/5 hover:border-primary/20 transition-all group">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="relative">
+                  <stat.icon className={`w-5 h-5 ${stat.color}`} />
+                  {stat.label === 'Active Sessions' && (
+                    <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+                    </span>
+                  )}
+                </div>
+                <span className="text-2xl font-bold group-hover:text-primary transition-colors">{stat.value}</span>
+              </div>
+              <p className="text-sm text-muted-foreground">{stat.label}</p>
+            </CardContent>
+          </Card>
+        </motion.div>
       ))}
     </div>
   );

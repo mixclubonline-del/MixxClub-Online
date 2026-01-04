@@ -5,6 +5,8 @@ import TrendingContent from '@/components/pulse-hub/TrendingContent';
 import CommunityStats from '@/components/pulse-hub/CommunityStats';
 import RecentAchievements from '@/components/pulse-hub/RecentAchievements';
 import EventCalendar from '@/components/pulse-hub/EventCalendar';
+import { RecentAchievementsFeed } from '@/components/community/RecentAchievementsFeed';
+import { OnlineNowCounter } from '@/components/community/OnlineNowCounter';
 import { usePrime } from '@/contexts/PrimeContext';
 import PrimeGlow from '@/components/prime/PrimeGlow';
 
@@ -34,8 +36,11 @@ export default function Pulse() {
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
                 The heartbeat of MixClub. Trending music, achievements, and community.
               </p>
-              <div className="text-sm font-mono text-accent-cyan mt-4">
-                PRIME STATUS: {systemMode.toUpperCase()}
+              <div className="flex items-center justify-center gap-4 mt-4">
+                <OnlineNowCounter />
+                <div className="text-sm font-mono text-accent-cyan">
+                  PRIME STATUS: {systemMode.toUpperCase()}
+                </div>
               </div>
             </div>
           </PrimeGlow>
@@ -48,6 +53,7 @@ export default function Pulse() {
                 <LiveActivityStream />
               </div>
               <div className="space-y-6">
+                <RecentAchievementsFeed />
                 <TrendingContent />
                 <EventCalendar />
               </div>
