@@ -8,6 +8,7 @@ import { LiveActivityTicker } from "@/components/home/LiveActivityTicker";
 import { FloatingPrimeChat } from "@/components/landing/FloatingPrimeChat";
 import { ScrollRevealSection } from "@/components/landing/ScrollRevealSection";
 import { PulsingCTA } from "@/components/landing/PulsingCTA";
+import { ThreeStories } from "@/components/waitlist/ThreeStories";
 
 export default function PrimeLanding() {
   return (
@@ -23,8 +24,13 @@ export default function PrimeLanding() {
         <NetworkExplainer />
       </ScrollRevealSection>
 
-      {/* Live Activity Ticker */}
+      {/* Stories Carousel - Role Diversity */}
       <ScrollRevealSection delay={0.1}>
+        <ThreeStories />
+      </ScrollRevealSection>
+
+      {/* Live Activity Ticker */}
+      <ScrollRevealSection delay={0.15}>
         <div className="py-8 px-6">
           <LiveActivityTicker />
         </div>
