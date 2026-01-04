@@ -3,12 +3,17 @@ import { Link } from "react-router-dom";
 import { ParticleBackground } from "@/components/home/2030/ParticleBackground";
 import { NetworkConstellationHero } from "@/components/home/NetworkConstellationHero";
 import { NetworkExplainer } from "@/components/home/NetworkExplainer";
-import { CityPreview } from "@/components/home/CityPreview";
 import { LiveActivityTicker } from "@/components/home/LiveActivityTicker";
 import { FloatingPrimeChat } from "@/components/landing/FloatingPrimeChat";
 import { ScrollRevealSection } from "@/components/landing/ScrollRevealSection";
 import { PulsingCTA } from "@/components/landing/PulsingCTA";
 import { ThreeStories } from "@/components/waitlist/ThreeStories";
+import { ProblemStatementAnimated } from "@/components/home/ProblemStatementAnimated";
+import { SessionPreview } from "@/components/home/SessionPreview";
+import { StudioPreview } from "@/components/home/StudioPreview";
+import { TransformationDemo } from "@/components/home/TransformationDemo";
+import { RevenuePreview } from "@/components/home/RevenuePreview";
+import { RoleGateway } from "@/components/home/RoleGateway";
 
 export default function PrimeLanding() {
   return (
@@ -19,8 +24,33 @@ export default function PrimeLanding() {
       {/* Network Constellation Hero */}
       <NetworkConstellationHero />
 
-      {/* Network Explainer - The Connection Story */}
+      {/* The Problem - Animated Pain Points */}
       <ScrollRevealSection>
+        <ProblemStatementAnimated />
+      </ScrollRevealSection>
+
+      {/* Session Preview - Live Collaboration */}
+      <ScrollRevealSection delay={0.1}>
+        <SessionPreview />
+      </ScrollRevealSection>
+
+      {/* Transformation Demo - Before/After */}
+      <ScrollRevealSection delay={0.1}>
+        <TransformationDemo />
+      </ScrollRevealSection>
+
+      {/* Studio Preview - Browser DAW */}
+      <ScrollRevealSection delay={0.1}>
+        <StudioPreview />
+      </ScrollRevealSection>
+
+      {/* Revenue Preview - 10 Streams + Pipeline */}
+      <ScrollRevealSection delay={0.1}>
+        <RevenuePreview />
+      </ScrollRevealSection>
+
+      {/* Network Explainer - The Connection Story */}
+      <ScrollRevealSection delay={0.1}>
         <NetworkExplainer />
       </ScrollRevealSection>
 
@@ -30,15 +60,15 @@ export default function PrimeLanding() {
       </ScrollRevealSection>
 
       {/* Live Activity Ticker */}
-      <ScrollRevealSection delay={0.15}>
+      <ScrollRevealSection delay={0.1}>
         <div className="py-8 px-6">
           <LiveActivityTicker />
         </div>
       </ScrollRevealSection>
 
-      {/* City Preview */}
-      <ScrollRevealSection delay={0.2}>
-        <CityPreview />
+      {/* Role Gateway - Artist or Engineer */}
+      <ScrollRevealSection delay={0.1}>
+        <RoleGateway />
       </ScrollRevealSection>
 
       {/* Footer CTA */}
