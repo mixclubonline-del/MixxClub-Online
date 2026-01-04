@@ -2809,6 +2809,41 @@ export type Database = {
           },
         ]
       }
+      listening_history: {
+        Row: {
+          duration_played: number | null
+          id: string
+          played_at: string | null
+          source: string | null
+          track_id: string | null
+          user_id: string
+        }
+        Insert: {
+          duration_played?: number | null
+          id?: string
+          played_at?: string | null
+          source?: string | null
+          track_id?: string | null
+          user_id: string
+        }
+        Update: {
+          duration_played?: number | null
+          id?: string
+          played_at?: string | null
+          source?: string | null
+          track_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listening_history_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "user_tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       loyalty_tiers: {
         Row: {
           badge_icon: string | null
@@ -3089,6 +3124,109 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      merch_products: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          images: Json | null
+          inventory_count: number | null
+          is_active: boolean | null
+          name: string
+          price: number
+          storefront_id: string | null
+          thumbnail_url: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          images?: Json | null
+          inventory_count?: number | null
+          is_active?: boolean | null
+          name: string
+          price: number
+          storefront_id?: string | null
+          thumbnail_url?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          images?: Json | null
+          inventory_count?: number | null
+          is_active?: boolean | null
+          name?: string
+          price?: number
+          storefront_id?: string | null
+          thumbnail_url?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "merch_products_storefront_id_fkey"
+            columns: ["storefront_id"]
+            isOneToOne: false
+            referencedRelation: "user_storefronts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      merch_variants: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          id: string
+          image_url: string | null
+          inventory_count: number | null
+          name: string
+          price: number
+          product_id: string | null
+          size: string | null
+          sku: string | null
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+          inventory_count?: number | null
+          name: string
+          price: number
+          product_id?: string | null
+          size?: string | null
+          sku?: string | null
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+          inventory_count?: number | null
+          name?: string
+          price?: number
+          product_id?: string | null
+          size?: string | null
+          sku?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "merch_variants_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "merch_products"
             referencedColumns: ["id"]
           },
         ]
@@ -3583,6 +3721,93 @@ export type Database = {
           processed_at?: string | null
           requested_at?: string
           status?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      playlist_tracks: {
+        Row: {
+          added_at: string | null
+          added_by: string | null
+          id: string
+          playlist_id: string | null
+          position: number
+          track_id: string | null
+        }
+        Insert: {
+          added_at?: string | null
+          added_by?: string | null
+          id?: string
+          playlist_id?: string | null
+          position: number
+          track_id?: string | null
+        }
+        Update: {
+          added_at?: string | null
+          added_by?: string | null
+          id?: string
+          playlist_id?: string | null
+          position?: number
+          track_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "playlist_tracks_playlist_id_fkey"
+            columns: ["playlist_id"]
+            isOneToOne: false
+            referencedRelation: "playlists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "playlist_tracks_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "user_tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      playlists: {
+        Row: {
+          cover_url: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_collaborative: boolean | null
+          is_public: boolean | null
+          name: string
+          play_count: number | null
+          total_duration: number | null
+          track_count: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          cover_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_collaborative?: boolean | null
+          is_public?: boolean | null
+          name: string
+          play_count?: number | null
+          total_duration?: number | null
+          track_count?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          cover_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_collaborative?: boolean | null
+          is_public?: boolean | null
+          name?: string
+          play_count?: number | null
+          total_duration?: number | null
+          track_count?: number | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
@@ -5454,6 +5679,60 @@ export type Database = {
         }
         Relationships: []
       }
+      user_storefronts: {
+        Row: {
+          banner_url: string | null
+          bio: string | null
+          created_at: string | null
+          display_name: string
+          id: string
+          is_active: boolean | null
+          logo_url: string | null
+          social_links: Json | null
+          storefront_slug: string
+          stripe_account_id: string | null
+          theme_color: string | null
+          total_revenue: number | null
+          total_sales: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          banner_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          display_name: string
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          social_links?: Json | null
+          storefront_slug: string
+          stripe_account_id?: string | null
+          theme_color?: string | null
+          total_revenue?: number | null
+          total_sales?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          banner_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          display_name?: string
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          social_links?: Json | null
+          storefront_slug?: string
+          stripe_account_id?: string | null
+          theme_color?: string | null
+          total_revenue?: number | null
+          total_sales?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_streaks: {
         Row: {
           created_at: string
@@ -5524,6 +5803,81 @@ export type Database = {
           start_date?: string | null
           status?: string | null
           subscription_tier?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_tracks: {
+        Row: {
+          artwork_url: string | null
+          audio_url: string
+          bpm: number | null
+          collaboration_credits: Json | null
+          created_at: string | null
+          description: string | null
+          download_count: number | null
+          duration_seconds: number | null
+          genre: string | null
+          id: string
+          is_for_sale: boolean | null
+          is_public: boolean | null
+          key_signature: string | null
+          license_type: string | null
+          play_count: number | null
+          price: number | null
+          release_date: string | null
+          source_premiere_id: string | null
+          source_project_id: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          artwork_url?: string | null
+          audio_url: string
+          bpm?: number | null
+          collaboration_credits?: Json | null
+          created_at?: string | null
+          description?: string | null
+          download_count?: number | null
+          duration_seconds?: number | null
+          genre?: string | null
+          id?: string
+          is_for_sale?: boolean | null
+          is_public?: boolean | null
+          key_signature?: string | null
+          license_type?: string | null
+          play_count?: number | null
+          price?: number | null
+          release_date?: string | null
+          source_premiere_id?: string | null
+          source_project_id?: string | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          artwork_url?: string | null
+          audio_url?: string
+          bpm?: number | null
+          collaboration_credits?: Json | null
+          created_at?: string | null
+          description?: string | null
+          download_count?: number | null
+          duration_seconds?: number | null
+          genre?: string | null
+          id?: string
+          is_for_sale?: boolean | null
+          is_public?: boolean | null
+          key_signature?: string | null
+          license_type?: string | null
+          play_count?: number | null
+          price?: number | null
+          release_date?: string | null
+          source_premiere_id?: string | null
+          source_project_id?: string | null
+          title?: string
           updated_at?: string | null
           user_id?: string
         }
