@@ -1,9 +1,13 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { usePrime } from "@/contexts/PrimeContext";
 import { motion } from "framer-motion";
 import { MixxclubLogo } from "@/components/brand/MixxclubLogo";
 import { cn } from "@/lib/utils";
 import { GoLiveButton } from "@/components/live/GoLiveButton";
+import NotificationCenter from "@/components/NotificationCenter";
+import { Button } from "@/components/ui/button";
+import { Search } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface GlobalHeaderProps {
   className?: string;
@@ -11,6 +15,8 @@ interface GlobalHeaderProps {
 
 export default function GlobalHeader({ className }: GlobalHeaderProps) {
   const { systemMode, accentColor, networkAwareness } = usePrime();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   
   return (
     <header 
@@ -23,10 +29,19 @@ export default function GlobalHeader({ className }: GlobalHeaderProps) {
       <Link to="/" className="flex items-center">
         <MixxclubLogo variant="wordmark-only" size="sm" animated={false} />
       </Link>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate('/search')}
+          className="h-9 w-9"
+        >
+          <Search className="h-4 w-4" />
+        </Button>
+        {user && <NotificationCenter />}
         <GoLiveButton className="hidden sm:flex" />
         <motion.div 
-          className="hidden sm:flex items-center gap-2 text-xs font-mono px-3 py-1.5 rounded-full border border-border/50 bg-muted/50"
+          className="hidden lg:flex items-center gap-2 text-xs font-mono px-3 py-1.5 rounded-full border border-border/50 bg-muted/50"
           animate={{ opacity: [0.7, 1, 0.7] }}
           transition={{ duration: 3, repeat: Infinity }}
         >

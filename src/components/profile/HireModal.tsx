@@ -26,6 +26,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { useStartConversation } from "@/hooks/useStartConversation";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface HireModalProps {
   open: boolean;
@@ -102,10 +103,21 @@ ${projectDescription}
 ---
 Sent via MixClub Hire`;
 
-      // Send initial message
-      const success = await sendInitialMessage(profile.id, message);
+      // Send initial message (skip message notification since we send hire_request notification)
+      const success = await sendInitialMessage(profile.id, message, true);
       
       if (success) {
+        // Create hire request notification for recipient
+        const senderName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Someone';
+        await supabase.from('notifications').insert({
+          user_id: profile.id,
+          type: 'hire_request',
+          title: 'New Hire Request',
+          message: `${senderName} wants to work with you on ${serviceName}`,
+          action_url: '/artist-crm?tab=messages',
+          metadata: { sender_id: user.id, service: selectedService, budget, timeline }
+        });
+        
         toast.success("Request sent! Check your messages.");
         onOpenChange(false);
         

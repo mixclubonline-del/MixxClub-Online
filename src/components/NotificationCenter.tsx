@@ -1,5 +1,17 @@
 import { useState } from 'react';
-import { Bell, Check, Trash2, X } from 'lucide-react';
+import { 
+  Bell, 
+  Check, 
+  X, 
+  UserPlus, 
+  MessageCircle, 
+  Briefcase, 
+  Trophy, 
+  Radio, 
+  DollarSign,
+  FileText,
+  Handshake
+} from 'lucide-react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { ScrollArea } from './ui/scroll-area';
@@ -17,16 +29,24 @@ const NotificationCenter = () => {
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
-      case 'payment_received':
-        return '💰';
-      case 'project_update':
-        return '📋';
-      case 'job_application':
-        return '📝';
+      case 'follow':
+        return { icon: UserPlus, color: 'text-blue-500', bg: 'bg-blue-500/10' };
+      case 'message':
+        return { icon: MessageCircle, color: 'text-green-500', bg: 'bg-green-500/10' };
+      case 'hire_request':
+        return { icon: Briefcase, color: 'text-purple-500', bg: 'bg-purple-500/10' };
+      case 'achievement':
+        return { icon: Trophy, color: 'text-yellow-500', bg: 'bg-yellow-500/10' };
+      case 'session_invite':
       case 'collaboration_invite':
-        return '🤝';
+        return { icon: Handshake, color: 'text-orange-500', bg: 'bg-orange-500/10' };
+      case 'payment':
+      case 'payment_received':
+        return { icon: DollarSign, color: 'text-emerald-500', bg: 'bg-emerald-500/10' };
+      case 'project_update':
+        return { icon: FileText, color: 'text-cyan-500', bg: 'bg-cyan-500/10' };
       default:
-        return '🔔';
+        return { icon: Bell, color: 'text-muted-foreground', bg: 'bg-muted' };
     }
   };
 
@@ -89,45 +109,49 @@ const NotificationCenter = () => {
             </div>
           ) : (
             <div className="space-y-2">
-              {notifications.map((notification) => (
-                <div
-                  key={notification.id}
-                  className={`p-4 rounded-lg border cursor-pointer transition-colors ${
-                    notification.is_read
-                      ? 'bg-background hover:bg-muted/50'
-                      : 'bg-primary/5 border-primary/20 hover:bg-primary/10'
-                  }`}
-                  onClick={() => handleNotificationClick(notification)}
-                >
-                  <div className="flex items-start gap-3">
-                    <span className="text-2xl flex-shrink-0">
-                      {getNotificationIcon(notification.type)}
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <h4 className="font-medium text-sm">{notification.title}</h4>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6 flex-shrink-0"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            deleteNotification(notification.id);
-                          }}
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
+              {notifications.map((notification) => {
+                const iconData = getNotificationIcon(notification.type);
+                const IconComponent = iconData.icon;
+                return (
+                  <div
+                    key={notification.id}
+                    className={`p-4 rounded-lg border cursor-pointer transition-colors ${
+                      notification.is_read
+                        ? 'bg-background hover:bg-muted/50'
+                        : 'bg-primary/5 border-primary/20 hover:bg-primary/10'
+                    }`}
+                    onClick={() => handleNotificationClick(notification)}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className={`p-2 rounded-full flex-shrink-0 ${iconData.bg}`}>
+                        <IconComponent className={`h-4 w-4 ${iconData.color}`} />
                       </div>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {notification.message}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-2">
-                        {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
-                      </p>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <h4 className="font-medium text-sm">{notification.title}</h4>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 flex-shrink-0 opacity-0 group-hover:opacity-100"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteNotification(notification.id);
+                            }}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {notification.message}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </ScrollArea>
