@@ -4092,57 +4092,144 @@ export type Database = {
           },
         ]
       }
+      profile_views: {
+        Row: {
+          id: string
+          profile_id: string
+          source: string | null
+          viewed_at: string | null
+          viewer_id: string | null
+        }
+        Insert: {
+          id?: string
+          profile_id: string
+          source?: string | null
+          viewed_at?: string | null
+          viewer_id?: string | null
+        }
+        Update: {
+          id?: string
+          profile_id?: string
+          source?: string | null
+          viewed_at?: string | null
+          viewer_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_views_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profile_views_viewer_id_fkey"
+            columns: ["viewer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
           bio: string | null
+          cover_image_url: string | null
           created_at: string
           email: string | null
+          follower_count: number | null
+          following_count: number | null
           full_name: string | null
           genre_specialties: Json | null
           id: string
+          is_available_for_collab: boolean | null
+          is_verified: boolean | null
+          last_active_at: string | null
           level: number | null
+          location: string | null
           notification_preferences: Json | null
+          pinned_track_id: string | null
           points: number | null
+          profile_theme: string | null
+          profile_views_count: number | null
           project_id: string | null
           role: string | null
+          social_links: Json | null
+          status_emoji: string | null
+          status_text: string | null
           stripe_connect_account_id: string | null
+          tagline: string | null
           total_xp: number | null
           updated_at: string
+          username: string | null
+          website_url: string | null
         }
         Insert: {
           avatar_url?: string | null
           bio?: string | null
+          cover_image_url?: string | null
           created_at?: string
           email?: string | null
+          follower_count?: number | null
+          following_count?: number | null
           full_name?: string | null
           genre_specialties?: Json | null
           id: string
+          is_available_for_collab?: boolean | null
+          is_verified?: boolean | null
+          last_active_at?: string | null
           level?: number | null
+          location?: string | null
           notification_preferences?: Json | null
+          pinned_track_id?: string | null
           points?: number | null
+          profile_theme?: string | null
+          profile_views_count?: number | null
           project_id?: string | null
           role?: string | null
+          social_links?: Json | null
+          status_emoji?: string | null
+          status_text?: string | null
           stripe_connect_account_id?: string | null
+          tagline?: string | null
           total_xp?: number | null
           updated_at?: string
+          username?: string | null
+          website_url?: string | null
         }
         Update: {
           avatar_url?: string | null
           bio?: string | null
+          cover_image_url?: string | null
           created_at?: string
           email?: string | null
+          follower_count?: number | null
+          following_count?: number | null
           full_name?: string | null
           genre_specialties?: Json | null
           id?: string
+          is_available_for_collab?: boolean | null
+          is_verified?: boolean | null
+          last_active_at?: string | null
           level?: number | null
+          location?: string | null
           notification_preferences?: Json | null
+          pinned_track_id?: string | null
           points?: number | null
+          profile_theme?: string | null
+          profile_views_count?: number | null
           project_id?: string | null
           role?: string | null
+          social_links?: Json | null
+          status_emoji?: string | null
+          status_text?: string | null
           stripe_connect_account_id?: string | null
+          tagline?: string | null
           total_xp?: number | null
           updated_at?: string
+          username?: string | null
+          website_url?: string | null
         }
         Relationships: [
           {
@@ -5667,6 +5754,47 @@ export type Database = {
         }
         Relationships: []
       }
+      user_activity: {
+        Row: {
+          activity_type: string
+          created_at: string | null
+          description: string | null
+          id: string
+          is_public: boolean | null
+          metadata: Json | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          metadata?: Json | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          metadata?: Json | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_activity_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_coins: {
         Row: {
           balance: number | null
@@ -5734,6 +5862,42 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_follows: {
+        Row: {
+          created_at: string | null
+          follower_id: string
+          following_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string | null
+          follower_id: string
+          following_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string | null
+          follower_id?: string
+          following_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_follows_follower_id_fkey"
+            columns: ["follower_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_follows_following_id_fkey"
+            columns: ["following_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_integrations: {
         Row: {
