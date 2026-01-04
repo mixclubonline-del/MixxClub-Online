@@ -126,6 +126,7 @@ export function useSocialGraph(targetUserId?: string) {
       queryClient.invalidateQueries({ queryKey: ["followers", userIdToFollow] });
       queryClient.invalidateQueries({ queryKey: ["following", user?.id] });
       queryClient.invalidateQueries({ queryKey: ["public-profile"] });
+      queryClient.invalidateQueries({ queryKey: ["suggested-users"] });
       toast.success("Following!");
     },
     onError: (error) => {
@@ -133,6 +134,18 @@ export function useSocialGraph(targetUserId?: string) {
       toast.error("Failed to follow user");
     },
   });
+
+  // Enhanced follow with callback support
+  const followUserWithCallback = (
+    userIdToFollow: string,
+    options?: { onSuccess?: () => void }
+  ) => {
+    followMutation.mutate(userIdToFollow, {
+      onSuccess: () => {
+        options?.onSuccess?.();
+      },
+    });
+  };
 
   // Unfollow a user
   const unfollowMutation = useMutation({
@@ -205,7 +218,7 @@ export function useSocialGraph(targetUserId?: string) {
     following,
     isLoadingFollowing,
     mutualConnections,
-    followUser: followMutation.mutate,
+    followUser: followUserWithCallback,
     unfollowUser: unfollowMutation.mutate,
     isFollowPending: followMutation.isPending,
     isUnfollowPending: unfollowMutation.isPending,
