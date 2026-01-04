@@ -1,9 +1,14 @@
 import { motion } from "framer-motion";
 import { usePrime } from "@/contexts/PrimeContext";
 import { Brain, Users, Activity, Waves } from "lucide-react";
+import { useBreakpoint } from "@/hooks/useBreakpoint";
 
 export default function PrimeStatusBar() {
   const { systemMode, networkAwareness, audioState, accentColor } = usePrime();
+  const { isDesktop } = useBreakpoint();
+
+  // Only show on desktop - mobile/tablet have their own nav indicators
+  if (!isDesktop) return null;
 
   const statusItems = [
     {
@@ -36,24 +41,22 @@ export default function PrimeStatusBar() {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="fixed bottom-6 left-6 z-50 bg-background/80 backdrop-blur-sm border border-border rounded-lg p-2"
+      className="fixed bottom-4 left-4 z-40 bg-card/90 backdrop-blur-sm border border-border/50 rounded-xl px-3 py-2 shadow-lg"
     >
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
         {statusItems.map((item, index) => (
-          <div key={index} className="flex items-center gap-2">
+          <div key={index} className="flex items-center gap-1.5">
             <motion.div
-              animate={{
-                color: item.color
-              }}
+              animate={{ color: item.color }}
               transition={{ duration: 0.3 }}
             >
-              <item.icon className="w-4 h-4" />
+              <item.icon className="w-3.5 h-3.5" />
             </motion.div>
-            <div className="flex flex-col">
-              <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
+            <div className="flex flex-col leading-none">
+              <span className="text-[9px] text-muted-foreground uppercase tracking-wider">
                 {item.label}
               </span>
-              <span className="text-xs font-mono font-semibold">
+              <span className="text-[11px] font-mono font-medium">
                 {item.value}
               </span>
             </div>
