@@ -34,6 +34,7 @@ import { StreakTracker } from '../gamification/StreakTracker';
 import { AchievementsBadges } from '../gamification/AchievementsBadges';
 import { RevenueAnalyticsDashboard } from '../revenue/RevenueAnalyticsDashboard';
 import { WhosLiveWidget } from '@/components/live/WhosLiveWidget';
+import { WhoToFollowWidget } from '@/components/social/WhoToFollowWidget';
 
 interface DashboardMetrics {
   careerMomentum: {
@@ -223,11 +224,12 @@ export const EnhancedDashboardHub = ({ userType }: EnhancedDashboardHubProps) =>
         </Button>
       </div>
 
-      {/* Who's Live + Gamification */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Who's Live + Gamification + Social Discovery */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <WhosLiveWidget limit={4} />
         <StreakTracker />
         <AchievementsBadges />
+        <WhoToFollowWidget limit={4} />
       </div>
 
       {/* Hip-Hop Pulse - Real-time Activity */}

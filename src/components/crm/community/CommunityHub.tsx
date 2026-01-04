@@ -10,6 +10,7 @@ import { CommunityLeaderboard } from './CommunityLeaderboard';
 import { CommunityChallenges } from './CommunityChallenges';
 import { ReferralWidget } from './ReferralWidget';
 import { LiveFeed } from '@/components/live/LiveFeed';
+import { WhoToFollowWidget } from '@/components/social/WhoToFollowWidget';
 
 interface CommunityHubProps {
   userType: 'artist' | 'engineer';
@@ -88,6 +89,7 @@ export const CommunityHub: React.FC<CommunityHubProps> = ({ userType }) => {
                 <SocialFeed userType={userType} searchQuery={searchQuery} />
               </div>
               <div className="space-y-6">
+                <WhoToFollowWidget limit={5} />
                 <ReferralWidget />
                 <CommunityChallenges compact />
               </div>

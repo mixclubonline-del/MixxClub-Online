@@ -10,6 +10,7 @@ import { ProfileBadges } from "@/components/profile/ProfileBadges";
 import { ProfileMusicSection } from "@/components/profile/ProfileMusicSection";
 import { ProfileNetworkSection } from "@/components/profile/ProfileNetworkSection";
 import { HireModal } from "@/components/profile/HireModal";
+import { SimilarUsersSection } from "@/components/social/SimilarUsersSection";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
@@ -159,11 +160,15 @@ export default function PublicProfile() {
               />
             </TabsContent>
 
-            <TabsContent value="network">
+            <TabsContent value="network" className="space-y-6">
               <ProfileNetworkSection 
                 userId={profile.id}
                 followerCount={profile.follower_count || 0}
                 followingCount={profile.following_count || 0}
+              />
+              <SimilarUsersSection 
+                userId={profile.id} 
+                userRole={profile.role}
               />
             </TabsContent>
           </Tabs>
