@@ -2,7 +2,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.58.0';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-webhook-signature, x-webhook-timestamp',
 };
 
 interface WebhookPayload {
@@ -11,18 +11,85 @@ interface WebhookPayload {
   data?: Record<string, any>;
 }
 
+// HMAC-SHA256 signature verification (optional - only enforced if N8N_WEBHOOK_SECRET is set)
+async function verifySignature(req: Request, bodyText: string): Promise<{ valid: boolean; reason?: string }> {
+  const secret = Deno.env.get('N8N_WEBHOOK_SECRET');
+  
+  // If no secret configured, skip verification (dev mode)
+  if (!secret) {
+    console.log('[n8n-webhook] No N8N_WEBHOOK_SECRET configured, skipping signature verification');
+    return { valid: true, reason: 'no_secret_configured' };
+  }
+  
+  const signature = req.headers.get('x-webhook-signature');
+  const timestamp = req.headers.get('x-webhook-timestamp');
+  
+  if (!signature || !timestamp) {
+    console.log('[n8n-webhook] Missing signature headers');
+    return { valid: false, reason: 'missing_headers' };
+  }
+  
+  // Check timestamp is within 5 minutes (replay attack protection)
+  const now = Date.now();
+  const reqTime = parseInt(timestamp, 10);
+  if (isNaN(reqTime) || Math.abs(now - reqTime) > 300000) {
+    console.log('[n8n-webhook] Timestamp too old or invalid:', timestamp);
+    return { valid: false, reason: 'timestamp_invalid' };
+  }
+  
+  try {
+    const encoder = new TextEncoder();
+    const key = await crypto.subtle.importKey(
+      'raw',
+      encoder.encode(secret),
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['sign']
+    );
+    
+    // Sign: timestamp.body
+    const signatureData = `${timestamp}.${bodyText}`;
+    const expectedSig = await crypto.subtle.sign('HMAC', key, encoder.encode(signatureData));
+    const expectedHex = Array.from(new Uint8Array(expectedSig))
+      .map(b => b.toString(16).padStart(2, '0')).join('');
+    
+    if (signature !== expectedHex) {
+      console.log('[n8n-webhook] Signature mismatch');
+      return { valid: false, reason: 'signature_mismatch' };
+    }
+    
+    return { valid: true };
+  } catch (error) {
+    console.error('[n8n-webhook] Signature verification error:', error);
+    return { valid: false, reason: 'verification_error' };
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Read body as text for signature verification
+    const bodyText = await req.text();
+    
+    // Verify signature (optional, only if secret is configured)
+    const signatureResult = await verifySignature(req, bodyText);
+    if (!signatureResult.valid) {
+      console.log('[n8n-webhook] Signature verification failed:', signatureResult.reason);
+      return new Response(
+        JSON.stringify({ error: 'Invalid signature', reason: signatureResult.reason }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const payload: WebhookPayload = await req.json();
+    const payload: WebhookPayload = JSON.parse(bodyText);
     const { action, userId, data } = payload;
 
     console.log('[n8n-webhook] Received action:', action, 'for user:', userId);
