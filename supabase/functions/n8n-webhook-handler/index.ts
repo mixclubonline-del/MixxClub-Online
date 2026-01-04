@@ -233,6 +233,397 @@ Deno.serve(async (req) => {
         break;
       }
 
+      case 'release_payment': {
+        if (!data?.payment_id || !data?.session_id) {
+          throw new Error('Missing required fields for release_payment: payment_id, session_id');
+        }
+        
+        console.log('[n8n-webhook] Processing payment release for:', data.payment_id);
+        
+        // Get payment details
+        const { data: payment, error: paymentError } = await supabaseClient
+          .from('session_payments')
+          .select('*, collaboration_sessions!inner(host_user_id, title)')
+          .eq('id', data.payment_id)
+          .single();
+        
+        if (paymentError || !payment) {
+          throw new Error('Payment not found');
+        }
+        
+        if (payment.status !== 'held') {
+          throw new Error(`Cannot release payment with status: ${payment.status}`);
+        }
+        
+        // Update payment status to released
+        const { error: updateError } = await supabaseClient
+          .from('session_payments')
+          .update({
+            status: 'released',
+            released_at: new Date().toISOString(),
+            released_by: data.approved_by || null,
+          })
+          .eq('id', data.payment_id);
+        
+        if (updateError) throw updateError;
+        
+        // Create earnings record for engineer
+        if (payment.payee_id) {
+          await supabaseClient.from('engineer_earnings').insert({
+            engineer_id: payment.payee_id,
+            amount: payment.amount,
+            base_amount: payment.amount,
+            total_amount: payment.amount,
+            currency: payment.currency || 'USD',
+            status: 'pending',
+          });
+          
+          // Notify the payee
+          await supabaseClient.from('notifications').insert({
+            user_id: payment.payee_id,
+            type: 'payment',
+            title: 'Payment Released! 💰',
+            message: `Your payment of $${payment.amount} has been released.`,
+            action_url: '/earnings',
+          });
+        }
+        
+        result.message = `Payment ${data.payment_id} released`;
+        result.amount = payment.amount;
+        break;
+      }
+
+      case 'send_push_notification': {
+        if (!userId || !data?.title || !data?.body) {
+          throw new Error('Missing required fields for send_push_notification: userId, title, body');
+        }
+        
+        console.log('[n8n-webhook] Sending push notification to:', userId);
+        
+        // Get user's push tokens
+        const { data: tokens } = await supabaseClient
+          .from('push_tokens')
+          .select('token, platform')
+          .eq('user_id', userId)
+          .eq('is_active', true);
+        
+        // Store notification in database
+        await supabaseClient.from('notifications').insert({
+          user_id: userId,
+          type: data.type || 'push',
+          title: data.title,
+          message: data.body,
+          action_url: data.action_url,
+          is_read: false,
+        });
+        
+        let pushCount = 0;
+        
+        if (tokens && tokens.length > 0) {
+          // Group tokens by platform
+          const fcmTokens = tokens.filter(t => t.platform === 'android').map(t => t.token);
+          const apnsTokens = tokens.filter(t => t.platform === 'ios').map(t => t.token);
+          
+          // Send FCM notifications (Android)
+          if (fcmTokens.length > 0) {
+            const fcmKey = Deno.env.get('FCM_SERVER_KEY');
+            if (fcmKey) {
+              try {
+                await fetch('https://fcm.googleapis.com/fcm/send', {
+                  method: 'POST',
+                  headers: {
+                    'Authorization': `key=${fcmKey}`,
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    registration_ids: fcmTokens,
+                    notification: {
+                      title: data.title,
+                      body: data.body,
+                      badge: data.badge || 1,
+                      sound: data.sound || 'default',
+                    },
+                    data: data.payload || {},
+                  }),
+                });
+                pushCount += fcmTokens.length;
+              } catch (e) {
+                console.error('[n8n-webhook] FCM error:', e);
+              }
+            }
+          }
+          
+          // For iOS, we'd use APNS - log for now
+          if (apnsTokens.length > 0) {
+            console.log('[n8n-webhook] APNS tokens found:', apnsTokens.length);
+            pushCount += apnsTokens.length;
+          }
+        }
+        
+        // Optionally send email notification as well
+        if (data.sendEmail) {
+          const { data: profile } = await supabaseClient
+            .from('profiles')
+            .select('email, full_name')
+            .eq('id', userId)
+            .single();
+          
+          if (profile?.email) {
+            const resendApiKey = Deno.env.get('RESEND_API_KEY');
+            if (resendApiKey) {
+              await fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${resendApiKey}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  from: 'MixClub <noreply@mixclub.com>',
+                  to: profile.email,
+                  subject: data.title,
+                  html: `<h2>${data.title}</h2><p>${data.body}</p>`,
+                }),
+              });
+            }
+          }
+        }
+        
+        result.message = `Push notification sent to ${pushCount} devices`;
+        result.deviceCount = pushCount;
+        break;
+      }
+
+      case 'sync_analytics': {
+        if (!data?.eventName) {
+          throw new Error('Missing required field for sync_analytics: eventName');
+        }
+        
+        console.log('[n8n-webhook] Syncing analytics event:', data.eventName);
+        
+        const platforms = data.platforms || ['internal'];
+        const syncResults: Record<string, boolean> = {};
+        
+        // Always sync to internal analytics
+        if (platforms.includes('internal')) {
+          const today = new Date().toISOString().split('T')[0];
+          
+          const { error } = await supabaseClient.rpc('track_analytics_event', {
+            p_event_name: data.eventName,
+            p_event_data: data.eventData || {},
+            p_user_id: userId || null,
+          }).maybeSingle();
+          
+          // Upsert daily metric
+          await supabaseClient.from('daily_metrics').upsert({
+            metric_date: today,
+            metric_name: data.eventName,
+            metric_value: 1,
+            metadata: data.eventData || {},
+          }, {
+            onConflict: 'metric_date,metric_name',
+          });
+          
+          syncResults.internal = !error;
+        }
+        
+        // Sync to GA4 via Measurement Protocol
+        if (platforms.includes('ga4')) {
+          const measurementId = Deno.env.get('GA4_MEASUREMENT_ID');
+          const apiSecret = Deno.env.get('GA4_API_SECRET');
+          
+          if (measurementId && apiSecret) {
+            try {
+              const response = await fetch(
+                `https://www.google-analytics.com/mp/collect?measurement_id=${measurementId}&api_secret=${apiSecret}`,
+                {
+                  method: 'POST',
+                  body: JSON.stringify({
+                    client_id: userId || 'anonymous',
+                    events: [{
+                      name: data.eventName.replace(/\./g, '_'),
+                      params: {
+                        ...data.eventData,
+                        user_id: userId,
+                      },
+                    }],
+                  }),
+                }
+              );
+              syncResults.ga4 = response.ok;
+            } catch (e) {
+              console.error('[n8n-webhook] GA4 error:', e);
+              syncResults.ga4 = false;
+            }
+          } else {
+            console.warn('[n8n-webhook] GA4 not configured');
+            syncResults.ga4 = false;
+          }
+        }
+        
+        // Sync to Mixpanel
+        if (platforms.includes('mixpanel')) {
+          const mixpanelToken = Deno.env.get('MIXPANEL_TOKEN');
+          
+          if (mixpanelToken) {
+            try {
+              const eventData = {
+                event: data.eventName,
+                properties: {
+                  token: mixpanelToken,
+                  distinct_id: userId || 'anonymous',
+                  ...data.eventData,
+                },
+              };
+              
+              const response = await fetch('https://api.mixpanel.com/track', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify([eventData]),
+              });
+              syncResults.mixpanel = response.ok;
+            } catch (e) {
+              console.error('[n8n-webhook] Mixpanel error:', e);
+              syncResults.mixpanel = false;
+            }
+          }
+        }
+        
+        result.message = `Analytics synced to ${Object.keys(syncResults).join(', ')}`;
+        result.syncResults = syncResults;
+        break;
+      }
+
+      case 'trigger_email_sequence': {
+        if (!userId || !data?.sequenceId) {
+          throw new Error('Missing required fields for trigger_email_sequence: userId, sequenceId');
+        }
+        
+        console.log('[n8n-webhook] Enrolling user in email sequence:', data.sequenceId);
+        
+        // Find sequence by name or ID
+        let sequenceQuery = supabaseClient.from('email_sequences').select('*');
+        
+        if (data.sequenceId.includes('-')) {
+          sequenceQuery = sequenceQuery.eq('id', data.sequenceId);
+        } else {
+          sequenceQuery = sequenceQuery.eq('name', data.sequenceId);
+        }
+        
+        const { data: sequence, error: seqError } = await sequenceQuery.single();
+        
+        if (seqError || !sequence) {
+          throw new Error(`Email sequence not found: ${data.sequenceId}`);
+        }
+        
+        if (!sequence.is_active) {
+          result.message = 'Sequence is inactive, skipping enrollment';
+          break;
+        }
+        
+        // Check if already enrolled
+        const { data: existingEnrollment } = await supabaseClient
+          .from('email_sequence_enrollments')
+          .select('id, status')
+          .eq('user_id', userId)
+          .eq('sequence_id', sequence.id)
+          .single();
+        
+        if (existingEnrollment && data.skipIfEnrolled) {
+          result.message = 'User already enrolled, skipping';
+          result.enrollmentId = existingEnrollment.id;
+          break;
+        }
+        
+        // Get first step of sequence
+        const { data: firstStep } = await supabaseClient
+          .from('email_sequence_steps')
+          .select('*')
+          .eq('sequence_id', sequence.id)
+          .eq('is_active', true)
+          .order('step_order', { ascending: true })
+          .limit(1)
+          .single();
+        
+        // Calculate next email time
+        const delayHours = firstStep?.delay_hours || 0;
+        const nextEmailAt = new Date(Date.now() + delayHours * 60 * 60 * 1000);
+        
+        // Create or update enrollment
+        const enrollmentData = {
+          user_id: userId,
+          sequence_id: sequence.id,
+          current_step: 0,
+          status: 'active',
+          next_email_at: nextEmailAt.toISOString(),
+          metadata: data.metadata || {},
+        };
+        
+        if (existingEnrollment) {
+          const { error } = await supabaseClient
+            .from('email_sequence_enrollments')
+            .update(enrollmentData)
+            .eq('id', existingEnrollment.id);
+          
+          if (error) throw error;
+          result.enrollmentId = existingEnrollment.id;
+        } else {
+          const { data: newEnrollment, error } = await supabaseClient
+            .from('email_sequence_enrollments')
+            .insert(enrollmentData)
+            .select('id')
+            .single();
+          
+          if (error) throw error;
+          result.enrollmentId = newEnrollment?.id;
+        }
+        
+        // If delay is 0, send first email immediately
+        if (delayHours === 0 && firstStep) {
+          const { data: profile } = await supabaseClient
+            .from('profiles')
+            .select('email, full_name')
+            .eq('id', userId)
+            .single();
+          
+          if (profile?.email) {
+            const resendApiKey = Deno.env.get('RESEND_API_KEY');
+            if (resendApiKey) {
+              // Replace template variables
+              let htmlContent = firstStep.html_template
+                .replace(/\{\{full_name\}\}/g, profile.full_name || 'there')
+                .replace(/\{\{email\}\}/g, profile.email);
+              
+              await fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${resendApiKey}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  from: 'MixClub <noreply@mixclub.com>',
+                  to: profile.email,
+                  subject: firstStep.subject,
+                  html: htmlContent,
+                }),
+              });
+              
+              // Update enrollment
+              await supabaseClient
+                .from('email_sequence_enrollments')
+                .update({
+                  current_step: 1,
+                  last_email_at: new Date().toISOString(),
+                })
+                .eq('id', result.enrollmentId);
+            }
+          }
+        }
+        
+        result.message = `User enrolled in sequence: ${sequence.name}`;
+        result.sequenceName = sequence.name;
+        break;
+      }
+
       default:
         throw new Error(`Unknown action: ${action}`);
     }

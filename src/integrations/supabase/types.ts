@@ -1796,6 +1796,127 @@ export type Database = {
           },
         ]
       }
+      email_sequence_enrollments: {
+        Row: {
+          completed_at: string | null
+          current_step: number | null
+          enrolled_at: string | null
+          id: string
+          last_email_at: string | null
+          metadata: Json | null
+          next_email_at: string | null
+          sequence_id: string
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          current_step?: number | null
+          enrolled_at?: string | null
+          id?: string
+          last_email_at?: string | null
+          metadata?: Json | null
+          next_email_at?: string | null
+          sequence_id: string
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          current_step?: number | null
+          enrolled_at?: string | null
+          id?: string
+          last_email_at?: string | null
+          metadata?: Json | null
+          next_email_at?: string | null
+          sequence_id?: string
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_sequence_enrollments_sequence_id_fkey"
+            columns: ["sequence_id"]
+            isOneToOne: false
+            referencedRelation: "email_sequences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_sequence_steps: {
+        Row: {
+          conditions: Json | null
+          created_at: string | null
+          delay_hours: number | null
+          html_template: string
+          id: string
+          is_active: boolean | null
+          sequence_id: string
+          step_order: number
+          subject: string
+        }
+        Insert: {
+          conditions?: Json | null
+          created_at?: string | null
+          delay_hours?: number | null
+          html_template: string
+          id?: string
+          is_active?: boolean | null
+          sequence_id: string
+          step_order: number
+          subject: string
+        }
+        Update: {
+          conditions?: Json | null
+          created_at?: string | null
+          delay_hours?: number | null
+          html_template?: string
+          id?: string
+          is_active?: boolean | null
+          sequence_id?: string
+          step_order?: number
+          subject?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_sequence_steps_sequence_id_fkey"
+            columns: ["sequence_id"]
+            isOneToOne: false
+            referencedRelation: "email_sequences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_sequences: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          trigger_event: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          trigger_event?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          trigger_event?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       engineer_badges: {
         Row: {
           badge_description: string | null
