@@ -59,6 +59,11 @@ const ArtistStorefront = React.lazy(() => import("@/pages/ArtistStorefront"));
 const ArtistMerchManager = React.lazy(() => import("@/pages/ArtistMerchManager"));
 const EnterpriseDemo = React.lazy(() => import("@/pages/EnterpriseDemo"));
 
+// Live Streaming pages
+const LivePage = React.lazy(() => import("@/pages/LivePage"));
+const WatchStreamPage = React.lazy(() => import("@/pages/WatchStreamPage"));
+const BroadcastPage = React.lazy(() => import("@/pages/BroadcastPage"));
+
 // Job Board
 import { JobBoard } from "@/pages/JobBoard";
 
@@ -85,6 +90,11 @@ export const appRoutes = (
     <Route path="/leaderboard" element={<CommunityLeaderboard />} />
     <Route path="/achievements" element={<Achievements />} />
     <Route path="/unlockables" element={<UnlockablesHub />} />
+    
+    {/* Live Streaming */}
+    <Route path="/live" element={<AppLayout><LivePage /></AppLayout>} />
+    <Route path="/watch/:streamId" element={<AppLayout><WatchStreamPage /></AppLayout>} />
+    <Route path="/broadcast/:streamId" element={<BroadcastPage />} />
     
     {/* Legacy redirects */}
     <Route path="/pulse" element={<Navigate to="/community?tab=feed" replace />} />
