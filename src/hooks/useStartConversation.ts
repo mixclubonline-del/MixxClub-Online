@@ -39,7 +39,7 @@ export function useStartConversation() {
     }
   }, [user, navigate]);
 
-  const sendInitialMessage = useCallback(async (recipientId: string, message: string) => {
+  const sendInitialMessage = useCallback(async (recipientId: string, message: string, skipNotification = false) => {
     if (!user) {
       toast.error('Please sign in to send messages');
       return false;
@@ -55,6 +55,20 @@ export function useStartConversation() {
         });
 
       if (error) throw error;
+      
+      // Create message notification for recipient (unless skipped, e.g. for hire requests that have their own notification)
+      if (!skipNotification) {
+        const senderName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Someone';
+        await supabase.from('notifications').insert({
+          user_id: recipientId,
+          type: 'message',
+          title: 'New Message',
+          message: `${senderName} sent you a message`,
+          action_url: '/artist-crm?tab=messages',
+          metadata: { sender_id: user.id }
+        });
+      }
+      
       return true;
     } catch (error) {
       console.error('Error sending message:', error);
