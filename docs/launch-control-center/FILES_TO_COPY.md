@@ -1,20 +1,22 @@
 # MixClub Launch Control Center - Files to Copy
 
 ## Overview
-Total files to copy: ~168 files
+Total files to copy: ~185 files
 
 ---
 
-## 1. Admin Pages (41 files)
+## 1. Admin Pages (46 files)
 Copy from `src/pages/` to new project's `src/pages/`:
 
 ```
 Admin.tsx
 AdminAchievements.tsx
 AdminAnalytics.tsx
+AdminAssetGallery.tsx
 AdminAudio.tsx
 AdminBeatFiles.tsx
 AdminCommandCenter.tsx
+AdminCommunications.tsx
 AdminContacts.tsx
 AdminContent.tsx
 AdminContentModeration.tsx
@@ -39,9 +41,12 @@ AdminPackages.tsx
 AdminPartnerProgram.tsx
 AdminPayouts.tsx
 AdminPricing.tsx
+AdminPromoCapture.tsx
+AdminReports.tsx
 AdminRevenue.tsx
 AdminSecurity.tsx
 AdminSecurityCenter.tsx
+AdminSecurityDashboard.tsx
 AdminSessions.tsx
 AdminStripeSync.tsx
 AdminStub.tsx
@@ -54,8 +59,13 @@ AdminUsers.tsx
 
 ---
 
-## 2. Admin Components (110 files)
+## 2. Admin Components (115+ files)
 Copy entire folder: `src/components/admin/` → `src/components/admin/`
+
+Key components include:
+- EmailSequenceManager.tsx (email automation)
+- N8nWorkflowTemplates.tsx (workflow automation)
+- All dashboard, analytics, and management components
 
 ---
 
@@ -71,6 +81,12 @@ useIsMobile.tsx
 useMobileDetect.tsx
 useToast.ts
 use-toast.ts
+useAdminAuth.ts
+useAdminAlerts.ts
+useAdminCalendar.ts
+useAdminCalendar.tsx
+useAdminSecurityEvents.ts
+useUsers.ts
 ```
 
 ---
@@ -86,6 +102,12 @@ Copy entire folder: `src/integrations/supabase/` → `src/integrations/supabase/
 ```
 src/lib/utils.ts
 src/lib/queryClient.ts
+src/lib/journey-events.ts
+```
+
+Copy entire folder:
+```
+src/lib/n8n-templates/ → src/lib/n8n-templates/
 ```
 
 ---
@@ -104,12 +126,39 @@ src/pages/Auth.tsx
 src/pages/AuthCallback.tsx
 src/pages/NotFound.tsx
 src/pages/AuditLog.tsx
+src/pages/AdvancedAnalytics.tsx
+src/pages/AdvancedFeatures.tsx
+src/pages/AuditCompliance.tsx
+src/pages/AutomationHub.tsx
+src/pages/BackupRecovery.tsx
+src/pages/CommunicationCenter.tsx
+src/pages/ContentManagement.tsx
+src/pages/CoreFeaturesTesting.tsx
+src/pages/CustomerSuccess.tsx
+src/pages/DatabaseManagement.tsx
+src/pages/DataReporting.tsx
+src/pages/IntegrationAutomation.tsx
+src/pages/LaunchReadiness.tsx
 ```
 
 ---
 
 ## Files to CREATE (not copy)
-- `src/App.tsx` (new simplified version)
+- `src/App.tsx` (use template from this folder)
 - `src/main.tsx` (standard React entry)
-- `package.json` (trimmed dependencies)
+- `package.json` (use template from this folder)
 - `vite.config.ts` (standard config)
+
+---
+
+## Summary by Category
+
+| Category | File Count |
+|----------|------------|
+| Admin Pages | 46 |
+| Admin Components | 115+ |
+| UI Components | ~50 |
+| Hooks | 11 |
+| Lib Files | 3 + n8n-templates folder |
+| Support Pages | 17 |
+| **Total** | **~185** |

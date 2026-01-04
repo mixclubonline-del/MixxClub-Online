@@ -51,7 +51,30 @@ import AdminPartnerProgram from "./pages/AdminPartnerProgram";
 import AdminSecurityCenter from "./pages/AdminSecurityCenter";
 import AdminLegalDocuments from "./pages/AdminLegalDocuments";
 import AdminSystemPresentation from "./pages/AdminSystemPresentation";
+
+// New Admin Pages
+import AdminAssetGallery from "./pages/AdminAssetGallery";
+import AdminCommunications from "./pages/AdminCommunications";
+import AdminPromoCapture from "./pages/AdminPromoCapture";
+import AdminReports from "./pages/AdminReports";
+import AdminSecurityDashboard from "./pages/AdminSecurityDashboard";
+
+// Additional Admin Pages
 import AuditLog from "./pages/AuditLog";
+import AdvancedAnalytics from "./pages/AdvancedAnalytics";
+import AdvancedFeatures from "./pages/AdvancedFeatures";
+import AuditCompliance from "./pages/AuditCompliance";
+import AutomationHub from "./pages/AutomationHub";
+import BackupRecovery from "./pages/BackupRecovery";
+import CommunicationCenter from "./pages/CommunicationCenter";
+import ContentManagement from "./pages/ContentManagement";
+import CoreFeaturesTesting from "./pages/CoreFeaturesTesting";
+import CustomerSuccess from "./pages/CustomerSuccess";
+import DatabaseManagement from "./pages/DatabaseManagement";
+import DataReporting from "./pages/DataReporting";
+import IntegrationAutomation from "./pages/IntegrationAutomation";
+import LaunchReadiness from "./pages/LaunchReadiness";
+
 import NotFound from "./pages/NotFound";
 
 const App = () => (
@@ -82,11 +105,14 @@ const App = () => (
             <Route path="/admin/analytics" element={<AdminAnalytics />} />
             <Route path="/admin/user-analytics" element={<AdminUserAnalytics />} />
             <Route path="/admin/system-monitoring" element={<AdminSystemMonitoring />} />
+            <Route path="/admin/advanced-analytics" element={<AdvancedAnalytics />} />
             
             {/* Security */}
             <Route path="/admin/security" element={<AdminSecurity />} />
             <Route path="/admin/security-center" element={<AdminSecurityCenter />} />
+            <Route path="/admin/security-dashboard" element={<AdminSecurityDashboard />} />
             <Route path="/admin/audit-log" element={<AuditLog />} />
+            <Route path="/admin/audit-compliance" element={<AuditCompliance />} />
             
             {/* Financial */}
             <Route path="/admin/payouts" element={<AdminPayouts />} />
@@ -96,30 +122,53 @@ const App = () => (
             <Route path="/admin/financial" element={<AdminFinancial />} />
             <Route path="/admin/stripe-sync" element={<AdminStripeSync />} />
             <Route path="/admin/test-payments" element={<AdminTestPayments />} />
+            <Route path="/admin/reports" element={<AdminReports />} />
             
             {/* Content & Media */}
             <Route path="/admin/beat-files" element={<AdminBeatFiles />} />
             <Route path="/admin/content" element={<AdminContent />} />
             <Route path="/admin/content-moderation" element={<AdminContentModeration />} />
+            <Route path="/admin/content-management" element={<ContentManagement />} />
             <Route path="/admin/media" element={<AdminMedia />} />
             <Route path="/admin/audio" element={<AdminAudio />} />
+            <Route path="/admin/asset-gallery" element={<AdminAssetGallery />} />
             <Route path="/admin/notifications" element={<AdminNotifications />} />
+            
+            {/* Communications */}
+            <Route path="/admin/communications" element={<AdminCommunications />} />
+            <Route path="/admin/communication-center" element={<CommunicationCenter />} />
+            <Route path="/admin/promo-capture" element={<AdminPromoCapture />} />
             
             {/* Growth & Marketing */}
             <Route path="/admin/marketing" element={<AdminMarketing />} />
             <Route path="/admin/growth" element={<AdminGrowth />} />
             <Route path="/admin/marketplace" element={<AdminMarketplace />} />
             <Route path="/admin/partner-program" element={<AdminPartnerProgram />} />
+            <Route path="/admin/customer-success" element={<CustomerSuccess />} />
             
             {/* Platform Features */}
             <Route path="/admin/achievements" element={<AdminAchievements />} />
             <Route path="/admin/milestones" element={<AdminMilestones />} />
             <Route path="/admin/education" element={<AdminEducation />} />
             <Route path="/admin/features" element={<AdminFeatures />} />
+            <Route path="/admin/advanced-features" element={<AdvancedFeatures />} />
             <Route path="/admin/integrations" element={<AdminIntegrations />} />
+            <Route path="/admin/integration-automation" element={<IntegrationAutomation />} />
+            
+            {/* Automation */}
+            <Route path="/admin/automation-hub" element={<AutomationHub />} />
+            
+            {/* Database & Data */}
+            <Route path="/admin/database-management" element={<DatabaseManagement />} />
+            <Route path="/admin/data-reporting" element={<DataReporting />} />
+            <Route path="/admin/backup-recovery" element={<BackupRecovery />} />
+            
+            {/* Testing */}
+            <Route path="/admin/core-features-testing" element={<CoreFeaturesTesting />} />
             
             {/* Launch Control */}
             <Route path="/admin/launch-readiness" element={<AdminLaunchReadiness />} />
+            <Route path="/admin/launch-readiness-check" element={<LaunchReadiness />} />
             <Route path="/admin/launch-control" element={<AdminLaunchControl />} />
             <Route path="/admin/launch-dashboard" element={<AdminLaunchDashboard />} />
             <Route path="/admin/launch-presentation" element={<AdminLaunchPresentation />} />
