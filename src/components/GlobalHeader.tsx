@@ -3,6 +3,7 @@ import { usePrime } from "@/contexts/PrimeContext";
 import { motion } from "framer-motion";
 import { MixxclubLogo } from "@/components/brand/MixxclubLogo";
 import { cn } from "@/lib/utils";
+import { GoLiveButton } from "@/components/live/GoLiveButton";
 
 interface GlobalHeaderProps {
   className?: string;
@@ -22,22 +23,25 @@ export default function GlobalHeader({ className }: GlobalHeaderProps) {
       <Link to="/" className="flex items-center">
         <MixxclubLogo variant="wordmark-only" size="sm" animated={false} />
       </Link>
-      <motion.div 
-        className="hidden sm:flex items-center gap-2 text-xs font-mono px-3 py-1.5 rounded-full border border-border/50 bg-muted/50"
-        animate={{ opacity: [0.7, 1, 0.7] }}
-        transition={{ duration: 3, repeat: Infinity }}
-      >
-        <div 
-          className="w-2 h-2 rounded-full animate-pulse"
-          style={{ 
-            backgroundColor: accentColor,
-            boxShadow: `0 0 8px ${accentColor}`
-          }}
-        />
-        <span className="text-muted-foreground">
-          PRIME: {systemMode.toUpperCase()} • {networkAwareness.activeUsers} ONLINE
-        </span>
-      </motion.div>
+      <div className="flex items-center gap-3">
+        <GoLiveButton className="hidden sm:flex" />
+        <motion.div 
+          className="hidden sm:flex items-center gap-2 text-xs font-mono px-3 py-1.5 rounded-full border border-border/50 bg-muted/50"
+          animate={{ opacity: [0.7, 1, 0.7] }}
+          transition={{ duration: 3, repeat: Infinity }}
+        >
+          <div 
+            className="w-2 h-2 rounded-full animate-pulse"
+            style={{ 
+              backgroundColor: accentColor,
+              boxShadow: `0 0 8px ${accentColor}`
+            }}
+          />
+          <span className="text-muted-foreground">
+            PRIME: {systemMode.toUpperCase()} • {networkAwareness.activeUsers} ONLINE
+          </span>
+        </motion.div>
+      </div>
     </header>
   );
 }
