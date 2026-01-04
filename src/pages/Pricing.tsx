@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { TrustBadges } from '@/components/TrustBadges';
 import { SEOHead } from '@/components/SEOHead';
 import { generateProductSchema } from '@/lib/seo-schema';
-import { useSubscriptionStore } from '@/stores/subscriptionStore';
+
 
 // SUBSCRIPTION TIERS
 const subscriptionTiers = [
@@ -206,7 +206,6 @@ const masteringPackages = [
 export default function Pricing() {
   const navigate = useNavigate();
   const [serviceType, setServiceType] = useState<'mixing' | 'mastering' | 'subscriptions'>('subscriptions');
-  const plans = useSubscriptionStore((state) => Object.entries(state.plans).map(([_, plan]) => plan));
 
   const packages = serviceType === 'mixing' ? mixingPackages : masteringPackages;
 

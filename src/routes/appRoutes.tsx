@@ -20,6 +20,8 @@ import EngineerDirectory from "@/pages/EngineerDirectory";
 import EngineerProfile from "@/pages/EngineerProfile";
 import ComingSoon from "@/pages/ComingSoon";
 import OrderSuccess from "@/pages/OrderSuccess";
+import Checkout from "@/pages/Checkout";
+import PaymentCanceled from "@/pages/PaymentCanceled";
 import MyCertifications from "@/pages/MyCertifications";
 import Tutorials from "@/pages/Tutorials";
 import MessagingTest from "@/pages/MessagingTest";
@@ -124,8 +126,9 @@ export const appRoutes = (
 
     {/* Projects & Orders */}
     <Route path="/project/:projectId" element={<AppLayout><ProjectDetail /></AppLayout>} />
-    <Route path="/checkout" element={<ComingSoon />} />
+    <Route path="/checkout" element={<Checkout />} />
     <Route path="/order-success/:paymentId" element={<OrderSuccess />} />
+    <Route path="/payment-canceled" element={<PaymentCanceled />} />
 
     {/* Settings */}
     <Route path="/settings" element={<AppLayout><Settings /></AppLayout>} />
