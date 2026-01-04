@@ -25,6 +25,8 @@ import { TutorialProvider } from "@/contexts/TutorialContext";
 import { TutorialOverlay } from "@/components/tutorial/TutorialOverlay";
 import { TutorialLauncher } from "@/components/tutorial/TutorialLauncher";
 import { GlobalAudioPlayer } from "@/components/audio/GlobalAudioPlayer";
+import { GlobalPlayerProvider } from "@/contexts/GlobalPlayerContext";
+import GlobalMusicPlayer from "@/components/player/GlobalMusicPlayer";
 import { PersistentChatbot } from "@/components/PersistentChatbot";
 import { PageTransition } from "@/components/layouts/PageTransition";
 import { DashboardSkeleton } from "@/components/ui/loading-skeleton";
@@ -115,22 +117,25 @@ const App = () => {
           <BrowserRouter>
             <AuthProvider>
               <PrimeProvider>
-                <TutorialProvider>
-                  <PWAInstallPrompt />
-                  <AppContent />
-                  <GlobalNavigation />
-                  <GlobalInteractions />
-                  <GlobalKeyboardShortcuts />
-                  <MobileOptimizations />
-                  <DesktopOnlyComponents />
-                  <TutorialOverlay />
-                  <GlobalAudioPlayer />
-                  <div className="fixed bottom-4 left-4 z-50 hidden lg:block">
-                    <TutorialLauncher contextTutorials={["welcome-to-mixxclub", "setting-up-profile"]} />
-                  </div>
-                  <PerformanceMonitor />
-                  <CookieConsent />
-                </TutorialProvider>
+                <GlobalPlayerProvider>
+                  <TutorialProvider>
+                    <PWAInstallPrompt />
+                    <AppContent />
+                    <GlobalNavigation />
+                    <GlobalInteractions />
+                    <GlobalKeyboardShortcuts />
+                    <MobileOptimizations />
+                    <DesktopOnlyComponents />
+                    <TutorialOverlay />
+                    <GlobalAudioPlayer />
+                    <GlobalMusicPlayer />
+                    <div className="fixed bottom-4 left-4 z-50 hidden lg:block">
+                      <TutorialLauncher contextTutorials={["welcome-to-mixxclub", "setting-up-profile"]} />
+                    </div>
+                    <PerformanceMonitor />
+                    <CookieConsent />
+                  </TutorialProvider>
+                </GlobalPlayerProvider>
               </PrimeProvider>
             </AuthProvider>
           </BrowserRouter>
