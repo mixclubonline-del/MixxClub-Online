@@ -75,7 +75,7 @@ export const TabletSideNav: React.FC = () => {
   return (
     <aside
       className={cn(
-        'hidden md:flex lg:hidden flex-col h-screen bg-background/95 backdrop-blur-xl border-r border-border/50 fixed left-0 top-0 z-40 transition-all duration-300',
+        'hidden md:flex lg:hidden flex-col h-screen bg-card/95 backdrop-blur-xl border-r border-border/50 fixed left-0 top-0 z-40 transition-all duration-300 shadow-xl',
         isCollapsed ? 'w-16' : 'w-56'
       )}
     >

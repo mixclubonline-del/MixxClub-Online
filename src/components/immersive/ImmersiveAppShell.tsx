@@ -106,20 +106,21 @@ export const ImmersiveAppShell = ({ children }: ImmersiveAppShellProps) => {
         {children}
       </main>
 
-      {/* Quick map button - top left for authenticated users */}
+      {/* Quick map button - top left, positioned after header */}
       {isImmersiveRoute && (
         <motion.button
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           onClick={() => setIsMapOpen(true)}
           className={cn(
-            "fixed top-4 left-4 z-50 flex items-center gap-2 px-4 py-2 rounded-xl",
+            "fixed top-20 left-4 z-30 flex items-center gap-2 px-3 py-2 rounded-xl",
             "bg-card/80 backdrop-blur-sm border border-border/50",
-            "hover:bg-primary/10 hover:border-primary/50 transition-all"
+            "hover:bg-primary/10 hover:border-primary/50 transition-all",
+            "shadow-lg"
           )}
         >
           <Map className="w-4 h-4 text-primary" />
-          <span className="text-sm font-medium">City Map</span>
+          <span className="text-sm font-medium hidden sm:inline">City Map</span>
         </motion.button>
       )}
 

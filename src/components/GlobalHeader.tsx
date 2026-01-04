@@ -2,19 +2,30 @@ import { Link } from "react-router-dom";
 import { usePrime } from "@/contexts/PrimeContext";
 import { motion } from "framer-motion";
 import { MixxclubLogo } from "@/components/brand/MixxclubLogo";
+import { cn } from "@/lib/utils";
 
-export default function GlobalHeader() {
+interface GlobalHeaderProps {
+  className?: string;
+}
+
+export default function GlobalHeader({ className }: GlobalHeaderProps) {
   const { systemMode, accentColor, networkAwareness } = usePrime();
   
   return (
-    <header className="fixed top-0 inset-x-0 z-40 flex items-center justify-between px-6 h-16 glass-mid border-b border-[hsl(var(--glass-border))] animate-glass-breathe">
+    <header 
+      className={cn(
+        "fixed top-0 inset-x-0 z-40 flex items-center justify-between px-4 sm:px-6 h-16",
+        "bg-background/80 backdrop-blur-xl border-b border-border/50",
+        className
+      )}
+    >
       <Link to="/" className="flex items-center">
         <MixxclubLogo variant="wordmark-only" size="sm" animated={false} />
       </Link>
       <motion.div 
-        className="glass-pill flex items-center gap-2 text-xs font-mono px-3 py-1.5 rounded-full border border-[hsl(var(--glass-border))]"
-        animate={{ opacity: [0.5, 1, 0.5] }}
-        transition={{ duration: 2, repeat: Infinity }}
+        className="hidden sm:flex items-center gap-2 text-xs font-mono px-3 py-1.5 rounded-full border border-border/50 bg-muted/50"
+        animate={{ opacity: [0.7, 1, 0.7] }}
+        transition={{ duration: 3, repeat: Infinity }}
       >
         <div 
           className="w-2 h-2 rounded-full animate-pulse"

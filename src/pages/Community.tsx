@@ -26,7 +26,8 @@ export default function Community() {
       <div className="min-h-screen bg-background">
         <GlobalHeader />
         
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-16">
+        {/* Main content with proper header offset */}
+        <main className="pt-20 pb-24 md:pb-8 max-w-7xl mx-auto px-4 sm:px-6 space-y-12 lg:space-y-16">
           {/* Section 1: Live Pulse Hero */}
           <motion.section
             initial={{ opacity: 0, y: 20 }}
@@ -88,7 +89,6 @@ export default function Community() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.6 }}
-            className="pb-8"
           >
             <RoleGateway />
           </motion.section>
