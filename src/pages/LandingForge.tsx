@@ -74,14 +74,21 @@ export default function LandingForge() {
     setGeneratedImage(null);
 
     try {
-      const { data, error } = await supabase.functions.invoke('generate-image-gemini', {
-        body: { prompt: promptText },
+      const { data, error } = await supabase.functions.invoke('generate-landing-image', {
+        body: { 
+          prompt: promptText,
+          context: `landing_${activeTab}_${promptId}`
+        },
       });
 
       if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      
       if (data?.imageUrl) {
         setGeneratedImage(data.imageUrl);
         toast.success('Image generated! Review and save to your library.');
+      } else {
+        throw new Error('No image returned');
       }
     } catch (err: any) {
       console.error('Generation error:', err);
