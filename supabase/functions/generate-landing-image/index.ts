@@ -5,6 +5,23 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Enhanced cinematic prompt engineering
+function enhancePrompt(prompt: string, context: string): string {
+  const cinematicPrefix = `Create a stunning, ultra high-resolution cinematic image. Professional photography quality, dramatic lighting, rich color grading, film-like atmosphere. `;
+  
+  const contextEnhancements: Record<string, string> = {
+    origin: `Style: Epic origin story visual. Dark, moody, atmospheric with hints of golden light breaking through. Think Blade Runner meets renaissance painting. `,
+    people: `Style: Powerful human portrait or group composition. Dramatic rim lighting, emotional depth, documentary-style authenticity with artistic flair. `,
+    sound: `Style: Abstract audio visualization. Flowing energy, sound waves made visible, synesthesia-inspired colors, dynamic motion frozen in time. `,
+    future: `Style: Visionary futuristic aesthetic. Sleek, hopeful, technological wonder. Clean lines meeting organic forms, aspirational yet grounded. `,
+  };
+
+  const contextHint = contextEnhancements[context] || '';
+  const qualitySuffix = ` Ultra high resolution, 8K quality, masterpiece composition, award-winning photography.`;
+
+  return `${cinematicPrefix}${contextHint}${prompt}${qualitySuffix}`;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -29,8 +46,14 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Generating landing image for context: ${context}`);
-    console.log(`Prompt: ${prompt.substring(0, 100)}...`);
+    // Enhance the prompt with cinematic direction
+    const enhancedPrompt = enhancePrompt(prompt, context || 'origin');
+
+    console.log(`[LandingForge] Context: ${context}`);
+    console.log(`[LandingForge] Original prompt: ${prompt.substring(0, 80)}...`);
+    console.log(`[LandingForge] Enhanced prompt: ${enhancedPrompt.substring(0, 120)}...`);
+
+    const startTime = Date.now();
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -39,20 +62,23 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash-image-preview',
+        model: 'google/gemini-3-pro-image-preview',
         messages: [
           {
             role: 'user',
-            content: prompt
+            content: enhancedPrompt
           }
         ],
         modalities: ['image', 'text']
       }),
     });
 
+    const elapsed = Date.now() - startTime;
+    console.log(`[LandingForge] API response in ${elapsed}ms, status: ${response.status}`);
+
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`Lovable AI error: ${response.status} - ${errorText}`);
+      console.error(`[LandingForge] API error: ${response.status} - ${errorText}`);
       
       if (response.status === 429) {
         return new Response(
@@ -68,38 +94,39 @@ serve(async (req) => {
       }
       
       return new Response(
-        JSON.stringify({ error: 'Image generation failed' }),
+        JSON.stringify({ error: 'Image generation failed. Please try again.' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     const data = await response.json();
-    console.log('Lovable AI response received');
 
     const imageUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
     const textContent = data.choices?.[0]?.message?.content;
 
     if (!imageUrl) {
-      console.error('No image in response:', JSON.stringify(data));
+      console.error('[LandingForge] No image in response:', JSON.stringify(data).substring(0, 500));
       return new Response(
-        JSON.stringify({ error: 'No image generated' }),
+        JSON.stringify({ error: 'No image generated. Try a different prompt.' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log(`Image generated successfully for ${context}`);
+    console.log(`[LandingForge] ✓ Image generated successfully for "${context}" in ${elapsed}ms`);
 
     return new Response(
       JSON.stringify({
         imageUrl,
         textContent,
-        context
+        context,
+        model: 'gemini-3-pro-image-preview',
+        generationTimeMs: elapsed
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
-    console.error('Error in generate-landing-image:', error);
+    console.error('[LandingForge] Error:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     return new Response(
       JSON.stringify({ error: errorMessage }),
