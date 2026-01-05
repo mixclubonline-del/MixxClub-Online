@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { Play, Pause, Volume2, VolumeX, Sparkles, Zap, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { PrimeCharacter } from '@/components/demo/PrimeCharacter';
 import { AudioVisualizer } from '@/components/demo/AudioVisualizer';
 import { useInsiderAudio } from '@/hooks/useInsiderAudio';
+import { useDynamicLandingAssets } from '@/hooks/useDynamicLandingAssets';
 
 export const AudioReactiveHero = () => {
   const { 
@@ -18,12 +19,29 @@ export const AudioReactiveHero = () => {
     initAudio
   } = useInsiderAudio();
   
+  const { heroBackgrounds, getImageUrl, isLoading: assetsLoading } = useDynamicLandingAssets();
+  
   const [isMuted, setIsMuted] = useState(false);
   const [showPrompt, setShowPrompt] = useState(true);
+  const [currentBgIndex, setCurrentBgIndex] = useState(0);
   
   // Typewriter effect for tagline
   const [displayText, setDisplayText] = useState('');
   const fullText = 'Transform your sound with AI-powered tools and professional engineers.';
+  
+  // Rotate background images when playing
+  useEffect(() => {
+    if (!isPlaying || heroBackgrounds.length <= 1) return;
+    
+    const interval = setInterval(() => {
+      setCurrentBgIndex(prev => (prev + 1) % heroBackgrounds.length);
+    }, 8000); // Change every 8 seconds
+    
+    return () => clearInterval(interval);
+  }, [isPlaying, heroBackgrounds.length]);
+  
+  const currentBackground = heroBackgrounds[currentBgIndex];
+  const primeHeroImage = getImageUrl('hero_prime');
   
   useEffect(() => {
     if (isPlaying && displayText.length < fullText.length) {
@@ -47,15 +65,34 @@ export const AudioReactiveHero = () => {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Audio-Reactive Background */}
+      {/* Dynamic Background Image Layer */}
+      <AnimatePresence mode="wait">
+        {currentBackground && (
+          <motion.div
+            key={currentBgIndex}
+            className="absolute inset-0 z-0"
+            initial={{ opacity: 0, scale: 1.1 }}
+            animate={{ opacity: 0.4, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 1.5 }}
+            style={{
+              backgroundImage: `url(${currentBackground})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
+          />
+        )}
+      </AnimatePresence>
+      
+      {/* Audio-Reactive Background Overlay */}
       <motion.div 
-        className="absolute inset-0"
+        className="absolute inset-0 z-1"
         animate={{
           background: isPlaying 
             ? `radial-gradient(ellipse at center, 
-                hsl(${280 + (analysis.amplitude / 255) * 30} 60% 10%) 0%, 
-                hsl(var(--background)) 70%)`
-            : 'hsl(var(--background))'
+                hsl(${280 + (analysis.amplitude / 255) * 30} 60% 10% / 0.8) 0%, 
+                hsl(var(--background) / 0.95) 70%)`
+            : 'hsl(var(--background) / 0.7)'
         }}
         transition={{ duration: 0.3 }}
       />
@@ -124,6 +161,7 @@ export const AudioReactiveHero = () => {
             amplitude={analysis.amplitude}
             isPlaying={isPlaying}
             size="xl"
+            imageUrl={primeHeroImage}
           />
         </motion.div>
 
