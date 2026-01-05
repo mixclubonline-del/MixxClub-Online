@@ -104,6 +104,14 @@ export default function LandingForge() {
 
   const saveToLibrary = async () => {
     if (!generatedImage || !generatedPromptId || !generatedPromptText) return;
+    
+    // Check authentication
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast.error('Please sign in to save images to your library');
+      return;
+    }
+    
     setSaving(true);
 
     try {
@@ -135,6 +143,7 @@ export default function LandingForge() {
         asset_context: `landing_${activeTab}_${generatedPromptId}`,
         prompt_used: generatedPromptText,
         is_active: true,
+        created_by: user.id,
       });
 
       if (dbError) throw dbError;
