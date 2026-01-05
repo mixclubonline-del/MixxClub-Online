@@ -5,76 +5,77 @@ import { Input } from '@/components/ui/input';
 import { Gift } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
+const STORAGE_KEY = 'exitIntentShownAt';
+const DISMISS_DURATION_DAYS = 7; // Don't show again for 7 days
+const MIN_TIME_ON_PAGE_MS = 15000; // Must be on page 15+ seconds
+
 export const ExitIntentPopup = () => {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState('');
-  const [hasShown, setHasShown] = useState(false);
+  const [canShow, setCanShow] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
+    // Check if we should show the popup at all
+    const lastShown = localStorage.getItem(STORAGE_KEY);
+    if (lastShown) {
+      const daysSinceShown = (Date.now() - parseInt(lastShown, 10)) / (1000 * 60 * 60 * 24);
+      if (daysSinceShown < DISMISS_DURATION_DAYS) return;
+    }
+
+    // Wait minimum time before enabling exit intent
+    const timer = setTimeout(() => setCanShow(true), MIN_TIME_ON_PAGE_MS);
+
     const handleMouseLeave = (e: MouseEvent) => {
-      if (e.clientY <= 0 && !hasShown) {
-        const lastShown = localStorage.getItem('exitIntentShown');
-        const now = Date.now();
-        
-        // Only show once per session or once every 24 hours
-        if (!lastShown || now - parseInt(lastShown) > 86400000) {
-          setOpen(true);
-          setHasShown(true);
-          localStorage.setItem('exitIntentShown', now.toString());
-        }
+      if (e.clientY <= 0 && canShow && !open) {
+        setOpen(true);
+        localStorage.setItem(STORAGE_KEY, Date.now().toString());
       }
     };
 
     document.addEventListener('mouseleave', handleMouseLeave);
-    return () => document.removeEventListener('mouseleave', handleMouseLeave);
-  }, [hasShown]);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, [canShow, open]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Store email (in real app, would send to backend)
     localStorage.setItem('exitIntentEmail', email);
-    
     toast({
       title: 'Discount Code Sent! 🎉',
       description: 'Check your email for your 20% off code.',
     });
-    
     setOpen(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <div className="flex items-center justify-center mb-4">
-            <div className="p-4 rounded-full bg-primary/10">
-              <Gift className="w-12 h-12 text-primary" />
+      <DialogContent className="max-w-sm p-4">
+        <DialogHeader className="space-y-2">
+          <div className="flex items-center justify-center">
+            <div className="p-3 rounded-full bg-primary/10">
+              <Gift className="w-8 h-8 text-primary" />
             </div>
           </div>
-          <DialogTitle className="text-2xl text-center">Wait! Don't Leave Empty-Handed</DialogTitle>
-          <p className="text-center text-muted-foreground">
-            Get <span className="font-bold text-primary">20% off</span> your first project
-          </p>
+          <DialogTitle className="text-lg text-center">Get 20% Off Your First Project</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3 pt-2">
           <Input
             type="email"
             placeholder="Enter your email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="text-center"
+            className="text-center h-9"
           />
-          
-          <Button type="submit" className="w-full" size="lg">
-            Send Me the Discount Code
+          <Button type="submit" className="w-full h-9" size="sm">
+            Send Me the Code
           </Button>
-          
           <p className="text-xs text-center text-muted-foreground">
-            No spam. Just your discount code and occasional updates.
+            No spam, just your discount.
           </p>
         </form>
       </DialogContent>
