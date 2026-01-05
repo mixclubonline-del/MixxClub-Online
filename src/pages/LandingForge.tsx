@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -7,6 +8,7 @@ import { Card } from '@/components/ui/card';
 import { Loader2, Sparkles, Download, Check, Image as ImageIcon } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useLandingImagery } from '@/hooks/useLandingImagery';
+import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 
 const ORIGIN_PROMPTS = [
@@ -62,6 +64,9 @@ const FUTURE_PROMPTS = [
 ];
 
 export default function LandingForge() {
+  const navigate = useNavigate();
+  const { user: authUser, loading: authLoading, signOut } = useAuth();
+
   const [activeTab, setActiveTab] = useState('origin');
   const [generating, setGenerating] = useState<string | null>(null);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
@@ -104,28 +109,47 @@ export default function LandingForge() {
 
   const saveToLibrary = async () => {
     if (!generatedImage || !generatedPromptId || !generatedPromptText) return;
-    
+
+    if (authLoading) return;
+
     // Check authentication
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
+    if (!authUser) {
       toast.error('Please sign in to save images to your library');
+      navigate(`/auth?mode=login&redirect=${encodeURIComponent('/landing-forge')}`);
       return;
     }
-    
+
     setSaving(true);
 
     try {
-      // Convert base64 to blob
-      const base64Data = generatedImage.replace(/^data:image\/\w+;base64,/, '');
-      const blob = await fetch(`data:image/png;base64,${base64Data}`).then(r => r.blob());
-      
-      const fileName = `landing_${activeTab}_${generatedPromptId}_${Date.now()}.png`;
+      const user = authUser;
+
+      // Get image blob (supports data URLs and remote URLs)
+      let blob: Blob;
+      let contentType = 'image/png';
+
+      if (generatedImage.startsWith('data:image/')) {
+        const match = generatedImage.match(/^data:(image\/[a-zA-Z0-9+.-]+);base64,(.*)$/);
+        if (!match) throw new Error('Invalid generated image data');
+
+        contentType = match[1];
+        blob = await fetch(`data:${contentType};base64,${match[2]}`).then((r) => r.blob());
+      } else {
+        const resp = await fetch(generatedImage);
+        if (!resp.ok) throw new Error('Failed to download generated image');
+
+        contentType = resp.headers.get('content-type') || contentType;
+        blob = await resp.blob();
+      }
+
+      const ext = contentType.includes('jpeg') ? 'jpg' : contentType.includes('webp') ? 'webp' : 'png';
+      const fileName = `landing_${activeTab}_${generatedPromptId}_${Date.now()}.${ext}`;
       const filePath = `landing/${fileName}`;
 
       // Upload to storage
       const { error: uploadError } = await supabase.storage
         .from('brand-assets')
-        .upload(filePath, blob, { contentType: 'image/png' });
+        .upload(filePath, blob, { contentType });
 
       if (uploadError) throw uploadError;
 
@@ -223,9 +247,27 @@ export default function LandingForge() {
             <h1 className="text-2xl font-bold">Landing Image Forge</h1>
             <p className="text-sm text-muted-foreground">Dream First. Build Second.</p>
           </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <ImageIcon className="w-4 h-4" />
-            <span>{images.length} images saved</span>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <ImageIcon className="w-4 h-4" />
+              <span>{images.length} images saved</span>
+            </div>
+
+            {!authLoading && (
+              authUser ? (
+                <Button variant="ghost" size="sm" onClick={() => signOut()}>
+                  Sign Out
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate(`/auth?mode=login&redirect=${encodeURIComponent('/landing-forge')}`)}
+                >
+                  Sign In
+                </Button>
+              )
+            )}
           </div>
         </div>
       </header>
