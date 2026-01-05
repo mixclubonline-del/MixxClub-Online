@@ -278,34 +278,33 @@ const Auth = () => {
         // Get user profile to determine role-based redirect
         const { data: { user: authUser } } = await supabase.auth.getUser();
         if (authUser) {
-          // Check if user is admin using RPC function
+          toast.success("Welcome back!");
+          
+          // PRIORITY 1: Check if there's a redirect path (from Landing Forge, etc.)
+          if (redirectPath) {
+            navigate(redirectPath);
+            return;
+          }
+
+          // PRIORITY 2: Check if user is admin using RPC function
           const { data: isAdminUser } = await supabase.rpc('has_role', { _user_id: authUser.id, _role: 'admin' });
 
           if (isAdminUser) {
-            toast.success("Welcome back, Admin!");
             navigate("/admin");
             return;
           }
 
-          // Check user_roles table for role
+          // PRIORITY 3: Redirect based on user role from user_roles table
           const { data: userRoles } = await supabase
             .from('user_roles')
             .select('role')
             .eq('user_id', authUser.id);
 
-          toast.success("Welcome back!");
-          
-          // Check if there's a redirect path
-          if (redirectPath) {
-            navigate(redirectPath);
+          const roles = userRoles?.map(r => r.role) || [];
+          if (roles.includes('engineer')) {
+            navigate("/engineer-crm");
           } else {
-            // Redirect based on user role from user_roles table
-            const roles = userRoles?.map(r => r.role) || [];
-            if (roles.includes('engineer')) {
-              navigate("/engineer-crm");
-            } else {
-              navigate("/artist-crm");
-            }
+            navigate("/artist-crm");
           }
         } else {
           navigate("/dashboard");
