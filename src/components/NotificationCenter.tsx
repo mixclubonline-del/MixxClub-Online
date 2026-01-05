@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Bell, 
   Check, 
@@ -18,14 +18,20 @@ import { ScrollArea } from './ui/scroll-area';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
 import { useNotifications } from '@/hooks/useNotifications';
 import { formatDistanceToNow } from 'date-fns';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const NotificationCenter = () => {
   const { notifications, unreadCount, markAsRead, markAllAsRead, deleteNotification } = useNotifications();
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const isMobile = useIsMobile();
+
+  // Close sheet on route change
+  useEffect(() => {
+    setOpen(false);
+  }, [location.pathname]);
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
