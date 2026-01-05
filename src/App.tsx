@@ -27,7 +27,7 @@ import { TutorialLauncher } from "@/components/tutorial/TutorialLauncher";
 import { GlobalAudioPlayer } from "@/components/audio/GlobalAudioPlayer";
 import { GlobalPlayerProvider } from "@/contexts/GlobalPlayerContext";
 import GlobalMusicPlayer from "@/components/player/GlobalMusicPlayer";
-import { PersistentChatbot } from "@/components/PersistentChatbot";
+import { GlobalPrimeChat } from "@/components/prime/GlobalPrimeChat";
 import { PageTransition } from "@/components/layouts/PageTransition";
 import { DashboardSkeleton } from "@/components/ui/loading-skeleton";
 import { PerformanceMonitor } from "@/components/PerformanceMonitor";
@@ -40,7 +40,7 @@ import { MobileOptimizations } from "@/components/MobileOptimizations";
 import { publicRoutes, appRoutes, mobileRoutes, cityRoutes } from "@/routes";
 import NotFound from "@/pages/NotFound";
 
-// Desktop-only components wrapper
+// Desktop-only components wrapper (Prime Console/Status only)
 const DesktopOnlyComponents = () => {
   const { deviceType } = useMobileDetect();
 
@@ -50,7 +50,6 @@ const DesktopOnlyComponents = () => {
 
   return (
     <>
-      <PersistentChatbot />
       <PrimeConsole />
       <PrimeStatusBar />
     </>
@@ -129,6 +128,7 @@ const App = () => {
                     <TutorialOverlay />
                     <GlobalAudioPlayer />
                     <GlobalMusicPlayer />
+                    <GlobalPrimeChat />
                     <div className="fixed bottom-4 left-4 z-50 hidden lg:block">
                       <TutorialLauncher contextTutorials={["welcome-to-mixxclub", "setting-up-profile"]} />
                     </div>
