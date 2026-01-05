@@ -9,7 +9,7 @@ import {
   Headphones, Mic2, Rocket, SkipForward, Sparkles, Eye
 } from 'lucide-react';
 import { useInsiderAudio } from '@/hooks/useInsiderAudio';
-import { usePrimeImages } from '@/hooks/usePrimeImages';
+import { useDynamicLandingAssets } from '@/hooks/useDynamicLandingAssets';
 import { useCommunityShowcase } from '@/hooks/useCommunityShowcase';
 import { PrimeCharacter } from '@/components/demo/PrimeCharacter';
 import { AudioVisualizer } from '@/components/demo/AudioVisualizer';
@@ -90,12 +90,12 @@ export default function InsiderDemo() {
   } = useInsiderAudio();
 
   const { amplitude, bass, mid, high, beats } = analysis;
-  const { getImageForPhase } = usePrimeImages();
+  const { primePhaseImages, getImageUrl } = useDynamicLandingAssets();
   const { activities, totalCount } = useCommunityShowcase(6);
   
-  // Get current phase image
+  // Get current phase image from dynamic assets
   const currentPhaseId = DEMO_PHASES[currentPhase]?.id || 'drop';
-  const currentPrimeImage = getImageForPhase(currentPhaseId);
+  const currentPrimeImage = primePhaseImages[currentPhaseId];
 
   // Start experience
   const startExperience = useCallback(async () => {
