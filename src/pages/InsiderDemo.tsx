@@ -2,26 +2,27 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { 
   Play, Pause, ChevronRight, Zap, Users, Music, Volume2, VolumeX,
-  DollarSign, Headphones, Mic2, Shield, Rocket, SkipForward,
-  TrendingUp, Award, Globe, Sparkles, ArrowRight, Brain,
-  Sliders, Waves, Radio, Activity, Target, Gauge
+  Headphones, Mic2, Rocket, SkipForward, Sparkles, Eye
 } from 'lucide-react';
 import { useInsiderAudio } from '@/hooks/useInsiderAudio';
 import { usePrimeImages } from '@/hooks/usePrimeImages';
+import { useCommunityShowcase } from '@/hooks/useCommunityShowcase';
 import { PrimeCharacter } from '@/components/demo/PrimeCharacter';
 import { AudioVisualizer } from '@/components/demo/AudioVisualizer';
 import { ParticleStorm } from '@/components/demo/ParticleStorm';
+import { CommunityShowcase } from '@/components/demo/CommunityShowcase';
+import { CollaborationJourney } from '@/components/demo/CollaborationJourney';
+import { RolePortals } from '@/components/demo/RolePortals';
 import { WaitlistSignupForm } from '@/components/waitlist/WaitlistSignupForm';
 import { SocialProofCounter } from '@/components/waitlist/SocialProofCounter';
 import mixclubLogo from '@/assets/mixclub-3d-logo.png';
 import primeLaunchHero from '@/assets/prime-launch-hero.png';
 
-// Demo phases - THE DROP to CALL TO ACTION
+// NEW 7-Phase Journey: Community Belonging + AI Collaboration
 const DEMO_PHASES = [
   {
     id: 'drop',
@@ -30,75 +31,41 @@ const DEMO_PHASES = [
     primeMessage: '',
   },
   {
-    id: 'awakening',
-    title: 'MIXXCLUB Awakens',
+    id: 'spark',
+    title: 'THE SPARK',
     duration: 10000,
-    primeMessage: "Welcome to the future of music. This is MIXXCLUB — where your sound becomes unstoppable.",
+    primeMessage: "What if your sound had no limits? What if the perfect collaborator was always one click away?",
   },
   {
-    id: 'mission',
-    title: 'From Bedroom to Billboard',
+    id: 'community',
+    title: 'YOUR PEOPLE',
     duration: 12000,
-    primeMessage: "Our mission? Take you from bedroom producer to billboard artist. Let me show you how.",
-  },
-  {
-    id: 'analysis',
-    title: 'AI Analysis',
-    duration: 15000,
-    primeMessage: "Watch the magic. Genre detection. BPM analysis. Key signature. MIXXCLUB sees everything in your track.",
-  },
-  {
-    id: 'studio',
-    title: 'Studio Power',
-    duration: 15000,
-    primeMessage: "24 professional plugins. Mastering, EQ, compression - studio quality, zero cost.",
+    primeMessage: "These aren't just users. They're artists who get it. Engineers who live for the craft. Your people.",
   },
   {
     id: 'collaboration',
-    title: 'Collaboration',
+    title: 'THE COLLABORATION',
+    duration: 15000,
+    primeMessage: "Watch what happens when human creativity meets AI intelligence. Not replacement. Amplification.",
+  },
+  {
+    id: 'network',
+    title: 'THE NETWORK',
     duration: 12000,
-    primeMessage: "Artists and engineers, working together in real-time. Perfect matches, perfect sound.",
+    primeMessage: "10,000+ creators. 500+ engineers. One ecosystem. All connected through sound.",
   },
   {
-    id: 'results',
-    title: 'The Results',
+    id: 'place',
+    title: 'YOUR PLACE',
     duration: 10000,
-    primeMessage: "Tracks mastered in hours, not days. Distributed to 30+ platforms. Revenue flowing in.",
+    primeMessage: "Whether you're crafting beats in your bedroom or mixing hits for labels — there's a seat saved for you.",
   },
   {
-    id: 'crm',
-    title: '10 Revenue Streams',
-    duration: 10000,
-    primeMessage: "10 ways to make money. Your entire music business, one dashboard.",
-  },
-  {
-    id: 'cta',
-    title: 'Join the Movement',
+    id: 'invitation',
+    title: 'THE INVITATION',
     duration: 999999,
-    primeMessage: "Your music deserves this. Welcome to MIXXCLUB.",
+    primeMessage: "Your music deserves to be heard. Your skills deserve recognition. Your tribe is waiting.",
   },
-];
-
-const PLUGINS = [
-  { name: 'MixxMaster', type: 'Mastering Suite', icon: Gauge, color: 'from-amber-500 to-orange-600' },
-  { name: 'MixxEQ', type: '6-Band EQ', icon: Sliders, color: 'from-cyan-500 to-blue-600' },
-  { name: 'MixxComp', type: 'Dynamics', icon: Activity, color: 'from-purple-500 to-pink-600' },
-  { name: 'MixxReverb', type: 'Spatial FX', icon: Waves, color: 'from-emerald-500 to-teal-600' },
-  { name: 'MixxStereo', type: 'Stereo Imager', icon: Radio, color: 'from-rose-500 to-red-600' },
-  { name: 'MixxLimiter', type: 'Peak Control', icon: Target, color: 'from-indigo-500 to-violet-600' },
-];
-
-const REVENUE_STREAMS = [
-  { name: 'Subscription Tiers', icon: DollarSign },
-  { name: 'Referral Bonuses', icon: Users },
-  { name: 'Promo Shares', icon: TrendingUp },
-  { name: 'Gig Marketplace', icon: Mic2 },
-  { name: 'Track Sales', icon: Music },
-  { name: 'Pro Services', icon: Headphones },
-  { name: 'Course Sales', icon: Award },
-  { name: 'Partner Commissions', icon: Shield },
-  { name: 'White-Label', icon: Globe },
-  { name: 'Enterprise', icon: Rocket },
 ];
 
 export default function InsiderDemo() {
@@ -106,8 +73,6 @@ export default function InsiderDemo() {
   const [isAutoPlay, setIsAutoPlay] = useState(false);
   const [phaseProgress, setPhaseProgress] = useState(0);
   const [typedText, setTypedText] = useState('');
-  const [analysisProgress, setAnalysisProgress] = useState(0);
-  const [activePlugin, setActivePlugin] = useState(0);
   const [showTitle, setShowTitle] = useState(false);
   const [volume, setVolumeState] = useState(0.7);
   
@@ -126,6 +91,7 @@ export default function InsiderDemo() {
 
   const { amplitude, bass, mid, high, beats } = analysis;
   const { getImageForPhase } = usePrimeImages();
+  const { activities, totalCount } = useCommunityShowcase(6);
   
   // Get current phase image
   const currentPhaseId = DEMO_PHASES[currentPhase]?.id || 'drop';
@@ -180,27 +146,6 @@ export default function InsiderDemo() {
     return () => clearInterval(typeInterval);
   }, [currentPhase]);
 
-  // Analysis simulation
-  useEffect(() => {
-    if (DEMO_PHASES[currentPhase]?.id !== 'analysis') {
-      setAnalysisProgress(0);
-      return;
-    }
-    const interval = setInterval(() => {
-      setAnalysisProgress(prev => Math.min(prev + 1.5, 100));
-    }, 100);
-    return () => clearInterval(interval);
-  }, [currentPhase]);
-
-  // Plugin cycling
-  useEffect(() => {
-    if (DEMO_PHASES[currentPhase]?.id !== 'studio') return;
-    const interval = setInterval(() => {
-      setActivePlugin(prev => (prev + 1) % PLUGINS.length);
-    }, 2500);
-    return () => clearInterval(interval);
-  }, [currentPhase]);
-
   const skipToPhase = (index: number) => {
     setCurrentPhase(index);
     setPhaseProgress(0);
@@ -252,7 +197,7 @@ export default function InsiderDemo() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
           >
-            From Bedroom to Billboard
+            You've Found Your People
           </motion.p>
 
           <motion.div
@@ -317,7 +262,6 @@ export default function InsiderDemo() {
         particleCount={40}
       />
 
-
       {/* Bottom Visualizer */}
       <div className="fixed bottom-0 left-0 right-0 h-32 z-20 pointer-events-none">
         <AudioVisualizer 
@@ -347,7 +291,7 @@ export default function InsiderDemo() {
             <div>
               <h2 className="font-bold text-lg">MIXXCLUB</h2>
               <Badge variant="outline" className="text-xs border-primary/50 text-primary">
-                <Rocket className="w-3 h-3 mr-1" /> From Bedroom to Billboard
+                <Users className="w-3 h-3 mr-1" /> Find Your People
               </Badge>
             </div>
           </div>
@@ -436,14 +380,14 @@ export default function InsiderDemo() {
             </motion.div>
           )}
 
-          {/* Phase 1: Prime Awakens */}
-          {phase.id === 'awakening' && (
+          {/* Phase 1: THE SPARK - Possibility */}
+          {phase.id === 'spark' && (
             <motion.div
-              key="awakening"
+              key="spark"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0, x: -100 }}
-              className="text-center"
+              className="text-center max-w-4xl"
             >
               <PrimeCharacter 
                 bass={bass} 
@@ -454,13 +398,13 @@ export default function InsiderDemo() {
               />
               
               <motion.h1 
-                className="text-6xl md:text-8xl font-black mt-8 mb-6"
+                className="text-5xl md:text-7xl font-black mt-8 mb-6"
                 initial={{ y: 50, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.3 }}
               >
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-500 to-cyan-500">
-                  MIXXCLUB
+                  What If?
                 </span>
               </motion.h1>
               
@@ -473,327 +417,244 @@ export default function InsiderDemo() {
                 {typedText}
                 <span className="animate-pulse">|</span>
               </motion.p>
+
+              {/* Split visualization */}
+              <motion.div
+                className="grid grid-cols-2 gap-8 mt-12"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1 }}
+              >
+                <div className="p-6 rounded-2xl bg-muted/30 border border-muted-foreground/20">
+                  <p className="text-muted-foreground mb-4">Before</p>
+                  <div className="text-4xl mb-2">😔</div>
+                  <p className="text-sm text-muted-foreground">Alone in your bedroom</p>
+                </div>
+                <div className="p-6 rounded-2xl bg-primary/10 border border-primary/30">
+                  <p className="text-primary mb-4">After</p>
+                  <div className="text-4xl mb-2">🎵</div>
+                  <p className="text-sm text-foreground">Connected to your tribe</p>
+                </div>
+              </motion.div>
             </motion.div>
           )}
 
-          {/* Phase 2: Mission */}
-          {phase.id === 'mission' && (
+          {/* Phase 2: YOUR PEOPLE - Community Showcase */}
+          {phase.id === 'community' && (
             <motion.div
-              key="mission"
+              key="community"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="text-center max-w-5xl"
+              className="w-full max-w-6xl"
             >
-              <motion.h1 
-                className="text-5xl md:text-7xl font-black mb-8"
-                initial={{ y: 50, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-              >
-                <motion.span 
-                  className="block text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-500 to-cyan-500"
-                  animate={{ scale: 1 + (bass / 255) * 0.05 }}
+              <div className="text-center mb-8">
+                <motion.h1 
+                  className="text-4xl md:text-6xl font-black mb-4"
+                  initial={{ y: 30, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
                 >
-                  From Bedroom
-                </motion.span>
-                <motion.span 
-                  className="block text-foreground mt-2"
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 via-primary to-purple-500">
+                    Your People
+                  </span>
+                </motion.h1>
+                <motion.p 
+                  className="text-lg text-muted-foreground max-w-xl mx-auto"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5 }}
+                  transition={{ delay: 0.3 }}
                 >
-                  to Billboard
-                </motion.span>
-              </motion.h1>
-
-              <div className="grid grid-cols-4 gap-4 mb-8">
-                {['Upload', 'Mix', 'Master', 'Distribute'].map((step, i) => (
-                  <motion.div
-                    key={step}
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.8 + i * 0.2 }}
-                  >
-                    <Card className="p-4 bg-card/50 backdrop-blur border-primary/20 hover:border-primary/50 transition-colors">
-                      <motion.div 
-                        className="text-4xl font-black text-primary mb-2"
-                        animate={{ scale: i === Math.floor((Date.now() / 1000) % 4) ? 1.2 : 1 }}
-                      >
-                        {i + 1}
-                      </motion.div>
-                      <p className="text-sm font-medium">{step}</p>
-                    </Card>
-                  </motion.div>
-                ))}
+                  {typedText}
+                  <span className="animate-pulse">|</span>
+                </motion.p>
               </div>
 
-              <div className="flex items-center justify-center gap-4">
-                <PrimeCharacter bass={bass} amplitude={amplitude} isPlaying={isPlaying} size="sm" imageUrl={currentPrimeImage} />
-                <p className="text-lg text-muted-foreground max-w-lg">{typedText}</p>
-              </div>
+              <CommunityShowcase 
+                amplitude={amplitude} 
+                bass={bass} 
+                isPlaying={isPlaying} 
+              />
+
+              {/* Activity ticker */}
+              <motion.div
+                className="mt-8 flex justify-center"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+              >
+                <div className="flex items-center gap-4 px-6 py-3 rounded-full bg-primary/10 border border-primary/30">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-sm text-muted-foreground">
+                    {activities[0]?.message || 'Community is active now'}
+                  </span>
+                </div>
+              </motion.div>
             </motion.div>
           )}
 
-          {/* Phase 3: AI Analysis */}
-          {phase.id === 'analysis' && (
-            <motion.div
-              key="analysis"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="w-full max-w-4xl"
-            >
-              <div className="flex items-center gap-4 mb-8">
-                <PrimeCharacter bass={bass} amplitude={amplitude} isPlaying={isPlaying} size="sm" imageUrl={currentPrimeImage} />
-                <p className="text-lg text-muted-foreground">{typedText}</p>
-              </div>
-
-              <Card className="p-8 bg-card/50 backdrop-blur border-primary/20">
-                <div className="flex items-center gap-4 mb-6">
-                  <motion.div animate={{ rotate: analysisProgress < 100 ? 360 : 0 }} transition={{ duration: 2, repeat: analysisProgress < 100 ? Infinity : 0 }}>
-                    <Brain className="w-8 h-8 text-primary" />
-                  </motion.div>
-                  <div className="flex-1">
-                    <h3 className="text-xl font-bold">AI Track Analysis</h3>
-                    <Progress value={analysisProgress} className="h-2 mt-2" />
-                  </div>
-                  <Badge className={analysisProgress >= 100 ? 'bg-emerald-500' : 'bg-primary'}>
-                    {analysisProgress >= 100 ? 'Complete' : `${Math.round(analysisProgress)}%`}
-                  </Badge>
-                </div>
-
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {[
-                    { label: 'Genre', value: 'Hip-Hop', icon: Music, delay: 0 },
-                    { label: 'BPM', value: '140', icon: Activity, delay: 0.2 },
-                    { label: 'Key', value: 'A Minor', icon: Sparkles, delay: 0.4 },
-                    { label: 'Energy', value: 'High', icon: Zap, delay: 0.6 },
-                  ].map((item, i) => (
-                    <motion.div
-                      key={item.label}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: analysisProgress > (i + 1) * 20 ? 1 : 0.3, scale: 1 }}
-                      transition={{ delay: item.delay }}
-                    >
-                      <Card className="p-4 bg-background/50 border-primary/10">
-                        <item.icon className="w-5 h-5 text-primary mb-2" />
-                        <p className="text-xs text-muted-foreground">{item.label}</p>
-                        <p className="text-lg font-bold">{item.value}</p>
-                      </Card>
-                    </motion.div>
-                  ))}
-                </div>
-
-                {/* Live Waveform */}
-                <div className="mt-6 h-20">
-                  <AudioVisualizer beats={beats} amplitude={amplitude} bass={bass} variant="wave" className="h-full" />
-                </div>
-              </Card>
-            </motion.div>
-          )}
-
-          {/* Phase 4: Studio Power */}
-          {phase.id === 'studio' && (
-            <motion.div
-              key="studio"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="w-full max-w-5xl"
-            >
-              <div className="flex items-center gap-4 mb-8 justify-center">
-                <PrimeCharacter bass={bass} amplitude={amplitude} isPlaying={isPlaying} size="sm" imageUrl={currentPrimeImage} />
-                <p className="text-lg text-muted-foreground">{typedText}</p>
-              </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {PLUGINS.map((plugin, i) => {
-                  const isActive = i === activePlugin;
-                  const Icon = plugin.icon;
-                  return (
-                    <motion.div
-                      key={plugin.name}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ 
-                        opacity: 1, 
-                        y: 0,
-                        scale: isActive ? 1.05 : 1
-                      }}
-                      transition={{ delay: i * 0.1 }}
-                    >
-                      <Card className={`p-6 bg-card/50 backdrop-blur border transition-all ${
-                        isActive ? 'border-primary shadow-lg shadow-primary/20' : 'border-primary/20'
-                      }`}>
-                        <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${plugin.color} flex items-center justify-center mb-4`}>
-                          <Icon className="w-6 h-6 text-white" />
-                        </div>
-                        <h4 className="font-bold text-lg">{plugin.name}</h4>
-                        <p className="text-sm text-muted-foreground">{plugin.type}</p>
-                        
-                        {/* Animated meter */}
-                        {isActive && (
-                          <div className="mt-4 flex gap-1">
-                            {[...Array(8)].map((_, j) => (
-                              <motion.div
-                                key={j}
-                                className={`flex-1 h-8 rounded bg-gradient-to-t ${plugin.color}`}
-                                animate={{ 
-                                  scaleY: 0.2 + (beats[j * 4] || 0) / 255 * 0.8
-                                }}
-                                style={{ originY: 1 }}
-                              />
-                            ))}
-                          </div>
-                        )}
-                      </Card>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </motion.div>
-          )}
-
-          {/* Phase 5: Collaboration */}
+          {/* Phase 3: THE COLLABORATION - Journey */}
           {phase.id === 'collaboration' && (
             <motion.div
               key="collaboration"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="w-full max-w-5xl"
+              className="w-full max-w-6xl"
             >
-              <div className="flex items-center gap-4 mb-8 justify-center">
-                <PrimeCharacter bass={bass} amplitude={amplitude} isPlaying={isPlaying} size="sm" imageUrl={currentPrimeImage} />
-                <p className="text-lg text-muted-foreground">{typedText}</p>
+              <div className="text-center mb-8">
+                <motion.h1 
+                  className="text-4xl md:text-6xl font-black mb-4"
+                  initial={{ y: 30, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                >
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-500 to-amber-500">
+                    The Collaboration
+                  </span>
+                </motion.h1>
+                <motion.p 
+                  className="text-lg text-muted-foreground max-w-xl mx-auto"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  {typedText}
+                  <span className="animate-pulse">|</span>
+                </motion.p>
               </div>
 
-              <div className="grid grid-cols-3 gap-8 items-center">
-                {/* Artist Side */}
-                <Card className="p-6 bg-card/50 backdrop-blur border-cyan-500/30">
-                  <Mic2 className="w-10 h-10 text-cyan-500 mb-4" />
-                  <h3 className="font-bold text-xl mb-2">Artist</h3>
-                  <p className="text-sm text-muted-foreground">Upload your tracks, get matched with pros</p>
-                  <div className="mt-4 h-16">
-                    <AudioVisualizer beats={beats.slice(0, 16)} amplitude={amplitude} bass={bass} variant="bars" className="h-full opacity-60" />
-                  </div>
-                </Card>
-
-                {/* Prime in center */}
-                <div className="flex flex-col items-center">
-                  <PrimeCharacter bass={bass} amplitude={amplitude} isPlaying={isPlaying} size="md" imageUrl={currentPrimeImage} />
-                  <motion.div 
-                    className="mt-4 flex gap-2"
-                    animate={{ opacity: [0.5, 1, 0.5] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                  >
-                    <ArrowRight className="w-6 h-6 text-cyan-500 rotate-180" />
-                    <Zap className="w-6 h-6 text-primary" />
-                    <ArrowRight className="w-6 h-6 text-purple-500" />
-                  </motion.div>
-                  <p className="text-sm text-muted-foreground mt-2">AI Matching</p>
-                </div>
-
-                {/* Engineer Side */}
-                <Card className="p-6 bg-card/50 backdrop-blur border-purple-500/30">
-                  <Headphones className="w-10 h-10 text-purple-500 mb-4" />
-                  <h3 className="font-bold text-xl mb-2">Engineer</h3>
-                  <p className="text-sm text-muted-foreground">Find projects, grow your business</p>
-                  <div className="mt-4 h-16">
-                    <AudioVisualizer beats={beats.slice(16, 32)} amplitude={amplitude} bass={bass} variant="bars" className="h-full opacity-60" />
-                  </div>
-                </Card>
-              </div>
+              <CollaborationJourney
+                amplitude={amplitude}
+                bass={bass}
+                isPlaying={isPlaying}
+                primeImage={currentPrimeImage}
+              />
             </motion.div>
           )}
 
-          {/* Phase 6: Results */}
-          {phase.id === 'results' && (
+          {/* Phase 4: THE NETWORK - Stats & Activity */}
+          {phase.id === 'network' && (
             <motion.div
-              key="results"
+              key="network"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="w-full max-w-5xl text-center"
             >
-              <div className="flex items-center gap-4 mb-8 justify-center">
-                <PrimeCharacter bass={bass} amplitude={amplitude} isPlaying={isPlaying} size="sm" imageUrl={currentPrimeImage} />
-                <p className="text-lg text-muted-foreground">{typedText}</p>
-              </div>
+              <motion.h1 
+                className="text-4xl md:text-6xl font-black mb-4"
+                initial={{ y: 30, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+              >
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 via-primary to-cyan-500">
+                  The Network
+                </span>
+              </motion.h1>
+              
+              <motion.p 
+                className="text-lg text-muted-foreground max-w-xl mx-auto mb-12"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+              >
+                {typedText}
+                <span className="animate-pulse">|</span>
+              </motion.p>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {/* Big stats */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
                 {[
-                  { value: '24hr', label: 'Delivery', color: 'text-cyan-500' },
-                  { value: '30+', label: 'Platforms', color: 'text-purple-500' },
+                  { value: '10K+', label: 'Creators', color: 'text-cyan-500' },
+                  { value: '500+', label: 'Engineers', color: 'text-purple-500' },
+                  { value: '50K+', label: 'Tracks', color: 'text-amber-500' },
                   { value: '98%', label: 'Satisfaction', color: 'text-emerald-500' },
-                  { value: '$47K+', label: 'Revenue', color: 'text-amber-500' },
                 ].map((stat, i) => (
                   <motion.div
                     key={stat.label}
                     initial={{ opacity: 0, scale: 0.5 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: i * 0.15 }}
+                    transition={{ delay: 0.5 + i * 0.1 }}
+                    className="p-6 rounded-2xl bg-card/50 backdrop-blur border border-primary/20"
                   >
-                    <Card className="p-6 bg-card/50 backdrop-blur border-primary/20">
-                      <motion.p 
-                        className={`text-4xl md:text-5xl font-black ${stat.color}`}
-                        animate={{ scale: 1 + (bass / 255) * 0.1 }}
-                      >
-                        {stat.value}
-                      </motion.p>
-                      <p className="text-muted-foreground mt-2">{stat.label}</p>
-                    </Card>
+                    <motion.p 
+                      className={`text-4xl md:text-5xl font-black ${stat.color}`}
+                      animate={{ scale: 1 + (bass / 255) * 0.1 }}
+                    >
+                      {stat.value}
+                    </motion.p>
+                    <p className="text-muted-foreground mt-2">{stat.label}</p>
                   </motion.div>
                 ))}
               </div>
+
+              {/* Live activity feed */}
+              <motion.div
+                className="space-y-3"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1 }}
+              >
+                {activities.slice(0, 3).map((activity, i) => (
+                  <motion.div
+                    key={activity.id}
+                    className="flex items-center justify-center gap-4 text-sm"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 1.2 + i * 0.2 }}
+                  >
+                    <div className={`w-2 h-2 rounded-full ${
+                      activity.type === 'connection' ? 'bg-cyan-500' :
+                      activity.type === 'project' ? 'bg-amber-500' : 'bg-emerald-500'
+                    }`} />
+                    <span className="text-muted-foreground">{activity.message}</span>
+                    <span className="text-xs text-muted-foreground/60">{activity.timestamp}</span>
+                  </motion.div>
+                ))}
+              </motion.div>
             </motion.div>
           )}
 
-          {/* Phase 7: CRM / Revenue Streams */}
-          {phase.id === 'crm' && (
+          {/* Phase 5: YOUR PLACE - Role Portals */}
+          {phase.id === 'place' && (
             <motion.div
-              key="crm"
+              key="place"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="w-full max-w-5xl"
             >
-              <div className="flex items-center gap-4 mb-8 justify-center">
-                <PrimeCharacter bass={bass} amplitude={amplitude} isPlaying={isPlaying} size="sm" imageUrl={currentPrimeImage} />
-                <p className="text-lg text-muted-foreground">{typedText}</p>
+              <div className="text-center mb-12">
+                <motion.h1 
+                  className="text-4xl md:text-6xl font-black mb-4"
+                  initial={{ y: 30, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                >
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 via-primary to-purple-500">
+                    Your Place
+                  </span>
+                </motion.h1>
+                <motion.p 
+                  className="text-lg text-muted-foreground max-w-xl mx-auto"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  {typedText}
+                  <span className="animate-pulse">|</span>
+                </motion.p>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                {REVENUE_STREAMS.map((stream, i) => {
-                  const Icon = stream.icon;
-                  return (
-                    <motion.div
-                      key={stream.name}
-                      initial={{ opacity: 0, scale: 0 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: i * 0.1, type: 'spring' }}
-                    >
-                      <Card className="p-4 bg-card/50 backdrop-blur border-primary/20 hover:border-primary/50 transition-all group">
-                        <motion.div
-                          animate={{ 
-                            scale: 1 + (beats[i * 3] || 0) / 255 * 0.3,
-                            rotate: (beats[i * 3] || 0) > 150 ? [0, 5, -5, 0] : 0
-                          }}
-                        >
-                          <Icon className="w-8 h-8 text-primary mx-auto mb-2 group-hover:scale-110 transition-transform" />
-                        </motion.div>
-                        <p className="text-xs font-medium text-center">{stream.name}</p>
-                      </Card>
-                    </motion.div>
-                  );
-                })}
-              </div>
+              <RolePortals
+                amplitude={amplitude}
+                bass={bass}
+                isPlaying={isPlaying}
+              />
             </motion.div>
           )}
 
-          {/* Phase 8: CTA */}
-          {phase.id === 'cta' && (
+          {/* Phase 6: THE INVITATION - CTA */}
+          {phase.id === 'invitation' && (
             <motion.div
-              key="cta"
+              key="invitation"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="text-center w-full max-w-2xl mx-auto"
@@ -805,7 +666,7 @@ export default function InsiderDemo() {
                 animate={{ scale: 1 + (bass / 255) * 0.05 }}
               >
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-500 to-cyan-500">
-                  The Revolution Awaits
+                  Your Tribe Awaits
                 </span>
               </motion.h1>
 
@@ -818,7 +679,7 @@ export default function InsiderDemo() {
                 {typedText}
               </motion.p>
 
-              {/* Primary CTAs - Technology & Waitlist */}
+              {/* Three CTA buttons */}
               <motion.div 
                 className="flex flex-col sm:flex-row gap-4 justify-center mb-8"
                 initial={{ opacity: 0, y: 20 }}
@@ -827,29 +688,28 @@ export default function InsiderDemo() {
               >
                 <Button
                   size="lg"
-                  onClick={() => navigate('/showcase')}
-                  className="text-lg px-8 py-6 bg-gradient-to-r from-primary via-purple-600 to-cyan-600 hover:opacity-90 shadow-lg shadow-primary/30"
+                  onClick={() => navigate('/for-artists')}
+                  className="text-lg px-8 py-6 bg-gradient-to-r from-cyan-600 to-blue-600 hover:opacity-90 shadow-lg shadow-cyan-500/30"
                 >
-                  <Zap className="w-5 h-5 mr-2" />
-                  See The Technology
+                  <Mic2 className="w-5 h-5 mr-2" />
+                  I Make Music
+                </Button>
+                <Button
+                  size="lg"
+                  onClick={() => navigate('/for-engineers')}
+                  className="text-lg px-8 py-6 bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90 shadow-lg shadow-purple-500/30"
+                >
+                  <Headphones className="w-5 h-5 mr-2" />
+                  I Shape Sound
                 </Button>
                 <Button
                   size="lg"
                   variant="outline"
-                  onClick={() => navigate('/for-artists')}
+                  onClick={() => navigate('/showcase')}
                   className="text-lg px-8 py-6 border-primary/50 hover:bg-primary/10"
                 >
-                  <Music className="w-5 h-5 mr-2" />
-                  I'm an Artist
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  onClick={() => navigate('/for-engineers')}
-                  className="text-lg px-8 py-6 border-accent-pink/50 hover:bg-accent-pink/10"
-                >
-                  <Sliders className="w-5 h-5 mr-2" />
-                  I'm an Engineer
+                  <Eye className="w-5 h-5 mr-2" />
+                  Show Me More
                 </Button>
               </motion.div>
 

@@ -1,12 +1,16 @@
 import { motion } from 'framer-motion';
 import { useMemo } from 'react';
 
+type ParticleMode = 'default' | 'connection' | 'flow';
+
 interface ParticleStormProps {
   amplitude: number;
   bass: number;
   isPlaying: boolean;
   particleCount?: number;
   className?: string;
+  mode?: ParticleMode;
+  flowDirection?: 'left-to-right' | 'right-to-left' | 'center-out';
 }
 
 interface Particle {
@@ -24,7 +28,9 @@ export const ParticleStorm = ({
   bass,
   isPlaying,
   particleCount = 50,
-  className = ''
+  className = '',
+  mode = 'default',
+  flowDirection = 'left-to-right'
 }: ParticleStormProps) => {
   const particles = useMemo(() => {
     return Array.from({ length: particleCount }, (_, i): Particle => ({
