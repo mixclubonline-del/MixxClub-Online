@@ -4,7 +4,7 @@ import { ParticleBackground } from "@/components/home/2030/ParticleBackground";
 import { NetworkConstellationHero } from "@/components/home/NetworkConstellationHero";
 import { NetworkExplainer } from "@/components/home/NetworkExplainer";
 import { LiveActivityTicker } from "@/components/home/LiveActivityTicker";
-import { FloatingPrimeChat } from "@/components/landing/FloatingPrimeChat";
+
 import { ScrollRevealSection } from "@/components/landing/ScrollRevealSection";
 import { PulsingCTA } from "@/components/landing/PulsingCTA";
 import { ThreeStories } from "@/components/waitlist/ThreeStories";
@@ -94,8 +94,6 @@ export default function PrimeLanding() {
         </div>
       </section>
 
-      {/* Floating Prime Chat Widget */}
-      <FloatingPrimeChat />
     </div>
   );
 }

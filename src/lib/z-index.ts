@@ -21,11 +21,17 @@ export const Z_INDEX = {
   // Layer 2: Fixed headers
   header: 40,
   
+  // Layer 2.5: Music player (below dialogs)
+  musicPlayer: 45,
+  
   // Layer 3: Primary overlays
   dropdown: 50,
   popover: 50,
   dialog: 50,
   sheet: 50,
+  
+  // Layer 3.5: Floating chat (above dialogs)
+  floatingChat: 55,
   
   // Layer 4: Navigation
   navigation: 60,

@@ -2,7 +2,7 @@ import { SEOHead } from "@/components/SEOHead";
 import { organizationSchema, serviceSchema } from "@/lib/seo-schema";
 import Navigation from "@/components/Navigation";
 import { AudioReactiveHero } from "@/components/landing/AudioReactiveHero";
-import { FloatingPrimeChat } from "@/components/landing/FloatingPrimeChat";
+
 import { RolePortals } from "@/components/landing/RolePortals";
 import { LivePlatformStats } from "@/components/home/LivePlatformStats";
 import { LiveEngineersShowcase } from "@/components/home/LiveEngineersShowcase";
@@ -33,8 +33,6 @@ const Home = () => {
           <Navigation />
         </div>
         
-        {/* Floating Prime Chat - Persistent across page */}
-        <FloatingPrimeChat />
         
         {/* Content */}
         <main className="relative z-10">
