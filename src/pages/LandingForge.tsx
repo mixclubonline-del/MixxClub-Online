@@ -112,7 +112,6 @@ export default function LandingForge() {
 
     if (authLoading) return;
 
-    // Check authentication
     if (!authUser) {
       toast.error('Please sign in to save images to your library');
       navigate(`/auth?mode=login&redirect=${encodeURIComponent('/landing-forge')}`);
@@ -122,55 +121,24 @@ export default function LandingForge() {
     setSaving(true);
 
     try {
-      const user = authUser;
-
-      // Get image blob (supports data URLs and remote URLs)
-      let blob: Blob;
-      let contentType = 'image/png';
-
-      if (generatedImage.startsWith('data:image/')) {
-        const match = generatedImage.match(/^data:(image\/[a-zA-Z0-9+.-]+);base64,(.*)$/);
-        if (!match) throw new Error('Invalid generated image data');
-
-        contentType = match[1];
-        blob = await fetch(`data:${contentType};base64,${match[2]}`).then((r) => r.blob());
-      } else {
-        const resp = await fetch(generatedImage);
-        if (!resp.ok) throw new Error('Failed to download generated image');
-
-        contentType = resp.headers.get('content-type') || contentType;
-        blob = await resp.blob();
-      }
-
-      const ext = contentType.includes('jpeg') ? 'jpg' : contentType.includes('webp') ? 'webp' : 'png';
-      const fileName = `landing_${activeTab}_${generatedPromptId}_${Date.now()}.${ext}`;
-      const filePath = `landing/${fileName}`;
-
-      // Upload to storage
-      const { error: uploadError } = await supabase.storage
-        .from('brand-assets')
-        .upload(filePath, blob, { contentType });
-
-      if (uploadError) throw uploadError;
-
-      // Get public URL
-      const { data: urlData } = supabase.storage
-        .from('brand-assets')
-        .getPublicUrl(filePath);
-
-      // Save to database
-      const { error: dbError } = await supabase.from('brand_assets').insert({
-        name: `Landing ${activeTab} - ${generatedPromptId}`,
-        asset_type: 'image',
-        storage_path: filePath,
-        public_url: urlData.publicUrl,
-        asset_context: `landing_${activeTab}_${generatedPromptId}`,
-        prompt_used: generatedPromptText,
-        is_active: true,
-        created_by: user.id,
+      const assetContext = `landing_${activeTab}_${generatedPromptId}`;
+      
+      const { data, error } = await supabase.functions.invoke('save-brand-asset', {
+        body: {
+          imageUrl: generatedImage,
+          assetContext,
+          promptUsed: generatedPromptText,
+          name: `Landing ${activeTab} - ${generatedPromptId}`,
+          category: activeTab,
+          setActive: true,
+        },
       });
 
-      if (dbError) throw dbError;
+      if (error) throw error;
+      
+      if (!data?.ok) {
+        throw new Error(`[${data?.step || 'unknown'}] ${data?.message || 'Save failed'}`);
+      }
 
       toast.success('Saved to library!');
       setGeneratedImage(null);
