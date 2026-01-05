@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useMobileOptimization } from '@/hooks/useMobileOptimization';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -21,6 +21,12 @@ export const MobileEnhancedNav = () => {
   const { user } = useAuth();
   const { triggerHaptic } = useMobileOptimization({ enableHaptics: true });
   const [notificationCount] = useState(3);
+  const [sheetOpen, setSheetOpen] = useState(false);
+
+  // Close sheet on route change
+  useEffect(() => {
+    setSheetOpen(false);
+  }, [location.pathname]);
 
   // Determine user role from current path
   const isEngineer = location.pathname.includes('engineer');
@@ -54,6 +60,7 @@ export const MobileEnhancedNav = () => {
 
   const handleNavigation = (path: string) => {
     triggerHaptic('light');
+    setSheetOpen(false);
     navigate(path);
   };
 
@@ -89,7 +96,7 @@ export const MobileEnhancedNav = () => {
                 </Badge>
               )}
             </Button>
-            <Sheet>
+            <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon">
                   <Menu className="h-5 w-5" />

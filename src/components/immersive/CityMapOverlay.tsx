@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -113,6 +113,20 @@ export const CityMapOverlay = ({ isOpen, onClose }: CityMapOverlayProps) => {
   const navigate = useNavigate();
   const [hoveredDistrict, setHoveredDistrict] = useState<string | null>(null);
 
+  // Close on Escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+    
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+    }
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onClose]);
+
   const handleNavigate = (path: string) => {
     onClose();
     navigate(path);
@@ -133,12 +147,16 @@ export const CityMapOverlay = ({ isOpen, onClose }: CityMapOverlayProps) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[150] flex items-center justify-center"
+          className="fixed inset-0 z-[75] flex items-center justify-center"
+          role="dialog"
+          aria-modal="true"
+          aria-label="MixClub City Map"
         >
           {/* Backdrop */}
           <motion.div 
             className="absolute inset-0 bg-background/90 backdrop-blur-xl"
             onClick={onClose}
+            aria-hidden="true"
           />
 
           {/* Grid pattern */}

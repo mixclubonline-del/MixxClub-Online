@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
@@ -55,6 +55,18 @@ export const RadialNavigation = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen]);
 
+  // Close on Escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        setIsOpen(false);
+      }
+    };
+    
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isOpen]);
+
   const handleNavigate = (path: string) => {
     setIsOpen(false);
     navigate(path);
@@ -63,17 +75,18 @@ export const RadialNavigation = () => {
   const radius = 140; // Distance from center to icons
 
   return (
-    <div ref={containerRef} className="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-50">
+    <div ref={containerRef} className="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-60">
       <AnimatePresence>
         {isOpen && (
           <>
-            {/* Backdrop blur */}
+            {/* Backdrop blur - covers entire screen */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-background/60 backdrop-blur-md -z-10"
+              className="fixed inset-0 bg-background/60 backdrop-blur-md z-[69]"
               onClick={() => setIsOpen(false)}
+              aria-hidden="true"
             />
 
             {/* Radial menu items */}
@@ -83,38 +96,38 @@ export const RadialNavigation = () => {
               const y = Math.sin(angleRad) * radius;
 
               return (
-                <motion.button
-                  key={district.id}
-                  initial={{ opacity: 0, x: 0, y: 0, scale: 0 }}
-                  animate={{ 
-                    opacity: 1, 
-                    x: x, 
-                    y: y, 
-                    scale: 1,
-                    transition: { delay: index * 0.05, type: 'spring', stiffness: 300, damping: 20 }
-                  }}
-                  exit={{ 
-                    opacity: 0, 
-                    x: 0, 
-                    y: 0, 
-                    scale: 0,
-                    transition: { delay: (districts.length - index) * 0.02 }
-                  }}
-                  onClick={() => handleNavigate(district.path)}
-                  onMouseEnter={() => setHoveredDistrict(district.id)}
-                  onMouseLeave={() => setHoveredDistrict(null)}
-                  className={cn(
-                    "absolute w-14 h-14 rounded-2xl flex items-center justify-center transition-all",
-                    "bg-gradient-to-br shadow-lg",
-                    district.color,
-                    hoveredDistrict === district.id ? "scale-110 shadow-xl" : ""
-                  )}
-                  style={{
-                    left: '50%',
-                    top: '50%',
-                    transform: `translate(-50%, -50%) translate(${x}px, ${y}px)`,
-                  }}
-                >
+              <motion.button
+                key={district.id}
+                initial={{ opacity: 0, x: 0, y: 0, scale: 0 }}
+                animate={{ 
+                  opacity: 1, 
+                  x: x, 
+                  y: y, 
+                  scale: 1,
+                  transition: { delay: index * 0.05, type: 'spring', stiffness: 300, damping: 20 }
+                }}
+                exit={{ 
+                  opacity: 0, 
+                  x: 0, 
+                  y: 0, 
+                  scale: 0,
+                  transition: { delay: (districts.length - index) * 0.02 }
+                }}
+                onClick={() => handleNavigate(district.path)}
+                onMouseEnter={() => setHoveredDistrict(district.id)}
+                onMouseLeave={() => setHoveredDistrict(null)}
+                className={cn(
+                  "absolute w-14 h-14 rounded-2xl flex items-center justify-center transition-all z-[70]",
+                  "bg-gradient-to-br shadow-lg",
+                  district.color,
+                  hoveredDistrict === district.id ? "scale-110 shadow-xl" : ""
+                )}
+                style={{
+                  left: '50%',
+                  top: '50%',
+                  transform: `translate(-50%, -50%) translate(${x}px, ${y}px)`,
+                }}
+              >
                   <district.icon className="w-6 h-6 text-white" />
                   
                   {/* Label on hover */}
@@ -140,7 +153,7 @@ export const RadialNavigation = () => {
               animate={{ opacity: 1, scale: 1, transition: { delay: 0.3 } }}
               exit={{ opacity: 0, scale: 0 }}
               onClick={() => handleNavigate('/settings')}
-              className="absolute w-10 h-10 rounded-xl bg-muted/80 flex items-center justify-center hover:bg-muted transition-colors"
+              className="absolute w-10 h-10 rounded-xl bg-muted/80 flex items-center justify-center hover:bg-muted transition-colors z-[70]"
               style={{
                 left: '50%',
                 top: '50%',
@@ -155,7 +168,7 @@ export const RadialNavigation = () => {
               animate={{ opacity: 1, scale: 1, transition: { delay: 0.35 } }}
               exit={{ opacity: 0, scale: 0 }}
               onClick={() => signOut()}
-              className="absolute w-10 h-10 rounded-xl bg-destructive/20 flex items-center justify-center hover:bg-destructive/30 transition-colors"
+              className="absolute w-10 h-10 rounded-xl bg-destructive/20 flex items-center justify-center hover:bg-destructive/30 transition-colors z-[70]"
               style={{
                 left: '50%',
                 top: '50%',
@@ -182,7 +195,7 @@ export const RadialNavigation = () => {
           boxShadow: { duration: 2, repeat: isOpen ? 0 : Infinity }
         }}
         className={cn(
-          "relative w-16 h-16 rounded-full flex items-center justify-center transition-all z-10",
+          "relative w-16 h-16 rounded-full flex items-center justify-center transition-all z-[71]",
           "bg-gradient-to-br from-primary via-accent-blue to-primary",
           "shadow-lg shadow-primary/30"
         )}

@@ -125,7 +125,7 @@ const Navigation = () => {
   const isActiveRoute = (path: string) => location.pathname === path;
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${scrolled
+    <nav className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${scrolled
         ? 'glass-ultra border-b border-[hsl(var(--glass-border-strong))] shadow-glass-lg animate-glass-breathe'
         : 'glass-mid border-b border-[hsl(var(--glass-border))]'
       }`}>
@@ -165,7 +165,7 @@ const Navigation = () => {
                       </svg>
                     </button>
                     {/* Dropdown menu */}
-                    <div className="absolute top-full left-0 mt-2 w-48 glass-floating rounded-lg border border-[hsl(var(--glass-border-strong))] shadow-glass-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-2 z-[110]">
+                    <div className="absolute top-full left-0 mt-2 w-48 glass-floating rounded-lg border border-[hsl(var(--glass-border-strong))] shadow-glass-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-2 z-50">
                       {(link as any).items.map((item: any) => (
                         <Link
                           key={item.to}
