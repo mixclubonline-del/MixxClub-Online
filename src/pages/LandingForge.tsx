@@ -65,6 +65,8 @@ export default function LandingForge() {
   const [activeTab, setActiveTab] = useState('origin');
   const [generating, setGenerating] = useState<string | null>(null);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [generatedPromptId, setGeneratedPromptId] = useState<string | null>(null);
+  const [generatedPromptText, setGeneratedPromptText] = useState<string | null>(null);
   const [customPrompt, setCustomPrompt] = useState('');
   const [saving, setSaving] = useState(false);
   const { images, isLoading, refetch, getImagesByPhase } = useLandingImagery();
@@ -86,6 +88,8 @@ export default function LandingForge() {
       
       if (data?.imageUrl) {
         setGeneratedImage(data.imageUrl);
+        setGeneratedPromptId(promptId);
+        setGeneratedPromptText(promptText);
         toast.success('Image generated! Review and save to your library.');
       } else {
         throw new Error('No image returned');
@@ -98,8 +102,8 @@ export default function LandingForge() {
     }
   };
 
-  const saveToLibrary = async (promptId: string, promptText: string) => {
-    if (!generatedImage) return;
+  const saveToLibrary = async () => {
+    if (!generatedImage || !generatedPromptId || !generatedPromptText) return;
     setSaving(true);
 
     try {
@@ -107,7 +111,7 @@ export default function LandingForge() {
       const base64Data = generatedImage.replace(/^data:image\/\w+;base64,/, '');
       const blob = await fetch(`data:image/png;base64,${base64Data}`).then(r => r.blob());
       
-      const fileName = `landing_${activeTab}_${promptId}_${Date.now()}.png`;
+      const fileName = `landing_${activeTab}_${generatedPromptId}_${Date.now()}.png`;
       const filePath = `landing/${fileName}`;
 
       // Upload to storage
@@ -124,12 +128,12 @@ export default function LandingForge() {
 
       // Save to database
       const { error: dbError } = await supabase.from('brand_assets').insert({
-        name: `Landing ${activeTab} - ${promptId}`,
+        name: `Landing ${activeTab} - ${generatedPromptId}`,
         asset_type: 'image',
         storage_path: filePath,
         public_url: urlData.publicUrl,
-        asset_context: `landing_${activeTab}_${promptId}`,
-        prompt_used: promptText,
+        asset_context: `landing_${activeTab}_${generatedPromptId}`,
+        prompt_used: generatedPromptText,
         is_active: true,
       });
 
@@ -137,6 +141,8 @@ export default function LandingForge() {
 
       toast.success('Saved to library!');
       setGeneratedImage(null);
+      setGeneratedPromptId(null);
+      setGeneratedPromptText(null);
       refetch();
     } catch (err: any) {
       console.error('Save error:', err);
@@ -238,7 +244,7 @@ export default function LandingForge() {
                   </p>
                   <div className="flex gap-3">
                     <Button
-                      onClick={() => saveToLibrary('custom', customPrompt)}
+                      onClick={saveToLibrary}
                       disabled={saving}
                       className="flex-1"
                     >
