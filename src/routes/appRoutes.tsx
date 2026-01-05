@@ -58,6 +58,7 @@ const MerchStore = React.lazy(() => import("@/pages/MerchStore"));
 const ArtistStorefront = React.lazy(() => import("@/pages/ArtistStorefront"));
 const ArtistMerchManager = React.lazy(() => import("@/pages/ArtistMerchManager"));
 const EnterpriseDemo = React.lazy(() => import("@/pages/EnterpriseDemo"));
+const LandingForge = React.lazy(() => import("@/pages/LandingForge"));
 
 // Live Streaming pages
 const LivePage = React.lazy(() => import("@/pages/LivePage"));
@@ -168,6 +169,9 @@ export const appRoutes = (
 
     {/* Enterprise */}
     <Route path="/enterprise-demo" element={<EnterpriseDemo />} />
+
+    {/* Landing Forge */}
+    <Route path="/landing-forge" element={<LandingForge />} />
 
     {/* Public Profiles */}
     <Route path="/u/:username" element={<AppLayout><PublicProfile /></AppLayout>} />
