@@ -34,11 +34,26 @@
 }
 
 @layer utilities {
-  /* Mobile-specific utilities */
+  /* ============= MOBILE-FIRST UTILITIES ============= */
+  
+  /* Safe area insets for notched devices */
   .safe-area-inset-bottom {
     padding-bottom: env(safe-area-inset-bottom);
   }
+  
+  .safe-area-inset-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .pb-safe {
+    padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);
+  }
+  
+  .pt-safe {
+    padding-top: max(env(safe-area-inset-top), 0.5rem);
+  }
 
+  /* Hide scrollbar - cross-browser */
   .hide-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -47,15 +62,110 @@
   .hide-scrollbar::-webkit-scrollbar {
     display: none;
   }
+  
+  /* Smooth momentum scrolling for iOS */
+  .scroll-smooth-touch {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
 
-  /* Haptic feedback visual */
+  /* ============= TOUCH TARGET UTILITIES ============= */
+  
+  /* Minimum 44px touch targets (WCAG 2.1 AAA) */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .touch-target-lg {
+    min-height: 48px;
+    min-width: 48px;
+  }
+  
+  .touch-target-xl {
+    min-height: 56px;
+    min-width: 56px;
+  }
+  
+  /* Touch-friendly tap areas with visual feedback */
+  .touch-feedback {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+  }
+  
+  .touch-feedback:active {
+    transform: scale(0.97);
+    transition: transform 0.1s ease-out;
+  }
+
+  /* Haptic feedback visual - instant response */
   .active\\:scale-95:active {
     transform: scale(0.95);
   }
+  
+  .active\\:scale-97:active {
+    transform: scale(0.97);
+  }
 
+  /* ============= MOBILE GESTURE UTILITIES ============= */
+  
+  /* Prevent text selection during swipes */
+  .no-select-swipe {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+  
+  /* Allow horizontal swipe without vertical scroll interference */
+  .swipe-x {
+    touch-action: pan-x;
+    overscroll-behavior-x: contain;
+  }
+  
+  /* Allow vertical swipe without horizontal scroll interference */
+  .swipe-y {
+    touch-action: pan-y;
+    overscroll-behavior-y: contain;
+  }
+  
+  /* Prevent pull-to-refresh on specific elements */
+  .no-pull-refresh {
+    overscroll-behavior-y: none;
+  }
+
+  /* ============= MOBILE TYPOGRAPHY ============= */
+  
+  /* Prevent iOS zoom on input focus */
+  .text-mobile-input {
+    font-size: 16px !important;
+  }
+  
+  /* Readable line heights for mobile */
+  .leading-mobile {
+    line-height: 1.6;
+  }
+
+  /* ============= GLOW & VISUAL EFFECTS ============= */
+  
   /* Glow effect */
   .drop-shadow-glow {
     filter: drop-shadow(0 0 8px hsl(var(--primary) / 0.5));
+  }
+  
+  .drop-shadow-glow-sm {
+    filter: drop-shadow(0 0 4px hsl(var(--primary) / 0.4));
+  }
+  
+  /* Mobile-optimized shadows (lighter for performance) */
+  @media (max-width: 768px) {
+    .shadow-mobile-light {
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    }
+    
+    .shadow-mobile-md {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
   }
 
   /* Pull to refresh animation */
@@ -163,7 +273,7 @@
     }
   }
   
-  /* Reduce Motion Support */
+  /* Reduce Motion Support - Accessibility First */
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -180,6 +290,41 @@
     .animate-glow-pulse,
     .animate-glass-breathe {
       animation: none !important;
+    }
+  }
+  
+  /* ============= MOBILE PERFORMANCE OPTIMIZATIONS ============= */
+  
+  /* Reduce animations on mobile for battery life */
+  @media (max-width: 768px) {
+    /* Simpler transitions on mobile */
+    .mobile-perf-transition {
+      transition-duration: 0.15s !important;
+    }
+    
+    /* Hardware acceleration for smooth scrolling */
+    .mobile-scroll-container {
+      transform: translateZ(0);
+      will-change: scroll-position;
+    }
+    
+    /* Reduce blur intensity on mobile (GPU intensive) */
+    .glass-far,
+    .glass-mid {
+      backdrop-filter: blur(8px) saturate(150%);
+      -webkit-backdrop-filter: blur(8px) saturate(150%);
+    }
+  }
+  
+  /* Low-power mode detection (Safari) */
+  @media (prefers-reduced-motion: reduce), (update: slow) {
+    .glass-far,
+    .glass-mid,
+    .glass-near,
+    .glass-floating,
+    .glass-ultra {
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
     }
   }
 
