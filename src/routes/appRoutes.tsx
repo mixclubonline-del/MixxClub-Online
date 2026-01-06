@@ -19,6 +19,7 @@ import AudioUpload from "@/pages/AudioUpload";
 import EngineerDirectory from "@/pages/EngineerDirectory";
 import EngineerProfile from "@/pages/EngineerProfile";
 import ComingSoon from "@/pages/ComingSoon";
+import DistributionHub from "@/pages/DistributionHub";
 import OrderSuccess from "@/pages/OrderSuccess";
 import Checkout from "@/pages/Checkout";
 import PaymentCanceled from "@/pages/PaymentCanceled";
@@ -111,7 +112,7 @@ export const appRoutes = (
     <Route path="/services/mixing" element={<MixingShowcase />} />
     <Route path="/services/mastering" element={<MasteringShowcase />} />
     <Route path="/services/ai-mastering" element={<AIMastering />} />
-    <Route path="/services/distribution" element={<ComingSoon />} />
+    <Route path="/services/distribution" element={<DistributionHub />} />
     
     {/* Legacy service redirects */}
     <Route path="/mixing" element={<Navigate to="/services/mixing" replace />} />
@@ -158,7 +159,7 @@ export const appRoutes = (
     <Route path="/label-services" element={<LabelServices />} />
     <Route path="/integrations" element={<Integrations />} />
     <Route path="/ai-audio-intelligence" element={<AIAudioIntelligence />} />
-    <Route path="/distribution" element={<AppLayout><ComingSoon /></AppLayout>} />
+    <Route path="/distribution" element={<DistributionHub />} />
     <Route path="/coming-soon" element={<ComingSoon />} />
 
     {/* Merch Store */}

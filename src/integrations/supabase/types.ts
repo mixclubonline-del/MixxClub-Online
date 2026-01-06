@@ -1751,6 +1751,54 @@ export type Database = {
           },
         ]
       }
+      distribution_packages: {
+        Row: {
+          billing_cycle: string | null
+          created_at: string | null
+          currency: string | null
+          features: Json | null
+          id: string
+          is_featured: boolean | null
+          package_description: string | null
+          package_name: string
+          partner_affiliate_url: string
+          partner_name: string
+          platforms_count: number | null
+          price: number
+          sort_order: number | null
+        }
+        Insert: {
+          billing_cycle?: string | null
+          created_at?: string | null
+          currency?: string | null
+          features?: Json | null
+          id?: string
+          is_featured?: boolean | null
+          package_description?: string | null
+          package_name: string
+          partner_affiliate_url: string
+          partner_name: string
+          platforms_count?: number | null
+          price: number
+          sort_order?: number | null
+        }
+        Update: {
+          billing_cycle?: string | null
+          created_at?: string | null
+          currency?: string | null
+          features?: Json | null
+          id?: string
+          is_featured?: boolean | null
+          package_description?: string | null
+          package_name?: string
+          partner_affiliate_url?: string
+          partner_name?: string
+          platforms_count?: number | null
+          price?: number
+          sort_order?: number | null
+        }
+        Relationships: []
+      }
       distribution_referrals: {
         Row: {
           commission_amount: number | null
