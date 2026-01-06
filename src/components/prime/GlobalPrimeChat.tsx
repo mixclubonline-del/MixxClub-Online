@@ -47,7 +47,7 @@ const HIDDEN_ROUTES = [
 export const GlobalPrimeChat = () => {
   const location = useLocation();
   const { user } = useAuth();
-  const { bottom } = usePrimePosition();
+  const { bottom, right } = usePrimePosition();
   const { toast } = useToast();
   
   const [isOpen, setIsOpen] = useState(false);
@@ -130,8 +130,8 @@ export const GlobalPrimeChat = () => {
     <>
       {/* Floating Button */}
       <motion.div
-        className="fixed right-6 z-[55]"
-        style={{ bottom }}
+        className="fixed z-[55] touch-feedback"
+        style={{ bottom, right }}
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ delay: 2, type: 'spring' }}
@@ -146,7 +146,7 @@ export const GlobalPrimeChat = () => {
               <Button
                 size="lg"
                 onClick={() => setIsOpen(true)}
-                className="relative w-14 h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent-cyan))] hover:shadow-[0_0_40px_hsl(var(--primary)/0.8)] transition-all group"
+                className="relative w-14 h-14 rounded-full bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent-cyan))] hover:shadow-[0_0_40px_hsl(var(--primary)/0.8)] transition-all group touch-target-xl"
               >
                 {/* Pulse ring */}
                 <motion.div
@@ -156,7 +156,7 @@ export const GlobalPrimeChat = () => {
                 />
                 
                 {/* Prime avatar */}
-                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden border-2 border-white/20">
+                <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-white/20">
                   <img 
                     src="/assets/prime-pointing.jpg" 
                     alt="Prime"
@@ -196,8 +196,8 @@ export const GlobalPrimeChat = () => {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed right-4 md:right-6 z-[55] w-[calc(100vw-2rem)] md:w-96 max-w-[400px]"
-            style={{ bottom }}
+            className="fixed z-[55] w-[calc(100vw-2rem)] sm:w-96 max-w-[400px]"
+            style={{ bottom, right }}
           >
             <div className="glass-ultra rounded-2xl overflow-hidden border border-[hsl(var(--glass-border-glow))] shadow-2xl">
               {/* Header */}
