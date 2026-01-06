@@ -45,7 +45,7 @@ export const FEATURE_FLAGS = {
   // Phase 1: Affiliate partnerships (LIVE - already implemented)
   
   // Phase 2: White-Label Distribution Infrastructure
-  DISTRIBUTION_WHITE_LABEL_ENABLED: false,
+  DISTRIBUTION_WHITE_LABEL_ENABLED: true,
   
   // Phase 3: Enhanced Analytics & Playlist Pitching
   DISTRIBUTION_ANALYTICS_ENABLED: false,
