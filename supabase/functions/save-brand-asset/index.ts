@@ -40,7 +40,7 @@ Deno.serve(async (req) => {
     console.log("Authenticated user:", user.id);
 
     // Parse body
-    const { imageUrl, assetContext, promptUsed, name, category, setActive = true } = await req.json();
+    const { imageUrl, assetContext, promptUsed, name, category, setActive = true, deactivateSiblings = false, assetType = 'image', durationSeconds = null, fileSizeBytes = null } = await req.json();
 
     if (!imageUrl || !assetContext || !name) {
       return new Response(
@@ -117,10 +117,24 @@ Deno.serve(async (req) => {
 
     console.log("Public URL:", publicUrl);
 
+    // If deactivateSiblings is true, deactivate all other assets with same context
+    if (deactivateSiblings && setActive) {
+      console.log("Deactivating sibling assets for context:", assetContext);
+      const { error: deactivateError } = await supabase
+        .from("brand_assets")
+        .update({ is_active: false })
+        .eq("asset_context", assetContext);
+      
+      if (deactivateError) {
+        console.warn("Failed to deactivate siblings:", deactivateError);
+        // Don't fail the whole operation, just log warning
+      }
+    }
+
     // Insert into database
     const { data: asset, error: dbError } = await supabase.from("brand_assets").insert({
       name,
-      asset_type: "image",
+      asset_type: assetType,
       storage_path: filePath,
       public_url: publicUrl,
       asset_context: assetContext,
@@ -128,6 +142,8 @@ Deno.serve(async (req) => {
       category: category || null,
       is_active: setActive,
       created_by: user.id,
+      duration_seconds: durationSeconds,
+      file_size_bytes: fileSizeBytes,
     }).select().single();
 
     if (dbError) {

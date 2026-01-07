@@ -6,11 +6,12 @@
  * Built on the Scene System for real-time data.
  */
 
-import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Music, Users, Mic, Headphones } from 'lucide-react';
 import { useStudios, useFeaturedSession, useSceneSystemInit } from '@/hooks/useSceneSystem';
+import { useDynamicHallwayAssets } from '@/hooks/useDynamicHallwayAssets';
+import { HallwayVideoBackground } from './HallwayVideoBackground';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import type { StudioRoom } from '@/types/scene';
 
@@ -162,6 +163,11 @@ export function StudioHallway() {
   const { isConnected } = useSceneSystemInit();
   const { studios, activeCount } = useStudios();
   const { featuredSession } = useFeaturedSession();
+  const { getBackgroundUrl, isVideo } = useDynamicHallwayAssets();
+  
+  const hasActiveSessions = activeCount > 0;
+  const backgroundUrl = getBackgroundUrl(hasActiveSessions);
+  const isVideoBg = isVideo(hasActiveSessions);
   
   const handleRoomClick = (room: StudioRoom) => {
     if (room.visibility === 'public' && room.sessionId) {
@@ -170,11 +176,11 @@ export function StudioHallway() {
   };
   
   return (
-    <section className="relative py-16 px-6 overflow-hidden">
-      {/* Background atmosphere */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-muted/5 to-transparent pointer-events-none" />
+    <section className="relative py-16 px-6 overflow-hidden min-h-[400px]">
+      {/* AI-generated background */}
+      <HallwayVideoBackground url={backgroundUrl} isVideo={isVideoBg} />
       
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-6xl mx-auto relative z-10">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>

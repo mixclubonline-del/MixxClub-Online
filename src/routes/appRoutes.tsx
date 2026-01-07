@@ -59,7 +59,7 @@ const MerchStore = React.lazy(() => import("@/pages/MerchStore"));
 const ArtistStorefront = React.lazy(() => import("@/pages/ArtistStorefront"));
 const ArtistMerchManager = React.lazy(() => import("@/pages/ArtistMerchManager"));
 const EnterpriseDemo = React.lazy(() => import("@/pages/EnterpriseDemo"));
-const LandingForge = React.lazy(() => import("@/pages/LandingForge"));
+const DreamEngine = React.lazy(() => import("@/pages/DreamEngine"));
 const FreemiumOverview = React.lazy(() => import("@/pages/FreemiumOverview"));
 const MatchingDashboard = React.lazy(() => import("@/pages/MatchingDashboard"));
 const Sitemap = React.lazy(() => import("@/pages/Sitemap"));
@@ -174,8 +174,9 @@ export const appRoutes = (
     {/* Enterprise */}
     <Route path="/enterprise-demo" element={<EnterpriseDemo />} />
 
-    {/* Landing Forge */}
-    <Route path="/landing-forge" element={<LandingForge />} />
+    {/* Dream Engine (Vision Control) */}
+    <Route path="/dream-engine" element={<DreamEngine />} />
+    <Route path="/landing-forge" element={<Navigate to="/dream-engine" replace />} />
 
     {/* Utility Pages */}
     <Route path="/freemium" element={<FreemiumOverview />} />
