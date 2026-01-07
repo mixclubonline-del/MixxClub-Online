@@ -2,7 +2,6 @@ import React from "react";
 import { Route, Navigate } from "react-router-dom";
 
 // Public/Marketing pages - static imports for critical routes
-import IntroScene from "@/pages/IntroScene";
 import Auth from "@/pages/Auth";
 import AuthCallback from "@/pages/AuthCallback";
 import DemoLogin from "@/pages/DemoLogin";
