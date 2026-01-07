@@ -41,3 +41,6 @@ verify_jwt = false
 
 [functions.save-brand-asset]
 verify_jwt = true
+
+[functions.seed-platform-demo-data]
+verify_jwt = false
