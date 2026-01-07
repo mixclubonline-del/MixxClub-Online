@@ -109,3 +109,24 @@ export function useStudio(studioId: string) {
       updateStudio(studioId, updates),
   };
 }
+
+/**
+ * Combined hook for easy access to all scene data.
+ * Use this for components that need multiple pieces of scene state.
+ */
+export function useSceneSystem() {
+  const studios = useSceneStore(state => state.studios);
+  const communityPulse = useSceneStore(state => state.communityPulse);
+  const featuredSession = useSceneStore(state => state.featuredSession);
+  const isConnected = useSceneStore(state => state.isConnected);
+  const activeStudios = useSceneStore(selectActiveStudios);
+  
+  return {
+    studios,
+    activeStudios,
+    communityPulse,
+    featuredSession,
+    isConnected,
+    activeCount: activeStudios.length,
+  };
+}
