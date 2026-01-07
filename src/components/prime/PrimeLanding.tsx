@@ -1,9 +1,8 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ParticleBackground } from "@/components/home/2030/ParticleBackground";
-import { NetworkConstellationHero } from "@/components/home/NetworkConstellationHero";
 import { NetworkExplainer } from "@/components/home/NetworkExplainer";
-import { LiveActivityTicker } from "@/components/home/LiveActivityTicker";
+import { StudioHallway } from "@/components/scene/StudioHallway";
+import { CommunityPulseDisplay } from "@/components/scene/CommunityPulseDisplay";
 
 import { ScrollRevealSection } from "@/components/landing/ScrollRevealSection";
 import { PulsingCTA } from "@/components/landing/PulsingCTA";
@@ -16,12 +15,9 @@ import { RoleGateway } from "@/components/home/RoleGateway";
 
 export default function PrimeLanding() {
   return (
-    <div className="min-h-screen bg-[hsl(var(--background))] text-foreground overflow-hidden relative">
-      {/* Particle Network Background */}
-      <ParticleBackground />
-      
-      {/* Network Constellation Hero */}
-      <NetworkConstellationHero />
+    <div className="min-h-screen bg-background text-foreground overflow-hidden relative">
+      {/* Living Studio Hallway - Real Data */}
+      <StudioHallway />
 
       {/* The Problem - Animated Pain Points */}
       <ScrollRevealSection>
@@ -53,10 +49,10 @@ export default function PrimeLanding() {
         <NetworkExplainer />
       </ScrollRevealSection>
 
-      {/* Live Activity Ticker */}
+      {/* Community Pulse - Real Progress */}
       <ScrollRevealSection delay={0.1}>
         <div className="py-8 px-6">
-          <LiveActivityTicker />
+          <CommunityPulseDisplay />
         </div>
       </ScrollRevealSection>
 
