@@ -57,11 +57,15 @@ export const GlobalPrimeChat = () => {
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Pre-launch routes where Prime should never appear
+  const PRE_LAUNCH_ROUTES = ['/', '/launch', '/waitlist'];
+  const isPreLaunchRoute = PRE_LAUNCH_ROUTES.includes(location.pathname);
+  
   // Hide on CRM/DAW routes (they have dedicated chatbots)
   const shouldHide = HIDDEN_ROUTES.some(route => location.pathname.startsWith(route));
   
-  // Also hide for authenticated users who have CRM access
-  const shouldRender = !shouldHide && !user;
+  // Hide on pre-launch, CRM routes, or for authenticated users
+  const shouldRender = !shouldHide && !user && !isPreLaunchRoute;
 
   // Delay showing Prime to not distract on initial load
   useEffect(() => {

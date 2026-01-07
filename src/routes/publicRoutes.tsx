@@ -28,32 +28,42 @@ const MixClubHome = React.lazy(() => import("@/pages/MixClubHome"));
 const LaunchWaitlist = React.lazy(() => import("@/pages/LaunchWaitlist"));
 const Enterprise = React.lazy(() => import("@/pages/Enterprise"));
 
+// Pre-launch mode: Root shows LaunchWaitlist
+// TODO: After launch, swap back to InsiderDemo for "/"
 export const publicRoutes = (
   <>
-    <Route path="/" element={<InsiderDemo />} />
-    <Route path="/mixclub" element={<MixClubHome />} />
-    <Route path="/launch" element={<InsiderDemo />} />
-    <Route path="/home" element={<MixClubHome />} />
-    <Route path="/install" element={<Install />} />
-    <Route path="/network" element={<Navigate to="/" replace />} />
-    <Route path="/artist" element={<Artist />} />
-    <Route path="/engineer" element={<Engineer />} />
-    <Route path="/auth" element={<Auth />} />
-    <Route path="/auth/callback" element={<AuthCallback />} />
-    <Route path="/demo" element={<DemoLogin />} />
-    <Route path="/insider-demo" element={<InsiderDemo />} />
-    <Route path="/how-it-works" element={<HowItWorks />} />
-    <Route path="/showcase" element={<Showcase />} />
-    <Route path="/for-artists" element={<ForArtists />} />
-    <Route path="/for-engineers" element={<ForEngineers />} />
-    <Route path="/faq" element={<FAQ />} />
+    {/* PRE-LAUNCH: Main entry points all go to waitlist */}
+    <Route path="/" element={<LaunchWaitlist />} />
+    <Route path="/launch" element={<LaunchWaitlist />} />
+    <Route path="/waitlist" element={<Waitlist />} />
+    
+    {/* Essential legal pages - always accessible */}
     <Route path="/terms" element={<Terms />} />
     <Route path="/privacy" element={<Privacy />} />
-    <Route path="/pricing" element={<Pricing />} />
-    <Route path="/contact" element={<Contact />} />
-    <Route path="/about" element={<About />} />
-    <Route path="/waitlist" element={<Waitlist />} />
-    <Route path="/press" element={<Press />} />
-    <Route path="/enterprise" element={<Enterprise />} />
+    
+    {/* Auth routes - needed for waitlist signup */}
+    <Route path="/auth" element={<Auth />} />
+    <Route path="/auth/callback" element={<AuthCallback />} />
+    
+    {/* POST-LAUNCH: Uncomment these routes when ready to go live */}
+    {/* <Route path="/" element={<InsiderDemo />} /> */}
+    {/* <Route path="/home" element={<MixClubHome />} /> */}
+    {/* <Route path="/mixclub" element={<MixClubHome />} /> */}
+    {/* <Route path="/install" element={<Install />} /> */}
+    {/* <Route path="/network" element={<Navigate to="/" replace />} /> */}
+    {/* <Route path="/artist" element={<Artist />} /> */}
+    {/* <Route path="/engineer" element={<Engineer />} /> */}
+    {/* <Route path="/demo" element={<DemoLogin />} /> */}
+    {/* <Route path="/insider-demo" element={<InsiderDemo />} /> */}
+    {/* <Route path="/how-it-works" element={<HowItWorks />} /> */}
+    {/* <Route path="/showcase" element={<Showcase />} /> */}
+    {/* <Route path="/for-artists" element={<ForArtists />} /> */}
+    {/* <Route path="/for-engineers" element={<ForEngineers />} /> */}
+    {/* <Route path="/faq" element={<FAQ />} /> */}
+    {/* <Route path="/pricing" element={<Pricing />} /> */}
+    {/* <Route path="/contact" element={<Contact />} /> */}
+    {/* <Route path="/about" element={<About />} /> */}
+    {/* <Route path="/press" element={<Press />} /> */}
+    {/* <Route path="/enterprise" element={<Enterprise />} /> */}
   </>
 );
