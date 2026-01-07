@@ -1123,6 +1123,62 @@ export type Database = {
           },
         ]
       }
+      community_unlockables: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          icon_name: string | null
+          id: string
+          is_unlocked: boolean | null
+          name: string
+          threshold_type: string
+          threshold_value: number
+          unlock_order: number | null
+          unlockable_type: string | null
+          unlocked_at: string | null
+          updated_at: string | null
+          visual_asset_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          icon_name?: string | null
+          id?: string
+          is_unlocked?: boolean | null
+          name: string
+          threshold_type: string
+          threshold_value: number
+          unlock_order?: number | null
+          unlockable_type?: string | null
+          unlocked_at?: string | null
+          updated_at?: string | null
+          visual_asset_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          icon_name?: string | null
+          id?: string
+          is_unlocked?: boolean | null
+          name?: string
+          threshold_type?: string
+          threshold_value?: number
+          unlock_order?: number | null
+          unlockable_type?: string | null
+          unlocked_at?: string | null
+          updated_at?: string | null
+          visual_asset_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_unlockables_visual_asset_id_fkey"
+            columns: ["visual_asset_id"]
+            isOneToOne: false
+            referencedRelation: "brand_assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_submissions: {
         Row: {
           budget: string | null

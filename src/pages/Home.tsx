@@ -2,14 +2,12 @@ import { SEOHead } from "@/components/SEOHead";
 import { organizationSchema, serviceSchema } from "@/lib/seo-schema";
 import Navigation from "@/components/Navigation";
 import { AudioReactiveHero } from "@/components/landing/AudioReactiveHero";
-
 import { RolePortals } from "@/components/landing/RolePortals";
-import { LivePlatformStats } from "@/components/home/LivePlatformStats";
-import { LiveEngineersShowcase } from "@/components/home/LiveEngineersShowcase";
-import { ActiveSessionsPreview } from "@/components/home/ActiveSessionsPreview";
 import { BedroomToBillboard } from "@/components/home/BedroomToBillboard";
 import { AIMasteringCTA } from "@/components/home/AIMasteringCTA";
 import { SimplePackagePreview } from "@/components/home/SimplePackagePreview";
+import { StudioHallway } from "@/components/scene/StudioHallway";
+import { CommunityPulseDisplay } from "@/components/scene/CommunityPulseDisplay";
 import { useNavigate } from "react-router-dom";
 
 const Home = () => {
@@ -33,23 +31,19 @@ const Home = () => {
           <Navigation />
         </div>
         
-        
         {/* Content */}
         <main className="relative z-10">
           {/* Audio-Reactive Hero - Immersive entry experience */}
           <AudioReactiveHero />
 
-          {/* Live Platform Stats */}
-          <LivePlatformStats />
+          {/* Studio Hallway - Real-time session visualization */}
+          <StudioHallway />
+
+          {/* Community Pulse - Real progress toward unlockables */}
+          <CommunityPulseDisplay />
 
           {/* Role Selection Portals */}
           <RolePortals />
-
-          {/* Live Engineers Showcase */}
-          <LiveEngineersShowcase />
-
-          {/* Active Sessions Preview */}
-          <ActiveSessionsPreview />
 
           {/* Mission Statement */}
           <section>
