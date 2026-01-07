@@ -33,13 +33,9 @@ export function ReferralDashboard() {
 
     const handleCopyLink = async () => {
         try {
-            await shareReferralLink?.();
+            await shareReferralLink?.('copy');
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
-            toast({
-                title: 'Copied!',
-                description: 'Referral link copied to clipboard',
-            });
         } catch (error) {
             toast({
                 title: 'Error',
@@ -49,13 +45,9 @@ export function ReferralDashboard() {
         }
     };
 
-    const handleShare = async (method: 'twitter' | 'facebook' | 'email' | 'whatsapp') => {
+    const handleShare = async (method: 'twitter' | 'facebook' | 'email') => {
         try {
-            await shareReferralLink?.();
-            toast({
-                title: 'Shared!',
-                description: `Shared on ${method}`,
-            });
+            await shareReferralLink?.(method);
         } catch (error) {
             toast({
                 title: 'Error',
@@ -146,9 +138,9 @@ export function ReferralDashboard() {
                 {myReferralCode && (
                     <div className="mb-6 p-4 bg-background rounded border border-border">
                         <p className="text-sm text-muted-foreground mb-2">Your Referral Code</p>
-                        <p className="text-2xl font-mono font-bold text-primary">{myReferralCode.code}</p>
+                        <p className="text-2xl font-mono font-bold text-primary">{myReferralCode}</p>
                         <p className="text-xs text-muted-foreground mt-2">
-                            Share this code with friends and earn ${myReferralCode.rewardValue} for each successful referral
+                            Share this code with friends and earn rewards for each successful referral
                         </p>
                     </div>
                 )}
@@ -179,14 +171,6 @@ export function ReferralDashboard() {
                         >
                             <Mail className="w-4 h-4" />
                             Email
-                        </Button>
-                        <Button
-                            onClick={() => handleShare('whatsapp')}
-                            variant="outline"
-                            className="gap-2"
-                        >
-                            <MessageCircle className="w-4 h-4" />
-                            WhatsApp
                         </Button>
                     </div>
                 </div>
@@ -258,22 +242,28 @@ export function ReferralDashboard() {
                             >
                                 <div>
                                     <p className="font-medium text-sm">
-                                        Referred User #{referral.referredUserId.slice(0, 8)}
+                                        {referral.referred_user_id 
+                                            ? `Referred User #${referral.referred_user_id.slice(0, 8)}`
+                                            : 'Pending signup'}
                                     </p>
                                     <p className="text-xs text-muted-foreground">
-                                        {new Date(referral.createdAt).toLocaleDateString()}
+                                        {new Date(referral.created_at).toLocaleDateString()}
                                     </p>
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <div className="text-right">
-                                        <p className="font-semibold">${referral.rewardValue}</p>
+                                        <p className="font-semibold">${referral.commission_earned || 0}</p>
                                         <p className="text-xs text-muted-foreground">
-                                            {referral.rewardGiven ? 'Earned' : 'Pending'}
+                                            {referral.status === 'completed' ? 'Earned' : 'Pending'}
                                         </p>
                                     </div>
-                                    {referral.rewardGiven ? (
+                                    {referral.status === 'completed' ? (
                                         <span className="px-3 py-1 bg-green-500/20 text-green-700 text-xs rounded-full font-medium">
                                             ✓ Completed
+                                        </span>
+                                    ) : referral.status === 'active' ? (
+                                        <span className="px-3 py-1 bg-blue-500/20 text-blue-700 text-xs rounded-full font-medium">
+                                            ● Active
                                         </span>
                                     ) : (
                                         <span className="px-3 py-1 bg-yellow-500/20 text-yellow-700 text-xs rounded-full font-medium">

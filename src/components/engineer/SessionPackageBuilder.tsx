@@ -11,6 +11,7 @@ interface SessionPackageBuilderProps {
   projectId: string;
   projectTitle: string;
   stemCount: number;
+  artistId?: string;
 }
 
 const DAW_OPTIONS = [
@@ -33,25 +34,28 @@ const BIT_DEPTHS = [
   { value: 32, label: '32-bit Float' },
 ];
 
-export const SessionPackageBuilder = ({ projectId, projectTitle, stemCount }: SessionPackageBuilderProps) => {
+export const SessionPackageBuilder = ({ projectId, projectTitle, stemCount, artistId }: SessionPackageBuilderProps) => {
   const [dawFormat, setDawFormat] = useState<string>('pro_tools');
   const [sampleRate, setSampleRate] = useState<number>(48000);
   const [bitDepth, setBitDepth] = useState<number>(24);
-  const [existingPackage, setExistingPackage] = useState<any>(null);
+  const [existingPackage, setExistingPackage] = useState<ReturnType<typeof useSessionPackage>['currentPackage']>(null);
 
-  const { isGenerating, generationProgress, generatePackage, getPackageStatus, downloadPackage } = useSessionPackage();
+  const { isGenerating, generationProgress, generatePackage, getPackageStatus, downloadPackage, currentPackage } = useSessionPackage();
 
   useEffect(() => {
-    loadPackageStatus();
-  }, [projectId]);
-
-  const loadPackageStatus = async () => {
-    const status = await getPackageStatus();
-    setExistingPackage(status);
-  };
+    if (currentPackage) {
+      setExistingPackage(currentPackage);
+    }
+  }, [currentPackage]);
 
   const handleGeneratePackage = async () => {
-    const result = await generatePackage();
+    const result = await generatePackage({
+      projectId,
+      artistId,
+      dawFormat,
+      sampleRate,
+      bitDepth,
+    });
 
     if (result) {
       setExistingPackage(result);
@@ -60,7 +64,10 @@ export const SessionPackageBuilder = ({ projectId, projectTitle, stemCount }: Se
 
   const handleDownload = async () => {
     if (existingPackage?.id) {
-      await downloadPackage();
+      const url = await downloadPackage(existingPackage.id);
+      if (url) {
+        window.open(url, '_blank');
+      }
     }
   };
 
@@ -193,10 +200,10 @@ export const SessionPackageBuilder = ({ projectId, projectTitle, stemCount }: Se
             <div>
               <p className="font-medium text-success">✅ Ready to Download</p>
               <p className="text-sm text-muted-foreground">
-                Package Size: {Math.round((existingPackage.file_size || 0) / 1024 / 1024)} MB
+                Package Size: {Math.round((existingPackage?.file_size || 0) / 1024 / 1024)} MB
               </p>
             </div>
-            {existingPackage.expires_at && (
+            {existingPackage?.expires_at && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Clock className="w-4 h-4" />
                 <span>Expires {formatDistanceToNow(new Date(existingPackage.expires_at), { addSuffix: true })}</span>
@@ -205,7 +212,7 @@ export const SessionPackageBuilder = ({ projectId, projectTitle, stemCount }: Se
           </div>
           <Button onClick={handleDownload} className="w-full" size="lg">
             <Download className="w-4 h-4 mr-2" />
-            Download for {DAW_OPTIONS.find(d => d.value === existingPackage.daw_format)?.label || 'DAW'}
+            Download for {DAW_OPTIONS.find(d => d.value === existingPackage?.daw_format)?.label || 'DAW'}
           </Button>
         </div>
       ) : isExpired ? (
