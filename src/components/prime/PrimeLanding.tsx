@@ -7,7 +7,6 @@ import { LiveActivityTicker } from "@/components/home/LiveActivityTicker";
 
 import { ScrollRevealSection } from "@/components/landing/ScrollRevealSection";
 import { PulsingCTA } from "@/components/landing/PulsingCTA";
-import { ThreeStories } from "@/components/waitlist/ThreeStories";
 import { ProblemStatementAnimated } from "@/components/home/ProblemStatementAnimated";
 import { SessionPreview } from "@/components/home/SessionPreview";
 import { StudioPreview } from "@/components/home/StudioPreview";
@@ -52,11 +51,6 @@ export default function PrimeLanding() {
       {/* Network Explainer - The Connection Story */}
       <ScrollRevealSection delay={0.1}>
         <NetworkExplainer />
-      </ScrollRevealSection>
-
-      {/* Stories Carousel - Role Diversity */}
-      <ScrollRevealSection delay={0.1}>
-        <ThreeStories />
       </ScrollRevealSection>
 
       {/* Live Activity Ticker */}

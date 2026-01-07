@@ -17,8 +17,6 @@ import { ParticleStorm } from '@/components/demo/ParticleStorm';
 import { CommunityShowcase } from '@/components/demo/CommunityShowcase';
 import { CollaborationJourney } from '@/components/demo/CollaborationJourney';
 import { RolePortals } from '@/components/demo/RolePortals';
-import { WaitlistSignupForm } from '@/components/waitlist/WaitlistSignupForm';
-import { SocialProofCounter } from '@/components/waitlist/SocialProofCounter';
 import mixclubLogo from '@/assets/mixclub-3d-logo.png';
 import primeLaunchHero from '@/assets/prime-launch-hero.png';
 
@@ -711,26 +709,6 @@ export default function InsiderDemo() {
                   <Eye className="w-5 h-5 mr-2" />
                   Show Me More
                 </Button>
-              </motion.div>
-
-              {/* Waitlist Signup Form */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7 }}
-                className="mb-6"
-              >
-                <p className="text-sm text-muted-foreground mb-4">Or join the waitlist for early access:</p>
-                <WaitlistSignupForm />
-              </motion.div>
-
-              {/* Social Proof */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.9 }}
-              >
-                <SocialProofCounter />
               </motion.div>
             </motion.div>
           )}
