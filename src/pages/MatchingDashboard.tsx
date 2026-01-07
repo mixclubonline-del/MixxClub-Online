@@ -5,7 +5,7 @@ import { useMatchingEngine } from '../hooks/useMatchingEngine';
 import { MatchCard } from '../components/matching/MatchCard';
 import { type Project, type Match } from '../stores/matchingEngineStore';
 
-export const MatchingDashboard: React.FC = () => {
+const MatchingDashboard: React.FC = () => {
     const {
         engineers,
         projects,
@@ -379,3 +379,5 @@ export const MatchingDashboard: React.FC = () => {
         </div>
     );
 };
+
+export default MatchingDashboard;
