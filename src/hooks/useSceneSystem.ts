@@ -18,8 +18,18 @@ export function useSceneSystemInit() {
   const isConnected = useSceneStore(state => state.isConnected);
   
   useEffect(() => {
-    initialize();
-    return () => cleanup();
+    try {
+      initialize();
+    } catch (e) {
+      console.error('Scene system init failed:', e);
+    }
+    return () => {
+      try {
+        cleanup();
+      } catch (e) {
+        console.error('Scene system cleanup failed:', e);
+      }
+    };
   }, [initialize, cleanup]);
   
   return { isConnected };

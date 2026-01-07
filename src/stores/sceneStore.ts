@@ -22,7 +22,15 @@ import type {
 // STORE INTERFACE
 // ============================================
 
-interface SceneStore extends WorldState {
+interface SceneStore {
+  // State
+  studios: StudioRoom[];
+  communityPulse: CommunityPulse;
+  featuredSession: FeaturedSession | null;
+  isConnected: boolean;
+  lastSyncAt: string | null;
+  recentEvents: SceneEvent[];
+  
   // Actions
   initialize: () => Promise<void>;
   cleanup: () => void;
@@ -40,7 +48,6 @@ interface SceneStore extends WorldState {
   
   // Event handling
   publishEvent: (event: Omit<SceneEvent, 'id' | 'timestamp'>) => void;
-  recentEvents: SceneEvent[];
 }
 
 // ============================================
@@ -113,16 +120,8 @@ export const useSceneStore = create<SceneStore>()(
     ...initialState,
     recentEvents: [],
     
-    // Derived state (computed on access)
-    get activeStudios() {
-      return get().studios.filter(s => s.state !== 'idle');
-    },
-    get emptyStudios() {
-      return get().studios.filter(s => s.state === 'idle');
-    },
-    get publicStudios() {
-      return get().studios.filter(s => s.visibility === 'public');
-    },
+    // Note: Derived state is computed via selectors, not getters
+    // Using getters in Zustand with subscribeWithSelector causes issues
     
     // ========================================
     // INITIALIZATION
