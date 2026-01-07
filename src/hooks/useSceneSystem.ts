@@ -14,10 +14,9 @@ import { useSceneStore, selectActiveStudios, selectPublicStudios, selectCommunit
  */
 // Track initialization globally to prevent multiple inits
 let isInitialized = false;
+let initPromise: Promise<void> | null = null;
 
 export function useSceneSystemInit() {
-  const initialize = useSceneStore(state => state.initialize);
-  const cleanup = useSceneStore(state => state.cleanup);
   const isConnected = useSceneStore(state => state.isConnected);
   
   useEffect(() => {
@@ -25,19 +24,17 @@ export function useSceneSystemInit() {
     if (isInitialized) return;
     isInitialized = true;
     
-    try {
-      initialize();
-    } catch (e) {
+    // Get store methods directly from the store (not via selector)
+    const { initialize, cleanup } = useSceneStore.getState();
+    
+    initPromise = initialize().catch(e => {
       console.error('Scene system init failed:', e);
-    }
+    });
     
     return () => {
-      try {
-        cleanup();
-        isInitialized = false;
-      } catch (e) {
-        console.error('Scene system cleanup failed:', e);
-      }
+      cleanup();
+      isInitialized = false;
+      initPromise = null;
     };
   }, []); // Empty deps - run once
   
