@@ -16,11 +16,11 @@ import {
 import { toast } from "sonner";
 
 interface MasteringSubscription {
-  mastering_packages: {
+  mastering_packages?: {
     name: string;
     track_limit: number;
   };
-  tracks_used: number;
+  tracks_used?: number;
 }
 
 interface AIMasteringServiceProps {
@@ -79,7 +79,7 @@ export const AIMasteringService = ({ subscription }: AIMasteringServiceProps) =>
   return (
     <div className="space-y-6">
       {/* Subscription Status */}
-      {subscription && (
+      {subscription && subscription.mastering_packages && (
         <Card className="bg-primary/5 border-primary/20">
           <CardContent className="pt-4">
             <div className="text-center">
@@ -87,7 +87,7 @@ export const AIMasteringService = ({ subscription }: AIMasteringServiceProps) =>
               <p className="text-sm text-muted-foreground">
                 {subscription.mastering_packages.track_limit === -1 
                   ? 'Unlimited tracks' 
-                  : `${subscription.tracks_used}/${subscription.mastering_packages.track_limit} tracks used`
+                  : `${subscription.tracks_used ?? 0}/${subscription.mastering_packages.track_limit} tracks used`
                 }
               </p>
             </div>
