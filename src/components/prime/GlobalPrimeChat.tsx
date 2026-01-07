@@ -51,10 +51,29 @@ export const GlobalPrimeChat = () => {
   const { toast } = useToast();
   
   const [isOpen, setIsOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Hide on CRM/DAW routes (they have dedicated chatbots)
+  const shouldHide = HIDDEN_ROUTES.some(route => location.pathname.startsWith(route));
+  
+  // Also hide for authenticated users who have CRM access
+  const shouldRender = !shouldHide && !user;
+
+  // Delay showing Prime to not distract on initial load
+  useEffect(() => {
+    if (!shouldRender) {
+      setIsVisible(false);
+      return;
+    }
+    
+    // Show Prime after 8 seconds of page engagement
+    const timer = setTimeout(() => setIsVisible(true), 8000);
+    return () => clearTimeout(timer);
+  }, [shouldRender, location.pathname]);
 
   // Reset messages with contextual greeting when route changes
   useEffect(() => {
@@ -67,11 +86,8 @@ export const GlobalPrimeChat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Hide on CRM/DAW routes (they have dedicated chatbots)
-  const shouldHide = HIDDEN_ROUTES.some(route => location.pathname.startsWith(route));
-  
-  // Also hide for authenticated users who have CRM access
-  if (shouldHide || user) {
+  // Don't render if hidden or not visible yet
+  if (!shouldRender || !isVisible) {
     return null;
   }
 

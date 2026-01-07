@@ -8,6 +8,7 @@
  * Layer 4 (60): Navigation elements (MobileBottomNav, RadialNav button)
  * Layer 5 (70): Full-screen overlays (CityMapOverlay, RadialNav open menu)
  * Layer 6 (80): Critical UI (Toasts, Alerts)
+ * Layer 7 (90): Legal/Consent banners (highest priority)
  */
 
 export const Z_INDEX = {
@@ -30,7 +31,7 @@ export const Z_INDEX = {
   dialog: 50,
   sheet: 50,
   
-  // Layer 3.5: Floating chat (above dialogs)
+  // Layer 3.5: Floating chat (above dialogs, but below nav)
   floatingChat: 55,
   
   // Layer 4: Navigation
@@ -46,6 +47,9 @@ export const Z_INDEX = {
   // Layer 6: Critical
   toast: 80,
   alert: 80,
+  
+  // Layer 7: Legal/Consent (always on top)
+  cookieConsent: 90,
 } as const;
 
 export type ZIndexLayer = keyof typeof Z_INDEX;

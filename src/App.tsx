@@ -129,7 +129,8 @@ const App = () => {
                     <GlobalAudioPlayer />
                     <GlobalMusicPlayer />
                     <GlobalPrimeChat />
-                    <div className="fixed bottom-4 left-4 z-50 hidden lg:block">
+                    {/* Tutorial launcher - only show on desktop, positioned to avoid cookie banner */}
+                    <div className="fixed bottom-20 left-4 z-40 hidden lg:block">
                       <TutorialLauncher contextTutorials={["welcome-to-mixxclub", "setting-up-profile"]} />
                     </div>
                     <PerformanceMonitor />
