@@ -10,14 +10,27 @@ import "./index.css";
 // initGA();
 // initFBPixel();
 
-// Service worker auto-registered by vite-plugin-pwa
-// In dev/preview, unregister any existing SW to avoid stale UI/layouts
-if (import.meta.env.DEV && 'serviceWorker' in navigator) {
+// Clear stale manual service workers and old caches
+// This ensures users get the latest version after deployment
+if ('serviceWorker' in navigator) {
   navigator.serviceWorker.getRegistrations().then((regs) => {
-    for (const reg of regs) reg.unregister();
+    for (const reg of regs) {
+      // Unregister old manual sw.js (vite-plugin-pwa uses different path)
+      if (reg.active?.scriptURL?.includes('/sw.js')) {
+        reg.unregister();
+      }
+    }
   });
+  
+  // Clear old manual caches with mixclub- prefix
   if ('caches' in window) {
-    caches.keys().then((keys) => keys.forEach((k) => caches.delete(k)));
+    caches.keys().then((keys) => {
+      keys.forEach((k) => {
+        if (k.startsWith('mixclub-')) {
+          caches.delete(k);
+        }
+      });
+    });
   }
 }
 
