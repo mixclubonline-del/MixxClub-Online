@@ -793,6 +793,8 @@ export type Database = {
           category: string | null
           created_at: string
           created_by: string | null
+          duration_seconds: number | null
+          file_size_bytes: number | null
           id: string
           is_active: boolean | null
           metadata: Json | null
@@ -808,6 +810,8 @@ export type Database = {
           category?: string | null
           created_at?: string
           created_by?: string | null
+          duration_seconds?: number | null
+          file_size_bytes?: number | null
           id?: string
           is_active?: boolean | null
           metadata?: Json | null
@@ -823,6 +827,8 @@ export type Database = {
           category?: string | null
           created_at?: string
           created_by?: string | null
+          duration_seconds?: number | null
+          file_size_bytes?: number | null
           id?: string
           is_active?: boolean | null
           metadata?: Json | null
