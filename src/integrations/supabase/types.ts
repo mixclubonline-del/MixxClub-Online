@@ -3517,6 +3517,57 @@ export type Database = {
         }
         Relationships: []
       }
+      monthly_awards: {
+        Row: {
+          announced_at: string | null
+          award_month: string
+          category: string
+          created_at: string
+          id: string
+          metrics: Json | null
+          prize_amount: number | null
+          runner_up_id: string | null
+          winner_id: string | null
+        }
+        Insert: {
+          announced_at?: string | null
+          award_month: string
+          category: string
+          created_at?: string
+          id?: string
+          metrics?: Json | null
+          prize_amount?: number | null
+          runner_up_id?: string | null
+          winner_id?: string | null
+        }
+        Update: {
+          announced_at?: string | null
+          award_month?: string
+          category?: string
+          created_at?: string
+          id?: string
+          metrics?: Json | null
+          prize_amount?: number | null
+          runner_up_id?: string | null
+          winner_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "monthly_awards_runner_up_id_fkey"
+            columns: ["runner_up_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "monthly_awards_winner_id_fkey"
+            columns: ["winner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       music_releases: {
         Row: {
           artist_name: string
@@ -3575,6 +3626,68 @@ export type Database = {
             foreignKeyName: "music_releases_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      musical_profiles: {
+        Row: {
+          bio: string | null
+          created_at: string
+          id: string
+          influences: string[] | null
+          instruments: string[] | null
+          preferred_bpm_max: number | null
+          preferred_bpm_min: number | null
+          preferred_keys: string[] | null
+          primary_genre: string | null
+          production_style: string | null
+          secondary_genres: string[] | null
+          updated_at: string
+          user_id: string
+          vocal_range: string | null
+          years_experience: number | null
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string
+          id?: string
+          influences?: string[] | null
+          instruments?: string[] | null
+          preferred_bpm_max?: number | null
+          preferred_bpm_min?: number | null
+          preferred_keys?: string[] | null
+          primary_genre?: string | null
+          production_style?: string | null
+          secondary_genres?: string[] | null
+          updated_at?: string
+          user_id: string
+          vocal_range?: string | null
+          years_experience?: number | null
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string
+          id?: string
+          influences?: string[] | null
+          instruments?: string[] | null
+          preferred_bpm_max?: number | null
+          preferred_bpm_min?: number | null
+          preferred_keys?: string[] | null
+          primary_genre?: string | null
+          production_style?: string | null
+          secondary_genres?: string[] | null
+          updated_at?: string
+          user_id?: string
+          vocal_range?: string | null
+          years_experience?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "musical_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -5200,6 +5313,82 @@ export type Database = {
           },
         ]
       }
+      session_packages: {
+        Row: {
+          artist_id: string | null
+          bit_depth: number | null
+          created_at: string
+          daw_format: string | null
+          engineer_id: string | null
+          error_message: string | null
+          expires_at: string | null
+          file_size: number | null
+          id: string
+          package_status: string
+          package_url: string | null
+          project_id: string | null
+          sample_rate: number | null
+          stem_count: number | null
+          updated_at: string
+        }
+        Insert: {
+          artist_id?: string | null
+          bit_depth?: number | null
+          created_at?: string
+          daw_format?: string | null
+          engineer_id?: string | null
+          error_message?: string | null
+          expires_at?: string | null
+          file_size?: number | null
+          id?: string
+          package_status?: string
+          package_url?: string | null
+          project_id?: string | null
+          sample_rate?: number | null
+          stem_count?: number | null
+          updated_at?: string
+        }
+        Update: {
+          artist_id?: string | null
+          bit_depth?: number | null
+          created_at?: string
+          daw_format?: string | null
+          engineer_id?: string | null
+          error_message?: string | null
+          expires_at?: string | null
+          file_size?: number | null
+          id?: string
+          package_status?: string
+          package_url?: string | null
+          project_id?: string | null
+          sample_rate?: number | null
+          stem_count?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_packages_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_packages_engineer_id_fkey"
+            columns: ["engineer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_packages_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       session_participants: {
         Row: {
           audio_input_enabled: boolean | null
@@ -5372,6 +5561,69 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stem_organization: {
+        Row: {
+          audio_file_id: string | null
+          color_code: string | null
+          created_at: string
+          group_name: string | null
+          id: string
+          is_muted: boolean | null
+          is_solo: boolean | null
+          pan: number | null
+          session_package_id: string | null
+          stem_name: string
+          stem_type: string | null
+          track_order: number | null
+          volume_db: number | null
+        }
+        Insert: {
+          audio_file_id?: string | null
+          color_code?: string | null
+          created_at?: string
+          group_name?: string | null
+          id?: string
+          is_muted?: boolean | null
+          is_solo?: boolean | null
+          pan?: number | null
+          session_package_id?: string | null
+          stem_name: string
+          stem_type?: string | null
+          track_order?: number | null
+          volume_db?: number | null
+        }
+        Update: {
+          audio_file_id?: string | null
+          color_code?: string | null
+          created_at?: string
+          group_name?: string | null
+          id?: string
+          is_muted?: boolean | null
+          is_solo?: boolean | null
+          pan?: number | null
+          session_package_id?: string | null
+          stem_name?: string
+          stem_type?: string | null
+          track_order?: number | null
+          volume_db?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stem_organization_audio_file_id_fkey"
+            columns: ["audio_file_id"]
+            isOneToOne: false
+            referencedRelation: "audio_files"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stem_organization_session_package_id_fkey"
+            columns: ["session_package_id"]
+            isOneToOne: false
+            referencedRelation: "session_packages"
             referencedColumns: ["id"]
           },
         ]
@@ -5649,6 +5901,73 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      time_tracking: {
+        Row: {
+          activity_type: string
+          created_at: string
+          duration_minutes: number | null
+          end_time: string | null
+          hourly_rate: number | null
+          id: string
+          is_billable: boolean | null
+          notes: string | null
+          project_id: string | null
+          session_id: string | null
+          start_time: string
+          user_id: string
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string
+          duration_minutes?: number | null
+          end_time?: string | null
+          hourly_rate?: number | null
+          id?: string
+          is_billable?: boolean | null
+          notes?: string | null
+          project_id?: string | null
+          session_id?: string | null
+          start_time?: string
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string
+          duration_minutes?: number | null
+          end_time?: string | null
+          hourly_rate?: number | null
+          id?: string
+          is_billable?: boolean | null
+          notes?: string | null
+          project_id?: string | null
+          session_id?: string | null
+          start_time?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "time_tracking_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "time_tracking_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "collaboration_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "time_tracking_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
