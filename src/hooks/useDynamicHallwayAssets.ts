@@ -22,25 +22,28 @@ export const useDynamicHallwayAssets = () => {
 
   useEffect(() => {
     const fetchAssets = async () => {
-      setIsLoading(true);
-      
-      // Fetch active hallway assets
-      const { data, error } = await supabase
-        .from('brand_assets')
-        .select('id, name, public_url, asset_type, asset_context, is_active, duration_seconds')
-        .like('asset_context', 'studio_hallway_%')
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
-
-      if (data && !error) {
-        // Find base and active variants
-        const base = data.find(a => a.asset_context === 'studio_hallway_base');
-        const active = data.find(a => a.asset_context === 'studio_hallway_active');
+      try {
+        setIsLoading(true);
         
-        setBaseAsset(base || null);
-        setActiveAsset(active || null);
+        const { data, error } = await supabase
+          .from('brand_assets')
+          .select('id, name, public_url, asset_type, asset_context, is_active, duration_seconds')
+          .like('asset_context', 'studio_hallway_%')
+          .eq('is_active', true)
+          .order('created_at', { ascending: false });
+
+        if (data && !error) {
+          const base = data.find(a => a.asset_context === 'studio_hallway_base');
+          const active = data.find(a => a.asset_context === 'studio_hallway_active');
+          
+          setBaseAsset(base || null);
+          setActiveAsset(active || null);
+        }
+      } catch (e) {
+        console.error('Failed to fetch hallway assets:', e);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
     fetchAssets();

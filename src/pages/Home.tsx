@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { SEOHead } from "@/components/SEOHead";
 import { organizationSchema, serviceSchema } from "@/lib/seo-schema";
 import Navigation from "@/components/Navigation";
@@ -9,6 +10,7 @@ import { SimplePackagePreview } from "@/components/home/SimplePackagePreview";
 import { StudioHallway } from "@/components/scene/StudioHallway";
 import { CommunityPulseDisplay } from "@/components/scene/CommunityPulseDisplay";
 import { useNavigate } from "react-router-dom";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -34,13 +36,19 @@ const Home = () => {
         {/* Content */}
         <main className="relative z-10">
           {/* Audio-Reactive Hero - Immersive entry experience */}
-          <AudioReactiveHero />
+          <ErrorBoundary fallback={<div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading experience...</div>}>
+            <AudioReactiveHero />
+          </ErrorBoundary>
 
           {/* Studio Hallway - Real-time session visualization */}
-          <StudioHallway />
+          <ErrorBoundary fallback={<div className="py-16 text-center text-muted-foreground">Loading studio...</div>}>
+            <StudioHallway />
+          </ErrorBoundary>
 
           {/* Community Pulse - Real progress toward unlockables */}
-          <CommunityPulseDisplay />
+          <ErrorBoundary fallback={<div className="py-16 text-center text-muted-foreground">Loading community...</div>}>
+            <CommunityPulseDisplay />
+          </ErrorBoundary>
 
           {/* Role Selection Portals */}
           <RolePortals />
