@@ -12,25 +12,34 @@ import { useSceneStore, selectActiveStudios, selectPublicStudios, selectCommunit
  * Initialize the scene system.
  * Call this once at the app root level.
  */
+// Track initialization globally to prevent multiple inits
+let isInitialized = false;
+
 export function useSceneSystemInit() {
   const initialize = useSceneStore(state => state.initialize);
   const cleanup = useSceneStore(state => state.cleanup);
   const isConnected = useSceneStore(state => state.isConnected);
   
   useEffect(() => {
+    // Only initialize once across all component instances
+    if (isInitialized) return;
+    isInitialized = true;
+    
     try {
       initialize();
     } catch (e) {
       console.error('Scene system init failed:', e);
     }
+    
     return () => {
       try {
         cleanup();
+        isInitialized = false;
       } catch (e) {
         console.error('Scene system cleanup failed:', e);
       }
     };
-  }, [initialize, cleanup]);
+  }, []); // Empty deps - run once
   
   return { isConnected };
 }
