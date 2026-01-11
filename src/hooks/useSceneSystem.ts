@@ -3,6 +3,9 @@
  * 
  * React hook for connecting components to the scene system.
  * Handles initialization, cleanup, and provides convenient selectors.
+ * 
+ * IMPORTANT: Uses `useShallow` to prevent infinite re-render loops
+ * when selectors return new array/object references with identical content.
  */
 
 import { useEffect } from 'react';
@@ -43,8 +46,10 @@ export function useSceneSystemInit() {
 
 /**
  * Get all studios and their states.
+ * Uses memoized selectors from the store to prevent rerender loops.
  */
 export function useStudios() {
+  // Use direct selectors - they're already memoized in the store
   const studios = useSceneStore(state => state.studios);
   const activeStudios = useSceneStore(selectActiveStudios);
   const publicStudios = useSceneStore(selectPublicStudios);
