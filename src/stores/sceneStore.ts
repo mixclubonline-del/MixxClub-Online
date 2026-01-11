@@ -315,23 +315,59 @@ export const useSceneStore = create<SceneStore>()(
 );
 
 // ============================================
-// SELECTORS
+// MEMOIZED SELECTORS (stable references to prevent infinite loops)
 // ============================================
 
-export const selectActiveStudios = (state: SceneStore) => 
-  state.studios.filter(s => s.state !== 'idle');
+// Cache for selectActiveStudios
+let _activeStudiosCache: StudioRoom[] = [];
+let _activeStudiosSource: StudioRoom[] | null = null;
 
-export const selectPublicStudios = (state: SceneStore) => 
-  state.studios.filter(s => s.visibility === 'public');
+export const selectActiveStudios = (state: SceneStore): StudioRoom[] => {
+  // Return cached result if source array reference unchanged
+  if (state.studios === _activeStudiosSource) {
+    return _activeStudiosCache;
+  }
+  _activeStudiosSource = state.studios;
+  _activeStudiosCache = state.studios.filter(s => s.state !== 'idle');
+  return _activeStudiosCache;
+};
 
-export const selectCommunityProgress = (state: SceneStore) => {
-  const { communityPulse } = state;
-  const nextUnlock = communityPulse.nextUnlock;
-  if (!nextUnlock) return null;
+// Cache for selectPublicStudios
+let _publicStudiosCache: StudioRoom[] = [];
+let _publicStudiosSource: StudioRoom[] | null = null;
+
+export const selectPublicStudios = (state: SceneStore): StudioRoom[] => {
+  if (state.studios === _publicStudiosSource) {
+    return _publicStudiosCache;
+  }
+  _publicStudiosSource = state.studios;
+  _publicStudiosCache = state.studios.filter(s => s.visibility === 'public');
+  return _publicStudiosCache;
+};
+
+// Cache for selectCommunityProgress
+type CommunityProgressResult = { name: string; progress: number; remaining: number } | null;
+let _communityProgressCache: CommunityProgressResult = null;
+let _communityProgressSource: CommunityUnlockable | null | undefined = undefined;
+
+export const selectCommunityProgress = (state: SceneStore): CommunityProgressResult => {
+  const nextUnlock = state.communityPulse.nextUnlock;
   
-  return {
+  // Return cached result if nextUnlock reference unchanged
+  if (nextUnlock === _communityProgressSource) {
+    return _communityProgressCache;
+  }
+  _communityProgressSource = nextUnlock;
+  
+  if (!nextUnlock) {
+    _communityProgressCache = null;
+    return null;
+  }
+  
+  _communityProgressCache = {
     name: nextUnlock.name,
     progress: nextUnlock.progress,
     remaining: nextUnlock.thresholdValue - nextUnlock.currentValue,
   };
+  return _communityProgressCache;
 };
