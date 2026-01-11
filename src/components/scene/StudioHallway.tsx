@@ -1,173 +1,42 @@
 /**
  * Studio Hallway Component
  * 
- * The living visualization of MixClub's active sessions.
- * Shows lit rooms for active sessions, dark rooms when empty.
- * Built on the Scene System for real-time data.
+ * An immersive, wordless visualization of MixClub's active sessions.
+ * Uses AI-generated hallway imagery with visual hotspots for active rooms.
+ * No text labels - atmosphere is the message.
  */
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Music, Users, Mic, Headphones } from 'lucide-react';
 import { useStudios, useFeaturedSession, useSceneSystemInit } from '@/hooks/useSceneSystem';
-import { useDynamicHallwayAssets } from '@/hooks/useDynamicHallwayAssets';
-import { HallwayVideoBackground } from './HallwayVideoBackground';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { StudioHotspot } from './StudioHotspot';
 import type { StudioRoom } from '@/types/scene';
 
-// ============================================
-// STUDIO ROOM CARD
-// ============================================
+// Static imports for hallway backgrounds
+import hallwayBase from '@/assets/studio-hallway-base.jpg';
+import hallwayActive from '@/assets/studio-hallway-active.jpg';
 
-interface StudioRoomCardProps {
-  room: StudioRoom;
-  isFeatured?: boolean;
-  onClick: () => void;
-}
-
-function StudioRoomCard({ room, isFeatured, onClick }: StudioRoomCardProps) {
-  const isActive = room.state !== 'idle' && room.state !== 'waiting';
-  const isRecording = room.state === 'recording';
-  
-  return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.9 }}
-      whileHover={{ scale: 1.02 }}
-      onClick={onClick}
-      className={`
-        relative cursor-pointer rounded-xl overflow-hidden
-        transition-all duration-500
-        ${isFeatured ? 'col-span-2 row-span-2' : ''}
-        ${isActive 
-          ? 'bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/30 shadow-lg shadow-primary/10' 
-          : 'bg-muted/30 border border-border/50 hover:border-border'
-        }
-      `}
-    >
-      {/* Glow effect for active rooms */}
-      {isActive && (
-        <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent pointer-events-none" />
-      )}
-      
-      {/* Recording indicator */}
-      {isRecording && (
-        <motion.div
-          className="absolute top-3 right-3 flex items-center gap-2 px-2 py-1 bg-destructive/90 rounded-full"
-          animate={{ opacity: [1, 0.5, 1] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-        >
-          <div className="w-2 h-2 rounded-full bg-white" />
-          <span className="text-xs font-medium text-white">REC</span>
-        </motion.div>
-      )}
-      
-      {/* Content */}
-      <div className={`p-4 ${isFeatured ? 'p-6' : ''}`}>
-        {/* Room icon */}
-        <div className={`
-          w-10 h-10 rounded-lg flex items-center justify-center mb-3
-          ${isActive ? 'bg-primary/20' : 'bg-muted'}
-        `}>
-          {isRecording ? (
-            <Mic className={`w-5 h-5 ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
-          ) : room.state === 'mixing' ? (
-            <Headphones className={`w-5 h-5 ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
-          ) : (
-            <Music className={`w-5 h-5 ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
-          )}
-        </div>
-        
-        {/* Title */}
-        <h3 className={`font-semibold truncate mb-1 ${isFeatured ? 'text-lg' : 'text-sm'}`}>
-          {room.title}
-        </h3>
-        
-        {/* Status */}
-        <p className="text-xs text-muted-foreground mb-3">
-          {room.state === 'idle' && 'Available'}
-          {room.state === 'waiting' && 'Waiting to start'}
-          {room.state === 'active' && 'In session'}
-          {room.state === 'recording' && 'Recording'}
-          {room.state === 'mixing' && 'Mixing'}
-          {room.state === 'playback' && 'Playback'}
-        </p>
-        
-        {/* Participants */}
-        {isActive && (
-          <div className="flex items-center gap-2">
-            <div className="flex -space-x-2">
-              {Array.from({ length: Math.min(room.participantCount, 3) }).map((_, i) => (
-                <Avatar key={i} className="w-6 h-6 border-2 border-background">
-                  <AvatarFallback className="text-xs bg-primary/20">
-                    {String.fromCharCode(65 + i)}
-                  </AvatarFallback>
-                </Avatar>
-              ))}
-            </div>
-            <span className="text-xs text-muted-foreground">
-              <Users className="w-3 h-3 inline mr-1" />
-              {room.participantCount}
-            </span>
-          </div>
-        )}
-      </div>
-      
-      {/* Activity bar */}
-      {isActive && (
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-muted overflow-hidden">
-          <motion.div
-            className="h-full bg-primary"
-            initial={{ width: 0 }}
-            animate={{ width: `${room.activityLevel}%` }}
-            transition={{ duration: 0.5 }}
-          />
-        </div>
-      )}
-    </motion.div>
-  );
-}
-
-// ============================================
-// EMPTY STATE
-// ============================================
-
-function EmptyHallway() {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="text-center py-20"
-    >
-      <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-muted/50 flex items-center justify-center">
-        <Music className="w-8 h-8 text-muted-foreground" />
-      </div>
-      <h3 className="text-xl font-semibold mb-2 text-muted-foreground">
-        The studio is quiet
-      </h3>
-      <p className="text-muted-foreground/70 max-w-md mx-auto">
-        No active sessions right now. Be the first to start one and light up the hallway.
-      </p>
-    </motion.div>
-  );
-}
-
-// ============================================
-// MAIN COMPONENT
-// ============================================
+// Door positions mapped to the hallway image perspective
+// These correspond to where doors appear in the generated images
+const DOOR_POSITIONS = [
+  { x: 12, y: 45 },  // Left side, front
+  { x: 15, y: 55 },  // Left side, second
+  { x: 18, y: 65 },  // Left side, back
+  { x: 88, y: 45 },  // Right side, front
+  { x: 85, y: 55 },  // Right side, second
+  { x: 82, y: 65 },  // Right side, back
+  { x: 50, y: 75 },  // Center back
+  { x: 25, y: 75 },  // Left back corner
+  { x: 75, y: 75 },  // Right back corner
+];
 
 export function StudioHallway() {
   const navigate = useNavigate();
   const { isConnected } = useSceneSystemInit();
   const { studios, activeCount } = useStudios();
   const { featuredSession } = useFeaturedSession();
-  const { getBackgroundUrl, isVideo } = useDynamicHallwayAssets();
   
   const hasActiveSessions = activeCount > 0;
-  const backgroundUrl = getBackgroundUrl(hasActiveSessions);
-  const isVideoBg = isVideo(hasActiveSessions);
   
   const handleRoomClick = (room: StudioRoom) => {
     if (room.visibility === 'public' && room.sessionId) {
@@ -175,53 +44,131 @@ export function StudioHallway() {
     }
   };
   
+  // Map studios to door positions
+  const studioPositions = studios.slice(0, DOOR_POSITIONS.length).map((studio, index) => ({
+    room: studio,
+    position: DOOR_POSITIONS[index]
+  }));
+  
   return (
-    <section className="relative py-16 px-6 overflow-hidden min-h-[400px]">
-      {/* AI-generated background */}
-      <HallwayVideoBackground url={backgroundUrl} isVideo={isVideoBg} />
-      
-      <div className="max-w-6xl mx-auto relative z-10">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h2 className="text-2xl font-bold mb-1">Studio Hallway</h2>
-            <p className="text-muted-foreground">
-              {activeCount > 0 
-                ? `${activeCount} studio${activeCount !== 1 ? 's' : ''} in session`
-                : 'Waiting for the first session'
-              }
-            </p>
-          </div>
-          
-          {/* Connection indicator */}
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <motion.div
-              className={`w-2 h-2 rounded-full ${isConnected ? 'bg-emerald-500' : 'bg-muted'}`}
-              animate={isConnected ? { scale: [1, 1.2, 1] } : {}}
-              transition={{ duration: 2, repeat: Infinity }}
-            />
-            {isConnected ? 'Live' : 'Connecting...'}
-          </div>
-        </div>
+    <section className="relative w-full h-[70vh] min-h-[500px] max-h-[800px] overflow-hidden">
+      {/* Background image - crossfade between base and active */}
+      <div className="absolute inset-0">
+        {/* Base (dark/empty) layer */}
+        <motion.img
+          src={hallwayBase}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover"
+          initial={{ opacity: 1 }}
+          animate={{ opacity: hasActiveSessions ? 0 : 1 }}
+          transition={{ duration: 1.5, ease: 'easeInOut' }}
+        />
         
-        {/* Studios Grid */}
-        {studios.length === 0 ? (
-          <EmptyHallway />
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            <AnimatePresence mode="popLayout">
-              {studios.map(room => (
-                <StudioRoomCard
-                  key={room.id}
-                  room={room}
-                  isFeatured={featuredSession?.room.id === room.id}
-                  onClick={() => handleRoomClick(room)}
-                />
-              ))}
-            </AnimatePresence>
-          </div>
-        )}
+        {/* Active (lit) layer */}
+        <motion.img
+          src={hallwayActive}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: hasActiveSessions ? 1 : 0 }}
+          transition={{ duration: 1.5, ease: 'easeInOut' }}
+        />
+        
+        {/* Gradient overlays for depth */}
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-transparent to-background" />
       </div>
+      
+      {/* Ambient breathing animation for empty state */}
+      {!hasActiveSessions && (
+        <motion.div
+          className="absolute inset-0 bg-primary/5"
+          animate={{ opacity: [0, 0.1, 0] }}
+          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+        />
+      )}
+      
+      {/* Connection indicator - subtle, positioned top-right */}
+      <motion.div
+        className="absolute top-4 right-4 z-20"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1 }}
+      >
+        <motion.div
+          className={`w-2 h-2 rounded-full ${isConnected ? 'bg-emerald-500' : 'bg-muted'}`}
+          animate={isConnected ? { scale: [1, 1.3, 1], opacity: [1, 0.7, 1] } : {}}
+          transition={{ duration: 2, repeat: Infinity }}
+        />
+      </motion.div>
+      
+      {/* Studio hotspots - visual door indicators */}
+      <div className="absolute inset-0">
+        <AnimatePresence mode="sync">
+          {studioPositions.map(({ room, position }) => (
+            <StudioHotspot
+              key={room.id}
+              room={room}
+              position={position}
+              onClick={() => handleRoomClick(room)}
+            />
+          ))}
+        </AnimatePresence>
+      </div>
+      
+      {/* Featured session highlight - larger glow for the featured room */}
+      {featuredSession && (
+        <motion.div
+          className="absolute inset-0 pointer-events-none"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        >
+          {studioPositions.map(({ room, position }) => {
+            if (room.id !== featuredSession.room.id) return null;
+            return (
+              <motion.div
+                key={`featured-${room.id}`}
+                className="absolute w-32 h-32 rounded-full bg-primary/20 blur-2xl"
+                style={{
+                  left: `${position.x}%`,
+                  top: `${position.y}%`,
+                  transform: 'translate(-50%, -50%)'
+                }}
+                animate={{
+                  scale: [1, 1.3, 1],
+                  opacity: [0.3, 0.6, 0.3]
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: 'easeInOut'
+                }}
+              />
+            );
+          })}
+        </motion.div>
+      )}
+      
+      {/* Active session count indicator - subtle, bottom */}
+      {hasActiveSessions && (
+        <motion.div
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+        >
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-background/80 backdrop-blur-md border border-primary/30">
+            <motion.div
+              className="w-2 h-2 rounded-full bg-primary"
+              animate={{ scale: [1, 1.3, 1] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            />
+            <span className="text-sm font-medium text-primary">
+              {activeCount}
+            </span>
+          </div>
+        </motion.div>
+      )}
     </section>
   );
 }
