@@ -36,17 +36,36 @@ const Home = () => {
         {/* Content */}
         <main className="relative z-10">
           {/* Audio-Reactive Hero - Immersive entry experience */}
-          <ErrorBoundary fallback={<div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading experience...</div>}>
+          <ErrorBoundary
+            onError={(error, errorInfo) =>
+              console.error('[Home: AudioReactiveHero]', error, errorInfo)
+            }
+            fallback={
+              <div className="min-h-screen flex items-center justify-center text-muted-foreground">
+                Loading experience...
+              </div>
+            }
+          >
             <AudioReactiveHero />
           </ErrorBoundary>
 
           {/* Studio Hallway - Real-time session visualization */}
-          <ErrorBoundary fallback={<div className="py-16 text-center text-muted-foreground">Loading studio...</div>}>
+          <ErrorBoundary
+            onError={(error, errorInfo) =>
+              console.error('[Home: StudioHallway]', error, errorInfo)
+            }
+            fallback={<div className="py-16 text-center text-muted-foreground">Loading studio...</div>}
+          >
             <StudioHallway />
           </ErrorBoundary>
 
           {/* Community Pulse - Real progress toward unlockables */}
-          <ErrorBoundary fallback={<div className="py-16 text-center text-muted-foreground">Loading community...</div>}>
+          <ErrorBoundary
+            onError={(error, errorInfo) =>
+              console.error('[Home: CommunityPulseDisplay]', error, errorInfo)
+            }
+            fallback={<div className="py-16 text-center text-muted-foreground">Loading community...</div>}
+          >
             <CommunityPulseDisplay />
           </ErrorBoundary>
 

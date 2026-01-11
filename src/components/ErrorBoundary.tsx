@@ -95,9 +95,17 @@ export class ErrorBoundary extends Component<Props, State> {
                   <summary className="cursor-pointer font-semibold text-sm">
                     Error Details
                   </summary>
-                  <pre className="text-xs overflow-auto p-4 bg-background/50 rounded">
-                    {this.state.error.message}
-                  </pre>
+                  <div className="space-y-3">
+                    <pre className="text-xs overflow-auto p-4 bg-background/50 rounded whitespace-pre-wrap">
+                      {this.state.error.message}
+                      {this.state.error.stack ? `\n\n${this.state.error.stack}` : ''}
+                    </pre>
+                    {this.state.errorInfo?.componentStack && (
+                      <pre className="text-xs overflow-auto p-4 bg-background/50 rounded whitespace-pre-wrap">
+                        {this.state.errorInfo.componentStack}
+                      </pre>
+                    )}
+                  </div>
                 </details>
               )}
 
