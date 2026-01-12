@@ -3,15 +3,16 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ArrowLeft, Music, Sparkles, Users, Zap, Headphones, Mic2, Apple, KeyRound } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { motion, AnimatePresence } from "framer-motion";
+import authGatewayImage from "@/assets/auth-gateway.jpg";
+import mixclub3DLogo from "@/assets/mixclub-3d-logo.png";
 
 // Import Google icon
 const GoogleIcon = () => (
@@ -22,7 +23,6 @@ const GoogleIcon = () => (
     <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
   </svg>
 );
-import mixclub3DLogo from "@/assets/mixclub-3d-logo.png";
 
 const authSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -30,6 +30,112 @@ const authSchema = z.object({
   fullName: z.string().min(2, "Full name must be at least 2 characters").optional(),
   role: z.enum(["artist", "engineer"]).optional(),
 });
+
+// Ambient particles component
+const AmbientParticles = () => (
+  <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    {[...Array(20)].map((_, i) => (
+      <motion.div
+        key={i}
+        className="absolute w-1 h-1 rounded-full bg-primary/40"
+        style={{
+          left: `${Math.random() * 100}%`,
+          top: `${Math.random() * 100}%`,
+        }}
+        animate={{
+          y: [0, -30, 0],
+          opacity: [0.2, 0.6, 0.2],
+          scale: [1, 1.5, 1],
+        }}
+        transition={{
+          duration: 3 + Math.random() * 2,
+          repeat: Infinity,
+          delay: Math.random() * 2,
+        }}
+      />
+    ))}
+  </div>
+);
+
+// Role selection as visual paths
+const RolePathSelector = ({ 
+  role, 
+  onRoleChange 
+}: { 
+  role: "artist" | "engineer"; 
+  onRoleChange: (role: "artist" | "engineer") => void;
+}) => (
+  <div className="space-y-3">
+    <Label className="text-white/80">Choose your path</Label>
+    <div className="grid grid-cols-2 gap-4">
+      <motion.button
+        type="button"
+        onClick={() => onRoleChange("artist")}
+        className={`relative flex flex-col items-center justify-center gap-3 rounded-xl p-6 transition-all ${
+          role === "artist" 
+            ? "bg-primary/30 border-2 border-primary shadow-lg shadow-primary/30" 
+            : "bg-white/5 border border-white/10 hover:bg-white/10"
+        }`}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+      >
+        {role === "artist" && (
+          <motion.div 
+            className="absolute inset-0 rounded-xl bg-primary/20"
+            layoutId="roleGlow"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+          />
+        )}
+        <div className={`w-14 h-14 rounded-full flex items-center justify-center ${
+          role === "artist" ? "bg-primary/40" : "bg-white/10"
+        }`}>
+          <Mic2 className={`w-7 h-7 ${role === "artist" ? "text-primary" : "text-white/60"}`} />
+        </div>
+        <span className={`font-semibold ${role === "artist" ? "text-white" : "text-white/70"}`}>
+          Artist
+        </span>
+        <span className="text-xs text-white/50 text-center">
+          Get professional mixing & mastering
+        </span>
+      </motion.button>
+      
+      <motion.button
+        type="button"
+        onClick={() => onRoleChange("engineer")}
+        className={`relative flex flex-col items-center justify-center gap-3 rounded-xl p-6 transition-all ${
+          role === "engineer" 
+            ? "bg-cyan-500/30 border-2 border-cyan-400 shadow-lg shadow-cyan-500/30" 
+            : "bg-white/5 border border-white/10 hover:bg-white/10"
+        }`}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+      >
+        {role === "engineer" && (
+          <motion.div 
+            className="absolute inset-0 rounded-xl bg-cyan-500/20"
+            layoutId="roleGlow"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+          />
+        )}
+        <div className={`w-14 h-14 rounded-full flex items-center justify-center ${
+          role === "engineer" ? "bg-cyan-500/40" : "bg-white/10"
+        }`}>
+          <Headphones className={`w-7 h-7 ${role === "engineer" ? "text-cyan-400" : "text-white/60"}`} />
+        </div>
+        <span className={`font-semibold ${role === "engineer" ? "text-white" : "text-white/70"}`}>
+          Engineer
+        </span>
+        <span className="text-xs text-white/50 text-center">
+          Offer mixing & mastering services
+        </span>
+      </motion.button>
+    </div>
+  </div>
+);
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -48,6 +154,7 @@ const Auth = () => {
   const [resetMode, setResetMode] = useState(false);
   const [resetEmailSent, setResetEmailSent] = useState(false);
   const [updatePasswordMode, setUpdatePasswordMode] = useState(false);
+  const [enteringCity, setEnteringCity] = useState(false);
 
   // Listen for PASSWORD_RECOVERY event to show update password form
   useEffect(() => {
@@ -101,14 +208,17 @@ const Auth = () => {
 
       toast.success(`Demo session created! Expires in 4 hours.`);
       
-      // Route based on demo role
-      if (role === 'admin') {
-        navigate('/admin');
-      } else if (role === 'engineer') {
-        navigate('/engineer-crm');
-      } else {
-        navigate('/artist-crm');
-      }
+      // Trigger entry animation then navigate
+      setEnteringCity(true);
+      setTimeout(() => {
+        if (role === 'admin') {
+          navigate('/admin');
+        } else if (role === 'engineer') {
+          navigate('/engineer-crm');
+        } else {
+          navigate('/artist-crm');
+        }
+      }, 1000);
     } catch (err) {
       console.error('Demo session creation failed:', err);
       setError("Failed to create demo session. Please try again.");
@@ -194,6 +304,13 @@ const Auth = () => {
     }
   };
 
+  const triggerEntryAnimation = (destination: string) => {
+    setEnteringCity(true);
+    setTimeout(() => {
+      navigate(destination);
+    }, 1000);
+  };
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -247,17 +364,13 @@ const Auth = () => {
           trackSignup('email');
         }
 
-        toast.success("Account created! Redirecting...");
+        toast.success("Account created! Entering the city...");
         
-        // If there's a redirect path, go there after a brief delay for profile setup
-        if (redirectPath) {
-          setTimeout(() => {
-            navigate(redirectPath);
-          }, 500);
-        } else {
-          // Otherwise go to role-specific onboarding
-          navigate(role === "engineer" ? "/onboarding/engineer" : "/onboarding/artist");
-        }
+        // Entry animation then navigate
+        const destination = redirectPath 
+          ? redirectPath 
+          : (role === "engineer" ? "/onboarding/engineer" : "/onboarding/artist");
+        triggerEntryAnimation(destination);
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
@@ -278,36 +391,36 @@ const Auth = () => {
         // Get user profile to determine role-based redirect
         const { data: { user: authUser } } = await supabase.auth.getUser();
         if (authUser) {
-          toast.success("Welcome back!");
+          toast.success("Welcome back to the city!");
+          
+          // Determine destination
+          let destination = "/dashboard";
           
           // PRIORITY 1: Check if there's a redirect path (from Landing Forge, etc.)
           if (redirectPath) {
-            navigate(redirectPath);
-            return;
-          }
-
-          // PRIORITY 2: Check if user is admin using RPC function
-          const { data: isAdminUser } = await supabase.rpc('has_role', { _user_id: authUser.id, _role: 'admin' });
-
-          if (isAdminUser) {
-            navigate("/admin");
-            return;
-          }
-
-          // PRIORITY 3: Redirect based on user role from user_roles table
-          const { data: userRoles } = await supabase
-            .from('user_roles')
-            .select('role')
-            .eq('user_id', authUser.id);
-
-          const roles = userRoles?.map(r => r.role) || [];
-          if (roles.includes('engineer')) {
-            navigate("/engineer-crm");
+            destination = redirectPath;
           } else {
-            navigate("/artist-crm");
+            // PRIORITY 2: Check if user is admin using RPC function
+            const { data: isAdminUser } = await supabase.rpc('has_role', { _user_id: authUser.id, _role: 'admin' });
+
+            if (isAdminUser) {
+              destination = "/admin";
+            } else {
+              // PRIORITY 3: Redirect based on user role from user_roles table
+              const { data: userRoles } = await supabase
+                .from('user_roles')
+                .select('role')
+                .eq('user_id', authUser.id);
+
+              const roles = userRoles?.map(r => r.role) || [];
+              destination = roles.includes('engineer') ? "/engineer-crm" : "/artist-crm";
+            }
           }
+          
+          // Entry animation then navigate
+          triggerEntryAnimation(destination);
         } else {
-          navigate("/dashboard");
+          triggerEntryAnimation("/dashboard");
         }
       }
     } catch (err) {
@@ -380,40 +493,106 @@ const Auth = () => {
     }
   };
 
-  // Update Password Form
+  // Immersive Gateway Wrapper
+  const GatewayWrapper = ({ children }: { children: React.ReactNode }) => (
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Full-screen gateway background */}
+      <div className="absolute inset-0">
+        <img 
+          src={authGatewayImage} 
+          alt="MixClub City Gateway" 
+          className="w-full h-full object-cover"
+        />
+        {/* Gradient overlay for readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/60" />
+      </div>
+      
+      {/* Ambient particles */}
+      <AmbientParticles />
+      
+      {/* Entry animation overlay */}
+      <AnimatePresence>
+        {enteringCity && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            {/* Zoom through gates effect */}
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-t from-primary/50 via-transparent to-transparent"
+              initial={{ opacity: 0, scale: 1 }}
+              animate={{ opacity: [0, 1, 0], scale: [1, 1.5, 2] }}
+              transition={{ duration: 1, ease: "easeIn" }}
+            />
+            <motion.div
+              className="absolute inset-0"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5, duration: 0.5 }}
+              style={{ backgroundColor: "white" }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
+      {/* Content */}
+      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-6">
+        {children}
+      </div>
+      
+      {/* Back to home button */}
+      <motion.div 
+        className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+      >
+        <Button
+          variant="ghost"
+          onClick={() => navigate("/")}
+          className="text-white/60 hover:text-white hover:bg-white/10"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to City
+        </Button>
+      </motion.div>
+    </div>
+  );
+
+  // Update Password Form (immersive version)
   if (updatePasswordMode) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5 flex items-center justify-center p-6">
-        {/* Background Effects */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-20 left-10 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-float"></div>
-          <div className="absolute bottom-20 right-10 w-[32rem] h-[32rem] bg-primary/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
-        </div>
-
-        <div className="relative z-10 w-full max-w-md">
+      <GatewayWrapper>
+        <motion.div 
+          className="w-full max-w-md"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
           {/* Header */}
           <div className="text-center mb-8">
             <div className="flex justify-center mb-6">
               <div className="relative group">
-                <div className="absolute inset-0 bg-primary/30 rounded-full blur-2xl animate-pulse-glow"></div>
+                <div className="absolute inset-0 bg-primary/30 rounded-full blur-2xl animate-pulse"></div>
                 <img 
                   src={mixclub3DLogo} 
-                  alt="MixClub 3D Logo" 
+                  alt="MixClub" 
                   className="w-20 h-15 object-contain relative z-10"
                 />
               </div>
             </div>
-            <h1 className="text-3xl font-bold mb-2">
-              <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-                Set New Password
-              </span>
+            <h1 className="text-3xl font-bold mb-2 text-white">
+              Set New Password
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-white/60">
               Create a secure password for your account
             </p>
           </div>
 
-          <Card className="p-8 bg-card/80 backdrop-blur-sm border-primary/20 shadow-xl">
+          {/* Glass panel */}
+          <div className="backdrop-blur-xl bg-black/40 border border-white/10 rounded-2xl p-8 shadow-2xl">
             <form onSubmit={handleUpdatePassword} className="space-y-6">
               <div className="flex justify-center mb-4">
                 <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
@@ -422,39 +601,39 @@ const Auth = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">New Password</Label>
+                <Label htmlFor="password" className="text-white/80">New Password</Label>
                 <Input
                   id="password"
                   type="password"
                   placeholder="Enter new password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="bg-background/50 border-primary/20 focus:border-primary/50"
+                  className="bg-white/5 border-white/10 focus:border-primary/50 text-white placeholder:text-white/30"
                   required
                   minLength={6}
                 />
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-white/40">
                   Password must be at least 6 characters
                 </p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Label htmlFor="confirmPassword" className="text-white/80">Confirm Password</Label>
                 <Input
                   id="confirmPassword"
                   type="password"
                   placeholder="Confirm new password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="bg-background/50 border-primary/20 focus:border-primary/50"
+                  className="bg-white/5 border-white/10 focus:border-primary/50 text-white placeholder:text-white/30"
                   required
                   minLength={6}
                 />
               </div>
 
               {error && (
-                <Alert className="border-destructive/20 bg-destructive/10">
-                  <AlertDescription className="text-destructive">
+                <Alert className="border-red-500/20 bg-red-500/10">
+                  <AlertDescription className="text-red-400">
                     {error}
                   </AlertDescription>
                 </Alert>
@@ -462,7 +641,7 @@ const Auth = () => {
 
               <Button 
                 type="submit" 
-                className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary"
+                className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary"
                 disabled={loading}
               >
                 {loading ? (
@@ -479,7 +658,7 @@ const Auth = () => {
               </Button>
             </form>
 
-            <Separator className="my-6" />
+            <Separator className="my-6 bg-white/10" />
 
             <div className="text-center">
               <Button
@@ -489,76 +668,97 @@ const Auth = () => {
                   setError("");
                   navigate("/auth");
                 }}
-                className="w-full border-primary/20 hover:border-primary/40 hover:bg-primary/5"
+                className="w-full border-white/10 hover:border-white/20 hover:bg-white/5 text-white"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Sign In
               </Button>
             </div>
-          </Card>
-        </div>
-      </div>
+          </div>
+        </motion.div>
+      </GatewayWrapper>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5 flex items-center justify-center p-6">
-      {/* Background Effects */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-10 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-20 right-10 w-[32rem] h-[32rem] bg-primary/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
-      </div>
-
-      <div className="relative z-10 w-full max-w-md">
+    <GatewayWrapper>
+      <motion.div 
+        className="w-full max-w-md"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-6">
+        <div className="text-center mb-6">
+          <motion.div 
+            className="flex justify-center mb-4"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+          >
             <div className="relative group">
-              <div className="absolute inset-0 bg-primary/30 rounded-full blur-2xl animate-pulse-glow"></div>
+              <div className="absolute inset-0 bg-primary/40 rounded-full blur-2xl animate-pulse"></div>
               <img 
                 src={mixclub3DLogo} 
-                alt="MixClub 3D Logo" 
-                className="w-20 h-15 object-contain relative z-10"
+                alt="MixClub" 
+                className="w-16 h-12 object-contain relative z-10"
               />
             </div>
-          </div>
-          <h1 className="text-3xl font-bold mb-2">
-            <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-              MixClub
-            </span>{" "}
-            <span className="text-foreground">Online</span>
-          </h1>
-          <p className="text-muted-foreground">
+          </motion.div>
+          <motion.h1 
+            className="text-2xl font-bold mb-1 text-white"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            {mode === "signup" ? "Enter the City" : "Welcome Back"}
+          </motion.h1>
+          <motion.p 
+            className="text-white/50 text-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+          >
             {mode === "signup" 
               ? "Join the future of music collaboration" 
-              : "Welcome back to the studio"
+              : "The studio awaits"
             }
-          </p>
+          </motion.p>
         </div>
 
         {/* Demo Banner */}
-        <div 
+        <motion.div 
           onClick={() => navigate('/insider-demo')}
-          className="mb-6 p-4 rounded-xl bg-gradient-to-r from-primary/20 via-primary/10 to-accent-blue/20 border border-primary/30 cursor-pointer hover:border-primary/50 hover:shadow-lg hover:shadow-primary/20 transition-all group"
+          className="mb-4 p-3 rounded-xl bg-white/5 border border-primary/30 cursor-pointer hover:bg-white/10 hover:border-primary/50 transition-all group"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          whileHover={{ scale: 1.02 }}
         >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-primary/30 flex items-center justify-center">
               <Sparkles className="w-5 h-5 text-primary group-hover:animate-pulse" />
             </div>
             <div className="flex-1">
-              <p className="font-semibold text-sm">Experience MIXXCLUB</p>
-              <p className="text-xs text-muted-foreground">See the full experience demo →</p>
+              <p className="font-semibold text-sm text-white">Experience MIXXCLUB</p>
+              <p className="text-xs text-white/50">See the full experience demo →</p>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        <Card className="p-8 bg-card/80 backdrop-blur-sm border-primary/20 shadow-xl">
+        {/* Glass panel form */}
+        <motion.div 
+          className="backdrop-blur-xl bg-black/40 border border-white/10 rounded-2xl p-6 shadow-2xl"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
           {/* Social Sign-in Buttons */}
-          <div className="space-y-3 mb-6">
+          <div className="space-y-3 mb-5">
             <Button
               type="button"
               variant="outline"
-              className="w-full border-border hover:bg-accent/10 hover:border-primary/30"
+              className="w-full border-white/10 hover:bg-white/10 hover:border-white/20 text-white bg-white/5"
               onClick={() => handleOAuthSignIn('google')}
               disabled={loading}
             >
@@ -568,7 +768,7 @@ const Auth = () => {
             <Button
               type="button"
               variant="outline"
-              className="w-full border-border hover:bg-accent/10 hover:border-primary/30"
+              className="w-full border-white/10 hover:bg-white/10 hover:border-white/20 text-white bg-white/5"
               onClick={() => handleOAuthSignIn('apple')}
               disabled={loading}
             >
@@ -577,45 +777,44 @@ const Auth = () => {
             </Button>
           </div>
 
-          <div className="relative mb-6">
-            <Separator />
-            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">
+          <div className="relative mb-5">
+            <Separator className="bg-white/10" />
+            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/60 px-3 text-xs text-white/40">
               or
             </span>
           </div>
 
-
           {resetMode ? (
             // Password Reset Form
             <>
-              <div className="mb-6 text-center">
-                <h2 className="text-xl font-semibold mb-2">Reset Password</h2>
-                <p className="text-sm text-muted-foreground">
+              <div className="mb-5 text-center">
+                <h2 className="text-lg font-semibold mb-2 text-white">Reset Password</h2>
+                <p className="text-sm text-white/50">
                   {resetEmailSent 
-                    ? "Check your email for a password reset link. Use only the most recent link—each link can only be used once."
-                    : "Enter your email to receive a password reset link"
+                    ? "Check your email for a reset link"
+                    : "Enter your email to receive a reset link"
                   }
                 </p>
               </div>
 
               {!resetEmailSent && (
-                <form onSubmit={handlePasswordReset} className="space-y-6">
+                <form onSubmit={handlePasswordReset} className="space-y-5">
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email" className="text-white/80">Email</Label>
                     <Input
                       id="email"
                       type="email"
                       placeholder="Enter your email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="bg-background/50 border-primary/20 focus:border-primary/50"
+                      className="bg-white/5 border-white/10 focus:border-primary/50 text-white placeholder:text-white/30"
                       required
                     />
                   </div>
 
                   {error && (
-                    <Alert className="border-destructive/20 bg-destructive/10">
-                      <AlertDescription className="text-destructive">
+                    <Alert className="border-red-500/20 bg-red-500/10">
+                      <AlertDescription className="text-red-400">
                         {error}
                       </AlertDescription>
                     </Alert>
@@ -623,13 +822,13 @@ const Auth = () => {
 
                   <Button 
                     type="submit" 
-                    className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary"
+                    className="w-full bg-gradient-to-r from-primary to-primary/80"
                     disabled={loading}
                   >
                     {loading ? (
                       <div className="flex items-center gap-2">
                         <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-                        Sending Reset Link...
+                        Sending...
                       </div>
                     ) : (
                       "Send Reset Link"
@@ -640,235 +839,186 @@ const Auth = () => {
 
               {resetEmailSent && (
                 <div className="text-center space-y-4">
-                  <div className="w-16 h-16 mx-auto rounded-full bg-primary/20 flex items-center justify-center">
-                    <Sparkles className="w-8 h-8 text-primary" />
+                  <div className="w-14 h-14 mx-auto rounded-full bg-primary/20 flex items-center justify-center">
+                    <Sparkles className="w-7 h-7 text-primary" />
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    Didn't receive the email? Check your spam folder or request a new link.
-                  </p>
                   <Button
                     variant="outline"
-                    onClick={() => {
-                      setResetEmailSent(false);
-                    }}
-                    className="border-primary/20 hover:border-primary/40 hover:bg-primary/5"
+                    onClick={() => setResetEmailSent(false)}
+                    className="border-white/10 hover:border-white/20 hover:bg-white/5 text-white"
                   >
                     Send Another Link
                   </Button>
                 </div>
               )}
 
-              <Separator className="my-6" />
+              <Separator className="my-5 bg-white/10" />
 
-              <div className="text-center">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setResetMode(false);
-                    setResetEmailSent(false);
-                    setError("");
-                  }}
-                  className="w-full border-primary/20 hover:border-primary/40 hover:bg-primary/5"
-                >
-                  Back to Sign In
-                </Button>
-              </div>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setResetMode(false);
+                  setResetEmailSent(false);
+                  setError("");
+                }}
+                className="w-full border-white/10 hover:border-white/20 hover:bg-white/5 text-white"
+              >
+                Back to Sign In
+              </Button>
             </>
           ) : (
             // Regular Auth Form
             <>
-              <form onSubmit={handleAuth} className="space-y-6">
-            {mode === "signup" && (
-              <>
-                <div className="space-y-4">
-                  <Label>I am a...</Label>
-                  <RadioGroup value={role} onValueChange={(value: "artist" | "engineer") => setRole(value)}>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="relative">
-                        <RadioGroupItem value="artist" id="artist" className="peer sr-only" />
-                        <Label
-                          htmlFor="artist"
-                          className="flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-muted bg-card/50 p-6 hover:bg-accent/10 peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 cursor-pointer transition-all"
-                        >
-                          <Mic2 className="w-8 h-8 text-primary" />
-                          <span className="font-semibold">Artist</span>
-                          <span className="text-xs text-muted-foreground text-center">Get professional mixing & mastering</span>
-                        </Label>
-                      </div>
-                      <div className="relative">
-                        <RadioGroupItem value="engineer" id="engineer" className="peer sr-only" />
-                        <Label
-                          htmlFor="engineer"
-                          className="flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-muted bg-card/50 p-6 hover:bg-accent/10 peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 cursor-pointer transition-all"
-                        >
-                          <Headphones className="w-8 h-8 text-primary" />
-                          <span className="font-semibold">Engineer</span>
-                          <span className="text-xs text-muted-foreground text-center">Offer mixing & mastering services</span>
-                        </Label>
-                      </div>
+              <form onSubmit={handleAuth} className="space-y-5">
+                {mode === "signup" && (
+                  <>
+                    <RolePathSelector role={role} onRoleChange={setRole} />
+
+                    <div className="space-y-2">
+                      <Label htmlFor="fullName" className="text-white/80">Full Name</Label>
+                      <Input
+                        id="fullName"
+                        type="text"
+                        placeholder="Enter your full name"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        className="bg-white/5 border-white/10 focus:border-primary/50 text-white placeholder:text-white/30"
+                        required
+                      />
                     </div>
-                  </RadioGroup>
-                </div>
+                  </>
+                )}
 
                 <div className="space-y-2">
-                  <Label htmlFor="fullName">Full Name</Label>
+                  <Label htmlFor="email" className="text-white/80">Email</Label>
                   <Input
-                    id="fullName"
-                    type="text"
-                    placeholder="Enter your full name"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    className="bg-background/50 border-primary/20 focus:border-primary/50"
+                    id="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="bg-white/5 border-white/10 focus:border-primary/50 text-white placeholder:text-white/30"
                     required
                   />
                 </div>
-              </>
-            )}
 
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="bg-background/50 border-primary/20 focus:border-primary/50"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="bg-background/50 border-primary/20 focus:border-primary/50"
-                required
-              />
-              {mode === "signup" && (
-                <p className="text-xs text-muted-foreground">
-                  Password must be at least 6 characters
-                </p>
-              )}
-              {mode === "login" && (
-                <div className="flex justify-end">
-                  <Button
-                    type="button"
-                    variant="link"
-                    onClick={() => setResetMode(true)}
-                    className="text-xs text-primary hover:text-primary/80 p-0 h-auto"
-                  >
-                    Forgot Password?
-                  </Button>
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-white/80">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="bg-white/5 border-white/10 focus:border-primary/50 text-white placeholder:text-white/30"
+                    required
+                  />
+                  {mode === "signup" && (
+                    <p className="text-xs text-white/40">
+                      Password must be at least 6 characters
+                    </p>
+                  )}
+                  {mode === "login" && (
+                    <div className="flex justify-end">
+                      <Button
+                        type="button"
+                        variant="link"
+                        onClick={() => setResetMode(true)}
+                        className="text-xs text-primary hover:text-primary/80 p-0 h-auto"
+                      >
+                        Forgot Password?
+                      </Button>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
 
-            {error && (
-              <div className="space-y-3">
-                <Alert className="border-destructive/20 bg-destructive/10">
-                  <AlertDescription className="text-destructive">
-                    {error}
-                  </AlertDescription>
-                </Alert>
-                {error.toLowerCase().includes("email not confirmed") && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleResendConfirmation}
-                    disabled={loading}
-                    className="w-full border-primary/20 hover:border-primary/40 hover:bg-primary/5"
-                  >
-                    Resend Confirmation Email
-                  </Button>
+                {error && (
+                  <div className="space-y-3">
+                    <Alert className="border-red-500/20 bg-red-500/10">
+                      <AlertDescription className="text-red-400">
+                        {error}
+                      </AlertDescription>
+                    </Alert>
+                    {error.toLowerCase().includes("email not confirmed") && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleResendConfirmation}
+                        disabled={loading}
+                        className="w-full border-white/10 hover:border-white/20 hover:bg-white/5 text-white"
+                      >
+                        Resend Confirmation Email
+                      </Button>
+                    )}
+                  </div>
                 )}
-              </div>
-            )}
 
-            <Button 
-              type="submit" 
-              className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary"
-              disabled={loading}
-            >
-              {loading ? (
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-                  {mode === "signup" ? "Creating Account..." : "Signing In..."}
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4" />
-                  {mode === "signup" ? "Create Account" : "Sign In"}
+                <Button 
+                  type="submit" 
+                  className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                      {mode === "signup" ? "Creating Account..." : "Signing In..."}
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4" />
+                      {mode === "signup" ? "Enter the City" : "Enter"}
+                    </div>
+                  )}
+                </Button>
+              </form>
+
+              <Separator className="my-5 bg-white/10" />
+
+              <div className="text-center space-y-3">
+                <p className="text-sm text-white/50">
+                  {mode === "signup" 
+                    ? "Already have an account?" 
+                    : "Don't have an account?"
+                  }
+                </p>
+                <Button
+                  variant="outline"
+                  onClick={() => navigate(mode === "signup" ? "/auth" : "/auth?mode=signup")}
+                  className="w-full border-white/10 hover:border-white/20 hover:bg-white/5 text-white"
+                >
+                  {mode === "signup" ? "Sign In Instead" : "Create Account"}
+                </Button>
+              </div>
+
+              {mode === "signup" && (
+                <div className="mt-6 pt-5 border-t border-white/10">
+                  <div className="grid grid-cols-3 gap-4 text-center">
+                    <div className="space-y-2">
+                      <div className="w-8 h-8 mx-auto rounded-lg bg-primary/20 flex items-center justify-center">
+                        <Users className="w-4 h-4 text-primary" />
+                      </div>
+                      <p className="text-xs text-white/40">2.5K+ Engineers</p>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="w-8 h-8 mx-auto rounded-lg bg-primary/20 flex items-center justify-center">
+                        <Music className="w-4 h-4 text-primary" />
+                      </div>
+                      <p className="text-xs text-white/40">500K+ Tracks</p>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="w-8 h-8 mx-auto rounded-lg bg-primary/20 flex items-center justify-center">
+                        <Zap className="w-4 h-4 text-primary" />
+                      </div>
+                      <p className="text-xs text-white/40">Real-time</p>
+                    </div>
+                  </div>
                 </div>
               )}
-            </Button>
-          </form>
-
-          <Separator className="my-6" />
-
-          <div className="text-center space-y-4">
-            <p className="text-sm text-muted-foreground">
-              {mode === "signup" 
-                ? "Already have an account?" 
-                : "Don't have an account?"
-              }
-            </p>
-            <Button
-              variant="outline"
-              onClick={() => navigate(mode === "signup" ? "/auth" : "/auth?mode=signup")}
-              className="w-full border-primary/20 hover:border-primary/40 hover:bg-primary/5"
-            >
-              {mode === "signup" ? "Sign In Instead" : "Create Account"}
-            </Button>
-          </div>
-
-          {mode === "signup" && (
-            <div className="mt-8 pt-6 border-t border-border">
-              <div className="text-center mb-4">
-                <p className="text-sm font-medium text-muted-foreground">Join thousands of creators</p>
-              </div>
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div className="space-y-2">
-                  <div className="w-8 h-8 mx-auto rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Users className="w-4 h-4 text-primary" />
-                  </div>
-                  <p className="text-xs text-muted-foreground">2.5K+ Engineers</p>
-                </div>
-                <div className="space-y-2">
-                  <div className="w-8 h-8 mx-auto rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Music className="w-4 h-4 text-primary" />
-                  </div>
-                  <p className="text-xs text-muted-foreground">500K+ Tracks</p>
-                </div>
-                <div className="space-y-2">
-                  <div className="w-8 h-8 mx-auto rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Zap className="w-4 h-4 text-primary" />
-                  </div>
-                  <p className="text-xs text-muted-foreground">Real-time</p>
-                </div>
-              </div>
-            </div>
-          )}
             </>
           )}
-        </Card>
-
-        <div className="text-center mt-6">
-          <Button
-            variant="ghost"
-            onClick={() => navigate("/")}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Home
-          </Button>
-        </div>
-      </div>
-    </div>
+        </motion.div>
+      </motion.div>
+    </GatewayWrapper>
   );
 };
 
