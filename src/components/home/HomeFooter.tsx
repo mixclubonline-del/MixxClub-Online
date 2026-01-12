@@ -4,15 +4,17 @@
  * Comprehensive footer with navigation and brand identity.
  */
 
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Twitter, 
   Instagram, 
   Youtube, 
   MessageCircle,
   Mail,
-  ExternalLink
+  ExternalLink,
+  ChevronDown
 } from 'lucide-react';
 
 const footerLinks = {
@@ -43,6 +45,49 @@ const socialLinks = [
   { icon: Youtube, href: 'https://youtube.com/@mixclubhq', label: 'YouTube' },
   { icon: MessageCircle, href: 'https://discord.gg/mixclub', label: 'Discord' },
 ];
+
+// Mobile accordion section component
+function MobileFooterSection({ title, children }: { title: string; children: React.ReactNode }) {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  return (
+    <div className="border-b border-border/30 md:border-none">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center justify-between w-full py-4 md:hidden"
+      >
+        <h4 className="font-semibold text-foreground">{title}</h4>
+        <motion.div
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <ChevronDown className="w-5 h-5 text-muted-foreground" />
+        </motion.div>
+      </button>
+      
+      {/* Desktop: always visible */}
+      <div className="hidden md:block">
+        <h4 className="font-semibold text-foreground mb-4">{title}</h4>
+        {children}
+      </div>
+      
+      {/* Mobile: accordion */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden md:hidden pb-4"
+          >
+            {children}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 export function HomeFooter() {
   const currentYear = new Date().getFullYear();
@@ -99,8 +144,7 @@ export function HomeFooter() {
           </div>
           
           {/* Services */}
-          <div>
-            <h4 className="font-semibold text-foreground mb-4">Services</h4>
+          <MobileFooterSection title="Services">
             <ul className="space-y-3">
               {footerLinks.services.map((link) => (
                 <li key={link.href}>
@@ -114,11 +158,10 @@ export function HomeFooter() {
                 </li>
               ))}
             </ul>
-          </div>
+          </MobileFooterSection>
           
           {/* Company */}
-          <div>
-            <h4 className="font-semibold text-foreground mb-4">Company</h4>
+          <MobileFooterSection title="Company">
             <ul className="space-y-3">
               {footerLinks.company.map((link) => (
                 <li key={link.href}>
@@ -132,11 +175,10 @@ export function HomeFooter() {
                 </li>
               ))}
             </ul>
-          </div>
+          </MobileFooterSection>
           
           {/* Connect */}
-          <div>
-            <h4 className="font-semibold text-foreground mb-4">Connect</h4>
+          <MobileFooterSection title="Connect">
             <ul className="space-y-3">
               <li>
                 <a
@@ -176,7 +218,7 @@ export function HomeFooter() {
                 Join the community →
               </Link>
             </div>
-          </div>
+          </MobileFooterSection>
         </div>
         
         {/* Bottom bar */}

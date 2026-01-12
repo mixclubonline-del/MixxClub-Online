@@ -4,8 +4,9 @@
  * Testimonials with real artist/engineer success stories.
  */
 
-import { motion } from 'framer-motion';
-import { Star, Play, Users } from 'lucide-react';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Star, Play, Users, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { useCommunityStats } from '@/hooks/useCommunityStats';
@@ -147,9 +148,19 @@ function TestimonialCard({ testimonial, index }: { testimonial: typeof testimoni
 export function SocialProofSection() {
   const { data: stats } = useCommunityStats();
   const totalUsers = stats?.totalUsers || 50000;
+  const [mobileIndex, setMobileIndex] = useState(0);
+  
+  // Mobile carousel navigation
+  const nextTestimonial = () => {
+    setMobileIndex((prev) => (prev + 1) % testimonials.length);
+  };
+  
+  const prevTestimonial = () => {
+    setMobileIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+  };
   
   return (
-    <section className="relative px-6 py-24 overflow-hidden">
+    <section className="relative px-6 py-16 md:py-24 overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-muted/20 to-background" />
       
@@ -159,18 +170,72 @@ export function SocialProofSection() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-10 md:mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
             Real Artists. Real Results.
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
             Hear from the creators and engineers building their careers on MixClub
           </p>
         </motion.div>
         
-        {/* Testimonials grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+        {/* Mobile testimonial carousel */}
+        <div className="md:hidden mb-10">
+          <div className="relative">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={mobileIndex}
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -50 }}
+                transition={{ duration: 0.3 }}
+              >
+                <TestimonialCard 
+                  testimonial={testimonials[mobileIndex]} 
+                  index={0} 
+                />
+              </motion.div>
+            </AnimatePresence>
+            
+            {/* Carousel controls */}
+            <div className="flex items-center justify-center gap-4 mt-4">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={prevTestimonial}
+                className="rounded-full"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+              
+              {/* Dots indicator */}
+              <div className="flex gap-2">
+                {testimonials.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setMobileIndex(i)}
+                    className={`w-2 h-2 rounded-full transition-all ${
+                      i === mobileIndex ? 'bg-primary w-4' : 'bg-muted-foreground/30'
+                    }`}
+                  />
+                ))}
+              </div>
+              
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={nextTestimonial}
+                className="rounded-full"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+        
+        {/* Desktop testimonials grid */}
+        <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
           {testimonials.map((testimonial, index) => (
             <TestimonialCard 
               key={testimonial.id} 

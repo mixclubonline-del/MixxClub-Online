@@ -10,9 +10,14 @@ import { Link } from 'react-router-dom';
 import { Sparkles, Play, Users, Radio, Music } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCommunityStats } from '@/hooks/useCommunityStats';
+import { useDynamicLandingAssets } from '@/hooks/useDynamicLandingAssets';
 
 export function HomeHeroSection() {
   const { data: stats } = useCommunityStats();
+  const { getImageUrl } = useDynamicLandingAssets();
+  
+  // Get cinematic background from brand assets
+  const heroBackground = getImageUrl('hero_background');
   
   const statItems = [
     { 
@@ -33,10 +38,25 @@ export function HomeHeroSection() {
   ];
 
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16 pb-8">
       {/* Ambient Background */}
       <div className="absolute inset-0 bg-background">
-        {/* Gradient mesh */}
+        {/* Cinematic background image with Ken Burns effect */}
+        {heroBackground && (
+          <motion.div
+            className="absolute inset-0"
+            animate={{ scale: [1, 1.05, 1] }}
+            transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
+          >
+            <img
+              src={heroBackground}
+              alt=""
+              className="w-full h-full object-cover opacity-30"
+            />
+          </motion.div>
+        )}
+        
+        {/* Gradient mesh overlay */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.15),transparent_50%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,hsl(var(--secondary)/0.1),transparent_50%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,hsl(var(--accent)/0.08),transparent_40%)]" />
@@ -92,7 +112,7 @@ export function HomeHeroSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.1 }}
-          className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6"
+          className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-4 md:mb-6"
         >
           <span className="block text-foreground">From Bedroom</span>
           <span className="block bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
@@ -151,7 +171,7 @@ export function HomeHeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="flex flex-wrap items-center justify-center gap-8 md:gap-12"
+          className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-4 sm:gap-8 md:gap-12"
         >
           {statItems.map((stat, index) => (
             <motion.div
