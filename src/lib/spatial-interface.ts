@@ -103,7 +103,7 @@ export const DISTRICT_HOTSPOTS: DistrictHotspot[] = [
     id: 'studio',
     name: 'RSD Chamber',
     description: 'AI beat generation & mixing tools',
-    path: '/hybrid-daw',
+    path: '/city/studio',
     position: { x: 22, y: 28 },
     size: 'md',
     glowColor: '25 95% 53%', // Orange
@@ -113,7 +113,7 @@ export const DISTRICT_HOTSPOTS: DistrictHotspot[] = [
     id: 'creator',
     name: 'Creator Hub',
     description: 'Upload & manage your music',
-    path: '/upload',
+    path: '/city/creator',
     position: { x: 78, y: 25 },
     size: 'md',
     glowColor: '280 65% 60%', // Purple-pink
@@ -122,7 +122,7 @@ export const DISTRICT_HOTSPOTS: DistrictHotspot[] = [
     id: 'neural',
     name: 'Neural Engine',
     description: 'Prime 4.0 AI assistant',
-    path: '/prime-beat-forge',
+    path: '/city/prime',
     position: { x: 18, y: 58 },
     size: 'md',
     glowColor: '190 95% 50%', // Cyan
@@ -131,7 +131,7 @@ export const DISTRICT_HOTSPOTS: DistrictHotspot[] = [
     id: 'arena',
     name: 'The Arena',
     description: 'Battles, competitions & glory',
-    path: '/community?tab=arena',
+    path: '/city/arena',
     position: { x: 82, y: 52 },
     size: 'md',
     glowColor: '350 80% 55%', // Red-pink
@@ -140,7 +140,7 @@ export const DISTRICT_HOTSPOTS: DistrictHotspot[] = [
     id: 'commerce',
     name: 'Commerce District',
     description: 'Marketplace & revenue streams',
-    path: '/marketplace',
+    path: '/city/commerce',
     position: { x: 32, y: 72 },
     size: 'md',
     glowColor: '40 95% 55%', // Yellow-orange
@@ -149,7 +149,7 @@ export const DISTRICT_HOTSPOTS: DistrictHotspot[] = [
     id: 'data',
     name: 'Data Realm',
     description: 'Analytics & insights',
-    path: '/dashboard',
+    path: '/city/analytics',
     position: { x: 68, y: 68 },
     size: 'md',
     glowColor: '160 84% 40%', // Green
@@ -158,7 +158,7 @@ export const DISTRICT_HOTSPOTS: DistrictHotspot[] = [
     id: 'broadcast',
     name: 'Broadcast Tower',
     description: 'Distribution & releases',
-    path: '/services/distribution',
+    path: '/city/broadcast',
     position: { x: 50, y: 82 },
     size: 'sm',
     glowColor: '250 75% 60%', // Indigo
