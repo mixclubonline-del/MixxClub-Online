@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CityLayout } from '@/components/city/CityLayout';
+import { DistrictPortal } from '@/components/ui/DistrictPortal';
 import { useAIGeneration } from '@/hooks/useAIGeneration';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -81,7 +81,6 @@ export default function RSDChamber() {
       ? `${stylePreset?.name}: ${stylePreset?.tags.join(', ')}. ${prompt}`
       : prompt;
 
-    // Add to generated beats list
     setGeneratedBeats(prev => [{
       id: beatId,
       prompt: fullPrompt,
@@ -100,7 +99,6 @@ export default function RSDChamber() {
     });
 
     if (result?.jobId) {
-      // Update status - in production, we'd poll for completion
       setGeneratedBeats(prev => prev.map(beat => 
         beat.id === beatId 
           ? { ...beat, status: 'ready', audioUrl: result.audioUrl } 
@@ -145,24 +143,8 @@ export default function RSDChamber() {
   };
 
   return (
-    <CityLayout currentDistrict="rsd">
-      <div className="container mx-auto px-4 py-8 pb-24">
-        {/* Header */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
-        >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/30 mb-4">
-            <Sparkles className="w-4 h-4 text-orange-400" />
-            <span className="text-sm font-medium text-orange-400">AI-Powered Studio</span>
-          </div>
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">
-            RSD <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">Chamber</span>
-          </h1>
-          <p className="text-muted-foreground">Generate professional beats with Suno AI</p>
-        </motion.div>
-
+    <DistrictPortal districtId="rsd">
+      <div className="p-6 md:p-8 pb-24">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full max-w-md mx-auto grid-cols-3">
             <TabsTrigger value="generate">Generate</TabsTrigger>
@@ -421,13 +403,6 @@ export default function RSDChamber() {
                   </motion.button>
                 ))}
               </div>
-
-              {isGeneratingTrap && (
-                <div className="mt-6 flex items-center justify-center gap-2 text-primary">
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Generating trap beat...</span>
-                </div>
-              )}
             </Card>
           </TabsContent>
 
@@ -438,41 +413,38 @@ export default function RSDChamber() {
                 <Music className="w-4 h-4 text-primary" />
                 Your Beat Library
               </h3>
-
+              
               {generatedBeats.length === 0 ? (
-                <div className="py-12 text-center text-muted-foreground">
-                  <Disc3 className="w-16 h-16 mx-auto mb-4 opacity-20" />
-                  <p>No beats generated yet</p>
-                  <p className="text-sm">Start creating in the Generate tab!</p>
+                <div className="h-48 flex flex-col items-center justify-center text-muted-foreground">
+                  <Disc3 className="w-12 h-12 mb-3 opacity-20" />
+                  <p className="text-sm">No beats in your library yet</p>
+                  <p className="text-xs">Generate your first beat to get started</p>
                 </div>
               ) : (
-                <div className="space-y-2">
+                <div className="grid gap-4">
                   {generatedBeats.map((beat) => (
-                    <div
+                    <div 
                       key={beat.id}
-                      className="p-4 rounded-lg bg-background/50 border border-border/50 flex items-center justify-between"
+                      className="p-4 rounded-xl bg-background/50 border border-border/50 flex items-center justify-between"
                     >
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary/20 to-accent-blue/20 flex items-center justify-center">
-                          <Music className="w-5 h-5 text-primary" />
+                        <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
+                          <Music className="w-6 h-6 text-white" />
                         </div>
                         <div>
                           <p className="font-medium text-sm line-clamp-1">{beat.prompt}</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <Badge variant="outline" className="text-xs">{beat.genre}</Badge>
-                            <span className="text-xs text-muted-foreground">
-                              {beat.createdAt.toLocaleDateString()}
-                            </span>
-                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            {beat.genre} • {beat.mood} • {beat.createdAt.toLocaleDateString()}
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
                         {beat.status === 'ready' && (
                           <>
-                            <Button size="icon" variant="ghost">
+                            <Button size="sm" variant="ghost">
                               <Play className="w-4 h-4" />
                             </Button>
-                            <Button size="icon" variant="ghost">
+                            <Button size="sm" variant="ghost">
                               <Download className="w-4 h-4" />
                             </Button>
                           </>
@@ -486,6 +458,6 @@ export default function RSDChamber() {
           </TabsContent>
         </Tabs>
       </div>
-    </CityLayout>
+    </DistrictPortal>
   );
 }
