@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { CheckCircle, Clock, AlertCircle, Music, Plus, Upload, Award, TrendingUp, DollarSign, Headphones } from 'lucide-react';
-import { CRMLayout } from '@/components/crm/CRMLayout';
+import { CRMPortal } from '@/components/crm/CRMPortal';
 import EnhancedCRM from '@/components/crm/EnhancedCRM';
 import SessionManager from '@/components/collaboration/SessionManager';
 import CollaborationWorkspace from '@/components/collaboration/CollaborationWorkspace';
@@ -43,8 +43,12 @@ import { StoreHub } from '@/components/crm/StoreHub';
 const EngineerCRM = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const currentTab = searchParams.get('tab') || 'sessions';
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentTab = searchParams.get('tab') || 'dashboard';
+  
+  const handleTabChange = (tab: string) => {
+    setSearchParams({ tab });
+  };
 
   const [profile, setProfile] = useState<any>(null);
   const [tasks, setTasks] = useState<any[]>([]);
@@ -385,14 +389,16 @@ const EngineerCRM = () => {
 
   return (
     <ErrorBoundary>
-      <CRMLayout
+      <CRMPortal
         userType="engineer"
         profile={profile}
         stats={stats}
         quickActions={quickActions}
+        activeTab={currentTab}
+        onTabChange={handleTabChange}
       >
         {renderContent()}
-      </CRMLayout>
+      </CRMPortal>
       <EngineerCRMChatbot />
     </ErrorBoundary>
   );
