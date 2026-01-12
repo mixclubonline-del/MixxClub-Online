@@ -12,8 +12,10 @@ import districtArena from '@/assets/district-arena.jpg';
 import districtCommerce from '@/assets/district-commerce.jpg';
 import districtData from '@/assets/district-data.jpg';
 import districtBroadcast from '@/assets/district-broadcast.jpg';
+import cityGates from '@/assets/city-gates.jpg';
 
 export const DISTRICT_PORTALS: Record<string, { image: string; glowColor: string }> = {
+  gates: { image: cityGates, glowColor: '280 65% 60%' },
   tower: { image: districtTower, glowColor: '262 83% 58%' },
   rsd: { image: districtRsd, glowColor: '25 95% 53%' },
   creator: { image: districtCreator, glowColor: '280 65% 60%' },
