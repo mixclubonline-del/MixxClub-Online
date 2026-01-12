@@ -47,7 +47,7 @@ export function LiveRoomWindow() {
     }
   }, [activeCount, rotate]);
   
-  const activeStudios = studios.filter(s => s.status === 'active' && s.visibility === 'public');
+  const activeStudios = studios.filter(s => s.state === 'active' && s.visibility === 'public');
   const currentSession = featuredSession?.room || activeStudios[0];
   
   // Get session state info
