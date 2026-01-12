@@ -8,7 +8,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Music, Plus, TrendingUp, Award, Upload, Sparkles, Lock, DollarSign, Headphones } from 'lucide-react';
-import { CRMLayout } from '@/components/crm/CRMLayout';
+import { CRMPortal } from '@/components/crm/CRMPortal';
 import { EngineerCRMDashboard } from '@/components/crm/EngineerCRMDashboard';
 import { AdvancedMixingStudio } from '@/components/mixing/AdvancedMixingStudio';
 import { AIMasteringService } from '@/components/mastering/AIMasteringService';
@@ -49,8 +49,12 @@ import { StoreHub } from '@/components/crm/StoreHub';
 const ArtistCRM = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const currentTab = searchParams.get('tab') || 'dashboard';
+  
+  const handleTabChange = (tab: string) => {
+    setSearchParams({ tab });
+  };
 
   const [profile, setProfile] = useState<any>(null);
   const [projects, setProjects] = useState<any[]>([]);
@@ -353,14 +357,16 @@ const ArtistCRM = () => {
 
   return (
     <ErrorBoundary>
-      <CRMLayout
+      <CRMPortal
         userType="artist"
         profile={profile}
         stats={stats}
         quickActions={quickActions}
+        activeTab={currentTab}
+        onTabChange={handleTabChange}
       >
         {renderContent()}
-      </CRMLayout>
+      </CRMPortal>
       <ArtistCRMChatbot />
     </ErrorBoundary>
   );
