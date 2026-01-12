@@ -2355,6 +2355,63 @@ export type Database = {
           },
         ]
       }
+      exported_tracks: {
+        Row: {
+          artist_name: string | null
+          bit_depth: number | null
+          bpm: number | null
+          created_at: string | null
+          distributed_at: string | null
+          distribution_partner: string | null
+          duration_seconds: number | null
+          file_path: string
+          file_size_bytes: number | null
+          format: string | null
+          genre: string | null
+          id: string
+          sample_rate: number | null
+          title: string
+          user_id: string
+          velvet_curve_preset: string | null
+        }
+        Insert: {
+          artist_name?: string | null
+          bit_depth?: number | null
+          bpm?: number | null
+          created_at?: string | null
+          distributed_at?: string | null
+          distribution_partner?: string | null
+          duration_seconds?: number | null
+          file_path: string
+          file_size_bytes?: number | null
+          format?: string | null
+          genre?: string | null
+          id?: string
+          sample_rate?: number | null
+          title: string
+          user_id: string
+          velvet_curve_preset?: string | null
+        }
+        Update: {
+          artist_name?: string | null
+          bit_depth?: number | null
+          bpm?: number | null
+          created_at?: string | null
+          distributed_at?: string | null
+          distribution_partner?: string | null
+          duration_seconds?: number | null
+          file_path?: string
+          file_size_bytes?: number | null
+          format?: string | null
+          genre?: string | null
+          id?: string
+          sample_rate?: number | null
+          title?: string
+          user_id?: string
+          velvet_curve_preset?: string | null
+        }
+        Relationships: []
+      }
       fan_stats: {
         Row: {
           created_at: string | null

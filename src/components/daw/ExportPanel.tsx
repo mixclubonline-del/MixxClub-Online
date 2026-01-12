@@ -2,10 +2,11 @@
  * ExportPanel - DAW Export Dialog
  * 
  * Allows producers to export their projects as WAV/MP3
- * with format selection, quality options, and progress tracking.
+ * with format selection, quality options, cloud save, and progress tracking.
  */
 
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -13,11 +14,14 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { Download, FileAudio, Loader2, Check, AlertCircle, Radio } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Download, FileAudio, Loader2, Check, AlertCircle, Cloud, Share2, Sparkles } from 'lucide-react';
 import { audioEngine } from '@/services/audioEngine';
 import { useAIStudioStore } from '@/stores/aiStudioStore';
 import { audioBufferToWav, downloadBlob, estimateFileSize, formatFileSize, formatDuration } from '@/lib/audioExport';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
+import { useCreateExport } from '@/hooks/useExportedTracks';
 
 interface ExportPanelProps {
   isOpen: boolean;
@@ -25,17 +29,24 @@ interface ExportPanelProps {
 }
 
 type ExportFormat = 'wav-24' | 'wav-16' | 'wav-32';
-type ExportState = 'idle' | 'rendering' | 'encoding' | 'complete' | 'error';
+type ExportState = 'idle' | 'rendering' | 'encoding' | 'uploading' | 'complete' | 'error';
 
 export function ExportPanel({ isOpen, onClose }: ExportPanelProps) {
+  const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
   const tracks = useAIStudioStore(s => s.tracks);
+  const createExport = useCreateExport();
   
   const [format, setFormat] = useState<ExportFormat>('wav-24');
   const [normalize, setNormalize] = useState(true);
+  const [saveToCloud, setSaveToCloud] = useState(true);
+  const [trackTitle, setTrackTitle] = useState('');
+  const [genre, setGenre] = useState('');
   const [exportState, setExportState] = useState<ExportState>('idle');
   const [progress, setProgress] = useState(0);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [exportedToCloud, setExportedToCloud] = useState(false);
   
   // Calculate project duration from tracks
   const projectDuration = tracks.reduce((max, track) => {
@@ -57,6 +68,10 @@ export function ExportPanel({ isOpen, onClose }: ExportPanelProps) {
       setExportState('idle');
       setProgress(0);
       setErrorMessage(null);
+      setExportedToCloud(false);
+      // Generate default title
+      const timestamp = new Date().toISOString().slice(0, 10);
+      setTrackTitle(`MixClub Export ${timestamp}`);
     }
   }, [isOpen]);
   
@@ -81,7 +96,7 @@ export function ExportPanel({ isOpen, onClose }: ExportPanelProps) {
         throw new Error('Offline render returned null');
       }
       
-      setProgress(70);
+      setProgress(50);
       setExportState('encoding');
       
       // Encode to WAV
@@ -90,13 +105,31 @@ export function ExportPanel({ isOpen, onClose }: ExportPanelProps) {
         normalize
       });
       
-      setProgress(90);
+      setProgress(70);
       
       // Generate filename
       const timestamp = new Date().toISOString().slice(0, 10);
-      const filename = `mixclub-export-${timestamp}.wav`;
+      const safeTitle = trackTitle.replace(/[^a-zA-Z0-9]/g, '-') || 'export';
+      const filename = `${safeTitle}-${timestamp}.wav`;
       
-      // Download
+      // Cloud save if enabled and user is logged in
+      if (saveToCloud && user) {
+        setExportState('uploading');
+        setProgress(80);
+        
+        await createExport.mutateAsync({
+          title: trackTitle || 'Untitled Export',
+          genre: genre || undefined,
+          durationSeconds: projectDuration,
+          bitDepth,
+          sampleRate: 48000,
+          audioBlob: wavBlob
+        });
+        
+        setExportedToCloud(true);
+      }
+      
+      // Always download locally
       downloadBlob(wavBlob, filename);
       
       setProgress(100);
@@ -104,7 +137,9 @@ export function ExportPanel({ isOpen, onClose }: ExportPanelProps) {
       
       toast({
         title: "Export Complete!",
-        description: `Downloaded ${filename}`,
+        description: saveToCloud && user 
+          ? `Downloaded ${filename} and saved to cloud`
+          : `Downloaded ${filename}`,
       });
       
     } catch (error) {
@@ -118,6 +153,16 @@ export function ExportPanel({ isOpen, onClose }: ExportPanelProps) {
         variant: "destructive"
       });
     }
+  };
+  
+  const handleDistributeNow = () => {
+    onClose();
+    navigate('/distribution');
+  };
+  
+  const handleAIMaster = () => {
+    onClose();
+    navigate('/ai-mastering');
   };
   
   return (
@@ -142,6 +187,32 @@ export function ExportPanel({ isOpen, onClose }: ExportPanelProps) {
               <p className="text-2xl font-bold">{tracks.length}</p>
             </div>
           </div>
+          
+          {/* Track Title (for cloud save) */}
+          {user && (
+            <div className="space-y-2">
+              <Label htmlFor="track-title">Track Title</Label>
+              <Input
+                id="track-title"
+                value={trackTitle}
+                onChange={(e) => setTrackTitle(e.target.value)}
+                placeholder="Enter track title..."
+              />
+            </div>
+          )}
+          
+          {/* Genre (for cloud save) */}
+          {user && saveToCloud && (
+            <div className="space-y-2">
+              <Label htmlFor="genre">Genre (optional)</Label>
+              <Input
+                id="genre"
+                value={genre}
+                onChange={(e) => setGenre(e.target.value)}
+                placeholder="e.g., Trap, R&B, Drill..."
+              />
+            </div>
+          )}
           
           {/* Format Selection */}
           <div className="space-y-3">
@@ -173,12 +244,27 @@ export function ExportPanel({ isOpen, onClose }: ExportPanelProps) {
           </div>
           
           {/* Options */}
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label>Normalize</Label>
-              <p className="text-xs text-muted-foreground">Maximize volume to 0dB peak</p>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label>Normalize</Label>
+                <p className="text-xs text-muted-foreground">Maximize volume to 0dB peak</p>
+              </div>
+              <Switch checked={normalize} onCheckedChange={setNormalize} />
             </div>
-            <Switch checked={normalize} onCheckedChange={setNormalize} />
+            
+            {user && (
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label className="flex items-center gap-1.5">
+                    <Cloud className="w-4 h-4 text-primary" />
+                    Save to MixClub Cloud
+                  </Label>
+                  <p className="text-xs text-muted-foreground">Enable one-click distribution</p>
+                </div>
+                <Switch checked={saveToCloud} onCheckedChange={setSaveToCloud} />
+              </div>
+            )}
           </div>
           
           {/* File Size Estimate */}
@@ -188,12 +274,14 @@ export function ExportPanel({ isOpen, onClose }: ExportPanelProps) {
           </div>
           
           {/* Progress */}
-          {(exportState === 'rendering' || exportState === 'encoding') && (
+          {(exportState === 'rendering' || exportState === 'encoding' || exportState === 'uploading') && (
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
                 <span className="flex items-center gap-2">
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  {exportState === 'rendering' ? 'Rendering audio...' : 'Encoding WAV...'}
+                  {exportState === 'rendering' && 'Rendering audio...'}
+                  {exportState === 'encoding' && 'Encoding WAV...'}
+                  {exportState === 'uploading' && 'Uploading to cloud...'}
                 </span>
                 <span>{progress}%</span>
               </div>
@@ -203,9 +291,29 @@ export function ExportPanel({ isOpen, onClose }: ExportPanelProps) {
           
           {/* Complete State */}
           {exportState === 'complete' && (
-            <div className="flex items-center gap-2 p-3 rounded-lg bg-green-500/10 text-green-500">
-              <Check className="w-5 h-5" />
-              <span className="font-medium">Export complete! Check your downloads folder.</span>
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 p-3 rounded-lg bg-green-500/10 text-green-500">
+                <Check className="w-5 h-5" />
+                <span className="font-medium">
+                  {exportedToCloud 
+                    ? 'Export complete & saved to cloud!' 
+                    : 'Export complete! Check your downloads folder.'}
+                </span>
+              </div>
+              
+              {/* Post-export actions for cloud saves */}
+              {exportedToCloud && (
+                <div className="flex gap-2">
+                  <Button onClick={handleDistributeNow} className="flex-1 gap-2">
+                    <Share2 className="w-4 h-4" />
+                    Distribute Now
+                  </Button>
+                  <Button variant="outline" onClick={handleAIMaster} className="flex-1 gap-2">
+                    <Sparkles className="w-4 h-4" />
+                    AI Master First
+                  </Button>
+                </div>
+              )}
             </div>
           )}
           
@@ -222,23 +330,25 @@ export function ExportPanel({ isOpen, onClose }: ExportPanelProps) {
           <Button variant="ghost" onClick={onClose}>
             {exportState === 'complete' ? 'Done' : 'Cancel'}
           </Button>
-          <Button 
-            onClick={handleExport} 
-            disabled={exportState === 'rendering' || exportState === 'encoding' || projectDuration <= 0}
-            className="gap-2"
-          >
-            {exportState === 'rendering' || exportState === 'encoding' ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Exporting...
-              </>
-            ) : (
-              <>
-                <Download className="w-4 h-4" />
-                Export WAV
-              </>
-            )}
-          </Button>
+          {exportState !== 'complete' && (
+            <Button 
+              onClick={handleExport} 
+              disabled={exportState === 'rendering' || exportState === 'encoding' || exportState === 'uploading' || projectDuration <= 0}
+              className="gap-2"
+            >
+              {(exportState === 'rendering' || exportState === 'encoding' || exportState === 'uploading') ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Exporting...
+                </>
+              ) : (
+                <>
+                  <Download className="w-4 h-4" />
+                  Export WAV
+                </>
+              )}
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
