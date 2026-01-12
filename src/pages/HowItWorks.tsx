@@ -1,118 +1,113 @@
+import { useState } from "react";
+import { Upload, Sparkles, Users, Headphones, Zap, Download, UserPlus, Briefcase, DollarSign } from "lucide-react";
 import Navigation from "@/components/Navigation";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Upload, Headphones, Download, Users, Zap, Music } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import JourneyPortal from "@/components/journey/JourneyPortal";
+import PathAmbience from "@/components/journey/PathAmbience";
+import JourneyGateway from "@/components/journey/JourneyGateway";
+import JourneyPath from "@/components/journey/JourneyPath";
+import JourneyDestination from "@/components/journey/JourneyDestination";
+import journeyPathImage from "@/assets/journey-path.jpg";
+
+const artistSteps = [
+  {
+    icon: Upload,
+    title: "Upload Your Track",
+    description: "Drag and drop your audio file. We support all major formats (WAV, MP3, AIFF, FLAC).",
+    time: "2 minutes",
+  },
+  {
+    icon: Sparkles,
+    title: "AI Analyzes Your Sound",
+    description: "Our AI profiles your track's genre, mood, and technical needs to find the perfect match.",
+    time: "Instant",
+  },
+  {
+    icon: Users,
+    title: "Get Matched with Engineers",
+    description: "We connect you with engineers who specialize in your sound and style.",
+    time: "Instant",
+  },
+  {
+    icon: Headphones,
+    title: "Collaborate in Real-Time",
+    description: "Work together in our collaborative workspace with live feedback and revisions.",
+    time: "1-3 days",
+  },
+  {
+    icon: Download,
+    title: "Download Your Hit",
+    description: "Get your radio-ready master and start sharing your music with the world.",
+    time: "Done!",
+  },
+];
+
+const engineerSteps = [
+  {
+    icon: UserPlus,
+    title: "Create Your Profile",
+    description: "Showcase your portfolio, set your rates, and highlight your specialties.",
+    time: "15 minutes",
+  },
+  {
+    icon: Briefcase,
+    title: "Get Matched with Artists",
+    description: "Browse opportunities or get matched with artists who fit your style.",
+    time: "Ongoing",
+  },
+  {
+    icon: Zap,
+    title: "Work Your Magic",
+    description: "Use our professional tools to deliver exceptional mixes and masters.",
+    time: "Flexible",
+  },
+  {
+    icon: DollarSign,
+    title: "Earn 70% Revenue",
+    description: "Keep 70% of your earnings. Build your reputation with verified reviews.",
+    time: "Same day",
+  },
+];
 
 const HowItWorks = () => {
-  const navigate = useNavigate();
+  const [activeRole, setActiveRole] = useState<"artist" | "engineer">("artist");
+  const [activeStep, setActiveStep] = useState(0);
+
+  const steps = activeRole === "artist" ? artistSteps : engineerSteps;
 
   return (
-    <div className="min-h-screen">
+    <JourneyPortal backgroundAsset={journeyPathImage}>
       <Navigation />
+      <PathAmbience />
       
-      <section className="py-20 bg-gradient-to-b from-background via-[hsl(262_30%_8%)] to-background">
-        <div className="container px-6">
-          <div className="max-w-4xl mx-auto text-center mb-16">
-            <h1 className="text-5xl md:text-6xl font-black mb-6 bg-gradient-to-r from-primary via-[hsl(220_90%_60%)] to-[hsl(180_100%_50%)] bg-clip-text text-transparent">
-              How MixClub Works
-            </h1>
-            <p className="text-xl text-muted-foreground">
-              Three simple paths to get your music radio-ready
-            </p>
-          </div>
+      <main className="relative z-10">
+        {/* Gateway section */}
+        <JourneyGateway 
+          activeRole={activeRole} 
+          onRoleChange={(role) => {
+            setActiveRole(role);
+            setActiveStep(0);
+          }} 
+        />
 
-          {/* For Artists */}
-          <div className="mb-20">
-            <h2 className="text-3xl font-bold text-center mb-10">For Artists</h2>
-            <div className="grid md:grid-cols-3 gap-8">
-              <Card className="p-8 glass-studio border-2 border-primary/30">
-                <div className="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center mb-6">
-                  <Upload className="w-8 h-8 text-primary" />
-                </div>
-                <h3 className="text-2xl font-bold mb-3">1. Upload Your Track</h3>
-                <p className="text-muted-foreground">
-                  Drag and drop your audio file. We support all major formats (WAV, MP3, AIFF, FLAC).
-                </p>
-              </Card>
+        {/* Journey path */}
+        <JourneyPath 
+          steps={steps} 
+          activeStep={activeStep}
+          onStepClick={setActiveStep}
+          variant={activeRole}
+        />
 
-              <Card className="p-8 glass-studio border-2 border-[hsl(220_90%_60%)]/30">
-                <div className="w-16 h-16 bg-[hsl(220_90%_60%)]/20 rounded-2xl flex items-center justify-center mb-6">
-                  <Users className="w-8 h-8 text-[hsl(220_90%_60%)]" />
-                </div>
-                <h3 className="text-2xl font-bold mb-3">2. Choose Your Path</h3>
-                <p className="text-muted-foreground">
-                  Get instant AI mastering, connect with a pro engineer, or both for the ultimate polish.
-                </p>
-              </Card>
+        {/* Destination CTA */}
+        <JourneyDestination role={activeRole} />
+      </main>
 
-              <Card className="p-8 glass-studio border-2 border-[hsl(180_100%_50%)]/30">
-                <div className="w-16 h-16 bg-[hsl(180_100%_50%)]/20 rounded-2xl flex items-center justify-center mb-6">
-                  <Download className="w-8 h-8 text-[hsl(180_100%_50%)]" />
-                </div>
-                <h3 className="text-2xl font-bold mb-3">3. Download & Release</h3>
-                <p className="text-muted-foreground">
-                  Get your radio-ready master and start sharing your music with the world.
-                </p>
-              </Card>
-            </div>
-          </div>
-
-          {/* For Engineers */}
-          <div>
-            <h2 className="text-3xl font-bold text-center mb-10">For Engineers</h2>
-            <div className="grid md:grid-cols-3 gap-8">
-              <Card className="p-8 glass-studio border-2 border-primary/30">
-                <div className="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center mb-6">
-                  <Users className="w-8 h-8 text-primary" />
-                </div>
-                <h3 className="text-2xl font-bold mb-3">1. Create Your Profile</h3>
-                <p className="text-muted-foreground">
-                  Showcase your portfolio, set your rates, and highlight your specialties.
-                </p>
-              </Card>
-
-              <Card className="p-8 glass-studio border-2 border-[hsl(220_90%_60%)]/30">
-                <div className="w-16 h-16 bg-[hsl(220_90%_60%)]/20 rounded-2xl flex items-center justify-center mb-6">
-                  <Headphones className="w-8 h-8 text-[hsl(220_90%_60%)]" />
-                </div>
-                <h3 className="text-2xl font-bold mb-3">2. Take on Projects</h3>
-                <p className="text-muted-foreground">
-                  Browse opportunities or get matched with artists who fit your style.
-                </p>
-              </Card>
-
-              <Card className="p-8 glass-studio border-2 border-[hsl(180_100%_50%)]/30">
-                <div className="w-16 h-16 bg-[hsl(180_100%_50%)]/20 rounded-2xl flex items-center justify-center mb-6">
-                  <Zap className="w-8 h-8 text-[hsl(180_100%_50%)]" />
-                </div>
-                <h3 className="text-2xl font-bold mb-3">3. Get Paid Fair</h3>
-                <p className="text-muted-foreground">
-                  Keep 70% of your earnings. Build your reputation with verified reviews.
-                </p>
-              </Card>
-            </div>
-          </div>
-
-          {/* CTA */}
-          <div className="text-center mt-16">
-            <Button 
-              size="lg"
-              onClick={() => navigate('/auth?signup=true')}
-              className="text-xl px-12 py-8 shadow-glow-raven"
-            >
-              Get Started Now
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      <footer className="border-t border-border py-8 bg-card">
+      {/* Footer */}
+      <footer className="relative z-10 border-t border-border/30 py-8 bg-background/50 backdrop-blur-sm">
         <div className="container px-6 text-center text-sm text-muted-foreground">
           <p>© 2026 MixClub. Make your music sound as good as the pros.</p>
         </div>
       </footer>
-    </div>
+    </JourneyPortal>
   );
 };
 
