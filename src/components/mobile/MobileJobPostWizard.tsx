@@ -9,6 +9,18 @@ import { Camera, Upload, ChevronRight, ChevronLeft, Check } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
+import { z } from 'zod';
+import { sanitizeText } from '@/lib/security/sanitize';
+
+// Validation schema for job posting
+const jobPostSchema = z.object({
+  title: z.string().trim().min(3, 'Title must be at least 3 characters').max(200),
+  description: z.string().trim().max(5000).optional(),
+  genre: z.string().trim().min(1, 'Genre is required').max(100),
+  service_type: z.enum(['mixing', 'mastering', 'both']),
+  budget: z.string().refine(val => !val || (!isNaN(parseFloat(val)) && parseFloat(val) >= 0), 'Invalid budget'),
+  deadline: z.string().optional(),
+});
 
 interface MobileJobPostWizardProps {
   isOpen: boolean;
@@ -44,12 +56,20 @@ export const MobileJobPostWizard = ({ isOpen, onClose, onSuccess }: MobileJobPos
       return;
     }
 
+    // Validate form data
+    const validation = jobPostSchema.safeParse(formData);
+    if (!validation.success) {
+      toast.error(validation.error.issues[0]?.message || 'Invalid form data');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
+      // Sanitize text inputs before database insert
       const { error } = await supabase.from('job_postings').insert({
-        title: formData.title,
-        description: formData.description,
-        genre: formData.genre,
+        title: sanitizeText(formData.title),
+        description: formData.description ? sanitizeText(formData.description) : null,
+        genre: sanitizeText(formData.genre),
         service_type: formData.service_type,
         budget: formData.budget ? parseFloat(formData.budget) : null,
         deadline: formData.deadline || null,
