@@ -31,8 +31,8 @@ export const publicRoutes = (
   <>
     {/* Main entry point - MixClub platform */}
     <Route path="/" element={<MixClubHome />} />
-    <Route path="/home" element={<MixClubHome />} />
-    <Route path="/mixclub" element={<MixClubHome />} />
+    <Route path="/home" element={<Navigate to="/" replace />} />
+    <Route path="/mixclub" element={<Navigate to="/" replace />} />
     
     {/* Demo/Showcase - parked for demos */}
     <Route path="/demo" element={<InsiderDemo />} />

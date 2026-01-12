@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
-import { DollarSign, TrendingUp, Zap, Music, Users, BookOpen, Share2, Briefcase, Headphones, Radio } from "lucide-react";
+import { DollarSign, TrendingUp, Zap, Music, Users, BookOpen, Share2, Briefcase, Headphones, Radio, Activity } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useEffect, useState } from "react";
+import { useCommunityStats } from "@/hooks/useCommunityStats";
 
 const revenueStreams = [
   { name: "Mixing", icon: Headphones, amount: 1250, color: "text-primary" },
@@ -25,15 +26,24 @@ const pipelineStages = [
 ];
 
 export function RevenuePreview() {
+  const { data: stats } = useCommunityStats();
   const [displayedAmounts, setDisplayedAmounts] = useState<number[]>(revenueStreams.map(() => 0));
   const [totalRevenue, setTotalRevenue] = useState(0);
+  const [isLive, setIsLive] = useState(false);
+
+  // Use real platform earnings if available, otherwise demo total
+  const platformTotal = stats?.totalEarnings || 0;
+  const demoTotal = revenueStreams.reduce((sum, stream) => sum + stream.amount, 0);
+  const finalTotal = platformTotal > 0 ? platformTotal : demoTotal;
 
   // Animate counters
   useEffect(() => {
-    const finalTotal = revenueStreams.reduce((sum, stream) => sum + stream.amount, 0);
     const duration = 2000;
     const steps = 60;
     const stepDuration = duration / steps;
+
+    // Scale demo amounts proportionally if using real data
+    const scaleFactor = platformTotal > 0 ? platformTotal / demoTotal : 1;
 
     let currentStep = 0;
     const interval = setInterval(() => {
@@ -42,17 +52,18 @@ export function RevenuePreview() {
       const easeProgress = 1 - Math.pow(1 - progress, 3); // ease-out cubic
 
       setDisplayedAmounts(
-        revenueStreams.map((stream) => Math.round(stream.amount * easeProgress))
+        revenueStreams.map((stream) => Math.round(stream.amount * scaleFactor * easeProgress))
       );
       setTotalRevenue(Math.round(finalTotal * easeProgress));
 
       if (currentStep >= steps) {
         clearInterval(interval);
+        setIsLive(platformTotal > 0);
       }
     }, stepDuration);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [platformTotal, finalTotal, demoTotal]);
 
   return (
     <section className="py-20 relative overflow-hidden bg-muted/20">
@@ -81,8 +92,9 @@ export function RevenuePreview() {
             <Card className="p-6 glass-mid border-border/50">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold">Revenue Streams</h3>
-                <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-                  Live Earnings
+                <Badge className={`${isLive ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-muted text-muted-foreground border-border'}`}>
+                  {isLive && <Activity className="w-3 h-3 mr-1 animate-pulse" />}
+                  {isLive ? 'Live from Platform' : 'Demo Data'}
                 </Badge>
               </div>
 

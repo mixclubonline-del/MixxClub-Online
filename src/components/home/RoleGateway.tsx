@@ -5,9 +5,16 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import { useCommunityStats } from "@/hooks/useCommunityStats";
 
 export function RoleGateway() {
   const [hoveredRole, setHoveredRole] = useState<"artist" | "engineer" | null>(null);
+  const { data: stats } = useCommunityStats();
+  
+  // Calculate average earnings per engineer
+  const avgEarnings = stats?.totalEngineers && stats.totalEngineers > 0 
+    ? Math.round(stats.totalEarnings / stats.totalEngineers) 
+    : 4200;
 
   const artistBenefits = [
     { icon: Sparkles, text: "AI-powered engineer matching" },
@@ -96,7 +103,7 @@ export function RoleGateway() {
 
               <div className="mt-4 text-center">
                 <Badge variant="outline" className="text-xs">
-                  🎵 10,000+ artists trust MixClub
+                  🎵 {stats?.totalArtists?.toLocaleString() || '10,000'}+ artists trust MixClub
                 </Badge>
               </div>
             </Card>
@@ -158,7 +165,7 @@ export function RoleGateway() {
 
               <div className="mt-4 text-center">
                 <Badge variant="outline" className="text-xs">
-                  💰 Engineers earn avg. $4,200/month
+                  💰 Engineers earn avg. ${avgEarnings.toLocaleString()}/month
                 </Badge>
               </div>
             </Card>
