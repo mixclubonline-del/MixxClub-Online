@@ -111,6 +111,10 @@ import { PrimeBotAssistant } from "@/components/studio/PrimeBotAssistant";
 import { AIAssistantPanel } from "@/components/studio/AIAssistantPanel";
 import { StudioSystemCheck } from "@/components/studio/StudioSystemCheck";
 import { ClipEditorPanel } from "@/components/daw/ClipEditorPanel";
+import { RSDChamberPortal } from "@/components/daw/RSDChamberPortal";
+import { ConsoleOverlay } from "@/components/daw/ConsoleOverlay";
+import { ConsoleTransport } from "@/components/daw/ConsoleTransport";
+import { StudioPanel } from "@/components/daw/StudioPanel";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useAudioPermissions } from "@/hooks/useAudioPermissions";
@@ -121,6 +125,7 @@ import { useAIStudioStore, Track, AudioRegion } from "@/stores/aiStudioStore";
 import { WaveformGenerator } from "@/services/waveformGenerator";
 import { audioEngine } from "@/services/audioEngine";
 import Navigation from "@/components/Navigation";
+import rsdChamberBg from "@/assets/rsd-chamber.jpg";
 
 export interface AutomationPoint {
   time: number;
@@ -743,32 +748,82 @@ const HybridDAW = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
-        <div className="flex items-center justify-center min-h-screen">
-          <Card className="p-8 max-w-md w-full mx-4">
+      <RSDChamberPortal isPlaying={false} isRecording={false}>
+        {/* Chamber Locked State */}
+        <div className="flex-1 flex items-center justify-center">
+          <div className="bg-background/80 backdrop-blur-xl border border-primary/20 rounded-2xl p-8 max-w-md w-full mx-4 shadow-[0_0_60px_hsl(var(--primary)/0.1)]">
             <div className="text-center space-y-4">
-              <Sparkles className="w-12 h-12 mx-auto text-primary" />
-              <h2 className="text-2xl font-bold">Access Required</h2>
+              <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
+                <Sparkles className="w-8 h-8 text-primary" />
+              </div>
+              <h2 className="text-2xl font-bold">Chamber Locked</h2>
               <p className="text-muted-foreground">
-                Please sign in to access the Hybrid AI DAW.
+                Sign in to enter the RSD Chamber and start creating.
               </p>
-              <Button className="w-full" onClick={() => { const a = document.createElement('a'); a.href = '/auth'; a.click(); }}>
-                Sign In
+              <Button className="w-full" onClick={() => { window.location.href = '/auth'; }}>
+                Enter Chamber
               </Button>
             </div>
-          </Card>
+          </div>
         </div>
-      </div>
+      </RSDChamberPortal>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col overflow-hidden">
-      <Navigation />
-      
-      {/* Modern Glassmorphic Top Toolbar */}
-      <div className="pt-24 glass border-b border-border/50 shadow-glass animate-slide-up">
+    <RSDChamberPortal isPlaying={isPlaying} isRecording={isRecording}>
+      {/* Console Transport Bar */}
+      <div className="pt-16">
+        <ConsoleTransport
+          isPlaying={isPlaying}
+          isRecording={isRecording}
+          currentTime={currentTime}
+          bpm={bpm}
+          hasAudioAccess={hasAudioAccess}
+          onPlayPause={handlePlayPause}
+          onStop={handleStop}
+          onRewind={() => seekToTime(0)}
+          onRecord={() => tracks[0] ? startRecording(tracks[0].id) : createNewTrack('vocal')}
+          onRequestMic={requestMicrophone}
+        />
+      </div>
+
+      {/* Console Overlay with DAW Content */}
+      <ConsoleOverlay isPlaying={isPlaying}>
+        {/* Toolbar Actions */}
+        <div className="flex items-center justify-between px-4 py-2 border-b border-border/20">
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={() => setShowCloudManager(true)} className="gap-2">
+              <FolderOpen className="w-4 h-4" />
+              <span className="text-xs">PROJECT</span>
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => createNewTrack('vocal')} className="gap-2">
+              <FileAudio className="w-4 h-4" />
+              <span className="text-xs">ADD TRACK</span>
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setShowImportDialog(true)} className="gap-2">
+              <Upload className="w-4 h-4" />
+              <span className="text-xs">IMPORT</span>
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setShowStemSeparationDialog(true)} className="gap-2">
+              <Sparkles className="w-4 h-4" />
+              <span className="text-xs">STEMS</span>
+            </Button>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant={viewMode === 'mix' ? 'default' : 'ghost'} size="sm" onClick={() => setViewMode(viewMode === 'arrange' ? 'mix' : 'arrange')} className="gap-2">
+              <Sliders className="w-4 h-4" />
+              <span className="text-xs">{viewMode === 'arrange' ? 'MIX' : 'ARRANGE'}</span>
+            </Button>
+            <Button variant={view === '3d' ? 'default' : 'ghost'} size="sm" onClick={() => setView(view === '2d' ? '3d' : '2d')} className="text-xs">
+              {view === '2d' ? '3D' : '2D'}
+            </Button>
+          </div>
+        </div>
+
+        {/* Main DAW Content */}
+        <div className="flex-1 overflow-hidden">
+          <ResizablePanelGroup direction="horizontal" className="h-full">
         <div className="px-6 py-3 flex items-center justify-between">
           {/* Left - Transport Controls */}
           <div className="flex items-center gap-3">
@@ -1250,7 +1305,8 @@ const HybridDAW = () => {
           </ResizablePanel>
         </>
         )}
-      </ResizablePanelGroup>
+          </ResizablePanelGroup>
+        </div>
 
       {/* Audio Import Dialog */}
       {showImportDialog && (
@@ -1384,7 +1440,9 @@ const HybridDAW = () => {
           </div>
         </div>
       )}
-    </div>
+        </div>
+      </ConsoleOverlay>
+    </RSDChamberPortal>
   );
 };
 
