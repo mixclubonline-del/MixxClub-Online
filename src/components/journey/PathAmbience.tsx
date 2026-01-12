@@ -1,54 +1,53 @@
-import { motion } from "framer-motion";
 import { useMemo } from "react";
 
 const PathAmbience = () => {
+  // Respect reduced motion preference
+  const prefersReducedMotion = typeof window !== 'undefined' 
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   const particles = useMemo(() => 
-    Array.from({ length: 20 }, (_, i) => ({
+    Array.from({ length: 12 }, (_, i) => ({
       id: i,
-      x: Math.random() * 100,
-      delay: Math.random() * 5,
-      duration: 8 + Math.random() * 6,
-      size: 2 + Math.random() * 4,
+      x: 10 + (i * 7),
+      delay: i * 0.5,
+      duration: 8 + (i % 4) * 2,
+      size: 2 + (i % 3),
     })), []
   );
 
+  if (prefersReducedMotion) {
+    return null;
+  }
+
   return (
-    <div className="fixed inset-0 pointer-events-none z-5 overflow-hidden">
-      {/* Flowing particles along the path */}
+    <div 
+      className="fixed inset-0 pointer-events-none z-5 overflow-hidden"
+      style={{ contain: 'layout' }}
+    >
+      {/* Flowing particles along the path - CSS animated */}
       {particles.map((particle) => (
-        <motion.div
+        <div
           key={particle.id}
-          className="absolute rounded-full bg-primary/40"
+          className="absolute rounded-full bg-primary/40 animate-path-particle"
           style={{
             left: `${particle.x}%`,
             width: particle.size,
             height: particle.size,
-          }}
-          initial={{ top: "-5%", opacity: 0 }}
-          animate={{ 
-            top: "105%", 
-            opacity: [0, 1, 1, 0],
-          }}
-          transition={{
-            duration: particle.duration,
-            delay: particle.delay,
-            repeat: Infinity,
-            ease: "linear",
+            animationDelay: `${particle.delay}s`,
+            animationDuration: `${particle.duration}s`,
+            willChange: 'transform, opacity',
           }}
         />
       ))}
       
-      {/* Glowing path lines */}
+      {/* Static glowing path lines */}
       <svg className="absolute inset-0 w-full h-full opacity-20">
-        <motion.path
+        <path
           d="M 50 0 Q 30 25, 50 50 T 50 100"
           stroke="url(#pathGradient)"
           strokeWidth="2"
           fill="none"
           className="translate-x-[50%]"
-          initial={{ pathLength: 0, opacity: 0 }}
-          animate={{ pathLength: 1, opacity: 1 }}
-          transition={{ duration: 2, ease: "easeOut" }}
         />
         <defs>
           <linearGradient id="pathGradient" x1="0%" y1="0%" x2="0%" y2="100%">
