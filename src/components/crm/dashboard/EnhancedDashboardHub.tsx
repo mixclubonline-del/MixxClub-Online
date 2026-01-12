@@ -35,6 +35,7 @@ import { AchievementsBadges } from '../gamification/AchievementsBadges';
 import { RevenueAnalyticsDashboard } from '../revenue/RevenueAnalyticsDashboard';
 import { WhosLiveWidget } from '@/components/live/WhosLiveWidget';
 import { WhoToFollowWidget } from '@/components/social/WhoToFollowWidget';
+import { WelcomeExperience, RecommendedEngineers, OpenSessionsForEngineers } from '../WelcomeExperience';
 
 interface DashboardMetrics {
   careerMomentum: {
@@ -208,8 +209,16 @@ export const EnhancedDashboardHub = ({ userType }: EnhancedDashboardHubProps) =>
     { icon: <Gift className="w-4 h-4" />, label: 'Promotions', value: metrics.revenue.streams.promotions, color: 'text-yellow-500' },
   ];
 
+  // Check if user is new (no projects/sessions)
+  const isNewUser = metrics.careerMomentum.totalSessions === 0;
+
   return (
     <div className="space-y-6">
+      {/* Welcome Experience for New Users */}
+      {isNewUser && (
+        <WelcomeExperience userType={userType} userName={user?.user_metadata?.full_name?.split(' ')[0]} />
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -223,6 +232,13 @@ export const EnhancedDashboardHub = ({ userType }: EnhancedDashboardHubProps) =>
           Refresh
         </Button>
       </div>
+
+      {/* Recommended Content for New Users */}
+      {isNewUser && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {userType === 'artist' ? <RecommendedEngineers limit={3} /> : <OpenSessionsForEngineers limit={3} />}
+        </div>
+      )}
 
       {/* Who's Live + Gamification + Social Discovery */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
