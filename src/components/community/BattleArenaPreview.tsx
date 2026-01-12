@@ -61,7 +61,7 @@ export const BattleArenaPreview = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-card to-accent-blue/10 border border-primary/20 p-6"
+          className="relative overflow-hidden rounded-2xl backdrop-blur-lg bg-card/20 border border-white/10 p-6"
         >
           {/* VS Badge */}
           <div className="absolute top-4 right-4">
@@ -152,7 +152,7 @@ export const BattleArenaPreview = () => {
           </div>
         </motion.div>
       ) : (
-        <div className="p-8 rounded-2xl bg-card/30 border border-white/5 text-center">
+        <div className="p-8 rounded-2xl backdrop-blur-lg bg-card/20 border border-white/10 text-center">
           <Swords className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
           <p className="text-muted-foreground">No active battles right now</p>
         </div>
@@ -167,7 +167,7 @@ export const BattleArenaPreview = () => {
               initial={{ opacity: 0, x: i === 0 ? -20 : 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 + i * 0.1 }}
-              className="p-4 rounded-xl bg-card/30 border border-white/5 hover:border-primary/30 transition-all"
+              className="p-4 rounded-xl backdrop-blur-md bg-card/20 border border-white/10 hover:border-primary/30 transition-all"
             >
               <div className="flex items-center justify-between mb-2">
                 <span className="font-semibold truncate">{battle.title}</span>

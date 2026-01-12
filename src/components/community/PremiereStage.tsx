@@ -54,7 +54,7 @@ export const PremiereStage = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-accent-cyan/10 via-card to-primary/10 border border-accent-cyan/20"
+          className="relative overflow-hidden rounded-2xl backdrop-blur-lg bg-card/20 border border-white/10"
         >
           {/* Background Glow */}
           <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
@@ -167,7 +167,7 @@ export const PremiereStage = () => {
           </div>
         </motion.div>
       ) : (
-        <div className="p-8 rounded-2xl bg-card/30 border border-white/5 text-center">
+        <div className="p-8 rounded-2xl backdrop-blur-lg bg-card/20 border border-white/10 text-center">
           <Music2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
           <p className="text-muted-foreground">No live premieres right now</p>
         </div>
@@ -187,7 +187,7 @@ export const PremiereStage = () => {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.1 }}
-                className="flex items-center gap-4 p-3 rounded-xl bg-card/30 border border-white/5 hover:border-primary/30 transition-all"
+                className="flex items-center gap-4 p-3 rounded-xl backdrop-blur-md bg-card/20 border border-white/10 hover:border-primary/30 transition-all"
               >
                 <div className="text-2xl font-bold text-muted-foreground w-8">
                   #{i + 2}
