@@ -13,6 +13,7 @@ import { useAnalytics } from "@/hooks/useAnalytics";
 import { motion, AnimatePresence } from "framer-motion";
 import authGatewayImage from "@/assets/auth-gateway.jpg";
 import mixclub3DLogo from "@/assets/mixclub-3d-logo.png";
+import { AuthSocialProof, RoleBenefits, UsernamePreview } from "@/components/auth/AuthSocialProof";
 
 // Import Google icon
 const GoogleIcon = () => (
