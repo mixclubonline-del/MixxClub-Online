@@ -80,8 +80,13 @@ Deno.serve(async (req) => {
       .limit(20);
 
     if (error) {
-      console.error('Database query error:', error);
-      throw error;
+      // Log full error server-side only
+      console.error('[INTERNAL] Database query error:', error);
+      // Return generic error to client
+      return new Response(
+        JSON.stringify({ error: 'Failed to find matching engineers. Please try again.' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // Calculate match scores
@@ -139,11 +144,12 @@ Deno.serve(async (req) => {
       status: 200,
     });
   } catch (error) {
-    console.error('Error in match-engineers function:', error);
-    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-    return new Response(JSON.stringify({ error: errorMessage }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 500,
-    });
+    // Log full error server-side only
+    console.error('[INTERNAL] Error in match-engineers function:', error);
+    // Return generic error to client
+    return new Response(
+      JSON.stringify({ error: 'An unexpected error occurred. Please try again.' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
   }
 });
