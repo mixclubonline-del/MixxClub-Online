@@ -1,4 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { VelvetCurveProcessor } from '@/audio/effects/VelvetCurveProcessor';
+import { GenrePreset, GENRE_PRESETS } from '@/audio/context/GenreContext';
+
 type UUID = string;
 
 export type PluginType = "EQ" | "COMP" | "SAT" | "REV" | "DLY" | "OTHER";
@@ -56,10 +59,8 @@ export interface FxBus {
 
 export interface MasterChain {
   input: GainNode;
-  eq: GainNode; // placeholder
-  multiband: GainNode; // placeholder
-  limiter: GainNode; // placeholder
-  clipper: GainNode; // placeholder
+  velvetCurve: VelvetCurveProcessor;
+  limiter: GainNode;
   analyser: AnalyserNode;
   output: GainNode; // to destination
 }
@@ -149,25 +150,23 @@ class AudioEngine {
     const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
     this.ctx = new AudioCtx();
 
-    // --- Master chain ---
+    // --- Master chain with VelvetCurve ---
     const input = this.ctx.createGain();
-    const eq = this.ctx.createGain();
-    const multiband = this.ctx.createGain();
+    const velvetCurve = new VelvetCurveProcessor(this.ctx);
     const limiter = this.ctx.createGain();
-    const clipper = this.ctx.createGain();
+    limiter.gain.value = 0.95; // Simple safety limiter
     const analyser = this.ctx.createAnalyser();
     analyser.fftSize = 2048;
     const output = this.ctx.createGain();
 
-    input.connect(eq);
-    eq.connect(multiband);
-    multiband.connect(limiter);
-    limiter.connect(clipper);
-    clipper.connect(analyser);
+    // Wire: input → velvetCurve → limiter → analyser → output → destination
+    input.connect(velvetCurve.getInputNode());
+    velvetCurve.getOutputNode().connect(limiter);
+    limiter.connect(analyser);
     analyser.connect(output);
     output.connect(this.ctx.destination);
 
-    this.master = { input, eq, multiband, limiter, clipper, analyser, output };
+    this.master = { input, velvetCurve, limiter, analyser, output };
 
     // --- Default FX buses (Reverb / Delay) ---
     this.createFxBus("reverb", this.ctx.createConvolver());
@@ -491,10 +490,98 @@ class AudioEngine {
     return this.master.analyser;
   }
 
-  /** Basic export stub (replace with OfflineAudioContext pipeline later) */
+  /** Offline rendering for export - renders all tracks through VelvetCurve */
   async renderOffline(durationSec: number): Promise<AudioBuffer | null> {
-    console.warn("renderOffline stub: implement with OfflineAudioContext for true export.");
-    return null;
+    if (durationSec <= 0) {
+      console.warn('[AudioEngine] renderOffline: Invalid duration');
+      return null;
+    }
+
+    const sampleRate = 48000;
+    const length = Math.ceil(durationSec * sampleRate);
+    
+    console.log(`[AudioEngine] 🎬 Starting offline render: ${durationSec.toFixed(2)}s @ ${sampleRate}Hz`);
+    
+    try {
+      const offlineCtx = new OfflineAudioContext(2, length, sampleRate);
+      
+      // Create offline VelvetCurve processor
+      const offlineVelvet = new VelvetCurveProcessor(offlineCtx as unknown as AudioContext);
+      
+      // Copy current settings to offline processor
+      const currentSettings = this.master.velvetCurve.getSettings();
+      offlineVelvet.applySettings(currentSettings);
+      
+      // Create limiter and connect
+      const offlineLimiter = offlineCtx.createGain();
+      offlineLimiter.gain.value = 0.95;
+      
+      offlineVelvet.getOutputNode().connect(offlineLimiter);
+      offlineLimiter.connect(offlineCtx.destination);
+      
+      // Schedule all track sources
+      let tracksScheduled = 0;
+      for (const [, track] of this.tracks) {
+        if (track.muted) continue;
+        
+        // Get audio buffer from track
+        const buffer = track.bufferSource?.buffer;
+        if (!buffer) continue;
+        
+        // Create source for offline context
+        const src = offlineCtx.createBufferSource();
+        src.buffer = buffer;
+        
+        // Apply track gain
+        const gain = offlineCtx.createGain();
+        gain.gain.value = track.fader.gain.value;
+        
+        // Apply panning
+        const pan = offlineCtx.createStereoPanner();
+        pan.pan.value = track.pan.pan.value;
+        
+        // Wire: source → gain → pan → velvetCurve
+        src.connect(gain);
+        gain.connect(pan);
+        pan.connect(offlineVelvet.getInputNode());
+        
+        src.start(0);
+        tracksScheduled++;
+      }
+      
+      console.log(`[AudioEngine] 🎚️ Scheduled ${tracksScheduled} tracks for offline render`);
+      
+      // Render
+      const renderedBuffer = await offlineCtx.startRendering();
+      
+      console.log(`[AudioEngine] ✅ Offline render complete: ${renderedBuffer.duration.toFixed(2)}s`);
+      
+      return renderedBuffer;
+      
+    } catch (error) {
+      console.error('[AudioEngine] ❌ Offline render failed:', error);
+      return null;
+    }
+  }
+
+  /** Get VelvetCurve processor for UI control */
+  getVelvetCurve(): VelvetCurveProcessor {
+    return this.master.velvetCurve;
+  }
+
+  /** Set master genre preset */
+  setMasterGenre(genre: GenrePreset): void {
+    const preset = GENRE_PRESETS[genre];
+    if (preset) {
+      this.master.velvetCurve.applySettings(preset);
+      console.log(`[AudioEngine] 🎨 Master genre set to: ${genre}`);
+    }
+  }
+
+  /** Set BPM for beat-synced breathing */
+  setBPM(newBpm: number): void {
+    this.bpm = newBpm;
+    this.master.velvetCurve.setBPM(newBpm);
   }
 
   /** Stub methods for compatibility with existing components */

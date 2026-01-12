@@ -110,6 +110,7 @@ import VelvetCurve from "@/components/plugins/VelvetCurve";
 import { AIBeatGenerator } from "@/components/daw/AIBeatGenerator";
 import { DrumMachine808 } from "@/components/daw/DrumMachine808";
 import { CloudProjectManager } from "@/components/daw/CloudProjectManager";
+import { ExportPanel } from "@/components/daw/ExportPanel";
 import { PrimeBotAssistant } from "@/components/studio/PrimeBotAssistant";
 import { AIAssistantPanel } from "@/components/studio/AIAssistantPanel";
 import { StudioSystemCheck } from "@/components/studio/StudioSystemCheck";
@@ -178,6 +179,7 @@ const HybridDAW = () => {
   const [showVelvetCurve, setShowVelvetCurve] = useState(false);
   const [showAIBeatGenerator, setShowAIBeatGenerator] = useState(false);
   const [show808, setShow808] = useState(false);
+  const [showExportPanel, setShowExportPanel] = useState(false);
   const [selectedRegionId, setSelectedRegionId] = useState<string | null>(null);
   
   // Collaboration State
@@ -827,6 +829,10 @@ const HybridDAW = () => {
               <Mic className="w-4 h-4" />
               <span className="text-xs">AI BEATS</span>
             </Button>
+            <Button variant="ghost" size="sm" onClick={() => setShowExportPanel(true)} className="gap-2">
+              <Download className="w-4 h-4" />
+              <span className="text-xs">EXPORT</span>
+            </Button>
           </div>
           <div className="flex items-center gap-2">
             <Button variant={viewMode === 'mix' ? 'default' : 'ghost'} size="sm" onClick={() => setViewMode(viewMode === 'arrange' ? 'mix' : 'arrange')} className="gap-2">
@@ -1312,6 +1318,9 @@ const HybridDAW = () => {
           </div>
         </div>
       )}
+
+      {/* Export Panel Modal */}
+      <ExportPanel isOpen={showExportPanel} onClose={() => setShowExportPanel(false)} />
     </RSDChamberPortal>
   );
 };
