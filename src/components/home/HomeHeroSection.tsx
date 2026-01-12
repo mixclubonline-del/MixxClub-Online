@@ -27,7 +27,7 @@ export function HomeHeroSection() {
     },
     { 
       label: 'Projects', 
-      value: stats?.totalProjects?.toLocaleString() || '5,000+',
+      value: stats?.projectsCompleted?.toLocaleString() || '5,000+',
       icon: Music 
     },
   ];
