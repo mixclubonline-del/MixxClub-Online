@@ -178,6 +178,16 @@ export const DISTRICT_HOTSPOTS: DistrictHotspot[] = [
  * - city_map_overview.jpg
  * - district_tower_portal.jpg
  * - district_rsd_portal.jpg
+ * 
+ * District Portal Assets (Phase 3):
+ * - district-tower.jpg - Corporate tower lobby, purple glow
+ * - district-rsd.jpg - Neon recording studio, orange glow
+ * - district-creator.jpg - Artist workspace, purple-pink
+ * - district-neural.jpg - AI control room, cyan
+ * - district-arena.jpg - Battle stadium, red
+ * - district-commerce.jpg - Marketplace bazaar, orange-gold
+ * - district-data.jpg - Analytics command center, green
+ * - district-broadcast.jpg - Radio tower control room, indigo
  */
 
 export const ASSET_CONTEXTS = [

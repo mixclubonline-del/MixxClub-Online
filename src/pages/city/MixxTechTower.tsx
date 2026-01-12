@@ -5,9 +5,8 @@ import {
   Users, Home, Sparkles, ArrowRight, TrendingUp, Clock
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CityLayout } from '@/components/city/CityLayout';
+import { DistrictPortal } from '@/components/ui/DistrictPortal';
 import { cn } from '@/lib/utils';
 
 const districts = [
@@ -97,31 +96,14 @@ export default function MixxTechTower() {
   const navigate = useNavigate();
 
   return (
-    <CityLayout currentDistrict="tower">
-      <div className="container mx-auto px-4 py-8 pb-24">
-        {/* Welcome Header */}
+    <DistrictPortal districtId="tower">
+      <div className="p-6 md:p-8 pb-24">
+        {/* Quick Actions - First thing users see after scrolling */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
-        >
-          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary to-accent-blue flex items-center justify-center">
-            <Building2 className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">
-            MixxTech <span className="bg-gradient-to-r from-primary to-accent-blue bg-clip-text text-transparent">Tower</span>
-          </h1>
-          <p className="text-muted-foreground">Central hub of MixClub City</p>
-        </motion.div>
-
-        {/* Quick Actions */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
           className="mb-8"
         >
-          <h2 className="text-sm font-medium text-muted-foreground mb-3">Quick Actions</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {quickActions.map((action, index) => (
               <motion.button
@@ -237,6 +219,6 @@ export default function MixxTechTower() {
           </div>
         </motion.div>
       </div>
-    </CityLayout>
+    </DistrictPortal>
   );
 }
