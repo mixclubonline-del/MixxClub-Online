@@ -6,6 +6,41 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { audioEngine } from '@/services/audioEngine';
 
+/**
+ * Pitch Correction Engine - Real-time vocal processing
+ * Uses ScriptProcessorNode for pitch detection and correction
+ */
+class PitchCorrectionEngine {
+  private ctx: AudioContext;
+  
+  constructor(ctx: AudioContext) {
+    this.ctx = ctx;
+  }
+  
+  /**
+   * Create a ScriptProcessor that applies pitch correction
+   * In production, this would use AudioWorklet for better performance
+   */
+  createProcessor(params: { correction: number; speed: number; key: string; scale: string; humanize: number }): ScriptProcessorNode {
+    // Create ScriptProcessor (deprecated but works for prototype)
+    // TODO: Migrate to AudioWorkletProcessor for production
+    const processor = this.ctx.createScriptProcessor(2048, 1, 1);
+    
+    processor.onaudioprocess = (e) => {
+      const input = e.inputBuffer.getChannelData(0);
+      const output = e.outputBuffer.getChannelData(0);
+      
+      // For now, pass through audio unchanged
+      // Real implementation would apply pitch shifting based on params
+      for (let i = 0; i < input.length; i++) {
+        output[i] = input[i];
+      }
+    };
+    
+    return processor;
+  }
+}
+
 export interface MixxTuneParams {
   correction: number;
   speed: number;
@@ -76,6 +111,7 @@ export function useMixxTune(trackId?: string) {
   // Refs
   const processorRef = useRef<ScriptProcessorNode | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
+  const engineRef = useRef<PitchCorrectionEngine | null>(null);
   const rafRef = useRef<number | null>(null);
   const pitchHistoryRef = useRef<number[]>([]);
   
@@ -195,23 +231,22 @@ export function useMixxTune(trackId?: string) {
     
     // Detect pitch
     const freq = detectPitchYIN(buffer);
+    
+    if (freq && freq > 60 && freq < 2000) {
+      setDetectedFreq(freq);
+      setDetectedPitch(freqToNote(freq));
       
-      if (freq && freq > 60 && freq < 2000) {
-        setDetectedFreq(freq);
-        setDetectedPitch(freqToNote(freq));
-        
-        // Add to history for key detection
-        pitchHistoryRef.current.push(freq);
-        if (pitchHistoryRef.current.length > 100) {
-          pitchHistoryRef.current.shift();
-        }
-        
-        // Update key analysis every 20 samples
-        if (pitchHistoryRef.current.length % 20 === 0) {
-          const { key, confidence } = analyzeKey(pitchHistoryRef.current);
-          setDetectedKey(key);
-          setKeyConfidence(confidence);
-        }
+      // Add to history for key detection
+      pitchHistoryRef.current.push(freq);
+      if (pitchHistoryRef.current.length > 100) {
+        pitchHistoryRef.current.shift();
+      }
+      
+      // Update key analysis every 20 samples
+      if (pitchHistoryRef.current.length % 20 === 0) {
+        const { key, confidence } = analyzeKey(pitchHistoryRef.current);
+        setDetectedKey(key);
+        setKeyConfidence(confidence);
       }
     }
     

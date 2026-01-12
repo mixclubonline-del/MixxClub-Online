@@ -106,6 +106,9 @@ import DAWEffectsPanel from "@/components/daw/DAWEffectsPanel";
 import DAWGamification from "@/components/daw/DAWGamification";
 import AudioImportDialog from "@/components/AudioImportDialog";
 import { StemSeparationWindow } from "@/components/studio/StemSeparationWindow";
+import VelvetCurve from "@/components/plugins/VelvetCurve";
+import { AIBeatGenerator } from "@/components/daw/AIBeatGenerator";
+import { DrumMachine808 } from "@/components/daw/DrumMachine808";
 import { CloudProjectManager } from "@/components/daw/CloudProjectManager";
 import { PrimeBotAssistant } from "@/components/studio/PrimeBotAssistant";
 import { AIAssistantPanel } from "@/components/studio/AIAssistantPanel";
@@ -172,6 +175,9 @@ const HybridDAW = () => {
   const [showAIAssistant, setShowAIAssistant] = useState(false);
   const [showSystemCheck, setShowSystemCheck] = useState(false);
   const [showPrimeBotModal, setShowPrimeBotModal] = useState(false);
+  const [showVelvetCurve, setShowVelvetCurve] = useState(false);
+  const [showAIBeatGenerator, setShowAIBeatGenerator] = useState(false);
+  const [show808, setShow808] = useState(false);
   const [selectedRegionId, setSelectedRegionId] = useState<string | null>(null);
   
   // Collaboration State
@@ -809,6 +815,18 @@ const HybridDAW = () => {
               <Sparkles className="w-4 h-4" />
               <span className="text-xs">STEMS</span>
             </Button>
+            <Button variant="ghost" size="sm" onClick={() => setShowVelvetCurve(true)} className="gap-2">
+              <AudioWaveform className="w-4 h-4" />
+              <span className="text-xs">VELVET</span>
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setShow808(true)} className="gap-2">
+              <Gamepad2 className="w-4 h-4" />
+              <span className="text-xs">808</span>
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setShowAIBeatGenerator(true)} className="gap-2">
+              <Mic className="w-4 h-4" />
+              <span className="text-xs">AI BEATS</span>
+            </Button>
           </div>
           <div className="flex items-center gap-2">
             <Button variant={viewMode === 'mix' ? 'default' : 'ghost'} size="sm" onClick={() => setViewMode(viewMode === 'arrange' ? 'mix' : 'arrange')} className="gap-2">
@@ -1263,6 +1281,37 @@ const HybridDAW = () => {
         </div>
       )}
       </ConsoleOverlay>
+
+      {/* VelvetCurve Modal */}
+      {showVelvetCurve && (
+        <VelvetCurve isOpen={showVelvetCurve} onClose={() => setShowVelvetCurve(false)} />
+      )}
+
+      {/* 808 Drum Machine Modal */}
+      {show808 && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-card rounded-2xl border shadow-glass-lg p-6 max-w-2xl w-full">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-bold">808 Drum Machine</h2>
+              <Button variant="ghost" size="sm" onClick={() => setShow808(false)}>Close</Button>
+            </div>
+            <DrumMachine808 onNoteTriggered={(note, vel) => console.log('808:', note, vel)} />
+          </div>
+        </div>
+      )}
+
+      {/* AI Beat Generator Modal */}
+      {showAIBeatGenerator && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-card rounded-2xl border shadow-glass-lg p-6 max-w-4xl w-full max-h-[80vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-bold">AI Beat Generator</h2>
+              <Button variant="ghost" size="sm" onClick={() => setShowAIBeatGenerator(false)}>Close</Button>
+            </div>
+            <AIBeatGenerator />
+          </div>
+        </div>
+      )}
     </RSDChamberPortal>
   );
 };
