@@ -6,6 +6,7 @@
  * No text labels - atmosphere is the message.
  */
 
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useStudios, useFeaturedSession, useSceneSystemInit } from '@/hooks/useSceneSystem';
@@ -35,6 +36,7 @@ export function StudioHallway() {
   const { isConnected } = useSceneSystemInit();
   const { studios, activeCount } = useStudios();
   const { featuredSession } = useFeaturedSession();
+  const [imageError, setImageError] = useState(false);
   
   const hasActiveSessions = activeCount > 0;
   
@@ -52,27 +54,38 @@ export function StudioHallway() {
   
   return (
     <section className="relative w-full h-[70vh] min-h-[500px] max-h-[800px] overflow-hidden">
-      {/* Background image - crossfade between base and active */}
+      {/* Background image - crossfade between base and active, with fallback */}
       <div className="absolute inset-0">
-        {/* Base (dark/empty) layer */}
-        <motion.img
-          src={hallwayBase}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover"
-          initial={{ opacity: 1 }}
-          animate={{ opacity: hasActiveSessions ? 0 : 1 }}
-          transition={{ duration: 1.5, ease: 'easeInOut' }}
-        />
-        
-        {/* Active (lit) layer */}
-        <motion.img
-          src={hallwayActive}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: hasActiveSessions ? 1 : 0 }}
-          transition={{ duration: 1.5, ease: 'easeInOut' }}
-        />
+        {imageError ? (
+          /* Gradient fallback if images fail to load */
+          <div className="absolute inset-0 bg-gradient-to-br from-muted via-background to-muted">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.1),transparent_60%)]" />
+          </div>
+        ) : (
+          <>
+            {/* Base (dark/empty) layer */}
+            <motion.img
+              src={hallwayBase}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover"
+              initial={{ opacity: 1 }}
+              animate={{ opacity: hasActiveSessions ? 0 : 1 }}
+              transition={{ duration: 1.5, ease: 'easeInOut' }}
+              onError={() => setImageError(true)}
+            />
+            
+            {/* Active (lit) layer */}
+            <motion.img
+              src={hallwayActive}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: hasActiveSessions ? 1 : 0 }}
+              transition={{ duration: 1.5, ease: 'easeInOut' }}
+              onError={() => setImageError(true)}
+            />
+          </>
+        )}
         
         {/* Gradient overlays for depth */}
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />

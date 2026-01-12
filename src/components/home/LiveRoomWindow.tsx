@@ -50,9 +50,26 @@ export function LiveRoomWindow() {
   const activeStudios = studios.filter(s => s.state === 'active' && s.visibility === 'public');
   const currentSession = featuredSession?.room || activeStudios[0];
   
-  // Get session state info
-  const stateInfo = SESSION_STATES.idle;
+  // Get session state info - dynamically from session data
+  const getSessionState = () => {
+    const sessionState = currentSession?.state;
+    if (sessionState === 'recording') return SESSION_STATES.recording;
+    if (sessionState === 'mixing') return SESSION_STATES.mixing;
+    if (sessionState === 'playback') return SESSION_STATES.playback;
+    return SESSION_STATES.idle;
+  };
+  
+  const stateInfo = getSessionState();
   const StateIcon = stateInfo.icon;
+  
+  // Get waveform color based on session state
+  const getWaveformColor = () => {
+    const sessionState = currentSession?.state;
+    if (sessionState === 'recording') return 'from-red-500 to-red-400/50';
+    if (sessionState === 'mixing') return 'from-primary to-primary/50';
+    if (sessionState === 'playback') return 'from-emerald-500 to-emerald-400/50';
+    return 'from-secondary to-secondary/50';
+  };
   
   // No active sessions fallback
   if (!currentSession || activeCount === 0) {
@@ -204,13 +221,13 @@ export function LiveRoomWindow() {
                     </div>
                   </div>
                   
-                  {/* Simulated waveform */}
+                  {/* Simulated waveform with dynamic colors */}
                   <div className="flex items-end justify-center gap-1 h-24 
                                   px-4 py-4 rounded-xl bg-muted/30">
                     {waveformBars.map((height, i) => (
                       <motion.div
                         key={i}
-                        className="w-2 bg-gradient-to-t from-primary to-primary/50 rounded-full"
+                        className={`w-2 bg-gradient-to-t ${getWaveformColor()} rounded-full`}
                         animate={{ height: `${height * 100}%` }}
                         transition={{ duration: 0.1 }}
                       />
