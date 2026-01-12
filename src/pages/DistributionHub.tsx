@@ -1,11 +1,15 @@
-import { motion } from "framer-motion";
-import { Check, ExternalLink, Music, Headphones, Globe, Star, Zap, Shield } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Check, ExternalLink, Music, Headphones, Globe, Star, Zap, Shield, FileAudio, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/hooks/useAuth";
+import { useExportedTracks, useMarkAsDistributed, ExportedTrack } from "@/hooks/useExportedTracks";
+import { ExportedTrackCard } from "@/components/distribution/ExportedTrackCard";
+import { useNavigate } from "react-router-dom";
 
 // Platform logos as text badges for now
 const STREAMING_PLATFORMS = [
@@ -37,7 +41,11 @@ interface DistributionPackage {
 }
 
 const DistributionHub = () => {
-  const { data: packages, isLoading } = useQuery({
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const markAsDistributed = useMarkAsDistributed();
+  
+  const { data: packages, isLoading: packagesLoading } = useQuery({
     queryKey: ["distribution-packages"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -49,15 +57,71 @@ const DistributionHub = () => {
       return data as DistributionPackage[];
     },
   });
+  
+  const { data: exportedTracks, isLoading: tracksLoading } = useExportedTracks();
+  
+  // Filter to undistributed tracks
+  const readyToDistribute = exportedTracks?.filter(t => !t.distributed_at) || [];
 
-  const handleDistribute = (affiliateUrl: string, partnerName: string) => {
-    // Track the click (could be expanded to store in distribution_referrals)
-    console.log(`Distribution click: ${partnerName}`);
+  const handleDistribute = (affiliateUrl: string, partnerName: string, track?: ExportedTrack) => {
+    // Track the click
+    console.log(`Distribution click: ${partnerName}`, track?.id);
+    
+    // Mark track as distributed if provided
+    if (track) {
+      markAsDistributed.mutate({ trackId: track.id, partner: partnerName });
+    }
+    
     window.open(affiliateUrl, "_blank", "noopener,noreferrer");
+  };
+  
+  const handleTrackDistribute = (track: ExportedTrack) => {
+    // Scroll to packages section
+    const packagesSection = document.getElementById('distribution-packages');
+    packagesSection?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Ready to Distribute Section (for logged-in users with exports) */}
+      {user && readyToDistribute.length > 0 && (
+        <section className="py-8 px-4 border-b bg-muted/30">
+          <div className="max-w-6xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-center justify-between mb-6"
+            >
+              <div>
+                <h2 className="text-2xl font-bold flex items-center gap-2">
+                  <FileAudio className="w-6 h-6 text-primary" />
+                  Ready to Distribute
+                </h2>
+                <p className="text-muted-foreground">
+                  {readyToDistribute.length} track{readyToDistribute.length !== 1 ? 's' : ''} exported from your DAW
+                </p>
+              </div>
+              <Button variant="outline" onClick={() => navigate('/hybrid-daw')}>
+                Open DAW
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </motion.div>
+            
+            <div className="space-y-3">
+              <AnimatePresence>
+                {readyToDistribute.map(track => (
+                  <ExportedTrackCard
+                    key={track.id}
+                    track={track}
+                    onDistribute={handleTrackDistribute}
+                  />
+                ))}
+              </AnimatePresence>
+            </div>
+          </div>
+        </section>
+      )}
+      
       {/* Hero Section */}
       <section className="relative overflow-hidden py-20 px-4">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-accent/10" />
@@ -109,7 +173,7 @@ const DistributionHub = () => {
       </section>
 
       {/* Pricing Cards */}
-      <section className="py-16 px-4">
+      <section id="distribution-packages" className="py-16 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">Choose Your Distribution Partner</h2>
@@ -119,7 +183,7 @@ const DistributionHub = () => {
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
-            {isLoading ? (
+            {packagesLoading ? (
               [...Array(3)].map((_, i) => (
                 <Card key={i} className="relative">
                   <CardHeader>
