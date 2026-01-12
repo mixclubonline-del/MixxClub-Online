@@ -19,11 +19,13 @@ declare global {
   }
 }
 
-// Use environment variable for Stripe publishable key
-const STRIPE_PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 
-  'pk_test_51QVN0XRq9IzNdyTiZdlJCuGBBBN5d7OQBdBnhYQGCTx8MJyOGT9LJPqmSVzgM6GC2KQYjuFxL8m3GFyMUMZ3JX9z00pJqvHH0N';
+// Stripe publishable key from environment - required for payments
+const STRIPE_PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
 
-const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY);
+// Lazy-load Stripe only when key is available
+const stripePromise = STRIPE_PUBLISHABLE_KEY 
+  ? loadStripe(STRIPE_PUBLISHABLE_KEY) 
+  : Promise.resolve(null);
 
 interface MultiPaymentModalProps {
   open: boolean;
