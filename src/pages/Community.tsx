@@ -1,99 +1,94 @@
 import { Helmet } from 'react-helmet-async';
-import GlobalHeader from '@/components/GlobalHeader';
-import { motion } from 'framer-motion';
+import { Swords, Music2, Trophy, Network } from 'lucide-react';
 
-// New Community 2030 Components
-import LivePulseHero from '@/components/community/LivePulseHero';
+// Plaza components
+import CommunityPlaza from '@/components/community/CommunityPlaza';
+import PlazaAmbience from '@/components/community/PlazaAmbience';
+import PlazaZone from '@/components/community/PlazaZone';
+import PlazaCore from '@/components/community/PlazaCore';
+import PlazaGateway from '@/components/community/PlazaGateway';
+
+// Existing zone content
 import BattleArenaPreview from '@/components/community/BattleArenaPreview';
 import PremiereStage from '@/components/community/PremiereStage';
 import DualLeaderboard from '@/components/community/DualLeaderboard';
-import AchievementShowcase from '@/components/community/AchievementShowcase';
-import ChallengesGrid from '@/components/community/ChallengesGrid';
 import ConnectionWeb from '@/components/community/ConnectionWeb';
-import RoleGateway from '@/components/community/RoleGateway';
+
+// Background asset
+import communityPlazaBg from '@/assets/community-plaza.jpg';
 
 export default function Community() {
   return (
     <>
       <Helmet>
-        <title>Community Hub — MixClub Online</title>
+        <title>Community Plaza — MixClub City</title>
         <meta 
           name="description" 
-          content="Connect with artists, engineers, and producers. Join battles, view leaderboards, and engage with the music community." 
+          content="Enter the Community Plaza. Connect with artists, engineers, and producers. Join battles, view leaderboards, and engage with the music community." 
         />
       </Helmet>
 
-      <div className="min-h-screen bg-background">
-        <GlobalHeader />
+      <CommunityPlaza backgroundAsset={communityPlazaBg}>
+        {/* Ambient particles */}
+        <PlazaAmbience />
         
-        {/* Main content with proper header offset */}
-        <main className="pt-20 pb-24 md:pb-8 max-w-7xl mx-auto px-4 sm:px-6 space-y-12 lg:space-y-16">
-          {/* Section 1: Live Pulse Hero */}
-          <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <LivePulseHero />
-          </motion.section>
-
-          {/* Section 2: The Arena */}
-          <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
+        {/* Central stats hub */}
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 mb-12">
+          <PlazaCore />
+        </div>
+        
+        {/* Zone grid */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 grid md:grid-cols-2 gap-6 mb-12">
+          {/* Arena Zone */}
+          <PlazaZone 
+            id="arena" 
+            title="The Arena" 
+            icon={<Swords className="w-6 h-6" />}
+            glowColor="primary"
+            delay={0.2}
           >
             <BattleArenaPreview />
-          </motion.section>
-
-          {/* Section 3: Premiere Stage */}
-          <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+          </PlazaZone>
+          
+          {/* Stage Zone */}
+          <PlazaZone 
+            id="stage" 
+            title="Premiere Stage" 
+            icon={<Music2 className="w-6 h-6" />}
+            glowColor="accent-cyan"
+            delay={0.3}
           >
             <PremiereStage />
-          </motion.section>
-
-          {/* Section 4: Leaderboard + Achievements */}
-          <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="grid lg:grid-cols-[1.5fr_1fr] gap-8"
+          </PlazaZone>
+          
+          {/* Leaderboard Zone */}
+          <PlazaZone 
+            id="leaderboard" 
+            title="Leaderboards" 
+            icon={<Trophy className="w-6 h-6" />}
+            glowColor="primary"
+            delay={0.4}
           >
             <DualLeaderboard />
-            <AchievementShowcase />
-          </motion.section>
-
-          {/* Section 5: Challenges & Unlockables */}
-          <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            <ChallengesGrid />
-          </motion.section>
-
-          {/* Section 6: The Network */}
-          <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
+          </PlazaZone>
+          
+          {/* Network Zone */}
+          <PlazaZone 
+            id="network" 
+            title="The Network" 
+            icon={<Network className="w-6 h-6" />}
+            glowColor="accent-cyan"
+            delay={0.5}
           >
             <ConnectionWeb />
-          </motion.section>
-
-          {/* Section 7: Role Gateway */}
-          <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.6 }}
-          >
-            <RoleGateway />
-          </motion.section>
-        </main>
-      </div>
+          </PlazaZone>
+        </div>
+        
+        {/* Gateway */}
+        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+          <PlazaGateway />
+        </div>
+      </CommunityPlaza>
     </>
   );
 }

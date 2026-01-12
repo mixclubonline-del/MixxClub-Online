@@ -42,10 +42,10 @@ export const DualLeaderboard = () => {
   };
 
   const getRankStyle = (rank: number) => {
-    if (rank === 0) return 'bg-yellow-500/10 border-yellow-500/30';
-    if (rank === 1) return 'bg-gray-400/10 border-gray-400/30';
-    if (rank === 2) return 'bg-orange-600/10 border-orange-600/30';
-    return 'bg-card/30 border-white/5';
+    if (rank === 0) return 'bg-yellow-500/10 border-yellow-500/30 backdrop-blur-md';
+    if (rank === 1) return 'bg-gray-400/10 border-gray-400/30 backdrop-blur-md';
+    if (rank === 2) return 'bg-orange-600/10 border-orange-600/30 backdrop-blur-md';
+    return 'backdrop-blur-md bg-card/20 border-white/10';
   };
 
   const getLevelTitle = (level: number) => {
@@ -120,7 +120,7 @@ export const DualLeaderboard = () => {
           <Trophy className="w-8 h-8 text-yellow-500" />
           <h2 className="text-2xl font-bold">Leaderboard</h2>
         </div>
-        <div className="flex gap-1 bg-card/30 rounded-lg p-1">
+        <div className="flex gap-1 backdrop-blur-md bg-card/20 border border-white/10 rounded-lg p-1">
           {(['weekly', 'monthly', 'alltime'] as const).map((tf) => (
             <button
               key={tf}
