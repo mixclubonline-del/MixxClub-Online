@@ -31,31 +31,34 @@ const authSchema = z.object({
   role: z.enum(["artist", "engineer"]).optional(),
 });
 
-// Ambient particles component
-const AmbientParticles = () => (
-  <div className="absolute inset-0 overflow-hidden pointer-events-none">
-    {[...Array(20)].map((_, i) => (
-      <motion.div
-        key={i}
-        className="absolute w-1 h-1 rounded-full bg-primary/40"
-        style={{
-          left: `${Math.random() * 100}%`,
-          top: `${Math.random() * 100}%`,
-        }}
-        animate={{
-          y: [0, -30, 0],
-          opacity: [0.2, 0.6, 0.2],
-          scale: [1, 1.5, 1],
-        }}
-        transition={{
-          duration: 3 + Math.random() * 2,
-          repeat: Infinity,
-          delay: Math.random() * 2,
-        }}
-      />
-    ))}
-  </div>
-);
+// Optimized ambient particles - CSS-based for performance
+const AmbientParticles = () => {
+  // Respect reduced motion preference
+  if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    return null;
+  }
+  
+  return (
+    <div 
+      className="absolute inset-0 overflow-hidden pointer-events-none"
+      style={{ contain: 'layout' }}
+    >
+      {[...Array(8)].map((_, i) => (
+        <div
+          key={i}
+          className="absolute w-1 h-1 rounded-full bg-primary/30 animate-float-particle"
+          style={{
+            left: `${10 + (i * 11)}%`,
+            top: `${15 + (i * 8)}%`,
+            animationDelay: `${i * 0.4}s`,
+            animationDuration: `${4 + (i % 3)}s`,
+            willChange: 'transform, opacity',
+          }}
+        />
+      ))}
+    </div>
+  );
+};
 
 // Role selection as visual paths
 const RolePathSelector = ({ 

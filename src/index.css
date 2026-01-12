@@ -273,6 +273,22 @@
     }
   }
   
+  /* Float particle animation - optimized for auth page */
+  @keyframes float-particle {
+    0%, 100% { 
+      transform: translateY(0) scale(1);
+      opacity: 0.2;
+    }
+    50% { 
+      transform: translateY(-20px) scale(1.3);
+      opacity: 0.5;
+    }
+  }
+  
+  .animate-float-particle {
+    animation: float-particle 4s ease-in-out infinite;
+  }
+  
   /* Reduce Motion Support - Accessibility First */
   @media (prefers-reduced-motion: reduce) {
     *,
@@ -288,11 +304,34 @@
     .animate-pulse-glow,
     .animate-float-badge,
     .animate-glow-pulse,
-    .animate-glass-breathe {
+    .animate-glass-breathe,
+    .animate-float-particle,
+    .animate-path-particle {
       animation: none !important;
     }
   }
   
+  /* Path particle animation - for journey page */
+  @keyframes path-particle {
+    0% {
+      top: -5%;
+      opacity: 0;
+    }
+    10% {
+      opacity: 0.8;
+    }
+    90% {
+      opacity: 0.8;
+    }
+    100% {
+      top: 105%;
+      opacity: 0;
+    }
+  }
+  
+  .animate-path-particle {
+    animation: path-particle 10s linear infinite;
+  }
   /* ============= MOBILE PERFORMANCE OPTIMIZATIONS ============= */
   
   /* Reduce animations on mobile for battery life */
