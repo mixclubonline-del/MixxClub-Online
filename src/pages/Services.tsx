@@ -1,133 +1,134 @@
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
-import Navigation from '@/components/Navigation';
-import { usePrime } from '@/contexts/PrimeContext';
-import PrimeGlow from '@/components/prime/PrimeGlow';
-import { Music, Sparkles, Radio, Upload } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Music, Sparkles, Radio, Brain, Sliders } from 'lucide-react';
+import { ServicesDistrict } from '@/components/services/ServicesDistrict';
+import { ServicePortal } from '@/components/services/ServicePortal';
+import { DistrictWelcome } from '@/components/services/DistrictWelcome';
+import servicesLobby from '@/assets/services-lobby.jpg';
 
 export default function Services() {
-  const { systemMode } = usePrime();
-
   const services = [
     {
-      icon: Music,
-      title: 'Mixing',
-      description: 'Professional mixing services to bring balance, clarity, and depth to your tracks',
-      features: ['Multi-track mixing', 'EQ & compression', 'Spatial imaging', 'Revision rounds'],
-      price: 'From $200',
+      id: 'mixing',
+      icon: <Sliders className="w-10 h-10" />,
+      label: 'Mixing Studio',
+      description: 'Professional mixing with real engineers and AI-powered insights',
+      price: 'From $75',
       link: '/services/mixing',
-      gradient: 'from-accent-blue to-accent-cyan'
+      gradient: 'from-blue-500 to-cyan-500'
     },
     {
-      icon: Sparkles,
-      title: 'Mastering',
-      description: 'Premium mastering services for radio-ready, streaming-optimized sound',
-      features: ['Stereo mastering', 'Loudness optimization', 'Format delivery', 'Reference matching'],
-      price: 'From $100',
+      id: 'mastering',
+      icon: <Sparkles className="w-10 h-10" />,
+      label: 'Mastering Suite',
+      description: 'Premium mastering for radio-ready, streaming-optimized sound',
+      price: 'From $9.99',
       link: '/services/mastering',
-      gradient: 'from-accent to-accent-blue'
+      gradient: 'from-purple-500 to-pink-500'
     },
     {
-      icon: Radio,
-      title: 'AI Mastering',
+      id: 'ai-mastering',
+      icon: <Brain className="w-10 h-10" />,
+      label: 'AI Processing',
       description: 'Instant AI-powered mastering using cutting-edge audio intelligence',
-      features: ['Instant processing', 'Genre-optimized', 'Unlimited revisions', 'Before/after preview'],
       price: 'From $29',
       link: '/services/ai-mastering',
-      gradient: 'from-accent-cyan to-accent'
+      gradient: 'from-cyan-500 to-accent'
     },
     {
-      icon: Upload,
-      title: 'Distribution',
+      id: 'distribution',
+      icon: <Radio className="w-10 h-10" />,
+      label: 'Distribution Hub',
       description: 'Get your music on all major streaming platforms worldwide',
-      features: ['Spotify, Apple Music', 'YouTube, TikTok', 'Revenue tracking', 'Global delivery'],
-      price: 'From $19.99/year',
+      price: 'From $19.99/yr',
       link: '/services/distribution',
-      gradient: 'from-purple-500 to-accent'
+      gradient: 'from-accent to-purple-500'
     }
   ];
 
   return (
     <>
       <Helmet>
-        <title>Services — MixClub Online</title>
+        <title>Services District — MixClub Online</title>
         <meta 
           name="description" 
           content="Professional audio services: mixing, mastering, AI mastering, and distribution. Transform your sound from bedroom to billboard." 
         />
       </Helmet>
 
-      <div className="min-h-screen bg-[#0a0a1a]">
-        <Navigation />
-        
-        <main className="max-w-7xl mx-auto px-6 py-16">
-          <PrimeGlow intensity={0.6}>
-            <div className="text-center mb-16">
-              <div className="text-6xl mb-4">🎚️</div>
-              <h1 className="text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-accent to-accent-blue">
-                Professional Services
-              </h1>
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                From mixing to distribution, we provide every service you need to elevate your music
-              </p>
-              <div className="text-sm font-mono text-accent-cyan mt-4">
-                PRIME STATUS: {systemMode.toUpperCase()}
-              </div>
-            </div>
-          </PrimeGlow>
+      <ServicesDistrict backgroundAsset={servicesLobby}>
+        {/* Hero section with welcome */}
+        <div className="min-h-screen flex flex-col items-center justify-center px-6 pt-20">
+          <DistrictWelcome 
+            title="Services District"
+            subtitle="Professional audio services await. Choose your destination."
+          />
 
-          <div className="grid md:grid-cols-2 gap-8 mb-12">
+          {/* Service portals grid */}
+          <motion.div 
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto w-full"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.8 }}
+          >
             {services.map((service, index) => (
-              <Link
-                key={index}
-                to={service.link}
-                className="group relative p-8 rounded-2xl bg-card/30 backdrop-blur-sm border border-white/5 hover:border-white/20 transition-all hover:scale-[1.02] hover:shadow-[0_0_40px_hsl(var(--accent)/0.3)]"
+              <motion.div
+                key={service.id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 1 + index * 0.1 }}
               >
-                <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${service.gradient} opacity-0 group-hover:opacity-10 transition-opacity`} />
-                
-                <div className="relative">
-                  <service.icon className="w-12 h-12 mb-4 text-accent group-hover:scale-110 transition-transform" />
-                  
-                  <h3 className="text-2xl font-bold mb-2 group-hover:text-accent transition-colors">
-                    {service.title}
-                  </h3>
-                  
-                  <p className="text-muted-foreground mb-6">
-                    {service.description}
-                  </p>
-
-                  <ul className="space-y-2 mb-6">
-                    {service.features.map((feature, i) => (
-                      <li key={i} className="flex items-center gap-2 text-sm">
-                        <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-lg font-semibold text-accent">
-                      {service.price}
-                    </span>
-                    <span className="text-sm text-muted-foreground group-hover:text-accent transition-colors">
-                      Learn more →
-                    </span>
-                  </div>
-                </div>
-              </Link>
+                <ServicePortal
+                  id={service.id}
+                  icon={service.icon}
+                  label={service.label}
+                  description={service.description}
+                  price={service.price}
+                  link={service.link}
+                  gradient={service.gradient}
+                />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
 
-          <div className="text-center">
-            <a 
-              href="/" 
-              className="inline-block px-8 py-4 rounded-full bg-gradient-to-r from-accent to-accent-blue text-foreground hover:shadow-[0_0_30px_hsl(var(--accent)/0.5)] transition-all font-medium"
+          {/* Scroll indicator */}
+          <motion.div
+            className="absolute bottom-12 left-1/2 -translate-x-1/2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.5 }}
+          >
+            <motion.div
+              className="w-6 h-10 rounded-full border-2 border-white/30 flex items-start justify-center p-1"
+              animate={{ y: [0, 5, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
             >
-              ← Back to Home
-            </a>
-          </div>
-        </main>
-      </div>
+              <div className="w-1.5 h-3 bg-white/60 rounded-full" />
+            </motion.div>
+          </motion.div>
+        </div>
+
+        {/* Additional info section */}
+        <div className="py-20 px-6">
+          <motion.div
+            className="max-w-4xl mx-auto text-center"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+          >
+            <div className="p-8 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10">
+              <Music className="w-12 h-12 text-accent mx-auto mb-4" />
+              <h2 className="text-3xl font-bold mb-4 text-foreground">
+                From Bedroom to Billboard
+              </h2>
+              <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+                Every service in the district is designed to elevate your music. 
+                Real engineers, cutting-edge AI, and a community that cares about your success.
+              </p>
+            </div>
+          </motion.div>
+        </div>
+      </ServicesDistrict>
     </>
   );
 }
