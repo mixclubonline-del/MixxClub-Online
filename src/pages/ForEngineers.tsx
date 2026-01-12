@@ -1,7 +1,3 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import Navigation from "@/components/Navigation";
-import { Link } from "react-router-dom";
 import { 
   Video, 
   Zap, 
@@ -16,11 +12,17 @@ import {
   Briefcase,
   BarChart3
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Sparkles, Crown } from "lucide-react";
 import { motion } from "framer-motion";
+import { Badge } from "@/components/ui/badge";
+import { LandingPortal } from "@/components/landing/LandingPortal";
+import { PortalHero } from "@/components/landing/PortalHero";
+import { FeatureGlassCards } from "@/components/landing/FeatureGlassCards";
+import { PortalInvitation } from "@/components/landing/PortalInvitation";
+import { FoundingBanner } from "@/components/landing/FoundingBanner";
+import { ScrollRevealSection } from "@/components/landing/ScrollRevealSection";
 import { RevenuePreview } from "@/components/home/RevenuePreview";
 import { StudioPreview } from "@/components/home/StudioPreview";
+import portalEngineerImage from "@/assets/portal-engineer.jpg";
 
 export default function ForEngineers() {
   const stats = [
@@ -57,85 +59,63 @@ export default function ForEngineers() {
     }
   ];
 
-  return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      
-      {/* Founding Engineer Banner */}
-      <section className="py-4 bg-gradient-to-r from-purple-500/20 via-purple-400/10 to-purple-500/20 border-b border-purple-500/30 mt-16">
-        <div className="container px-6">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col md:flex-row items-center justify-center gap-4 text-center md:text-left"
-          >
-            <div className="flex items-center gap-3">
-              <Award className="w-6 h-6 text-purple-400" />
-              <p className="font-bold text-purple-100">
-                ⚡ Founding Engineer Program - First 50 get <span className="text-purple-300">Platinum tier locked forever</span>
-              </p>
-            </div>
-            <Badge className="bg-purple-500/30 text-purple-100 border-purple-400/50 animate-pulse">
-              23 spots left
-            </Badge>
-          </motion.div>
-        </div>
-      </section>
-      
-      {/* Hero Section */}
-      <section className="pt-20 pb-16 px-4 bg-gradient-to-br from-secondary/5 via-background to-primary/5 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,hsl(var(--secondary)/0.1),transparent_70%)]" />
-        
-        <div className="container mx-auto max-w-6xl text-center relative z-10">
-          <Badge variant="secondary" className="mb-6 text-base px-4 py-2">
-            <Sliders className="w-4 h-4 mr-2" />
-            For Engineers
-          </Badge>
-          
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-foreground via-secondary to-foreground bg-clip-text text-transparent">
-            Your Skills Deserve to Be Paid
-          </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-            Transform your audio expertise into a thriving business with 10 revenue streams and automatic client matching.
-          </p>
-          
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto mb-12">
-            {stats.map((stat, i) => (
-              <div key={i} className="text-center">
-                <div className="text-2xl md:text-3xl font-bold text-secondary">{stat.value}</div>
-                <div className="text-sm text-muted-foreground">{stat.label}</div>
-              </div>
-            ))}
-          </div>
+  const crmFeatures = [
+    { icon: BarChart3, title: "Dashboard", description: "Real-time business metrics and earnings" },
+    { icon: Users, title: "Clients Hub", description: "Full CRM with deal pipeline" },
+    { icon: DollarSign, title: "Revenue Hub", description: "Track all 10 revenue streams" },
+    { icon: Video, title: "Sessions", description: "Manage live collaboration sessions" },
+    { icon: Globe, title: "Opportunities", description: "Browse and bid on projects" },
+    { icon: Award, title: "Growth Hub", description: "Level up with coaching and goals" },
+  ];
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/engineer-onboarding">
-              <Button size="lg" className="text-lg px-8 bg-secondary hover:bg-secondary/90">
-                Start Earning Today
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-            </Link>
-            <Link to="/showcase">
-              <Button size="lg" variant="outline" className="text-lg px-8">
-                See The Technology
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
+  return (
+    <LandingPortal backgroundImage={portalEngineerImage} variant="engineer">
+      {/* Founding Engineer Banner */}
+      <FoundingBanner
+        icon={<Award className="w-6 h-6 text-purple-400" />}
+        text="⚡ Founding Engineer Program - First 50 get"
+        highlight="Platinum tier locked forever"
+        badge="23 spots left"
+        variant="engineer"
+      />
+
+      {/* Hero Section */}
+      <PortalHero
+        badge={{ icon: <Sliders className="w-4 h-4" />, text: "For Engineers" }}
+        title="Your Skills Deserve to Be Paid"
+        subtitle="Transform your audio expertise into a thriving business with 10 revenue streams and automatic client matching."
+        stats={stats}
+        primaryAction={{
+          text: "Start Earning Today",
+          icon: <ArrowRight className="w-5 h-5" />,
+          href: "/engineer-onboarding"
+        }}
+        secondaryAction={{
+          text: "See The Technology",
+          icon: <Zap className="w-5 h-5" />,
+          href: "/showcase"
+        }}
+        variant="engineer"
+      />
 
       {/* Revenue Streams Preview */}
-      <RevenuePreview />
+      <div className="relative z-10">
+        <RevenuePreview />
+      </div>
 
       {/* Studio Preview */}
-      <StudioPreview />
+      <div className="relative z-10">
+        <StudioPreview />
+      </div>
 
       {/* Revenue Tiers Section */}
-      <section className="py-20 px-4 bg-muted/20">
+      <section className="py-24 px-6 relative">
         <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-12">
-            <Badge variant="secondary" className="mb-4">
+          <ScrollRevealSection className="text-center mb-12">
+            <Badge 
+              variant="outline" 
+              className="mb-4 bg-background/30 backdrop-blur-md border-white/20"
+            >
               <TrendingUp className="w-4 h-4 mr-2" />
               Revenue Tiers
             </Badge>
@@ -143,105 +123,51 @@ export default function ForEngineers() {
             <p className="text-xl text-muted-foreground">
               Grow your career and increase your earnings
             </p>
-          </div>
+          </ScrollRevealSection>
 
           <div className="grid md:grid-cols-4 gap-6">
             {tiers.map((tier, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-              >
-                <Card className="p-6 relative overflow-hidden hover:shadow-lg transition-all">
+              <ScrollRevealSection key={i} delay={i * 0.1}>
+                <motion.div
+                  className="relative p-6 rounded-2xl bg-background/40 backdrop-blur-md border border-white/10 overflow-hidden hover:shadow-lg transition-all"
+                  whileHover={{ y: -4 }}
+                >
                   <div className={`absolute top-0 left-0 right-0 h-2 bg-gradient-to-r ${tier.color}`} />
                   <h3 className="text-2xl font-bold mb-2 mt-2">{tier.tier}</h3>
-                  <div className="text-4xl font-bold text-primary mb-4">{tier.split}</div>
+                  <div className="text-4xl font-bold text-secondary mb-4">{tier.split}</div>
                   <ul className="space-y-2">
                     {tier.requirements.map((req, j) => (
                       <li key={j} className="flex items-start gap-2 text-sm">
-                        <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                        <CheckCircle2 className="w-4 h-4 text-secondary mt-0.5 flex-shrink-0" />
                         <span>{req}</span>
                       </li>
                     ))}
                   </ul>
-                </Card>
-              </motion.div>
+                </motion.div>
+              </ScrollRevealSection>
             ))}
           </div>
         </div>
       </section>
 
       {/* CRM Preview Section */}
-      <section className="py-20 px-4">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-12">
-            <Badge variant="secondary" className="mb-4">
-              <Briefcase className="w-4 h-4 mr-2" />
-              Your Business HQ
-            </Badge>
-            <h2 className="text-4xl font-bold mb-4">This is YOUR Engineer CRM</h2>
-            <p className="text-xl text-muted-foreground">
-              Everything you need to run your audio business
-            </p>
-          </div>
+      <FeatureGlassCards
+        badge={{ icon: <Briefcase className="w-4 h-4" />, text: "Your Business HQ" }}
+        title="This is YOUR Engineer CRM"
+        subtitle="Everything you need to run your audio business."
+        features={crmFeatures}
+        variant="engineer"
+      />
 
-          <div className="grid md:grid-cols-3 gap-6">
-            {[
-              { icon: BarChart3, title: "Dashboard", description: "Real-time business metrics and earnings" },
-              { icon: Users, title: "Clients Hub", description: "Full CRM with deal pipeline" },
-              { icon: DollarSign, title: "Revenue Hub", description: "Track all 10 revenue streams" },
-              { icon: Video, title: "Sessions", description: "Manage live collaboration sessions" },
-              { icon: Globe, title: "Opportunities", description: "Browse and bid on projects" },
-              { icon: Award, title: "Growth Hub", description: "Level up with coaching and goals" },
-            ].map((feature, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <Card className="p-6 hover:shadow-lg transition-all hover:-translate-y-1">
-                  <feature.icon className="w-10 h-10 text-secondary mb-4" />
-                  <h3 className="font-semibold text-lg mb-2">{feature.title}</h3>
-                  <p className="text-sm text-muted-foreground">{feature.description}</p>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 px-4 bg-gradient-to-br from-secondary/5 via-background to-primary/5">
-        <div className="container mx-auto max-w-4xl">
-          <Card className="text-center border-2 border-secondary/20 shadow-xl">
-            <CardContent className="pt-12 pb-12">
-              <Crown className="w-16 h-16 mx-auto mb-6 text-secondary" />
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                Ready to Transform Your Engineering Career?
-              </h2>
-              <p className="text-lg text-muted-foreground mb-8">
-                Join thousands of engineers already earning more on MixClub
-              </p>
-              <Link to="/engineer-onboarding">
-                <Button size="lg" className="text-lg px-12 bg-secondary hover:bg-secondary/90">
-                  Get Started Now
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
-              </Link>
-              
-              <div className="mt-8 pt-8 border-t border-border/50">
-                <p className="text-sm text-muted-foreground">
-                  No setup fees • Keep 70-85% of earnings • Instant payouts
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-    </div>
+      {/* Final CTA - Portal Invitation */}
+      <PortalInvitation
+        icon={<Award className="w-10 h-10" />}
+        title="Ready to Transform Your Engineering Career?"
+        subtitle="Join thousands of engineers already earning more on MixClub."
+        cta={{ text: "Get Started Now", href: "/engineer-onboarding" }}
+        variant="engineer"
+        disclaimer="No setup fees • Keep 70-85% of earnings • Instant payouts"
+      />
+    </LandingPortal>
   );
 }
