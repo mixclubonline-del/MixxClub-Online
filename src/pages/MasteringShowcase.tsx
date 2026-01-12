@@ -1,47 +1,34 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useSearchParams } from "react-router-dom";
+import { toast } from "sonner";
+import { motion } from "framer-motion";
 import { 
   Sparkles, 
   Zap, 
   Target,
-  BarChart3,
   Waves,
   Music,
   Award,
-  Play,
-  Pause,
   Brain,
-  Headphones,
-  TrendingUp,
-  Lock,
-  ArrowDown,
-  CheckCircle,
-  Volume2,
-  Settings
+  CheckCircle
 } from "lucide-react";
-import Navigation from "@/components/Navigation";
-import { Link, useSearchParams } from "react-router-dom";
-import { toast } from "sonner";
+import { Helmet } from "react-helmet-async";
+import { ServiceRoomView } from "@/components/services/ServiceRoomView";
+import { GlassFeaturePanel } from "@/components/services/GlassFeaturePanel";
 import { MasteringPackages } from "@/components/mastering/MasteringPackages";
 import { MasteringChatbot } from "@/components/MasteringChatbot";
-import { useAuth } from "@/hooks/useAuth";
+import { Badge } from "@/components/ui/badge";
+import masteringRoomBg from "@/assets/service-mastering-room.jpg";
 
 const MasteringShowcase = () => {
   const [activeDemo, setActiveDemo] = useState(0);
   const [searchParams] = useSearchParams();
-  const { user } = useAuth();
 
   useEffect(() => {
-    // Handle successful payment
     const success = searchParams.get('success');
     if (success === 'true') {
       toast.success('Payment successful! Welcome to MixClub AI Mastering!');
     }
-    
-    // Handle cancelled payment
     const cancelled = searchParams.get('canceled');
     if (cancelled === 'true') {
       toast.info('Payment was cancelled. You can try again anytime.');
@@ -52,26 +39,22 @@ const MasteringShowcase = () => {
     {
       title: "AI Analysis Begins",
       description: "Our neural network analyzes your track's frequency spectrum, dynamics, and stereo field",
-      icon: <Brain className="w-6 h-6" />,
-      active: true
+      icon: <Brain className="w-6 h-6" />
     },
     {
       title: "Platform Optimization",
       description: "Automatically optimizes for Spotify, Apple Music, YouTube, and other streaming platforms",
-      icon: <Target className="w-6 h-6" />,
-      active: false
+      icon: <Target className="w-6 h-6" />
     },
     {
       title: "Professional Processing",
       description: "Applies industry-standard EQ, compression, limiting, and stereo enhancement",
-      icon: <Settings className="w-6 h-6" />,
-      active: false
+      icon: <Waves className="w-6 h-6" />
     },
     {
       title: "Final Master Ready",
       description: "Your track is now mastered to professional standards and ready for release",
-      icon: <Award className="w-6 h-6" />,
-      active: false
+      icon: <Award className="w-6 h-6" />
     }
   ];
 
@@ -80,7 +63,6 @@ const MasteringShowcase = () => {
       title: "AI Neural Networks",
       description: "Trained on 100,000+ Grammy-winning masters across all genres",
       icon: <Brain className="w-8 h-8" />,
-      color: "bg-purple-500/10 text-purple-500",
       details: [
         "Deep learning models trained on professional masters",
         "Genre-specific processing algorithms",
@@ -91,7 +73,6 @@ const MasteringShowcase = () => {
       title: "Instant Processing",
       description: "Get professional masters in under 30 seconds, not hours",
       icon: <Zap className="w-8 h-8" />,
-      color: "bg-yellow-500/10 text-yellow-500",
       details: [
         "Cloud-based processing power",
         "No queue times or delays",
@@ -102,7 +83,6 @@ const MasteringShowcase = () => {
       title: "Platform Optimization", 
       description: "Automatically optimized for every major streaming platform",
       icon: <Target className="w-8 h-8" />,
-      color: "bg-blue-500/10 text-blue-500",
       details: [
         "Spotify (-14 LUFS) optimization",
         "Apple Music Hi-Res ready",
@@ -113,7 +93,6 @@ const MasteringShowcase = () => {
       title: "Professional Quality",
       description: "Meet industry standards with every master",
       icon: <Award className="w-8 h-8" />,
-      color: "bg-green-500/10 text-green-500",
       details: [
         "True Peak limiting to -1dBFS",
         "Optimal dynamic range preservation",
@@ -129,213 +108,174 @@ const MasteringShowcase = () => {
     return () => clearInterval(interval);
   }, []);
 
-
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      
-      <div className="pt-20">
-        {/* Hero Section */}
-        <section className="py-20 bg-gradient-to-br from-primary/10 via-background to-purple/10 relative overflow-hidden">
-          <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
-          <div className="container px-6 relative">
-            <div className="max-w-6xl mx-auto">
-              <div className="grid lg:grid-cols-2 gap-12 items-center">
-                <div>
-                  <Badge variant="secondary" className="mb-4">
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    AI-Powered Mastering
-                  </Badge>
-                  <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-primary via-purple-500 to-primary bg-clip-text text-transparent">
-                    Master Your Music with AI
-                  </h1>
-                  <p className="text-xl text-muted-foreground mb-8 max-w-lg">
-                    Get Grammy-quality masters instantly with our revolutionary AI technology. 
-                    Trained on thousands of professional masters, optimized for every platform.
-                  </p>
-                  
-                  <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                    <Button 
-                      size="lg" 
-                      className="gap-2 bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90"
-                      onClick={() => document.getElementById('packages')?.scrollIntoView({ behavior: 'smooth' })}
-                    >
-                      <Play className="w-5 h-5" />
-                      View Packages
-                    </Button>
-                    <Button variant="outline" size="lg" className="gap-2">
-                      <Volume2 className="w-5 h-5" />
-                      Listen to Examples
-                    </Button>
-                  </div>
+    <>
+      <Helmet>
+        <title>Mastering Suite — MixClub Services</title>
+        <meta name="description" content="AI-powered mastering trained on 100,000+ professional masters. Get Grammy-quality results instantly." />
+      </Helmet>
 
-                  {/* Stats */}
-                  <div className="grid grid-cols-3 gap-4 pt-8 border-t border-border/50">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">100K+</div>
-                      <div className="text-sm text-muted-foreground">Training Tracks</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">&lt;30s</div>
-                      <div className="text-sm text-muted-foreground">Processing Time</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">Pro</div>
-                      <div className="text-sm text-muted-foreground">Quality</div>
-                    </div>
-                  </div>
-                </div>
+      <ServiceRoomView
+        backgroundAsset={masteringRoomBg}
+        title="Mastering Suite"
+        subtitle="Grammy-quality masters instantly with revolutionary AI technology"
+        accentColor="from-purple-500/20 to-pink-500/20"
+      >
+        {/* Features Grid */}
+        <section className="mb-20">
+          <motion.div
+            className="text-center mb-12"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <Badge className="mb-4 bg-purple-500/20 text-purple-400 border-purple-500/30">
+              <Sparkles className="w-4 h-4 mr-2" />
+              AI-Powered Mastering
+            </Badge>
+            <h2 className="text-4xl font-bold text-foreground mb-4">
+              How Our AI Mastering Works
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Revolutionary technology that delivers professional mastering results instantly
+            </p>
+          </motion.div>
 
-                {/* Interactive Demo */}
-                <div className="relative">
-                  <Card className="bg-gradient-to-br from-background/50 to-primary/5 backdrop-blur border-primary/20">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Waves className="w-5 h-5 text-primary" />
-                        AI Mastering Process
-                      </CardTitle>
-                      <CardDescription>
-                        Watch how our AI transforms your audio in real-time
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      {demoSteps.map((step, index) => (
-                        <div 
-                          key={index}
-                          className={`flex items-start gap-3 p-3 rounded-lg transition-all duration-500 ${
-                            activeDemo === index 
-                              ? 'bg-primary/10 border border-primary/20 scale-105' 
-                              : 'bg-muted/30'
-                          }`}
-                        >
-                          <div className={`p-2 rounded-lg transition-colors ${
-                            activeDemo === index ? 'bg-primary text-primary-foreground' : 'bg-muted'
-                          }`}>
-                            {step.icon}
-                          </div>
-                          <div className="flex-1">
-                            <h4 className="font-medium mb-1">{step.title}</h4>
-                            <p className="text-sm text-muted-foreground">{step.description}</p>
-                          </div>
-                          {activeDemo === index && (
-                            <div className="flex items-center gap-1">
-                              <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-                              <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
-                              <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} />
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-            </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {features.map((feature, index) => (
+              <GlassFeaturePanel
+                key={index}
+                icon={feature.icon}
+                title={feature.title}
+                description={feature.description}
+                details={feature.details}
+                delay={index * 0.1}
+              />
+            ))}
           </div>
         </section>
 
-        {/* How It Works */}
-        <section className="py-20">
-          <div className="container px-6">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold mb-4">How Our AI Mastering Works</h2>
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-                Revolutionary technology that delivers professional mastering results instantly
-              </p>
+        {/* AI Process Demo */}
+        <section className="mb-20">
+          <motion.div
+            className="p-8 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+          >
+            <div className="flex items-center gap-2 mb-6">
+              <Waves className="w-5 h-5 text-purple-400" />
+              <h3 className="text-2xl font-bold text-foreground">
+                AI Mastering Process
+              </h3>
             </div>
-
-            <div className="grid lg:grid-cols-2 xl:grid-cols-4 gap-8">
-              {features.map((feature, index) => (
-                <Card key={index} className="group hover:shadow-xl transition-all duration-500 hover:-translate-y-2">
-                  <CardContent className="pt-6">
-                    <div className={`w-16 h-16 rounded-xl ${feature.color} flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300`}>
-                      {feature.icon}
+            <p className="text-muted-foreground mb-8">
+              Watch how our AI transforms your audio in real-time
+            </p>
+            <div className="space-y-4">
+              {demoSteps.map((step, index) => (
+                <motion.div 
+                  key={index}
+                  className={`flex items-start gap-4 p-4 rounded-xl transition-all duration-500 ${
+                    activeDemo === index 
+                      ? 'bg-purple-500/10 border border-purple-500/20 scale-[1.02]' 
+                      : 'bg-white/5'
+                  }`}
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <div className={`p-3 rounded-xl transition-all ${
+                    activeDemo === index ? 'bg-purple-500 text-white' : 'bg-muted text-muted-foreground'
+                  }`}>
+                    {step.icon}
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-foreground mb-1">{step.title}</h4>
+                    <p className="text-sm text-muted-foreground">{step.description}</p>
+                  </div>
+                  {activeDemo === index && (
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" />
+                      <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
+                      <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} />
                     </div>
-                    <h3 className="text-xl font-semibold mb-3 text-center">{feature.title}</h3>
-                    <p className="text-muted-foreground mb-4 text-center">{feature.description}</p>
-                    <ul className="space-y-2">
-                      {feature.details.map((detail, idx) => (
-                        <li key={idx} className="flex items-center gap-2 text-sm">
-                          <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />
-                          <span>{detail}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
+                  )}
+                </motion.div>
               ))}
             </div>
-          </div>
+          </motion.div>
         </section>
 
-        {/* Interactive AI Assistant */}
-        <section className="py-20 bg-gradient-to-br from-muted/30 to-primary/5">
-          <div className="container px-6">
-            <div className="text-center mb-16">
-              <Badge variant="secondary" className="mb-4">
-                <Brain className="w-4 h-4 mr-2" />
-                Try Our AI Assistant
-              </Badge>
-              <h2 className="text-4xl font-bold mb-4">Experience AI Mastering Now</h2>
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-                Upload a track and get instant professional feedback plus a before/after comparison. 
-                See the power of our AI mastering technology in action.
-              </p>
-            </div>
+        {/* AI Assistant */}
+        <section className="mb-20">
+          <motion.div
+            className="text-center mb-12"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <Badge className="mb-4 bg-purple-500/20 text-purple-400 border-purple-500/30">
+              <Brain className="w-4 h-4 mr-2" />
+              Try Our AI Assistant
+            </Badge>
+            <h2 className="text-4xl font-bold text-foreground mb-4">
+              Experience AI Mastering Now
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Upload a track and get instant professional feedback plus a before/after comparison
+            </p>
+          </motion.div>
 
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
             <MasteringChatbot />
-
-            <div className="text-center mt-8">
-              <p className="text-sm text-muted-foreground mb-4">
-                Want to access the full mastering suite? Choose your plan below.
-              </p>
-              <ArrowDown className="w-6 h-6 text-primary mx-auto animate-bounce" />
-            </div>
-          </div>
+          </motion.div>
         </section>
 
         {/* Packages Section */}
-        <section className="py-20" id="packages">
-          <div className="container px-6">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold mb-4">Choose Your Mastering Plan</h2>
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Professional AI mastering for every artist, from bedroom producers to major labels
-              </p>
-            </div>
+        <section id="packages" className="mb-20">
+          <motion.div
+            className="text-center mb-12"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-4xl font-bold text-foreground mb-4">
+              Choose Your Mastering Plan
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Professional AI mastering for every artist, from bedroom producers to major labels
+            </p>
+          </motion.div>
 
-            <MasteringPackages />
-          </div>
+          <MasteringPackages />
         </section>
 
-        {/* CTA Section */}
-        <section className="py-20 bg-gradient-to-r from-primary/10 via-purple-500/10 to-primary/10">
-          <div className="container px-6">
-            <Card className="max-w-4xl mx-auto text-center bg-gradient-to-br from-background/90 to-primary/5 backdrop-blur border-primary/20">
-              <CardContent className="pt-8 pb-8">
-                <h2 className="text-3xl font-bold mb-4">Ready to Master Your Music?</h2>
-                <p className="text-muted-foreground mb-8 max-w-2xl mx-auto text-lg">
-                  Join thousands of artists who trust our AI mastering technology. 
-                  Get professional results instantly, every time.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Link to="/auth?mode=signup">
-                    <Button size="lg" className="gap-2 bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90">
-                      <Sparkles className="w-5 h-5" />
-                      Start Free Trial
-                    </Button>
-                  </Link>
-                  <Button variant="outline" size="lg" className="gap-2">
-                    <Music className="w-5 h-5" />
-                    Listen to Examples
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+        {/* CTA */}
+        <section className="mb-20">
+          <motion.div
+            className="p-8 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-md border border-white/10 text-center"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+          >
+            <Music className="w-12 h-12 text-purple-400 mx-auto mb-4" />
+            <h2 className="text-3xl font-bold text-foreground mb-4">
+              Ready to Master Your Music?
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
+              Join thousands of artists who trust our AI mastering technology. 
+              Get professional results instantly, every time.
+            </p>
+          </motion.div>
         </section>
-      </div>
-    </div>
+      </ServiceRoomView>
+    </>
   );
 };
 
