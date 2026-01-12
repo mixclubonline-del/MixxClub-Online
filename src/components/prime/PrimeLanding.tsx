@@ -1,23 +1,36 @@
-import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
 import { NetworkExplainer } from "@/components/home/NetworkExplainer";
 import { StudioHallway } from "@/components/scene/StudioHallway";
 import { CommunityPulseDisplay } from "@/components/scene/CommunityPulseDisplay";
 
 import { ScrollRevealSection } from "@/components/landing/ScrollRevealSection";
-import { PulsingCTA } from "@/components/landing/PulsingCTA";
 import { ProblemStatementAnimated } from "@/components/home/ProblemStatementAnimated";
 import { SessionPreview } from "@/components/home/SessionPreview";
 import { StudioPreview } from "@/components/home/StudioPreview";
 import { TransformationDemo } from "@/components/home/TransformationDemo";
 import { RevenuePreview } from "@/components/home/RevenuePreview";
 import { RoleGateway } from "@/components/home/RoleGateway";
+import { HomeHeroSection } from "@/components/home/HomeHeroSection";
+import { LiveRoomWindow } from "@/components/home/LiveRoomWindow";
+import { SocialProofSection } from "@/components/home/SocialProofSection";
+import { HomeFooter } from "@/components/home/HomeFooter";
+import { HomeLiveActivitySidebar } from "@/components/home/HomeLiveActivitySidebar";
 
 export default function PrimeLanding() {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-hidden relative">
+      {/* Live Activity Sidebar - Desktop only */}
+      <HomeLiveActivitySidebar />
+
+      {/* Hero Section - Above the fold */}
+      <HomeHeroSection />
+
       {/* Living Studio Hallway - Real Data */}
       <StudioHallway />
+
+      {/* Live Room Window - Active Sessions */}
+      <ScrollRevealSection>
+        <LiveRoomWindow />
+      </ScrollRevealSection>
 
       {/* The Problem - Animated Pain Points */}
       <ScrollRevealSection>
@@ -44,6 +57,11 @@ export default function PrimeLanding() {
         <RevenuePreview />
       </ScrollRevealSection>
 
+      {/* Social Proof - Testimonials */}
+      <ScrollRevealSection delay={0.1}>
+        <SocialProofSection />
+      </ScrollRevealSection>
+
       {/* Network Explainer - The Connection Story */}
       <ScrollRevealSection delay={0.1}>
         <NetworkExplainer />
@@ -61,29 +79,8 @@ export default function PrimeLanding() {
         <RoleGateway />
       </ScrollRevealSection>
 
-      {/* Footer CTA */}
-      <section className="relative px-6 py-24 backdrop-blur-sm">
-        <div className="max-w-4xl mx-auto text-center">
-          <ScrollRevealSection>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-            >
-              <h2 className="text-4xl md:text-5xl font-bold mb-6">
-                Your Music Deserves This
-              </h2>
-              <p className="text-xl text-muted-foreground mb-10">
-                Join the artists and engineers building the future of hip-hop
-              </p>
-              <Link to="/auth?mode=signup">
-                <PulsingCTA text="Find Your People" icon="sparkles" />
-              </Link>
-            </motion.div>
-          </ScrollRevealSection>
-        </div>
-      </section>
-
+      {/* Footer */}
+      <HomeFooter />
     </div>
   );
 }
