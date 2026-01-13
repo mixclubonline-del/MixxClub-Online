@@ -750,6 +750,9 @@ const Auth = () => {
           </div>
         </motion.div>
 
+        {/* Social Proof Stats */}
+        <AuthSocialProof className="mb-4" />
+
         {/* Glass panel form */}
         <motion.div 
           className="backdrop-blur-xl bg-black/40 border border-white/10 rounded-2xl p-6 shadow-2xl"
@@ -877,6 +880,9 @@ const Auth = () => {
                 {mode === "signup" && (
                   <>
                     <RolePathSelector role={role} onRoleChange={setRole} />
+                    
+                    {/* Role-specific benefits */}
+                    <RoleBenefits role={role} />
 
                     <div className="space-y-2">
                       <Label htmlFor="fullName" className="text-white/80">Full Name</Label>
@@ -889,6 +895,9 @@ const Auth = () => {
                         className="bg-white/5 border-white/10 focus:border-primary/50 text-white placeholder:text-white/30"
                         required
                       />
+                      
+                      {/* Username preview based on full name */}
+                      <UsernamePreview username={fullName} />
                     </div>
                   </>
                 )}
