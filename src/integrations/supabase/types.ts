@@ -3211,6 +3211,57 @@ export type Database = {
         }
         Relationships: []
       }
+      marketing_campaigns: {
+        Row: {
+          ad_variants: Json | null
+          campaign_type: string | null
+          created_at: string | null
+          generated_assets: Json | null
+          generated_copy: Json | null
+          id: string
+          key_message: string | null
+          name: string
+          social_posts: Json | null
+          status: string | null
+          target_audience: string | null
+          tone: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          ad_variants?: Json | null
+          campaign_type?: string | null
+          created_at?: string | null
+          generated_assets?: Json | null
+          generated_copy?: Json | null
+          id?: string
+          key_message?: string | null
+          name: string
+          social_posts?: Json | null
+          status?: string | null
+          target_audience?: string | null
+          tone?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          ad_variants?: Json | null
+          campaign_type?: string | null
+          created_at?: string | null
+          generated_assets?: Json | null
+          generated_copy?: Json | null
+          id?: string
+          key_message?: string | null
+          name?: string
+          social_posts?: Json | null
+          status?: string | null
+          target_audience?: string | null
+          tone?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       marketplace_categories: {
         Row: {
           category_description: string | null

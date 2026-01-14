@@ -55,6 +55,7 @@ const SunoTest = React.lazy(() => import("@/pages/SunoTest"));
 const BrandForge = React.lazy(() => import("@/pages/BrandForge"));
 const PrimeBeatForge = React.lazy(() => import("@/pages/PrimeBeatForge"));
 const PrimeMarketingCopy = React.lazy(() => import("@/pages/PrimeMarketingCopy"));
+const MarketingCommandCenter = React.lazy(() => import("@/pages/MarketingCommandCenter"));
 const MerchStore = React.lazy(() => import("@/pages/MerchStore"));
 const ArtistStorefront = React.lazy(() => import("@/pages/ArtistStorefront"));
 const ArtistMerchManager = React.lazy(() => import("@/pages/ArtistMerchManager"));
@@ -134,6 +135,7 @@ export const appRoutes = (
     <Route path="/brand-forge" element={<BrandForge />} />
     <Route path="/prime-beat-forge" element={<PrimeBeatForge />} />
     <Route path="/prime-marketing" element={<PrimeMarketingCopy />} />
+    <Route path="/marketing-command-center" element={<AppLayout><MarketingCommandCenter /></AppLayout>} />
     <Route path="/jobs" element={<AppLayout><JobBoard /></AppLayout>} />
     <Route path="/messaging-test" element={<MessagingTest />} />
 
