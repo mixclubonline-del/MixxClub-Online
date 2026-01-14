@@ -7,28 +7,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Sparkles, Image, FileText, Share2, Megaphone, Download, Save, Loader2, Copy, Check } from 'lucide-react';
+import { Sparkles, Image, FileText, Share2, Megaphone, Download, Save, Loader2, Copy, Check, ExternalLink } from 'lucide-react';
 import { usePrimeMarketing, CopyType } from '@/hooks/usePrimeMarketing';
+import { useMarketingExport, CampaignAssets, CampaignBrief, AdVariant } from '@/hooks/useMarketingExport';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import type { Json } from '@/integrations/supabase/types';
-
-interface CampaignBrief {
-  name: string;
-  campaignType: 'launch' | 'feature' | 'seasonal' | 'awareness' | 'promotional';
-  targetAudience: 'artists' | 'engineers' | 'both' | 'fans';
-  tone: 'hype' | 'professional' | 'authentic' | 'aspirational' | 'edgy';
-  keyMessage: string;
-}
-
-interface GeneratedContent {
-  hero?: string;
-  taglines?: string[];
-  emailWelcome?: string;
-  emailPromo?: string;
-  socialPosts?: Record<string, unknown>[];
-  adVariants?: Record<string, unknown>[];
-}
 
 export default function MarketingCommandCenter() {
   const [activeTab, setActiveTab] = useState('brief');
@@ -39,11 +23,22 @@ export default function MarketingCommandCenter() {
     tone: 'authentic',
     keyMessage: ''
   });
-  const [generatedContent, setGeneratedContent] = useState<GeneratedContent>({});
+  
+  const [campaignAssets, setCampaignAssets] = useState<CampaignAssets>({
+    visuals: {},
+    copy: {},
+    social: {},
+    ads: {}
+  });
+
   const [isSaving, setIsSaving] = useState(false);
+  const [isGeneratingVisual, setIsGeneratingVisual] = useState<string | null>(null);
+  const [isGeneratingSocial, setIsGeneratingSocial] = useState(false);
+  const [isGeneratingAds, setIsGeneratingAds] = useState<string | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   
   const { generateCopy, isGenerating, generatedCopy } = usePrimeMarketing();
+  const { exportLaunchKit } = useMarketingExport();
 
   const buildContext = () => {
     return `Campaign: ${brief.name}. Target: ${brief.targetAudience}. Tone: ${brief.tone}. Message: ${brief.keyMessage}`;
@@ -51,14 +46,138 @@ export default function MarketingCommandCenter() {
 
   const handleGenerateCopy = async (type: CopyType) => {
     await generateCopy(type, buildContext());
+    
+    // Accumulate into campaign assets
+    if (generatedCopy?.content) {
+      setCampaignAssets(prev => ({
+        ...prev,
+        copy: {
+          ...prev.copy,
+          [type === 'landing-hero' ? 'hero' : type === 'email-welcome' ? 'emailWelcome' : type === 'email-promo' ? 'emailPromo' : type]: generatedCopy.content
+        }
+      }));
+    }
   };
 
   const handleGenerateAll = async () => {
-    const types: CopyType[] = ['landing-hero', 'tagline', 'email-welcome', 'social-post'];
+    const types: CopyType[] = ['landing-hero', 'tagline', 'email-welcome', 'email-promo'];
     for (const type of types) {
       await generateCopy(type, buildContext());
     }
     toast.success('All copy generated!');
+  };
+
+  // Visual generation using generate-landing-image edge function
+  const handleGenerateVisual = async (visualType: 'hero' | 'socialBanner' | 'adCreative') => {
+    setIsGeneratingVisual(visualType);
+    try {
+      const prompts: Record<string, string> = {
+        hero: `Cinematic hero image for ${brief.name} campaign. ${brief.keyMessage}. Target: ${brief.targetAudience}. Tone: ${brief.tone}. Professional music industry aesthetic.`,
+        socialBanner: `Social media banner for ${brief.name}. Eye-catching, ${brief.tone} style. Music production theme.`,
+        adCreative: `Ad creative for ${brief.name}. Clean, modern, ${brief.tone} aesthetic. Music industry focused.`
+      };
+
+      const contexts: Record<string, string> = {
+        hero: 'landing_campaign_hero',
+        socialBanner: 'social_banner',
+        adCreative: 'ad_creative'
+      };
+
+      const { data, error } = await supabase.functions.invoke('generate-landing-image', {
+        body: { prompt: prompts[visualType], context: contexts[visualType] }
+      });
+
+      if (error) throw error;
+
+      if (data?.imageUrl) {
+        setCampaignAssets(prev => ({
+          ...prev,
+          visuals: { ...prev.visuals, [visualType]: data.imageUrl }
+        }));
+        toast.success(`${visualType} image generated!`);
+      }
+    } catch (error) {
+      console.error('Visual generation error:', error);
+      toast.error('Failed to generate visual');
+    } finally {
+      setIsGeneratingVisual(null);
+    }
+  };
+
+  // Social posts generation using generate-social-posts edge function
+  const handleGenerateSocial = async (platform?: 'instagram' | 'twitter' | 'tiktok' | 'facebook') => {
+    setIsGeneratingSocial(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-social-posts', {
+        body: {
+          trackName: brief.name,
+          genre: brief.campaignType,
+          mood: brief.tone,
+          vibe: brief.keyMessage,
+          additionalDetails: `Target audience: ${brief.targetAudience}`,
+          targetPlatform: platform || 'all'
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.posts) {
+        setCampaignAssets(prev => ({
+          ...prev,
+          social: {
+            ...prev.social,
+            ...(data.posts.instagram && { instagram: data.posts.instagram }),
+            ...(data.posts.twitter && { twitter: data.posts.twitter }),
+            ...(data.posts.tiktok && { tiktok: data.posts.tiktok }),
+            ...(data.posts.facebook && { linkedin: data.posts.facebook }) // Map facebook to linkedin
+          }
+        }));
+        toast.success('Social posts generated!');
+      }
+    } catch (error) {
+      console.error('Social generation error:', error);
+      toast.error('Failed to generate social posts');
+    } finally {
+      setIsGeneratingSocial(false);
+    }
+  };
+
+  // Ad copy generation using generate-ad-copy edge function
+  const handleGenerateAds = async (platform: 'google' | 'facebook' | 'tiktok' | 'instagram') => {
+    setIsGeneratingAds(platform);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-ad-copy', {
+        body: {
+          platform,
+          targetAudience: brief.targetAudience === 'both' ? 'artists and engineers' : brief.targetAudience,
+          genre: brief.campaignType,
+          tone: brief.tone,
+          variantCount: 3
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.variants) {
+        setCampaignAssets(prev => ({
+          ...prev,
+          ads: { ...prev.ads, [platform]: data.variants as AdVariant[] }
+        }));
+        toast.success(`${platform} ad variants generated!`);
+      }
+    } catch (error) {
+      console.error('Ad generation error:', error);
+      toast.error('Failed to generate ad copy');
+    } finally {
+      setIsGeneratingAds(null);
+    }
+  };
+
+  const handleGenerateAllAds = async () => {
+    const platforms: ('google' | 'facebook' | 'tiktok' | 'instagram')[] = ['google', 'facebook', 'tiktok', 'instagram'];
+    for (const platform of platforms) {
+      await handleGenerateAds(platform);
+    }
   };
 
   const handleSaveCampaign = async () => {
@@ -77,7 +196,10 @@ export default function MarketingCommandCenter() {
         target_audience: brief.targetAudience,
         tone: brief.tone,
         key_message: brief.keyMessage,
-        generated_copy: JSON.parse(JSON.stringify(generatedContent)) as Json,
+        generated_assets: campaignAssets.visuals as unknown as Json,
+        generated_copy: campaignAssets.copy as unknown as Json,
+        social_posts: campaignAssets.social as unknown as Json,
+        ad_variants: campaignAssets.ads as unknown as Json,
         status: 'complete'
       }]);
 
@@ -89,6 +211,10 @@ export default function MarketingCommandCenter() {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleExport = () => {
+    exportLaunchKit(brief, campaignAssets);
   };
 
   const copyToClipboard = (text: string, field: string) => {
@@ -106,6 +232,10 @@ export default function MarketingCommandCenter() {
       return content;
     }
   };
+
+  const hasContent = Object.keys(campaignAssets.copy).length > 0 || 
+    Object.keys(campaignAssets.social).length > 0 || 
+    Object.keys(campaignAssets.ads).length > 0;
 
   return (
     <div className="min-h-screen bg-background p-6">
@@ -126,7 +256,7 @@ export default function MarketingCommandCenter() {
               {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
               Save Campaign
             </Button>
-            <Button disabled={!generatedCopy}>
+            <Button onClick={handleExport} disabled={!hasContent || !brief.name}>
               <Download className="h-4 w-4 mr-2" />
               Export Kit
             </Button>
@@ -259,22 +389,57 @@ export default function MarketingCommandCenter() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-3 gap-4">
-                  {['Hero Image', 'Social Banner', 'Ad Creative'].map((type) => (
+                  {[
+                    { type: 'hero' as const, label: 'Hero Image', size: '1920x1080' },
+                    { type: 'socialBanner' as const, label: 'Social Banner', size: '1200x630' },
+                    { type: 'adCreative' as const, label: 'Ad Creative', size: '1080x1080' }
+                  ].map(({ type, label, size }) => (
                     <Card key={type} className="border-dashed">
                       <CardContent className="p-6 flex flex-col items-center justify-center min-h-[200px]">
-                        <Image className="h-12 w-12 text-muted-foreground mb-4" />
-                        <p className="text-sm font-medium">{type}</p>
-                        <Button variant="outline" size="sm" className="mt-4">
-                          Generate
+                        {campaignAssets.visuals[type] ? (
+                          <div className="relative w-full">
+                            <img 
+                              src={campaignAssets.visuals[type]} 
+                              alt={label}
+                              className="w-full h-32 object-cover rounded-lg"
+                            />
+                            <Badge className="absolute top-2 right-2" variant="secondary">
+                              {size}
+                            </Badge>
+                          </div>
+                        ) : (
+                          <Image className="h-12 w-12 text-muted-foreground mb-4" />
+                        )}
+                        <p className="text-sm font-medium mt-2">{label}</p>
+                        <Badge variant="outline" className="text-xs mt-1">{size}</Badge>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="mt-4"
+                          onClick={() => handleGenerateVisual(type)}
+                          disabled={isGeneratingVisual === type || !brief.keyMessage}
+                        >
+                          {isGeneratingVisual === type ? (
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          ) : (
+                            <Sparkles className="h-4 w-4 mr-2" />
+                          )}
+                          {campaignAssets.visuals[type] ? 'Regenerate' : 'Generate'}
                         </Button>
                       </CardContent>
                     </Card>
                   ))}
                 </div>
-                <p className="text-sm text-muted-foreground text-center">
-                  Visual generation integrates with Dream Engine. Navigate to{' '}
-                  <a href="/dream-engine" className="text-primary underline">/dream-engine</a> for full control.
-                </p>
+                <div className="flex items-center justify-center gap-4 pt-4">
+                  <p className="text-sm text-muted-foreground">
+                    For full creative control, use the{' '}
+                  </p>
+                  <Button variant="link" size="sm" asChild>
+                    <a href="/dream-engine">
+                      Dream Engine <ExternalLink className="h-3 w-3 ml-1" />
+                    </a>
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -369,22 +534,46 @@ export default function MarketingCommandCenter() {
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid grid-cols-4 gap-4">
-                  {['Instagram', 'Twitter/X', 'TikTok', 'LinkedIn'].map((platform) => (
+                  {[
+                    { platform: 'instagram' as const, label: 'Instagram', limit: '2200 chars' },
+                    { platform: 'twitter' as const, label: 'Twitter/X', limit: '280 chars' },
+                    { platform: 'tiktok' as const, label: 'TikTok', limit: '2200 chars' },
+                    { platform: 'facebook' as const, label: 'LinkedIn', limit: '3000 chars' }
+                  ].map(({ platform, label, limit }) => (
                     <Card key={platform}>
                       <CardHeader className="pb-2">
-                        <CardTitle className="text-base">{platform}</CardTitle>
+                        <CardTitle className="text-base">{label}</CardTitle>
                       </CardHeader>
-                      <CardContent className="space-y-2">
-                        <Badge variant="outline" className="text-xs">
-                          {platform === 'Twitter/X' ? '280 chars' : platform === 'LinkedIn' ? '3000 chars' : '2200 chars'}
-                        </Badge>
+                      <CardContent className="space-y-3">
+                        <Badge variant="outline" className="text-xs">{limit}</Badge>
+                        
+                        {/* Show generated posts */}
+                        {campaignAssets.social[platform === 'facebook' ? 'linkedin' : platform]?.length ? (
+                          <div className="space-y-2 max-h-[150px] overflow-y-auto">
+                            {(campaignAssets.social[platform === 'facebook' ? 'linkedin' : platform] || []).slice(0, 3).map((post, idx) => (
+                              <div key={idx} className="p-2 bg-muted rounded text-xs relative group">
+                                <p className="line-clamp-3">{typeof post === 'string' ? post : JSON.stringify(post)}</p>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100"
+                                  onClick={() => copyToClipboard(typeof post === 'string' ? post : JSON.stringify(post), `${platform}-${idx}`)}
+                                >
+                                  {copiedField === `${platform}-${idx}` ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        ) : null}
+                        
                         <Button 
                           variant="outline" 
                           size="sm" 
                           className="w-full"
-                          onClick={() => handleGenerateCopy('social-post')}
-                          disabled={isGenerating}
+                          onClick={() => handleGenerateSocial(platform)}
+                          disabled={isGeneratingSocial || !brief.keyMessage}
                         >
+                          {isGeneratingSocial ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Sparkles className="h-4 w-4 mr-2" />}
                           Generate 3 Posts
                         </Button>
                       </CardContent>
@@ -394,10 +583,10 @@ export default function MarketingCommandCenter() {
 
                 <Button 
                   className="w-full"
-                  onClick={() => handleGenerateCopy('social-post')}
-                  disabled={isGenerating || !brief.keyMessage}
+                  onClick={() => handleGenerateSocial()}
+                  disabled={isGeneratingSocial || !brief.keyMessage}
                 >
-                  {isGenerating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Share2 className="h-4 w-4 mr-2" />}
+                  {isGeneratingSocial ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Share2 className="h-4 w-4 mr-2" />}
                   Generate Full Social Package
                 </Button>
               </CardContent>
@@ -414,18 +603,53 @@ export default function MarketingCommandCenter() {
               <CardContent className="space-y-6">
                 <div className="grid grid-cols-2 gap-6">
                   {[
-                    { platform: 'Google Ads', specs: 'Headlines: 30 chars | Descriptions: 90 chars' },
-                    { platform: 'Facebook/Instagram', specs: 'Primary: 125 chars | Headline: 40 chars' },
-                    { platform: 'TikTok Ads', specs: 'Text: 100 chars | Headline: 34 chars' },
-                    { platform: 'YouTube', specs: 'Headline: 30 chars | Description: 90 chars' }
-                  ].map(({ platform, specs }) => (
+                    { platform: 'google' as const, label: 'Google Ads', specs: 'Headlines: 30 chars | Descriptions: 90 chars' },
+                    { platform: 'facebook' as const, label: 'Facebook/Instagram', specs: 'Primary: 125 chars | Headline: 40 chars' },
+                    { platform: 'tiktok' as const, label: 'TikTok Ads', specs: 'Text: 100 chars | Headline: 34 chars' },
+                    { platform: 'instagram' as const, label: 'Instagram Ads', specs: 'Primary: 125 chars | Headline: 40 chars' }
+                  ].map(({ platform, label, specs }) => (
                     <Card key={platform}>
                       <CardHeader>
-                        <CardTitle className="text-base">{platform}</CardTitle>
+                        <CardTitle className="text-base">{label}</CardTitle>
                         <CardDescription className="text-xs">{specs}</CardDescription>
                       </CardHeader>
-                      <CardContent>
-                        <Button variant="outline" className="w-full" disabled={isGenerating}>
+                      <CardContent className="space-y-4">
+                        {/* Show generated ad variants */}
+                        {campaignAssets.ads[platform]?.length ? (
+                          <div className="space-y-3 max-h-[200px] overflow-y-auto">
+                            {campaignAssets.ads[platform]?.map((ad, idx) => (
+                              <div key={idx} className="p-3 bg-muted rounded-lg relative group">
+                                <Badge variant="secondary" className="text-xs mb-2">Variant {idx + 1}</Badge>
+                                <p className="font-medium text-sm">{ad.headline}</p>
+                                <p className="text-xs text-muted-foreground mt-1">{ad.description}</p>
+                                <Badge className="mt-2 text-xs">{ad.cta}</Badge>
+                                {ad.focus && (
+                                  <p className="text-xs text-primary mt-2">Focus: {ad.focus}</p>
+                                )}
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="absolute top-2 right-2 h-6 w-6 opacity-0 group-hover:opacity-100"
+                                  onClick={() => copyToClipboard(JSON.stringify(ad, null, 2), `ad-${platform}-${idx}`)}
+                                >
+                                  {copiedField === `ad-${platform}-${idx}` ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        ) : null}
+                        
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={() => handleGenerateAds(platform)}
+                          disabled={isGeneratingAds === platform || !brief.keyMessage}
+                        >
+                          {isGeneratingAds === platform ? (
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          ) : (
+                            <Sparkles className="h-4 w-4 mr-2" />
+                          )}
                           Generate 3 Variants
                         </Button>
                       </CardContent>
@@ -433,7 +657,11 @@ export default function MarketingCommandCenter() {
                   ))}
                 </div>
 
-                <Button className="w-full" disabled={isGenerating || !brief.keyMessage}>
+                <Button 
+                  className="w-full" 
+                  onClick={handleGenerateAllAds}
+                  disabled={!!isGeneratingAds || !brief.keyMessage}
+                >
                   <Megaphone className="h-4 w-4 mr-2" />
                   Generate All Ad Variants
                 </Button>
