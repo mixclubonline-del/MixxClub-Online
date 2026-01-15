@@ -137,6 +137,57 @@ export type Database = {
         }
         Relationships: []
       }
+      addon_services: {
+        Row: {
+          applicable_to: string[] | null
+          created_at: string | null
+          currency: string | null
+          id: string
+          is_active: boolean | null
+          is_percentage: boolean | null
+          percentage_value: number | null
+          price: number
+          service_description: string | null
+          service_name: string
+          sort_order: number | null
+          stripe_price_id: string | null
+          stripe_product_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          applicable_to?: string[] | null
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_percentage?: boolean | null
+          percentage_value?: number | null
+          price: number
+          service_description?: string | null
+          service_name: string
+          sort_order?: number | null
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          applicable_to?: string[] | null
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_percentage?: boolean | null
+          percentage_value?: number | null
+          price?: number
+          service_description?: string | null
+          service_name?: string
+          sort_order?: number | null
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       admin_quick_actions: {
         Row: {
           action_type: string
@@ -2170,6 +2221,66 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "engineer_earnings_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      engineer_payouts: {
+        Row: {
+          created_at: string | null
+          engineer_id: string | null
+          gross_amount: number
+          id: string
+          net_amount: number
+          payment_id: string | null
+          payout_method: string | null
+          platform_fee: number
+          processed_at: string | null
+          project_id: string | null
+          status: string | null
+          stripe_transfer_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          engineer_id?: string | null
+          gross_amount: number
+          id?: string
+          net_amount: number
+          payment_id?: string | null
+          payout_method?: string | null
+          platform_fee: number
+          processed_at?: string | null
+          project_id?: string | null
+          status?: string | null
+          stripe_transfer_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          engineer_id?: string | null
+          gross_amount?: number
+          id?: string
+          net_amount?: number
+          payment_id?: string | null
+          payout_method?: string | null
+          platform_fee?: number
+          processed_at?: string | null
+          project_id?: string | null
+          status?: string | null
+          stripe_transfer_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "engineer_payouts_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "engineer_payouts_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
@@ -6022,6 +6133,57 @@ export type Database = {
           studio_type?: string
           total_reviews?: number | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      subscription_plans: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          display_name: string
+          features: Json | null
+          id: string
+          is_active: boolean | null
+          limits: Json | null
+          plan_name: string
+          price_monthly: number
+          price_yearly: number | null
+          sort_order: number | null
+          stripe_price_id_monthly: string | null
+          stripe_price_id_yearly: string | null
+          stripe_product_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          display_name: string
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          limits?: Json | null
+          plan_name: string
+          price_monthly: number
+          price_yearly?: number | null
+          sort_order?: number | null
+          stripe_price_id_monthly?: string | null
+          stripe_price_id_yearly?: string | null
+          stripe_product_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          display_name?: string
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          limits?: Json | null
+          plan_name?: string
+          price_monthly?: number
+          price_yearly?: number | null
+          sort_order?: number | null
+          stripe_price_id_monthly?: string | null
+          stripe_price_id_yearly?: string | null
+          stripe_product_id?: string | null
         }
         Relationships: []
       }
