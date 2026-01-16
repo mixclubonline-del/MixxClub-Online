@@ -17,57 +17,14 @@ import {
   Zap,
   Crown
 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { AddOnSelector } from '@/components/pricing/AddOnSelector';
+import { useAddonServices, calculateAddonPrice } from '@/hooks/useAddonServices';
 
-const subscriptionDetails: Record<string, { 
-  name: string; 
-  price: number; 
-  period: string; 
-  features: string[];
-  icon: typeof Zap;
-}> = {
-  starter: {
-    name: 'Starter',
-    price: 9,
-    period: 'month',
-    icon: Zap,
-    features: [
-      '25 track processes/month',
-      '5 masters/month',
-      '10 GB storage',
-      '3 collaborators',
-      'Basic analytics',
-    ],
-  },
-  pro: {
-    name: 'Pro',
-    price: 29,
-    period: 'month',
-    icon: Crown,
-    features: [
-      '100 track processes/month',
-      '20 masters/month',
-      '100 GB storage',
-      '10 collaborators',
-      'Advanced analytics',
-      '2 engineer consultations/month',
-      'Priority support',
-    ],
-  },
-  studio: {
-    name: 'Studio',
-    price: 99,
-    period: 'month',
-    icon: Crown,
-    features: [
-      'Unlimited tracks/masters',
-      '1000 GB storage',
-      '50 collaborators',
-      'Dedicated engineer',
-      'Custom integrations',
-      'API access',
-      '24/7 priority support',
-    ],
-  },
+const planIcons: Record<string, typeof Zap> = {
+  starter: Zap,
+  pro: Crown,
+  studio: Crown,
 };
 
 export default function Checkout() {
@@ -75,22 +32,99 @@ export default function Checkout() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
 
   const type = searchParams.get('type') || 'subscription';
   const tier = searchParams.get('tier');
-  const packageName = searchParams.get('package');
-  const priceParam = searchParams.get('price');
+  const packageId = searchParams.get('packageId');
+  const billingInterval = searchParams.get('billing') as 'monthly' | 'yearly' || 'monthly';
 
   const isSubscription = type === 'subscription';
-  const subscriptionInfo = tier ? subscriptionDetails[tier] : null;
+  const isMixing = type === 'mixing';
+  const isMastering = type === 'mastering';
+
+  // Fetch subscription plan from database
+  const { data: subscriptionPlan, isLoading: loadingPlan } = useQuery({
+    queryKey: ['subscription-plan', tier],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('subscription_plans')
+        .select('*')
+        .eq('plan_name', tier)
+        .single();
+      if (error) throw error;
+      return {
+        ...data,
+        features: Array.isArray(data.features) ? data.features : JSON.parse(data.features as string || '[]'),
+      };
+    },
+    enabled: isSubscription && !!tier,
+  });
+
+  // Fetch mixing package from database
+  const { data: mixingPackage, isLoading: loadingMixing } = useQuery({
+    queryKey: ['mixing-package', packageId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('mixing_packages')
+        .select('*')
+        .eq('id', packageId)
+        .single();
+      if (error) throw error;
+      return {
+        ...data,
+        features: Array.isArray(data.features) ? data.features : JSON.parse(data.features as string || '[]'),
+      };
+    },
+    enabled: isMixing && !!packageId,
+  });
+
+  // Fetch mastering package from database
+  const { data: masteringPackage, isLoading: loadingMastering } = useQuery({
+    queryKey: ['mastering-package', packageId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('mastering_packages')
+        .select('*')
+        .eq('id', packageId)
+        .single();
+      if (error) throw error;
+      return {
+        ...data,
+        features: Array.isArray(data.features) ? data.features : JSON.parse(data.features as string || '[]'),
+      };
+    },
+    enabled: isMastering && !!packageId,
+  });
+
+  // Fetch applicable add-ons
+  const { data: addons } = useAddonServices(isMixing ? 'mixing' : isMastering ? 'mastering' : undefined);
+
+  const isLoading = loadingPlan || loadingMixing || loadingMastering;
   
-  const displayPrice = isSubscription 
-    ? subscriptionInfo?.price || 0
-    : parseInt(priceParam || '0', 10);
+  const basePrice = isSubscription 
+    ? (billingInterval === 'yearly' && subscriptionPlan?.price_yearly 
+        ? Math.round(subscriptionPlan.price_yearly / 12) 
+        : subscriptionPlan?.price_monthly || 0)
+    : (mixingPackage?.price || masteringPackage?.price || 0);
+
+  // Calculate add-on total
+  const addonsTotal = selectedAddons.reduce((total, addonId) => {
+    const addon = addons?.find(a => a.id === addonId);
+    if (addon) {
+      return total + calculateAddonPrice(addon, basePrice);
+    }
+    return total;
+  }, 0);
+
+  const totalPrice = basePrice + addonsTotal;
+
+  const packageName = isMixing ? mixingPackage?.package_name : masteringPackage?.name;
+  const packageFeatures = isMixing ? mixingPackage?.features : masteringPackage?.features;
   
   const displayName = isSubscription 
-    ? `${subscriptionInfo?.name} Plan`
-    : `${packageName} - ${type === 'mixing' ? 'Mixing' : 'Mastering'}`;
+    ? `${subscriptionPlan?.display_name || tier} Plan`
+    : `${packageName || 'Package'} - ${isMixing ? 'Mixing' : 'Mastering'}`;
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -98,6 +132,14 @@ export default function Checkout() {
       navigate(`/auth?mode=signin&redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`);
     }
   }, [user, authLoading, navigate]);
+
+  const handleToggleAddon = (addonId: string) => {
+    setSelectedAddons(prev => 
+      prev.includes(addonId) 
+        ? prev.filter(id => id !== addonId)
+        : [...prev, addonId]
+    );
+  };
 
   const handleCheckout = async () => {
     if (!user) {
@@ -108,19 +150,26 @@ export default function Checkout() {
     setIsProcessing(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('create-payment-checkout', {
-        body: {
-          packageType: type,
-          packageId: tier || packageName,
-          successUrl: `${window.location.origin}/order-success/{CHECKOUT_SESSION_ID}`,
-          cancelUrl: `${window.location.origin}/payment-canceled`,
-        },
-      });
+      const endpoint = isSubscription ? 'create-subscription-checkout' : 'create-payment-checkout';
+      
+      const body = isSubscription 
+        ? { planId: subscriptionPlan?.id, billingInterval }
+        : { 
+            packageType: type, 
+            packageId: packageId,
+            addonIds: selectedAddons,
+            successUrl: `${window.location.origin}/order-success/{CHECKOUT_SESSION_ID}`,
+            cancelUrl: `${window.location.origin}/payment-canceled`,
+          };
+
+      const { data, error } = await supabase.functions.invoke(endpoint, { body });
 
       if (error) throw error;
 
       if (data?.url) {
         window.location.href = data.url;
+      } else if (data?.redirect) {
+        navigate(data.redirect);
       } else {
         throw new Error('No checkout URL returned');
       }
@@ -131,7 +180,7 @@ export default function Checkout() {
     }
   };
 
-  if (authLoading) {
+  if (authLoading || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-accent/5">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -139,7 +188,7 @@ export default function Checkout() {
     );
   }
 
-  if (!tier && !packageName) {
+  if (!tier && !packageId) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-accent/5">
         <Card className="p-8 max-w-md text-center">
@@ -156,7 +205,7 @@ export default function Checkout() {
     );
   }
 
-  const Icon = subscriptionInfo?.icon || Sparkles;
+  const Icon = tier ? (planIcons[tier] || Sparkles) : Sparkles;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-accent/5 py-12">
@@ -172,7 +221,7 @@ export default function Checkout() {
 
         <div className="grid md:grid-cols-5 gap-8">
           {/* Order Summary */}
-          <div className="md:col-span-3">
+          <div className="md:col-span-3 space-y-6">
             <Card className="p-6">
               <h1 className="text-2xl font-bold mb-6">Checkout</h1>
               
@@ -185,11 +234,11 @@ export default function Checkout() {
                   <div className="flex-1">
                     <h2 className="text-xl font-semibold">{displayName}</h2>
                     <p className="text-muted-foreground text-sm mt-1">
-                      {isSubscription ? 'Monthly subscription' : 'One-time payment'}
+                      {isSubscription ? `${billingInterval === 'yearly' ? 'Yearly' : 'Monthly'} subscription` : 'One-time payment'}
                     </p>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold">${displayPrice}</div>
+                    <div className="text-2xl font-bold">${basePrice}</div>
                     {isSubscription && (
                       <div className="text-sm text-muted-foreground">/month</div>
                     )}
@@ -198,11 +247,11 @@ export default function Checkout() {
               </div>
 
               {/* Features */}
-              {subscriptionInfo && (
+              {(subscriptionPlan?.features || packageFeatures) && (
                 <div className="mb-6">
                   <h3 className="font-medium mb-3">What's included:</h3>
                   <div className="grid gap-2">
-                    {subscriptionInfo.features.map((feature) => (
+                    {(subscriptionPlan?.features || packageFeatures || []).map((feature: string) => (
                       <div key={feature} className="flex items-center gap-2">
                         <Check className="w-4 h-4 text-green-500" />
                         <span className="text-sm">{feature}</span>
@@ -218,26 +267,58 @@ export default function Checkout() {
               <div className="space-y-3">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span>${displayPrice}</span>
+                  <span>${basePrice}</span>
                 </div>
+                
+                {selectedAddons.length > 0 && (
+                  <>
+                    {selectedAddons.map(addonId => {
+                      const addon = addons?.find(a => a.id === addonId);
+                      if (!addon) return null;
+                      const addonPrice = calculateAddonPrice(addon, basePrice);
+                      return (
+                        <div key={addonId} className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">{addon.service_name}</span>
+                          <span>+${addonPrice.toFixed(0)}</span>
+                        </div>
+                      );
+                    })}
+                  </>
+                )}
+                
                 {isSubscription && (
                   <div className="flex justify-between text-sm text-green-600">
                     <span>7-day free trial</span>
-                    <span>-${displayPrice}</span>
+                    <span>-${totalPrice}</span>
                   </div>
                 )}
+                
                 <Separator />
+                
                 <div className="flex justify-between font-semibold text-lg">
                   <span>Due today</span>
-                  <span>{isSubscription ? '$0.00' : `$${displayPrice}`}</span>
+                  <span>{isSubscription ? '$0.00' : `$${totalPrice.toFixed(0)}`}</span>
                 </div>
+                
                 {isSubscription && (
                   <p className="text-xs text-muted-foreground">
-                    After your 7-day trial, you'll be charged ${displayPrice}/month. Cancel anytime.
+                    After your 7-day trial, you'll be charged ${basePrice}/month. Cancel anytime.
                   </p>
                 )}
               </div>
             </Card>
+
+            {/* Add-ons Section */}
+            {!isSubscription && addons && addons.length > 0 && (
+              <Card className="p-6">
+                <AddOnSelector
+                  addons={addons}
+                  basePrice={basePrice}
+                  selectedAddons={selectedAddons}
+                  onToggleAddon={handleToggleAddon}
+                />
+              </Card>
+            )}
           </div>
 
           {/* Payment Section */}
@@ -262,7 +343,7 @@ export default function Checkout() {
                 ) : (
                   <>
                     <CreditCard className="w-4 h-4 mr-2" />
-                    {isSubscription ? 'Start Free Trial' : `Pay $${displayPrice}`}
+                    {isSubscription ? 'Start Free Trial' : `Pay $${totalPrice.toFixed(0)}`}
                   </>
                 )}
               </Button>
