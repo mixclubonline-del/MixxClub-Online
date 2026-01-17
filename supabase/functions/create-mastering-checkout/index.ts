@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { packageId } = await req.json();
+    const { packageId, referralCode } = await req.json();
 
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -50,6 +50,17 @@ serve(async (req) => {
       apiVersion: '2023-10-16',
     });
 
+    // Build metadata with optional referral code
+    const metadata: Record<string, string> = {
+      packageId: packageId,
+      userId: user.id,
+      packageType: 'mastering',
+    };
+
+    if (referralCode) {
+      metadata.referral_code = referralCode;
+    }
+
     // Create Stripe checkout session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -67,13 +78,10 @@ serve(async (req) => {
         },
       ],
       mode: 'payment',
-      success_url: `${req.headers.get('origin')}/mastering?success=true&package=${packageId}`,
-      cancel_url: `${req.headers.get('origin')}/mastering?canceled=true`,
+      success_url: `${req.headers.get('origin')}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${req.headers.get('origin')}/payment-canceled`,
       client_reference_id: user.id,
-      metadata: {
-        packageId: packageId,
-        userId: user.id,
-      },
+      metadata,
     });
 
     return new Response(

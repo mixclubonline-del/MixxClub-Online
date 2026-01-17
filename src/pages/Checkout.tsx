@@ -150,17 +150,40 @@ export default function Checkout() {
     setIsProcessing(true);
 
     try {
-      const endpoint = isSubscription ? 'create-subscription-checkout' : 'create-payment-checkout';
-      
-      const body = isSubscription 
-        ? { planId: subscriptionPlan?.id, billingInterval }
-        : { 
-            packageType: type, 
-            packageId: packageId,
-            addonIds: selectedAddons,
-            successUrl: `${window.location.origin}/order-success/{CHECKOUT_SESSION_ID}`,
-            cancelUrl: `${window.location.origin}/payment-canceled`,
-          };
+      // Get referral code from localStorage if present
+      const referralCode = localStorage.getItem('mixx_referral_code');
+
+      let endpoint: string;
+      let body: Record<string, unknown>;
+
+      if (isSubscription) {
+        endpoint = 'create-subscription-checkout';
+        body = { 
+          planId: subscriptionPlan?.id, 
+          billingInterval,
+          referralCode,
+        };
+      } else if (isMixing) {
+        endpoint = 'create-mixing-checkout';
+        body = { 
+          packageId,
+          referralCode,
+        };
+      } else if (isMastering) {
+        endpoint = 'create-mastering-checkout';
+        body = { 
+          packageId,
+          referralCode,
+        };
+      } else {
+        endpoint = 'create-payment-checkout';
+        body = { 
+          packageType: type, 
+          packageId: packageId,
+          addonIds: selectedAddons,
+          referralCode,
+        };
+      }
 
       const { data, error } = await supabase.functions.invoke(endpoint, { body });
 
