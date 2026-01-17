@@ -23,6 +23,7 @@ import DistributionHub from "@/pages/DistributionHub";
 import OrderSuccess from "@/pages/OrderSuccess";
 import Checkout from "@/pages/Checkout";
 import PaymentCanceled from "@/pages/PaymentCanceled";
+import PaymentSuccess from "@/pages/PaymentSuccess";
 import MyCertifications from "@/pages/MyCertifications";
 import Tutorials from "@/pages/Tutorials";
 import MessagingTest from "@/pages/MessagingTest";
@@ -147,6 +148,7 @@ export const appRoutes = (
     {/* Projects & Orders */}
     <Route path="/project/:projectId" element={<AppLayout><ProjectDetail /></AppLayout>} />
     <Route path="/checkout" element={<Checkout />} />
+    <Route path="/payment-success" element={<PaymentSuccess />} />
     <Route path="/order-success/:paymentId" element={<OrderSuccess />} />
     <Route path="/payment-canceled" element={<PaymentCanceled />} />
 

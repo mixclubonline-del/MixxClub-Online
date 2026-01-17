@@ -93,7 +93,7 @@ serve(async (req) => {
 
 /**
  * Handle checkout.session.completed event
- * Records payment, creates subscription records, triggers engineer payout
+ * Records payment, creates subscription records, triggers engineer payout, processes referrals
  */
 async function handleCheckoutCompleted(
   supabase: ReturnType<typeof createClient>,
@@ -107,6 +107,7 @@ async function handleCheckoutCompleted(
   const packageType = session.metadata?.packageType || session.metadata?.package_type;
   const engineerId = session.metadata?.engineer_id;
   const projectId = session.metadata?.project_id;
+  const referralCode = session.metadata?.referral_code;
 
   if (!userId) {
     console.error('[STRIPE-WEBHOOK] No user ID in session');
@@ -136,6 +137,7 @@ async function handleCheckoutCompleted(
         package_id: packageId,
         engineer_id: engineerId,
         project_id: projectId,
+        referral_code: referralCode,
       },
       completed_at: new Date().toISOString(),
     })
@@ -166,6 +168,108 @@ async function handleCheckoutCompleted(
   // Record earnings in engineer_earnings if applicable
   if (engineerId) {
     await recordEngineerEarnings(supabase, engineerId, amountTotal, projectId);
+  }
+
+  // Process referral commission if referral code present
+  if (referralCode && payment) {
+    await processReferralCommission(supabase, {
+      referralCode,
+      paymentId: payment.id,
+      paymentAmount: amountTotal,
+      referredUserId: userId,
+    });
+  }
+}
+
+/**
+ * Process referral commission for successful payment
+ * Calculates tier-based commission and updates referral record
+ */
+async function processReferralCommission(
+  supabase: ReturnType<typeof createClient>,
+  params: {
+    referralCode: string;
+    paymentId: string;
+    paymentAmount: number;
+    referredUserId: string;
+  }
+) {
+  console.log('[STRIPE-WEBHOOK] Processing referral commission for code:', params.referralCode);
+
+  // Find the referral record by code
+  const { data: referral, error: referralError } = await supabase
+    .from('distribution_referrals')
+    .select('*')
+    .eq('referral_code', params.referralCode)
+    .eq('status', 'pending')
+    .single();
+
+  if (referralError || !referral) {
+    console.log('[STRIPE-WEBHOOK] No pending referral found for code:', params.referralCode);
+    return;
+  }
+
+  // Get referrer's tier info for commission calculation
+  const { data: referrerProfile } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('id', referral.referrer_id)
+    .single();
+
+  // Count successful referrals to determine tier
+  const { count: successfulReferrals } = await supabase
+    .from('distribution_referrals')
+    .select('id', { count: 'exact' })
+    .eq('referrer_id', referral.referrer_id)
+    .eq('status', 'completed');
+
+  // Calculate commission based on tier
+  const referralCount = successfulReferrals || 0;
+  let commissionRate = 0.10; // Default 10% Bronze
+
+  if (referralCount >= 200) {
+    commissionRate = 0.30; // Platinum
+  } else if (referralCount >= 50) {
+    commissionRate = 0.20; // Gold
+  } else if (referralCount >= 10) {
+    commissionRate = 0.15; // Silver
+  }
+
+  const commissionAmount = params.paymentAmount * commissionRate;
+
+  // Update referral record
+  const { error: updateError } = await supabase
+    .from('distribution_referrals')
+    .update({
+      status: 'completed',
+      referred_user_id: params.referredUserId,
+      commission_amount: commissionAmount,
+    })
+    .eq('id', referral.id);
+
+  if (updateError) {
+    console.error('[STRIPE-WEBHOOK] Error updating referral:', updateError);
+    return;
+  }
+
+  console.log(`[STRIPE-WEBHOOK] Referral commission processed: $${commissionAmount.toFixed(2)} (${(commissionRate * 100)}%)`);
+
+  // Create notification for referrer
+  try {
+    await supabase.rpc('create_notification', {
+      p_user_id: referral.referrer_id,
+      p_title: 'Referral Commission Earned!',
+      p_message: `You earned $${commissionAmount.toFixed(2)} from a successful referral!`,
+      p_type: 'referral_commission',
+      p_metadata: {
+        referral_id: referral.id,
+        payment_id: params.paymentId,
+        commission_amount: commissionAmount,
+        commission_rate: commissionRate,
+      },
+    });
+  } catch (notifError) {
+    console.error('[STRIPE-WEBHOOK] Error creating referral notification:', notifError);
   }
 }
 
