@@ -1,37 +1,37 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { DollarSign, Briefcase, CheckCircle2, Star, Loader2, AlertCircle, Wallet } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { SessionInvitationsList } from '@/components/collaboration/SessionInvitationsList';
 import { PublicSessionBrowser } from '@/components/collaboration/PublicSessionBrowser';
-import { 
-  DollarSign, 
-  TrendingUp, 
-  Award, 
-  Activity, 
-  Loader2,
-  FileText,
-  CheckCircle,
-  Clock
-} from 'lucide-react';
+import { StripeConnectCard } from '@/components/engineer/StripeConnectCard';
+import { EngineerPayoutsTable } from '@/components/engineer/EngineerPayoutsTable';
+import { useStripeConnect } from '@/hooks/useStripeConnect';
+import { useEngineerPayouts } from '@/hooks/useEngineerPayouts';
 
 export const EngineerCRMDashboard = () => {
   const { user } = useAuth();
+  const { canReceivePayouts, isLoading: stripeLoading } = useStripeConnect();
+  const { summary: payoutSummary, pendingPayouts } = useEngineerPayouts();
 
   // Fetch earnings stats
   const { data: earningsStats, isLoading: earningsLoading } = useQuery({
     queryKey: ['engineer-earnings-stats', user?.id],
     queryFn: async () => {
-      const { data } = await supabase
+      if (!user?.id) return null;
+      
+      const { data, error } = await supabase
         .from('engineer_earnings')
-        .select('amount, status, created_at')
-        .eq('engineer_id', user?.id);
-
-      const total = data?.reduce((sum, e) => sum + e.amount, 0) || 0;
-      const pending = data?.filter(e => e.status === 'pending').reduce((sum, e) => sum + e.amount, 0) || 0;
-      const paid = data?.filter(e => e.status === 'paid').reduce((sum, e) => sum + e.amount, 0) || 0;
-
+        .select('amount, status')
+        .eq('engineer_id', user.id);
+      
+      if (error) throw error;
+      
+      const total = data?.reduce((sum, e) => sum + (e.amount || 0), 0) || 0;
+      const pending = data?.filter(e => e.status === 'pending').reduce((sum, e) => sum + (e.amount || 0), 0) || 0;
+      const paid = data?.filter(e => e.status === 'paid').reduce((sum, e) => sum + (e.amount || 0), 0) || 0;
+      
       return { total, pending, paid, count: data?.length || 0 };
     },
     enabled: !!user?.id,
@@ -41,30 +41,37 @@ export const EngineerCRMDashboard = () => {
   const { data: workStats, isLoading: workLoading } = useQuery({
     queryKey: ['engineer-work-stats', user?.id],
     queryFn: async () => {
-      const { data } = await supabase
+      if (!user?.id) return null;
+      
+      const { data, error } = await supabase
         .from('engineer_deliverables')
         .select('status')
-        .eq('engineer_id', user?.id);
-
-      const active = data?.filter(d => d.status === 'pending' || d.status === 'in_progress').length || 0;
-      const completed = data?.filter(d => d.status === 'approved').length || 0;
-      const total = data?.length || 0;
-
-      return { active, completed, total };
+        .eq('engineer_id', user.id);
+      
+      if (error) throw error;
+      
+      const active = data?.filter(d => d.status === 'in_progress' || d.status === 'pending').length || 0;
+      const completed = data?.filter(d => d.status === 'completed' || d.status === 'approved').length || 0;
+      
+      return { active, completed, total: data?.length || 0 };
     },
     enabled: !!user?.id,
   });
 
-  // Fetch profile rating
-  const { data: profile } = useQuery({
+  // Fetch rating
+  const { data: profileData } = useQuery({
     queryKey: ['engineer-profile', user?.id],
     queryFn: async () => {
-      const { data } = await supabase
+      if (!user?.id) return null;
+      
+      const { data, error } = await supabase
         .from('engineer_profiles')
         .select('rating, completed_projects')
-        .eq('user_id', user?.id)
+        .eq('user_id', user.id)
         .single();
-
+      
+      if (error && error.code !== 'PGRST116') throw error;
+      
       return data;
     },
     enabled: !!user?.id,
@@ -74,22 +81,48 @@ export const EngineerCRMDashboard = () => {
 
   return (
     <div className="space-y-6">
-      {/* Stats Overview */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+      {/* Stripe Connect Warning if not connected */}
+      {!stripeLoading && !canReceivePayouts && (
+        <StripeConnectCard compact />
+      )}
+
+      {/* Pending Payouts Alert */}
+      {pendingPayouts.length > 0 && canReceivePayouts && (
+        <Card className="bg-orange-500/10 border-orange-500/30">
+          <CardContent className="py-4">
+            <div className="flex items-center gap-3">
+              <Wallet className="w-5 h-5 text-orange-400" />
+              <div>
+                <p className="font-medium text-orange-400">
+                  ${payoutSummary.totalPending.toFixed(2)} Pending Payout
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {pendingPayouts.length} payout{pendingPayouts.length !== 1 ? 's' : ''} awaiting processing
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="bg-card border-border">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Earnings</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Total Earnings
+            </CardTitle>
+            <DollarSign className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
             {isLoading ? (
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             ) : (
               <>
-                <div className="text-2xl font-bold">
+                <div className="text-2xl font-bold text-green-400">
                   ${earningsStats?.total.toFixed(2) || '0.00'}
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground mt-1">
                   {earningsStats?.count || 0} transactions
                 </p>
               </>
@@ -97,10 +130,12 @@ export const EngineerCRMDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-card border-border">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Work</CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Active Work
+            </CardTitle>
+            <Briefcase className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -108,18 +143,20 @@ export const EngineerCRMDashboard = () => {
             ) : (
               <>
                 <div className="text-2xl font-bold">{workStats?.active || 0}</div>
-                <p className="text-xs text-muted-foreground">
-                  {workStats?.total || 0} total projects
+                <p className="text-xs text-muted-foreground mt-1">
+                  Projects in progress
                 </p>
               </>
             )}
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-card border-border">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completed</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Completed Deliverables
+            </CardTitle>
+            <CheckCircle2 className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -127,64 +164,42 @@ export const EngineerCRMDashboard = () => {
             ) : (
               <>
                 <div className="text-2xl font-bold">{workStats?.completed || 0}</div>
-                <p className="text-xs text-muted-foreground">
-                  deliverables approved
+                <p className="text-xs text-muted-foreground mt-1">
+                  Successfully delivered
                 </p>
               </>
             )}
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-card border-border">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Rating</CardTitle>
-            <Award className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Rating
+            </CardTitle>
+            <Star className="h-4 w-4 text-yellow-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {profile?.rating ? `${profile.rating.toFixed(1)} ⭐` : 'N/A'}
+              {profileData?.rating?.toFixed(1) || '—'}
             </div>
-            <p className="text-xs text-muted-foreground">
-              {profile?.completed_projects || 0} projects
+            <p className="text-xs text-muted-foreground mt-1">
+              {profileData?.completed_projects || 0} projects completed
             </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Pending Earnings Alert */}
-      {earningsStats && earningsStats.pending > 0 && (
-        <Card className="border-yellow-500/50 bg-yellow-500/5">
-          <CardContent className="flex items-center gap-4 p-4">
-            <Clock className="h-5 w-5 text-yellow-500" />
-            <div>
-              <p className="font-medium">Pending Earnings</p>
-              <p className="text-sm text-muted-foreground">
-                ${earningsStats.pending.toFixed(2)} awaiting payment
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Recent Payouts Preview */}
+      {canReceivePayouts && (
+        <EngineerPayoutsTable limit={5} showSummary={false} />
       )}
 
       {/* Session Invitations */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Session Invitations</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <SessionInvitationsList />
-        </CardContent>
-      </Card>
-
-      {/* Browse Public Sessions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Browse Public Sessions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <PublicSessionBrowser />
-        </CardContent>
-      </Card>
+      <SessionInvitationsList />
+      
+      {/* Public Session Browser */}
+      <PublicSessionBrowser />
     </div>
   );
 };
