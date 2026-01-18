@@ -15,6 +15,7 @@ export interface EngineerPayout {
   status: 'pending' | 'processing' | 'completed' | 'failed';
   created_at: string;
   processed_at: string | null;
+  eligible_for_payout_at: string | null;
   project?: {
     title: string;
   } | null;
