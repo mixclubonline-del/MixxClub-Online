@@ -65,6 +65,7 @@ const DreamEngine = React.lazy(() => import("@/pages/DreamEngine"));
 const FreemiumOverview = React.lazy(() => import("@/pages/FreemiumOverview"));
 const MatchingDashboard = React.lazy(() => import("@/pages/MatchingDashboard"));
 const Sitemap = React.lazy(() => import("@/pages/Sitemap"));
+const PartnerProgram = React.lazy(() => import("@/pages/PartnerProgram"));
 
 // Live Streaming pages
 const LivePage = React.lazy(() => import("@/pages/LivePage"));
@@ -185,6 +186,7 @@ export const appRoutes = (
     {/* Utility Pages */}
     <Route path="/freemium" element={<FreemiumOverview />} />
     <Route path="/matching" element={<MatchingDashboard />} />
+    <Route path="/partner-program" element={<AppLayout><PartnerProgram /></AppLayout>} />
     <Route path="/sitemap" element={<Sitemap />} />
 
     {/* Public Profiles */}
