@@ -4052,6 +4052,57 @@ export type Database = {
         }
         Relationships: []
       }
+      partners: {
+        Row: {
+          affiliate_code: string
+          commission_rate: number | null
+          created_at: string | null
+          id: string
+          joined_at: string | null
+          pending_commissions: number | null
+          status: string | null
+          tier: string | null
+          total_commissions: number | null
+          total_referrals: number | null
+          total_revenue: number | null
+          updated_at: string | null
+          upgraded_at: string | null
+          user_id: string
+        }
+        Insert: {
+          affiliate_code: string
+          commission_rate?: number | null
+          created_at?: string | null
+          id?: string
+          joined_at?: string | null
+          pending_commissions?: number | null
+          status?: string | null
+          tier?: string | null
+          total_commissions?: number | null
+          total_referrals?: number | null
+          total_revenue?: number | null
+          updated_at?: string | null
+          upgraded_at?: string | null
+          user_id: string
+        }
+        Update: {
+          affiliate_code?: string
+          commission_rate?: number | null
+          created_at?: string | null
+          id?: string
+          joined_at?: string | null
+          pending_commissions?: number | null
+          status?: string | null
+          tier?: string | null
+          total_commissions?: number | null
+          total_referrals?: number | null
+          total_revenue?: number | null
+          updated_at?: string | null
+          upgraded_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       partnership_health: {
         Row: {
           activity_score: number | null
@@ -7243,6 +7294,7 @@ export type Database = {
         }
         Returns: string
       }
+      generate_affiliate_code: { Args: never; Returns: string }
       get_security_dashboard_stats: { Args: never; Returns: Json }
       has_role: {
         Args: {
