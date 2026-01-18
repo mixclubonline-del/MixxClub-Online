@@ -2231,6 +2231,7 @@ export type Database = {
       engineer_payouts: {
         Row: {
           created_at: string | null
+          eligible_for_payout_at: string | null
           engineer_id: string | null
           gross_amount: number
           id: string
@@ -2245,6 +2246,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          eligible_for_payout_at?: string | null
           engineer_id?: string | null
           gross_amount: number
           id?: string
@@ -2259,6 +2261,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          eligible_for_payout_at?: string | null
           engineer_id?: string | null
           gross_amount?: number
           id?: string
@@ -4342,6 +4345,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      payout_processing_logs: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          error_details: Json | null
+          id: string
+          payouts_failed: number | null
+          payouts_processed: number | null
+          payouts_skipped: number | null
+          processing_details: Json | null
+          run_id: string
+          started_at: string | null
+          total_amount_transferred: number | null
+          trigger_source: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          error_details?: Json | null
+          id?: string
+          payouts_failed?: number | null
+          payouts_processed?: number | null
+          payouts_skipped?: number | null
+          processing_details?: Json | null
+          run_id: string
+          started_at?: string | null
+          total_amount_transferred?: number | null
+          trigger_source: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          error_details?: Json | null
+          id?: string
+          payouts_failed?: number | null
+          payouts_processed?: number | null
+          payouts_skipped?: number | null
+          processing_details?: Json | null
+          run_id?: string
+          started_at?: string | null
+          total_amount_transferred?: number | null
+          trigger_source?: string
+        }
+        Relationships: []
       }
       payout_requests: {
         Row: {

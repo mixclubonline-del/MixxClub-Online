@@ -44,3 +44,6 @@ verify_jwt = true
 
 [functions.seed-platform-demo-data]
 verify_jwt = false
+
+[functions.scheduled-payout-processor]
+verify_jwt = false
