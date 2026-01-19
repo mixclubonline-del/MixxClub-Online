@@ -4,6 +4,7 @@
  */
 
 import React, { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useCourses } from '@/hooks/useCourses';
 import { useCourseEnrollment } from '@/hooks/useCourseEnrollment';
 import { Star, Clock, Users, TrendingUp } from 'lucide-react';
@@ -17,6 +18,8 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import type { Course } from '@/stores/coursesStore';
 
 const categoryIcons: Record<string, React.ReactNode> = {
@@ -40,19 +43,32 @@ interface CourseCardProps {
     onEnroll: () => Promise<void>;
     isEnrolled: boolean;
     isLoading: boolean;
-}const CourseCard: React.FC<CourseCardProps> = ({ course, onEnroll, isEnrolled, isLoading }) => {
+}
+
+const CourseCard: React.FC<CourseCardProps> = ({ course, onEnroll, isEnrolled, isLoading }) => {
     return (
         <div className="group relative overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md">
             {/* Thumbnail */}
             <div className="relative h-40 overflow-hidden bg-gradient-to-br from-purple-500 to-pink-500">
-                <img
-                    src={course.thumbnail}
-                    alt={course.title}
-                    className="h-full w-full object-cover transition-transform group-hover:scale-105"
-                />
+                {course.thumbnail_url ? (
+                    <img
+                        src={course.thumbnail_url}
+                        alt={course.title}
+                        className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                    />
+                ) : (
+                    <div className="h-full w-full flex items-center justify-center text-white text-6xl">
+                        {categoryIcons[course.category || ''] || '📚'}
+                    </div>
+                )}
                 {course.tier === 'studio' && (
                     <div className="absolute top-2 right-2 bg-gradient-to-r from-purple-600 to-pink-600 px-3 py-1 rounded-full text-white text-xs font-bold">
                         Studio
+                    </div>
+                )}
+                {course.tier === 'free' && (
+                    <div className="absolute top-2 right-2 bg-green-500 px-3 py-1 rounded-full text-white text-xs font-bold">
+                        Free
                     </div>
                 )}
             </div>
@@ -60,9 +76,9 @@ interface CourseCardProps {
             {/* Content */}
             <div className="p-4">
                 <div className="mb-2 flex items-center gap-2">
-                    <span className="text-lg">{categoryIcons[course.category]}</span>
+                    <span className="text-lg">{categoryIcons[course.category || ''] || '📚'}</span>
                     <span className="text-xs font-medium text-gray-500 uppercase">
-                        {categoryLabels[course.category]}
+                        {categoryLabels[course.category || ''] || course.category || 'General'}
                     </span>
                 </div>
 
@@ -73,31 +89,35 @@ interface CourseCardProps {
                 <div className="mb-3 flex items-center gap-3 text-xs text-gray-600">
                     <div className="flex items-center gap-1">
                         <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        <span>{course.rating?.toFixed(1) || 'N/A'}</span>
+                        <span>{course.average_rating?.toFixed(1) || 'N/A'}</span>
                     </div>
                     <div className="flex items-center gap-1">
                         <Clock className="h-4 w-4" />
-                        <span>{course.duration}h</span>
+                        <span>{course.duration_hours || 0}h</span>
                     </div>
                     <div className="flex items-center gap-1">
                         <Users className="h-4 w-4" />
-                        <span>{course.reviews} reviews</span>
+                        <span>{course.total_enrollments || 0} students</span>
                     </div>
                 </div>
 
                 {/* Instructor */}
-                <div className="mb-3 flex items-center gap-2 text-xs">
-                    <img
-                        src={course.instructor.avatar}
-                        alt={course.instructor.name}
-                        className="h-6 w-6 rounded-full"
-                    />
-                    <span className="text-gray-700">{course.instructor.name}</span>
-                </div>
+                {course.instructor && (
+                    <div className="mb-3 flex items-center gap-2 text-xs">
+                        <img
+                            src={course.instructor.avatar_url || '/placeholder.svg'}
+                            alt={course.instructor.full_name || 'Instructor'}
+                            className="h-6 w-6 rounded-full"
+                        />
+                        <span className="text-gray-700">{course.instructor.full_name || 'Instructor'}</span>
+                    </div>
+                )}
 
                 {/* Price & Button */}
                 <div className="flex items-center justify-between">
-                    <span className="text-lg font-bold text-gray-900">${course.price}</span>
+                    <span className="text-lg font-bold text-gray-900">
+                        {course.tier === 'free' || !course.price ? 'Free' : `$${course.price}`}
+                    </span>
                     <Button
                         disabled={isEnrolled || isLoading}
                         onClick={onEnroll}
@@ -112,6 +132,7 @@ interface CourseCardProps {
 };
 
 export const CoursesPage: React.FC = () => {
+    const navigate = useNavigate();
     const { user } = useAuth();
     const {
         courses,
@@ -127,23 +148,49 @@ export const CoursesPage: React.FC = () => {
     const stats = useMemo(
         () => ({
             totalCourses: courses.length,
-            totalStudents: courses.reduce((sum, c) => sum + (c.reviews || 0), 0),
+            totalStudents: courses.reduce((sum, c) => sum + (c.total_enrollments || 0), 0),
             averageRating: (
-                courses.reduce((sum, c) => sum + (c.rating || 0), 0) / Math.max(courses.length, 1)
+                courses.reduce((sum, c) => sum + (c.average_rating || 0), 0) / Math.max(courses.length, 1)
             ).toFixed(1),
         }),
         [courses]
     );
 
-    const handleEnroll = async (courseId: string) => {
+    const handleEnroll = async (course: Course) => {
         if (!user) {
-            console.error('User must be logged in to enroll');
+            toast.info('Please sign in to enroll in courses');
+            navigate('/auth?redirect=/courses');
             return;
         }
+
         try {
-            await enrollCourse(courseId);
+            // Free courses enroll directly
+            if (course.tier === 'free' || !course.price || course.price === 0) {
+                await enrollCourse(course.id);
+                toast.success('Successfully enrolled in course!');
+                return;
+            }
+
+            // Paid courses go through checkout
+            const { data, error } = await supabase.functions.invoke('create-course-checkout', {
+                body: { courseId: course.id }
+            });
+
+            if (error) throw error;
+
+            if (data?.enrolled) {
+                // Free course enrolled directly
+                toast.success(data.message || 'Successfully enrolled!');
+                return;
+            }
+
+            if (data?.url) {
+                // Redirect to Stripe checkout
+                window.location.href = data.url;
+            }
         } catch (error) {
             console.error('Enrollment failed:', error);
+            toast.error(error instanceof Error ? error.message : 'Enrollment failed. Please try again.');
         }
     };
 
@@ -248,13 +295,18 @@ export const CoursesPage: React.FC = () => {
                 <div className="mx-auto max-w-7xl">
                     {loading ? (
                         <div className="text-center text-gray-600">Loading courses...</div>
+                    ) : filteredCourses.length === 0 ? (
+                        <div className="text-center text-gray-600">
+                            <p className="text-xl mb-2">No courses available yet</p>
+                            <p className="text-sm">Check back soon for new courses!</p>
+                        </div>
                     ) : (
                         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                             {filteredCourses.map((course) => (
                                 <CourseCard
                                     key={course.id}
                                     course={course}
-                                    onEnroll={() => handleEnroll(course.id)}
+                                    onEnroll={() => handleEnroll(course)}
                                     isEnrolled={isEnrolled(course.id)}
                                     isLoading={enrollLoading}
                                 />

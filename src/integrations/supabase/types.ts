@@ -1398,6 +1398,7 @@ export type Database = {
       }
       courses: {
         Row: {
+          average_rating: number | null
           category: string | null
           created_at: string | null
           currency: string | null
@@ -1407,12 +1408,19 @@ export type Database = {
           id: string
           instructor_id: string | null
           is_published: boolean | null
+          outcomes: string[] | null
           price: number | null
+          requirements: string[] | null
+          stripe_price_id: string | null
+          tags: string[] | null
           thumbnail_url: string | null
+          tier: string | null
           title: string
+          total_enrollments: number | null
           updated_at: string | null
         }
         Insert: {
+          average_rating?: number | null
           category?: string | null
           created_at?: string | null
           currency?: string | null
@@ -1422,12 +1430,19 @@ export type Database = {
           id?: string
           instructor_id?: string | null
           is_published?: boolean | null
+          outcomes?: string[] | null
           price?: number | null
+          requirements?: string[] | null
+          stripe_price_id?: string | null
+          tags?: string[] | null
           thumbnail_url?: string | null
+          tier?: string | null
           title: string
+          total_enrollments?: number | null
           updated_at?: string | null
         }
         Update: {
+          average_rating?: number | null
           category?: string | null
           created_at?: string | null
           currency?: string | null
@@ -1437,9 +1452,15 @@ export type Database = {
           id?: string
           instructor_id?: string | null
           is_published?: boolean | null
+          outcomes?: string[] | null
           price?: number | null
+          requirements?: string[] | null
+          stripe_price_id?: string | null
+          tags?: string[] | null
           thumbnail_url?: string | null
+          tier?: string | null
           title?: string
+          total_enrollments?: number | null
           updated_at?: string | null
         }
         Relationships: [
@@ -3033,6 +3054,57 @@ export type Database = {
           },
           {
             foreignKeyName: "lesson_completions_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lesson_progress: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          enrollment_id: string
+          id: string
+          lesson_id: string
+          notes: string | null
+          quiz_score: number | null
+          updated_at: string | null
+          watched_duration: number | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          enrollment_id: string
+          id?: string
+          lesson_id: string
+          notes?: string | null
+          quiz_score?: number | null
+          updated_at?: string | null
+          watched_duration?: number | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          enrollment_id?: string
+          id?: string
+          lesson_id?: string
+          notes?: string | null
+          quiz_score?: number | null
+          updated_at?: string | null
+          watched_duration?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_progress_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "course_enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_progress_lesson_id_fkey"
             columns: ["lesson_id"]
             isOneToOne: false
             referencedRelation: "lessons"
@@ -7350,6 +7422,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      increment_course_enrollments: {
+        Args: { p_course_id: string }
+        Returns: undefined
       }
       process_stream_gift: {
         Args: {

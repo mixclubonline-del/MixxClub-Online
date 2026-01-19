@@ -21,7 +21,7 @@ export interface UseEnrollmentResult {
 export function useCourseEnrollment(userId?: string): UseEnrollmentResult {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
-    const { enrolledCourses, enrollCourse: storeEnroll, completeCourse: storeComplete } =
+    const { enrolledCourses, setEnrollments, addEnrollment, updateEnrollment, addCertificate } =
         useCoursesStore();
 
     // Fetch enrollments on mount
@@ -32,7 +32,7 @@ export function useCourseEnrollment(userId?: string): UseEnrollmentResult {
             try {
                 setLoading(true);
                 const enrollments = await CoursesService.getUserEnrollments(userId);
-                enrollments.forEach((enrollment) => storeEnroll(userId, enrollment.courseId));
+                setEnrollments(enrollments);
                 setError(null);
             } catch (err) {
                 setError(err instanceof Error ? err : new Error('Failed to fetch enrollments'));
@@ -42,7 +42,7 @@ export function useCourseEnrollment(userId?: string): UseEnrollmentResult {
         };
 
         fetchEnrollments();
-    }, [userId, storeEnroll]);
+    }, [userId, setEnrollments]);
 
     const enrollCourse = useCallback(
         async (courseId: string) => {
@@ -51,7 +51,7 @@ export function useCourseEnrollment(userId?: string): UseEnrollmentResult {
             try {
                 setLoading(true);
                 const enrollment = await CoursesService.enrollCourse(userId, courseId);
-                storeEnroll(userId, courseId);
+                addEnrollment(enrollment);
                 setError(null);
                 return enrollment;
             } catch (err) {
@@ -62,7 +62,7 @@ export function useCourseEnrollment(userId?: string): UseEnrollmentResult {
                 setLoading(false);
             }
         },
-        [userId, storeEnroll]
+        [userId, addEnrollment]
     );
 
     const completeCourse = useCallback(
@@ -72,7 +72,12 @@ export function useCourseEnrollment(userId?: string): UseEnrollmentResult {
             try {
                 setLoading(true);
                 const certificate = await CoursesService.completeCourse(enrollmentId, courseId, userId);
-                storeComplete(enrollmentId);
+                addCertificate(certificate);
+                updateEnrollment(enrollmentId, { 
+                    completed_at: new Date().toISOString(),
+                    certificate_issued: true,
+                    progress_percentage: 100
+                });
                 setError(null);
                 return certificate;
             } catch (err) {
@@ -83,7 +88,7 @@ export function useCourseEnrollment(userId?: string): UseEnrollmentResult {
                 setLoading(false);
             }
         },
-        [userId, storeComplete]
+        [userId, addCertificate, updateEnrollment]
     );
 
     const getEnrollment = useCallback(
@@ -95,7 +100,7 @@ export function useCourseEnrollment(userId?: string): UseEnrollmentResult {
 
     const isEnrolled = useCallback(
         (courseId: string) => {
-            return enrolledCourses.some((e) => e.courseId === courseId);
+            return enrolledCourses.some((e) => e.course_id === courseId);
         },
         [enrolledCourses]
     );
