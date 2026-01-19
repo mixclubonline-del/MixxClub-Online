@@ -8,7 +8,7 @@ import { useProgressTracking } from '@/hooks/useProgressTracking';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
-import { BookOpen, CheckCircle, FileText, PlayCircle } from 'lucide-react';
+import { BookOpen, CheckCircle, PlayCircle } from 'lucide-react';
 import type { Lesson } from '@/stores/coursesStore';
 
 interface LessonPlayerProps {
@@ -27,10 +27,11 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
     const [watchedTime, setWatchedTime] = useState(0);
     const [isWatched, setIsWatched] = useState(false);
 
-    const { updateLessonProgress, saveNotes, submitQuiz, loading, error } =
+    const { updateLessonProgress, saveNotes, loading, error } =
         useProgressTracking(enrollmentId);
 
-    const watchPercentage = (watchedTime / (lesson.duration * 60)) * 100;
+    const durationSeconds = (lesson.duration_minutes || 0) * 60;
+    const watchPercentage = durationSeconds > 0 ? (watchedTime / durationSeconds) * 100 : 0;
     const isMinimumWatched = watchPercentage >= 80;
 
     const handleVideoProgress = useCallback((currentTime: number) => {
@@ -62,22 +63,28 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
                 {/* Video Player Section */}
                 <div className="bg-black">
                     <div className="aspect-video bg-gradient-to-br from-purple-900 to-black flex items-center justify-center">
-                        <div className="text-center">
-                            <PlayCircle className="mx-auto h-16 w-16 text-purple-400 mb-4" />
-                            <p className="text-white text-lg font-semibold mb-2">{lesson.title}</p>
-                            <video
-                                src={lesson.videoUrl}
-                                controls
-                                className="h-full w-full"
-                                onTimeUpdate={(e) => handleVideoProgress(e.currentTarget.currentTime)}
-                                onEnded={() => {
-                                    if (isMinimumWatched) {
-                                        setIsWatched(true);
-                                    }
-                                }}
-                            >
-                                Your browser does not support the video tag.
-                            </video>
+                        <div className="text-center w-full h-full">
+                            {lesson.video_url ? (
+                                <video
+                                    src={lesson.video_url}
+                                    controls
+                                    className="h-full w-full"
+                                    onTimeUpdate={(e) => handleVideoProgress(e.currentTarget.currentTime)}
+                                    onEnded={() => {
+                                        if (isMinimumWatched) {
+                                            setIsWatched(true);
+                                        }
+                                    }}
+                                >
+                                    Your browser does not support the video tag.
+                                </video>
+                            ) : (
+                                <div className="flex flex-col items-center justify-center h-full">
+                                    <PlayCircle className="h-16 w-16 text-purple-400 mb-4" />
+                                    <p className="text-white text-lg font-semibold">{lesson.title}</p>
+                                    <p className="text-gray-400 text-sm mt-2">Video content not available</p>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -103,16 +110,16 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
                         {/* Lesson Info */}
                         <div className="mb-6 rounded-lg bg-gray-800 p-6">
                             <h1 className="mb-4 text-2xl font-bold text-white">{lesson.title}</h1>
-                            <p className="mb-4 text-gray-300">{lesson.description}</p>
+                            <p className="mb-4 text-gray-300">{lesson.description || 'No description available.'}</p>
 
                             <div className="mb-4 grid grid-cols-2 gap-4">
                                 <div className="rounded bg-gray-700 p-3">
                                     <p className="text-sm text-gray-400">Duration</p>
-                                    <p className="font-semibold text-white">{lesson.duration} minutes</p>
+                                    <p className="font-semibold text-white">{lesson.duration_minutes || 0} minutes</p>
                                 </div>
                                 <div className="rounded bg-gray-700 p-3">
-                                    <p className="text-sm text-gray-400">Level</p>
-                                    <p className="font-semibold text-white">All Levels</p>
+                                    <p className="text-sm text-gray-400">Order</p>
+                                    <p className="font-semibold text-white">Lesson {lesson.order_index}</p>
                                 </div>
                             </div>
 
@@ -133,30 +140,6 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
                                 </div>
                             </div>
                         </div>
-
-                        {/* Resources */}
-                        {lesson.resources && lesson.resources.length > 0 && (
-                            <div className="mb-6 rounded-lg bg-gray-800 p-6">
-                                <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-white">
-                                    <FileText className="h-5 w-5" />
-                                    Lesson Resources
-                                </h3>
-                                <ul className="space-y-2">
-                                    {lesson.resources.map((resource, idx) => (
-                                        <li key={idx}>
-                                            <a
-                                                href={resource}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-purple-400 hover:text-purple-300 underline text-sm"
-                                            >
-                                                Resource {idx + 1}
-                                            </a>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        )}
 
                         {/* Action Buttons */}
                         <div className="flex gap-3">

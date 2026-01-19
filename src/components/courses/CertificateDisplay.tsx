@@ -12,6 +12,7 @@ import type { Certificate } from '@/stores/coursesStore';
 
 interface CertificateDisplayProps {
     certificate: Certificate;
+    courseName?: string;
 }
 
 /**
@@ -24,7 +25,10 @@ const sanitizeForDisplay = (text: string): string => {
     return div.innerHTML;
 };
 
-export const CertificateDisplay: React.FC<CertificateDisplayProps> = ({ certificate }) => {
+export const CertificateDisplay: React.FC<CertificateDisplayProps> = ({ certificate, courseName }) => {
+    const displayName = courseName || 'Course Completion';
+    const verificationUrl = `${window.location.origin}/verify/${certificate.id}`;
+
     const handleDownload = () => {
         // Generate PDF using jsPDF text API (not innerHTML) to prevent XSS
         const doc = new jsPDF({
@@ -69,19 +73,19 @@ export const CertificateDisplay: React.FC<CertificateDisplayProps> = ({ certific
         // Course name - sanitized and safely rendered via text API
         doc.setFontSize(20);
         doc.setTextColor(99, 102, 241);
-        const courseName = certificate.displayName.substring(0, 100); // Limit length
-        doc.text(courseName, centerX, 115, { align: 'center' });
+        const safeCourseName = displayName.substring(0, 100); // Limit length
+        doc.text(safeCourseName, centerX, 115, { align: 'center' });
 
         // Certificate details
         doc.setFontSize(12);
         doc.setTextColor(100, 100, 100);
-        doc.text(`Certificate Number: ${certificate.certificateNumber}`, centerX, 140, { align: 'center' });
-        doc.text(`Issued on: ${new Date(certificate.issuedAt).toLocaleDateString()}`, centerX, 150, { align: 'center' });
+        doc.text(`Certificate Number: ${certificate.certificate_number}`, centerX, 140, { align: 'center' });
+        doc.text(`Issued on: ${new Date(certificate.issued_at).toLocaleDateString()}`, centerX, 150, { align: 'center' });
 
         // Verification footer
         doc.setFontSize(10);
         doc.setTextColor(150, 150, 150);
-        doc.text(`Verify at: ${certificate.verificationUrl}`, centerX, 175, { align: 'center' });
+        doc.text(`Verify at: ${verificationUrl}`, centerX, 175, { align: 'center' });
 
         // MixClub branding
         doc.setFontSize(14);
@@ -89,16 +93,16 @@ export const CertificateDisplay: React.FC<CertificateDisplayProps> = ({ certific
         doc.text('MixClub Online', centerX, 190, { align: 'center' });
 
         // Save PDF with sanitized filename
-        const safeFilename = `Certificate_${certificate.certificateNumber.replace(/[^a-zA-Z0-9-]/g, '_')}.pdf`;
+        const safeFilename = `Certificate_${certificate.certificate_number.replace(/[^a-zA-Z0-9-]/g, '_')}.pdf`;
         doc.save(safeFilename);
     };
 
     const handleShare = () => {
-        const shareUrl = `${window.location.origin}/verify/${certificate.id}`;
+        const shareUrl = verificationUrl;
         if (navigator.share) {
             navigator.share({
                 title: 'My Certificate',
-                text: `I just completed ${certificate.displayName}!`,
+                text: `I just completed ${displayName}!`,
                 url: shareUrl,
             });
         } else {
@@ -108,7 +112,7 @@ export const CertificateDisplay: React.FC<CertificateDisplayProps> = ({ certific
     };
 
     // Sanitize display name for safe rendering in JSX
-    const safeDisplayName = sanitizeForDisplay(certificate.displayName);
+    const safeDisplayName = sanitizeForDisplay(displayName);
 
     return (
         <div className="w-full max-w-2xl rounded-lg border-2 border-gradient-to-r from-purple-400 to-pink-400 bg-gradient-to-br from-blue-50 to-indigo-50 p-8 shadow-lg">
@@ -125,19 +129,19 @@ export const CertificateDisplay: React.FC<CertificateDisplayProps> = ({ certific
                 <p className="mb-6 text-center text-3xl font-bold text-purple-600">You</p>
                 <p className="mb-6 text-center text-lg text-gray-700">has successfully completed</p>
                 {/* Use textContent-based sanitization for display name */}
-                <p className="mb-8 text-center text-2xl font-bold text-indigo-600">{certificate.displayName}</p>
+                <p className="mb-8 text-center text-2xl font-bold text-indigo-600">{displayName}</p>
 
                 <hr className="my-6 border-gray-300" />
 
                 <div className="mb-6 grid grid-cols-2 gap-4 text-sm">
                     <div className="text-center">
                         <p className="text-gray-600 mb-1">Certificate Number</p>
-                        <p className="font-mono font-bold text-gray-900">{certificate.certificateNumber}</p>
+                        <p className="font-mono font-bold text-gray-900">{certificate.certificate_number}</p>
                     </div>
                     <div className="text-center">
                         <p className="text-gray-600 mb-1">Issued Date</p>
                         <p className="font-bold text-gray-900">
-                            {new Date(certificate.issuedAt).toLocaleDateString('en-US', {
+                            {new Date(certificate.issued_at).toLocaleDateString('en-US', {
                                 year: 'numeric',
                                 month: 'long',
                                 day: 'numeric',
@@ -147,7 +151,7 @@ export const CertificateDisplay: React.FC<CertificateDisplayProps> = ({ certific
                 </div>
 
                 <p className="text-center text-xs text-gray-500 mt-6">
-                    Verification URL: {certificate.verificationUrl}
+                    Verification URL: {verificationUrl}
                 </p>
             </div>
 
@@ -172,7 +176,7 @@ export const CertificateDisplay: React.FC<CertificateDisplayProps> = ({ certific
                     variant="outline"
                     className="flex items-center gap-2 border-gray-300 text-gray-600 hover:bg-gray-50"
                     onClick={() => {
-                        navigator.clipboard.writeText(certificate.verificationUrl);
+                        navigator.clipboard.writeText(verificationUrl);
                         alert('Verification URL copied!');
                     }}
                 >

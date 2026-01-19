@@ -2,85 +2,95 @@
  * Premium Courses Store
  * Manages course data, enrollments, progress tracking, and certifications
  * Uses Zustand for state management with persistence
+ * Aligned with database schema
  */
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+// Database-aligned interfaces
 export interface Lesson {
     id: string;
-    courseId: string;
+    course_id: string;
     title: string;
-    description: string;
-    videoUrl: string;
-    duration: number; // in minutes
-    order: number;
-    resources: string[];
-    quiz?: {
-        id: string;
-        questions: number;
-        passingScore: number;
-    };
+    description: string | null;
+    content: string | null;
+    video_url: string | null;
+    duration_minutes: number | null;
+    order_index: number;
+    is_free_preview: boolean | null;
+    created_at: string | null;
+    updated_at: string | null;
 }
 
 export interface Course {
     id: string;
     title: string;
-    description: string;
-    category: 'production' | 'mixing' | 'mastering' | 'business' | 'marketing';
-    thumbnail: string;
-    instructor: {
-        id: string;
-        name: string;
-        bio: string;
-        avatar: string;
-    };
-    price: number;
-    tier: 'pro' | 'studio';
-    level: 'beginner' | 'intermediate' | 'advanced';
-    duration: number; // total hours
-    lessons: Lesson[];
-    totalLessons: number;
-    rating: number;
-    reviews: number;
+    description: string | null;
+    category: string | null;
+    difficulty_level: string | null;
+    tier: 'free' | 'pro' | 'studio';
+    price: number | null;
+    currency: string | null;
+    duration_hours: number | null;
+    thumbnail_url: string | null;
+    instructor_id: string | null;
+    is_published: boolean | null;
+    stripe_price_id: string | null;
     tags: string[];
     requirements: string[];
     outcomes: string[];
-    createdAt: Date;
-    updatedAt: Date;
+    total_enrollments: number;
+    average_rating: number;
+    created_at: string | null;
+    updated_at: string | null;
+    // Joined data from relationships
+    instructor?: {
+        id: string;
+        full_name: string | null;
+        avatar_url: string | null;
+        bio: string | null;
+    };
+    lessons?: Lesson[];
+    lessons_count?: number;
 }
 
 export interface CourseEnrollment {
     id: string;
-    userId: string;
-    courseId: string;
-    enrolledAt: Date;
-    completedAt?: Date;
-    progress: number; // 0-100 percentage
-    lessonsCompleted: string[]; // lesson IDs
-    currentLesson?: string;
-    certificateId?: string;
+    user_id: string;
+    course_id: string;
+    enrolled_at: string | null;
+    completed_at: string | null;
+    progress_percentage: number | null;
+    last_accessed_lesson_id: string | null;
+    certificate_issued: boolean | null;
+    // Joined data
+    course?: Course;
 }
 
 export interface LessonProgress {
     id: string;
-    enrollmentId: string;
-    lessonId: string;
-    completedAt?: Date;
-    watchedDuration: number; // in seconds
-    quizScore?: number;
-    notes?: string;
+    enrollment_id: string;
+    lesson_id: string;
+    watched_duration: number;
+    completed_at: string | null;
+    quiz_score: number | null;
+    notes: string | null;
+    created_at: string | null;
+    updated_at: string | null;
 }
 
 export interface Certificate {
     id: string;
-    enrollmentId: string;
-    courseId: string;
-    userId: string;
-    issuedAt: Date;
-    certificateNumber: string;
-    displayName: string;
-    verificationUrl: string;
+    enrollment_id: string | null;
+    course_id: string;
+    user_id: string;
+    issued_at: string;
+    certificate_number: string;
+    expires_at: string | null;
+    pdf_url: string | null;
+    metadata: Record<string, unknown> | null;
+    created_at: string | null;
 }
 
 export interface CourseStats {
@@ -117,19 +127,18 @@ interface CoursesState {
     deleteCourse: (courseId: string) => void;
 
     // Actions - Enrollment
-    enrollCourse: (userId: string, courseId: string) => void;
-    completeCourse: (enrollmentId: string) => void;
-    getEnrollmentProgress: (enrollmentId: string) => number;
+    setEnrollments: (enrollments: CourseEnrollment[]) => void;
+    addEnrollment: (enrollment: CourseEnrollment) => void;
+    updateEnrollment: (enrollmentId: string, updates: Partial<CourseEnrollment>) => void;
 
     // Actions - Lesson Progress
-    startLesson: (enrollmentId: string, lessonId: string) => void;
-    completeLesson: (enrollmentId: string, lessonId: string, watchedDuration: number) => void;
-    submitLessonQuiz: (enrollmentId: string, lessonId: string, score: number) => void;
-    saveNotes: (enrollmentId: string, lessonId: string, notes: string) => void;
+    setLessonProgress: (progress: LessonProgress[]) => void;
+    addLessonProgress: (progress: LessonProgress) => void;
+    updateLessonProgress: (progressId: string, updates: Partial<LessonProgress>) => void;
 
     // Actions - Certificates
-    issueCertificate: (enrollmentId: string, courseId: string, userId: string) => void;
-    getCertificate: (enrollmentId: string) => Certificate | undefined;
+    setCertificates: (certificates: Certificate[]) => void;
+    addCertificate: (certificate: Certificate) => void;
 
     // Actions - Filtering & Search
     setCategory: (category: string) => void;
@@ -139,7 +148,6 @@ interface CoursesState {
 
     // Actions - Analytics
     getEnrollmentStats: () => { total: number; completed: number; inProgress: number };
-    getCourseStats: (courseId: string) => CourseStats;
     getStudentProgress: (userId: string) => Array<{ course: Course; progress: number }>;
 
     // Actions - Filters
@@ -177,124 +185,38 @@ export const useCoursesStore = create<CoursesState>()(
                     courses: state.courses.filter((c) => c.id !== courseId),
                 })),
 
-            // Enrollment
-            enrollCourse: (userId, courseId) =>
-                set((state) => {
-                    const enrollment: CourseEnrollment = {
-                        id: `enr_${Date.now()}`,
-                        userId,
-                        courseId,
-                        enrolledAt: new Date(),
-                        progress: 0,
-                        lessonsCompleted: [],
-                    };
-                    return {
-                        enrolledCourses: [...state.enrolledCourses, enrollment],
-                    };
-                }),
-            completeCourse: (enrollmentId) =>
+            // Enrollment Management
+            setEnrollments: (enrollments) => set({ enrolledCourses: enrollments }),
+            addEnrollment: (enrollment) =>
+                set((state) => ({
+                    enrolledCourses: [...state.enrolledCourses, enrollment],
+                })),
+            updateEnrollment: (enrollmentId, updates) =>
                 set((state) => ({
                     enrolledCourses: state.enrolledCourses.map((e) =>
-                        e.id === enrollmentId
-                            ? { ...e, completedAt: new Date(), progress: 100 }
-                            : e
+                        e.id === enrollmentId ? { ...e, ...updates } : e
                     ),
                 })),
-            getEnrollmentProgress: (enrollmentId) => {
-                const state = get();
-                const enrollment = state.enrolledCourses.find((e) => e.id === enrollmentId);
-                return enrollment?.progress ?? 0;
-            },
 
             // Lesson Progress
-            startLesson: (enrollmentId, lessonId) =>
-                set((state) => {
-                    const enrollment = state.enrolledCourses.find((e) => e.id === enrollmentId);
-                    const course = state.courses.find((c) => c.id === enrollment?.courseId);
-                    const lesson = course?.lessons.find((l) => l.id === lessonId);
-
-                    return {
-                        currentLesson: lesson || null,
-                        enrolledCourses: state.enrolledCourses.map((e) =>
-                            e.id === enrollmentId ? { ...e, currentLesson: lessonId } : e
-                        ),
-                    };
-                }),
-            completeLesson: (enrollmentId, lessonId, watchedDuration) =>
-                set((state) => {
-                    const enrollment = state.enrolledCourses.find((e) => e.id === enrollmentId);
-                    const course = state.courses.find((c) => c.id === enrollment?.courseId);
-                    const lessonsCompleted = new Set(enrollment?.lessonsCompleted || []);
-                    lessonsCompleted.add(lessonId);
-
-                    const progress = course
-                        ? (lessonsCompleted.size / course.totalLessons) * 100
-                        : 0;
-
-                    const progress_record: LessonProgress = {
-                        id: `lp_${Date.now()}`,
-                        enrollmentId,
-                        lessonId,
-                        completedAt: new Date(),
-                        watchedDuration,
-                    };
-
-                    return {
-                        lessonProgress: [...state.lessonProgress, progress_record],
-                        enrolledCourses: state.enrolledCourses.map((e) =>
-                            e.id === enrollmentId
-                                ? {
-                                    ...e,
-                                    lessonsCompleted: Array.from(lessonsCompleted),
-                                    progress: Math.round(progress),
-                                }
-                                : e
-                        ),
-                    };
-                }),
-            submitLessonQuiz: (enrollmentId, lessonId, score) =>
+            setLessonProgress: (progress) => set({ lessonProgress: progress }),
+            addLessonProgress: (progress) =>
                 set((state) => ({
-                    lessonProgress: state.lessonProgress.map((lp) =>
-                        lp.enrollmentId === enrollmentId && lp.lessonId === lessonId
-                            ? { ...lp, quizScore: score }
-                            : lp
-                    ),
+                    lessonProgress: [...state.lessonProgress, progress],
                 })),
-            saveNotes: (enrollmentId, lessonId, notes) =>
+            updateLessonProgress: (progressId, updates) =>
                 set((state) => ({
                     lessonProgress: state.lessonProgress.map((lp) =>
-                        lp.enrollmentId === enrollmentId && lp.lessonId === lessonId
-                            ? { ...lp, notes }
-                            : lp
+                        lp.id === progressId ? { ...lp, ...updates } : lp
                     ),
                 })),
 
             // Certificates
-            issueCertificate: (enrollmentId, courseId, userId) =>
-                set((state) => {
-                    const certificate: Certificate = {
-                        id: `cert_${Date.now()}`,
-                        enrollmentId,
-                        courseId,
-                        userId,
-                        issuedAt: new Date(),
-                        certificateNumber: `MIX-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-                        displayName: state.courses.find((c) => c.id === courseId)?.title || 'Certificate',
-                        verificationUrl: `https://raven-mix-ai.com/verify/${`cert_${Date.now()}`}`,
-                    };
-
-                    return {
-                        certificates: [...state.certificates, certificate],
-                        enrolledCourses: state.enrolledCourses.map((e) =>
-                            e.id === enrollmentId ? { ...e, certificateId: certificate.id } : e
-                        ),
-                    };
-                }),
-            getCertificate: (enrollmentId) => {
-                const state = get();
-                const enrollment = state.enrolledCourses.find((e) => e.id === enrollmentId);
-                return state.certificates.find((c) => c.enrollmentId === enrollmentId);
-            },
+            setCertificates: (certificates) => set({ certificates }),
+            addCertificate: (certificate) =>
+                set((state) => ({
+                    certificates: [...state.certificates, certificate],
+                })),
 
             // Filtering
             setCategory: (category) => set({ selectedCategory: category }),
@@ -306,50 +228,36 @@ export const useCoursesStore = create<CoursesState>()(
             getEnrollmentStats: () => {
                 const state = get();
                 const total = state.enrolledCourses.length;
-                const completed = state.enrolledCourses.filter((e) => e.completedAt).length;
+                const completed = state.enrolledCourses.filter((e) => e.completed_at).length;
                 const inProgress = total - completed;
 
                 return { total, completed, inProgress };
             },
-            getCourseStats: (courseId) => {
-                const state = get();
-                const enrollments = state.enrolledCourses.filter((e) => e.courseId === courseId);
-                const completed = enrollments.filter((e) => e.completedAt).length;
-                const completionRate = enrollments.length > 0 ? (completed / enrollments.length) * 100 : 0;
-                const course = state.courses.find((c) => c.id === courseId);
-
-                return {
-                    totalEnrollments: enrollments.length,
-                    completionRate: Math.round(completionRate),
-                    averageRating: course?.rating || 0,
-                    revenue: enrollments.length * (course?.price || 0),
-                    topLessons: [],
-                };
-            },
             getStudentProgress: (userId) => {
                 const state = get();
                 return state.enrolledCourses
-                    .filter((e) => e.userId === userId)
+                    .filter((e) => e.user_id === userId)
                     .map((e) => {
-                        const course = state.courses.find((c) => c.id === e.courseId);
+                        const course = state.courses.find((c) => c.id === e.course_id);
                         return {
                             course: course!,
-                            progress: e.progress,
+                            progress: e.progress_percentage || 0,
                         };
-                    });
+                    })
+                    .filter((p) => p.course);
             },
 
             // Filter Courses
             getFilteredCourses: () => {
                 const state = get();
-                let filtered = state.courses;
+                let filtered = state.courses.filter((c) => c.is_published);
 
                 if (state.selectedCategory) {
                     filtered = filtered.filter((c) => c.category === state.selectedCategory);
                 }
 
                 if (state.selectedLevel) {
-                    filtered = filtered.filter((c) => c.level === state.selectedLevel);
+                    filtered = filtered.filter((c) => c.difficulty_level === state.selectedLevel);
                 }
 
                 if (state.searchQuery) {
@@ -357,8 +265,8 @@ export const useCoursesStore = create<CoursesState>()(
                     filtered = filtered.filter(
                         (c) =>
                             c.title.toLowerCase().includes(query) ||
-                            c.description.toLowerCase().includes(query) ||
-                            c.tags.some((t) => t.toLowerCase().includes(query))
+                            c.description?.toLowerCase().includes(query) ||
+                            c.tags?.some((t) => t.toLowerCase().includes(query))
                     );
                 }
 
@@ -366,20 +274,22 @@ export const useCoursesStore = create<CoursesState>()(
                 const sorted = [...filtered];
                 switch (state.sortBy) {
                     case 'newest':
-                        sorted.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+                        sorted.sort((a, b) => 
+                            new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
+                        );
                         break;
                     case 'rating':
-                        sorted.sort((a, b) => b.rating - a.rating);
+                        sorted.sort((a, b) => (b.average_rating || 0) - (a.average_rating || 0));
                         break;
                     case 'price-low':
-                        sorted.sort((a, b) => a.price - b.price);
+                        sorted.sort((a, b) => (a.price || 0) - (b.price || 0));
                         break;
                     case 'price-high':
-                        sorted.sort((a, b) => b.price - a.price);
+                        sorted.sort((a, b) => (b.price || 0) - (a.price || 0));
                         break;
                     case 'popular':
                     default:
-                        sorted.sort((a, b) => b.reviews - a.reviews);
+                        sorted.sort((a, b) => (b.total_enrollments || 0) - (a.total_enrollments || 0));
                 }
 
                 return sorted;
@@ -387,7 +297,7 @@ export const useCoursesStore = create<CoursesState>()(
         }),
         {
             name: 'courses-store',
-            version: 1,
+            version: 2,
         }
     )
 );

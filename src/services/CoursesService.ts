@@ -1,19 +1,14 @@
 /**
- * Courses Service - Stubbed Implementation
- * The database schema doesn't match the Course interface.
- * This provides a mock implementation until tables are aligned.
+ * Courses Service - Database Implementation
+ * Provides all course-related database operations via Supabase
  */
 
-import { Course, CourseEnrollment, LessonProgress, Certificate, Lesson } from '@/stores/coursesStore';
-
-// In-memory mock data
-const mockCourses: Course[] = [];
-const mockEnrollments: CourseEnrollment[] = [];
-const mockCertificates: Certificate[] = [];
+import { supabase } from '@/integrations/supabase/client';
+import type { Course, CourseEnrollment, LessonProgress, Certificate, Lesson } from '@/stores/coursesStore';
 
 export class CoursesService {
     /**
-     * Fetch all courses with filters
+     * Fetch all published courses with optional filters
      */
     static async getCourses(filters?: {
         category?: string;
@@ -21,65 +16,193 @@ export class CoursesService {
         tier?: string;
         limit?: number;
     }): Promise<Course[]> {
-        console.warn('CoursesService: Using mock data - courses schema mismatch');
-        let result = [...mockCourses];
+        let query = supabase
+            .from('courses')
+            .select(`
+                *,
+                instructor:profiles!courses_instructor_id_fkey(id, full_name, avatar_url, bio)
+            `)
+            .eq('is_published', true);
 
         if (filters?.category) {
-            result = result.filter(c => c.category === filters.category);
+            query = query.eq('category', filters.category);
         }
         if (filters?.level) {
-            result = result.filter(c => c.level === filters.level);
+            query = query.eq('difficulty_level', filters.level);
         }
         if (filters?.tier) {
-            result = result.filter(c => c.tier === filters.tier);
+            query = query.eq('tier', filters.tier);
         }
         if (filters?.limit) {
-            result = result.slice(0, filters.limit);
+            query = query.limit(filters.limit);
         }
 
-        return result;
+        const { data, error } = await query.order('created_at', { ascending: false });
+        
+        if (error) {
+            console.error('CoursesService: Error fetching courses:', error);
+            throw error;
+        }
+
+        // Transform data to match Course interface with defaults
+        return (data || []).map((course) => ({
+            ...course,
+            tags: course.tags || [],
+            requirements: course.requirements || [],
+            outcomes: course.outcomes || [],
+            total_enrollments: course.total_enrollments || 0,
+            average_rating: course.average_rating || 0,
+            tier: course.tier || 'pro',
+        })) as Course[];
     }
 
     /**
-     * Fetch single course with all details
+     * Fetch single course with all details including lessons
      */
     static async getCourse(courseId: string): Promise<Course | null> {
-        console.warn('CoursesService: Using mock data - courses schema mismatch');
-        return mockCourses.find(c => c.id === courseId) || null;
+        const { data, error } = await supabase
+            .from('courses')
+            .select(`
+                *,
+                instructor:profiles!courses_instructor_id_fkey(id, full_name, avatar_url, bio),
+                lessons(*)
+            `)
+            .eq('id', courseId)
+            .single();
+
+        if (error) {
+            console.error('CoursesService: Error fetching course:', error);
+            return null;
+        }
+
+        // Sort lessons by order_index
+        if (data.lessons) {
+            data.lessons.sort((a: Lesson, b: Lesson) => (a.order_index || 0) - (b.order_index || 0));
+        }
+
+        return {
+            ...data,
+            tags: data.tags || [],
+            requirements: data.requirements || [],
+            outcomes: data.outcomes || [],
+            total_enrollments: data.total_enrollments || 0,
+            average_rating: data.average_rating || 0,
+            tier: data.tier || 'pro',
+        } as Course;
     }
 
     /**
      * Fetch course lessons
      */
     static async getCourseLessons(courseId: string): Promise<Lesson[]> {
-        console.warn('CoursesService: Using mock data - lessons schema mismatch');
-        const course = mockCourses.find(c => c.id === courseId);
-        return course?.lessons || [];
+        const { data, error } = await supabase
+            .from('lessons')
+            .select('*')
+            .eq('course_id', courseId)
+            .order('order_index', { ascending: true });
+
+        if (error) {
+            console.error('CoursesService: Error fetching lessons:', error);
+            throw error;
+        }
+
+        return data || [];
     }
 
     /**
-     * Enroll user in a course
+     * Enroll user in a course (for free courses or after payment verification)
      */
     static async enrollCourse(userId: string, courseId: string): Promise<CourseEnrollment> {
-        console.warn('CoursesService: Using mock data - enrollments table not configured');
-        const enrollment: CourseEnrollment = {
-            id: crypto.randomUUID(),
-            userId,
-            courseId,
-            enrolledAt: new Date(),
-            progress: 0,
-            lessonsCompleted: [],
-        };
-        mockEnrollments.push(enrollment);
-        return enrollment;
+        // Check if already enrolled
+        const { data: existing } = await supabase
+            .from('course_enrollments')
+            .select('id')
+            .eq('user_id', userId)
+            .eq('course_id', courseId)
+            .single();
+
+        if (existing) {
+            throw new Error('Already enrolled in this course');
+        }
+
+        const { data, error } = await supabase
+            .from('course_enrollments')
+            .insert({
+                user_id: userId,
+                course_id: courseId,
+                progress_percentage: 0,
+            })
+            .select()
+            .single();
+
+        if (error) {
+            console.error('CoursesService: Error enrolling in course:', error);
+            throw error;
+        }
+
+        // Increment enrollment count
+        try {
+            await supabase.rpc('increment_course_enrollments', { p_course_id: courseId });
+        } catch (e) {
+            console.warn('CoursesService: Could not increment enrollment count:', e);
+        }
+
+        return data as CourseEnrollment;
     }
 
     /**
-     * Get user's enrollments
+     * Get user's enrollments with course data
      */
     static async getUserEnrollments(userId: string): Promise<CourseEnrollment[]> {
-        console.warn('CoursesService: Using mock data - enrollments table not configured');
-        return mockEnrollments.filter(e => e.userId === userId);
+        const { data, error } = await supabase
+            .from('course_enrollments')
+            .select(`
+                *,
+                course:courses(
+                    *,
+                    instructor:profiles!courses_instructor_id_fkey(id, full_name, avatar_url)
+                )
+            `)
+            .eq('user_id', userId)
+            .order('enrolled_at', { ascending: false });
+
+        if (error) {
+            console.error('CoursesService: Error fetching enrollments:', error);
+            throw error;
+        }
+
+        return (data || []) as CourseEnrollment[];
+    }
+
+    /**
+     * Check if user is enrolled in a course
+     */
+    static async isUserEnrolled(userId: string, courseId: string): Promise<boolean> {
+        const { data } = await supabase
+            .from('course_enrollments')
+            .select('id')
+            .eq('user_id', userId)
+            .eq('course_id', courseId)
+            .single();
+
+        return !!data;
+    }
+
+    /**
+     * Get enrollment by ID
+     */
+    static async getEnrollment(enrollmentId: string): Promise<CourseEnrollment | null> {
+        const { data, error } = await supabase
+            .from('course_enrollments')
+            .select(`
+                *,
+                course:courses(*)
+            `)
+            .eq('id', enrollmentId)
+            .single();
+
+        if (error) return null;
+        return data as CourseEnrollment;
     }
 
     /**
@@ -88,15 +211,67 @@ export class CoursesService {
     static async updateLessonProgress(
         enrollmentId: string,
         lessonId: string,
-        watchedDuration: number
+        watchedDuration: number,
+        completed: boolean = false
     ): Promise<LessonProgress> {
-        console.warn('CoursesService: Using mock data - lesson_progress table not configured');
-        return {
-            id: crypto.randomUUID(),
-            enrollmentId,
-            lessonId,
-            watchedDuration,
-        };
+        const { data, error } = await supabase
+            .from('lesson_progress')
+            .upsert({
+                enrollment_id: enrollmentId,
+                lesson_id: lessonId,
+                watched_duration: watchedDuration,
+                updated_at: new Date().toISOString(),
+                completed_at: completed ? new Date().toISOString() : undefined,
+            }, { onConflict: 'enrollment_id,lesson_id' })
+            .select()
+            .single();
+
+        if (error) {
+            console.error('CoursesService: Error updating lesson progress:', error);
+            throw error;
+        }
+
+        // Recalculate enrollment progress
+        await CoursesService.recalculateEnrollmentProgress(enrollmentId);
+
+        return data as LessonProgress;
+    }
+
+    /**
+     * Recalculate enrollment progress percentage
+     */
+    static async recalculateEnrollmentProgress(enrollmentId: string): Promise<number> {
+        // Get enrollment with course info
+        const { data: enrollment } = await supabase
+            .from('course_enrollments')
+            .select('course_id')
+            .eq('id', enrollmentId)
+            .single();
+
+        if (!enrollment) return 0;
+
+        // Count total lessons
+        const { count: totalLessons } = await supabase
+            .from('lessons')
+            .select('id', { count: 'exact' })
+            .eq('course_id', enrollment.course_id);
+
+        // Count completed lessons
+        const { count: completedLessons } = await supabase
+            .from('lesson_progress')
+            .select('id', { count: 'exact' })
+            .eq('enrollment_id', enrollmentId)
+            .not('completed_at', 'is', null);
+
+        const progress = totalLessons ? Math.round(((completedLessons || 0) / totalLessons) * 100) : 0;
+
+        // Update enrollment
+        await supabase
+            .from('course_enrollments')
+            .update({ progress_percentage: progress })
+            .eq('id', enrollmentId);
+
+        return progress;
     }
 
     /**
@@ -107,7 +282,19 @@ export class CoursesService {
         lessonId: string,
         score: number
     ): Promise<void> {
-        console.warn('CoursesService: Using mock data - lesson_progress table not configured');
+        const { error } = await supabase
+            .from('lesson_progress')
+            .upsert({
+                enrollment_id: enrollmentId,
+                lesson_id: lessonId,
+                quiz_score: score,
+                updated_at: new Date().toISOString(),
+            }, { onConflict: 'enrollment_id,lesson_id' });
+
+        if (error) {
+            console.error('CoursesService: Error submitting quiz:', error);
+            throw error;
+        }
     }
 
     /**
@@ -118,7 +305,36 @@ export class CoursesService {
         lessonId: string,
         notes: string
     ): Promise<void> {
-        console.warn('CoursesService: Using mock data - lesson_progress table not configured');
+        const { error } = await supabase
+            .from('lesson_progress')
+            .upsert({
+                enrollment_id: enrollmentId,
+                lesson_id: lessonId,
+                notes,
+                updated_at: new Date().toISOString(),
+            }, { onConflict: 'enrollment_id,lesson_id' });
+
+        if (error) {
+            console.error('CoursesService: Error saving notes:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Get lesson progress for an enrollment
+     */
+    static async getLessonProgress(enrollmentId: string): Promise<LessonProgress[]> {
+        const { data, error } = await supabase
+            .from('lesson_progress')
+            .select('*')
+            .eq('enrollment_id', enrollmentId);
+
+        if (error) {
+            console.error('CoursesService: Error fetching lesson progress:', error);
+            throw error;
+        }
+
+        return (data || []) as LessonProgress[];
     }
 
     /**
@@ -129,27 +345,57 @@ export class CoursesService {
         courseId: string,
         userId: string
     ): Promise<Certificate> {
-        console.warn('CoursesService: Using mock data - certificates table not configured');
-        const certificate: Certificate = {
-            id: crypto.randomUUID(),
-            enrollmentId,
-            courseId,
-            userId,
-            issuedAt: new Date(),
-            certificateNumber: `MIX-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-            displayName: '',
-            verificationUrl: `https://example.com/verify/${crypto.randomUUID()}`,
-        };
-        mockCertificates.push(certificate);
-        return certificate;
+        const certificateNumber = `MIX-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+
+        const { data, error } = await supabase
+            .from('certificates')
+            .insert({
+                enrollment_id: enrollmentId,
+                course_id: courseId,
+                user_id: userId,
+                certificate_number: certificateNumber,
+                issued_at: new Date().toISOString(),
+            })
+            .select()
+            .single();
+
+        if (error) {
+            console.error('CoursesService: Error generating certificate:', error);
+            throw error;
+        }
+
+        // Update enrollment as completed
+        await supabase
+            .from('course_enrollments')
+            .update({
+                completed_at: new Date().toISOString(),
+                certificate_issued: true,
+                progress_percentage: 100,
+            })
+            .eq('id', enrollmentId);
+
+        return data as Certificate;
     }
 
     /**
      * Get user certificates
      */
     static async getUserCertificates(userId: string): Promise<Certificate[]> {
-        console.warn('CoursesService: Using mock data - certificates table not configured');
-        return mockCertificates.filter(c => c.userId === userId);
+        const { data, error } = await supabase
+            .from('certificates')
+            .select(`
+                *,
+                course:courses(id, title, thumbnail_url)
+            `)
+            .eq('user_id', userId)
+            .order('issued_at', { ascending: false });
+
+        if (error) {
+            console.error('CoursesService: Error fetching certificates:', error);
+            throw error;
+        }
+
+        return (data || []) as Certificate[];
     }
 
     /**
@@ -161,22 +407,31 @@ export class CoursesService {
         averageRating: number;
         revenue: number;
     }> {
-        console.warn('CoursesService: Using mock data - courses schema mismatch');
-        return {
-            totalEnrollments: 0,
-            completionRate: 0,
-            averageRating: 0,
-            revenue: 0,
-        };
-    }
+        // Fetch course data
+        const { data: course } = await supabase
+            .from('courses')
+            .select('total_enrollments, average_rating, price')
+            .eq('id', courseId)
+            .single();
 
-    /**
-     * Calculate enrollment progress
-     */
-    static async calculateProgress(enrollmentId: string): Promise<number> {
-        console.warn('CoursesService: Using mock data - enrollments table not configured');
-        const enrollment = mockEnrollments.find(e => e.id === enrollmentId);
-        return enrollment?.progress || 0;
+        // Count completed enrollments
+        const { count: completedCount } = await supabase
+            .from('course_enrollments')
+            .select('id', { count: 'exact' })
+            .eq('course_id', courseId)
+            .not('completed_at', 'is', null);
+
+        const totalEnrollments = course?.total_enrollments || 0;
+        const completionRate = totalEnrollments > 0 
+            ? Math.round(((completedCount || 0) / totalEnrollments) * 100) 
+            : 0;
+
+        return {
+            totalEnrollments,
+            completionRate,
+            averageRating: course?.average_rating || 0,
+            revenue: totalEnrollments * (course?.price || 0),
+        };
     }
 }
 
