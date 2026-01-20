@@ -179,6 +179,19 @@ async function handleCheckoutCompleted(
       referredUserId: userId,
     });
   }
+
+  // Handle course enrollment if this is a course purchase
+  if (packageType === 'course') {
+    const courseId = session.metadata?.course_id;
+    if (courseId) {
+      await handleCourseEnrollment(supabase, {
+        userId,
+        courseId,
+        paymentId: payment?.id,
+        amountPaid: amountTotal,
+      });
+    }
+  }
 }
 
 /**
@@ -531,4 +544,72 @@ async function handleTransferCreated(
       })
       .eq('id', payoutId);
   }
+}
+
+/**
+ * Handle course enrollment after successful payment
+ */
+async function handleCourseEnrollment(
+  supabase: ReturnType<typeof createClient>,
+  params: {
+    userId: string;
+    courseId: string;
+    paymentId?: string;
+    amountPaid: number;
+  }
+) {
+  console.log('[STRIPE-WEBHOOK] Processing course enrollment for user:', params.userId);
+
+  // 1. Create enrollment record
+  const { data: enrollment, error } = await supabase
+    .from('course_enrollments')
+    .insert({
+      user_id: params.userId,
+      course_id: params.courseId,
+      progress_percentage: 0,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error('[STRIPE-WEBHOOK] Course enrollment error:', error);
+    return;
+  }
+
+  console.log('[STRIPE-WEBHOOK] Course enrollment created:', enrollment.id);
+
+  // 2. Increment course enrollment count
+  try {
+    await supabase.rpc('increment_course_enrollments', { 
+      p_course_id: params.courseId 
+    });
+  } catch (rpcError) {
+    console.warn('[STRIPE-WEBHOOK] Could not increment enrollment count:', rpcError);
+  }
+
+  // 3. Get course details for notification
+  const { data: course } = await supabase
+    .from('courses')
+    .select('title')
+    .eq('id', params.courseId)
+    .single();
+
+  // 4. Create notification for user
+  try {
+    await supabase.rpc('create_notification', {
+      p_user_id: params.userId,
+      p_title: 'Course Access Granted!',
+      p_message: `You now have full access to "${course?.title || 'your course'}". Start learning today!`,
+      p_type: 'course_enrollment',
+      p_metadata: { 
+        course_id: params.courseId, 
+        enrollment_id: enrollment.id,
+        payment_id: params.paymentId,
+      },
+    });
+  } catch (notifError) {
+    console.warn('[STRIPE-WEBHOOK] Notification error:', notifError);
+  }
+
+  console.log(`[STRIPE-WEBHOOK] Course enrollment complete: ${enrollment.id}`);
 }
