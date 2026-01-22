@@ -1,4 +1,4 @@
-import React, { createContext, useContext, ReactNode, useEffect, useRef } from 'react';
+import React, { createContext, useContext, ReactNode, useEffect, useRef, useState } from 'react';
 import { useDepthLayer } from '@/hooks/useDepthLayer';
 import { usePuttinIn } from '@/hooks/usePuttinIn';
 import {
@@ -7,8 +7,10 @@ import {
   DepthLayerConfig,
   PuttinInScore,
   PuttinInMetrics,
+  DEPTH_LAYERS,
 } from '@/types/depth';
 import { hubEventBus } from '@/lib/hubEventBus';
+import { analytics } from '@/hooks/useAnalytics';
 
 interface DepthContextValue {
   // Current depth state
@@ -39,6 +41,10 @@ interface DepthContextValue {
   trackSupport: (artistId: string) => Promise<void>;
   trackWork: (type: 'project' | 'session' | 'collab') => Promise<void>;
   
+  // Celebration state
+  celebrationPending: DepthLayer | null;
+  dismissCelebration: () => void;
+  
   // Loading state
   loading: boolean;
 }
@@ -54,8 +60,11 @@ export function DepthProvider({ children }: DepthProviderProps) {
   const puttinIn = usePuttinIn();
   const previousLayerRef = useRef<DepthLayer | null>(null);
   const previousCapabilitiesRef = useRef<LayerCapabilities | null>(null);
+  const [celebrationPending, setCelebrationPending] = useState<DepthLayer | null>(null);
 
-  // Publish depth layer change events
+  const dismissCelebration = () => setCelebrationPending(null);
+
+  // Publish depth layer change events and trigger celebrations
   useEffect(() => {
     const currentLayer = depth.currentLayer;
     const previousLayer = previousLayerRef.current;
@@ -69,12 +78,31 @@ export function DepthProvider({ children }: DepthProviderProps) {
     
     // Layer changed
     if (previousLayer !== currentLayer) {
+      // Determine if this is a level UP (celebration worthy)
+      const layerOrder: DepthLayer[] = ['posted-up', 'in-the-room', 'on-the-mic', 'on-stage'];
+      const prevIndex = layerOrder.indexOf(previousLayer);
+      const currentIndex = layerOrder.indexOf(currentLayer);
+      const isLevelUp = currentIndex > prevIndex;
+
       hubEventBus.publish('depth:layer_changed', {
         from: previousLayer,
         to: currentLayer,
         score: depth.puttinInScore,
         progressToNext: depth.progressToNext,
+        isLevelUp,
       }, 'DepthContext');
+
+      // Track in analytics
+      analytics.trackDepthLayerChange(previousLayer, currentLayer, depth.puttinInScore);
+
+      // Trigger celebration for level ups
+      if (isLevelUp) {
+        setCelebrationPending(currentLayer);
+        analytics.trackMilestoneReached(currentLayer, depth.puttinInScore);
+        
+        // Auto-dismiss after 5 seconds
+        setTimeout(() => setCelebrationPending(null), 5000);
+      }
       
       // Check for new capabilities unlocked
       const prevCaps = previousCapabilitiesRef.current;
@@ -120,6 +148,10 @@ export function DepthProvider({ children }: DepthProviderProps) {
     trackAttention: puttinIn.trackAttention,
     trackSupport: puttinIn.trackSupport,
     trackWork: puttinIn.trackWork,
+    
+    // Celebration state
+    celebrationPending,
+    dismissCelebration,
   };
 
   return (
