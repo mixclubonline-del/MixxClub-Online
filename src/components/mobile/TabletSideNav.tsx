@@ -15,8 +15,10 @@ import {
   Music,
   LayoutDashboard,
   Mic2,
+  Coins,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { WalletIndicator } from '@/components/economy/WalletIndicator';
 
 interface NavItem {
   icon: React.ElementType;
@@ -36,8 +38,8 @@ export const TabletSideNav: React.FC = () => {
         { icon: Home, label: 'Dashboard', path: '/engineer-crm' },
         { icon: Search, label: 'Sessions', path: '/sessions' },
         { icon: Briefcase, label: 'Jobs', path: '/jobs' },
+        { icon: Coins, label: 'Coinz', path: '/economy' },
         { icon: Trophy, label: 'Progress', path: '/achievements' },
-        { icon: Users, label: 'Network', path: '/engineers' },
         { icon: Settings, label: 'Settings', path: '/settings' },
       ];
     }
@@ -57,8 +59,8 @@ export const TabletSideNav: React.FC = () => {
       { icon: Home, label: 'Dashboard', path: '/artist-crm' },
       { icon: Plus, label: 'Create', path: '/create-session' },
       { icon: Users, label: 'Engineers', path: '/engineers' },
+      { icon: Coins, label: 'Coinz', path: '/economy' },
       { icon: Music, label: 'Sessions', path: '/sessions' },
-      { icon: Trophy, label: 'Progress', path: '/achievements' },
       { icon: Settings, label: 'Settings', path: '/settings' },
     ];
   };
@@ -80,13 +82,17 @@ export const TabletSideNav: React.FC = () => {
       )}
     >
       {/* Logo area */}
-      <div className="h-14 flex items-center justify-center border-b border-border/50 px-4">
-        {!isCollapsed && (
-          <span className="font-bold text-lg bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-            MixClub
-          </span>
+      <div className="h-14 flex items-center justify-between border-b border-border/50 px-4">
+        {!isCollapsed ? (
+          <>
+            <span className="font-bold text-lg bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+              MixClub
+            </span>
+            <WalletIndicator variant="mini" />
+          </>
+        ) : (
+          <Mic2 className="h-6 w-6 text-primary mx-auto" />
         )}
-        {isCollapsed && <Mic2 className="h-6 w-6 text-primary" />}
       </div>
 
       {/* Navigation items */}

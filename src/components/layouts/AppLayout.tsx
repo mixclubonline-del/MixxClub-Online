@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import { RealTimeNotifications } from '@/components/RealTimeNotifications';
+import { WalletIndicator } from '@/components/economy/WalletIndicator';
 import { useAuth } from '@/hooks/useAuth';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useMobileDetect } from '@/hooks/useMobileDetect';
@@ -48,6 +49,7 @@ export function AppLayout({ children }: AppLayoutProps) {
               
               <div className="flex-1" />
               
+              {user && <WalletIndicator variant="compact" />}
               {user && <RealTimeNotifications userId={user.id} />}
             </div>
           </header>

@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { WalletIndicator } from '@/components/economy/WalletIndicator';
 
 interface NavTab {
   icon: any;
@@ -80,6 +81,7 @@ export const MobileEnhancedNav = () => {
             <span className="font-bold text-lg">MixClub</span>
           </div>
           <div className="flex items-center gap-2">
+            <WalletIndicator variant="mini" />
             <Button 
               variant="ghost" 
               size="icon"

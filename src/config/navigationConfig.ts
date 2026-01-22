@@ -14,6 +14,7 @@ import {
   Mic2,
   Award,
   UserCircle,
+  Coins,
   LucideIcon
 } from 'lucide-react';
 
@@ -128,6 +129,15 @@ const navigationItems: NavItem[] = [
     icon: ShoppingBag,
     roles: ['artist', 'engineer', null],
     category: 'Shop',
+  },
+
+  // Economy
+  {
+    label: 'MixxCoinz',
+    path: '/economy',
+    icon: Coins,
+    roles: ['artist', 'engineer'],
+    category: 'Economy',
     badge: 'NEW',
   },
 
