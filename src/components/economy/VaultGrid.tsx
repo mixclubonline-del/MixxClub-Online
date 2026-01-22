@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Package, Lock, Check, Sparkles, Coins, Shield, Music, Award, Moon, Star, FastForward, Frame, Badge as BadgeIcon } from 'lucide-react';
+import { Package, Lock, Check, Sparkles, Shield, Music, Award, Moon, Star, FastForward, Frame, Badge as BadgeIcon } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -7,6 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useMixxVault, VaultItemWithOwnership } from '@/hooks/useMixxVault';
 import { useMixxWallet } from '@/hooks/useMixxWallet';
+import { MixxCoin } from './MixxCoin';
 
 const ICON_MAP: Record<string, React.ElementType> = {
   Package,
@@ -114,8 +115,8 @@ function VaultItemCard({ item, onPurchase, isPurchasing, canAfford }: VaultItemC
 
           {/* Footer */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1">
-              <Coins className="h-4 w-4 text-amber-400" />
+            <div className="flex items-center gap-1.5">
+              <MixxCoin type={item.requires_earned_only ? 'earned' : 'purchased'} size="sm" />
               <span className="font-bold text-amber-400">
                 {item.coinz_price.toLocaleString()}
               </span>
