@@ -59,3 +59,6 @@ verify_jwt = false
 
 [functions.scrape-music-trends]
 verify_jwt = false
+
+[functions.prime-content-engine]
+verify_jwt = false

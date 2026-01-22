@@ -5233,6 +5233,117 @@ export type Database = {
           },
         ]
       }
+      prime_content_queue: {
+        Row: {
+          audio_url: string | null
+          content_type: string
+          created_at: string | null
+          created_by: string | null
+          engagement_metrics: Json | null
+          generation_metadata: Json | null
+          id: string
+          image_url: string | null
+          platform_content: Json | null
+          platforms_posted: Json | null
+          posted_at: string | null
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          scheduled_for: string | null
+          script: string
+          source_trend_id: string | null
+          status: string | null
+          thumbnail_url: string | null
+          topic: string | null
+          updated_at: string | null
+          video_url: string | null
+        }
+        Insert: {
+          audio_url?: string | null
+          content_type: string
+          created_at?: string | null
+          created_by?: string | null
+          engagement_metrics?: Json | null
+          generation_metadata?: Json | null
+          id?: string
+          image_url?: string | null
+          platform_content?: Json | null
+          platforms_posted?: Json | null
+          posted_at?: string | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          scheduled_for?: string | null
+          script: string
+          source_trend_id?: string | null
+          status?: string | null
+          thumbnail_url?: string | null
+          topic?: string | null
+          updated_at?: string | null
+          video_url?: string | null
+        }
+        Update: {
+          audio_url?: string | null
+          content_type?: string
+          created_at?: string | null
+          created_by?: string | null
+          engagement_metrics?: Json | null
+          generation_metadata?: Json | null
+          id?: string
+          image_url?: string | null
+          platform_content?: Json | null
+          platforms_posted?: Json | null
+          posted_at?: string | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          scheduled_for?: string | null
+          script?: string
+          source_trend_id?: string | null
+          status?: string | null
+          thumbnail_url?: string | null
+          topic?: string | null
+          updated_at?: string | null
+          video_url?: string | null
+        }
+        Relationships: []
+      }
+      prime_persona_config: {
+        Row: {
+          content_pillars: Json | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          persona_prompt: string
+          platform_guidelines: Json | null
+          tone_modifiers: Json | null
+          updated_at: string | null
+          voice_id: string | null
+        }
+        Insert: {
+          content_pillars?: Json | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          persona_prompt: string
+          platform_guidelines?: Json | null
+          tone_modifiers?: Json | null
+          updated_at?: string | null
+          voice_id?: string | null
+        }
+        Update: {
+          content_pillars?: Json | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          persona_prompt?: string
+          platform_guidelines?: Json | null
+          tone_modifiers?: Json | null
+          updated_at?: string | null
+          voice_id?: string | null
+        }
+        Relationships: []
+      }
       profile_views: {
         Row: {
           id: string

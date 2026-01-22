@@ -67,6 +67,7 @@ const MatchingDashboard = React.lazy(() => import("@/pages/MatchingDashboard"));
 const Sitemap = React.lazy(() => import("@/pages/Sitemap"));
 const PartnerProgram = React.lazy(() => import("@/pages/PartnerProgram"));
 const Economy = React.lazy(() => import("@/pages/Economy"));
+const PrimeContentDashboard = React.lazy(() => import("@/pages/admin/PrimeContentDashboard"));
 
 // Live Streaming pages
 const LivePage = React.lazy(() => import("@/pages/LivePage"));
@@ -190,6 +191,9 @@ export const appRoutes = (
     <Route path="/matching" element={<MatchingDashboard />} />
     <Route path="/partner-program" element={<AppLayout><PartnerProgram /></AppLayout>} />
     <Route path="/sitemap" element={<Sitemap />} />
+    
+    {/* Admin - Prime Content Engine */}
+    <Route path="/admin/prime-content" element={<AppLayout><PrimeContentDashboard /></AppLayout>} />
 
     {/* Public Profiles */}
     <Route path="/u/:username" element={<AppLayout><PublicProfile /></AppLayout>} />
