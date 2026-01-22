@@ -17,6 +17,18 @@ export interface Journey {
 
 // User journey definitions
 export const JOURNEYS: Record<string, Journey> = {
+  fan_journey: {
+    id: 'fan_journey',
+    name: 'The Supporter Path',
+    description: 'Discover your sound and earn your stripes',
+    steps: [
+      { id: 'first_listen', name: 'First Listen', description: 'Play a track on MixClub', xp: 10 },
+      { id: 'first_follow', name: 'Find Your Sound', description: 'Follow your first artist', xp: 25 },
+      { id: 'first_vote', name: 'Use Your Voice', description: 'Vote on a premiere', xp: 15 },
+      { id: 'first_day1', name: 'Day 1 Status', description: 'Become a Day 1 for an artist', xp: 50 },
+      { id: 'tastemaker', name: 'Tastemaker', description: 'Follow 10 artists before they hit 100 followers', xp: 100 },
+    ],
+  },
   artist_onboarding: {
     id: 'artist_onboarding',
     name: 'Artist Onboarding',

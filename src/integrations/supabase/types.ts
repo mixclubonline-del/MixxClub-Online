@@ -518,6 +518,75 @@ export type Database = {
         }
         Relationships: []
       }
+      artist_day1s: {
+        Row: {
+          artist_follower_count_at_follow: number
+          artist_id: string
+          artist_milestone_10k: boolean
+          artist_milestone_1k: boolean
+          artist_milestone_verified: boolean
+          coinz_awarded_10k: boolean
+          coinz_awarded_1k: boolean
+          coinz_awarded_verified: boolean
+          created_at: string
+          fan_id: string
+          followed_at: string
+          id: string
+          puttin_in_at_time: number
+          recognition_tier: string
+          updated_at: string
+        }
+        Insert: {
+          artist_follower_count_at_follow?: number
+          artist_id: string
+          artist_milestone_10k?: boolean
+          artist_milestone_1k?: boolean
+          artist_milestone_verified?: boolean
+          coinz_awarded_10k?: boolean
+          coinz_awarded_1k?: boolean
+          coinz_awarded_verified?: boolean
+          created_at?: string
+          fan_id: string
+          followed_at?: string
+          id?: string
+          puttin_in_at_time?: number
+          recognition_tier?: string
+          updated_at?: string
+        }
+        Update: {
+          artist_follower_count_at_follow?: number
+          artist_id?: string
+          artist_milestone_10k?: boolean
+          artist_milestone_1k?: boolean
+          artist_milestone_verified?: boolean
+          coinz_awarded_10k?: boolean
+          coinz_awarded_1k?: boolean
+          coinz_awarded_verified?: boolean
+          created_at?: string
+          fan_id?: string
+          followed_at?: string
+          id?: string
+          puttin_in_at_time?: number
+          recognition_tier?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artist_day1s_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artist_day1s_fan_id_fkey"
+            columns: ["fan_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       asset_contexts: {
         Row: {
           context_prefix: string
@@ -7841,6 +7910,10 @@ export type Database = {
       calculate_partnership_metrics: {
         Args: { p_partnership_id: string }
         Returns: undefined
+      }
+      calculate_recognition_tier: {
+        Args: { follower_count: number }
+        Returns: string
       }
       can_view_profile: { Args: { profile_id: string }; Returns: boolean }
       check_and_award_achievements: {
