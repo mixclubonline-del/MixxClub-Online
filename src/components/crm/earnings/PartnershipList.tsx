@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Check, Clock, AlertTriangle, User, Briefcase } from 'lucide-react';
 import type { Database } from '@/integrations/supabase/types';
+import { CharacterEmptyState } from '@/components/characters/CharacterEmptyState';
 
 type DbPartnership = Database['public']['Tables']['partnerships']['Row'];
 type DbCollaborativeProject = Database['public']['Tables']['collaborative_projects']['Row'];
@@ -48,12 +49,11 @@ export const PartnershipList = ({
   if (partnerships.length === 0) {
     return (
       <Card className="border-border/50 bg-card/50">
-        <CardContent className="flex flex-col items-center justify-center py-12">
-          <User className="h-12 w-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium text-foreground mb-2">No Partnerships Yet</h3>
-          <p className="text-muted-foreground text-center max-w-md">
-            Start collaborating with {userType === 'artist' ? 'engineers' : 'artists'} to track shared earnings and projects.
-          </p>
+        <CardContent className="p-0">
+          <CharacterEmptyState
+            type="partnerships"
+            title="No Partnerships Yet"
+          />
         </CardContent>
       </Card>
     );

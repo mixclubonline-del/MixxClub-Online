@@ -7,6 +7,7 @@ import { Search, User, FolderKanban, Briefcase, Clock, TrendingUp } from 'lucide
 import { useGlobalSearch, useRecordSearch, useSearchHistory, usePopularSearches } from '@/hooks/useSearch';
 import { useDebounce } from '@/hooks/useDebounce';
 import { cn } from '@/lib/utils';
+import { CharacterEmptyState } from '@/components/characters/CharacterEmptyState';
 
 export function GlobalSearch() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -175,15 +176,12 @@ export function GlobalSearch() {
         </div>
       )}
 
-      {/* No Results */}
+      {/* No Results - Nova integration */}
       {!isLoading && debouncedQuery && results?.length === 0 && (
-        <Card className="p-8 text-center">
-          <Search className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-          <h3 className="font-semibold mb-2">No results found</h3>
-          <p className="text-sm text-muted-foreground">
-            Try adjusting your search terms or browse our categories
-          </p>
-        </Card>
+        <CharacterEmptyState
+          type="search"
+          title="No results found"
+        />
       )}
     </div>
   );

@@ -6,6 +6,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Send, Mic, MicOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { CharacterEmptyState } from '@/components/characters/CharacterEmptyState';
 
 interface Message {
   id: string;
@@ -113,9 +114,11 @@ export function CollaborationChat({
         <ScrollArea className="flex-1 p-4" ref={scrollRef}>
           <div className="space-y-4">
             {messages.length === 0 ? (
-              <div className="text-center text-muted-foreground py-8">
-                No messages yet. Start the conversation!
-              </div>
+              <CharacterEmptyState
+                type="messages"
+                title="No messages yet"
+                className="py-6"
+              />
             ) : (
               messages.map((msg) => {
                 const isCurrentUser = msg.userId === currentUserId;
