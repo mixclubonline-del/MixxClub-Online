@@ -35,6 +35,9 @@ import { CookieConsent } from "@/components/legal/CookieConsent";
 import { GlobalKeyboardShortcuts } from "@/components/GlobalKeyboardShortcuts";
 import { ImmersiveAppShell } from "@/components/immersive/ImmersiveAppShell";
 import { MobileOptimizations } from "@/components/MobileOptimizations";
+import { DepthProvider } from "@/contexts/DepthContext";
+import { PulseProvider } from "@/contexts/PulseContext";
+import { EnergyTransition } from "@/components/pulse/PulseComponents";
 
 // Route modules - organized by domain
 import { publicRoutes, appRoutes, mobileRoutes, cityRoutes } from "@/routes";
@@ -115,30 +118,30 @@ const App = () => {
           )}
           <BrowserRouter>
             <AuthProvider>
-              <PrimeProvider>
-                <GlobalPlayerProvider>
-                  <TutorialProvider>
-                    <PWAInstallPrompt />
-                    <AppContent />
-                    <GlobalNavigation />
-                    <GlobalInteractions />
-                    <GlobalKeyboardShortcuts />
-                    <MobileOptimizations />
-                    <DesktopOnlyComponents />
-                    <TutorialOverlay />
-                    <GlobalAudioPlayer />
-                    <GlobalMusicPlayer />
-                    <GlobalPrimeChat />
-                    {/* Tutorial launcher - hidden during pre-launch, only show on desktop */}
-                    {/* TODO: Uncomment after launch */}
-                    {/* <div className="fixed bottom-20 left-4 z-40 hidden lg:block">
-                      <TutorialLauncher contextTutorials={["welcome-to-mixxclub", "setting-up-profile"]} />
-                    </div> */}
-                    <PerformanceMonitor />
-                    <CookieConsent />
-                  </TutorialProvider>
-                </GlobalPlayerProvider>
-              </PrimeProvider>
+              <DepthProvider>
+                <PrimeProvider>
+                  <GlobalPlayerProvider>
+                    <TutorialProvider>
+                      <PulseProvider>
+                        <PWAInstallPrompt />
+                        <EnergyTransition />
+                        <AppContent />
+                        <GlobalNavigation />
+                        <GlobalInteractions />
+                        <GlobalKeyboardShortcuts />
+                        <MobileOptimizations />
+                        <DesktopOnlyComponents />
+                        <TutorialOverlay />
+                        <GlobalAudioPlayer />
+                        <GlobalMusicPlayer />
+                        <GlobalPrimeChat />
+                        <PerformanceMonitor />
+                        <CookieConsent />
+                      </PulseProvider>
+                    </TutorialProvider>
+                  </GlobalPlayerProvider>
+                </PrimeProvider>
+              </DepthProvider>
             </AuthProvider>
           </BrowserRouter>
         </TooltipProvider>
