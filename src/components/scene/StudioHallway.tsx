@@ -37,7 +37,12 @@ const DOOR_POSITIONS = [
   { x: 75, y: 75 },  // Right back corner
 ];
 
-export function StudioHallway() {
+interface StudioHallwayProps {
+  fullscreen?: boolean;
+  onEnter?: () => void;
+}
+
+export function StudioHallway({ fullscreen = false, onEnter }: StudioHallwayProps) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { isConnected } = useSceneSystemInit();
@@ -76,7 +81,9 @@ export function StudioHallway() {
   }));
   
   return (
-    <section className="relative w-full h-[70vh] min-h-[500px] max-h-[800px] overflow-hidden">
+    <section className={`relative w-full overflow-hidden ${
+      fullscreen ? 'h-screen' : 'h-[70vh] min-h-[500px] max-h-[800px]'
+    }`}>
       {/* Background image - crossfade between base and active, with fallback */}
       <div className="absolute inset-0">
         {imageError ? (
@@ -236,8 +243,36 @@ export function StudioHallway() {
         </motion.div>
       )}
       
-      {/* Posted Up prompt - gentle nudge to sign in */}
-      {currentLayer === 'posted-up' && (
+      {/* Entry CTA - fullscreen mode only */}
+      {fullscreen && onEnter && (
+        <motion.div
+          className="absolute bottom-12 left-1/2 -translate-x-1/2 z-20"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.5 }}
+        >
+          <motion.button
+            onClick={onEnter}
+            className="group flex flex-col items-center gap-3 px-8 py-4 rounded-2xl bg-background/60 backdrop-blur-md border border-primary/30 hover:border-primary/60 transition-all"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <motion.div
+              className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center"
+              animate={{ scale: [1, 1.2, 1], opacity: [0.7, 1, 0.7] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <div className="w-4 h-4 border-2 border-primary rounded-full" />
+            </motion.div>
+            <span className="text-sm font-medium text-foreground/80 group-hover:text-foreground transition-colors">
+              Enter the Club
+            </span>
+          </motion.button>
+        </motion.div>
+      )}
+
+      {/* Posted Up prompt - gentle nudge to sign in (non-fullscreen) */}
+      {!fullscreen && currentLayer === 'posted-up' && (
         <motion.div
           className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10"
           initial={{ opacity: 0 }}
