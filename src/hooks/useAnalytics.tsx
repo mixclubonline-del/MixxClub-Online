@@ -81,6 +81,28 @@ class AnalyticsService {
     this.track('purchase', { amount, projectId });
   }
 
+  // Energy analytics methods
+  trackEnergyTransition(from: string, to: string, durationMs: number, trigger?: string) {
+    this.track('energy_transition', { from, to, durationMs, trigger });
+  }
+
+  trackEnergyDuration(energy: string, seconds: number) {
+    this.track('energy_duration', { energy, seconds });
+  }
+
+  trackEnergyFlow(sessionData: Record<string, unknown>) {
+    this.track('energy_flow_summary', sessionData);
+  }
+
+  // Depth analytics methods
+  trackDepthLayerChange(from: string, to: string, score: number) {
+    this.track('depth_layer_change', { from, to, score });
+  }
+
+  trackMilestoneReached(layer: string, score: number) {
+    this.track('milestone_reached', { layer, score });
+  }
+
   private flush() {
     if (import.meta.env.DEV) {
       console.log('📊 Flushing analytics queue:', this.queue.length, 'events');
