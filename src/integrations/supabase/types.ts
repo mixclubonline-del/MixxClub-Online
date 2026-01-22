@@ -518,6 +518,33 @@ export type Database = {
         }
         Relationships: []
       }
+      asset_contexts: {
+        Row: {
+          context_prefix: string
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          context_prefix: string
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          context_prefix?: string
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       audio_files: {
         Row: {
           created_at: string
@@ -2698,6 +2725,56 @@ export type Database = {
           predicted_value?: number
         }
         Relationships: []
+      }
+      generation_history: {
+        Row: {
+          context: string | null
+          created_at: string | null
+          generation_time_ms: number | null
+          id: string
+          metadata: Json | null
+          mode: string
+          prompt: string
+          provider: string
+          result_url: string | null
+          saved_asset_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          context?: string | null
+          created_at?: string | null
+          generation_time_ms?: number | null
+          id?: string
+          metadata?: Json | null
+          mode: string
+          prompt: string
+          provider: string
+          result_url?: string | null
+          saved_asset_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          context?: string | null
+          created_at?: string | null
+          generation_time_ms?: number | null
+          id?: string
+          metadata?: Json | null
+          mode?: string
+          prompt?: string
+          provider?: string
+          result_url?: string | null
+          saved_asset_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generation_history_saved_asset_id_fkey"
+            columns: ["saved_asset_id"]
+            isOneToOne: false
+            referencedRelation: "brand_assets"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       growth_milestones: {
         Row: {
