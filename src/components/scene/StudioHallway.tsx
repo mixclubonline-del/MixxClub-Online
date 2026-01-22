@@ -3,14 +3,21 @@
  * 
  * An immersive, wordless visualization of MixClub's active sessions.
  * Uses AI-generated hallway imagery with visual hotspots for active rooms.
- * No text labels - atmosphere is the message.
+ * 
+ * Depth-Aware Revelation:
+ * - Posted Up: See glowing doors (ambient awareness)
+ * - In the Room: See avatars behind doors (who's creating)
+ * - On the Mic: Can enter sessions (full interaction)
+ * - On Stage: Featured glow (you ARE the energy)
  */
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useStudios, useFeaturedSession, useSceneSystemInit } from '@/hooks/useSceneSystem';
-import { StudioHotspot } from './StudioHotspot';
+import { useDepthLayer } from '@/hooks/useDepthLayer';
+import { useAuth } from '@/hooks/useAuth';
+import { DepthAwareHotspot } from './DepthAwareHotspot';
 import type { StudioRoom } from '@/types/scene';
 
 // Static imports for hallway backgrounds
@@ -18,7 +25,6 @@ import hallwayBase from '@/assets/studio-hallway-base.jpg';
 import hallwayActive from '@/assets/studio-hallway-active.jpg';
 
 // Door positions mapped to the hallway image perspective
-// These correspond to where doors appear in the generated images
 const DOOR_POSITIONS = [
   { x: 12, y: 45 },  // Left side, front
   { x: 15, y: 55 },  // Left side, second
@@ -33,14 +39,31 @@ const DOOR_POSITIONS = [
 
 export function StudioHallway() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { isConnected } = useSceneSystemInit();
   const { studios, activeCount } = useStudios();
   const { featuredSession } = useFeaturedSession();
+  const { currentLayer, isOnStage } = useDepthLayer();
   const [imageError, setImageError] = useState(false);
   
   const hasActiveSessions = activeCount > 0;
   
+  // Check if current user has a featured session (On Stage gets the glow)
+  const userFeaturedRoomId = useMemo(() => {
+    if (!user || !isOnStage) return null;
+    // Find if user hosts any active session
+    const userRoom = studios.find(
+      s => s.hostId === user.id && s.state !== 'idle' && s.state !== 'waiting'
+    );
+    return userRoom?.id || null;
+  }, [user, isOnStage, studios]);
+  
   const handleRoomClick = (room: StudioRoom) => {
+    // Only On the Mic and On Stage can enter sessions
+    if (currentLayer === 'posted-up' || currentLayer === 'in-the-room') {
+      return;
+    }
+    
     if (room.visibility === 'public' && room.sessionId) {
       navigate(`/session/${room.sessionId}`);
     }
@@ -101,6 +124,26 @@ export function StudioHallway() {
         />
       )}
       
+      {/* Depth layer indicator - shows current access level */}
+      <motion.div
+        className="absolute top-4 left-4 z-20"
+        initial={{ opacity: 0, x: -10 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.5 }}
+      >
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/60 backdrop-blur-md border border-border/30">
+          <div className={`w-2 h-2 rounded-full ${
+            currentLayer === 'on-stage' ? 'bg-primary' :
+            currentLayer === 'on-the-mic' ? 'bg-primary/80' :
+            currentLayer === 'in-the-room' ? 'bg-primary/60' :
+            'bg-muted-foreground/40'
+          }`} />
+          <span className="text-xs font-medium text-muted-foreground capitalize">
+            {currentLayer.replace('-', ' ')}
+          </span>
+        </div>
+      </motion.div>
+      
       {/* Connection indicator - subtle, positioned top-right */}
       <motion.div
         className="absolute top-4 right-4 z-20"
@@ -115,22 +158,24 @@ export function StudioHallway() {
         />
       </motion.div>
       
-      {/* Studio hotspots - visual door indicators */}
+      {/* Studio hotspots - depth-aware rendering */}
       <div className="absolute inset-0">
         <AnimatePresence mode="sync">
           {studioPositions.map(({ room, position }) => (
-            <StudioHotspot
+            <DepthAwareHotspot
               key={room.id}
               room={room}
               position={position}
+              depthLayer={currentLayer}
+              isUserFeatured={room.id === userFeaturedRoomId}
               onClick={() => handleRoomClick(room)}
             />
           ))}
         </AnimatePresence>
       </div>
       
-      {/* Featured session highlight - larger glow for the featured room */}
-      {featuredSession && (
+      {/* Featured session highlight - extra glow for On Stage users */}
+      {featuredSession && isOnStage && (
         <motion.div
           className="absolute inset-0 pointer-events-none"
           initial={{ opacity: 0 }}
@@ -141,18 +186,18 @@ export function StudioHallway() {
             return (
               <motion.div
                 key={`featured-${room.id}`}
-                className="absolute w-32 h-32 rounded-full bg-primary/20 blur-2xl"
+                className="absolute w-40 h-40 rounded-full bg-primary/25 blur-3xl"
                 style={{
                   left: `${position.x}%`,
                   top: `${position.y}%`,
                   transform: 'translate(-50%, -50%)'
                 }}
                 animate={{
-                  scale: [1, 1.3, 1],
-                  opacity: [0.3, 0.6, 0.3]
+                  scale: [1, 1.4, 1],
+                  opacity: [0.3, 0.5, 0.3]
                 }}
                 transition={{
-                  duration: 3,
+                  duration: 3.5,
                   repeat: Infinity,
                   ease: 'easeInOut'
                 }}
@@ -162,7 +207,7 @@ export function StudioHallway() {
         </motion.div>
       )}
       
-      {/* Active session count indicator - subtle, bottom */}
+      {/* Active session count indicator - visible to all but styled by depth */}
       {hasActiveSessions && (
         <motion.div
           className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10"
@@ -170,16 +215,38 @@ export function StudioHallway() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
         >
-          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-background/80 backdrop-blur-md border border-primary/30">
+          <div className={`
+            flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-md border
+            ${currentLayer === 'posted-up' 
+              ? 'bg-background/60 border-border/30' 
+              : 'bg-background/80 border-primary/30'
+            }
+          `}>
             <motion.div
               className="w-2 h-2 rounded-full bg-primary"
               animate={{ scale: [1, 1.3, 1] }}
               transition={{ duration: 1.5, repeat: Infinity }}
             />
-            <span className="text-sm font-medium text-primary">
-              {activeCount}
+            <span className={`text-sm font-medium ${
+              currentLayer === 'posted-up' ? 'text-muted-foreground' : 'text-primary'
+            }`}>
+              {activeCount} {activeCount === 1 ? 'session' : 'sessions'} active
             </span>
           </div>
+        </motion.div>
+      )}
+      
+      {/* Posted Up prompt - gentle nudge to sign in */}
+      {currentLayer === 'posted-up' && (
+        <motion.div
+          className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 2 }}
+        >
+          <p className="text-xs text-muted-foreground/60 text-center">
+            Sign in to see who's creating
+          </p>
         </motion.div>
       )}
     </section>
