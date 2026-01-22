@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { EnergyState, PulseTransition, PulseState, getPulseConfig } from '@/types/pulse';
 import { detectEnergyFromRoute } from '@/lib/pulseRouteMap';
+import { hubEventBus } from '@/lib/hubEventBus';
 
 interface PulseStore extends PulseState {
   // Actions
@@ -42,6 +43,13 @@ export const usePulseStore = create<PulseStore>()(
         source,
       };
       
+      // Publish transition started event
+      hubEventBus.publish('energy:transition_started', {
+        from: currentEnergy,
+        to: energy,
+        trigger,
+      }, 'pulseStore');
+      
       // Start transition animation
       set({ transitionInProgress: true });
       
@@ -56,6 +64,20 @@ export const usePulseStore = create<PulseStore>()(
             ...transitionHistory.slice(0, MAX_HISTORY_SIZE - 1),
           ],
         });
+        
+        // Publish energy changed event
+        hubEventBus.publish('energy:changed', {
+          from: currentEnergy,
+          to: energy,
+          trigger,
+          source,
+        }, 'pulseStore');
+        
+        // Publish transition completed event
+        hubEventBus.publish('energy:transition_completed', {
+          energy,
+          duration: 150,
+        }, 'pulseStore');
       }, 150); // Brief transition delay
     },
     
