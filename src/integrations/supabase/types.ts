@@ -1774,6 +1774,60 @@ export type Database = {
         }
         Relationships: []
       }
+      curator_promotion_requests: {
+        Row: {
+          artist_id: string
+          artist_notes: string | null
+          completed_at: string | null
+          created_at: string | null
+          curator_id: string
+          curator_notes: string | null
+          id: string
+          payment_amount: number
+          payment_currency: string
+          playlist_url: string | null
+          responded_at: string | null
+          status: string | null
+          track_id: string | null
+          track_title: string
+          track_url: string | null
+        }
+        Insert: {
+          artist_id: string
+          artist_notes?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          curator_id: string
+          curator_notes?: string | null
+          id?: string
+          payment_amount: number
+          payment_currency: string
+          playlist_url?: string | null
+          responded_at?: string | null
+          status?: string | null
+          track_id?: string | null
+          track_title: string
+          track_url?: string | null
+        }
+        Update: {
+          artist_id?: string
+          artist_notes?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          curator_id?: string
+          curator_notes?: string | null
+          id?: string
+          payment_amount?: number
+          payment_currency?: string
+          playlist_url?: string | null
+          responded_at?: string | null
+          status?: string | null
+          track_id?: string | null
+          track_title?: string
+          track_url?: string | null
+        }
+        Relationships: []
+      }
       demo_beats: {
         Row: {
           ai_prompt: string | null
@@ -3870,6 +3924,334 @@ export type Database = {
           track_limit?: number | null
           turnaround_days?: number | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      mixx_coin_packages: {
+        Row: {
+          bonus_percentage: number | null
+          coinz_amount: number
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          sort_order: number | null
+          stripe_price_id: string | null
+          usd_price: number
+        }
+        Insert: {
+          bonus_percentage?: number | null
+          coinz_amount: number
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          sort_order?: number | null
+          stripe_price_id?: string | null
+          usd_price: number
+        }
+        Update: {
+          bonus_percentage?: number | null
+          coinz_amount?: number
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          sort_order?: number | null
+          stripe_price_id?: string | null
+          usd_price?: number
+        }
+        Relationships: []
+      }
+      mixx_mission_progress: {
+        Row: {
+          claimed_at: string | null
+          completed_at: string | null
+          created_at: string | null
+          current_value: number | null
+          id: string
+          last_reset_at: string | null
+          mission_id: string
+          times_completed: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          claimed_at?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          current_value?: number | null
+          id?: string
+          last_reset_at?: string | null
+          mission_id: string
+          times_completed?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          claimed_at?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          current_value?: number | null
+          id?: string
+          last_reset_at?: string | null
+          mission_id?: string
+          times_completed?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mixx_mission_progress_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "mixx_missions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mixx_missions: {
+        Row: {
+          category: string
+          coinz_reward: number
+          created_at: string | null
+          description: string | null
+          icon_name: string | null
+          id: string
+          is_active: boolean | null
+          metric_type: string
+          name: string
+          repeatable: boolean | null
+          reset_interval: string | null
+          role_required: string | null
+          sort_order: number | null
+          target_value: number
+          tier_required: number | null
+          xp_reward: number | null
+        }
+        Insert: {
+          category: string
+          coinz_reward: number
+          created_at?: string | null
+          description?: string | null
+          icon_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          metric_type: string
+          name: string
+          repeatable?: boolean | null
+          reset_interval?: string | null
+          role_required?: string | null
+          sort_order?: number | null
+          target_value: number
+          tier_required?: number | null
+          xp_reward?: number | null
+        }
+        Update: {
+          category?: string
+          coinz_reward?: number
+          created_at?: string | null
+          description?: string | null
+          icon_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          metric_type?: string
+          name?: string
+          repeatable?: boolean | null
+          reset_interval?: string | null
+          role_required?: string | null
+          sort_order?: number | null
+          target_value?: number
+          tier_required?: number | null
+          xp_reward?: number | null
+        }
+        Relationships: []
+      }
+      mixx_transactions: {
+        Row: {
+          amount: number
+          balance_type: string
+          counterparty_id: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          metadata: Json | null
+          reference_id: string | null
+          reference_type: string | null
+          source: string
+          transaction_type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          balance_type: string
+          counterparty_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          reference_id?: string | null
+          reference_type?: string | null
+          source: string
+          transaction_type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          balance_type?: string
+          counterparty_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          reference_id?: string | null
+          reference_type?: string | null
+          source?: string
+          transaction_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mixx_vault_items: {
+        Row: {
+          asset_url: string | null
+          category: string
+          coinz_price: number
+          created_at: string | null
+          description: string | null
+          feature_flag_key: string | null
+          icon_name: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean | null
+          limited_quantity: number | null
+          name: string
+          quantity_remaining: number | null
+          rarity: string | null
+          requires_earned_only: boolean | null
+          role_required: string | null
+          sort_order: number | null
+          tier_required: number | null
+        }
+        Insert: {
+          asset_url?: string | null
+          category: string
+          coinz_price: number
+          created_at?: string | null
+          description?: string | null
+          feature_flag_key?: string | null
+          icon_name?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          limited_quantity?: number | null
+          name: string
+          quantity_remaining?: number | null
+          rarity?: string | null
+          requires_earned_only?: boolean | null
+          role_required?: string | null
+          sort_order?: number | null
+          tier_required?: number | null
+        }
+        Update: {
+          asset_url?: string | null
+          category?: string
+          coinz_price?: number
+          created_at?: string | null
+          description?: string | null
+          feature_flag_key?: string | null
+          icon_name?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          limited_quantity?: number | null
+          name?: string
+          quantity_remaining?: number | null
+          rarity?: string | null
+          requires_earned_only?: boolean | null
+          role_required?: string | null
+          sort_order?: number | null
+          tier_required?: number | null
+        }
+        Relationships: []
+      }
+      mixx_vault_ownership: {
+        Row: {
+          coinz_paid: number
+          id: string
+          item_id: string
+          purchased_at: string | null
+          user_id: string
+        }
+        Insert: {
+          coinz_paid: number
+          id?: string
+          item_id: string
+          purchased_at?: string | null
+          user_id: string
+        }
+        Update: {
+          coinz_paid?: number
+          id?: string
+          item_id?: string
+          purchased_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mixx_vault_ownership_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "mixx_vault_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mixx_wallets: {
+        Row: {
+          created_at: string | null
+          daily_purchased: number | null
+          daily_purchased_reset_at: string | null
+          earned_balance: number | null
+          id: string
+          purchased_balance: number | null
+          total_earned: number | null
+          total_gifted: number | null
+          total_purchased: number | null
+          total_received: number | null
+          total_spent: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          daily_purchased?: number | null
+          daily_purchased_reset_at?: string | null
+          earned_balance?: number | null
+          id?: string
+          purchased_balance?: number | null
+          total_earned?: number | null
+          total_gifted?: number | null
+          total_purchased?: number | null
+          total_received?: number | null
+          total_spent?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          daily_purchased?: number | null
+          daily_purchased_reset_at?: string | null
+          earned_balance?: number | null
+          id?: string
+          purchased_balance?: number | null
+          total_earned?: number | null
+          total_gifted?: number | null
+          total_purchased?: number | null
+          total_received?: number | null
+          total_spent?: number | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -7415,6 +7797,30 @@ export type Database = {
         Returns: string
       }
       generate_affiliate_code: { Args: never; Returns: string }
+      get_or_create_wallet: {
+        Args: { p_user_id: string }
+        Returns: {
+          created_at: string | null
+          daily_purchased: number | null
+          daily_purchased_reset_at: string | null
+          earned_balance: number | null
+          id: string
+          purchased_balance: number | null
+          total_earned: number | null
+          total_gifted: number | null
+          total_purchased: number | null
+          total_received: number | null
+          total_spent: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "mixx_wallets"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       get_security_dashboard_stats: { Args: never; Returns: Json }
       has_role: {
         Args: {
