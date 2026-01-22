@@ -15,6 +15,7 @@ import { useUsernameValidation } from '@/hooks/useUsernameValidation';
 import { OnboardingPortal } from './OnboardingPortal';
 import { OnboardingWaypoints } from './OnboardingWaypoints';
 import { OnboardingPanel } from './OnboardingPanel';
+import { OnboardingCharacterGuide } from '@/components/characters';
 import engineerPathImage from '@/assets/onboarding-engineer-path.jpg';
 
 const SPECIALTIES = [
@@ -172,6 +173,13 @@ export function EngineerOnboardingWizard() {
       isCompleting={isCompleting}
       destinationPath="/engineer-crm"
     >
+      {/* Rell Character Guide */}
+      <OnboardingCharacterGuide
+        characterId="rell"
+        step={currentStep}
+        totalSteps={steps.length}
+      />
+
       {/* Waypoints */}
       <OnboardingWaypoints 
         steps={steps} 

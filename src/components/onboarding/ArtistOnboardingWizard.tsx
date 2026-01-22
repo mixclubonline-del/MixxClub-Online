@@ -15,6 +15,7 @@ import { useUsernameValidation } from '@/hooks/useUsernameValidation';
 import { OnboardingPortal } from './OnboardingPortal';
 import { OnboardingWaypoints } from './OnboardingWaypoints';
 import { OnboardingPanel } from './OnboardingPanel';
+import { OnboardingCharacterGuide } from '@/components/characters';
 import artistPathImage from '@/assets/onboarding-artist-path.jpg';
 
 const GENRES = [
@@ -149,6 +150,13 @@ export function ArtistOnboardingWizard() {
       isCompleting={isCompleting}
       destinationPath="/artist-crm"
     >
+      {/* Jax Character Guide */}
+      <OnboardingCharacterGuide
+        characterId="jax"
+        step={currentStep}
+        totalSteps={steps.length}
+      />
+
       {/* Waypoints */}
       <OnboardingWaypoints 
         steps={steps} 
