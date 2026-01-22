@@ -1,8 +1,11 @@
 import { Helmet } from 'react-helmet-async';
+import { useAuth } from '@/hooks/useAuth';
 import Navigation from '@/components/Navigation';
 import PrimeLanding from '@/components/prime/PrimeLanding';
 
 export default function MixClubHome() {
+  const { user } = useAuth();
+  
   return (
     <>
       <Helmet>
@@ -15,8 +18,9 @@ export default function MixClubHome() {
       </Helmet>
 
       <div className="min-h-screen">
-        <Navigation />
-        <div className="pt-16">
+        {/* Navigation only shows for authenticated users */}
+        {user && <Navigation />}
+        <div className={user ? 'pt-16' : ''}>
           <PrimeLanding />
         </div>
       </div>
