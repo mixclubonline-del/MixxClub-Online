@@ -11,33 +11,6 @@ interface OnboardingCharacterGuideProps {
   className?: string;
 }
 
-const stepQuotes: Record<CharacterId, string[]> = {
-  jax: [
-    "I got the idea. I just need it to sound right.",
-    "Let's find your sound.",
-    "What's the goal? Let's lock it in.",
-    "You're ready. Prime's got it from here.",
-  ],
-  rell: [
-    "If the system's solid, the work speaks.",
-    "Show them what you can do.",
-    "Set your rates. Know your worth.",
-    "You're ready. Prime's got it from here.",
-  ],
-  nova: [
-    "You're in the right room.",
-    "Keep going, you've got this.",
-    "Almost there!",
-    "Welcome to the club!",
-  ],
-  prime: [
-    "Welcome. Let's build something.",
-    "I've been where you're trying to go.",
-    "Trust the process.",
-    "Let's get legendary.",
-  ],
-};
-
 export function OnboardingCharacterGuide({
   characterId,
   step,
@@ -46,10 +19,23 @@ export function OnboardingCharacterGuide({
   className,
 }: OnboardingCharacterGuideProps) {
   const character = getCharacter(characterId);
-  const quotes = stepQuotes[characterId] || stepQuotes.nova;
-  const currentQuote = customQuote || quotes[Math.min(step, quotes.length - 1)];
+  const primeCharacter = getCharacter('prime');
+  
+  // Use character-specific onboarding quotes from config
+  const quotes = character.onboardingQuotes || character.sampleQuotes;
+  const primeQuotes = primeCharacter.onboardingQuotes || primeCharacter.sampleQuotes;
+  
   const isLastStep = step === totalSteps - 1;
   const showTransition = isLastStep && characterId !== 'prime';
+  
+  // Get the appropriate quote based on step and transition state
+  const currentQuote = customQuote || (
+    showTransition 
+      ? primeQuotes[primeQuotes.length - 1] // Prime's final welcome quote
+      : quotes[Math.min(step, quotes.length - 1)]
+  );
+
+  const activeCharacter = showTransition ? primeCharacter : character;
 
   return (
     <motion.div
@@ -58,11 +44,13 @@ export function OnboardingCharacterGuide({
       transition={{ duration: 0.5, delay: 0.3 }}
       className={cn(
         'fixed bottom-6 left-6 z-50',
-        'hidden md:flex items-end gap-3',
+        'flex items-end gap-3',
+        // Mobile: smaller and more compact
+        'max-md:bottom-4 max-md:left-4 max-md:gap-2',
         className
       )}
     >
-      {/* Character Avatar */}
+      {/* Character Avatar with ambient pulse */}
       <AnimatePresence mode="wait">
         <motion.div
           key={showTransition ? 'prime' : characterId}
@@ -72,20 +60,33 @@ export function OnboardingCharacterGuide({
           transition={{ type: 'spring', stiffness: 300, damping: 25 }}
           className="relative"
         >
-          {/* Ambient glow */}
-          <div 
-            className="absolute inset-0 rounded-full blur-xl opacity-40"
-            style={{ 
-              background: showTransition 
-                ? getCharacter('prime').accentColor 
-                : character.accentColor 
+          {/* Ambient breathing glow */}
+          <motion.div 
+            className="absolute inset-0 rounded-full blur-xl"
+            style={{ background: activeCharacter.accentColor }}
+            animate={{
+              opacity: [0.3, 0.5, 0.3],
+              scale: [1, 1.1, 1],
+            }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              ease: 'easeInOut',
             }}
           />
-          <CharacterAvatar 
-            characterId={showTransition ? 'prime' : characterId} 
-            size="lg" 
-            showGlow 
-          />
+          
+          {/* Scale up effect on Prime handoff */}
+          <motion.div
+            animate={showTransition ? { scale: [1, 1.15, 1] } : {}}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+          >
+            <CharacterAvatar 
+              characterId={showTransition ? 'prime' : characterId} 
+              size="lg" 
+              showGlow 
+              className="max-md:w-12 max-md:h-12"
+            />
+          </motion.div>
         </motion.div>
       </AnimatePresence>
 
@@ -100,29 +101,31 @@ export function OnboardingCharacterGuide({
           className={cn(
             'relative bg-background/95 backdrop-blur-sm',
             'border border-border/50 rounded-2xl rounded-bl-sm',
-            'px-4 py-3 max-w-[200px]',
-            'shadow-lg'
+            'px-4 py-3 max-w-[220px]',
+            'shadow-lg',
+            // Mobile adjustments
+            'max-md:px-3 max-md:py-2 max-md:max-w-[180px] max-md:rounded-xl max-md:rounded-bl-sm'
           )}
           style={{
-            boxShadow: `0 4px 20px -4px ${showTransition ? getCharacter('prime').accentColor : character.accentColor}40`,
+            boxShadow: `0 4px 20px -4px ${activeCharacter.accentColor}40`,
           }}
         >
           {/* Quote */}
-          <p className="text-sm text-foreground leading-snug">
+          <p className="text-sm text-foreground leading-snug max-md:text-xs">
             "{currentQuote}"
           </p>
           
-          {/* Character Name */}
+          {/* Character Name with accent */}
           <p 
-            className="text-xs font-medium mt-1"
-            style={{ color: showTransition ? getCharacter('prime').accentColor : character.accentColor }}
+            className="text-xs font-medium mt-1.5 max-md:mt-1"
+            style={{ color: activeCharacter.accentColor }}
           >
-            — {showTransition ? 'Prime' : character.name}
+            — {activeCharacter.name}
           </p>
 
           {/* Bubble pointer */}
           <div 
-            className="absolute -left-2 bottom-3 w-4 h-4 rotate-45 bg-background/95 border-l border-b border-border/50"
+            className="absolute -left-2 bottom-3 w-4 h-4 rotate-45 bg-background/95 border-l border-b border-border/50 max-md:w-3 max-md:h-3 max-md:-left-1.5 max-md:bottom-2"
           />
         </motion.div>
       </AnimatePresence>

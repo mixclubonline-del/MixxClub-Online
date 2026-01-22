@@ -40,6 +40,7 @@ export interface MixxClubCharacter {
   sampleQuotes: string[];
   locations: string[];
   contextQuotes?: Partial<Record<EmptyStateContext, string>>;
+  onboardingQuotes?: string[];
 }
 
 export const MIXXCLUB_CHARACTERS: Record<CharacterId, MixxClubCharacter> = {
@@ -58,7 +59,13 @@ export const MIXXCLUB_CHARACTERS: Record<CharacterId, MixxClubCharacter> = {
       "I've been where you're trying to go.",
       "Let's build something legendary."
     ],
-    locations: ['GlobalPrimeChat', 'CRM coaching', 'Studio guidance', 'Dream Engine']
+    locations: ['GlobalPrimeChat', 'CRM coaching', 'Studio guidance', 'Dream Engine'],
+    onboardingQuotes: [
+      "Welcome. Let's build something.",
+      "I've been where you're trying to go.",
+      "Trust the process.",
+      "Welcome to the club. Let's get legendary."
+    ]
   },
   jax: {
     id: 'jax',
@@ -75,7 +82,13 @@ export const MIXXCLUB_CHARACTERS: Record<CharacterId, MixxClubCharacter> = {
       "I'm not here to play—let's get it clean.",
       "Finally decided to stop guessing."
     ],
-    locations: ['Artist landing hero', 'Upload CTAs', 'Artist onboarding', 'Artist CRM intro']
+    locations: ['Artist landing hero', 'Upload CTAs', 'Artist onboarding', 'Artist CRM intro'],
+    onboardingQuotes: [
+      "Your name is your brand. Claim it.",
+      "Hip-hop, R&B, Drill... what's in your DNA?",
+      "Mixing? Mastering? Collabs? Let's lock it in.",
+      "You did that. Prime's got you from here."
+    ]
   },
   rell: {
     id: 'rell',
@@ -92,7 +105,13 @@ export const MIXXCLUB_CHARACTERS: Record<CharacterId, MixxClubCharacter> = {
       "If the system's solid, the work speaks.",
       "Tired of chasing invoices."
     ],
-    locations: ['Engineer landing hero', 'Revenue sections', 'Engineer CRM', 'Membership tiers']
+    locations: ['Engineer landing hero', 'Revenue sections', 'Engineer CRM', 'Membership tiers'],
+    onboardingQuotes: [
+      "Build your profile. Let the work speak.",
+      "Mixing, mastering, sound design... what's your bag?",
+      "Know your worth. Set your price.",
+      "Locked in. Prime's got it from here."
+    ]
   },
   nova: {
     id: 'nova',
