@@ -1,15 +1,19 @@
 import { motion } from "framer-motion";
-import { Music, Sliders, ArrowRight, Sparkles, DollarSign, Users, Headphones } from "lucide-react";
+import { ArrowRight, Sparkles, DollarSign, Users, Headphones, Sliders } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useCommunityStats } from "@/hooks/useCommunityStats";
+import { getCharacter, getRandomQuote } from "@/config/characters";
 
 export function RoleGateway() {
   const [hoveredRole, setHoveredRole] = useState<"artist" | "engineer" | null>(null);
   const { data: stats } = useCommunityStats();
+  
+  const jax = getCharacter('jax');
+  const rell = getCharacter('rell');
   
   // Calculate average earnings per engineer
   const avgEarnings = stats?.totalEngineers && stats.totalEngineers > 0 
@@ -47,7 +51,7 @@ export function RoleGateway() {
         </div>
 
         <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-8">
-          {/* Artist Path */}
+          {/* Artist Path - Jax */}
           <motion.div
             onMouseEnter={() => setHoveredRole("artist")}
             onMouseLeave={() => setHoveredRole(null)}
@@ -56,22 +60,54 @@ export function RoleGateway() {
           >
             <Card className={`p-8 h-full border-2 transition-all duration-300 ${
               hoveredRole === "artist" 
-                ? "border-primary bg-primary/5 shadow-lg shadow-primary/10" 
+                ? "border-[hsl(142_76%_36%)] bg-[hsl(142_76%_36%_/_0.05)] shadow-lg shadow-[hsl(142_76%_36%_/_0.15)]" 
                 : "border-border/50 bg-card/50"
             }`}>
+              {/* Jax Portrait Header */}
               <div className="flex items-center gap-4 mb-6">
-                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all ${
-                  hoveredRole === "artist" 
-                    ? "bg-primary text-primary-foreground" 
-                    : "bg-primary/20 text-primary"
-                }`}>
-                  <Music className="w-8 h-8" />
-                </div>
+                <motion.div 
+                  className={`relative w-16 h-16 rounded-2xl overflow-hidden transition-all ${
+                    hoveredRole === "artist" 
+                      ? "shadow-[0_0_25px_hsl(142_76%_36%_/_0.4)]" 
+                      : ""
+                  }`}
+                  animate={{ 
+                    scale: hoveredRole === "artist" ? 1.05 : 1 
+                  }}
+                >
+                  <img 
+                    src={jax.avatarPath} 
+                    alt={jax.name}
+                    className="w-full h-full object-cover"
+                  />
+                  {/* Accent ring on hover */}
+                  <div 
+                    className={`absolute inset-0 border-2 rounded-2xl transition-opacity ${
+                      hoveredRole === "artist" ? "opacity-100" : "opacity-0"
+                    }`}
+                    style={{ borderColor: jax.accentColor }}
+                  />
+                </motion.div>
                 <div>
                   <h3 className="text-2xl font-bold">I'm an Artist</h3>
                   <p className="text-muted-foreground">Creator, Musician, Producer</p>
                 </div>
               </div>
+
+              {/* Jax Quote */}
+              <motion.div 
+                className="mb-6 p-3 rounded-lg bg-[hsl(142_76%_36%_/_0.08)] border border-[hsl(142_76%_36%_/_0.2)]"
+                animate={{ 
+                  opacity: hoveredRole === "artist" ? 1 : 0.8 
+                }}
+              >
+                <p className="text-sm text-muted-foreground italic">
+                  <span className="font-semibold" style={{ color: jax.accentColor }}>
+                    {jax.name}:
+                  </span>{" "}
+                  "{jax.sampleQuotes[0]}"
+                </p>
+              </motion.div>
 
               <p className="text-lg mb-6 text-muted-foreground">
                 Turn your bedroom beats into billboard bangers with professional mixing, AI analysis, and access to world-class engineers.
@@ -86,8 +122,8 @@ export function RoleGateway() {
                     animate={{ opacity: hoveredRole === "artist" ? 1 : 0.7, x: 0 }}
                     transition={{ delay: index * 0.1 }}
                   >
-                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <benefit.icon className="w-4 h-4 text-primary" />
+                    <div className="w-8 h-8 rounded-lg bg-[hsl(142_76%_36%_/_0.15)] flex items-center justify-center">
+                      <benefit.icon className="w-4 h-4 text-[hsl(142_76%_36%)]" />
                     </div>
                     <span className="text-sm">{benefit.text}</span>
                   </motion.div>
@@ -95,21 +131,24 @@ export function RoleGateway() {
               </div>
 
               <Link to="/for-artists">
-                <Button className="w-full group" size="lg">
-                  Explore Artist Journey
+                <Button 
+                  className="w-full group bg-[hsl(142_76%_36%)] hover:bg-[hsl(142_76%_30%)]" 
+                  size="lg"
+                >
+                  Start as Artist
                   <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
 
               <div className="mt-4 text-center">
-                <Badge variant="outline" className="text-xs">
+                <Badge variant="outline" className="text-xs border-[hsl(142_76%_36%_/_0.3)]">
                   🎵 {stats?.totalArtists?.toLocaleString() || '10,000'}+ artists trust MixClub
                 </Badge>
               </div>
             </Card>
           </motion.div>
 
-          {/* Engineer Path */}
+          {/* Engineer Path - Rell */}
           <motion.div
             onMouseEnter={() => setHoveredRole("engineer")}
             onMouseLeave={() => setHoveredRole(null)}
@@ -121,19 +160,50 @@ export function RoleGateway() {
                 ? "border-secondary bg-secondary/5 shadow-lg shadow-secondary/10" 
                 : "border-border/50 bg-card/50"
             }`}>
+              {/* Rell Portrait Header */}
               <div className="flex items-center gap-4 mb-6">
-                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all ${
-                  hoveredRole === "engineer" 
-                    ? "bg-secondary text-secondary-foreground" 
-                    : "bg-secondary/20 text-secondary"
-                }`}>
-                  <Sliders className="w-8 h-8" />
-                </div>
+                <motion.div 
+                  className={`relative w-16 h-16 rounded-2xl overflow-hidden transition-all ${
+                    hoveredRole === "engineer" 
+                      ? "shadow-[0_0_25px_hsl(var(--secondary)_/_0.4)]" 
+                      : ""
+                  }`}
+                  animate={{ 
+                    scale: hoveredRole === "engineer" ? 1.05 : 1 
+                  }}
+                >
+                  <img 
+                    src={rell.avatarPath} 
+                    alt={rell.name}
+                    className="w-full h-full object-cover"
+                  />
+                  {/* Accent ring on hover */}
+                  <div 
+                    className={`absolute inset-0 border-2 rounded-2xl transition-opacity border-secondary ${
+                      hoveredRole === "engineer" ? "opacity-100" : "opacity-0"
+                    }`}
+                  />
+                </motion.div>
                 <div>
                   <h3 className="text-2xl font-bold">I'm an Engineer</h3>
                   <p className="text-muted-foreground">Mixer, Producer, Audio Pro</p>
                 </div>
               </div>
+
+              {/* Rell Quote */}
+              <motion.div 
+                className="mb-6 p-3 rounded-lg bg-secondary/10 border border-secondary/20"
+                animate={{ 
+                  opacity: hoveredRole === "engineer" ? 1 : 0.8 
+                }}
+              >
+                <p className="text-sm text-muted-foreground italic">
+                  <span className="font-semibold text-secondary">
+                    {rell.name}:
+                  </span>{" "}
+                  "{rell.sampleQuotes[0]}"
+                </p>
+              </motion.div>
 
               <p className="text-lg mb-6 text-muted-foreground">
                 Transform your skills into a thriving business. Get matched with artists, access pro tools, and earn from 10 revenue streams.
@@ -158,13 +228,13 @@ export function RoleGateway() {
 
               <Link to="/for-engineers">
                 <Button className="w-full group bg-secondary hover:bg-secondary/90" size="lg">
-                  Explore Engineer Journey
+                  Start as Engineer
                   <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
 
               <div className="mt-4 text-center">
-                <Badge variant="outline" className="text-xs">
+                <Badge variant="outline" className="text-xs border-secondary/30">
                   💰 Engineers earn avg. ${avgEarnings.toLocaleString()}/month
                 </Badge>
               </div>
