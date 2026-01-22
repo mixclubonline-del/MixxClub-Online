@@ -66,6 +66,7 @@ const FreemiumOverview = React.lazy(() => import("@/pages/FreemiumOverview"));
 const MatchingDashboard = React.lazy(() => import("@/pages/MatchingDashboard"));
 const Sitemap = React.lazy(() => import("@/pages/Sitemap"));
 const PartnerProgram = React.lazy(() => import("@/pages/PartnerProgram"));
+const Economy = React.lazy(() => import("@/pages/Economy"));
 
 // Live Streaming pages
 const LivePage = React.lazy(() => import("@/pages/LivePage"));
@@ -101,6 +102,7 @@ export const appRoutes = (
     <Route path="/leaderboard" element={<CommunityLeaderboard />} />
     <Route path="/achievements" element={<Achievements />} />
     <Route path="/unlockables" element={<UnlockablesHub />} />
+    <Route path="/economy" element={<Economy />} />
     
     {/* Live Streaming */}
     <Route path="/live" element={<AppLayout><LivePage /></AppLayout>} />
