@@ -8,6 +8,8 @@
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { supabase } from '@/integrations/supabase/client';
+import { hubEventBus } from '@/lib/hubEventBus';
+import { usePulseStore } from '@/stores/pulseStore';
 import type { 
   WorldState, 
   StudioRoom, 
@@ -188,15 +190,37 @@ export const useSceneStore = create<SceneStore>()(
                   },
                 }));
                 get().publishEvent({ type: 'session_started', data: { studio: newStudio } });
+                
+                // Trigger COLLABORATE energy when session joined
+                const pulseStore = usePulseStore.getState();
+                if (pulseStore.currentEnergy !== 'CREATE') {
+                  // Don't interrupt focused creation
+                  pulseStore.setEnergy('COLLABORATE', 'action', 'session_joined');
+                }
+                
+                // Publish to hub event bus
+                hubEventBus.publish('session:created', {
+                  sessionId: newStudio.id,
+                  title: newStudio.title,
+                  hostId: newStudio.hostId,
+                }, 'sceneStore');
               }
               
               if (eventType === 'UPDATE' && newRecord) {
                 const updatedStudio = mapSessionToStudio(newRecord);
+                const previousStudio = get().studios.find(s => s.id === updatedStudio.id);
+                
                 set(state => ({
                   studios: state.studios.map(s => 
                     s.id === updatedStudio.id ? updatedStudio : s
                   ),
                 }));
+                
+                // Trigger CREATE energy when recording starts
+                if (previousStudio?.state !== 'recording' && updatedStudio.state === 'recording') {
+                  const pulseStore = usePulseStore.getState();
+                  pulseStore.setEnergy('CREATE', 'action', 'recording_started');
+                }
               }
               
               if (eventType === 'DELETE' && oldRecord) {
@@ -208,6 +232,24 @@ export const useSceneStore = create<SceneStore>()(
                   },
                 }));
                 get().publishEvent({ type: 'session_ended', data: { sessionId: oldRecord.id } });
+                
+                // Brief CELEBRATE on session completion, then revert
+                const pulseStore = usePulseStore.getState();
+                const previousEnergy = pulseStore.currentEnergy;
+                pulseStore.setEnergy('CELEBRATE', 'action', 'session_completed');
+                
+                // Revert after celebration
+                setTimeout(() => {
+                  const currentState = usePulseStore.getState();
+                  if (currentState.currentEnergy === 'CELEBRATE') {
+                    currentState.setEnergy(previousEnergy, 'action', 'celebrate_revert');
+                  }
+                }, 3000);
+                
+                // Publish to hub event bus
+                hubEventBus.publish('session:completed', {
+                  sessionId: oldRecord.id,
+                }, 'sceneStore');
               }
             }
           )

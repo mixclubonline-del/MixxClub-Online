@@ -24,7 +24,14 @@ export type HubEventType =
   | 'match:accepted'
   | 'revenue:received'
   | 'activity:logged'
-  | 'navigation:hub_changed';
+  | 'navigation:hub_changed'
+  // Energy/Pulse events
+  | 'energy:changed'
+  | 'energy:transition_started'
+  | 'energy:transition_completed'
+  // Depth layer events
+  | 'depth:layer_changed'
+  | 'depth:capability_unlocked';
 
 export interface HubEvent<T = unknown> {
   type: HubEventType;

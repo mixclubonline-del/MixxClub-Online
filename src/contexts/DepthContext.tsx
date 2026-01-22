@@ -1,4 +1,4 @@
-import React, { createContext, useContext, ReactNode } from 'react';
+import React, { createContext, useContext, ReactNode, useEffect, useRef } from 'react';
 import { useDepthLayer } from '@/hooks/useDepthLayer';
 import { usePuttinIn } from '@/hooks/usePuttinIn';
 import {
@@ -8,6 +8,7 @@ import {
   PuttinInScore,
   PuttinInMetrics,
 } from '@/types/depth';
+import { hubEventBus } from '@/lib/hubEventBus';
 
 interface DepthContextValue {
   // Current depth state
@@ -51,6 +52,50 @@ interface DepthProviderProps {
 export function DepthProvider({ children }: DepthProviderProps) {
   const depth = useDepthLayer();
   const puttinIn = usePuttinIn();
+  const previousLayerRef = useRef<DepthLayer | null>(null);
+  const previousCapabilitiesRef = useRef<LayerCapabilities | null>(null);
+
+  // Publish depth layer change events
+  useEffect(() => {
+    const currentLayer = depth.currentLayer;
+    const previousLayer = previousLayerRef.current;
+    
+    // Skip initial render
+    if (previousLayer === null) {
+      previousLayerRef.current = currentLayer;
+      previousCapabilitiesRef.current = depth.capabilities;
+      return;
+    }
+    
+    // Layer changed
+    if (previousLayer !== currentLayer) {
+      hubEventBus.publish('depth:layer_changed', {
+        from: previousLayer,
+        to: currentLayer,
+        score: depth.puttinInScore,
+        progressToNext: depth.progressToNext,
+      }, 'DepthContext');
+      
+      // Check for new capabilities unlocked
+      const prevCaps = previousCapabilitiesRef.current;
+      const currentCaps = depth.capabilities;
+      
+      if (prevCaps && currentCaps) {
+        const unlockedCapabilities = (Object.keys(currentCaps) as Array<keyof LayerCapabilities>)
+          .filter(cap => currentCaps[cap] && !prevCaps[cap]);
+        
+        if (unlockedCapabilities.length > 0) {
+          hubEventBus.publish('depth:capability_unlocked', {
+            layer: currentLayer,
+            capabilities: unlockedCapabilities,
+          }, 'DepthContext');
+        }
+      }
+      
+      previousLayerRef.current = currentLayer;
+      previousCapabilitiesRef.current = currentCaps;
+    }
+  }, [depth.currentLayer, depth.capabilities, depth.puttinInScore, depth.progressToNext]);
 
   const value: DepthContextValue = {
     // From useDepthLayer
