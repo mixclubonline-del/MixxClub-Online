@@ -8,7 +8,7 @@ import { Card } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Sparkles, Check, Image as ImageIcon, Video, Zap, Eye } from 'lucide-react';
+import { Loader2, Sparkles, Check, Image as ImageIcon, Video, Zap, Eye, Coins } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useLandingImagery } from '@/hooks/useLandingImagery';
 import { useAuth } from '@/hooks/useAuth';
@@ -80,6 +80,34 @@ const CELEBRATION_PROMPTS = [
     context: 'community_unlock_celebration',
     prompt: `Abstract visualization of a community achievement moment. Particles of light converging from many sources into a central bright point that then explodes outward in celebration. Purple, gold, and cyan colors. The moment when collective effort unlocks something new. Euphoric, powerful, unified.`,
     videoPrompt: `Abstract particle effect - many small lights from different directions converging to center, building intensity, then exploding outward in celebration. Purple, gold, cyan colors. Communal achievement visualized. 4 second loop.`,
+  },
+];
+
+// MixxCoinz Economy prompts - Frequency Coin visual identity
+const ECONOMY_PROMPTS = [
+  {
+    id: 'earned',
+    name: 'Earned Coin (Work)',
+    context: 'economy_coin_earned',
+    prompt: `Product photography of a premium digital currency coin floating in dramatic space. Titanium/gunmetal metal core with precision machined edges. Holographic concentric frequency rings on surface in purple-to-cyan gradient. Center emblem: stylized "M" from audio waveform peaks. 32 vinyl-groove notches around edge. Cyan-purple glow beneath. Chromatic aberration on edges. Dark background with fog. 8K hyperrealistic.`,
+  },
+  {
+    id: 'purchased',
+    name: 'Purchased Coin (Value)',
+    context: 'economy_coin_purchased',
+    prompt: `Product photography of a premium digital currency coin floating in dramatic space. Polished gold/brass metal core with warm lustrous finish. Geometric gem/diamond facet patterns catching light. Crown/gem emblem in center. Gold-plated beveled rim. Amber-gold glow beneath. Golden light rays background. Dark atmosphere. 8K hyperrealistic luxury product photography.`,
+  },
+  {
+    id: 'hero',
+    name: 'Hero Display (Dual)',
+    context: 'economy_coin_hero',
+    prompt: `Two premium digital currency coins floating side by side in cinematic space. LEFT: titanium with purple-cyan frequency rings, waveform M emblem, cyan glow. RIGHT: polished gold with gem facets, crown emblem, gold glow. Energy particles bridging between them. Dark atmospheric background. 8K cinematic.`,
+  },
+  {
+    id: 'celebration',
+    name: 'Reward Celebration',
+    context: 'economy_coin_celebration',
+    prompt: `Dynamic action shot of a titanium coin with purple-cyan frequency rings exploding in celebration. Mid-spin rotation. Particle burst of smaller coins and light fragments radiating outward. Purple, cyan, gold particles spiral. Motion blur. Dark background illuminated by the burst. 8K high-speed photography.`,
   },
 ];
 
@@ -415,10 +443,14 @@ export default function DreamEngine() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-5 w-full max-w-3xl mb-8">
+          <TabsList className="grid grid-cols-6 w-full max-w-4xl mb-8">
             <TabsTrigger value="origin">ORIGIN</TabsTrigger>
             <TabsTrigger value="people">PEOPLE</TabsTrigger>
             <TabsTrigger value="studio">STUDIO</TabsTrigger>
+            <TabsTrigger value="economy" className="flex items-center gap-1">
+              <Coins className="w-3 h-3" />
+              ECONOMY
+            </TabsTrigger>
             <TabsTrigger value="celebration">CELEBRATE</TabsTrigger>
             <TabsTrigger value="custom">CUSTOM</TabsTrigger>
           </TabsList>
@@ -454,6 +486,21 @@ export default function DreamEngine() {
             </div>
             {renderPromptCards(STUDIO_PROMPTS)}
             {renderSavedImages('studio')}
+          </TabsContent>
+
+          <TabsContent value="economy">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
+                <Coins className="w-6 h-6 text-primary" />
+                MIXXCOINZ IDENTITY
+              </h2>
+              <p className="text-muted-foreground">
+                The Frequency Coin. Visual identity for the platform currency.
+                Earned (purple-cyan) vs Purchased (gold) distinction.
+              </p>
+            </div>
+            {renderPromptCards(ECONOMY_PROMPTS)}
+            {renderSavedImages('economy')}
           </TabsContent>
 
           <TabsContent value="celebration">

@@ -47,3 +47,6 @@ verify_jwt = false
 
 [functions.scheduled-payout-processor]
 verify_jwt = false
+
+[functions.generate-economy-asset]
+verify_jwt = false
