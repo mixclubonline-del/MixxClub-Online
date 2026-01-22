@@ -1,9 +1,10 @@
 import { motion } from 'framer-motion';
-import { Coins, TrendingUp, ShoppingBag, Gift } from 'lucide-react';
+import { TrendingUp, ShoppingBag, Gift } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useMixxWallet } from '@/hooks/useMixxWallet';
+import { MixxCoin } from './MixxCoin';
 
 export function WalletBalance() {
   const { wallet, totalBalance, isLoading } = useMixxWallet();
@@ -63,12 +64,12 @@ export function WalletBalance() {
               <p className="text-sm text-muted-foreground font-medium mb-1">Total Balance</p>
               <div className="flex items-center gap-3">
                 <motion.div
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-3"
                   initial={{ scale: 0.9 }}
                   animate={{ scale: 1 }}
                   transition={{ type: 'spring', stiffness: 200 }}
                 >
-                  <Coins className="h-8 w-8 text-amber-400" />
+                  <MixxCoin type="earned" size="lg" animated showGlow />
                   <span className="text-4xl font-bold bg-gradient-to-r from-amber-400 to-amber-600 bg-clip-text text-transparent">
                     {totalBalance.toLocaleString()}
                   </span>

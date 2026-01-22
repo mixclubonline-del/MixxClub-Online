@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Coins, Sparkles } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { useMixxWallet } from '@/hooks/useMixxWallet';
 import { useMissions } from '@/hooks/useMissions';
 import { cn } from '@/lib/utils';
@@ -10,6 +10,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { MixxCoin } from './MixxCoin';
 
 interface WalletIndicatorProps {
   variant?: 'compact' | 'mini' | 'full';
@@ -58,7 +59,7 @@ export function WalletIndicator({ variant = 'compact', className }: WalletIndica
               className
             )}
           >
-            <Coins className="h-4 w-4 text-amber-400" />
+            <MixxCoin type="earned" size="sm" animated />
             {hasRewards && (
               <span className="absolute -top-1 -right-1 h-3 w-3 bg-amber-500 rounded-full" />
             )}
@@ -66,7 +67,7 @@ export function WalletIndicator({ variant = 'compact', className }: WalletIndica
         </TooltipTrigger>
         <TooltipContent side="bottom" className="flex flex-col gap-1">
           <div className="flex items-center gap-2 font-medium">
-            <Coins className="h-3 w-3 text-amber-400" />
+            <MixxCoin type="earned" size="xs" />
             {totalBalance.toLocaleString()} MixxCoinz
           </div>
           {hasRewards && (
@@ -94,7 +95,7 @@ export function WalletIndicator({ variant = 'compact', className }: WalletIndica
         )}
       >
         <div className="p-2 rounded-lg bg-amber-500/20">
-          <Coins className="h-5 w-5 text-amber-400" />
+          <MixxCoin type="earned" size="md" animated />
         </div>
         <div className="flex flex-col items-start">
           <AnimatePresence mode="wait">
@@ -133,7 +134,7 @@ export function WalletIndicator({ variant = 'compact', className }: WalletIndica
         className
       )}
     >
-      <Coins className="h-4 w-4 text-amber-400" />
+      <MixxCoin type="earned" size="sm" animated />
       <AnimatePresence mode="wait">
         <motion.span
           key={totalBalance}

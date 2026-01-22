@@ -1,11 +1,13 @@
 import { motion } from 'framer-motion';
-import { Coins, Target, Package, Receipt, Sparkles } from 'lucide-react';
+import { Target, Package, Receipt, Sparkles } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { WalletBalance } from './WalletBalance';
 import { MissionsList } from './MissionsList';
 import { VaultGrid } from './VaultGrid';
 import { TransactionLedger } from './TransactionLedger';
+import { MixxCoin3D } from './MixxCoin3D';
+import { MixxCoin } from './MixxCoin';
 import { useMissions } from '@/hooks/useMissions';
 import { useMixxVault } from '@/hooks/useMixxVault';
 
@@ -19,11 +21,17 @@ export function MixxEconomy() {
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6"
     >
+      {/* 3D Hero Coin Display */}
+      <div className="relative h-48 md:h-64 -mx-4 overflow-hidden rounded-2xl bg-gradient-to-b from-background via-primary/5 to-background">
+        <MixxCoin3D type="both" autoRotate className="absolute inset-0" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent pointer-events-none" />
+      </div>
+
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between -mt-8 relative z-10">
         <div className="flex items-center gap-3">
-          <div className="p-3 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-600/10">
-            <Coins className="h-6 w-6 text-amber-400" />
+          <div className="p-3 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-600/10 border border-amber-500/20">
+            <MixxCoin type="earned" size="md" animated />
           </div>
           <div>
             <h1 className="text-2xl font-bold">MixxCoinz Economy</h1>

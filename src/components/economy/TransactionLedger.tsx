@@ -4,8 +4,7 @@ import {
   ArrowDownCircle, 
   ShoppingCart, 
   Gift, 
-  RefreshCcw, 
-  Coins,
+  RefreshCcw,
   TrendingUp,
   Wallet
 } from 'lucide-react';
@@ -15,6 +14,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useMixxWallet, MixxTransaction } from '@/hooks/useMixxWallet';
 import { formatDistanceToNow } from 'date-fns';
+import { MixxCoin } from './MixxCoin';
+
 
 const TRANSACTION_ICONS: Record<string, React.ElementType> = {
   EARN: TrendingUp,
@@ -47,7 +48,7 @@ const TRANSACTION_BG: Record<string, string> = {
 };
 
 function TransactionRow({ transaction }: { transaction: MixxTransaction }) {
-  const Icon = TRANSACTION_ICONS[transaction.transaction_type] || Coins;
+  const Icon = TRANSACTION_ICONS[transaction.transaction_type] || TrendingUp;
   const isPositive = ['EARN', 'GIFT_RECEIVED', 'REFUND', 'PURCHASE'].includes(transaction.transaction_type);
 
   return (
@@ -78,8 +79,9 @@ function TransactionRow({ transaction }: { transaction: MixxTransaction }) {
 
       {/* Amount & Time */}
       <div className="text-right flex-shrink-0">
-        <div className={`font-semibold ${isPositive ? 'text-emerald-400' : 'text-red-400'}`}>
+        <div className={`font-semibold flex items-center justify-end gap-1.5 ${isPositive ? 'text-emerald-400' : 'text-red-400'}`}>
           {isPositive ? '+' : '-'}{transaction.amount.toLocaleString()}
+          <MixxCoin type={transaction.balance_type === 'earned' ? 'earned' : 'purchased'} size="xs" />
         </div>
         <div className="text-xs text-muted-foreground">
           {formatDistanceToNow(new Date(transaction.created_at), { addSuffix: true })}
@@ -112,7 +114,9 @@ export function TransactionLedger() {
   if (transactions.length === 0) {
     return (
       <Card className="p-8 text-center">
-        <Coins className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+        <div className="flex justify-center mb-4">
+          <MixxCoin type="earned" size="xl" showGlow />
+        </div>
         <h3 className="text-lg font-medium mb-2">No Transactions Yet</h3>
         <p className="text-muted-foreground">
           Complete missions and engage with the platform to earn your first coinz!
