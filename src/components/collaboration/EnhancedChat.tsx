@@ -12,6 +12,7 @@ import { TypingIndicator } from './TypingIndicator';
 import { useTypingIndicator } from '@/hooks/useTypingIndicator';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { CharacterEmptyState } from '@/components/characters/CharacterEmptyState';
 
 interface Participant {
   id: string;
@@ -370,9 +371,11 @@ export const EnhancedChat: React.FC<EnhancedChatProps> = ({
         <ScrollArea className="flex-1 p-4" ref={scrollRef}>
           <div className="space-y-4">
             {messages.length === 0 ? (
-              <div className="text-center text-muted-foreground py-8">
-                No messages yet. Start the conversation!
-              </div>
+              <CharacterEmptyState
+                type="messages"
+                title="No messages yet"
+                className="py-6"
+              />
             ) : (
               messages.map(msg => (
                 <ChatMessage

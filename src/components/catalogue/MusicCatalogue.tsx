@@ -16,10 +16,11 @@ import {
 import {
   Play, Pause, Music2, Loader2, Search, Grid3X3, List, 
   MoreHorizontal, Pencil, Trash2, Eye, EyeOff, DollarSign,
-  Plus, Upload, PlayCircle
+  Upload, PlayCircle
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { CharacterEmptyState } from '@/components/characters/CharacterEmptyState';
 
 interface MusicCatalogueProps {
   userId?: string;
@@ -165,25 +166,14 @@ export const MusicCatalogue: React.FC<MusicCatalogueProps> = ({
         </div>
       </div>
 
-      {/* Empty State */}
+      {/* Empty State - Nova integration */}
       {filteredTracks.length === 0 && (
-        <Card className="p-12 text-center">
-          <Music2 className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-          <h3 className="text-xl font-semibold mb-2">
-            {searchQuery ? 'No tracks found' : 'Your catalogue is empty'}
-          </h3>
-          <p className="text-muted-foreground mb-6">
-            {searchQuery 
-              ? 'Try adjusting your search' 
-              : 'Add tracks from completed projects or upload directly'}
-          </p>
-          {isOwner && !searchQuery && (
-            <Button onClick={onAddTrack} className="gap-2">
-              <Plus className="w-4 h-4" />
-              Add Your First Track
-            </Button>
-          )}
-        </Card>
+        <CharacterEmptyState
+          type={searchQuery ? 'search' : 'tracks'}
+          title={searchQuery ? 'No tracks found' : 'Your catalogue is empty'}
+          actionLabel={isOwner && !searchQuery ? 'Add Your First Track' : undefined}
+          onAction={isOwner && !searchQuery ? onAddTrack : undefined}
+        />
       )}
 
       {/* Grid View */}

@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { CharacterEmptyState } from '@/components/characters/CharacterEmptyState';
 
 interface EngineerMatch {
   id: string;
@@ -254,19 +255,12 @@ export const YourMatches = () => {
 
   if (matches.length === 0) {
     return (
-      <div className="text-center py-12">
-        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-purple-500/20 mx-auto mb-6 flex items-center justify-center">
-          <Sparkles className="w-10 h-10 text-primary" />
-        </div>
-        <h3 className="text-2xl font-bold mb-2">No matches yet</h3>
-        <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-          Complete the smart qualifier to find engineers perfect for your sound. Our AI will match you based on genre, budget, and style.
-        </p>
-        <Button onClick={() => navigate('/')} className="bg-gradient-to-r from-primary to-purple-600">
-          <Sparkles className="w-4 h-4 mr-2" />
-          Find Your Match
-        </Button>
-      </div>
+      <CharacterEmptyState
+        type="matches"
+        title="No matches yet"
+        actionLabel="Find Your Match"
+        onAction={() => navigate('/')}
+      />
     );
   }
 

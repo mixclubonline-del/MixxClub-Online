@@ -9,6 +9,24 @@
 
 export type CharacterId = 'prime' | 'jax' | 'rell' | 'nova';
 
+export type EmptyStateContext = 
+  | 'sessions' 
+  | 'projects' 
+  | 'matches' 
+  | 'messages' 
+  | 'tracks'
+  | 'clients'
+  | 'loading'
+  | 'search'
+  | 'earnings'
+  | 'partnerships'
+  | 'saved-items'
+  | 'notifications'
+  | 'activity'
+  | 'reviews'
+  | 'payments'
+  | 'generic';
+
 export interface MixxClubCharacter {
   id: CharacterId;
   name: string;
@@ -21,6 +39,7 @@ export interface MixxClubCharacter {
   personality: string[];
   sampleQuotes: string[];
   locations: string[];
+  contextQuotes?: Partial<Record<EmptyStateContext, string>>;
 }
 
 export const MIXXCLUB_CHARACTERS: Record<CharacterId, MixxClubCharacter> = {
@@ -86,11 +105,36 @@ export const MIXXCLUB_CHARACTERS: Record<CharacterId, MixxClubCharacter> = {
     accentGlow: 'shadow-[0_0_20px_hsl(330_80%_60%_/_0.4)]',
     personality: ['Expressive', 'Encouraging', 'Always in the mix'],
     sampleQuotes: [
-      "Everybody starts somewhere.",
-      "You're in the right room.",
-      "Who's dropping heat today?"
+      "Everybody starts somewhere. This is that somewhere.",
+      "You're exactly where you need to be.",
+      "The right connect is out here. We just gotta find them.",
+      "Your work has value. We're here to prove it.",
+      "This room's about to fill up. You're early.",
+      "No gatekeepers. Just creators.",
+      "What you build here is yours. Period.",
+      "Your sound, your rules.",
+      "The culture needs what you're making.",
+      "Own your masters. Own your story."
     ],
-    locations: ['Community sections', 'Achievements', 'Success moments', 'Empty states']
+    locations: ['Community sections', 'Achievements', 'Success moments', 'Empty states'],
+    contextQuotes: {
+      sessions: "The right session is out there. No cap, we'll find it.",
+      projects: "Every legend started with one track. This is yours.",
+      matches: "The right engineer is out here. We just gotta connect you.",
+      messages: "Silence before the storm. When they slide in, you'll know.",
+      tracks: "Your catalogue starts here. Own your sound, own your story.",
+      clients: "Your first client is around the corner. Stay ready.",
+      loading: "Good things take time. We're building something.",
+      search: "Not what you were looking for? Adjust the frequency.",
+      earnings: "Your bag is on the way. Stack it when it hits.",
+      partnerships: "Collabs build empires. Your first one is coming.",
+      'saved-items': "Save what matters. It'll be here when you need it.",
+      notifications: "No noise right now. That's a good thing.",
+      activity: "The timeline's quiet. Time to make some noise.",
+      reviews: "No reviews yet. Your work will speak soon.",
+      payments: "Payments hit different when they're for your art.",
+      generic: "This room's empty, but not for long. You're building."
+    }
   }
 };
 
@@ -104,6 +148,12 @@ export const getRandomQuote = (id: CharacterId): string => {
   const character = MIXXCLUB_CHARACTERS[id];
   const quotes = character.sampleQuotes;
   return quotes[Math.floor(Math.random() * quotes.length)];
+};
+
+// Get context-specific quote for empty states (Nova speciality)
+export const getContextQuote = (id: CharacterId, context: EmptyStateContext): string => {
+  const character = MIXXCLUB_CHARACTERS[id];
+  return character.contextQuotes?.[context] || getRandomQuote(id);
 };
 
 // Voice ID lookup for speech generation

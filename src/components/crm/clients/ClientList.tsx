@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Grid3X3, List, SortAsc, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Grid3X3, List, SortAsc } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ClientCard } from './ClientCard';
 import { ClientDetailPanel } from './ClientDetailPanel';
@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { CharacterEmptyState } from '@/components/characters/CharacterEmptyState';
 
 interface ClientListProps {
   searchQuery: string;
@@ -155,15 +156,12 @@ export const ClientList: React.FC<ClientListProps> = ({ searchQuery, userType })
           </div>
         </div>
 
-        {/* Empty State */}
+        {/* Empty State - Nova integration */}
         {filteredClients.length === 0 ? (
-          <Card className="p-12 text-center">
-            <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No clients yet</h3>
-            <p className="text-muted-foreground mb-4">
-              Start building your network by adding your first client
-            </p>
-          </Card>
+          <CharacterEmptyState
+            type="clients"
+            title="No clients yet"
+          />
         ) : (
           <AnimatePresence mode="popLayout">
             <motion.div

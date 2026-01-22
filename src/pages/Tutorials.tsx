@@ -4,8 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTutorial } from '@/contexts/TutorialContext';
-import { Play, CheckCircle2, Clock } from 'lucide-react';
+import { Play, Clock } from 'lucide-react';
 import { AppLayout } from '@/components/layouts/AppLayout';
+import { CharacterEmptyState } from '@/components/characters/CharacterEmptyState';
 
 const Tutorials = () => {
   const { allTutorials, startTutorial } = useTutorial();
@@ -78,11 +79,11 @@ const Tutorials = () => {
         </div>
 
         {filteredTutorials.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">
-              No tutorials found in this category.
-            </p>
-          </div>
+          <CharacterEmptyState
+            type="search"
+            title="No tutorials found"
+            message="No tutorials in this category yet. Check back soon!"
+          />
         )}
       </div>
     </AppLayout>

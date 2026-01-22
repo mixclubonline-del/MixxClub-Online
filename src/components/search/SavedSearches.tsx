@@ -7,9 +7,10 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { useSavedSearches, useSaveSearch, useDeleteSavedSearch } from '@/hooks/useSearch';
-import { Save, Trash2, Star, Search, Plus } from 'lucide-react';
+import { Save, Trash2, Star, Plus } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
+import { CharacterEmptyState } from '@/components/characters/CharacterEmptyState';
 
 export function SavedSearches() {
   const { data: searches, isLoading } = useSavedSearches();
@@ -140,17 +141,12 @@ export function SavedSearches() {
       </div>
 
       {!searches || searches.length === 0 ? (
-        <Card className="p-8 text-center">
-          <Search className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-          <h3 className="font-semibold mb-2">No saved searches yet</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Save your frequent searches for quick access
-          </p>
-          <Button onClick={() => setOpen(true)}>
-            <Plus className="w-4 h-4 mr-2" />
-            Create Your First Search
-          </Button>
-        </Card>
+        <CharacterEmptyState
+          type="saved-items"
+          title="No saved searches yet"
+          actionLabel="Create Your First Search"
+          onAction={() => setOpen(true)}
+        />
       ) : (
         <div className="grid gap-4">
           {searches.map((search) => (

@@ -5,12 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { CharacterEmptyState } from '@/components/characters/CharacterEmptyState';
 import { 
   Rocket, 
   Users, 
   Music, 
   DollarSign, 
-  CheckCircle2, 
   ArrowRight,
   Sparkles,
   Mic2,
@@ -163,107 +163,46 @@ interface EmptyStatePromptProps {
 export const EmptyStatePrompt = ({ type, userType }: EmptyStatePromptProps) => {
   const navigate = useNavigate();
 
-  const prompts = {
+  // Map to context types for Nova
+  const typeMap: Record<string, 'sessions' | 'projects' | 'earnings' | 'messages' | 'matches'> = {
+    sessions: 'sessions',
+    projects: 'projects',
+    earnings: 'earnings',
+    messages: 'messages',
+    matches: 'matches',
+  };
+
+  const actions = {
     sessions: {
-      artist: {
-        icon: <Mic2 className="w-8 h-8" />,
-        title: "No sessions yet",
-        description: "Start your first collaboration session to work with professional engineers.",
-        action: "Create Session",
-        onClick: () => navigate('/sessions/create'),
-      },
-      engineer: {
-        icon: <Headphones className="w-8 h-8" />,
-        title: "No sessions yet",
-        description: "Browse open sessions from artists looking for your expertise.",
-        action: "Browse Sessions",
-        onClick: () => navigate('/sessions-browser'),
-      },
+      artist: { action: "Create Session", onClick: () => navigate('/sessions/create') },
+      engineer: { action: "Browse Sessions", onClick: () => navigate('/sessions-browser') },
     },
     projects: {
-      artist: {
-        icon: <Music className="w-8 h-8" />,
-        title: "No projects yet",
-        description: "Upload your first track to get it professionally mixed and mastered.",
-        action: "Upload Track",
-        onClick: () => navigate('/upload'),
-      },
-      engineer: {
-        icon: <Music className="w-8 h-8" />,
-        title: "No projects yet",
-        description: "Complete your profile to start receiving project invitations.",
-        action: "Complete Profile",
-        onClick: () => navigate('?tab=profile'),
-      },
+      artist: { action: "Upload Track", onClick: () => navigate('/upload') },
+      engineer: { action: "Complete Profile", onClick: () => navigate('?tab=profile') },
     },
     earnings: {
-      artist: {
-        icon: <DollarSign className="w-8 h-8" />,
-        title: "Track your investments",
-        description: "Your spending on mixing and mastering services will appear here.",
-        action: "View Services",
-        onClick: () => navigate('/services'),
-      },
-      engineer: {
-        icon: <DollarSign className="w-8 h-8" />,
-        title: "Start earning",
-        description: "Complete projects to build your earnings. Set competitive rates to attract clients.",
-        action: "Set Rates",
-        onClick: () => navigate('?tab=settings'),
-      },
+      artist: { action: "View Services", onClick: () => navigate('/services') },
+      engineer: { action: "Set Rates", onClick: () => navigate('?tab=settings') },
     },
     messages: {
-      artist: {
-        icon: <Users className="w-8 h-8" />,
-        title: "No messages yet",
-        description: "Connect with engineers to start collaborating on your music.",
-        action: "Find Engineers",
-        onClick: () => navigate('/sessions-browser'),
-      },
-      engineer: {
-        icon: <Users className="w-8 h-8" />,
-        title: "No messages yet",
-        description: "Complete your profile to attract artists and start receiving inquiries.",
-        action: "Complete Profile",
-        onClick: () => navigate('?tab=profile'),
-      },
+      artist: { action: "Find Engineers", onClick: () => navigate('/sessions-browser') },
+      engineer: { action: "Complete Profile", onClick: () => navigate('?tab=profile') },
     },
     matches: {
-      artist: {
-        icon: <Sparkles className="w-8 h-8" />,
-        title: "Finding your matches",
-        description: "Our AI is analyzing your profile to find the perfect engineers for your sound.",
-        action: "Update Preferences",
-        onClick: () => navigate('?tab=profile'),
-      },
-      engineer: {
-        icon: <Sparkles className="w-8 h-8" />,
-        title: "Get matched with artists",
-        description: "Add your specialties and portfolio to get matched with compatible artists.",
-        action: "Add Specialties",
-        onClick: () => navigate('?tab=profile'),
-      },
+      artist: { action: "Update Preferences", onClick: () => navigate('?tab=profile') },
+      engineer: { action: "Add Specialties", onClick: () => navigate('?tab=profile') },
     },
   };
 
-  const prompt = prompts[type][userType];
+  const config = actions[type][userType];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className="flex flex-col items-center justify-center py-12 px-6 text-center"
-    >
-      <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mb-4 text-muted-foreground">
-        {prompt.icon}
-      </div>
-      <h3 className="text-lg font-semibold mb-2">{prompt.title}</h3>
-      <p className="text-muted-foreground mb-6 max-w-sm">{prompt.description}</p>
-      <Button onClick={prompt.onClick}>
-        {prompt.action}
-        <ArrowRight className="w-4 h-4 ml-2" />
-      </Button>
-    </motion.div>
+    <CharacterEmptyState
+      type={typeMap[type]}
+      actionLabel={config.action}
+      onAction={config.onClick}
+    />
   );
 };
 

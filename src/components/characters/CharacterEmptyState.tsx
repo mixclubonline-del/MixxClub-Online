@@ -1,23 +1,16 @@
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { CharacterAvatar } from './CharacterAvatar';
-import { getCharacter, getRandomQuote, type CharacterId } from '@/config/characters';
+import { getCharacter, getContextQuote, type CharacterId, type EmptyStateContext } from '@/config/characters';
 import { Button } from '@/components/ui/button';
-import { Loader2, Plus, Search, MessageCircle, Music, Users } from 'lucide-react';
-
-type EmptyStateType = 
-  | 'sessions' 
-  | 'projects' 
-  | 'matches' 
-  | 'messages' 
-  | 'tracks' 
-  | 'clients'
-  | 'loading'
-  | 'search'
-  | 'generic';
+import { 
+  Loader2, Plus, Search, MessageCircle, Music, Users, 
+  DollarSign, Heart, Bell, Activity, Star, CreditCard,
+  Folder, Handshake
+} from 'lucide-react';
 
 interface CharacterEmptyStateProps {
-  type: EmptyStateType;
+  type: EmptyStateContext;
   characterId?: CharacterId;
   title?: string;
   message?: string;
@@ -26,55 +19,73 @@ interface CharacterEmptyStateProps {
   className?: string;
 }
 
-const typeConfig: Record<EmptyStateType, {
+const typeConfig: Record<EmptyStateContext, {
   icon: typeof Music;
   defaultTitle: string;
-  defaultMessage: string;
 }> = {
   sessions: {
     icon: Users,
     defaultTitle: 'No sessions yet',
-    defaultMessage: "Everybody starts somewhere. Let's get you in a room.",
   },
   projects: {
-    icon: Music,
+    icon: Folder,
     defaultTitle: 'No projects',
-    defaultMessage: "Your first project is waiting. What are you working on?",
   },
   matches: {
     icon: Users,
     defaultTitle: 'No matches yet',
-    defaultMessage: "The right person is out there. Let's find them.",
   },
   messages: {
     icon: MessageCircle,
     defaultTitle: 'No messages',
-    defaultMessage: "Silence before the storm. Your inbox is ready.",
   },
   tracks: {
     icon: Music,
     defaultTitle: 'No tracks uploaded',
-    defaultMessage: "Upload your first track and let's get it sounding right.",
   },
   clients: {
     icon: Users,
     defaultTitle: 'No clients yet',
-    defaultMessage: "Your first client is just around the corner.",
   },
   loading: {
     icon: Loader2,
     defaultTitle: 'Loading...',
-    defaultMessage: "Good things coming... patience.",
   },
   search: {
     icon: Search,
     defaultTitle: 'No results found',
-    defaultMessage: "Try a different search. The perfect match is out there.",
+  },
+  earnings: {
+    icon: DollarSign,
+    defaultTitle: 'No earnings yet',
+  },
+  partnerships: {
+    icon: Handshake,
+    defaultTitle: 'No partnerships yet',
+  },
+  'saved-items': {
+    icon: Heart,
+    defaultTitle: 'Nothing saved',
+  },
+  notifications: {
+    icon: Bell,
+    defaultTitle: 'No notifications',
+  },
+  activity: {
+    icon: Activity,
+    defaultTitle: 'No activity yet',
+  },
+  reviews: {
+    icon: Star,
+    defaultTitle: 'No reviews yet',
+  },
+  payments: {
+    icon: CreditCard,
+    defaultTitle: 'No payments yet',
   },
   generic: {
     icon: Plus,
     defaultTitle: 'Nothing here yet',
-    defaultMessage: "You're in the right room. Let's fill it up.",
   },
 };
 
@@ -91,7 +102,8 @@ export function CharacterEmptyState({
   const config = typeConfig[type];
   const Icon = config.icon;
   const displayTitle = title || config.defaultTitle;
-  const displayMessage = message || config.defaultMessage;
+  // Use context-specific quote from Nova's contextQuotes
+  const displayMessage = message || getContextQuote(characterId, type);
   const isLoading = type === 'loading';
 
   return (
@@ -104,17 +116,26 @@ export function CharacterEmptyState({
         className
       )}
     >
-      {/* Character Avatar with glow */}
+      {/* Character Avatar with ambient pulse */}
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: 0.2, duration: 0.4 }}
         className="relative mb-6"
       >
-        {/* Ambient glow */}
-        <div 
-          className="absolute inset-0 rounded-full blur-2xl opacity-30"
+        {/* Ambient breathing glow */}
+        <motion.div 
+          className="absolute inset-0 rounded-full blur-2xl"
           style={{ background: character.accentColor }}
+          animate={{ 
+            opacity: [0.2, 0.35, 0.2],
+            scale: [1, 1.1, 1]
+          }}
+          transition={{ 
+            duration: 3, 
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
         />
         <CharacterAvatar characterId={characterId} size="lg" showGlow />
       </motion.div>
@@ -151,17 +172,17 @@ export function CharacterEmptyState({
         {displayTitle}
       </motion.h3>
 
-      {/* Character Quote */}
+      {/* Character Quote - the soul */}
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
-        className="text-muted-foreground max-w-sm mb-2"
+        className="text-muted-foreground max-w-sm mb-2 italic"
       >
         "{displayMessage}"
       </motion.p>
 
-      {/* Character Name */}
+      {/* Character Name with accent */}
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -179,7 +200,12 @@ export function CharacterEmptyState({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
         >
-          <Button onClick={onAction} variant="default" size="sm">
+          <Button 
+            onClick={onAction} 
+            variant="default" 
+            size="sm"
+            className="bg-gradient-to-r from-primary to-[hsl(330_80%_60%)] hover:opacity-90"
+          >
             {actionLabel}
           </Button>
         </motion.div>

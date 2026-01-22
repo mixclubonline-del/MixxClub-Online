@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   Trophy, 
@@ -12,9 +12,9 @@ import {
   Target,
   Music,
   Users,
-  Award,
-  Lock
+  Award
 } from 'lucide-react';
+import { CharacterEmptyState } from '@/components/characters/CharacterEmptyState';
 
 interface Achievement {
   id: string;
@@ -183,9 +183,12 @@ export const AchievementProgress = ({ userId }: AchievementProgressProps) => {
         </CardHeader>
         <CardContent>
           {filteredAvailable.length === 0 ? (
-            <p className="text-center py-4 text-muted-foreground">
-              All achievements in this category unlocked! 🎉
-            </p>
+            <CharacterEmptyState
+              type="generic"
+              title="All unlocked! 🎉"
+              message="You've earned every achievement in this category. Legend status."
+              className="py-6"
+            />
           ) : (
             <ScrollArea className="h-[250px]">
               <div className="space-y-4">
@@ -233,9 +236,12 @@ export const AchievementProgress = ({ userId }: AchievementProgressProps) => {
         </CardHeader>
         <CardContent>
           {filteredEarned.length === 0 ? (
-            <p className="text-center py-4 text-muted-foreground">
-              No achievements earned in this category yet
-            </p>
+            <CharacterEmptyState
+              type="generic"
+              title="No achievements yet"
+              message="Start working on those goals. Your first trophy is waiting."
+              className="py-6"
+            />
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {filteredEarned.map((achievement) => (

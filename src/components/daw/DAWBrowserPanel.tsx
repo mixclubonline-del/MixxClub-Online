@@ -13,6 +13,7 @@ import {
   Star,
   Clock,
 } from 'lucide-react';
+import { CharacterEmptyState } from '@/components/characters/CharacterEmptyState';
 
 const SAMPLE_CATEGORIES = [
   { id: 'drums', label: 'Drums', icon: Drum },
@@ -137,21 +138,19 @@ export const DAWBrowserPanel = () => {
         </TabsContent>
 
         <TabsContent value="favorites" className="flex-1 m-0">
-          <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
-            <div className="text-center">
-              <Star className="w-12 h-12 mx-auto mb-2 opacity-20" />
-              <p>No favorites yet</p>
-            </div>
-          </div>
+          <CharacterEmptyState
+            type="saved-items"
+            title="No favorites yet"
+            className="py-6"
+          />
         </TabsContent>
 
         <TabsContent value="recent" className="flex-1 m-0">
-          <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
-            <div className="text-center">
-              <Clock className="w-12 h-12 mx-auto mb-2 opacity-20" />
-              <p>No recent items</p>
-            </div>
-          </div>
+          <CharacterEmptyState
+            type="activity"
+            title="No recent items"
+            className="py-6"
+          />
         </TabsContent>
       </Tabs>
     </div>
