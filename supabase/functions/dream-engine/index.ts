@@ -10,6 +10,7 @@ interface DreamRequest {
   prompt: string;
   context?: string;
   sourceAsset?: string;
+  characterId?: string; // For speech mode: 'prime' | 'jax' | 'rell' | 'nova'
   options?: {
     model?: string;
     style?: string;
@@ -213,9 +214,80 @@ async function generateAudio(prompt: string): Promise<{ url: string; provider: s
   throw new Error("Audio generation failed");
 }
 
-async function generateSpeech(text: string): Promise<{ url: string; provider: string }> {
-  // For now, return error until ElevenLabs is connected
-  throw new Error("Speech generation requires ElevenLabs connector. Please link it in settings.");
+// Character voice mapping
+const CHARACTER_VOICES: Record<string, string> = {
+  prime: 'n2GT0XqyIfmevnaDjYT0',   // OG Hip-hop head, mature mentor
+  jax: '6OzrBCQf8cjERkYgzSg8',     // Young energy, artist
+  rell: 'CwhRBWXzGAHq8TQ4Fs17',   // Professional, engineer (Roger)
+  nova: 'EXAVITQu4vr4xnSDxMaL',   // Expressive, community (Sarah)
+};
+
+async function generateSpeech(text: string, characterId?: string): Promise<{ url: string; provider: string }> {
+  const elevenLabsKey = Deno.env.get("ELEVEN_LABS_API_KEY");
+  
+  if (!elevenLabsKey) {
+    throw new Error("Speech generation requires ELEVEN_LABS_API_KEY to be configured.");
+  }
+
+  // Select voice based on character, default to Prime
+  const voiceId = characterId && CHARACTER_VOICES[characterId] 
+    ? CHARACTER_VOICES[characterId] 
+    : CHARACTER_VOICES.prime;
+
+  console.log(`Generating speech with ElevenLabs: voice=${voiceId}, character=${characterId || 'prime'}`);
+
+  const response = await fetch(
+    `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_44100_128`,
+    {
+      method: "POST",
+      headers: {
+        "xi-api-key": elevenLabsKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        text,
+        model_id: "eleven_turbo_v2_5",
+        voice_settings: {
+          stability: 0.6,
+          similarity_boost: 0.8,
+          style: 0.4,
+          use_speaker_boost: true,
+        },
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("ElevenLabs error:", errorText);
+    
+    if (response.status === 429) {
+      throw new Error("Voice generation rate limit. Please try again in a moment.");
+    }
+    if (response.status === 401) {
+      throw new Error("ElevenLabs API key invalid or expired.");
+    }
+    
+    throw new Error(`Speech generation failed: ${response.status}`);
+  }
+
+  // Convert to base64 audio using Deno's encoding
+  const audioBuffer = await response.arrayBuffer();
+  const uint8Array = new Uint8Array(audioBuffer);
+  
+  // Use btoa with chunks to avoid stack overflow
+  let binary = '';
+  const chunkSize = 8192;
+  for (let i = 0; i < uint8Array.length; i += chunkSize) {
+    const chunk = uint8Array.slice(i, i + chunkSize);
+    binary += String.fromCharCode.apply(null, [...chunk]);
+  }
+  const base64Audio = btoa(binary);
+
+  return { 
+    url: `data:audio/mpeg;base64,${base64Audio}`, 
+    provider: `elevenlabs-${characterId || 'prime'}` 
+  };
 }
 
 async function saveAsset(
@@ -283,7 +355,7 @@ Deno.serve(async (req) => {
     }
 
     const body: DreamRequest = await req.json();
-    const { mode, prompt, context, sourceAsset, options } = body;
+    const { mode, prompt, context, sourceAsset, characterId, options } = body;
 
     if (!mode || !prompt) {
       return new Response(
@@ -292,7 +364,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    console.log(`Dream Engine request: mode=${mode}, context=${context}, user=${user.id}`);
+    console.log(`Dream Engine request: mode=${mode}, context=${context}, character=${characterId || 'default'}, user=${user.id}`);
 
     let result: { url: string; provider: string };
 
@@ -313,7 +385,7 @@ Deno.serve(async (req) => {
         result = await generateAudio(prompt);
         break;
       case 'speech':
-        result = await generateSpeech(prompt);
+        result = await generateSpeech(prompt, characterId);
         break;
       default:
         throw new Error(`Unknown mode: ${mode}`);
