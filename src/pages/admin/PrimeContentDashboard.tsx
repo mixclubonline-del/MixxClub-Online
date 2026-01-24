@@ -23,7 +23,9 @@ import {
   TrendingUp,
   Zap,
   Calendar,
-  ExternalLink
+  ExternalLink,
+  CalendarDays,
+  List
 } from 'lucide-react';
 import {
   generatePrimeContent,
@@ -36,6 +38,7 @@ import {
   type ContentType,
   type ContentStatus
 } from '@/lib/api/prime-content';
+import PrimeContentCalendar from '@/components/admin/PrimeContentCalendar';
 
 const contentTypeLabels: Record<ContentType, { label: string; icon: React.ReactNode; color: string }> = {
   'hot-take': { label: 'Hot Take', icon: <Zap className="h-4 w-4" />, color: 'bg-orange-500/20 text-orange-400' },
@@ -57,18 +60,22 @@ const statusColors: Record<ContentStatus, string> = {
 
 export default function PrimeContentDashboard() {
   const [content, setContent] = useState<PrimeContent[]>([]);
+  const [allContent, setAllContent] = useState<PrimeContent[]>([]);
   const [stats, setStats] = useState({ pending: 0, ready: 0, approved: 0, posted: 0, totalThisWeek: 0 });
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [selectedType, setSelectedType] = useState<ContentType>('hot-take');
   const [customTopic, setCustomTopic] = useState('');
   const [activeTab, setActiveTab] = useState('ready');
+  const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
   const [playingAudio, setPlayingAudio] = useState<string | null>(null);
   const [audioRef, setAudioRef] = useState<HTMLAudioElement | null>(null);
+  const [selectedContent, setSelectedContent] = useState<PrimeContent | null>(null);
 
   useEffect(() => {
     loadContent();
     loadStats();
+    loadAllContent();
   }, [activeTab]);
 
   const loadContent = async () => {
@@ -79,9 +86,22 @@ export default function PrimeContentDashboard() {
     setLoading(false);
   };
 
+  const loadAllContent = async () => {
+    // Load all content for calendar view (no status filter)
+    const data = await fetchContentQueue({ limit: 200 });
+    setAllContent(data);
+  };
+
   const loadStats = async () => {
     const data = await getContentStats();
     setStats(data);
+  };
+
+  const handleSelectContentFromCalendar = (item: PrimeContent) => {
+    setSelectedContent(item);
+    // Switch to list view and set the appropriate tab
+    setViewMode('list');
+    setActiveTab(item.status);
   };
 
   const handleGenerate = async () => {
@@ -279,51 +299,86 @@ export default function PrimeContentDashboard() {
           </CardContent>
         </Card>
 
-        {/* Content Queue */}
-        <Card className="bg-card/50 border-border/50">
-          <CardHeader>
-            <CardTitle>Content Queue</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="mb-4">
-                <TabsTrigger value="ready">Ready ({stats.ready})</TabsTrigger>
-                <TabsTrigger value="approved">Approved</TabsTrigger>
-                <TabsTrigger value="posted">Posted</TabsTrigger>
-                <TabsTrigger value="rejected">Rejected</TabsTrigger>
-                <TabsTrigger value="all">All</TabsTrigger>
-              </TabsList>
+        {/* View Toggle */}
+        <div className="flex items-center justify-end gap-2">
+          <span className="text-sm text-muted-foreground">View:</span>
+          <div className="flex rounded-lg border border-border/50 overflow-hidden">
+            <Button
+              variant={viewMode === 'list' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('list')}
+              className="rounded-none"
+            >
+              <List className="h-4 w-4 mr-1" />
+              List
+            </Button>
+            <Button
+              variant={viewMode === 'calendar' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('calendar')}
+              className="rounded-none"
+            >
+              <CalendarDays className="h-4 w-4 mr-1" />
+              Calendar
+            </Button>
+          </div>
+        </div>
 
-              <TabsContent value={activeTab}>
-                {loading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
-                  </div>
-                ) : content.length === 0 ? (
-                  <div className="text-center py-12 text-muted-foreground">
-                    No content in this category. Generate some!
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {content.map((item) => (
-                      <ContentCard
-                        key={item.id}
-                        content={item}
-                        isPlaying={playingAudio === item.id}
-                        onPlayAudio={() => item.audio_url && playAudio(item.audio_url, item.id)}
-                        onApprove={() => handleApprove(item.id)}
-                        onReject={(reason) => handleReject(item.id, reason)}
-                        onMarkPosted={(platforms) => handleMarkPosted(item.id, platforms)}
-                        onDelete={() => handleDelete(item.id)}
-                        onCopy={copyToClipboard}
-                      />
-                    ))}
-                  </div>
-                )}
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
+        {/* Calendar View */}
+        {viewMode === 'calendar' && (
+          <PrimeContentCalendar 
+            content={allContent} 
+            onSelectContent={handleSelectContentFromCalendar}
+          />
+        )}
+
+        {/* Content Queue (List View) */}
+        {viewMode === 'list' && (
+          <Card className="bg-card/50 border-border/50">
+            <CardHeader>
+              <CardTitle>Content Queue</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList className="mb-4">
+                  <TabsTrigger value="ready">Ready ({stats.ready})</TabsTrigger>
+                  <TabsTrigger value="approved">Approved</TabsTrigger>
+                  <TabsTrigger value="posted">Posted</TabsTrigger>
+                  <TabsTrigger value="rejected">Rejected</TabsTrigger>
+                  <TabsTrigger value="all">All</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value={activeTab}>
+                  {loading ? (
+                    <div className="flex items-center justify-center py-12">
+                      <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
+                    </div>
+                  ) : content.length === 0 ? (
+                    <div className="text-center py-12 text-muted-foreground">
+                      No content in this category. Generate some!
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {content.map((item) => (
+                        <ContentCard
+                          key={item.id}
+                          content={item}
+                          isPlaying={playingAudio === item.id}
+                          onPlayAudio={() => item.audio_url && playAudio(item.audio_url, item.id)}
+                          onApprove={() => handleApprove(item.id)}
+                          onReject={(reason) => handleReject(item.id, reason)}
+                          onMarkPosted={(platforms) => handleMarkPosted(item.id, platforms)}
+                          onDelete={() => handleDelete(item.id)}
+                          onCopy={copyToClipboard}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
