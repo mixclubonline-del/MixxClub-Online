@@ -14,6 +14,8 @@ interface ContentRequest {
   includeImage?: boolean;
   includeVideo?: boolean;
   trendData?: any;
+  videoReference?: string; // URL to canonical video reference
+  videoStyle?: 'talking-head' | 'b-roll-voiceover' | 'text-overlay' | 'reaction';
 }
 
 interface PlatformContent {
@@ -28,7 +30,33 @@ interface GeneratedContent {
   audioUrl?: string | null;
   imageUrl?: string | null;
   videoUrl?: string | null;
+  thumbnailUrl?: string | null;
   platformContent: Record<string, PlatformContent>;
+}
+
+interface VisualIdentity {
+  character_appearance?: {
+    description: string;
+    lighting: string;
+    framing: string;
+    energy: string;
+    attire: string;
+  };
+  video_style?: {
+    duration_tiktok: string;
+    duration_reels: string;
+    duration_twitter: string;
+    motion: string;
+    background: string;
+    text_overlay_style: string;
+    transitions: string;
+  };
+  voice_characteristics?: {
+    tone: string;
+    pacing: string;
+    style: string;
+  };
+  canonical_references?: string[];
 }
 
 serve(async (req) => {
@@ -52,12 +80,14 @@ serve(async (req) => {
       includeVoice = true,
       includeImage = true,
       includeVideo = false,
-      trendData
+      trendData,
+      videoReference,
+      videoStyle = 'talking-head'
     } = body;
 
-    console.log("Prime Content Engine request:", { contentType, topic, platforms });
+    console.log("Prime Content Engine request:", { contentType, topic, platforms, videoStyle });
 
-    // Step 1: Get Prime's persona configuration
+    // Step 1: Get Prime's persona configuration with visual identity
     const { data: persona } = await supabase
       .from('prime_persona_config')
       .select('*')
@@ -67,8 +97,23 @@ serve(async (req) => {
     const personaPrompt = persona?.persona_prompt || getDefaultPersona();
     const platformGuidelines = persona?.platform_guidelines || {};
     const voiceId = persona?.voice_id || 'n2GT0XqyIfmevnaDjYT0';
+    const visualIdentity: VisualIdentity = persona?.visual_identity || {};
 
-    // Step 2: Fetch trends if no topic provided
+    // Step 2: Get canonical video reference if not provided
+    let canonicalVideoUrl = videoReference;
+    if (!canonicalVideoUrl && includeVideo) {
+      const { data: brandAsset } = await supabase
+        .from('prime_brand_assets')
+        .select('public_url')
+        .eq('asset_type', 'video-reference')
+        .eq('is_canonical', true)
+        .single();
+      
+      canonicalVideoUrl = brandAsset?.public_url;
+      console.log("Using canonical video reference:", canonicalVideoUrl);
+    }
+
+    // Step 3: Fetch trends if no topic provided
     let topicContext = topic;
     let sourceTrendId = null;
 
@@ -100,8 +145,8 @@ serve(async (req) => {
       topicContext = "The state of music production in 2025 and how independent artists are breaking through";
     }
 
-    // Step 3: Generate script with Gemini
-    const scriptPrompt = buildScriptPrompt(contentType, topicContext, personaPrompt, platforms, platformGuidelines);
+    // Step 4: Generate script with Gemini (enhanced with visual identity context)
+    const scriptPrompt = buildScriptPrompt(contentType, topicContext, personaPrompt, platforms, platformGuidelines, visualIdentity);
     
     const geminiResponse = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${googleApiKey}`,
@@ -130,7 +175,7 @@ serve(async (req) => {
     
     console.log("Generated script:", parsedContent.script.substring(0, 200) + "...");
 
-    // Step 4: Generate voice with ElevenLabs (if requested)
+    // Step 5: Generate voice with ElevenLabs (if requested)
     let audioUrl = null;
     if (includeVoice && elevenLabsKey && parsedContent.script) {
       try {
@@ -172,11 +217,11 @@ serve(async (req) => {
       }
     }
 
-    // Step 5: Generate image (if requested)
+    // Step 6: Generate image (if requested) - enhanced with visual identity
     let imageUrl = null;
     if (includeImage) {
       try {
-        const imagePrompt = buildImagePrompt(contentType, topicContext);
+        const imagePrompt = buildImagePrompt(contentType, topicContext, visualIdentity, videoStyle);
         
         const imageResponse = await fetch(`${supabaseUrl}/functions/v1/generate-image-gemini`, {
           method: 'POST',
@@ -200,26 +245,37 @@ serve(async (req) => {
       }
     }
 
-    // Step 6: Generate video (if requested)
+    // Step 7: Generate video (if requested) - uses canonical reference for consistency
     let videoUrl = null;
-    if (includeVideo && imageUrl) {
+    let thumbnailUrl = null;
+    if (includeVideo) {
       try {
+        const videoPrompt = buildVideoPrompt(contentType, topicContext, visualIdentity, videoStyle);
+        
+        // Use image-to-video if we have an image, or text-to-video with visual identity guidance
+        const videoPayload: any = {
+          type: imageUrl ? 'image-to-video' : 'text-to-video',
+          prompt: videoPrompt,
+          duration: 5
+        };
+
+        if (imageUrl) {
+          videoPayload.imageUrl = imageUrl;
+        }
+
         const videoResponse = await fetch(`${supabaseUrl}/functions/v1/generate-video`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${supabaseKey}`
           },
-          body: JSON.stringify({
-            type: 'image-to-video',
-            imageUrl: imageUrl,
-            prompt: `Prime delivering wisdom in a professional music studio, subtle movement, cinematic lighting`
-          })
+          body: JSON.stringify(videoPayload)
         });
 
         if (videoResponse.ok) {
           const videoData = await videoResponse.json();
           videoUrl = videoData.output;
+          thumbnailUrl = imageUrl; // Use the generated image as thumbnail
           console.log("Video generated successfully");
         }
       } catch (videoError) {
@@ -227,7 +283,7 @@ serve(async (req) => {
       }
     }
 
-    // Step 7: Save to content queue
+    // Step 8: Save to content queue with enhanced metadata
     const { data: savedContent, error: saveError } = await supabase
       .from('prime_content_queue')
       .insert({
@@ -238,12 +294,16 @@ serve(async (req) => {
         audio_url: audioUrl,
         image_url: imageUrl,
         video_url: videoUrl,
+        thumbnail_url: thumbnailUrl,
         platform_content: parsedContent.platformContent,
         status: 'ready',
         generation_metadata: {
           model: 'gemini-2.5-flash',
           voice_id: voiceId,
           platforms_requested: platforms,
+          video_style: videoStyle,
+          canonical_reference_used: canonicalVideoUrl || null,
+          visual_identity_version: visualIdentity ? 'v1' : null,
           generated_at: new Date().toISOString()
         }
       })
@@ -260,6 +320,7 @@ serve(async (req) => {
       audioUrl,
       imageUrl,
       videoUrl,
+      thumbnailUrl,
       platformContent: parsedContent.platformContent
     };
 
@@ -295,7 +356,8 @@ function buildScriptPrompt(
   topic: string,
   persona: string,
   platforms: string[],
-  guidelines: any
+  guidelines: any,
+  visualIdentity: VisualIdentity
 ): string {
   const contentTypeInstructions: Record<string, string> = {
     'hot-take': `Create a bold, opinionated take on this topic. Start with a controversial or surprising hook, give context, deliver your perspective, and end with a quotable line.`,
@@ -305,7 +367,15 @@ function buildScriptPrompt(
     'trend-reaction': `React to this trending topic with Prime's unique take. Be timely, relevant, and add value that only a 20-year veteran could provide.`
   };
 
+  const voiceContext = visualIdentity.voice_characteristics 
+    ? `\n\nVOICE DELIVERY:
+- Tone: ${visualIdentity.voice_characteristics.tone}
+- Pacing: ${visualIdentity.voice_characteristics.pacing}
+- Style: ${visualIdentity.voice_characteristics.style}`
+    : '';
+
   return `${persona}
+${voiceContext}
 
 CONTENT TYPE: ${contentType}
 ${contentTypeInstructions[contentType] || contentTypeInstructions['hot-take']}
@@ -315,32 +385,95 @@ TOPIC/TREND: ${topic}
 Generate content in the following JSON format:
 {
   "main_script": "The full script in Prime's voice (60-90 seconds when spoken)",
+  "hook": "The attention-grabbing first line (must stop the scroll)",
+  "quotable": "One memorable line that could be shared standalone",
   "platforms": {
-    ${platforms.map(p => `"${p}": { "caption": "Platform-optimized caption", "hashtags": ["relevant", "hashtags"] }`).join(',\n    ')}
+    ${platforms.map(p => `"${p}": { "caption": "Platform-optimized caption", "hashtags": ["relevant", "hashtags"], "format": "vertical/square" }`).join(',\n    ')}
   }
 }
 
 Platform-specific notes:
-- TikTok: Punchy hooks, max 150 chars for caption, 5 hashtags
-- Instagram: Visual storytelling, max 300 chars, 10 hashtags  
-- Twitter: Quotable takes, max 280 chars, can suggest thread
-- YouTube Shorts: Hook-value-CTA format, max 100 chars
+- TikTok: Punchy hooks, max 150 chars for caption, 5 hashtags, vertical format
+- Instagram: Visual storytelling, max 300 chars, 10 hashtags, square or vertical
+- Twitter: Quotable takes, max 280 chars, can suggest thread, square format
+- YouTube Shorts: Hook-value-CTA format, max 100 chars, vertical
 
-Remember: Keep it real. No corporate speak. End memorable.`;
+Remember: 
+- Keep it real. No corporate speak. 
+- Start with the hook that stops the scroll.
+- End memorable - something they'll quote to their friends.
+- This is OG energy, not try-hard energy.`;
 }
 
-function buildImagePrompt(contentType: string, topic: string): string {
-  const baseStyle = "Professional music studio aesthetic, cyberpunk purple and blue neon lighting, high-end mixing console";
+function buildImagePrompt(
+  contentType: string, 
+  topic: string, 
+  visualIdentity: VisualIdentity,
+  videoStyle: string
+): string {
+  const appearance = visualIdentity.character_appearance;
+  const videoInfo = visualIdentity.video_style;
+  
+  const characterDescription = appearance 
+    ? `${appearance.description}. Lighting: ${appearance.lighting}. ${appearance.framing}. Energy: ${appearance.energy}.`
+    : "Professional Black male engineer, studio environment, confident presence. Warm studio lighting with subtle neon accents.";
+  
+  const backgroundStyle = videoInfo?.background || "Professional studio with mixing console visible";
   
   const typeModifiers: Record<string, string> = {
-    'hot-take': "Bold text overlay space, dramatic lighting, confrontational energy",
-    'production-tip': "Close-up on mixing equipment, educational vibe, clean composition",
-    'industry-insight': "Wide shot of modern studio, sophisticated atmosphere",
-    'platform-promo': "MixClub branding integration, welcoming energy, community feel",
-    'trend-reaction': "Breaking news energy, dynamic composition, attention-grabbing"
+    'hot-take': "Bold confrontational energy, strong eye contact, hands gesturing while making a point",
+    'production-tip': "Hands on mixing console or pointing to equipment, educational but not stuffy",
+    'industry-insight': "Thoughtful expression, perhaps leaning back slightly, wisdom in the eyes",
+    'platform-promo': "Welcoming energy, gesturing invitingly, community builder vibe",
+    'trend-reaction': "Animated expression, reacting genuinely, dynamic energy"
   };
 
-  return `${baseStyle}. ${typeModifiers[contentType] || typeModifiers['hot-take']}. Topic context: ${topic.substring(0, 100)}. Ultra high resolution, 16:9 aspect ratio for social media.`;
+  const styleModifiers: Record<string, string> = {
+    'talking-head': "Medium shot, direct to camera, speaking with intention",
+    'b-roll-voiceover': "Wide shot of studio environment, Prime working at console",
+    'text-overlay': "Clean composition with space for text overlays, bold framing",
+    'reaction': "Close-up on face showing genuine reaction, expressive"
+  };
+
+  return `${characterDescription}
+
+${backgroundStyle}. ${typeModifiers[contentType] || typeModifiers['hot-take']}. ${styleModifiers[videoStyle] || styleModifiers['talking-head']}.
+
+Topic context: ${topic.substring(0, 100)}
+
+Style requirements:
+- Ultra high resolution, cinematic quality
+- 9:16 aspect ratio for TikTok/Reels OR 1:1 for Twitter
+- No text overlays in image (will be added in post)
+- Warm but professional color grading
+- Subtle depth of field, subject in sharp focus`;
+}
+
+function buildVideoPrompt(
+  contentType: string,
+  topic: string,
+  visualIdentity: VisualIdentity,
+  videoStyle: string
+): string {
+  const appearance = visualIdentity.character_appearance;
+  const videoInfo = visualIdentity.video_style;
+
+  const motionStyle = videoInfo?.motion || "Subtle natural movement, not static freeze";
+  
+  const stylePrompts: Record<string, string> = {
+    'talking-head': "Prime speaking directly to camera with subtle head movements and hand gestures, professional studio background with soft neon accents, cinematic lighting, calm authoritative energy",
+    'b-roll-voiceover': "Slow pan across professional mixing studio, hands adjusting console faders, ambient studio atmosphere, warm lighting with subtle equipment LEDs",
+    'text-overlay': "Static or slow zoom shot of Prime in studio, clean composition allowing space for text overlays, bold professional framing",
+    'reaction': "Prime reacting expressively to something, genuine emotion, dynamic but not over-the-top, studio setting"
+  };
+
+  return `${stylePrompts[videoStyle] || stylePrompts['talking-head']}
+
+Motion: ${motionStyle}
+Character: ${appearance?.description || 'Professional Black male engineer, OG studio veteran presence'}
+Energy: ${appearance?.energy || 'Calm authority, not hyperactive'}
+
+5 second clip, smooth motion, professional quality, suitable for social media. Topic context: ${topic.substring(0, 50)}`;
 }
 
 function parseGeneratedContent(rawOutput: string, platforms: string[]): { script: string; platformContent: Record<string, PlatformContent> } {
@@ -365,7 +498,8 @@ function parseGeneratedContent(rawOutput: string, platforms: string[]): { script
   platforms.forEach(platform => {
     platformContent[platform] = {
       caption: shortScript,
-      hashtags: ['MixClub', 'MusicProduction', 'StudioLife', 'ProducerLife', 'AudioEngineering']
+      hashtags: ['MixClub', 'MusicProduction', 'StudioLife', 'ProducerLife', 'AudioEngineering'],
+      format: platform === 'twitter' ? 'square' : 'vertical'
     };
   });
 

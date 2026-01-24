@@ -5233,6 +5233,48 @@ export type Database = {
           },
         ]
       }
+      prime_brand_assets: {
+        Row: {
+          asset_type: string
+          created_at: string | null
+          description: string | null
+          id: string
+          is_canonical: boolean | null
+          metadata: Json | null
+          name: string
+          public_url: string
+          storage_path: string
+          updated_at: string | null
+          usage_context: string[] | null
+        }
+        Insert: {
+          asset_type: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_canonical?: boolean | null
+          metadata?: Json | null
+          name: string
+          public_url: string
+          storage_path: string
+          updated_at?: string | null
+          usage_context?: string[] | null
+        }
+        Update: {
+          asset_type?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_canonical?: boolean | null
+          metadata?: Json | null
+          name?: string
+          public_url?: string
+          storage_path?: string
+          updated_at?: string | null
+          usage_context?: string[] | null
+        }
+        Relationships: []
+      }
       prime_content_queue: {
         Row: {
           audio_url: string | null
@@ -5318,6 +5360,7 @@ export type Database = {
           platform_guidelines: Json | null
           tone_modifiers: Json | null
           updated_at: string | null
+          visual_identity: Json | null
           voice_id: string | null
         }
         Insert: {
@@ -5329,6 +5372,7 @@ export type Database = {
           platform_guidelines?: Json | null
           tone_modifiers?: Json | null
           updated_at?: string | null
+          visual_identity?: Json | null
           voice_id?: string | null
         }
         Update: {
@@ -5340,6 +5384,7 @@ export type Database = {
           platform_guidelines?: Json | null
           tone_modifiers?: Json | null
           updated_at?: string | null
+          visual_identity?: Json | null
           voice_id?: string | null
         }
         Relationships: []
