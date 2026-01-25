@@ -24,6 +24,8 @@ import { DepthAwareHotspot } from './DepthAwareHotspot';
 import { HallwayAmbience } from './HallwayAmbience';
 import { ActivityPulse } from './ActivityPulse';
 import { DoorFlicker } from './DoorFlicker';
+import { LightSpill } from './LightSpill';
+import { HallwayAudio } from './HallwayAudio';
 import type { StudioRoom } from '@/types/scene';
 
 // Static imports for hallway backgrounds
@@ -147,6 +149,12 @@ export function StudioHallway({ fullscreen = false, onEnter }: StudioHallwayProp
       
       {/* Ambient life layers - always active */}
       <HallwayAmbience intensity={ambientIntensity} />
+      
+      {/* Light Spill - floor reflections from doors */}
+      <LightSpill rooms={studios} doorPositions={DOOR_POSITIONS} />
+
+      {/* Sonic Bleed - audio ambience */}
+      <HallwayAudio />
       
       {/* Door flicker effect - simulated activity for cold start */}
       {!hasActiveSessions && (

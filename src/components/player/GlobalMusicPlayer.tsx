@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useGlobalPlayer } from '@/contexts/GlobalPlayerContext';
 import { 
   Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, 
@@ -40,6 +41,9 @@ export const GlobalMusicPlayer: React.FC = () => {
     isQueueOpen,
   } = useGlobalPlayer();
 
+  const location = useLocation();
+  const isHome = location.pathname === '/';
+
   const [isExpanded, setIsExpanded] = useState(false);
   const [showVolume, setShowVolume] = useState(false);
   
@@ -51,7 +55,9 @@ export const GlobalMusicPlayer: React.FC = () => {
     setRepeatMode(modes[(currentIndex + 1) % modes.length]);
   };
 
-  if (!currentTrack) return null;
+  const shouldRender = currentTrack && !isHome;
+
+  if (!shouldRender) return null;
 
   return (
     <>

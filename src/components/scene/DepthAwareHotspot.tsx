@@ -224,6 +224,23 @@ function OnTheMicView({
         } : {}}
         transition={isRecording ? { duration: 1.2, repeat: Infinity } : {}}
       >
+        {/* Kinetic Vibration - physical jitter for recording states */}
+        {isRecording && (
+          <motion.div
+            className="absolute inset-0 rounded-full bg-destructive/10 pointer-events-none"
+            animate={{
+               scale: [1, 1.05, 0.98, 1.02, 1],
+               x: [0, -1, 1, -0.5, 0],
+               y: [0, 0.5, -0.5, 0.2, 0]
+            }}
+            transition={{
+               duration: 0.5, // 120bpm thump logic
+               repeat: Infinity,
+               ease: "easeInOut"
+            }}
+          />
+        )}
+
         {/* Recording indicator */}
         {isRecording && (
           <motion.div
@@ -378,6 +395,24 @@ function OnStageView({
         } : {}}
         transition={isRecording ? { duration: 1, repeat: Infinity } : {}}
       >
+        {/* Kinetic Vibration - intense physical jitter for stage/recording */}
+        {isRecording && (
+          <motion.div
+            className="absolute inset-0 rounded-full bg-destructive/20 pointer-events-none"
+            animate={{
+               scale: [1, 1.08, 0.95, 1.04, 1],
+               x: [0, -1.5, 1.5, -0.8, 0],
+               y: [0, 0.8, -0.8, 0.4, 0],
+               rotate: [0, -1, 1, 0]
+            }}
+            transition={{
+               duration: 0.5, // 120bpm thump logic
+               repeat: Infinity,
+               ease: "backOut"
+            }}
+          />
+        )}
+
         {/* Recording indicator */}
         {isRecording && (
           <motion.div

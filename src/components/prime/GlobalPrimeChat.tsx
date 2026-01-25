@@ -37,6 +37,7 @@ const getContextualGreeting = (pathname: string): string => {
 
 // Routes where GlobalPrimeChat should be hidden (they have their own chatbots)
 const HIDDEN_ROUTES = [
+  '/',
   '/artist-crm',
   '/engineer-crm',
   '/hybrid-daw',

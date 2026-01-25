@@ -4,8 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
 import { useGlobalAudio } from '@/hooks/useGlobalAudio';
+import { useLocation } from 'react-router-dom';
 
 export function GlobalAudioPlayer() {
+  const location = useLocation();
+  const isHome = location.pathname === '/';
+  
   const {
     isPlaying,
     volume,
@@ -21,6 +25,8 @@ export function GlobalAudioPlayer() {
 
   const [isExpanded, setIsExpanded] = useState(false);
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
+  
+  if (isHome) return null;
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
