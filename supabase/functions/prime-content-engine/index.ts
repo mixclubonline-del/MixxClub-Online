@@ -16,12 +16,20 @@ interface ContentRequest {
   trendData?: any;
   videoReference?: string; // URL to canonical video reference
   videoStyle?: 'talking-head' | 'b-roll-voiceover' | 'text-overlay' | 'reaction';
+  audience?: 'general' | 'artists' | 'engineers' | 'labels';
+}
+
+interface CaptionVariant {
+  id: string;
+  text: string;
+  tone: string;
 }
 
 interface PlatformContent {
   caption: string;
   hashtags: string[];
   format?: string;
+  variants?: CaptionVariant[];
 }
 
 interface GeneratedContent {
@@ -82,10 +90,13 @@ serve(async (req) => {
       includeVideo = false,
       trendData,
       videoReference,
-      videoStyle = 'talking-head'
+      trendData,
+      videoReference,
+      videoStyle = 'talking-head',
+      audience = 'general'
     } = body;
 
-    console.log("Prime Content Engine request:", { contentType, topic, platforms, videoStyle });
+    console.log("Prime Content Engine request:", { contentType, topic, platforms, videoStyle, audience });
 
     // Step 1: Get Prime's persona configuration with visual identity
     const { data: persona } = await supabase
@@ -146,7 +157,7 @@ serve(async (req) => {
     }
 
     // Step 4: Generate script with Gemini (enhanced with visual identity context)
-    const scriptPrompt = buildScriptPrompt(contentType, topicContext, personaPrompt, platforms, platformGuidelines, visualIdentity);
+    const scriptPrompt = buildScriptPrompt(contentType, topicContext, personaPrompt, platforms, platformGuidelines, visualIdentity, audience);
     
     const geminiResponse = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${googleApiKey}`,
@@ -302,10 +313,14 @@ serve(async (req) => {
           voice_id: voiceId,
           platforms_requested: platforms,
           video_style: videoStyle,
+          audience_target: audience,
           canonical_reference_used: canonicalVideoUrl || null,
           visual_identity_version: visualIdentity ? 'v1' : null,
           generated_at: new Date().toISOString()
-        }
+        },
+        priority: 'normal', // Default, unless specified otherwise (webhook logic separate)
+        audience_segment: audience,
+        caption_variants: parsedContent.globalVariants || [] // Store global variants if any
       })
       .select()
       .single();
@@ -357,7 +372,8 @@ function buildScriptPrompt(
   persona: string,
   platforms: string[],
   guidelines: any,
-  visualIdentity: VisualIdentity
+  visualIdentity: VisualIdentity,
+  audience: string = 'general'
 ): string {
   const contentTypeInstructions: Record<string, string> = {
     'hot-take': `Create a bold, opinionated take on this topic. Start with a controversial or surprising hook, give context, deliver your perspective, and end with a quotable line.`,
@@ -367,15 +383,15 @@ function buildScriptPrompt(
     'trend-reaction': `React to this trending topic with Prime's unique take. Be timely, relevant, and add value that only a 20-year veteran could provide.`
   };
 
-  const voiceContext = visualIdentity.voice_characteristics 
-    ? `\n\nVOICE DELIVERY:
-- Tone: ${visualIdentity.voice_characteristics.tone}
-- Pacing: ${visualIdentity.voice_characteristics.pacing}
-- Style: ${visualIdentity.voice_characteristics.style}`
+    : '';
+
+  const audienceContext = audience !== 'general' 
+    ? `\n\nTARGET AUDIENCE: ${audience.toUpperCase()}. Adjust vocabulary and tone.\n- Engineers: Use technical terms (LUFS, phase, compression), relate to workflow struggles.\n- Artists: Focus on creativity, releasing music, getting heard, dealing with technical hurdles.\n- Labels: Focus on ROI, market trends, breaking artists.` 
     : '';
 
   return `${persona}
 ${voiceContext}
+${audienceContext}
 
 CONTENT TYPE: ${contentType}
 ${contentTypeInstructions[contentType] || contentTypeInstructions['hot-take']}
@@ -389,7 +405,12 @@ Generate content in the following JSON format:
   "quotable": "One memorable line that could be shared standalone",
   "platforms": {
     ${platforms.map(p => `"${p}": { "caption": "Platform-optimized caption", "hashtags": ["relevant", "hashtags"], "format": "vertical/square" }`).join(',\n    ')}
-  }
+  },
+  "variants": [
+    { "text": "Alternative caption option 1 (Provocative)", "tone": "Provocative" },
+    { "text": "Alternative caption option 2 (Educational)", "tone": "Educational" },
+    { "text": "Alternative caption option 3 (Question/Engagement)", "tone": "Question" }
+  ]
 }
 
 Platform-specific notes:
@@ -476,7 +497,7 @@ Energy: ${appearance?.energy || 'Calm authority, not hyperactive'}
 5 second clip, smooth motion, professional quality, suitable for social media. Topic context: ${topic.substring(0, 50)}`;
 }
 
-function parseGeneratedContent(rawOutput: string, platforms: string[]): { script: string; platformContent: Record<string, PlatformContent> } {
+function parseGeneratedContent(rawOutput: string, platforms: string[]): { script: string; platformContent: Record<string, PlatformContent>; globalVariants?: CaptionVariant[] } {
   try {
     // Try to extract JSON from the response
     const jsonMatch = rawOutput.match(/\{[\s\S]*\}/);
@@ -484,7 +505,8 @@ function parseGeneratedContent(rawOutput: string, platforms: string[]): { script
       const parsed = JSON.parse(jsonMatch[0]);
       return {
         script: parsed.main_script || rawOutput,
-        platformContent: parsed.platforms || {}
+        platformContent: parsed.platforms || {},
+        globalVariants: parsed.variants?.map((v: any, i: number) => ({ id: `var_${i}`, ...v })) || []
       };
     }
   } catch (e) {

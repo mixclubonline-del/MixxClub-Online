@@ -67,6 +67,8 @@ export default function PrimeContentDashboard() {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [selectedType, setSelectedType] = useState<ContentType>('hot-take');
+
+  const [selectedAudience, setSelectedAudience] = useState('general');
   const [customTopic, setCustomTopic] = useState('');
   const [activeTab, setActiveTab] = useState('ready');
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
@@ -114,10 +116,12 @@ export default function PrimeContentDashboard() {
       const result = await generatePrimeContent({
         contentType: selectedType,
         topic: customTopic || undefined,
+
         platforms: ['tiktok', 'instagram', 'twitter'],
         includeVoice: true,
         includeImage: true,
-        includeVideo: false
+        includeVideo: false,
+        audience: selectedAudience as any
       });
 
       if (result.success) {
@@ -282,6 +286,18 @@ export default function PrimeContentDashboard() {
                       </div>
                     </SelectItem>
                   ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={selectedAudience} onValueChange={setSelectedAudience}>
+                <SelectTrigger className="w-[150px]">
+                  <SelectValue placeholder="Audience" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="general">General</SelectItem>
+                  <SelectItem value="artists">Artists</SelectItem>
+                  <SelectItem value="engineers">Engineers</SelectItem>
+                  <SelectItem value="labels">Labels</SelectItem>
                 </SelectContent>
               </Select>
               
@@ -498,6 +514,19 @@ function ContentCard({
               </span>
             </div>
 
+
+            <div className="flex gap-2 mb-2">
+                {(content as any).priority === 'high' && (
+                    <Badge className="bg-red-500/20 text-red-400 border-red-500/50 animate-pulse">
+                        High Priority
+                    </Badge>
+                )}
+                {(content as any).audience_segment && (content as any).audience_segment !== 'general' && (
+                    <Badge variant="outline" className="capitalize">
+                        Target: {(content as any).audience_segment}
+                    </Badge>
+                )}
+            </div>
             {content.topic && (
               <p className="text-sm text-muted-foreground line-clamp-1">
                 <strong>Topic:</strong> {content.topic}
@@ -516,6 +545,23 @@ function ContentCard({
                 Copy Script
               </Button>
             </div>
+
+            {/* A/B Variants */}
+            {(content as any).caption_variants && (content as any).caption_variants.length > 0 && (
+                <div className="bg-muted/30 rounded-lg p-3">
+                    <label className="text-xs font-medium text-muted-foreground uppercase opacity-70 mb-2 block">
+                        A/B Testing Variants
+                    </label>
+                    <div className="space-y-2">
+                        {(content as any).caption_variants.map((v: any, i: number) => (
+                            <div key={i} className="text-xs p-2 bg-background rounded border border-border/50 flex justify-between items-start gap-2">
+                                <span className="flex-1 italic">"{v.text}"</span>
+                                <Badge variant="secondary" className="text-[10px]">{v.tone}</Badge>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {/* Platform Previews */}
             {Object.keys(platformContent).length > 0 && (
