@@ -8,6 +8,7 @@ import { CollapsibleCard } from '@/components/ui/collapsible-card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { SubscriptionStatus, AnalyticsDashboard } from '@/backend-integration';
 import { 
   Music, 
   Users, 
@@ -134,30 +135,15 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Quick Stats */}
-        <CollapsibleCard
-          title="Quick Stats"
-          storageKey="dashboard-quick-stats"
-          contentClassName="pt-0"
-        >
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {quickStats.map((stat, index) => (
-              <Card key={index}>
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-4">
-                    <div className={`p-3 rounded-lg ${stat.bg}`}>
-                      <stat.icon className={`w-6 h-6 ${stat.color}`} />
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold">{stat.value}</div>
-                      <div className="text-sm text-muted-foreground">{stat.label}</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </CollapsibleCard>
+        {/* Subscription Status Bar */}
+        <div className="mb-6">
+            <SubscriptionStatus userId={user.id} />
+        </div>
+
+        {/* Quick Stats & Analytics */}
+        <div className="grid grid-cols-1 gap-6 mb-8">
+            <AnalyticsDashboard userId={user.id} />
+        </div>
 
         {/* Main Content Tabs */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

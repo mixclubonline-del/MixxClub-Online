@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { useMarketplaceItems, useMarketplaceCategories, usePurchaseItem } from "@/hooks/useMarketplace.tsx";
+import { useState } from "react";
+// import { useMarketplaceItems, useMarketplaceCategories, usePurchaseItem } from "@/hooks/useMarketplace.tsx"; // Replaced by backend component
+import { useBackendMarketplaceCart, MarketplaceProducts } from "@/backend-integration";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { MarketplaceBazaar } from "@/components/marketplace/MarketplaceBazaar";
@@ -14,40 +16,13 @@ import bazaarImage from "@/assets/commerce-bazaar.jpg";
 export default function Marketplace() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const { data: items, isLoading } = useMarketplaceItems();
-  const { data: categories } = useMarketplaceCategories();
-  const purchaseItem = usePurchaseItem();
-  
+  const { cartItems, total: cartTotal, addToCart, removeFromCart, updateQuantity } = useBackendMarketplaceCart(user?.id);
+
+  // Deprecated local state logic replaced by hook
+  /* 
   const [cart, setCart] = useState<any[]>([]);
-  const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
-  const handleAddToCart = (product: any) => {
-    setCart(prev => {
-      const existing = prev.find(item => item.id === product.id);
-      if (existing) {
-        return prev.map(item => 
-          item.id === product.id 
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      }
-      return [...prev, { ...product, quantity: 1 }];
-    });
-  };
-
-  const handleRemoveFromCart = (productId: string) => {
-    setCart(prev => prev.filter(item => item.id !== productId));
-  };
-
-  const handleUpdateQuantity = (productId: string, quantity: number) => {
-    if (quantity <= 0) {
-      handleRemoveFromCart(productId);
-    } else {
-      setCart(prev => prev.map(item => 
-        item.id === productId ? { ...item, quantity } : item
-      ));
-    }
-  };
+  ...
+  */
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -120,32 +95,22 @@ export default function Marketplace() {
         categories={categories}
       />
 
-      {/* Products Grid */}
+      {/* Products Grid - Now Powered by Backend Component */}
       <div className="container mx-auto px-4 py-8">
-        {filteredItems && filteredItems.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredItems.map((item: any, index: number) => (
-              <ProductShowcase
-                key={item.id}
-                item={item}
-                index={index}
-                onAddToCart={() => handleAddToCartClick(item)}
-                onBuyNow={() => handlePurchase(item)}
-                isPurchasing={purchaseItem.isPending}
-              />
-            ))}
-          </div>
-        ) : (
-          <EmptyBazaar hasFilters={hasFilters} />
-        )}
+        <MarketplaceProducts 
+            userId={user?.id}
+            searchQuery={searchQuery}
+            category={selectedCategory}
+            sortBy={sortBy}
+        />
       </div>
 
       {/* Floating Cart */}
       <FloatingCart
-        items={cart}
+        items={cartItems}
         total={cartTotal}
-        onRemove={handleRemoveFromCart}
-        onUpdateQuantity={handleUpdateQuantity}
+        onRemove={removeFromCart}
+        onUpdateQuantity={updateQuantity}
       />
     </MarketplaceBazaar>
   );

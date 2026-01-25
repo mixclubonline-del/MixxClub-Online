@@ -1,31 +1,33 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Filter, TrendingUp, Users, CheckCircle, Clock } from 'lucide-react';
-import { useMatchingEngine } from '../hooks/useMatchingEngine';
+import { motion } from 'framer-motion';
+import { Search, Filter, TrendingUp, Users, CheckCircle, Clock, Loader2 } from 'lucide-react';
+import { useBackendMatchingEngine } from '@/backend-integration';
 import { MatchCard } from '../components/matching/MatchCard';
-import { type Project, type Match } from '../stores/matchingEngineStore';
+// import { type Project, type Match } from '../stores/matchingEngineStore'; // No longer needed directly
 
 const MatchingDashboard: React.FC = () => {
+    const [projectId, setProjectId] = useState<string>('project-1'); // Default demo project
+    
     const {
-        engineers,
-        projects,
+        matches: currentMatches,
+        isLoading,
         findMatches,
-        getHighConfidenceMatches,
         matchStats,
         selectMatch,
         selectedMatch,
-    } = useMatchingEngine();
+    } = useBackendMatchingEngine(projectId);
 
     const [selectedGenreFilter, setSelectedGenreFilter] = useState<string>('');
     const [selectedConfidenceFilter, setSelectedConfidenceFilter] = useState<
         'all' | 'high' | 'medium' | 'low'
     >('all');
     const [searchQuery, setSearchQuery] = useState('');
-    const [currentMatches, setCurrentMatches] = useState<Match[]>([]);
-    const [filteredMatches, setFilteredMatches] = useState<Match[]>([]);
+    const [filteredMatches, setFilteredMatches] = useState<any[]>([]);
 
     // Sample project for demo (in real app, would come from project selection)
-    const demoProject: Project = {
+    const demoProject = {
         id: 'project-1',
         title: 'Hip-Hop Album Mixing & Mastering',
         description: 'Professional mixing and mastering for 12-track hip-hop album',
@@ -42,17 +44,22 @@ const MatchingDashboard: React.FC = () => {
 
     // Find matches when component mounts
     useEffect(() => {
-        const matches = findMatches(demoProject.id, 10);
-        setCurrentMatches(matches);
-    }, [demoProject.id, findMatches]);    // Filter matches
+        findMatches();
+    }, [projectId]); 
+
+    // Filter matches
     useEffect(() => {
-        let filtered = currentMatches;
+        if (!currentMatches) return;
+        
+        let filtered = [...currentMatches];
 
         // Genre filter
         if (selectedGenreFilter) {
             filtered = filtered.filter((match) => {
-                const engineer = engineers.find((e) => e.id === match.engineerId);
-                return engineer?.genres.includes(selectedGenreFilter);
+                // Determine genres from match/engineer object structure
+                // Adjust per backend response shape
+                const genres = match.engineer?.genres || []; 
+                return genres.includes(selectedGenreFilter);
             });
         }
 
@@ -64,21 +71,28 @@ const MatchingDashboard: React.FC = () => {
         // Search query
         if (searchQuery) {
             filtered = filtered.filter((match) => {
-                const engineer = engineers.find((e) => e.id === match.engineerId);
-                return engineer?.name.toLowerCase().includes(searchQuery.toLowerCase());
+                 const name = match.engineer?.name || '';
+                return name.toLowerCase().includes(searchQuery.toLowerCase());
             });
         }
 
         setFilteredMatches(filtered);
-    }, [currentMatches, selectedGenreFilter, selectedConfidenceFilter, searchQuery, engineers]);
+    }, [currentMatches, selectedGenreFilter, selectedConfidenceFilter, searchQuery]);
 
-    // Get unique genres
+    // Get unique genres (derived from matches for now)
     const allGenres = useMemo(
-        () => Array.from(new Set(engineers.flatMap((e) => e.genres))).sort(),
-        [engineers]
-    ) as string[];    // Get engineer details
-    const getEngineerInfo = (engineerId: string) => {
-        return engineers.find((e) => e.id === engineerId);
+        () => {
+             if (!currentMatches) return [];
+             const genres = currentMatches.flatMap(m => m.engineer?.genres || []);
+             return Array.from(new Set(genres)).sort();
+        },
+        [currentMatches]
+    ) as string[]; 
+    
+    // Get engineer details helper no longer needed as attached to match object
+    // but keeping a shim if needed
+    const getEngineerInfo = (match: any) => {
+        return match.engineer; 
     };
 
     return (
@@ -148,7 +162,7 @@ const MatchingDashboard: React.FC = () => {
                                     <Clock size={18} className="text-amber-600" />
                                     <span className="text-sm font-medium text-slate-600">Engineers</span>
                                 </div>
-                                <div className="text-2xl font-bold text-amber-900">{engineers.length}</div>
+                                <div className="text-2xl font-bold text-amber-900">{filteredMatches?.length || 0}</div>
                             </motion.div>
                         </div>
                     </div>
@@ -262,7 +276,7 @@ const MatchingDashboard: React.FC = () => {
                     {filteredMatches.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {filteredMatches.map((match, index) => {
-                                const engineer = getEngineerInfo(match.engineerId);
+                                const engineer = getEngineerInfo(match);
                                 return (
                                     <MatchCard
                                         key={`${match.engineerId}-${match.projectId}`}
@@ -304,7 +318,7 @@ const MatchingDashboard: React.FC = () => {
                         </h3>
 
                         {(() => {
-                            const engineer = getEngineerInfo(selectedMatch.engineerId);
+                            const engineer = getEngineerInfo(selectedMatch);
                             if (!engineer) return null;
 
                             return (

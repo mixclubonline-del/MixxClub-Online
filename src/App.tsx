@@ -42,6 +42,7 @@ import { EnergyTransition } from "@/components/pulse/PulseComponents";
 // Route modules - organized by domain
 import { publicRoutes, appRoutes, mobileRoutes, cityRoutes } from "@/routes";
 import NotFound from "@/pages/NotFound";
+import EnterpriseDashboard from "@/pages/EnterpriseDashboard";
 
 // Desktop-only components wrapper (Prime Console/Status only)
 const DesktopOnlyComponents = () => {
@@ -75,6 +76,7 @@ const AppContent = () => {
             {appRoutes}
             {mobileRoutes}
             {cityRoutes}
+            <Route path="/enterprise-dashboard" element={<EnterpriseDashboard />} />
             {/* Catch-all 404 - must be last */}
             <Route path="*" element={<NotFound />} />
           </Routes>
