@@ -38,7 +38,9 @@ import {
   type ContentType,
   type ContentStatus
 } from '@/lib/api/prime-content';
+import { PrimeContentEngine } from '@/services/PrimeContentEngine';
 import PrimeContentCalendar from '@/components/admin/PrimeContentCalendar';
+import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
 
 const contentTypeLabels: Record<ContentType, { label: string; icon: React.ReactNode; color: string }> = {
   'hot-take': { label: 'Hot Take', icon: <Zap className="h-4 w-4" />, color: 'bg-orange-500/20 text-orange-400' },
@@ -166,6 +168,18 @@ export default function PrimeContentDashboard() {
       toast.success('Content deleted');
       loadContent();
       loadStats();
+    }
+  };
+
+  const handlePackage = async (contentId: string) => {
+    toast.loading('Packaging video for platforms...', { id: 'packaging' });
+    const result = await PrimeContentEngine.packageVideoForPlatforms(contentId, ['tiktok', 'youtube_shorts', 'instagram_reels']);
+    
+    if (result.success) {
+      toast.success('Video packaged successfully!', { id: 'packaging' });
+      loadContent();
+    } else {
+      toast.error(`Packaging failed: ${result.error}`, { id: 'packaging' });
     }
   };
 
@@ -299,8 +313,19 @@ export default function PrimeContentDashboard() {
           </CardContent>
         </Card>
 
+
         {/* View Toggle */}
-        <div className="flex items-center justify-end gap-2">
+            <Tabs defaultValue="dashboard" className="w-full">
+
+                <TabsList className="mb-4">
+                    <TabsTrigger value="dashboard">Content Dashboard</TabsTrigger>
+                    <TabsTrigger value="analytics">Analytics</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="dashboard">
+                    {/* Inner Dashboard Logic - View Mode Toggle */}
+                    <div className="flex items-center justify-end gap-2 mb-4">
+                        <span className="text-sm text-muted-foreground">View:</span>
           <span className="text-sm text-muted-foreground">View:</span>
           <div className="flex rounded-lg border border-border/50 overflow-hidden">
             <Button
@@ -370,6 +395,7 @@ export default function PrimeContentDashboard() {
                           onMarkPosted={(platforms) => handleMarkPosted(item.id, platforms)}
                           onDelete={() => handleDelete(item.id)}
                           onCopy={copyToClipboard}
+                          onPackage={() => handlePackage(item.id)}
                         />
                       ))}
                     </div>
@@ -379,6 +405,13 @@ export default function PrimeContentDashboard() {
             </CardContent>
           </Card>
         )}
+
+        </TabsContent>
+        
+        <TabsContent value="analytics">
+            <AnalyticsDashboard />
+        </TabsContent>
+      </Tabs>
       </div>
     </div>
   );
@@ -393,6 +426,7 @@ interface ContentCardProps {
   onMarkPosted: (platforms: string[]) => void;
   onDelete: () => void;
   onCopy: (text: string, label: string) => void;
+  onPackage: () => void;
 }
 
 function ContentCard({ 
@@ -403,7 +437,8 @@ function ContentCard({
   onReject, 
   onMarkPosted,
   onDelete,
-  onCopy 
+  onCopy,
+  onPackage
 }: ContentCardProps) {
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
@@ -551,6 +586,12 @@ function ContentCard({
             {/* Actions */}
             {(content.status === 'ready' || content.status === 'pending') && (
               <div className="flex gap-2 pt-2">
+                 {content.video_url && (!content.platform_content || Object.keys(content.platform_content).length === 0) && (
+                  <Button onClick={onPackage} size="sm" className="bg-purple-600 hover:bg-purple-700">
+                    <Sparkles className="h-4 w-4 mr-1" />
+                    Package Video
+                  </Button>
+                 )}
                 <Button onClick={onApprove} size="sm" className="bg-green-600 hover:bg-green-700">
                   <Check className="h-4 w-4 mr-1" />
                   Approve
@@ -597,11 +638,34 @@ function ContentCard({
             {content.status === 'approved' && (
               <div className="flex gap-2 pt-2">
                 <Button 
+                  onClick={() => {
+                     // For demo, we just auto-select all main platforms
+                     const platforms = ['tiktok', 'instagram', 'youtube_shorts'];
+                     toast.promise(
+                        PrimeContentEngine.publishContent(content.id, platforms).then(() => {
+                           loadContent();
+                           // onMarkPosted(platforms); // Optional, if we want double-confirmation or manual override
+                        }),
+                        {
+                          loading: 'Publishing to social platforms...',
+                          success: 'Successfully published!',
+                          error: 'Failed to publish'
+                        }
+                     );
+                  }}
+                  size="sm"
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  <TrendingUp className="h-4 w-4 mr-1" />
+                  Post Now
+                </Button>
+                <Button 
                   onClick={() => onMarkPosted(['tiktok', 'instagram', 'twitter'])}
                   size="sm"
+                  variant="outline"
                 >
                   <Check className="h-4 w-4 mr-1" />
-                  Mark All Posted
+                  Mark Manually
                 </Button>
               </div>
             )}

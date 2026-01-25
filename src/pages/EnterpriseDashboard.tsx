@@ -20,6 +20,8 @@ import {
     DollarSign
 } from 'lucide-react';
 import { AnalyticsDashboard } from '@/backend-integration';
+import { InviteMemberDialog } from '@/components/enterprise/InviteMemberDialog';
+import { CreateContractDialog } from '@/components/enterprise/CreateContractDialog';
 
 const EnterpriseDashboard = () => {
     const { user } = useAuth();
@@ -27,17 +29,25 @@ const EnterpriseDashboard = () => {
     const [activeTab, setActiveTab] = useState('overview');
 
     // Mock data for initial UI (will be replaced by backend hook)
-    const teamMembers = [
+    const [teamMembers, setTeamMembers] = useState([
         { id: 1, name: 'Alice Chen', role: 'Admin', email: 'alice@label.com', status: 'Active' },
         { id: 2, name: 'Bob Smith', role: 'A&R', email: 'bob@label.com', status: 'Active' },
         { id: 3, name: 'Charlie Day', role: 'Manager', email: 'charlie@label.com', status: 'Pending' },
-    ];
+    ]);
 
-    const contracts = [
+    const handleInviteMember = (newMember: any) => {
+        setTeamMembers([...teamMembers, newMember]);
+    };
+
+    const [contracts, setContracts] = useState([
         { id: 1, title: 'Artist Agreement - Lunar Echo', status: 'Signed', date: '2025-01-15', value: '$12,000' },
         { id: 2, title: 'Distribution Deal - Neon Waves', status: 'Review', date: '2025-01-20', value: '$45,000' },
         { id: 3, title: 'Producer Split - Midnight vibes', status: 'Draft', date: '2025-01-24', value: 'TBD' },
-    ];
+    ]);
+
+    const handleCreateContract = (newContract: any) => {
+        setContracts([newContract, ...contracts]);
+    };
 
     if (!user) {
         return (
@@ -72,10 +82,7 @@ const EnterpriseDashboard = () => {
                             <Settings className="w-4 h-4" />
                             Settings
                         </Button>
-                        <Button className="gap-2 bg-blue-600 hover:bg-blue-700">
-                            <Plus className="w-4 h-4" />
-                            Invite Member
-                        </Button>
+                        <InviteMemberDialog onInvite={handleInviteMember} />
                     </div>
                 </div>
 
@@ -164,10 +171,9 @@ const EnterpriseDashboard = () => {
                                             </div>
                                         </div>
                                     ))}
-                                    <Button variant="outline" className="w-full border-dashed gap-2 text-slate-500 hover:text-slate-900">
-                                        <Plus className="w-4 h-4" />
-                                        Add Team Member
-                                    </Button>
+                                    <div className="pt-4 border-t">
+                                        <InviteMemberDialog onInvite={handleInviteMember} />
+                                    </div>
                                 </div>
                             </CardContent>
                         </Card>
@@ -209,10 +215,7 @@ const EnterpriseDashboard = () => {
                                             </div>
                                         </div>
                                     ))}
-                                    <Button variant="outline" className="w-full border-dashed gap-2 text-slate-500 hover:text-slate-900">
-                                        <Plus className="w-4 h-4" />
-                                        Create New Contract
-                                    </Button>
+                                    <CreateContractDialog onCreate={handleCreateContract} />
                                 </div>
                             </CardContent>
                         </Card>

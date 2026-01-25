@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Filter, TrendingUp, Users, CheckCircle, Clock } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { Search, Filter, TrendingUp, Users, CheckCircle, Clock, Loader2 } from 'lucide-react';
 import { useBackendMatchingEngine } from '@/backend-integration';
 import { MatchCard } from '../components/matching/MatchCard';
