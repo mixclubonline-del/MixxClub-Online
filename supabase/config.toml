@@ -62,3 +62,6 @@ verify_jwt = false
 
 [functions.prime-content-engine]
 verify_jwt = false
+
+[functions.package-video-for-platforms]
+verify_jwt = false
