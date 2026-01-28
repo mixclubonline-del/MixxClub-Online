@@ -6,6 +6,7 @@ import PathAmbience from "@/components/journey/PathAmbience";
 import JourneyGateway from "@/components/journey/JourneyGateway";
 import JourneyPath from "@/components/journey/JourneyPath";
 import JourneyDestination from "@/components/journey/JourneyDestination";
+import JourneyCompanion from "@/components/journey/JourneyCompanion";
 import journeyPathImage from "@/assets/journey-path.jpg";
 
 const artistSteps = [
@@ -95,6 +96,13 @@ const HowItWorks = () => {
           activeStep={activeStep}
           onStepClick={setActiveStep}
           variant={activeRole}
+        />
+
+        {/* Floating companion (desktop only) */}
+        <JourneyCompanion 
+          role={activeRole}
+          currentStep={activeStep}
+          totalSteps={steps.length}
         />
 
         {/* Destination CTA */}
