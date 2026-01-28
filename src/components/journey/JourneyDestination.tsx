@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Rocket, Star, Trophy } from "lucide-react";
+import { Rocket, Star, Trophy, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { CharacterAvatar } from "@/components/characters";
+import { getCharacter } from "@/config/characters";
 
 interface JourneyDestinationProps {
   role: "artist" | "engineer";
@@ -9,24 +11,40 @@ interface JourneyDestinationProps {
 
 const JourneyDestination = ({ role }: JourneyDestinationProps) => {
   const navigate = useNavigate();
+  
+  const characterId = role === "artist" ? "jax" : "rell";
+  const character = getCharacter(characterId);
+  const accentColor = role === "artist" ? "hsl(262 83% 58%)" : "hsl(180 100% 50%)";
 
   const content = {
     artist: {
       title: "Ready to Release Your Hit?",
       subtitle: "Join thousands of artists who've transformed their sound",
-      cta: "Start Your Journey",
+      cta: "Enter MixClub City",
+      secondaryCta: "Sign Up First",
       icon: Rocket,
+      quote: "Let's get this bag.",
     },
     engineer: {
       title: "Ready to Build Your Empire?",
       subtitle: "Join elite engineers earning on their own terms",
-      cta: "Claim Your Spot",
+      cta: "Enter MixClub City",
+      secondaryCta: "Sign Up First",
       icon: Trophy,
+      quote: "Time to get paid.",
     },
   };
 
-  const { title, subtitle, cta, icon: Icon } = content[role];
-  const accentColor = role === "artist" ? "primary" : "[hsl(180_100%_50%)]";
+  const { title, subtitle, cta, secondaryCta, icon: Icon, quote } = content[role];
+
+  const handleEnterCity = () => {
+    localStorage.setItem('mixclub_role', role);
+    navigate('/city');
+  };
+
+  const handleSignUp = () => {
+    navigate(`/auth?signup=true&role=${role}`);
+  };
 
   return (
     <motion.div
@@ -51,7 +69,10 @@ const JourneyDestination = ({ role }: JourneyDestinationProps) => {
             viewport={{ once: true }}
             transition={{ delay: 0.5 + i * 0.1, duration: 0.5 }}
           >
-            <Star className={`w-4 h-4 text-${accentColor}/40`} />
+            <Star 
+              className="w-4 h-4" 
+              style={{ color: `${accentColor}`, opacity: 0.4 }}
+            />
           </motion.div>
         ))}
       </div>
@@ -59,57 +80,108 @@ const JourneyDestination = ({ role }: JourneyDestinationProps) => {
       {/* Destination card */}
       <div className="max-w-2xl mx-auto">
         <motion.div
-          className={`relative p-8 md:p-12 rounded-3xl border-2 backdrop-blur-md text-center ${
-            role === "artist"
-              ? "border-primary/50 bg-primary/10"
-              : "border-[hsl(180_100%_50%)]/50 bg-[hsl(180_100%_50%)]/10"
-          }`}
+          className="relative p-8 md:p-12 rounded-3xl border-2 backdrop-blur-md"
+          style={{
+            borderColor: `${accentColor}50`,
+            backgroundColor: `${accentColor}10`,
+          }}
           whileHover={{ scale: 1.02 }}
           transition={{ duration: 0.3 }}
         >
           {/* Glow effect */}
-          <div className={`absolute inset-0 rounded-3xl ${
-            role === "artist"
-              ? "shadow-glow-raven"
-              : "shadow-[0_0_60px_hsl(180_100%_50%_/_0.3)]"
-          }`} />
+          <div 
+            className="absolute inset-0 rounded-3xl pointer-events-none"
+            style={{ boxShadow: `0 0 60px ${accentColor}30` }}
+          />
 
           <div className="relative">
-            {/* Icon */}
-            <motion.div
-              className={`w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center ${
-                role === "artist"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-[hsl(180_100%_50%)] text-background"
-              }`}
-              initial={{ scale: 0, rotate: -180 }}
-              whileInView={{ scale: 1, rotate: 0 }}
+            {/* Character avatar with icon */}
+            <div className="flex items-center justify-center gap-4 mb-6">
+              <motion.div
+                initial={{ scale: 0, x: -20 }}
+                whileInView={{ scale: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ type: "spring", duration: 0.6, delay: 0.1 }}
+              >
+                <CharacterAvatar 
+                  characterId={characterId} 
+                  size="xl" 
+                  showGlow={true}
+                />
+              </motion.div>
+              
+              <motion.div
+                className="w-16 h-16 rounded-full flex items-center justify-center"
+                style={{ backgroundColor: accentColor }}
+                initial={{ scale: 0, rotate: -180 }}
+                whileInView={{ scale: 1, rotate: 0 }}
+                viewport={{ once: true }}
+                transition={{ type: "spring", duration: 0.8, delay: 0.2 }}
+              >
+                <Icon className="w-8 h-8 text-background" />
+              </motion.div>
+            </div>
+
+            {/* Character quote */}
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ type: "spring", duration: 0.8, delay: 0.2 }}
+              transition={{ delay: 0.4 }}
+              className="text-sm italic text-muted-foreground mb-4 text-center"
             >
-              <Icon className="w-10 h-10" />
-            </motion.div>
+              "{quote}" — <span style={{ color: accentColor }}>{character.name}</span>
+            </motion.p>
 
             {/* Content */}
-            <h2 className="text-3xl md:text-4xl font-black mb-4 text-foreground">
+            <h2 className="text-3xl md:text-4xl font-black mb-4 text-foreground text-center">
               {title}
             </h2>
-            <p className="text-lg text-muted-foreground mb-8 max-w-md mx-auto">
+            <p className="text-lg text-muted-foreground mb-8 max-w-md mx-auto text-center">
               {subtitle}
             </p>
 
-            {/* CTA */}
-            <Button
-              size="lg"
-              onClick={() => navigate(`/auth?signup=true&role=${role}`)}
-              className={`text-lg px-10 py-6 ${
-                role === "artist"
-                  ? "shadow-glow-raven"
-                  : "bg-[hsl(180_100%_50%)] hover:bg-[hsl(180_100%_45%)] text-background shadow-[0_0_30px_hsl(180_100%_50%_/_0.3)]"
-              }`}
+            {/* CTAs */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              {/* Primary: Enter City */}
+              <Button
+                size="lg"
+                onClick={handleEnterCity}
+                className="text-lg px-8 py-6 group"
+                style={{
+                  backgroundColor: accentColor,
+                  boxShadow: `0 0 30px ${accentColor}40`,
+                }}
+              >
+                {cta}
+                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Button>
+              
+              {/* Secondary: Sign Up */}
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={handleSignUp}
+                className="text-lg px-8 py-6"
+                style={{
+                  borderColor: `${accentColor}50`,
+                  color: accentColor,
+                }}
+              >
+                {secondaryCta}
+              </Button>
+            </div>
+
+            {/* Preview teaser */}
+            <motion.p
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.6 }}
+              className="text-xs text-muted-foreground mt-6 text-center"
             >
-              {cta}
-            </Button>
+              Explore the city first, or create an account to save your progress
+            </motion.p>
           </div>
         </motion.div>
       </div>
