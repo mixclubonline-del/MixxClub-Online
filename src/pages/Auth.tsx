@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ArrowLeft, Music, Sparkles, Users, Zap, Headphones, Mic2, Apple, KeyRound } from "lucide-react";
+import { ArrowLeft, Music, Sparkles, Users, Zap, Apple, KeyRound } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useAnalytics } from "@/hooks/useAnalytics";
@@ -14,6 +14,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import authGatewayImage from "@/assets/auth-gateway.jpg";
 import mixclub3DLogo from "@/assets/mixclub-3d-logo.png";
 import { AuthSocialProof, RoleBenefits, UsernamePreview } from "@/components/auth/AuthSocialProof";
+import { AuthCharacterGreeter } from "@/components/auth/AuthCharacterGreeter";
+import { AuthWelcomeBack } from "@/components/auth/AuthWelcomeBack";
+import { CharacterAvatar } from "@/components/characters/CharacterAvatar";
+import { getCharacter } from "@/config/characters";
 
 // Import Google icon
 const GoogleIcon = () => (
@@ -61,85 +65,7 @@ const AmbientParticles = () => {
   );
 };
 
-// Role selection as visual paths
-const RolePathSelector = ({ 
-  role, 
-  onRoleChange 
-}: { 
-  role: "artist" | "engineer"; 
-  onRoleChange: (role: "artist" | "engineer") => void;
-}) => (
-  <div className="space-y-3">
-    <Label className="text-white/80">Choose your path</Label>
-    <div className="grid grid-cols-2 gap-4">
-      <motion.button
-        type="button"
-        onClick={() => onRoleChange("artist")}
-        className={`relative flex flex-col items-center justify-center gap-3 rounded-xl p-6 transition-all ${
-          role === "artist" 
-            ? "bg-primary/30 border-2 border-primary shadow-lg shadow-primary/30" 
-            : "bg-white/5 border border-white/10 hover:bg-white/10"
-        }`}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-      >
-        {role === "artist" && (
-          <motion.div 
-            className="absolute inset-0 rounded-xl bg-primary/20"
-            layoutId="roleGlow"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-          />
-        )}
-        <div className={`w-14 h-14 rounded-full flex items-center justify-center ${
-          role === "artist" ? "bg-primary/40" : "bg-white/10"
-        }`}>
-          <Mic2 className={`w-7 h-7 ${role === "artist" ? "text-primary" : "text-white/60"}`} />
-        </div>
-        <span className={`font-semibold ${role === "artist" ? "text-white" : "text-white/70"}`}>
-          Artist
-        </span>
-        <span className="text-xs text-white/50 text-center">
-          Get professional mixing & mastering
-        </span>
-      </motion.button>
-      
-      <motion.button
-        type="button"
-        onClick={() => onRoleChange("engineer")}
-        className={`relative flex flex-col items-center justify-center gap-3 rounded-xl p-6 transition-all ${
-          role === "engineer" 
-            ? "bg-cyan-500/30 border-2 border-cyan-400 shadow-lg shadow-cyan-500/30" 
-            : "bg-white/5 border border-white/10 hover:bg-white/10"
-        }`}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-      >
-        {role === "engineer" && (
-          <motion.div 
-            className="absolute inset-0 rounded-xl bg-cyan-500/20"
-            layoutId="roleGlow"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-          />
-        )}
-        <div className={`w-14 h-14 rounded-full flex items-center justify-center ${
-          role === "engineer" ? "bg-cyan-500/40" : "bg-white/10"
-        }`}>
-          <Headphones className={`w-7 h-7 ${role === "engineer" ? "text-cyan-400" : "text-white/60"}`} />
-        </div>
-        <span className={`font-semibold ${role === "engineer" ? "text-white" : "text-white/70"}`}>
-          Engineer
-        </span>
-        <span className="text-xs text-white/50 text-center">
-          Offer mixing & mastering services
-        </span>
-      </motion.button>
-    </div>
-  </div>
-);
+// RolePathSelector has been replaced by AuthCharacterGreeter component
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -514,7 +440,7 @@ const Auth = () => {
       {/* Ambient particles */}
       <AmbientParticles />
       
-      {/* Entry animation overlay */}
+      {/* Entry animation overlay with character send-off */}
       <AnimatePresence>
         {enteringCity && (
           <motion.div
@@ -523,6 +449,28 @@ const Auth = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
+            {/* Character send-off */}
+            <motion.div
+              className="absolute z-10 flex flex-col items-center gap-4"
+              initial={{ opacity: 0, scale: 0.8, y: 20 }}
+              animate={{ opacity: [0, 1, 1, 0], scale: [0.8, 1, 1, 1.1], y: [20, 0, 0, -30] }}
+              transition={{ duration: 1, times: [0, 0.2, 0.6, 1] }}
+            >
+              <CharacterAvatar
+                characterId={role === 'engineer' ? 'rell' : 'jax'}
+                size="xl"
+                showGlow={true}
+              />
+              <motion.p
+                className="text-lg font-semibold text-white drop-shadow-lg"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: [0, 1, 1, 0] }}
+                transition={{ duration: 1, times: [0, 0.3, 0.7, 1] }}
+              >
+                {role === 'engineer' ? "Let's build." : "Let's go!"}
+              </motion.p>
+            </motion.div>
+
             {/* Zoom through gates effect */}
             <motion.div
               className="absolute inset-0 bg-gradient-to-t from-primary/50 via-transparent to-transparent"
@@ -760,6 +708,9 @@ const Auth = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
+          {/* Prime greeting for login mode */}
+          {mode === "login" && <AuthWelcomeBack />}
+
           {/* Social Sign-in Buttons */}
           <div className="space-y-3 mb-5">
             <Button
@@ -879,10 +830,12 @@ const Auth = () => {
               <form onSubmit={handleAuth} className="space-y-5">
                 {mode === "signup" && (
                   <>
-                    <RolePathSelector role={role} onRoleChange={setRole} />
+                    <AuthCharacterGreeter role={role} onRoleChange={setRole} />
                     
                     {/* Role-specific benefits */}
-                    <RoleBenefits role={role} />
+                    <div className="mt-8">
+                      <RoleBenefits role={role} />
+                    </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="fullName" className="text-white/80">Full Name</Label>
