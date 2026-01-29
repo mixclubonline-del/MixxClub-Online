@@ -1,173 +1,220 @@
 
-# Journey Portal Enhancement Plan
+
+# Auth Gateway Character Enhancement Plan
 
 ## Overview
 
-Bring the character-guided experience from City Gates to the `/how-it-works` page, creating a unified entry experience where Jax and Rell guide users through understanding the platform before they enter the City.
+Bring Jax and Rell as welcoming guides to the Auth page (`/auth`), creating a continuous character-guided journey from first visit through sign-up. Currently the Auth page has:
+- Generic role selection with Mic2/Headphones icons
+- Static social proof components
+- No character presence despite being a critical conversion point
+
+This enhancement will make the auth experience feel like "being greeted at the gates" before entering MixxClub City.
+
+---
 
 ## Current State Analysis
 
-**City Gates** (just enhanced):
-- Character-guided path selection with Jax/Rell avatars
-- Speech bubbles with motivational quotes
-- Ambient glows and role-specific colors
-- Path preview cards on hover
-- Activity indicators
+**Auth Page (current):**
+- Immersive gateway background (`auth-gateway.jpg`)
+- Role selector using generic icons (Mic2, Headphones)
+- Social proof stats and activity ticker
+- Username preview component
+- No character presence or personality
 
-**How It Works Page** (current):
-- Generic icon-based role toggle (Music/Headphones icons)
-- Static step cards
-- No character presence
-- Functional but lacks the immersive storytelling
+**Character Integration Gap:**
+- City Gates: ✅ Jax & Rell guide path selection
+- Journey Portal: ✅ Jax & Rell provide commentary
+- Onboarding Wizards: ✅ Characters guide each step
+- Auth Page: ❌ No character presence (broken continuity)
+
+---
 
 ## Enhancement Strategy
 
-### Phase 1: Character-Guided Role Gateway
+### Phase 1: Character Greeter at Sign-Up
 
-Replace the current `JourneyGateway` component with character guides:
+Replace the generic `RolePathSelector` with character-guided selection:
 
-**Updated JourneyGateway:**
-- Jax avatar on Artist side with speech bubble
-- Rell avatar on Engineer side with speech bubble
-- Role-specific glows matching City Gates
-- Animated hover states with quote reveals
-- Mobile-friendly stacked layout
+**New Component: `AuthCharacterGreeter`**
+- Jax avatar on Artist side with welcoming quote
+- Rell avatar on Engineer side with welcoming quote
+- Ambient glows matching role colors
+- Hover states reveal additional motivational quotes
+- Seamless visual continuity with City Gates style
 
-### Phase 2: Character Journey Companion
+**Character Quotes for Auth:**
+- Jax: "Ready to make some noise?" / "Your sound is waiting."
+- Rell: "Let's build something legendary." / "The studio is calling."
 
-Add a floating character companion that appears alongside the journey steps:
+### Phase 2: Dynamic Role-Aware Feedback
 
-**New Component: `JourneyCompanion`**
-- Small character avatar that "walks" with user through the steps
-- Position updates as user progresses through milestones
-- Contextual commentary on each step (optional speech bubbles)
-- Subtle animation to suggest guidance
+As users toggle between Artist/Engineer roles:
 
-### Phase 3: Enhanced Step Presentation
+**Visual Feedback:**
+- Active character moves slightly forward (scale/translate)
+- Inactive character fades back
+- Role-specific glow intensifies around form
+- Benefits section updates with character endorsement
 
-Upgrade `JourneyPath` with richer visual storytelling:
+### Phase 3: Login Greeter Variant
 
-**Improvements:**
-- Step cards with role-specific accent borders
-- Progress trail with glowing particles
-- Character quote snippets at key milestones (Step 1, Final Step)
-- Celebration effect when reaching final step
+For returning users (login mode), show a welcoming presence:
 
-### Phase 4: Journey-to-City Bridge
+**Single "Welcomer" Character:**
+- Prime character (or neutral gate guardian) greets returning users
+- Quote: "Welcome back to the city." / "The session awaits."
+- Simpler layout since no role selection needed
 
-Connect the journey explanation directly to City Gates entry:
+### Phase 4: Entry Animation Character
 
-**Updated JourneyDestination:**
-- Character avatar in the final CTA card
-- "Enter the City" button leading to `/city`
-- Preview of what's beyond the gates
-- Transition animation matching City Gates entry
+When authentication succeeds, enhance the transition:
 
-### Phase 5: Mobile Journey Experience
-
-Optimize the enhanced journey for phone users:
-
-**Responsive Adjustments:**
-- Stacked character portals at top
-- Companion character fixed at bottom during scroll
-- Touch-friendly step progression
-- Reduced particle effects for performance
+**Character Send-Off:**
+- Selected character appears briefly during entry animation
+- Quote fades in: "Let's go!" or "See you inside!"
+- Character gesture animation (wave/nod)
+- Smooth transition to onboarding or CRM
 
 ---
 
 ## Technical Implementation
 
-### Files to Modify
-
-1. **`src/components/journey/JourneyGateway.tsx`**
-   - Replace icon-based toggles with GateCharacter components
-   - Add speech bubbles and role-specific styling
-   - Import character system (`getCharacter`, `CharacterAvatar`)
-
-2. **`src/components/journey/JourneyPath.tsx`**
-   - Add character milestone markers
-   - Enhanced progress visualization
-   - Role-specific accent colors throughout
-
-3. **`src/components/journey/JourneyDestination.tsx`**
-   - Add character avatar to CTA card
-   - Update button to navigate to `/city` (or auth with role)
-   - Add preview teaser of City
-
 ### New Files to Create
 
-1. **`src/components/journey/JourneyCompanion.tsx`**
-   - Floating character that follows scroll progress
-   - Step-aware positioning
-   - Optional contextual quotes
+1. **`src/components/auth/AuthCharacterGreeter.tsx`**
+   - Role selection with Jax/Rell avatars
+   - Hover quotes and ambient glows
+   - Active/inactive state animations
+   - Mobile-responsive layout
+
+2. **`src/components/auth/AuthWelcomeBack.tsx`**
+   - Login mode character greeting
+   - Prime or neutral guide presence
+   - Simpler single-character layout
+
+### Files to Modify
+
+1. **`src/pages/Auth.tsx`**
+   - Replace `RolePathSelector` with `AuthCharacterGreeter`
+   - Add `AuthWelcomeBack` for login mode
+   - Enhance entry animation with character presence
+   - Update imports and state management
+
+2. **`src/components/auth/AuthSocialProof.tsx`**
+   - Add optional character endorsement mode
+   - Role-aware social proof messaging
+
+### Existing Components to Leverage
+
+- `CharacterAvatar` from `src/components/characters/CharacterAvatar.tsx`
+- `getCharacter()` from `src/config/characters.ts`
+- Animation patterns from `GateCharacter.tsx` (just created)
 
 ---
 
 ## Visual Layout
 
 ```text
-Desktop Layout:
-┌───────────────────────────────────────────────────────────┐
-│                    [Journey Background]                    │
-│                                                           │
-│                  "Your Journey Begins"                    │
-│                                                           │
-│     ┌─────────────────┐     ┌─────────────────┐          │
-│     │   [Jax Avatar]  │     │  [Rell Avatar]  │          │
-│     │   Artist Path   │     │  Engineer Path  │          │
-│     │   "Your name    │     │  "The craft     │          │
-│     │    is your..."  │     │   speaks..."    │          │
-│     └─────────────────┘     └─────────────────┘          │
-│                                                           │
-│  ╔═══════════════════════════════════════════════════╗   │
-│  ║  Step 1: Upload Your Track     [✓]  ◄── [Jax]    ║   │
-│  ╠═══════════════════════════════════════════════════╣   │
-│  ║  Step 2: AI Analyzes           [●]               ║   │
-│  ╠═══════════════════════════════════════════════════╣   │
-│  ║  Step 3: Get Matched           [ ]               ║   │
-│  ╠═══════════════════════════════════════════════════╣   │
-│  ║  Step 4: Collaborate           [ ]               ║   │
-│  ╠═══════════════════════════════════════════════════╣   │
-│  ║  Step 5: Download Hit          [ ]  "Let's get   ║   │
-│  ║                                      this bag!"  ║   │
-│  ╚═══════════════════════════════════════════════════╝   │
-│                                                           │
-│     ┌─────────────────────────────────────────────────┐  │
-│     │  [Jax]  Ready to Release Your Hit?              │  │
-│     │         [Enter MixClub City →]                  │  │
-│     └─────────────────────────────────────────────────┘  │
-└───────────────────────────────────────────────────────────┘
+Sign-Up Mode (Desktop):
+┌─────────────────────────────────────────────────────────────┐
+│                   [Auth Gateway Background]                  │
+│                                                              │
+│                      [MixClub 3D Logo]                       │
+│                    "Enter MixClub City"                      │
+│                                                              │
+│     ┌─────────────────────────────────────────────────────┐ │
+│     │  ┌─────────────┐  [Form Fields]  ┌─────────────┐    │ │
+│     │  │ [Jax]       │                 │      [Rell] │    │ │
+│     │  │ "Ready to   │  Email          │ "Let's      │    │ │
+│     │  │  make some  │  Password       │  build      │    │ │
+│     │  │  noise?"    │  Name           │  something  │    │ │
+│     │  │             │                 │  legendary" │    │ │
+│     │  │ [Artist]    │  [Role Toggle]  │ [Engineer]  │    │ │
+│     │  └─────────────┘                 └─────────────┘    │ │
+│     │                                                      │ │
+│     │               [Create Account Button]                │ │
+│     │                                                      │ │
+│     │          [Social Proof + Activity Ticker]            │ │
+│     └─────────────────────────────────────────────────────┘ │
+│                                                              │
+│                    [Back to City]                           │
+└─────────────────────────────────────────────────────────────┘
+
+Login Mode (Desktop):
+┌─────────────────────────────────────────────────────────────┐
+│                   [Auth Gateway Background]                  │
+│                                                              │
+│                      [MixClub 3D Logo]                       │
+│                     "Welcome Back"                           │
+│                                                              │
+│     ┌─────────────────────────────────────────────────────┐ │
+│     │               [Prime Character]                      │ │
+│     │           "The session awaits."                      │ │
+│     │                                                      │ │
+│     │                 Email                                │ │
+│     │                 Password                             │ │
+│     │                                                      │ │
+│     │               [Sign In Button]                       │ │
+│     │                                                      │ │
+│     │         [Forgot Password] [Create Account]           │ │
+│     └─────────────────────────────────────────────────────┘ │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+
+Mobile Layout (Sign-Up):
+┌─────────────────────┐
+│ [Auth Gateway BG]   │
+│                     │
+│   [MixClub Logo]    │
+│                     │
+│ ┌─────────────────┐ │
+│ │ Choose Your Path│ │
+│ │                 │ │
+│ │ ┌─────┐ ┌─────┐ │ │
+│ │ │Jax  │ │Rell │ │ │
+│ │ │     │ │     │ │ │
+│ │ └─────┘ └─────┘ │ │
+│ │                 │ │
+│ │ [Form Fields]   │ │
+│ │                 │ │
+│ │ [Create Acct]   │ │
+│ └─────────────────┘ │
+│                     │
+└─────────────────────┘
 ```
 
 ---
 
 ## Implementation Sequence
 
-1. **Update JourneyGateway** - Add character avatars and speech bubbles
-2. **Create JourneyCompanion** - Floating guide component
-3. **Enhance JourneyPath** - Add character markers and better progress visuals
-4. **Update JourneyDestination** - Character-featured CTA with City bridge
-5. **Test responsive layout** - Ensure mobile experience is smooth
+1. **Create AuthCharacterGreeter** - Character-based role selector with Jax/Rell
+2. **Create AuthWelcomeBack** - Login mode character greeting with Prime
+3. **Update Auth.tsx** - Integrate new components, replace RolePathSelector
+4. **Enhance entry animation** - Add character send-off during transition
+5. **Test responsive behavior** - Ensure mobile experience is polished
 
 ---
 
 ## Technical Notes
 
 - Reuse `CharacterAvatar` and `getCharacter()` from existing character system
-- Follow established animation patterns with Framer Motion
-- Character quotes already exist in `src/config/characters.ts`
+- Follow animation patterns established in `GateCharacter.tsx`
+- Character quotes can be extended in `src/config/characters.ts` with auth-specific variants
 - Maintain z-index hierarchy from `src/lib/z-index.ts`
+- Entry animation should sync with existing `enteringCity` state in Auth.tsx
 - Use role colors: Artist (purple/primary), Engineer (cyan)
-- Companion should respect `prefers-reduced-motion`
+- Respect `prefers-reduced-motion` for animations
 
 ---
 
 ## Expected Outcome
 
-The enhanced Journey Portal will:
-- Create consistency with the character-guided City Gates
-- Make the path selection feel personal with Jax/Rell guidance
-- Tell a story through the journey steps with character commentary
-- Bridge naturally to City entry with clear call-to-action
+The enhanced Auth Gateway will:
+- Create seamless character continuity from landing → auth → onboarding
+- Make sign-up feel like "being welcomed into the city" by Jax/Rell
+- Increase emotional engagement at critical conversion point
+- Differentiate MixxClub's auth experience from generic forms
+- Maintain immersive world-building throughout the entry journey
 - Work beautifully across all device sizes
-- Reinforce the "guided by characters" narrative throughout MixClub
+
