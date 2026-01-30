@@ -30,6 +30,15 @@ const districts = [
     highlight: true
   },
   { 
+    id: 'dream', 
+    name: 'Dream Chamber', 
+    path: '/city/dream', 
+    icon: Sparkles, 
+    color: 'from-purple-500 to-cyan-500', 
+    description: 'Generate visuals, videos, and audio for the city',
+    stats: 'Vision Control'
+  },
+  { 
     id: 'neural', 
     name: 'Neural Engine', 
     path: '/city/prime', 
@@ -87,7 +96,7 @@ const districts = [
 
 const quickActions = [
   { label: 'Generate Beat', icon: Sparkles, path: '/city/studio', color: 'text-orange-400' },
-  { label: 'Upload Track', icon: Music, path: '/city/creator', color: 'text-purple-400' },
+  { label: 'Dream Vision', icon: Sparkles, path: '/city/dream', color: 'text-purple-400' },
   { label: 'Ask Prime', icon: Brain, path: '/city/prime', color: 'text-cyan-400' },
   { label: 'View Stats', icon: TrendingUp, path: '/city/analytics', color: 'text-green-400' },
 ];
