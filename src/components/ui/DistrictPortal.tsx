@@ -24,6 +24,7 @@ export const DISTRICT_PORTALS: Record<string, { image: string; glowColor: string
   commerce: { image: districtCommerce, glowColor: '40 95% 55%' },
   data: { image: districtData, glowColor: '160 84% 40%' },
   broadcast: { image: districtBroadcast, glowColor: '250 75% 60%' },
+  dream: { image: districtNeural, glowColor: '270 75% 55%' },
 };
 
 interface DistrictPortalProps {

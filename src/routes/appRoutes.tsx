@@ -182,9 +182,9 @@ export const appRoutes = (
     {/* Enterprise */}
     <Route path="/enterprise-demo" element={<EnterpriseDemo />} />
 
-    {/* Dream Engine (Vision Control) */}
-    <Route path="/dream-engine" element={<DreamEngine />} />
-    <Route path="/landing-forge" element={<Navigate to="/dream-engine" replace />} />
+    {/* Dream Engine (Vision Control) - Redirects to City District */}
+    <Route path="/dream-engine" element={<Navigate to="/city/dream" replace />} />
+    <Route path="/landing-forge" element={<Navigate to="/city/dream" replace />} />
 
     {/* Utility Pages */}
     <Route path="/freemium" element={<FreemiumOverview />} />

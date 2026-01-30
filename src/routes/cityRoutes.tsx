@@ -11,6 +11,7 @@ const DataRealm = React.lazy(() => import("@/pages/city/DataRealm"));
 const CommerceDistrict = React.lazy(() => import("@/pages/city/CommerceDistrict"));
 const BroadcastTower = React.lazy(() => import("@/pages/city/BroadcastTower"));
 const TheArena = React.lazy(() => import("@/pages/city/TheArena"));
+const DreamChamber = React.lazy(() => import("@/pages/city/DreamChamber"));
 
 export const cityRoutes = (
   <>
@@ -23,5 +24,6 @@ export const cityRoutes = (
     <Route path="/city/commerce" element={<CommerceDistrict />} />
     <Route path="/city/broadcast" element={<BroadcastTower />} />
     <Route path="/city/arena" element={<TheArena />} />
+    <Route path="/city/dream" element={<DreamChamber />} />
   </>
 );
