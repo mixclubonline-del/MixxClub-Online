@@ -165,7 +165,7 @@ const Hero = () => {
             </Button>
             <Button
               variant="outline"
-              onClick={() => navigate('/how-it-works')}
+              onClick={() => browseSection('how-it-works')}
               className="px-8 py-6 text-lg border-border text-foreground hover:bg-muted rounded-lg"
             >
               <Play className="mr-2 w-5 h-5" />

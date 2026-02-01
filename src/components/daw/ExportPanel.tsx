@@ -6,7 +6,6 @@
  */
 
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -22,6 +21,7 @@ import { audioBufferToWav, downloadBlob, estimateFileSize, formatFileSize, forma
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useCreateExport } from '@/hooks/useExportedTracks';
+import { useFlowNavigation } from '@/core/fabric/useFlow';
 
 interface ExportPanelProps {
   isOpen: boolean;
@@ -32,7 +32,7 @@ type ExportFormat = 'wav-24' | 'wav-16' | 'wav-32';
 type ExportState = 'idle' | 'rendering' | 'encoding' | 'uploading' | 'complete' | 'error';
 
 export function ExportPanel({ isOpen, onClose }: ExportPanelProps) {
-  const navigate = useNavigate();
+  const { navigateTo } = useFlowNavigation();
   const { toast } = useToast();
   const { user } = useAuth();
   const tracks = useAIStudioStore(s => s.tracks);
@@ -157,12 +157,12 @@ export function ExportPanel({ isOpen, onClose }: ExportPanelProps) {
   
   const handleDistributeNow = () => {
     onClose();
-    navigate('/distribution');
+    navigateTo('/distribution');
   };
   
   const handleAIMaster = () => {
     onClose();
-    navigate('/ai-mastering');
+    navigateTo('/ai-mastering');
   };
   
   return (

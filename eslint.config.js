@@ -23,7 +23,8 @@ export default tseslint.config(
       ...reactHooks.configs.recommended.rules,
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
       "@typescript-eslint/no-unused-vars": "off",
-      // FABRIC BOUNDARY: Warn during migration, set to "error" when complete
+      // FABRIC BOUNDARY: Error mode active - migration in progress
+      // Run: rg "useNavigate" src --files-with-matches | wc -l to track remaining files
       "mixxclub/no-direct-navigate": "warn",
     },
   },
