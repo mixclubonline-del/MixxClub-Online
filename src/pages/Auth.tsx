@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,7 @@ import { AuthCharacterGreeter } from "@/components/auth/AuthCharacterGreeter";
 import { AuthWelcomeBack } from "@/components/auth/AuthWelcomeBack";
 import { CharacterAvatar } from "@/components/characters/CharacterAvatar";
 import { getCharacter } from "@/config/characters";
+import { useFlow } from "@/core/fabric/useFlow";
 
 // Import Google icon
 const GoogleIcon = () => (
@@ -68,7 +69,7 @@ const AmbientParticles = () => {
 // RolePathSelector has been replaced by AuthCharacterGreeter component
 
 const Auth = () => {
-  const navigate = useNavigate();
+  const { setIntent } = useFlow();
   const [searchParams] = useSearchParams();
   const mode = searchParams.get("mode") || "login";
   const redirectPath = searchParams.get("redirect") || null;
@@ -141,13 +142,13 @@ const Auth = () => {
       // Trigger entry animation then navigate
       setEnteringCity(true);
       setTimeout(() => {
-        if (role === 'admin') {
-          navigate('/admin');
-        } else if (role === 'engineer') {
-          navigate('/engineer-crm');
-        } else {
-          navigate('/artist-crm');
-        }
+        const destination = role === 'admin'
+          ? '/admin'
+          : role === 'engineer'
+            ? '/engineer-crm'
+            : '/artist-crm';
+
+        setIntent('COMPLETE_AUTH', { destination }, { source: 'AuthDemoLogin' });
       }, 1000);
     } catch (err) {
       console.error('Demo session creation failed:', err);
@@ -226,7 +227,7 @@ const Auth = () => {
       setConfirmPassword("");
       
       // Navigate to login
-      navigate("/auth");
+      setIntent('AUTHENTICATE', { mode: 'login' }, { source: 'AuthUpdatePassword' });
     } catch (err) {
       setError("Failed to update password. Please try again.");
     } finally {
@@ -234,10 +235,10 @@ const Auth = () => {
     }
   };
 
-  const triggerEntryAnimation = (destination: string) => {
+  const triggerEntryAnimation = (destination: string, source = 'Auth') => {
     setEnteringCity(true);
     setTimeout(() => {
-      navigate(destination);
+      setIntent('COMPLETE_AUTH', { destination }, { source });
     }, 1000);
   };
 
@@ -503,7 +504,7 @@ const Auth = () => {
       >
         <Button
           variant="ghost"
-          onClick={() => navigate("/")}
+          onClick={() => setIntent('DEEP_LINK', { path: '/' }, { source: 'AuthBackToCity' })}
           className="text-white/60 hover:text-white hover:bg-white/10"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
@@ -618,7 +619,7 @@ const Auth = () => {
                 onClick={() => {
                   setUpdatePasswordMode(false);
                   setError("");
-                  navigate("/auth");
+                  setIntent('AUTHENTICATE', { mode: 'login' }, { source: 'AuthBackToSignIn' });
                 }}
                 className="w-full border-white/10 hover:border-white/20 hover:bg-white/5 text-white"
               >
@@ -680,7 +681,7 @@ const Auth = () => {
 
         {/* Demo Banner */}
         <motion.div 
-          onClick={() => navigate('/insider-demo')}
+          onClick={() => setIntent('DEEP_LINK', { path: '/insider-demo' }, { source: 'AuthDemoBanner' })}
           className="mb-4 p-3 rounded-xl bg-white/5 border border-primary/30 cursor-pointer hover:bg-white/10 hover:border-primary/50 transition-all group"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -949,7 +950,7 @@ const Auth = () => {
                 </p>
                 <Button
                   variant="outline"
-                  onClick={() => navigate(mode === "signup" ? "/auth" : "/auth?mode=signup")}
+                onClick={() => setIntent('AUTHENTICATE', { mode: mode === "signup" ? "login" : "signup" }, { source: 'AuthToggleMode' })}
                   className="w-full border-white/10 hover:border-white/20 hover:bg-white/5 text-white"
                 >
                   {mode === "signup" ? "Sign In Instead" : "Create Account"}
