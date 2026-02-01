@@ -3,12 +3,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
 import { PrimeAvatar } from '@/components/prime/PrimeAvatar';
 import { ArrowRight, Play, Sparkles, Mic2, Headphones, Share2, Clock, DollarSign } from 'lucide-react';
+import { useFlowNavigation } from '@/core/fabric/useFlow';
 
 export const PrimeHero = () => {
-  const navigate = useNavigate();
+  const { goToAuth, openPricing } = useFlowNavigation();
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
 
   return (
@@ -84,7 +84,7 @@ export const PrimeHero = () => {
             {/* CTAs and Pricing */}
             <div className="flex flex-col lg:flex-row gap-6 items-start">
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" onClick={() => navigate('/auth?signup=true')} className="gap-2 text-lg px-8 shadow-glow">
+                <Button size="lg" onClick={() => goToAuth('signup')} className="gap-2 text-lg px-8 shadow-glow">
                   Get Started Free
                   <ArrowRight className="w-5 h-5" />
                 </Button>
@@ -117,7 +117,7 @@ export const PrimeHero = () => {
                   <Button 
                     className="w-full" 
                     variant="outline"
-                    onClick={() => navigate('/pricing')}
+                    onClick={() => openPricing()}
                   >
                     View All Plans →
                   </Button>
