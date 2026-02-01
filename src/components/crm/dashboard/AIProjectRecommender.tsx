@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Sparkles, AlertTriangle, Clock, Play, Music, TrendingUp } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useFlowNavigation } from '@/core/fabric/useFlow';
 import { useState } from 'react';
 import { useAIProjectRecommendations } from '@/hooks/useAIProjectRecommendations';
 
@@ -14,7 +14,7 @@ interface ProjectCardProps {
 }
 
 const ProjectCard = ({ project, index }: ProjectCardProps) => {
-  const navigate = useNavigate();
+  const { navigateTo } = useFlowNavigation();
   const [isHovered, setIsHovered] = useState(false);
 
   const getUrgencyColor = () => {
@@ -123,7 +123,7 @@ const ProjectCard = ({ project, index }: ProjectCardProps) => {
             <Button 
               size="sm" 
               className="flex-1 gap-2"
-              onClick={() => navigate(project.link)}
+              onClick={() => navigateTo(project.link)}
             >
               <Play className="w-4 h-4" />
               Continue Working
@@ -139,7 +139,7 @@ const ProjectCard = ({ project, index }: ProjectCardProps) => {
 };
 
 export const AIProjectRecommender = () => {
-  const navigate = useNavigate();
+  const { openArtistCRM } = useFlowNavigation();
   const { data: projects = [], isLoading } = useAIProjectRecommendations();
 
   if (isLoading) {
@@ -157,7 +157,7 @@ export const AIProjectRecommender = () => {
       <Card className="p-6 text-center">
         <Sparkles className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
         <p className="text-muted-foreground">No active projects to recommend</p>
-        <Button className="mt-4" onClick={() => navigate('/artist-crm?tab=studio')}>
+        <Button className="mt-4" onClick={() => openArtistCRM('studio')}>
           Start New Project
         </Button>
       </Card>

@@ -1,6 +1,6 @@
 import React, { ReactNode, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useFlowNavigation } from '@/core/fabric/useFlow';
 import { cn } from '@/lib/utils';
 import Navigation from '@/components/Navigation';
 import { RoleSwitcher } from './RoleSwitcher';
@@ -43,7 +43,7 @@ export const CRMPortal: React.FC<CRMPortalProps> = ({
   activeTab,
   onTabChange,
 }) => {
-  const navigate = useNavigate();
+  const { navigateTo } = useFlowNavigation();
   const isMobile = useIsMobile();
   const [isHubGridVisible, setIsHubGridVisible] = useState(activeTab === 'dashboard' || activeTab === '');
   
@@ -61,7 +61,7 @@ export const CRMPortal: React.FC<CRMPortalProps> = ({
   };
   
   const handleNavigate = (path: string) => {
-    navigate(path);
+    navigateTo(path);
   };
 
   return (
