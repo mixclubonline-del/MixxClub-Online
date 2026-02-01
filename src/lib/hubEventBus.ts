@@ -31,7 +31,13 @@ export type HubEventType =
   | 'energy:transition_completed'
   // Depth layer events
   | 'depth:layer_changed'
-  | 'depth:capability_unlocked';
+  | 'depth:capability_unlocked'
+  // Flow/Fabric events (Prime Fabric nervous system)
+  | 'flow:intent_set'
+  | 'flow:intent_resolved'
+  | 'flow:intent_blocked'
+  | 'flow:transition_started'
+  | 'flow:transition_completed';
 
 export interface HubEvent<T = unknown> {
   type: HubEventType;

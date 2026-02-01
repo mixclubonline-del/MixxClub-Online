@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
 import { GateCharacter, PathPreviewCard, GateActivityIndicator } from '@/components/city';
 import cityGatesImage from '@/assets/city-gates.jpg';
+import { useFlow } from '@/core/fabric/useFlow';
 
 export default function CityGates() {
-  const navigate = useNavigate();
+  const { setIntent } = useFlow();
   const [entering, setEntering] = useState(false);
   const [selectedPath, setSelectedPath] = useState<'artist' | 'engineer' | null>(null);
   const [hoveredPath, setHoveredPath] = useState<'artist' | 'engineer' | null>(null);
@@ -14,12 +14,9 @@ export default function CityGates() {
     setSelectedPath(role);
     setEntering(true);
     
-    // Store role preference
-    localStorage.setItem('mixclub_role', role);
-    
-    // Navigate after zoom animation
+    // Navigate via Flow system after zoom animation
     setTimeout(() => {
-      navigate('/city/tower');
+      setIntent('ENTER_CITY', { role }, { source: 'CityGates' });
     }, 1200);
   };
 
