@@ -1,289 +1,203 @@
 
 
-# Prime Fabric v0 - Flow Spine Implementation Plan
+# Fabric Flow Spine Migration - Phase 2
+## Completing the `useNavigate` to `setIntent` Migration
 
-## Overview
+### Executive Summary
 
-Build the foundational **Flow System** (Prime Fabric nervous system) that will govern all navigation and state transitions in MixxClub City. This establishes the architectural law: **No UI component may call `navigate()` directly. All movement must go through `useFlow().setIntent(...)`**.
-
----
-
-## Architecture Principles
-
-```text
-┌─────────────────────────────────────────────────────────────┐
-│                       PRIME FABRIC                          │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │                    Flow System                       │   │
-│  │                                                      │   │
-│  │  flowStore.ts ──▶ flowResolver.ts ──▶ Navigation    │   │
-│  │       ▲                                              │   │
-│  │       │                                              │   │
-│  │  useFlow() ◀── flowIntents.ts (Intent Types)        │   │
-│  └──────────────────────────────────────────────────────┘   │
-│                                                              │
-│  UI Layer (CityGates, Auth, Tower) ──▶ setIntent() only     │
-└─────────────────────────────────────────────────────────────┘
-```
-
-**Flow is a system concern, not a UI concern.**
+**Scope:** Migrate remaining ~105 files from direct `useNavigate()` usage to the Fabric Flow Intent system  
+**Current Progress:** 20/126 files migrated (~16%)  
+**Remaining:** ~105 files across pages, components, and hooks  
 
 ---
 
-## Implementation Sequence
+### Migration Strategy
 
-### 1. Create Core Fabric Directory Structure
-
-**New Directory: `src/core/fabric/`**
-
-Contains the nervous system files that will be harvested to the `fabric-core` branch.
-
-**New File: `src/core/FABRIC_BOUNDARY.md`**
-
-Architectural law document establishing the boundary:
-- No UI component may call `navigate()` or modify route state directly
-- All movement through MixxClub City must use `useFlow().setIntent(...)`
-- Exceptions require explicit documentation and justification
-
-### 2. Define Flow Intents
-
-**New File: `src/core/fabric/flowIntents.ts`**
-
-Define the intent vocabulary - the language of movement through the city:
+The migration will proceed in **batches by file category**, ensuring each batch is testable before proceeding:
 
 ```text
-Intent Types:
-├── ENTER_CITY          - First-time gate selection (artist/engineer)
-├── ENTER_DISTRICT      - Navigate to a city district
-├── ENTER_SESSION       - Join a collaboration session
-├── AUTHENTICATE        - Sign in/sign up flow
-├── COMPLETE_AUTH       - Auth success, route to destination
-├── EXIT_TO_GATE        - Return to city gates
-├── GO_BACK             - Browser back navigation
-├── SWITCH_ROLE         - Hybrid user role switch
-└── DEEP_LINK           - External/share link entry
+┌─────────────────────────────────────────────────────────────────────┐
+│  Batch 1: Core Pages (15 files)                                     │
+│  → BroadcastPage, Checkout, SessionDetail, Enterprise, Privacy...  │
+├─────────────────────────────────────────────────────────────────────┤
+│  Batch 2: CRM Components (20 files)                                 │
+│  → CRMLayout, CompletedProjectCard, CRMPortal, DistributionWorkflow│
+├─────────────────────────────────────────────────────────────────────┤
+│  Batch 3: Mobile System (12 files)                                  │
+│  → MobileEnhancedNav, MobileRouteGuard, MobileMixxBot...           │
+├─────────────────────────────────────────────────────────────────────┤
+│  Batch 4: Immersive/City Components (10 files)                      │
+│  → CityMapOverlay, CityDistrictCard, TheTower...                   │
+├─────────────────────────────────────────────────────────────────────┤
+│  Batch 5: Hooks (8 files)                                           │
+│  → useStartConversation, usePartnershipEarnings...                 │
+├─────────────────────────────────────────────────────────────────────┤
+│  Batch 6: Remaining Components (40 files)                           │
+│  → Courses, Community, Live, Pricing, Settings, Onboarding...      │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
-Each intent carries:
-- Type identifier
-- Payload (role, district, destination, etc.)
-- Source context (where the intent originated)
-- Priority level (for conflict resolution)
+---
 
-### 3. Create Flow Store
+### Technical Details
 
-**New File: `src/core/fabric/flowStore.ts`**
+#### Pattern Replacement Reference
 
-Zustand store managing flow state:
+| Before (Direct Navigate) | After (Flow Intent) |
+|--------------------------|---------------------|
+| `navigate('/auth')` | `goToAuth('login')` |
+| `navigate('/auth?mode=signup')` | `goToAuth('signup')` |
+| `navigate('/artist-crm')` | `openArtistCRM()` |
+| `navigate('/artist-crm?tab=messages')` | `openArtistCRM('messages')` |
+| `navigate('/engineer-crm?tab=business')` | `openEngineerCRM('business')` |
+| `navigate('/project/${id}')` | `viewProject(id)` |
+| `navigate('/live')` | `navigateTo('/live')` |
+| `navigate('/checkout', { state })` | `navigateTo('/checkout')` + state handling |
+| `navigate(-1)` or `navigate('/back')` | `goBack()` |
 
-**State Shape:**
-```text
-{
-  currentIntent: FlowIntent | null
-  pendingIntent: FlowIntent | null
-  intentHistory: FlowIntent[]
-  resolvedRoute: string | null
-  flowState: 'idle' | 'resolving' | 'transitioning' | 'blocked'
-  blockingReason: string | null
-  userContext: {
-    role: 'artist' | 'engineer' | null
-    isAuthenticated: boolean
-    lastDistrict: string | null
-  }
+#### Files Requiring Special Handling
+
+1. **State-passing navigations** (e.g., `Enterprise.tsx` line 134):
+   ```typescript
+   // Before
+   navigate('/auth', { state: { returnTo: '/enterprise' } });
+   
+   // After - use Flow's redirectAfter pattern
+   goToAuth('login', '/enterprise');
+   ```
+
+2. **Redirect-after-action patterns** (e.g., `Checkout.tsx` line 132):
+   ```typescript
+   // Before
+   navigate(`/auth?mode=signin&redirect=${encodeURIComponent(...)}`);
+   
+   // After
+   goToAuth('login', window.location.pathname + window.location.search);
+   ```
+
+3. **Hooks returning navigation functions** (e.g., `useStartConversation.ts`):
+   - Import `useFlowNavigation` inside the hook
+   - Replace `navigate()` calls with semantic methods
+
+---
+
+### Batch 1: Core Pages (15 files)
+
+| File | Navigate Calls | Intent Mapping |
+|------|---------------|----------------|
+| `src/pages/BroadcastPage.tsx` | 2 | `navigateTo('/live')` |
+| `src/pages/Checkout.tsx` | 2 | `goToAuth()`, `navigateTo()` |
+| `src/pages/SessionDetail.tsx` | 4 | `navigateTo('/sessions')`, `goToAuth()` |
+| `src/pages/Enterprise.tsx` | 4 | `goToAuth()`, `navigateTo('/checkout')` |
+| `src/pages/Privacy.tsx` | 1 | `goBack()` |
+| `src/pages/MobileMixxBot.tsx` | 1 | `goToAuth()` |
+| `src/pages/Showcase.tsx` | 1 | `navigateTo()` |
+| `src/pages/WatchStreamPage.tsx` | 2 | `navigateTo('/live')` |
+| `src/pages/AudioUpload.tsx` | 2 | auth + project routes |
+| `src/pages/HybridOnboarding.tsx` | 1 | `openArtistCRM()` |
+| `src/pages/SessionWorkspace.tsx` | 1 | `navigateTo()` |
+
+---
+
+### Batch 2: CRM Components (20 files)
+
+| File | Navigate Calls | Intent Mapping |
+|------|---------------|----------------|
+| `src/components/crm/CRMLayout.tsx` | 2 | `navigateTo()` for paths |
+| `src/components/crm/CompletedProjectCard.tsx` | 1 | `viewProject(id)` |
+| `src/components/crm/CRMPortal.tsx` | multiple | tab navigation |
+| `src/components/crm/DistributionWorkflow.tsx` | 1 | `navigateTo()` |
+| `src/components/crm/ProjectCard.tsx` | 1 | `viewProject(id)` |
+| `src/components/crm/HireRequestCard.tsx` | 2 | `openArtistCRM()` |
+| `src/components/crm/RecentActivityFeed.tsx` | 2 | various routes |
+
+---
+
+### Batch 3: Mobile System (12 files)
+
+| File | Navigate Calls | Intent Mapping |
+|------|---------------|----------------|
+| `src/components/mobile/MobileEnhancedNav.tsx` | 6 | `navigateTo()` for all paths |
+| `src/components/mobile/MobileRouteGuard.tsx` | 1 | conditional redirect |
+| `src/components/mobile/MobileBottomNav.tsx` | 4 | `navigateTo()` |
+| `src/components/mobile/MobileAuthDialog.tsx` | 1 | `goToAuth()` |
+
+---
+
+### Batch 4: Immersive/City Components (10 files)
+
+| File | Navigate Calls | Intent Mapping |
+|------|---------------|----------------|
+| `src/components/immersive/CityMapOverlay.tsx` | 1 | `navigateTo()` with callback |
+| `src/components/immersive/CityDistrictCard.tsx` | 1 | `goToDistrict()` |
+| `src/pages/city/TheTower.tsx` | 2 | city navigation |
+
+---
+
+### Batch 5: Hooks (8 files)
+
+| File | Navigate Calls | Intent Mapping |
+|------|---------------|----------------|
+| `src/hooks/useStartConversation.ts` | 1 | `openArtistCRM('messages')` |
+| `src/hooks/useCoursePlayer.ts` | 1 | course routes |
+| `src/hooks/useAudioUpload.ts` | 1 | project routes |
+
+---
+
+### Batch 6: Remaining Components (40 files)
+
+Includes:
+- `src/components/courses/CoursesPage.tsx`
+- `src/components/community/*`
+- `src/components/live/*`
+- `src/components/pricing/*`
+- `src/components/settings/*`
+- `src/components/onboarding/*`
+- `src/components/landing/*`
+- `src/components/marketplace/*`
+
+---
+
+### ESLint Enforcement
+
+After migration, upgrade the ESLint rule from `warn` to `error`:
+
+```javascript
+// eslint.config.js
+rules: {
+  "mixxclub/no-direct-navigate": "error", // Was "warn"
 }
 ```
 
-**Actions:**
-- `setIntent(intent)` - Queue a navigation intent
-- `resolveIntent()` - Process pending intent through resolver
-- `blockFlow(reason)` - Halt flow (e.g., auth required)
-- `unblockFlow()` - Resume after block resolved
-- `clearIntent()` - Cancel pending intent
-- `updateUserContext(ctx)` - Update role/auth state
-
-### 4. Build Flow Resolver
-
-**New File: `src/core/fabric/flowResolver.ts`**
-
-Pure function logic that converts intents to resolved routes:
-
-**Resolution Pipeline:**
-1. **Validate Intent** - Check intent type and payload
-2. **Check Auth Guard** - Does destination require authentication?
-3. **Check Role Guard** - Does destination require specific role?
-4. **Resolve Route** - Map intent to actual route path
-5. **Trigger Transition** - Execute navigation with proper animation
-
-**Guard System:**
-```text
-Intent → Auth Check → Role Check → Route Mapping → Navigation
-           │              │
-           ▼              ▼
-      Block + Redirect   Block + Redirect
-      to /auth           to role selector
-```
-
-### 5. Create useFlow Hook
-
-**New File: `src/core/fabric/useFlow.ts`**
-
-React hook providing Flow API to components:
-
-```text
-useFlow() returns:
-├── setIntent(type, payload?)     - Primary navigation method
-├── currentIntent                 - Active intent
-├── flowState                     - Current state
-├── isBlocked                     - Boolean for UI feedback
-├── blockingReason                - Why flow is blocked
-├── userContext                   - Role/auth state
-├── canNavigateTo(district)       - Permission check
-└── intentHistory                 - Recent navigation
-```
-
-**Integration with existing systems:**
-- Publishes to `hubEventBus` on intent changes
-- Triggers `pulseStore.detectFromRoute()` on navigation
-- Respects `prefers-reduced-motion` for transitions
-
-### 6. Refactor Primary Navigation Points
-
-**Modify: `src/pages/city/CityGates.tsx`**
-- Replace `navigate()` with `setIntent('ENTER_CITY', { role })`
-- Flow resolver handles role storage and tower navigation
-
-**Modify: `src/pages/Auth.tsx`**
-- Replace `navigate()` with `setIntent('COMPLETE_AUTH', { destination, role })`
-- Flow resolver handles role-based routing
-
-**Modify: `src/pages/city/MixxTechTower.tsx`**
-- Replace `navigate()` with `setIntent('ENTER_DISTRICT', { districtId })`
-- Quick actions use flow intents
-
-### 7. Add Flow Event Types
-
-**Modify: `src/lib/hubEventBus.ts`**
-
-Add flow-specific event types:
-- `flow:intent_set` - Intent queued
-- `flow:intent_resolved` - Intent processed successfully
-- `flow:intent_blocked` - Intent blocked by guard
-- `flow:transition_started` - Navigation animation started
-- `flow:transition_completed` - Navigation complete
+This will:
+- Block any new `useNavigate` imports outside `src/core/fabric/`
+- Fail CI builds on violations
+- Provide clear error messages pointing to `FABRIC_BOUNDARY.md`
 
 ---
 
-## File Changes Summary
+### Verification Steps
 
-### New Files (5)
-
-```text
-src/core/FABRIC_BOUNDARY.md           - Architectural law document
-src/core/fabric/flowIntents.ts        - Intent type definitions
-src/core/fabric/flowStore.ts          - Zustand flow state store
-src/core/fabric/flowResolver.ts       - Intent-to-route resolver
-src/core/fabric/useFlow.ts            - React hook for components
-```
-
-### Modified Files (4)
-
-```text
-src/pages/city/CityGates.tsx          - Use setIntent instead of navigate
-src/pages/Auth.tsx                    - Use setIntent instead of navigate
-src/pages/city/MixxTechTower.tsx      - Use setIntent instead of navigate
-src/lib/hubEventBus.ts                - Add flow event types
-```
+1. **Build verification** after each batch
+2. **Manual smoke test** of critical flows:
+   - Auth → CRM navigation
+   - Project creation → detail view
+   - Mobile bottom nav functionality
+   - City map overlay navigation
+3. **ESLint check**: `npx eslint src --ext .ts,.tsx | grep "no-direct-navigate"`
 
 ---
 
-## Technical Details
+### Estimated Timeline
 
-**Zustand Store Pattern:**
-```typescript
-export const useFlowStore = create<FlowStore>()(
-  subscribeWithSelector((set, get) => ({
-    // State
-    currentIntent: null,
-    // ...
-    
-    // Actions
-    setIntent: (intent) => {
-      set({ pendingIntent: intent, flowState: 'resolving' });
-      get().resolveIntent();
-    },
-  }))
-);
-```
+| Batch | Files | Complexity |
+|-------|-------|------------|
+| Batch 1 | 15 | Medium |
+| Batch 2 | 20 | Low-Medium |
+| Batch 3 | 12 | Medium |
+| Batch 4 | 10 | Low |
+| Batch 5 | 8 | Medium |
+| Batch 6 | 40 | Low |
 
-**Intent Type Safety:**
-```typescript
-type FlowIntentType =
-  | 'ENTER_CITY'
-  | 'ENTER_DISTRICT'
-  | 'AUTHENTICATE'
-  | 'COMPLETE_AUTH'
-  // ...
-
-interface FlowIntent<T = unknown> {
-  type: FlowIntentType;
-  payload: T;
-  source: string;
-  timestamp: number;
-  priority: 'low' | 'normal' | 'high';
-}
-```
-
-**Guard Resolution:**
-```typescript
-function resolveIntent(intent: FlowIntent, context: UserContext): ResolvedRoute | FlowBlock {
-  // Auth guard
-  if (requiresAuth(intent) && !context.isAuthenticated) {
-    return { blocked: true, reason: 'auth_required', redirect: '/auth' };
-  }
-  // Role guard
-  if (requiresRole(intent) && !hasRole(context, intent.payload.role)) {
-    return { blocked: true, reason: 'role_mismatch', redirect: '/city' };
-  }
-  // Resolve to route
-  return { route: mapIntentToRoute(intent), transition: getTransition(intent) };
-}
-```
-
-**Hub Event Bus Integration:**
-```typescript
-// Publish on intent set
-hubEventBus.publish('flow:intent_set', {
-  type: intent.type,
-  payload: intent.payload,
-  source: intent.source,
-}, 'flowStore');
-```
-
----
-
-## What This Unlocks
-
-Once Flow is in place:
-
-1. **Bloom Menu** can hook into `flowIntents` for contextual actions
-2. **ALS** can reflect `flowState` for navigation feedback
-3. **Desktop app** becomes trivial (Vite + Tauri reads Flow events)
-4. **Multi-device Flow sync** becomes possible (shared intent stream)
-5. **Analytics** get structured navigation data (intents, not raw URLs)
-6. **Guards** become centralized (auth, role, feature flags)
-
----
-
-## Expected Outcome
-
-The Fabric v0 spine will:
-
-1. Establish `src/core/fabric/` as the nervous system foundation
-2. Create the architectural law document for future reference
-3. Implement Flow Store with intent-based navigation
-4. Refactor the three primary navigation points (Gates, Auth, Tower)
-5. Integrate with existing Pulse and Event Bus systems
-6. Make navigation harvestable to the `fabric-core` branch
-
-**No visual changes** - this is infrastructure. The UI behaves identically, but navigation now flows through the system instead of being scattered across components.
+**Total remaining:** ~105 files
 
