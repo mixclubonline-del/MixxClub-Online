@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Users, Music, Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useFlowNavigation } from "@/core/fabric/useFlow";
 import { FollowersList } from "./FollowersList";
 import { useSocialGraph } from "@/hooks/useSocialGraph";
 
@@ -29,7 +29,7 @@ export function ProfileNetworkSection({
   followerCount = 0, 
   followingCount = 0 
 }: ProfileNetworkSectionProps) {
-  const navigate = useNavigate();
+  const { navigateTo } = useFlowNavigation();
   const [showFollowers, setShowFollowers] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);
 
@@ -160,7 +160,7 @@ export function ProfileNetworkSection({
               {collaborators.map((collab) => (
                 <button
                   key={collab.id}
-                  onClick={() => collab.username && navigate(`/u/${collab.username}`)}
+                  onClick={() => collab.username && navigateTo(`/u/${collab.username}`)}
                   className="flex flex-col items-center p-3 rounded-lg hover:bg-muted transition-colors text-center"
                 >
                   <Avatar className="h-12 w-12 mb-2">
