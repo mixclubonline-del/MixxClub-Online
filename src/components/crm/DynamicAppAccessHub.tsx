@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useFlowNavigation } from '@/core/fabric/useFlow';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -32,7 +32,7 @@ interface SimpleProject {
 }
 
 export const DynamicAppAccessHub = ({ userRole }: DynamicAppAccessHubProps) => {
-  const navigate = useNavigate();
+  const { navigateTo } = useFlowNavigation();
   const { data: milestones } = useCommunityMilestones();
   const { trackEvent } = useAnalytics();
   
@@ -113,7 +113,7 @@ export const DynamicAppAccessHub = ({ userRole }: DynamicAppAccessHubProps) => {
 
   const handleQuickAction = (action: string, route: string) => {
     trackEvent('app_hub_action_clicked', { action, userRole });
-    navigate(route);
+    navigateTo(route);
   };
 
   // Role-based quick actions

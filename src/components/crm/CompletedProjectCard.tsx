@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useFlowNavigation } from '@/core/fabric/useFlow';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -14,7 +14,7 @@ interface CompletedProjectCardProps {
 }
 
 export const CompletedProjectCard = ({ project }: CompletedProjectCardProps) => {
-  const navigate = useNavigate();
+  const { viewProject } = useFlowNavigation();
   const [showReviewDialog, setShowReviewDialog] = useState(false);
   const [showPremiereScheduler, setShowPremiereScheduler] = useState(false);
   const [hasReviewed, setHasReviewed] = useState(false);
@@ -83,7 +83,7 @@ export const CompletedProjectCard = ({ project }: CompletedProjectCardProps) => 
     <>
       <Card 
         className="p-6 hover:shadow-lg transition-shadow cursor-pointer"
-        onClick={() => navigate(`/project/${project.id}`)}
+        onClick={() => viewProject(project.id)}
       >
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">

@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Music, Clock, DollarSign, Sparkles, TrendingUp } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
+import { useFlowNavigation } from '@/core/fabric/useFlow';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 
@@ -28,7 +28,7 @@ export const RecommendedArtists = () => {
   const { user } = useAuth();
   const [opportunities, setOpportunities] = useState<ArtistMatch[]>([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const { navigateTo } = useFlowNavigation();
 
   useEffect(() => {
     if (user) {
@@ -173,7 +173,7 @@ export const RecommendedArtists = () => {
         <Music className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
         <h3 className="text-lg font-semibold mb-2">No matching opportunities right now</h3>
         <p className="text-muted-foreground mb-4">Check back soon for new artist projects</p>
-        <Button variant="outline" onClick={() => navigate('/job-board')}>
+        <Button variant="outline" onClick={() => navigateTo('/job-board')}>
           Browse All Opportunities
         </Button>
       </Card>
@@ -261,7 +261,7 @@ export const RecommendedArtists = () => {
               {/* Action */}
               <Button 
                 className="w-full" 
-                onClick={() => navigate('/job-board')}
+                onClick={() => navigateTo('/job-board')}
               >
                 View & Apply
               </Button>
@@ -273,7 +273,7 @@ export const RecommendedArtists = () => {
       <div className="text-center">
         <Button 
           variant="outline" 
-          onClick={() => navigate('/job-board')}
+          onClick={() => navigateTo('/job-board')}
         >
           Browse All Opportunities
         </Button>

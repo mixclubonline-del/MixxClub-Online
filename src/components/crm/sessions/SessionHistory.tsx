@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useFlowNavigation } from '@/core/fabric/useFlow';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -26,7 +26,7 @@ interface SessionHistoryProps {
 }
 
 export function SessionHistory({ userId, limit = 5 }: SessionHistoryProps) {
-  const navigate = useNavigate();
+  const { navigateTo } = useFlowNavigation();
   const [sessions, setSessions] = useState<HistorySession[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -91,7 +91,7 @@ export function SessionHistory({ userId, limit = 5 }: SessionHistoryProps) {
               <div 
                 key={session.id}
                 className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer group"
-                onClick={() => navigate(`/session/${session.id}`)}
+                onClick={() => navigateTo(`/session/${session.id}`)}
               >
                 <div className="p-2 rounded-lg bg-muted/50">
                   <CheckCircle className="w-4 h-4 text-green-500" />
@@ -112,7 +112,7 @@ export function SessionHistory({ userId, limit = 5 }: SessionHistoryProps) {
               variant="ghost" 
               size="sm" 
               className="w-full text-muted-foreground hover:text-foreground"
-              onClick={() => navigate('/sessions')}
+              onClick={() => navigateTo('/sessions')}
             >
               View All History
               <ArrowRight className="w-4 h-4 ml-1" />

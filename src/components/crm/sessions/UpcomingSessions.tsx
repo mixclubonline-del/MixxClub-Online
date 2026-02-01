@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useFlowNavigation } from '@/core/fabric/useFlow';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -24,7 +24,7 @@ interface UpcomingSessionsProps {
 }
 
 export function UpcomingSessions({ userId }: UpcomingSessionsProps) {
-  const navigate = useNavigate();
+  const { navigateTo } = useFlowNavigation();
   const [sessions, setSessions] = useState<UpcomingSession[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -89,7 +89,7 @@ export function UpcomingSessions({ userId }: UpcomingSessionsProps) {
               <div 
                 key={session.id}
                 className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer group"
-                onClick={() => navigate(`/session/${session.id}`)}
+                onClick={() => navigateTo(`/session/${session.id}`)}
               >
                 <Avatar className="w-8 h-8">
                   <AvatarImage src={session.host_profile?.avatar_url || undefined} />
@@ -116,7 +116,7 @@ export function UpcomingSessions({ userId }: UpcomingSessionsProps) {
               variant="link" 
               size="sm" 
               className="mt-1 text-accent-cyan"
-              onClick={() => navigate('/create-session')}
+              onClick={() => navigateTo('/create-session')}
             >
               Schedule one now
             </Button>

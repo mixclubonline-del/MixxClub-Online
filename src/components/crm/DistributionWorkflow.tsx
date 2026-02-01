@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useFlowNavigation } from '@/core/fabric/useFlow';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,7 +27,7 @@ export const DistributionWorkflow = ({
   projectTitle, 
   audioFileUrl 
 }: DistributionWorkflowProps) => {
-  const navigate = useNavigate();
+  const { navigateTo } = useFlowNavigation();
   const { user } = useAuth();
   const { data: packages, isLoading } = useDistributionPackages();
   const trackClick = useTrackAffiliateClick();
@@ -159,7 +159,7 @@ export const DistributionWorkflow = ({
               size="lg" 
               variant="outline"
               className="flex-1 gap-2"
-              onClick={() => navigate("/distribution")}
+              onClick={() => navigateTo("/distribution")}
             >
               Compare All Options
               <ArrowRight className="h-4 w-4" />
