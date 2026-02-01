@@ -8048,6 +8048,47 @@ export type Database = {
         }
         Relationships: []
       }
+      streaming_connections_safe: {
+        Row: {
+          connection_status: string | null
+          created_at: string | null
+          expires_at: string | null
+          id: string | null
+          platform: string | null
+          profile_data: Json | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          connection_status?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string | null
+          platform?: string | null
+          profile_data?: Json | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          connection_status?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string | null
+          platform?: string | null
+          profile_data?: Json | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "streaming_connections_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       award_points: {
