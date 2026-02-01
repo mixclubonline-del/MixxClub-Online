@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import { Button } from '@/components/ui/button';
+import { useFlowNavigation } from '@/core/fabric/useFlow';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
@@ -104,7 +105,7 @@ const globalStats = [
 ];
 
 export default function Showcase() {
-  const navigate = useNavigate();
+  const { navigateTo } = useFlowNavigation();
   const heroRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: heroRef,
@@ -217,11 +218,11 @@ export default function Showcase() {
                 transition={{ delay: 3 }}
                 className="flex gap-4 justify-center pt-8"
               >
-                <Button size="lg" className="text-lg px-8" onClick={() => navigate('/launch')}>
+                <Button size="lg" className="text-lg px-8" onClick={() => navigateTo('/launch')}>
                   <Play className="w-5 h-5 mr-2" />
                   Start Creating
                 </Button>
-                <Button size="lg" variant="outline" className="text-lg px-8" onClick={() => navigate('/insider-demo')}>
+                <Button size="lg" variant="outline" className="text-lg px-8" onClick={() => navigateTo('/insider-demo')}>
                   Watch Demo
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
@@ -448,11 +449,11 @@ export default function Showcase() {
               Your music career starts in 60 seconds.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="text-lg px-10 py-6" onClick={() => navigate('/for-artists')}>
+              <Button size="lg" className="text-lg px-10 py-6" onClick={() => navigateTo('/for-artists')}>
                 I'm an Artist
                 <Music2 className="ml-2 w-5 h-5" />
               </Button>
-              <Button size="lg" variant="outline" className="text-lg px-10 py-6" onClick={() => navigate('/for-engineers')}>
+              <Button size="lg" variant="outline" className="text-lg px-10 py-6" onClick={() => navigateTo('/for-engineers')}>
                 I'm an Engineer
                 <Sliders className="ml-2 w-5 h-5" />
               </Button>
