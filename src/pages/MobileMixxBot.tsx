@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useFlowNavigation } from '@/core/fabric/useFlow';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { MobileEnhancedNav } from '@/components/mobile/MobileEnhancedNav';
@@ -7,13 +7,13 @@ import { EnhancedMobileMixxBot } from '@/components/mobile/EnhancedMobileMixxBot
 
 export default function MobileMixxBot() {
   const { user, loading } = useAuth();
-  const navigate = useNavigate();
+  const { goToAuth } = useFlowNavigation();
 
   useEffect(() => {
     if (!loading && !user) {
-      navigate('/auth');
+      goToAuth('login');
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, goToAuth]);
 
   if (loading || !user) {
     return (

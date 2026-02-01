@@ -1,5 +1,6 @@
 import { Home, Briefcase, DollarSign, User, Plus, Bot, Bell, Menu, ShoppingBag } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { useFlowNavigation } from '@/core/fabric/useFlow';
 import { useAuth } from '@/hooks/useAuth';
 import { useMobileOptimization } from '@/hooks/useMobileOptimization';
 import { cn } from '@/lib/utils';
@@ -17,7 +18,7 @@ interface NavTab {
 }
 
 export const MobileEnhancedNav = () => {
-  const navigate = useNavigate();
+  const { navigateTo } = useFlowNavigation();
   const location = useLocation();
   const { user } = useAuth();
   const { triggerHaptic } = useMobileOptimization({ enableHaptics: true });
@@ -62,7 +63,7 @@ export const MobileEnhancedNav = () => {
   const handleNavigation = (path: string) => {
     triggerHaptic('light');
     setSheetOpen(false);
-    navigate(path);
+    navigateTo(path);
   };
 
   if (!user) return null;
