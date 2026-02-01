@@ -173,7 +173,7 @@ const AIMastering = () => {
                     </ul>
 
                     <Button
-                      onClick={() => navigate(user ? '/artist-crm?tab=business' : '/auth?signup=true')}
+                      onClick={() => user ? openArtistCRM('business') : goToAuth('signup')}
                       className="w-full"
                       variant={pkg.popular ? 'default' : 'outline'}
                     >

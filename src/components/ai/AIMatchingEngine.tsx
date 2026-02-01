@@ -3,7 +3,7 @@ import { Brain, Zap, Music, TrendingUp, Star, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { useNavigate } from 'react-router-dom';
+import { useFlowNavigation } from '@/core/fabric/useFlow';
 
 interface EngineerMatch {
   id: string;
@@ -33,7 +33,7 @@ export const AIMatchingEngine = ({
 }: AIMatchingEngineProps) => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [matches, setMatches] = useState<EngineerMatch[]>([]);
-  const navigate = useNavigate();
+  const { viewEngineer } = useFlowNavigation();
 
   // Simulated AI matching - in production, this would call an edge function
   const findMatches = async () => {
@@ -220,7 +220,7 @@ export const AIMatchingEngine = ({
                 <div className="text-sm text-muted-foreground">
                   Avg response: <span className="font-semibold text-foreground">{match.responseTime}</span>
                 </div>
-                <Button onClick={() => navigate(`/engineer/${match.id}`)} className="shadow-glow-sm">
+                <Button onClick={() => viewEngineer(match.id)} className="shadow-glow-sm">
                   View Profile
                 </Button>
               </div>

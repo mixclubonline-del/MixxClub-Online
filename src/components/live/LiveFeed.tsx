@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useLiveStreams, LiveStream } from '@/hooks/useLiveStream';
-import { useNavigate } from 'react-router-dom';
+import { useFlowNavigation } from '@/core/fabric/useFlow';
 import { GoLiveButton } from './GoLiveButton';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -110,7 +110,7 @@ export const LiveFeed: React.FC<LiveFeedProps> = ({
   showHeader = true,
   compact = false,
 }) => {
-  const navigate = useNavigate();
+  const { navigateTo } = useFlowNavigation();
   const { data: streams, isLoading } = useLiveStreams({ 
     category, 
     isLive: true 
@@ -174,7 +174,7 @@ export const LiveFeed: React.FC<LiveFeedProps> = ({
           </div>
           {streams && streams.length > limit && (
             <button
-              onClick={() => navigate('/live')}
+              onClick={() => navigateTo('/live')}
               className="text-sm text-primary hover:underline"
             >
               View All
@@ -188,7 +188,7 @@ export const LiveFeed: React.FC<LiveFeedProps> = ({
           <LiveCard
             key={stream.id}
             stream={stream}
-            onClick={() => navigate(`/watch/${stream.id}`)}
+            onClick={() => navigateTo(`/watch/${stream.id}`)}
           />
         ))}
       </div>

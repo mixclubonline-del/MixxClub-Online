@@ -7,7 +7,7 @@
 
 import { useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useFlowNavigation } from '@/core/fabric/useFlow';
 import { StudioHallway } from '@/components/scene/StudioHallway';
 
 const dissolveVariants = {
@@ -22,12 +22,12 @@ const dissolveTransition = {
 };
 
 export function SceneFlow() {
-  const navigate = useNavigate();
+  const { browseSection } = useFlowNavigation();
 
   const handleEnterHallway = useCallback(() => {
     // Navigate to How It Works journey
-    navigate('/how-it-works');
-  }, [navigate]);
+    browseSection('how-it-works');
+  }, [browseSection]);
 
   return (
     <div className="min-h-screen bg-background overflow-hidden">

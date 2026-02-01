@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Download, Trash2, Shield, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useFlowNavigation } from '@/core/fabric/useFlow';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,7 +18,7 @@ import {
 
 export function AccountSettings() {
   const { toast } = useToast();
-  const navigate = useNavigate();
+  const { exitToGate } = useFlowNavigation();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -75,7 +75,7 @@ export function AccountSettings() {
 
       // Sign out and redirect
       await supabase.auth.signOut();
-      navigate('/');
+      exitToGate();
       
       toast({
         title: 'Account Deleted',
