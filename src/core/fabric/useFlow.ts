@@ -135,20 +135,68 @@ export function useFlowNavigation() {
   const { setIntent } = useFlow();
   
   return {
+    // District navigation
     goToDistrict: (districtId: string) => 
       setIntent('ENTER_DISTRICT', { districtId }),
     
     goToCity: (role: 'artist' | 'engineer') => 
       setIntent('ENTER_CITY', { role }),
     
-    goToAuth: (mode: 'login' | 'signup' = 'login', redirectAfter?: string) => 
-      setIntent('AUTHENTICATE', { mode, redirectAfter }),
-    
     exitToGate: () => 
       setIntent('EXIT_TO_GATE', {}),
     
     goBack: () => 
       setIntent('GO_BACK', {}),
+    
+    // Auth
+    goToAuth: (mode: 'login' | 'signup' = 'login', redirectAfter?: string) => 
+      setIntent('AUTHENTICATE', { mode, redirectAfter }),
+    
+    completeAuth: (destination?: string, role?: 'artist' | 'engineer') =>
+      setIntent('COMPLETE_AUTH', { destination, role }),
+    
+    // CRM portals
+    openArtistCRM: (tab?: string, contact?: string) =>
+      setIntent('OPEN_CRM', { role: 'artist', tab, contact }),
+    
+    openEngineerCRM: (tab?: string, contact?: string) =>
+      setIntent('OPEN_CRM', { role: 'engineer', tab, contact }),
+    
+    // Studio
+    openStudio: (projectId?: string) =>
+      setIntent('OPEN_STUDIO', { projectId }),
+    
+    openMastering: () =>
+      setIntent('OPEN_STUDIO', { mode: 'mastering' }),
+    
+    // Browse
+    openPricing: () => setIntent('OPEN_PRICING', {}),
+    openMarketplace: () => setIntent('OPEN_MARKETPLACE', {}),
+    openProfile: () => setIntent('OPEN_PROFILE', {}),
+    openSettings: () => setIntent('OPEN_SETTINGS', {}),
+    
+    // Section browsing
+    browseSection: (section: 'how-it-works' | 'about' | 'pricing' | 'faq' | 'careers' | 'contact' | 'legal') =>
+      setIntent('BROWSE_SECTION', { section }),
+    
+    // View specific items
+    viewProject: (projectId: string) =>
+      setIntent('VIEW_PROJECT', { projectId }),
+    
+    viewEngineer: (engineerId: string) =>
+      setIntent('VIEW_ENGINEER', { engineerId }),
+    
+    viewStore: (slug: string) =>
+      setIntent('VIEW_STORE', { slug }),
+    
+    // Generic navigation (THE UNIVERSAL FALLBACK)
+    // Use this when no semantic intent exists
+    navigateTo: (path: string, replace?: boolean) =>
+      setIntent('NAVIGATE_TO', { path, replace }),
+    
+    // Deep links (for external URLs, share links)
+    deepLink: (path: string, params?: Record<string, string>) =>
+      setIntent('DEEP_LINK', { path, params }),
   };
 }
 

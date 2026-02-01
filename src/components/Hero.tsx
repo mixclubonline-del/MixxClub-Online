@@ -2,14 +2,14 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, Play, Zap, Music, Users, TrendingUp, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { SmartBudgetQualifier } from './home/SmartBudgetQualifier';
 import { useSceneSystem } from '@/hooks/useSceneSystem';
+import { useFlowNavigation } from '@/core/fabric/useFlow';
 
 const Hero = () => {
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const { openArtistCRM, browseSection } = useFlowNavigation();
   const [showQualifier, setShowQualifier] = useState(false);
   const [activeTab, setActiveTab] = useState<'creators' | 'engineers'>('creators');
   const { communityPulse } = useSceneSystem();
@@ -18,7 +18,7 @@ const Hero = () => {
     if (!user) {
       setShowQualifier(true);
     } else {
-      navigate('/artist-crm');
+      openArtistCRM();
     }
   };
 

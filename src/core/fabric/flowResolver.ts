@@ -10,11 +10,22 @@ import {
   AuthenticatePayload,
   SwitchRolePayload,
   DeepLinkPayload,
+  NavigateToPayload,
+  OpenCRMPayload,
+  OpenStudioPayload,
+  ViewProjectPayload,
+  ViewEngineerPayload,
+  ViewStorePayload,
+  BrowseSectionPayload,
   DISTRICT_ROUTES,
+  SECTION_ROUTES,
   AUTH_REQUIRED_INTENTS,
+  PUBLIC_INTENTS,
   isEnterCityIntent,
   isEnterDistrictIntent,
   isCompleteAuthIntent,
+  isNavigateToIntent,
+  isDeepLinkIntent,
 } from './flowIntents';
 import { FlowUserContext, FlowBlockReason } from './flowStore';
 
@@ -24,6 +35,7 @@ export interface ResolvedRoute {
   route: string;
   transition?: 'fade' | 'slide' | 'zoom' | 'none';
   sideEffects?: Array<() => void>;
+  replace?: boolean;
 }
 
 export interface FlowBlock {
@@ -48,7 +60,7 @@ export function resolveIntent(
     return validationResult;
   }
 
-  // Step 2: Check auth guard
+  // Step 2: Check auth guard (skip for public intents)
   if (requiresAuth(intent) && !context.isAuthenticated) {
     return {
       blocked: true,
@@ -101,6 +113,17 @@ function validateIntent(intent: FlowIntent): FlowBlock | null {
         };
       }
       break;
+
+    case 'NAVIGATE_TO':
+    case 'DEEP_LINK':
+      if (!intent.payload || !('path' in intent.payload)) {
+        return {
+          blocked: true,
+          reason: 'invalid_intent',
+          message: `${intent.type} requires a path payload`,
+        };
+      }
+      break;
   }
 
   return null;
@@ -110,6 +133,10 @@ function validateIntent(intent: FlowIntent): FlowBlock | null {
  * Check if intent requires authentication
  */
 function requiresAuth(intent: FlowIntent): boolean {
+  // Public intents never require auth
+  if (PUBLIC_INTENTS.includes(intent.type)) {
+    return false;
+  }
   return AUTH_REQUIRED_INTENTS.includes(intent.type);
 }
 
@@ -223,10 +250,25 @@ function mapIntentToRoute(intent: FlowIntent, context: FlowUserContext): Resolve
 
     case 'DEEP_LINK': {
       const payload = intent.payload as DeepLinkPayload;
+      let route = payload.path;
+      if (payload.params) {
+        const params = new URLSearchParams(payload.params).toString();
+        route += `?${params}`;
+      }
+      return {
+        blocked: false,
+        route,
+        transition: 'fade',
+      };
+    }
+
+    case 'NAVIGATE_TO': {
+      const payload = intent.payload as NavigateToPayload;
       return {
         blocked: false,
         route: payload.path,
         transition: 'fade',
+        replace: payload.replace,
       };
     }
 
@@ -236,6 +278,116 @@ function mapIntentToRoute(intent: FlowIntent, context: FlowUserContext): Resolve
         blocked: false,
         route: `/session/${payload.sessionId}`,
         transition: 'zoom',
+      };
+    }
+
+    case 'OPEN_CRM': {
+      const payload = intent.payload as OpenCRMPayload;
+      let route = payload.role === 'engineer' ? '/engineer-crm' : '/artist-crm';
+      const params = new URLSearchParams();
+      if (payload.tab) params.set('tab', payload.tab);
+      if (payload.contact) params.set('contact', payload.contact);
+      const paramStr = params.toString();
+      if (paramStr) route += `?${paramStr}`;
+      return {
+        blocked: false,
+        route,
+        transition: 'slide',
+      };
+    }
+
+    case 'OPEN_STUDIO': {
+      const payload = intent.payload as OpenStudioPayload;
+      let route = '/prostudio';
+      if (payload.projectId) {
+        route = `/prostudio/${payload.projectId}`;
+      }
+      if (payload.mode === 'mastering') {
+        route = '/ai-mastering';
+      }
+      return {
+        blocked: false,
+        route,
+        transition: 'zoom',
+      };
+    }
+
+    case 'OPEN_MARKETPLACE':
+      return {
+        blocked: false,
+        route: '/marketplace',
+        transition: 'slide',
+      };
+
+    case 'OPEN_PROFILE':
+      return {
+        blocked: false,
+        route: '/profile',
+        transition: 'fade',
+      };
+
+    case 'OPEN_SETTINGS':
+      return {
+        blocked: false,
+        route: '/settings',
+        transition: 'fade',
+      };
+
+    case 'OPEN_PRICING':
+      return {
+        blocked: false,
+        route: '/pricing',
+        transition: 'fade',
+      };
+
+    case 'START_UPLOAD':
+      return {
+        blocked: false,
+        route: '/upload',
+        transition: 'zoom',
+      };
+
+    case 'VIEW_PROJECT': {
+      const payload = intent.payload as ViewProjectPayload;
+      return {
+        blocked: false,
+        route: `/project/${payload.projectId}`,
+        transition: 'slide',
+      };
+    }
+
+    case 'VIEW_ENGINEER': {
+      const payload = intent.payload as ViewEngineerPayload;
+      return {
+        blocked: false,
+        route: `/engineer/${payload.engineerId}`,
+        transition: 'slide',
+      };
+    }
+
+    case 'VIEW_STORE': {
+      const payload = intent.payload as ViewStorePayload;
+      return {
+        blocked: false,
+        route: `/store/${payload.slug}`,
+        transition: 'slide',
+      };
+    }
+
+    case 'START_CHECKOUT':
+      return {
+        blocked: false,
+        route: '/checkout',
+        transition: 'fade',
+      };
+
+    case 'BROWSE_SECTION': {
+      const payload = intent.payload as BrowseSectionPayload;
+      const route = SECTION_ROUTES[payload.section] || '/';
+      return {
+        blocked: false,
+        route,
+        transition: 'fade',
       };
     }
 
@@ -260,6 +412,23 @@ function getIntentRoute(intent: FlowIntent): string {
     case 'ENTER_SESSION': {
       const payload = intent.payload as { sessionId: string };
       return `/session/${payload.sessionId}`;
+    }
+    case 'NAVIGATE_TO':
+    case 'DEEP_LINK': {
+      const payload = intent.payload as { path: string };
+      return payload.path;
+    }
+    case 'OPEN_CRM': {
+      const payload = intent.payload as OpenCRMPayload;
+      return payload.role === 'engineer' ? '/engineer-crm' : '/artist-crm';
+    }
+    case 'OPEN_STUDIO':
+      return '/prostudio';
+    case 'OPEN_MARKETPLACE':
+      return '/marketplace';
+    case 'VIEW_PROJECT': {
+      const payload = intent.payload as ViewProjectPayload;
+      return `/project/${payload.projectId}`;
     }
     default:
       return '/city/tower';

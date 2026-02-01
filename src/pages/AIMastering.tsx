@@ -4,12 +4,12 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sparkles, Upload, Zap, DollarSign, Check, Music } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
+import { useFlowNavigation } from '@/core/fabric/useFlow';
 
 const AIMastering = () => {
-  const navigate = useNavigate();
+  const { navigateTo, goToAuth, openArtistCRM } = useFlowNavigation();
   const { user } = useAuth();
 
   const packages = [
@@ -64,7 +64,7 @@ const AIMastering = () => {
           <PrimeWelcome 
             userName={user?.user_metadata?.full_name}
             userRole="artist"
-            onGetStarted={() => navigate('#pricing')}
+            onGetStarted={() => navigateTo('#pricing')}
             onDismiss={() => {}}
           />
         </div>

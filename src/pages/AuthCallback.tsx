@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useFlowNavigation } from '@/core/fabric/useFlow';
 
 const AuthCallback = () => {
-  const navigate = useNavigate();
+  const { goToAuth, navigateTo, openArtistCRM, openEngineerCRM } = useFlowNavigation();
 
   useEffect(() => {
     const handleCallback = async () => {
@@ -14,7 +14,7 @@ const AuthCallback = () => {
 
         if (error) {
           toast.error('Authentication failed');
-          navigate('/auth');
+          goToAuth('login');
           return;
         }
 
@@ -27,7 +27,7 @@ const AuthCallback = () => {
 
           if (isAdminUser) {
             toast.success('Welcome back, Admin!');
-            navigate('/admin');
+            navigateTo('/admin');
             return;
           }
 
@@ -41,29 +41,29 @@ const AuthCallback = () => {
           // If no profile exists or no role set, redirect to onboarding
           if (!profile || !profile.role) {
             toast.success('Please complete your profile');
-            navigate('/onboarding/artist');
+            navigateTo('/onboarding/artist');
             return;
           }
 
           // Redirect based on role
           toast.success('Welcome back!');
           if (profile.role === 'engineer') {
-            navigate('/engineer-crm');
+            openEngineerCRM();
           } else {
-            navigate('/artist-crm');
+            openArtistCRM();
           }
         } else {
-          navigate('/auth');
+          goToAuth('login');
         }
       } catch (err) {
         console.error('Auth callback error:', err);
         toast.error('Something went wrong');
-        navigate('/auth');
+        goToAuth('login');
       }
     };
 
     handleCallback();
-  }, [navigate]);
+  }, [goToAuth, navigateTo, openArtistCRM, openEngineerCRM]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5 flex items-center justify-center">
