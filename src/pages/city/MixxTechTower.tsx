@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
 import { 
   Building2, Music, Brain, BarChart3, Store, Radio, 
   Users, Home, Sparkles, ArrowRight, TrendingUp, Clock
@@ -8,6 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { DistrictPortal } from '@/components/ui/DistrictPortal';
 import { cn } from '@/lib/utils';
+import { useFlow } from '@/core/fabric/useFlow';
 
 const districts = [
   { 
@@ -102,7 +102,11 @@ const quickActions = [
 ];
 
 export default function MixxTechTower() {
-  const navigate = useNavigate();
+  const { setIntent } = useFlow();
+
+  const handleNavigate = (districtId: string) => {
+    setIntent('ENTER_DISTRICT', { districtId }, { source: 'MixxTechTower' });
+  };
 
   return (
     <DistrictPortal districtId="tower">
@@ -120,7 +124,7 @@ export default function MixxTechTower() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.1 + index * 0.05 }}
-                onClick={() => navigate(action.path)}
+                onClick={() => handleNavigate(action.path.split('/').pop() || 'tower')}
                 className="p-4 rounded-xl bg-card/50 border border-border/50 hover:border-primary/50 hover:bg-primary/5 transition-all flex items-center gap-3"
               >
                 <action.icon className={cn("w-5 h-5", action.color)} />
@@ -193,7 +197,7 @@ export default function MixxTechTower() {
                 transition={{ delay: 0.3 + index * 0.05 }}
               >
                 <Card
-                  onClick={() => navigate(district.path)}
+                  onClick={() => handleNavigate(district.id)}
                   className={cn(
                     "p-4 cursor-pointer transition-all hover:scale-[1.02] bg-card/50 backdrop-blur",
                     district.highlight 
