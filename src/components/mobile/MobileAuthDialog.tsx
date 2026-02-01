@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useFlowNavigation } from '@/core/fabric/useFlow';
 
 interface MobileAuthDialogProps {
   open: boolean;
@@ -21,7 +21,7 @@ export const MobileAuthDialog = ({ open, onOpenChange, mode = 'login' }: MobileA
   const [resetMode, setResetMode] = useState(false);
   const [resetEmailSent, setResetEmailSent] = useState(false);
   const { toast } = useToast();
-  const navigate = useNavigate();
+  const { openArtistCRM } = useFlowNavigation();
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,7 +56,7 @@ export const MobileAuthDialog = ({ open, onOpenChange, mode = 'login' }: MobileA
           description: "Successfully signed in"
         });
         onOpenChange(false);
-        navigate('/artist-crm');
+        openArtistCRM();
       }
     } catch (error: any) {
       toast({

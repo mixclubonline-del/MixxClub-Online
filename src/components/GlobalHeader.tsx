@@ -1,4 +1,5 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useFlowNavigation } from "@/core/fabric/useFlow";
 import { usePrime } from "@/contexts/PrimeContext";
 import { motion } from "framer-motion";
 import { MixxclubLogo } from "@/components/brand/MixxclubLogo";
@@ -16,7 +17,7 @@ interface GlobalHeaderProps {
 export default function GlobalHeader({ className }: GlobalHeaderProps) {
   const { systemMode, accentColor, networkAwareness } = usePrime();
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const { navigateTo } = useFlowNavigation();
   
   return (
     <header 
@@ -33,7 +34,7 @@ export default function GlobalHeader({ className }: GlobalHeaderProps) {
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => navigate('/search')}
+          onClick={() => navigateTo('/search')}
           className="h-9 w-9"
         >
           <Search className="h-4 w-4" />
