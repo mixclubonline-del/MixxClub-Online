@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sparkles, Music, TrendingUp, Award, ArrowRight, Check } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useFlowNavigation } from '@/core/fabric/useFlow';
 
 interface ServiceRecommendation {
   id: string;
@@ -28,7 +28,7 @@ export const ServiceRecommendations = ({
   currentService, 
   genre 
 }: ServiceRecommendationsProps) => {
-  const navigate = useNavigate();
+  const { openArtistCRM } = useFlowNavigation();
   
   const getRecommendations = (): ServiceRecommendation[] => {
     const recommendations: ServiceRecommendation[] = [];
@@ -158,9 +158,9 @@ export const ServiceRecommendations = ({
                     className="w-full group"
                     onClick={() => {
                       if (rec.service === 'mastering') {
-                        navigate('/artist-crm', { state: { activeTab: 'ai-mastering' } });
+                        openArtistCRM('ai-mastering');
                       } else if (rec.service === 'mixing') {
-                        navigate('/artist-crm', { state: { activeTab: 'book-session' } });
+                        openArtistCRM('book-session');
                       }
                     }}
                   >

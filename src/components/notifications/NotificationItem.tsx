@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { Bell, CheckCircle, X, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import { useFlowNavigation } from '@/core/fabric/useFlow';
 import { Notification } from '@/hooks/useNotifications';
 
 interface NotificationItemProps {
@@ -16,7 +16,7 @@ export const NotificationItem = ({
   onMarkAsRead,
   onDelete,
 }: NotificationItemProps) => {
-  const navigate = useNavigate();
+  const { navigateTo } = useFlowNavigation();
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleAction = () => {
@@ -24,7 +24,7 @@ export const NotificationItem = ({
       if (!notification.is_read) {
         onMarkAsRead(notification.id);
       }
-      navigate(notification.action_url);
+      navigateTo(notification.action_url);
     }
   };
 
