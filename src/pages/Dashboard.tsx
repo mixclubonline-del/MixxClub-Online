@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useFlowNavigation } from '@/core/fabric/useFlow';
 import { supabase } from '@/integrations/supabase/client';
 import Navigation from '@/components/Navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,12 +32,12 @@ import { LiveCollaborationStudio } from '@/components/mixing/LiveCollaborationSt
 
 const Dashboard = () => {
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const { goToAuth, openEngineerCRM, openArtistCRM } = useFlowNavigation();
   const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
     if (!user) {
-      navigate('/auth');
+      goToAuth('login');
       return;
     }
 
@@ -50,15 +51,15 @@ const Dashboard = () => {
 
       if (profile) {
         if (profile.role === 'engineer') {
-          navigate('/engineer-crm');
+          openEngineerCRM();
         } else if (profile.role === 'client') {
-          navigate('/artist-crm');
+          openArtistCRM();
         }
       }
     };
 
     checkUserRole();
-  }, [user, navigate]);
+  }, [user, goToAuth, openEngineerCRM, openArtistCRM]);
 
   const quickStats = [
     { label: 'Active Projects', value: 12, icon: Music, color: 'text-blue-500', bg: 'bg-blue-500/10' },
