@@ -1,5 +1,5 @@
 import { useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useFlowNavigation } from '@/core/fabric/useFlow';
 
 interface ShortcutConfig {
   enabled?: boolean;
@@ -18,7 +18,7 @@ export const useKeyboardShortcuts = (config: ShortcutConfig = {}) => {
     onSearch,
   } = config;
 
-  const navigate = useNavigate();
+  const { navigateTo } = useFlowNavigation();
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -44,7 +44,7 @@ export const useKeyboardShortcuts = (config: ShortcutConfig = {}) => {
             if (onCommandPalette) {
               onCommandPalette();
             } else {
-              navigate('/search');
+              navigateTo('/search');
             }
             break;
           case 'n':
@@ -52,7 +52,7 @@ export const useKeyboardShortcuts = (config: ShortcutConfig = {}) => {
             if (onNewSession) {
               onNewSession();
             } else {
-              navigate('/create-session');
+              navigateTo('/create-session');
             }
             break;
           case '/':
@@ -65,7 +65,7 @@ export const useKeyboardShortcuts = (config: ShortcutConfig = {}) => {
               if (onSearch) {
                 onSearch();
               } else {
-                navigate('/search');
+                navigateTo('/search');
               }
             }
             break;
@@ -84,7 +84,7 @@ export const useKeyboardShortcuts = (config: ShortcutConfig = {}) => {
           break;
       }
     },
-    [enabled, navigate, onCommandPalette, onNewSession, onTogglePrime, onSearch]
+    [enabled, navigateTo, onCommandPalette, onNewSession, onTogglePrime, onSearch]
   );
 
   useEffect(() => {

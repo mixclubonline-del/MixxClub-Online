@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import { useFlowNavigation } from '@/core/fabric/useFlow';
 import { ArrowLeft, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -18,7 +19,7 @@ import { toast } from 'sonner';
 const ProjectDetail = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const { goToAuth, goBack } = useFlowNavigation();
   const [project, setProject] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showReviewDialog, setShowReviewDialog] = useState(false);
@@ -26,14 +27,14 @@ const ProjectDetail = () => {
 
   useEffect(() => {
     if (!user) {
-      navigate('/auth');
+      goToAuth();
       return;
     }
     
     if (projectId) {
       fetchProject();
     }
-  }, [user, projectId]);
+  }, [user, projectId, goToAuth]);
 
   const fetchProject = async () => {
     if (!projectId) return;
@@ -98,7 +99,7 @@ const ProjectDetail = () => {
             <p className="text-muted-foreground mb-6">
               This project doesn't exist or you don't have access to it
             </p>
-            <Button onClick={() => navigate(-1)}>
+            <Button onClick={() => goBack()}>
               <ArrowLeft className="w-4 h-4 mr-2" />
               Go Back
             </Button>
@@ -119,7 +120,7 @@ const ProjectDetail = () => {
         <div className="flex items-center justify-between mb-6">
           <Button 
             variant="ghost" 
-            onClick={() => navigate(-1)}
+            onClick={() => goBack()}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Dashboard

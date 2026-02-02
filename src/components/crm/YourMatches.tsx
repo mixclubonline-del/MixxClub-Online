@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Star, Loader2, Heart, MessageCircle, Sparkles, RefreshCw, History, Info } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
+import { useFlowNavigation } from '@/core/fabric/useFlow';
 import { useAuth } from '@/hooks/useAuth';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -36,7 +36,7 @@ export const YourMatches = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
-  const navigate = useNavigate();
+  const { navigateTo, openArtistCRM } = useFlowNavigation();
 
   const loadMatches = useCallback(async () => {
     if (!user) {
@@ -225,7 +225,7 @@ export const YourMatches = () => {
         metadata: { engineer_id: match.engineerId },
       });
 
-      navigate(`/artist-crm?tab=projects&action=new&engineer=${match.engineerId}`);
+      openArtistCRM(`projects&action=new&engineer=${match.engineerId}`);
     } catch (error) {
       console.error('Error contacting engineer:', error);
     }
@@ -237,7 +237,7 @@ export const YourMatches = () => {
       runMatching(JSON.parse(qualifierData));
     } else {
       toast.info('Complete the smart qualifier to find new matches');
-      navigate('/');
+      navigateTo('/');
     }
   };
 
@@ -259,7 +259,7 @@ export const YourMatches = () => {
         type="matches"
         title="No matches yet"
         actionLabel="Find Your Match"
-        onAction={() => navigate('/')}
+        onAction={() => navigateTo('/')}
       />
     );
   }

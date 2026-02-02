@@ -1,6 +1,7 @@
 import { ReactNode, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { useFlowNavigation } from '@/core/fabric/useFlow';
 import { 
   Building2, Music, Brain, BarChart3, Store, Radio, 
   Users, Home, Map, Sparkles, ChevronLeft
@@ -35,7 +36,7 @@ interface CityLayoutProps {
 }
 
 export const CityLayout = ({ children, currentDistrict }: CityLayoutProps) => {
-  const navigate = useNavigate();
+  const { navigateTo } = useFlowNavigation();
   const location = useLocation();
   const [showMap, setShowMap] = useState(false);
 
@@ -82,7 +83,7 @@ export const CityLayout = ({ children, currentDistrict }: CityLayoutProps) => {
             <Button 
               variant="ghost" 
               size="icon"
-              onClick={() => navigate('/city')}
+              onClick={() => navigateTo('/city')}
               className="hover:bg-primary/10"
             >
               <ChevronLeft className="w-5 h-5" />
@@ -138,7 +139,7 @@ export const CityLayout = ({ children, currentDistrict }: CityLayoutProps) => {
                     transition={{ delay: index * 0.05 }}
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigate(district.path);
+                      navigateTo(district.path);
                       setShowMap(false);
                     }}
                     className={cn(
@@ -179,7 +180,7 @@ export const CityLayout = ({ children, currentDistrict }: CityLayoutProps) => {
           {districts.slice(0, 5).map((district) => (
             <button
               key={district.id}
-              onClick={() => navigate(district.path)}
+              onClick={() => navigateTo(district.path)}
               className={cn(
                 "flex flex-col items-center gap-1 p-2 rounded-lg transition-all min-w-[60px]",
                 location.pathname === district.path

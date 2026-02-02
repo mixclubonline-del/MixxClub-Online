@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useFlowNavigation } from '@/core/fabric/useFlow';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -74,7 +74,7 @@ export default function InsiderDemo() {
   const [showTitle, setShowTitle] = useState(false);
   const [volume, setVolumeState] = useState(0.7);
   
-  const navigate = useNavigate();
+  const { navigateTo } = useFlowNavigation();
   
   const { 
     isLoading, 
@@ -686,7 +686,7 @@ export default function InsiderDemo() {
               >
                 <Button
                   size="lg"
-                  onClick={() => navigate('/for-artists')}
+                  onClick={() => navigateTo('/for-artists')}
                   className="text-lg px-8 py-6 bg-gradient-to-r from-cyan-600 to-blue-600 hover:opacity-90 shadow-lg shadow-cyan-500/30"
                 >
                   <Mic2 className="w-5 h-5 mr-2" />
@@ -694,7 +694,7 @@ export default function InsiderDemo() {
                 </Button>
                 <Button
                   size="lg"
-                  onClick={() => navigate('/for-engineers')}
+                  onClick={() => navigateTo('/for-engineers')}
                   className="text-lg px-8 py-6 bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90 shadow-lg shadow-purple-500/30"
                 >
                   <Headphones className="w-5 h-5 mr-2" />
@@ -703,7 +703,7 @@ export default function InsiderDemo() {
                 <Button
                   size="lg"
                   variant="outline"
-                  onClick={() => navigate('/showcase')}
+                  onClick={() => navigateTo('/showcase')}
                   className="text-lg px-8 py-6 border-primary/50 hover:bg-primary/10"
                 >
                   <Eye className="w-5 h-5 mr-2" />
