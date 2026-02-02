@@ -1,51 +1,64 @@
 
-# Fabric Flow Spine Migration - Batch 4
-## Hooks, Dashboard, and Component Layer Migration
+# Fabric Flow Spine Migration - Batch 5
+## Courses, Notifications, Payment, and Storefront Components
 
 ### Overview
 
-**Batch Scope:** Migrate remaining ~70 files from direct `useNavigate()` usage to the Fabric Flow Intent system  
-**Current Progress:** ~55/126 files migrated (~44%)  
-**Files in This Batch:** 15 high-priority files across hooks, dashboard, and utility components
+**Batch Scope:** Migrate remaining files from direct `useNavigate()` usage to the Fabric Flow Intent system  
+**Current Progress:** ~70/126 files migrated (~56%)  
+**Files in This Batch:** 20 files across courses, notifications, payments, storefronts, and home components
 
 ---
 
 ### Files to Migrate in This Batch
 
-#### Priority 1: Core Pages (3 files)
+#### Priority 1: Courses & Education (2 files)
 | File | Navigate Usage | Intent Mapping |
 |------|---------------|----------------|
-| `src/pages/Dashboard.tsx` | auth redirect, role-based CRM redirect | `goToAuth()`, `openArtistCRM()`, `openEngineerCRM()` |
-| `src/pages/LivePage.tsx` | unused import (cleanup) | Remove unused `useNavigate` |
-| `src/components/HowItWorks.tsx` | signup redirect | `goToAuth('signup')` |
+| `src/components/courses/CoursesPage.tsx` | auth redirect for enrollment | `goToAuth('login', '/courses')` |
+| `src/pages/InsiderDemo.tsx` | auth/signup navigation | `goToAuth('signup')` |
 
-#### Priority 2: Home Components (5 files)
+#### Priority 2: Notification Components (3 files)
 | File | Navigate Usage | Intent Mapping |
 |------|---------------|----------------|
-| `src/components/home/SmartBudgetQualifier.tsx` | auth redirect after matching | `goToAuth('login')` |
-| `src/components/home/UserJourneys.tsx` | role-based routes | `navigateTo()` |
-| `src/components/home/RoleSelectionCTA.tsx` | auth + onboarding routes | `goToAuth('signup')` |
-| `src/components/home/TierShowcase.tsx` | pricing page | `openPricing()` |
-| `src/components/home/SimplePackagePreview.tsx` | pricing page | `openPricing()` |
+| `src/components/NotificationCenter.tsx` | action_url navigation | `navigateTo(action_url)` |
+| `src/components/notifications/NotificationItem.tsx` | action_url navigation | `navigateTo(action_url)` |
+| `src/pages/NotificationPreferences.tsx` | back navigation | `goBack()` |
 
-#### Priority 3: Studio & Scene (2 files)
+#### Priority 3: Payment & Checkout (1 file)
 | File | Navigate Usage | Intent Mapping |
 |------|---------------|----------------|
-| `src/components/studio/StudioHub.tsx` | session routes, studio routes | `navigateTo()` |
-| `src/components/scene/StudioHallway.tsx` | session navigation | `navigateTo('/session/${id}')` |
+| `src/components/payment/MultiPaymentModal.tsx` | project redirect after payment | `viewProject(projectId)` |
 
-#### Priority 4: Dashboard & CRM (3 files)
+#### Priority 4: CRM & Business (4 files)
 | File | Navigate Usage | Intent Mapping |
 |------|---------------|----------------|
-| `src/components/crm/dashboard/EnhancedDashboardHub.tsx` | tab navigation within CRM | `navigateTo()` for query params |
-| `src/components/profile/FollowersList.tsx` | user profile navigation | `navigateTo('/u/${username}')` |
-| `src/components/FreemiumBanner.tsx` | pricing page | `openPricing()` |
+| `src/components/crm/YourMatches.tsx` | CRM & home navigation | `openArtistCRM()`, `navigateTo('/')` |
+| `src/components/crm/BrandHub.tsx` | profile navigation | `navigateTo('/u/username')` |
+| `src/components/crm/SavedJobsList.tsx` | job board navigation | `navigateTo('/job-board')` |
+| `src/components/crm/ServiceRecommendations.tsx` | CRM tab navigation | `openArtistCRM(tab)` |
 
-#### Priority 5: Onboarding & Layout (2 files)
+#### Priority 5: Home & Landing Components (4 files)
 | File | Navigate Usage | Intent Mapping |
 |------|---------------|----------------|
-| `src/components/onboarding/EngineerOnboardingWizard.tsx` | CRM redirect after completion | `openEngineerCRM()` |
-| `src/components/onboarding/OnboardingPortal.tsx` | destination redirect | `navigateTo(destinationPath)` |
+| `src/components/home/ValueProposition.tsx` | auth navigation | `goToAuth()` |
+| `src/components/home/AIMasteringCTA.tsx` | mastering/pricing pages | `navigateTo('/ai-mastering')` |
+| `src/components/InstantDemoSection.tsx` | auth signup redirect | `goToAuth('signup')` |
+| `src/pages/FreemiumOverview.tsx` | auth & checkout navigation | `goToAuth('signup')`, `navigateTo('/checkout')` |
+
+#### Priority 6: Pages & Misc (3 files)
+| File | Navigate Usage | Intent Mapping |
+|------|---------------|----------------|
+| `src/pages/Terms.tsx` | home navigation | `navigateTo('/')` |
+| `src/pages/MobileHome.tsx` | auth & route navigation | `goToAuth()`, `navigateTo(...)` |
+| `src/pages/ProjectDetail.tsx` | auth & back navigation | `goToAuth()`, `goBack()` |
+
+#### Priority 7: Storefront & Live (3 files)
+| File | Navigate Usage | Intent Mapping |
+|------|---------------|----------------|
+| `src/components/storefront/StorefrontManager.tsx` | store page navigation | `viewStore(slug)` |
+| `src/components/live/GoLiveModal.tsx` | broadcast page redirect | `navigateTo('/broadcast/id')` |
+| `src/components/city/CityLayout.tsx` | district navigation | `goToDistrict(...)` or `navigateTo(path)` |
 
 ---
 
@@ -54,49 +67,52 @@
 #### Pattern Replacement Examples
 
 ```typescript
-// Dashboard.tsx - Role-based redirect
+// CoursesPage.tsx - Auth redirect with return path
 // Before
-if (profile.role === 'engineer') {
-  navigate('/engineer-crm');
-} else if (profile.role === 'client') {
-  navigate('/artist-crm');
+navigate('/auth?redirect=/courses');
+
+// After
+goToAuth('login', '/courses');
+```
+
+```typescript
+// NotificationCenter.tsx - Dynamic action URL
+// Before
+if (notification.action_url) {
+  navigate(notification.action_url);
 }
 
 // After
-if (profile.role === 'engineer') {
-  openEngineerCRM();
-} else if (profile.role === 'client') {
-  openArtistCRM();
+if (notification.action_url) {
+  navigateTo(notification.action_url);
 }
 ```
 
 ```typescript
-// SmartBudgetQualifier.tsx - Auth redirect
+// MultiPaymentModal.tsx - Project redirect after payment
 // Before
-const handleComplete = () => {
-  onOpenChange(false);
-  navigate('/auth');
-};
+navigate(`/project/${projectId}`);
 
 // After
-const { goToAuth } = useFlowNavigation();
-const handleComplete = () => {
-  onOpenChange(false);
-  goToAuth('login');
-};
+viewProject(projectId);
 ```
 
 ```typescript
-// StudioHallway.tsx - Session navigation
+// YourMatches.tsx - CRM navigation with query params
 // Before
-if (room.visibility === 'public' && room.sessionId) {
-  navigate(`/session/${room.sessionId}`);
-}
+navigate(`/artist-crm?tab=projects&action=new&engineer=${match.engineerId}`);
 
 // After
-if (room.visibility === 'public' && room.sessionId) {
-  navigateTo(`/session/${room.sessionId}`);
-}
+openArtistCRM(`projects&action=new&engineer=${match.engineerId}`);
+```
+
+```typescript
+// CityLayout.tsx - District navigation
+// Before
+navigate(district.path);
+
+// After
+navigateTo(district.path);
 ```
 
 ---
@@ -111,44 +127,46 @@ const navigate = useNavigate();
 
 // Add
 import { useFlowNavigation } from '@/core/fabric/useFlow';
-const { navigateTo, goToAuth, openArtistCRM, openEngineerCRM, openPricing } = useFlowNavigation();
+const { navigateTo, goToAuth, goBack, openArtistCRM, viewProject, viewStore } = useFlowNavigation();
 ```
 
 ---
 
 ### Special Handling Notes
 
-1. **Dashboard.tsx**: This file uses navigate in a `useEffect` for auth/role checking. The flow hook is already reactive to auth changes, but we still need to use the semantic methods.
+1. **NotificationCenter.tsx**: Uses `useLocation` for route change detection (keep) and `navigate` for action URLs. The `useLocation` import should remain.
 
-2. **LivePage.tsx**: The `useNavigate` import is unused - simply remove it.
+2. **MultiPaymentModal.tsx**: Multiple navigate calls for post-payment redirect. All should use `viewProject(projectId)`.
 
-3. **EnhancedDashboardHub.tsx**: Uses `navigate('?tab=...')` for query param changes within the same page. This should use `navigateTo('?tab=...')`.
+3. **YourMatches.tsx**: Uses navigate in two contexts:
+   - `navigate('/')` for finding matches - use `navigateTo('/')`
+   - `navigate('/artist-crm?tab=...')` - use `openArtistCRM(...)`
 
-4. **OnboardingPortal.tsx**: Uses navigate in a completion callback. Replace with `navigateTo(destinationPath)`.
+4. **CityLayout.tsx**: Uses both `navigate` and `useLocation`. Keep `useLocation` for pathname checks, replace navigate calls.
 
-5. **StudioHallway.tsx**: Dynamic session ID navigation - use template literal with `navigateTo()`.
+5. **InsiderDemo.tsx**: Large file with navigate for signup - replace with `goToAuth('signup')`.
+
+6. **usePrimeBotActions.ts** and **useGlobalKeyboardShortcuts.tsx**: These are hooks - they need to import `useFlowNavigation` internally.
 
 ---
 
 ### Expected Outcome
 
 After this batch:
-- **70/126 files migrated** (~56%)
-- All home page components Flow-compliant
-- All dashboard components Flow-compliant
-- Studio/Scene navigation Flow-compliant
-- Onboarding flows Flow-compliant
+- **90/126 files migrated** (~71%)
+- All notification components Flow-compliant
+- All payment components Flow-compliant
+- All course components Flow-compliant
+- All storefront components Flow-compliant
+- All landing page components Flow-compliant
 
 ---
 
 ### Remaining After This Batch
 
-Approximately 55 files will remain for Batches 5-6:
-- Notification components (~5 files)
-- Layout components (~3 files)
-- Marketplace components (~10 files)
-- Pricing components (~5 files)
-- Community components (~8 files)
-- Courses components (~5 files)
+Approximately 35 files will remain for Batches 6-7:
+- Additional hooks (~5 files)
+- Community/social components (~8 files)
+- Remaining CRM components (~5 files)
 - Settings components (~4 files)
-- Miscellaneous components (~15 files)
+- Miscellaneous UI components (~13 files)
