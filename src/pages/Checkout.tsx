@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
+import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -30,7 +29,7 @@ const planIcons: Record<string, typeof Zap> = {
 
 export default function Checkout() {
   const [searchParams] = useSearchParams();
-  const { goToAuth, navigateTo } = useFlowNavigation();
+  const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
@@ -130,9 +129,9 @@ export default function Checkout() {
   useEffect(() => {
     if (!authLoading && !user) {
       toast.info('Please sign in to continue checkout');
-      goToAuth('login', window.location.pathname + window.location.search);
+      navigate(`/auth?mode=signin&redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`);
     }
-  }, [user, authLoading, goToAuth]);
+  }, [user, authLoading, navigate]);
 
   const handleToggleAddon = (addonId: string) => {
     setSelectedAddons(prev => 
@@ -193,7 +192,7 @@ export default function Checkout() {
       if (data?.url) {
         window.location.href = data.url;
       } else if (data?.redirect) {
-        navigateTo(data.redirect);
+        navigate(data.redirect);
       } else {
         throw new Error('No checkout URL returned');
       }

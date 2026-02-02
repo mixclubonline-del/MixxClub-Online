@@ -1,9 +1,9 @@
 import { useState, useCallback } from 'react';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
+import { useNavigate } from 'react-router-dom';
 
 export const useCommandPalette = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { navigateTo, openArtistCRM } = useFlowNavigation();
+  const navigate = useNavigate();
 
   const open = useCallback(() => setIsOpen(true), []);
   const close = useCallback(() => setIsOpen(false), []);
@@ -12,14 +12,14 @@ export const useCommandPalette = () => {
   const executeCommand = useCallback((command: string) => {
     // Parse and execute commands
     const commands: Record<string, () => void> = {
-      'upload': () => openArtistCRM('active-work'),
-      'mix': () => navigateTo('/mixing'),
-      'session': () => openArtistCRM('studio'),
-      'engineer': () => navigateTo('/engineer-directory'),
-      'mastering': () => navigateTo('/mastering'),
-      'achievements': () => openArtistCRM('profile'),
-      'profile': () => openArtistCRM('profile'),
-      'dashboard': () => openArtistCRM(),
+      'upload': () => navigate('/artist-crm?tab=active-work'),
+      'mix': () => navigate('/mixing'),
+      'session': () => navigate('/artist-crm?tab=studio'),
+      'engineer': () => navigate('/engineer-directory'),
+      'mastering': () => navigate('/mastering'),
+      'achievements': () => navigate('/artist-crm?tab=profile'),
+      'profile': () => navigate('/artist-crm?tab=profile'),
+      'dashboard': () => navigate('/artist-crm'),
     };
 
     const action = commands[command.toLowerCase()];
@@ -27,7 +27,7 @@ export const useCommandPalette = () => {
       action();
       close();
     }
-  }, [navigateTo, openArtistCRM, close]);
+  }, [navigate, close]);
 
   return {
     isOpen,

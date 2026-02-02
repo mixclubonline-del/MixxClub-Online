@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
+import { Link, useNavigate } from 'react-router-dom';
 import { ReactNode, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { ScrollRevealSection } from './ScrollRevealSection';
@@ -26,14 +25,14 @@ export const PortalInvitation = ({
   variant,
   disclaimer 
 }: PortalInvitationProps) => {
-  const { navigateTo } = useFlowNavigation();
+  const navigate = useNavigate();
   const [isEntering, setIsEntering] = useState(false);
   const accentColor = variant === 'artist' ? 'primary' : 'secondary';
 
   const handleEnter = () => {
     setIsEntering(true);
     setTimeout(() => {
-      navigateTo(cta.href);
+      navigate(cta.href);
     }, 800);
   };
 

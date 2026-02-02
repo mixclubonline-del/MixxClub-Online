@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -27,7 +27,7 @@ interface WelcomeExperienceProps {
 }
 
 export const WelcomeExperience = ({ userType, userName, onDismiss }: WelcomeExperienceProps) => {
-  const { navigateTo } = useFlowNavigation();
+  const navigate = useNavigate();
   const [dismissed, setDismissed] = useState(false);
 
   if (dismissed) return null;
@@ -42,20 +42,20 @@ export const WelcomeExperience = ({ userType, userName, onDismiss }: WelcomeExpe
       icon: <Mic2 className="w-5 h-5" />,
       title: "Start Your First Session",
       description: "Create a collaboration session and invite engineers",
-      action: () => navigateTo('/sessions/create'),
+      action: () => navigate('/sessions/create'),
       primary: true,
     },
     {
       icon: <Users className="w-5 h-5" />,
       title: "Browse Engineers",
       description: "Find the perfect match for your sound",
-      action: () => navigateTo('/sessions-browser'),
+      action: () => navigate('/sessions-browser'),
     },
     {
       icon: <Music className="w-5 h-5" />,
       title: "Upload Your Track",
       description: "Get it ready for professional mixing",
-      action: () => navigateTo('/upload'),
+      action: () => navigate('/upload'),
     },
   ];
 
@@ -64,20 +64,20 @@ export const WelcomeExperience = ({ userType, userName, onDismiss }: WelcomeExpe
       icon: <Headphones className="w-5 h-5" />,
       title: "Complete Your Profile",
       description: "Set your rates, specialties, and portfolio",
-      action: () => navigateTo('?tab=profile'),
+      action: () => navigate('?tab=profile'),
       primary: true,
     },
     {
       icon: <Calendar className="w-5 h-5" />,
       title: "Browse Open Sessions",
       description: "Find artists looking for your expertise",
-      action: () => navigateTo('/sessions-browser'),
+      action: () => navigate('/sessions-browser'),
     },
     {
       icon: <DollarSign className="w-5 h-5" />,
       title: "Set Your Rates",
       description: "Define your pricing structure",
-      action: () => navigateTo('?tab=settings'),
+      action: () => navigate('?tab=settings'),
     },
   ];
 
@@ -161,7 +161,7 @@ interface EmptyStatePromptProps {
 }
 
 export const EmptyStatePrompt = ({ type, userType }: EmptyStatePromptProps) => {
-  const { navigateTo } = useFlowNavigation();
+  const navigate = useNavigate();
 
   // Map to context types for Nova
   const typeMap: Record<string, 'sessions' | 'projects' | 'earnings' | 'messages' | 'matches'> = {
@@ -174,24 +174,24 @@ export const EmptyStatePrompt = ({ type, userType }: EmptyStatePromptProps) => {
 
   const actions = {
     sessions: {
-      artist: { action: "Create Session", onClick: () => navigateTo('/sessions/create') },
-      engineer: { action: "Browse Sessions", onClick: () => navigateTo('/sessions-browser') },
+      artist: { action: "Create Session", onClick: () => navigate('/sessions/create') },
+      engineer: { action: "Browse Sessions", onClick: () => navigate('/sessions-browser') },
     },
     projects: {
-      artist: { action: "Upload Track", onClick: () => navigateTo('/upload') },
-      engineer: { action: "Complete Profile", onClick: () => navigateTo('?tab=profile') },
+      artist: { action: "Upload Track", onClick: () => navigate('/upload') },
+      engineer: { action: "Complete Profile", onClick: () => navigate('?tab=profile') },
     },
     earnings: {
-      artist: { action: "View Services", onClick: () => navigateTo('/services') },
-      engineer: { action: "Set Rates", onClick: () => navigateTo('?tab=settings') },
+      artist: { action: "View Services", onClick: () => navigate('/services') },
+      engineer: { action: "Set Rates", onClick: () => navigate('?tab=settings') },
     },
     messages: {
-      artist: { action: "Find Engineers", onClick: () => navigateTo('/sessions-browser') },
-      engineer: { action: "Complete Profile", onClick: () => navigateTo('?tab=profile') },
+      artist: { action: "Find Engineers", onClick: () => navigate('/sessions-browser') },
+      engineer: { action: "Complete Profile", onClick: () => navigate('?tab=profile') },
     },
     matches: {
-      artist: { action: "Update Preferences", onClick: () => navigateTo('?tab=profile') },
-      engineer: { action: "Add Specialties", onClick: () => navigateTo('?tab=profile') },
+      artist: { action: "Update Preferences", onClick: () => navigate('?tab=profile') },
+      engineer: { action: "Add Specialties", onClick: () => navigate('?tab=profile') },
     },
   };
 
@@ -211,7 +211,7 @@ interface RecommendedEngineersProps {
 }
 
 export const RecommendedEngineers = ({ limit = 3 }: RecommendedEngineersProps) => {
-  const { navigateTo } = useFlowNavigation();
+  const navigate = useNavigate();
 
   // Demo data - in production this would come from the database
   const engineers = [
@@ -228,7 +228,7 @@ export const RecommendedEngineers = ({ limit = 3 }: RecommendedEngineersProps) =
             <Sparkles className="w-5 h-5 text-primary" />
             Recommended Engineers
           </CardTitle>
-          <Button variant="ghost" size="sm" onClick={() => navigateTo('/sessions-browser')}>
+          <Button variant="ghost" size="sm" onClick={() => navigate('/sessions-browser')}>
             View All <ArrowRight className="w-4 h-4 ml-1" />
           </Button>
         </div>
@@ -242,7 +242,7 @@ export const RecommendedEngineers = ({ limit = 3 }: RecommendedEngineersProps) =
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 * idx }}
               className="flex items-center justify-between p-3 rounded-lg bg-card/50 border border-border/50 hover:border-primary/30 transition-colors cursor-pointer"
-              onClick={() => navigateTo('/sessions-browser')}
+              onClick={() => navigate('/sessions-browser')}
             >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-cyan-500 flex items-center justify-center text-sm font-bold text-white">
@@ -273,7 +273,7 @@ interface OpenSessionsForEngineersProps {
 }
 
 export const OpenSessionsForEngineers = ({ limit = 3 }: OpenSessionsForEngineersProps) => {
-  const { navigateTo } = useFlowNavigation();
+  const navigate = useNavigate();
 
   // Demo data
   const sessions = [
@@ -290,7 +290,7 @@ export const OpenSessionsForEngineers = ({ limit = 3 }: OpenSessionsForEngineers
             <Calendar className="w-5 h-5 text-cyan-400" />
             Open Sessions Looking for Engineers
           </CardTitle>
-          <Button variant="ghost" size="sm" onClick={() => navigateTo('/sessions-browser')}>
+          <Button variant="ghost" size="sm" onClick={() => navigate('/sessions-browser')}>
             View All <ArrowRight className="w-4 h-4 ml-1" />
           </Button>
         </div>
@@ -304,7 +304,7 @@ export const OpenSessionsForEngineers = ({ limit = 3 }: OpenSessionsForEngineers
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 * idx }}
               className="flex items-center justify-between p-3 rounded-lg bg-card/50 border border-border/50 hover:border-cyan-500/30 transition-colors cursor-pointer"
-              onClick={() => navigateTo('/sessions-browser')}
+              onClick={() => navigate('/sessions-browser')}
             >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-primary flex items-center justify-center">
@@ -338,7 +338,7 @@ interface ProfileCompletionPromptProps {
 }
 
 export const ProfileCompletionPrompt = ({ completionPercentage, missingItems }: ProfileCompletionPromptProps) => {
-  const { navigateTo } = useFlowNavigation();
+  const navigate = useNavigate();
 
   if (completionPercentage >= 100) return null;
 
@@ -362,7 +362,7 @@ export const ProfileCompletionPrompt = ({ completionPercentage, missingItems }: 
                 </Badge>
               ))}
             </div>
-            <Button size="sm" onClick={() => navigateTo('?tab=profile')}>
+            <Button size="sm" onClick={() => navigate('?tab=profile')}>
               Complete Profile
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>

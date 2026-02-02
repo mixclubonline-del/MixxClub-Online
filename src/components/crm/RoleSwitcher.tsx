@@ -2,18 +2,22 @@ import { Mic2, Headphones } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { motion } from "framer-motion";
-import { useFlow } from "@/core/fabric/useFlow";
+import { useNavigate } from "react-router-dom";
 
 export const RoleSwitcher = () => {
   const { userRoles, activeRole, setActiveRole, isHybridUser } = useAuth();
-  const { setIntent } = useFlow();
+  const navigate = useNavigate();
 
   if (!isHybridUser || userRoles.length <= 1) return null;
 
   const handleRoleSwitch = (role: 'artist' | 'engineer') => {
     setActiveRole(role);
-    // Use Flow intent for navigation
-    setIntent('SWITCH_ROLE', { newRole: role }, { source: 'RoleSwitcher' });
+    // Navigate to appropriate dashboard
+    if (role === 'artist') {
+      navigate('/artist-crm');
+    } else {
+      navigate('/engineer-crm');
+    }
   };
 
   return (

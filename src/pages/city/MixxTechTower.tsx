@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { 
   Building2, Music, Brain, BarChart3, Store, Radio, 
   Users, Home, Sparkles, ArrowRight, TrendingUp, Clock
@@ -7,7 +8,6 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { DistrictPortal } from '@/components/ui/DistrictPortal';
 import { cn } from '@/lib/utils';
-import { useFlow } from '@/core/fabric/useFlow';
 
 const districts = [
   { 
@@ -28,15 +28,6 @@ const districts = [
     description: 'AI beat generation, mixing tools, Suno integration',
     stats: 'Suno AI Ready',
     highlight: true
-  },
-  { 
-    id: 'dream', 
-    name: 'Dream Chamber', 
-    path: '/city/dream', 
-    icon: Sparkles, 
-    color: 'from-purple-500 to-cyan-500', 
-    description: 'Generate visuals, videos, and audio for the city',
-    stats: 'Vision Control'
   },
   { 
     id: 'neural', 
@@ -96,17 +87,13 @@ const districts = [
 
 const quickActions = [
   { label: 'Generate Beat', icon: Sparkles, path: '/city/studio', color: 'text-orange-400' },
-  { label: 'Dream Vision', icon: Sparkles, path: '/city/dream', color: 'text-purple-400' },
+  { label: 'Upload Track', icon: Music, path: '/city/creator', color: 'text-purple-400' },
   { label: 'Ask Prime', icon: Brain, path: '/city/prime', color: 'text-cyan-400' },
   { label: 'View Stats', icon: TrendingUp, path: '/city/analytics', color: 'text-green-400' },
 ];
 
 export default function MixxTechTower() {
-  const { setIntent } = useFlow();
-
-  const handleNavigate = (districtId: string) => {
-    setIntent('ENTER_DISTRICT', { districtId }, { source: 'MixxTechTower' });
-  };
+  const navigate = useNavigate();
 
   return (
     <DistrictPortal districtId="tower">
@@ -124,7 +111,7 @@ export default function MixxTechTower() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.1 + index * 0.05 }}
-                onClick={() => handleNavigate(action.path.split('/').pop() || 'tower')}
+                onClick={() => navigate(action.path)}
                 className="p-4 rounded-xl bg-card/50 border border-border/50 hover:border-primary/50 hover:bg-primary/5 transition-all flex items-center gap-3"
               >
                 <action.icon className={cn("w-5 h-5", action.color)} />
@@ -197,7 +184,7 @@ export default function MixxTechTower() {
                 transition={{ delay: 0.3 + index * 0.05 }}
               >
                 <Card
-                  onClick={() => handleNavigate(district.id)}
+                  onClick={() => navigate(district.path)}
                   className={cn(
                     "p-4 cursor-pointer transition-all hover:scale-[1.02] bg-card/50 backdrop-blur",
                     district.highlight 

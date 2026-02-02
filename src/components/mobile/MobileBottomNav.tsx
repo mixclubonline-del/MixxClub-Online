@@ -1,7 +1,6 @@
 import { Home, Briefcase, Users, Plus, Search, Bell, Mic2 } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useHaptics } from '@/hooks/useHaptics';
 import { cn } from '@/lib/utils';
@@ -17,7 +16,7 @@ interface NavTab {
 }
 
 export const MobileBottomNav = () => {
-  const { navigateTo } = useFlowNavigation();
+  const navigate = useNavigate();
   const location = useLocation();
   const { user, userRole } = useAuth();
   const { unreadCount } = useNotifications();
@@ -79,8 +78,8 @@ export const MobileBottomNav = () => {
     } else {
       medium();
     }
-    navigateTo(path);
-  }, [navigateTo, medium, heavy]);
+    navigate(path);
+  }, [navigate, medium, heavy]);
 
   const handleTouchStart = useCallback((path: string) => {
     setPressedTab(path);

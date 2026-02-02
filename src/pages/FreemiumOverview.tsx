@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, CheckCircle2, Lock, Zap, TrendingUp } from 'lucide-react';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
+import { useNavigate } from 'react-router-dom';
 import { useSubscriptionManagement } from '@/hooks/useSubscriptionManagement';
 import { SEOHead } from '@/components/SEOHead';
 
@@ -120,15 +120,15 @@ const upgradeBenefits = [
 ];
 
 export default function FreemiumOverview() {
-    const { goToAuth, navigateTo } = useFlowNavigation();
+    const navigate = useNavigate();
     const { currentSubscription, currentPlan } = useSubscriptionManagement();
     const [selectedTier, setSelectedTier] = useState<'all' | 'free' | 'starter' | 'pro' | 'studio'>('all');
 
     const handleUpgrade = (tier: string) => {
         if (tier === 'free') {
-            goToAuth('signup');
+            navigate('/auth?mode=signup');
         } else {
-            navigateTo(`/checkout?type=subscription&tier=${tier}`);
+            navigate(`/checkout?type=subscription&tier=${tier}`);
         }
     };
 

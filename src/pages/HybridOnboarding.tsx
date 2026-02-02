@@ -1,12 +1,12 @@
 import { useEffect } from "react";
-import { useFlowNavigation } from "@/core/fabric/useFlow";
+import { useNavigate } from "react-router-dom";
 
 export default function HybridOnboarding() {
-  const { openArtistCRM } = useFlowNavigation();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    openArtistCRM();
-  }, [openArtistCRM]);
+    navigate('/artist-crm');
+  }, [navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">

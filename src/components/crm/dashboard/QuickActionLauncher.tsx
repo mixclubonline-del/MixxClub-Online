@@ -7,7 +7,7 @@ import {
   Upload, Music, Users, Sparkles, Radio, Award,
   Search, Command, ArrowRight, Clock, TrendingUp
 } from 'lucide-react';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
+import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -22,7 +22,7 @@ export const QuickActionLauncher = ({
   onClose, 
   onOpenPalette 
 }: QuickActionLauncherProps) => {
-  const { navigateTo } = useFlowNavigation();
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
 
   const actions = [
@@ -112,7 +112,7 @@ export const QuickActionLauncher = ({
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
                     onClick={() => {
-                      navigateTo(action.link);
+                      navigate(action.link);
                       onClose?.();
                     }}
                     className="flex items-center gap-3 p-4 rounded-lg border bg-background hover:bg-muted/50 transition-all text-left group"
@@ -189,7 +189,7 @@ export const QuickActionLauncher = ({
               transition={{ delay: index * 0.05 }}
               whileHover={{ scale: 1.05, y: -5 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => navigateTo(action.link)}
+              onClick={() => navigate(action.link)}
               className="flex-shrink-0 flex flex-col items-center gap-2 p-4 rounded-xl border bg-background hover:bg-muted/50 transition-all min-w-[120px] group"
             >
               <div className={`p-3 rounded-xl bg-gradient-to-br ${action.color} group-hover:scale-110 transition-transform`}>

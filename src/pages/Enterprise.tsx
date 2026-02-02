@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Check, Users, Lock, Zap, BarChart3, Shield, Globe } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
+import { useNavigate } from 'react-router-dom';
 
 // Import enterprise system
 import {
@@ -15,7 +15,7 @@ import {
 
 export default function Enterprise() {
     const { user } = useAuth();
-    const { goToAuth, navigateTo } = useFlowNavigation();
+    const navigate = useNavigate();
     const [selectedTier, setSelectedTier] = useState<'label' | 'studio' | 'university' | null>(null);
 
     const enterprisePackages = [
@@ -131,9 +131,9 @@ export default function Enterprise() {
 
     const handleCtaClick = (tier: string) => {
         if (!user) {
-            goToAuth('login', '/enterprise');
+            navigate('/auth', { state: { returnTo: '/enterprise' } });
         } else {
-            navigateTo('/checkout');
+            navigate('/checkout', { state: { plan: tier, type: 'enterprise' } });
         }
     };
 
@@ -151,7 +151,7 @@ export default function Enterprise() {
                 <div className="flex justify-center gap-4">
                     <Button
                         size="lg"
-                        onClick={() => navigateTo('/contact')}
+                        onClick={() => navigate('/contact', { state: { subject: 'Enterprise Demo' } })}
                         className="bg-blue-600 hover:bg-blue-700"
                     >
                         Schedule Demo
@@ -264,7 +264,7 @@ export default function Enterprise() {
                             or specialized integrations.
                         </p>
                         <Button
-                            onClick={() => navigateTo('/contact')}
+                            onClick={() => navigate('/contact', { state: { subject: 'Custom Enterprise Plan' } })}
                             variant="outline"
                             className="text-blue-400 border-blue-400 hover:bg-blue-600"
                         >
@@ -409,7 +409,7 @@ export default function Enterprise() {
                         <Button
                             size="lg"
                             variant="outline"
-                            onClick={() => navigateTo('/contact')}
+                            onClick={() => navigate('/contact', { state: { subject: 'Enterprise Demo' } })}
                             className="border-white text-white hover:bg-blue-700"
                         >
                             Schedule Demo

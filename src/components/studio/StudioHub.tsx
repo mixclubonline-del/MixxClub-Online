@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -28,7 +28,7 @@ interface StudioHubProps {
 
 const StudioHub = ({ userRole }: StudioHubProps) => {
   const { user } = useAuth();
-  const { navigateTo } = useFlowNavigation();
+  const navigate = useNavigate();
   const [projects, setProjects] = useState<any[]>([]);
   const [stats, setStats] = useState({
     activeSessions: 0,
@@ -125,7 +125,7 @@ const StudioHub = ({ userRole }: StudioHubProps) => {
       description: 'Create a new collaboration session',
       icon: Play,
       gradient: 'from-primary via-primary-glow to-accent-cyan',
-      action: () => navigateTo('/studio/create-session'),
+      action: () => navigate('/studio/create-session'),
       stats: `${stats.activeSessions} active`
     },
     {
@@ -133,7 +133,7 @@ const StudioHub = ({ userRole }: StudioHubProps) => {
       description: 'Connect to ongoing collaboration',
       icon: Users,
       gradient: 'from-accent-cyan via-accent-blue to-primary',
-      action: () => navigateTo('/studio/join-session'),
+      action: () => navigate('/studio/join-session'),
       stats: `${stats.totalCollaborators} online`
     },
     {
@@ -141,7 +141,7 @@ const StudioHub = ({ userRole }: StudioHubProps) => {
       description: 'Browse and manage your work',
       icon: FolderOpen,
       gradient: 'from-warning via-destructive to-primary',
-      action: () => navigateTo(userRole === 'artist' ? '/artist-studio' : '/engineer-studio'),
+      action: () => navigate(userRole === 'artist' ? '/artist-studio' : '/engineer-studio'),
       stats: `${projects.length} projects`
     }
   ];

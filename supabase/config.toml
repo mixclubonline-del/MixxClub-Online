@@ -56,12 +56,3 @@ verify_jwt = true
 
 [functions.dream-engine-api]
 verify_jwt = false
-
-[functions.scrape-music-trends]
-verify_jwt = false
-
-[functions.prime-content-engine]
-verify_jwt = false
-
-[functions.package-video-for-platforms]
-verify_jwt = false

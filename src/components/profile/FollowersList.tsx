@@ -10,7 +10,7 @@ import { FollowButton } from "./FollowButton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { BadgeCheck, Loader2 } from "lucide-react";
 import { FollowUser } from "@/hooks/useSocialGraph";
-import { useFlowNavigation } from '@/core/fabric/useFlow';
+import { useNavigate } from "react-router-dom";
 
 interface FollowersListProps {
   isOpen: boolean;
@@ -27,11 +27,11 @@ export function FollowersList({
   users, 
   isLoading = false 
 }: FollowersListProps) {
-  const { navigateTo } = useFlowNavigation();
+  const navigate = useNavigate();
 
   const handleUserClick = (user: FollowUser) => {
     if (user.username) {
-      navigateTo(`/u/${user.username}`);
+      navigate(`/u/${user.username}`);
       onClose();
     }
   };

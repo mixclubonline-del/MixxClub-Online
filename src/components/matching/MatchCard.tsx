@@ -1,10 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Star, TrendingUp, CheckCircle } from 'lucide-react';
-import type { MatchResult } from '@/services/matchingEngineService';
+import { Star, TrendingUp, Clock, DollarSign, CheckCircle } from 'lucide-react';
+import { Match } from '../../stores/matchingEngineStore';
 
 interface MatchCardProps {
-    match: MatchResult;
+    match: Match;
     engineerName: string;
     engineerAvatar?: string;
     engineerRating: number;
@@ -55,12 +55,13 @@ export const MatchCard: React.FC<MatchCardProps> = ({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className={`relative overflow-hidden rounded-lg border backdrop-blur-sm transition-all cursor-pointer ${highlighted
+            className={`relative overflow-hidden rounded-lg border backdrop-blur-sm transition-all ${highlighted
                     ? `${getConfidenceColor(match.confidence)} shadow-lg scale-105`
                     : 'bg-white/50 border-slate-200/50 hover:shadow-md'
                 }`}
             onClick={onSelect}
         >
+            {/* Border gradient effect for high confidence */}
             {highlighted && (
                 <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-500/10 to-emerald-500/0 pointer-events-none" />
             )}
@@ -99,11 +100,12 @@ export const MatchCard: React.FC<MatchCardProps> = ({
                                         />
                                     ))}
                                 </div>
-                                <span className="text-xs text-slate-600">{engineerRating.toFixed(1)}★</span>
+                                <span className="text-xs text-slate-600">{engineerRating}★</span>
                             </div>
                         </div>
                     </div>
 
+                    {/* Confidence badge */}
                     <span
                         className={`px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap ${getConfidenceBadgeColor(
                             match.confidence
@@ -118,12 +120,12 @@ export const MatchCard: React.FC<MatchCardProps> = ({
                 <div className="space-y-2">
                     <div className="flex justify-between items-center">
                         <span className="text-xs font-medium text-slate-600">Overall Match</span>
-                        <span className="font-bold text-lg text-slate-900">{match.match_score}%</span>
+                        <span className="font-bold text-lg text-slate-900">{match.matchScore}%</span>
                     </div>
                     <div className="w-full bg-slate-200/50 rounded-full h-2 overflow-hidden">
                         <motion.div
                             initial={{ width: 0 }}
-                            animate={{ width: `${match.match_score}%` }}
+                            animate={{ width: `${match.matchScore}%` }}
                             transition={{ duration: 0.6, delay: 0.1 }}
                             className={`h-full rounded-full ${match.confidence === 'high'
                                     ? 'bg-gradient-to-r from-emerald-400 to-emerald-500'
@@ -139,46 +141,42 @@ export const MatchCard: React.FC<MatchCardProps> = ({
                 <div className="grid grid-cols-2 gap-2">
                     <div className="bg-slate-50/50 rounded p-2">
                         <span className="text-xs text-slate-600">Genre Match</span>
-                        <div className="font-semibold text-slate-900">{match.genre_match}%</div>
+                        <div className="font-semibold text-slate-900">{match.genreMatch}%</div>
                     </div>
                     <div className="bg-slate-50/50 rounded p-2">
                         <span className="text-xs text-slate-600">Experience</span>
-                        <div className="font-semibold text-slate-900">{match.experience_score}%</div>
+                        <div className="font-semibold text-slate-900">{match.experienceScore}%</div>
                     </div>
                     <div className="bg-slate-50/50 rounded p-2">
                         <span className="text-xs text-slate-600">Performance</span>
-                        <div className="font-semibold text-slate-900">{match.performance_score}%</div>
+                        <div className="font-semibold text-slate-900">{match.performanceScore}%</div>
                     </div>
                     <div className="bg-slate-50/50 rounded p-2">
                         <span className="text-xs text-slate-600">Availability</span>
-                        <div className="font-semibold text-slate-900">{match.availability_score}%</div>
+                        <div className="font-semibold text-slate-900">{match.availabilityScore}%</div>
                     </div>
                 </div>
 
                 {/* Genres */}
-                {engineerGenres.length > 0 && (
-                    <div className="space-y-2">
-                        <span className="text-xs font-medium text-slate-600">Specialties</span>
-                        <div className="flex flex-wrap gap-1.5">
-                            {engineerGenres.map((genre) => (
-                                <span
-                                    key={genre}
-                                    className="px-2 py-1 rounded-full text-xs bg-slate-200/50 text-slate-700 font-medium"
-                                >
-                                    {genre}
-                                </span>
-                            ))}
-                        </div>
+                <div className="space-y-2">
+                    <span className="text-xs font-medium text-slate-600">Specialties</span>
+                    <div className="flex flex-wrap gap-1.5">
+                        {engineerGenres.map((genre) => (
+                            <span
+                                key={genre}
+                                className="px-2 py-1 rounded-full text-xs bg-slate-200/50 text-slate-700 font-medium"
+                            >
+                                {genre}
+                            </span>
+                        ))}
                     </div>
-                )}
+                </div>
 
                 {/* Match Reason */}
-                {match.reason && (
-                    <div className="flex gap-2 p-2 bg-slate-50/50 rounded-lg">
-                        <TrendingUp size={16} className="text-slate-600 flex-shrink-0 mt-0.5" />
-                        <p className="text-sm text-slate-700">{match.reason}</p>
-                    </div>
-                )}
+                <div className="flex gap-2 p-2 bg-slate-50/50 rounded-lg">
+                    <TrendingUp size={16} className="text-slate-600 flex-shrink-0 mt-0.5" />
+                    <p className="text-sm text-slate-700">{match.reason}</p>
+                </div>
 
                 {/* Action Buttons */}
                 <div className="flex gap-2 pt-2">

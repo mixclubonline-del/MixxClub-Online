@@ -7,7 +7,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -50,7 +50,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack }: Insider
   const [showTitle, setShowTitle] = useState(false);
   const [volume, setVolumeState] = useState(0.7);
   
-  const { navigateTo } = useFlowNavigation();
+  const navigate = useNavigate();
   
   const { isLoading, isPlaying, analysis, play, pause, toggle, setVolume } = useInsiderAudio();
   const { amplitude, bass, mid, high, beats } = analysis;
@@ -436,7 +436,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack }: Insider
                   </Button>
                   <Button
                     size="lg"
-                    onClick={() => navigateTo('/auth')}
+                    onClick={() => navigate('/auth')}
                     className="gap-2 bg-gradient-to-r from-primary to-purple-600"
                   >
                     Join Now

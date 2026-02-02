@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Radio, Users, Heart, Share2, Flag, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -14,7 +13,7 @@ import { toast } from 'sonner';
 
 export const WatchStreamPage: React.FC = () => {
   const { streamId } = useParams<{ streamId: string }>();
-  const { navigateTo } = useFlowNavigation();
+  const navigate = useNavigate();
   const { data: stream, isLoading } = useStream(streamId);
   const { isFollowing, toggleFollow } = useStreamFollow(stream?.host_id);
   const [showGiftPicker, setShowGiftPicker] = useState(false);
@@ -63,7 +62,7 @@ export const WatchStreamPage: React.FC = () => {
           <p className="text-muted-foreground mb-4">
             This stream may have ended or doesn't exist.
           </p>
-          <Button onClick={() => navigateTo('/live')}>Browse Live Streams</Button>
+          <Button onClick={() => navigate('/live')}>Browse Live Streams</Button>
         </div>
       </div>
     );
@@ -78,7 +77,7 @@ export const WatchStreamPage: React.FC = () => {
         {/* Back Button */}
         <Button
           variant="ghost"
-          onClick={() => navigateTo('/live')}
+          onClick={() => navigate('/live')}
           className="mb-4 gap-2"
         >
           <ArrowLeft className="h-4 w-4" />

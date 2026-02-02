@@ -3,9 +3,9 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCommunityMilestones } from "@/hooks/useCommunityMilestones";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FEATURE_FLAGS } from "@/config/featureFlags";
-import { useFlowNavigation } from '@/core/fabric/useFlow';
 
 const tierConfig = [
   {
@@ -81,7 +81,7 @@ const tierConfig = [
 
 export const TierShowcase = () => {
   const { data: milestones } = useCommunityMilestones();
-  const { navigateTo } = useFlowNavigation();
+  const navigate = useNavigate();
 
   const getTierStatus = (tier: typeof tierConfig[0]) => {
     if (tier.tier === "base") return { unlocked: true, progress: 100 };
@@ -210,7 +210,7 @@ export const TierShowcase = () => {
                 <div className="p-6 pt-0">
                   {!isLocked ? (
                     <Button
-                      onClick={() => navigateTo(tier.features[0].route)}
+                      onClick={() => navigate(tier.features[0].route)}
                       className="w-full"
                       size="lg"
                     >

@@ -10,8 +10,8 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 import { useUsernameValidation } from '@/hooks/useUsernameValidation';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
 import { OnboardingPortal } from './OnboardingPortal';
 import { OnboardingWaypoints } from './OnboardingWaypoints';
 import { OnboardingPanel } from './OnboardingPanel';
@@ -50,7 +50,7 @@ const steps: WizardStep[] = [
 ];
 
 export function EngineerOnboardingWizard() {
-  const { openEngineerCRM } = useFlowNavigation();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -161,7 +161,7 @@ export function EngineerOnboardingWizard() {
 
   const handleSkip = () => {
     toast.info('You can complete your profile later from Settings');
-    openEngineerCRM();
+    navigate('/engineer-crm');
   };
 
   return (

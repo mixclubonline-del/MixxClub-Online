@@ -5,12 +5,12 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
+import { useNavigate } from 'react-router-dom';
 
 export const SavedJobsList = () => {
   const [savedJobs, setSavedJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const { navigateTo } = useFlowNavigation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchSavedJobs();
@@ -74,7 +74,7 @@ export const SavedJobsList = () => {
         <p className="text-muted-foreground mb-4">
           Save jobs you're interested in to review later
         </p>
-        <Button onClick={() => navigateTo('/job-board')}>
+        <Button onClick={() => navigate('/job-board')}>
           Browse Jobs
         </Button>
       </Card>
@@ -102,7 +102,7 @@ export const SavedJobsList = () => {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => navigateTo(`/job-board?job=${saved.job_postings.id}`)}
+                onClick={() => navigate(`/job-board?job=${saved.job_postings.id}`)}
               >
                 <ExternalLink className="w-4 h-4" />
               </Button>

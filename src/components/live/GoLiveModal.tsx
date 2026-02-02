@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
+import { useNavigate } from 'react-router-dom';
 import {
   Dialog,
   DialogContent,
@@ -51,7 +51,7 @@ const VISIBILITY_OPTIONS = [
 ];
 
 export const GoLiveModal: React.FC<GoLiveModalProps> = ({ open, onOpenChange }) => {
-  const { navigateTo } = useFlowNavigation();
+  const navigate = useNavigate();
   const { createStream, startStream } = useLiveStreamManager();
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -114,7 +114,7 @@ export const GoLiveModal: React.FC<GoLiveModalProps> = ({ open, onOpenChange }) 
       }
 
       onOpenChange(false);
-      navigateTo(`/broadcast/${newStream.id}`);
+      navigate(`/broadcast/${newStream.id}`);
     } catch (error) {
       console.error('Failed to start stream:', error);
       toast.error('Failed to start stream');

@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useLiveStreams, LiveStream } from '@/hooks/useLiveStream';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
+import { useNavigate } from 'react-router-dom';
 import { GoLiveButton } from './GoLiveButton';
 
 interface WhosLiveWidgetProps {
@@ -46,7 +46,7 @@ const LiveStreamRow: React.FC<{ stream: LiveStream; onClick: () => void }> = ({ 
 };
 
 export const WhosLiveWidget: React.FC<WhosLiveWidgetProps> = ({ limit = 3, compact = false }) => {
-  const { navigateTo } = useFlowNavigation();
+  const navigate = useNavigate();
   const { data: streams, isLoading } = useLiveStreams({ isLive: true });
 
   const displayStreams = streams?.slice(0, limit) || [];
@@ -95,7 +95,7 @@ export const WhosLiveWidget: React.FC<WhosLiveWidgetProps> = ({ limit = 3, compa
               variant="ghost"
               size="sm"
               className="text-xs h-7"
-              onClick={() => navigateTo('/live')}
+              onClick={() => navigate('/live')}
             >
               See All
               <ArrowRight className="h-3 w-3 ml-1" />
@@ -116,7 +116,7 @@ export const WhosLiveWidget: React.FC<WhosLiveWidgetProps> = ({ limit = 3, compa
               <LiveStreamRow
                 key={stream.id}
                 stream={stream}
-                onClick={() => navigateTo(`/watch/${stream.id}`)}
+                onClick={() => navigate(`/watch/${stream.id}`)}
               />
             ))}
           </div>

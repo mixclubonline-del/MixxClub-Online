@@ -1,8 +1,7 @@
 import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useMobileDetect } from '@/hooks/useMobileDetect';
 import { useAuth } from '@/hooks/useAuth';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
 
 const MOBILE_EXCLUDED_ROUTES = [
   '/auth',
@@ -15,7 +14,7 @@ const MOBILE_EXCLUDED_ROUTES = [
 export const MobileRouteGuard = () => {
   const { isPhone } = useMobileDetect();
   const { user, loading } = useAuth();
-  const { navigateTo } = useFlowNavigation();
+  const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
@@ -37,7 +36,7 @@ export const MobileRouteGuard = () => {
 
     // No aggressive redirects - let users browse freely
     // The MobileBottomNav provides easy navigation
-  }, [isPhone, user, loading, location.pathname, navigateTo]);
+  }, [isPhone, user, loading, location.pathname, navigate]);
 
   return null;
 };

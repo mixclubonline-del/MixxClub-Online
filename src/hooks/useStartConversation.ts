@@ -1,12 +1,12 @@
 import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 export function useStartConversation() {
   const { user } = useAuth();
-  const { openArtistCRM, openEngineerCRM } = useFlowNavigation();
+  const navigate = useNavigate();
 
   const startConversation = useCallback(async (recipientId: string, userType: 'artist' | 'engineer' = 'artist') => {
     if (!user) {
@@ -28,12 +28,8 @@ export function useStartConversation() {
         .limit(1);
 
       // Navigate to messages with recipient param
-      // Note: Flow system handles the base path, we add recipient as a query param effect
-      if (userType === 'artist') {
-        openArtistCRM(`messages&recipient=${recipientId}`);
-      } else {
-        openEngineerCRM(`messages&recipient=${recipientId}`);
-      }
+      const crmPath = userType === 'artist' ? '/artist-crm' : '/engineer-crm';
+      navigate(`${crmPath}?tab=messages&recipient=${recipientId}`);
 
       return recipientId;
     } catch (error) {
@@ -41,7 +37,7 @@ export function useStartConversation() {
       toast.error('Failed to start conversation');
       return null;
     }
-  }, [user, openArtistCRM, openEngineerCRM]);
+  }, [user, navigate]);
 
   const sendInitialMessage = useCallback(async (recipientId: string, message: string, skipNotification = false) => {
     if (!user) {

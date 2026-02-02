@@ -5,9 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Music, DollarSign, Radio, Star, Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
 
 interface SmartBudgetQualifierProps {
   open: boolean;
@@ -69,7 +69,7 @@ export const SmartBudgetQualifier = ({ open, onOpenChange }: SmartBudgetQualifie
   });
   const [matches, setMatches] = useState<EngineerMatch[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { goToAuth } = useFlowNavigation();
+  const navigate = useNavigate();
 
   // Fetch matches when we reach step 4
   useEffect(() => {
@@ -115,7 +115,7 @@ export const SmartBudgetQualifier = ({ open, onOpenChange }: SmartBudgetQualifie
 
   const handleComplete = () => {
     onOpenChange(false);
-    goToAuth('login');
+    navigate('/auth');
   };
 
   const resetAndClose = () => {
@@ -320,7 +320,7 @@ export const SmartBudgetQualifier = ({ open, onOpenChange }: SmartBudgetQualifie
                     Create Account to View All {matches.length} Matches
                   </Button>
                   <p className="text-center text-sm text-muted-foreground">
-                    Already have an account? <button onClick={() => goToAuth('login')} className="text-primary hover:underline">Sign in</button>
+                    Already have an account? <button onClick={() => navigate('/auth')} className="text-primary hover:underline">Sign in</button>
                   </p>
                 </>
               )}

@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
 
 interface OnboardingPortalProps {
   role: 'artist' | 'engineer';
@@ -22,7 +22,7 @@ export function OnboardingPortal({
   destinationPath,
   children,
 }: OnboardingPortalProps) {
-  const { navigateTo } = useFlowNavigation();
+  const navigate = useNavigate();
   const [showCelebration, setShowCelebration] = useState(false);
   
   // Calculate parallax offset based on step progress
@@ -46,12 +46,12 @@ export function OnboardingPortal({
       
       // Navigate after celebration
       const timer = setTimeout(() => {
-        navigateTo(destinationPath);
+        navigate(destinationPath);
       }, 2000);
       
       return () => clearTimeout(timer);
     }
-  }, [isCompleting, destinationPath, navigateTo, role]);
+  }, [isCompleting, destinationPath, navigate, role]);
 
   return (
     <div className="fixed inset-0 overflow-hidden">

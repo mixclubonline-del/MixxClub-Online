@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { MobileEnhancedNav } from '@/components/mobile/MobileEnhancedNav';
 import { PullToRefresh } from '@/components/mobile/PullToRefresh';
@@ -12,7 +12,7 @@ import { useMobileOptimization } from '@/hooks/useMobileOptimization';
 
 export default function MobileHome() {
   const { user } = useAuth();
-  const { navigateTo, goToAuth } = useFlowNavigation();
+  const navigate = useNavigate();
   const [showJobWizard, setShowJobWizard] = useState(false);
   const { triggerHaptic } = useMobileOptimization({ enableHaptics: true });
   const [stats, setStats] = useState({
@@ -23,12 +23,12 @@ export default function MobileHome() {
 
   useEffect(() => {
     if (!user) {
-      goToAuth();
+      navigate('/auth');
       return;
     }
 
     loadStats();
-  }, [user, goToAuth]);
+  }, [user, navigate]);
 
   const loadStats = async () => {
     if (!user) return;
@@ -78,7 +78,7 @@ export default function MobileHome() {
               <span>Post Job</span>
             </Button>
             <Button
-              onClick={() => handleAction(() => navigateTo('/jobs'))}
+              onClick={() => handleAction(() => navigate('/jobs'))}
               variant="outline"
               className="h-24 flex flex-col gap-2"
             >
@@ -97,7 +97,7 @@ export default function MobileHome() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => handleAction(() => navigateTo('/mobile-mixxbot'))}
+                onClick={() => handleAction(() => navigate('/mobile-mixxbot'))}
                 className="h-16"
               >
                 <div className="flex flex-col items-center gap-1">
@@ -108,7 +108,7 @@ export default function MobileHome() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => handleAction(() => navigateTo('/mastering-studio'))}
+                onClick={() => handleAction(() => navigate('/mastering-studio'))}
                 className="h-16"
               >
                 <div className="flex flex-col items-center gap-1">

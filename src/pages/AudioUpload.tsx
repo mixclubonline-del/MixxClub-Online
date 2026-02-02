@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -31,7 +31,7 @@ export default function AudioUpload() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [creatingDemo, setCreatingDemo] = useState(false);
   
-  const { goToAuth, goBack } = useFlowNavigation();
+  const navigate = useNavigate();
 
   // Check auth state on mount
   useEffect(() => {
@@ -210,7 +210,7 @@ export default function AudioUpload() {
       <header className="border-b border-border/50 bg-card/50 backdrop-blur sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => goBack()}>
+            <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <img src={mixclubLogo} alt="MixClub" className="w-10 h-10" />
@@ -243,7 +243,7 @@ export default function AudioUpload() {
                   You need to be logged in to upload audio files.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                  <Button onClick={() => goToAuth('login')} variant="outline">
+                  <Button onClick={() => navigate('/auth')} variant="outline">
                     <LogIn className="w-4 h-4 mr-2" />
                     Sign In
                   </Button>

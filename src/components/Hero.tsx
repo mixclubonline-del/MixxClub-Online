@@ -2,14 +2,14 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, Play, Zap, Music, Users, TrendingUp, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { SmartBudgetQualifier } from './home/SmartBudgetQualifier';
 import { useSceneSystem } from '@/hooks/useSceneSystem';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
 
 const Hero = () => {
   const { user } = useAuth();
-  const { openArtistCRM, browseSection } = useFlowNavigation();
+  const navigate = useNavigate();
   const [showQualifier, setShowQualifier] = useState(false);
   const [activeTab, setActiveTab] = useState<'creators' | 'engineers'>('creators');
   const { communityPulse } = useSceneSystem();
@@ -18,7 +18,7 @@ const Hero = () => {
     if (!user) {
       setShowQualifier(true);
     } else {
-      openArtistCRM();
+      navigate('/artist-crm');
     }
   };
 
@@ -165,7 +165,7 @@ const Hero = () => {
             </Button>
             <Button
               variant="outline"
-              onClick={() => browseSection('how-it-works')}
+              onClick={() => navigate('/how-it-works')}
               className="px-8 py-6 text-lg border-border text-foreground hover:bg-muted rounded-lg"
             >
               <Play className="mr-2 w-5 h-5" />

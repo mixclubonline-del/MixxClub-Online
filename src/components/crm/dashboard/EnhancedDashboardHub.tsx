@@ -28,7 +28,7 @@ import {
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
+import { useNavigate } from 'react-router-dom';
 import { HipHopPulse } from './HipHopPulse';
 import { StreakTracker } from '../gamification/StreakTracker';
 import { AchievementsBadges } from '../gamification/AchievementsBadges';
@@ -73,7 +73,7 @@ interface EnhancedDashboardHubProps {
 
 export const EnhancedDashboardHub = ({ userType }: EnhancedDashboardHubProps) => {
   const { user } = useAuth();
-  const { navigateTo } = useFlowNavigation();
+  const navigate = useNavigate();
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
@@ -365,9 +365,9 @@ export const EnhancedDashboardHub = ({ userType }: EnhancedDashboardHubProps) =>
                     className="flex items-center justify-between p-3 rounded-lg bg-card/50 border border-border/50 hover:border-primary/30 transition-colors cursor-pointer"
                     onClick={() => {
                       // Navigate based on action type
-                      if (action.includes('opportunities')) navigateTo('?tab=opportunities');
-                      else if (action.includes('profile')) navigateTo('?tab=profile');
-                      else if (action.includes('messages')) navigateTo('?tab=messages');
+                      if (action.includes('opportunities')) navigate('?tab=opportunities');
+                      else if (action.includes('profile')) navigate('?tab=profile');
+                      else if (action.includes('messages')) navigate('?tab=messages');
                     }}
                   >
                     <div className="flex items-center gap-3">
@@ -386,7 +386,7 @@ export const EnhancedDashboardHub = ({ userType }: EnhancedDashboardHubProps) =>
                   <p className="text-sm font-medium">New Opportunities</p>
                   <p className="text-2xl font-bold">{metrics.aiInsights.opportunities}</p>
                 </div>
-                <Button onClick={() => navigateTo('?tab=opportunities')}>
+                <Button onClick={() => navigate('?tab=opportunities')}>
                   View All
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>

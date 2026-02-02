@@ -18,14 +18,13 @@ import { ScrollArea } from './ui/scroll-area';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
 import { useNotifications } from '@/hooks/useNotifications';
 import { formatDistanceToNow } from 'date-fns';
-import { useLocation } from 'react-router-dom';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const NotificationCenter = () => {
   const { notifications, unreadCount, markAsRead, markAllAsRead, deleteNotification } = useNotifications();
   const [open, setOpen] = useState(false);
-  const { navigateTo } = useFlowNavigation();
+  const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
 
@@ -63,7 +62,7 @@ const NotificationCenter = () => {
     }
     
     if (notification.action_url) {
-      navigateTo(notification.action_url);
+      navigate(notification.action_url);
       setOpen(false);
     }
   };

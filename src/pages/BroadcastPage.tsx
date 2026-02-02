@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   Radio,
   Video,
@@ -35,7 +34,7 @@ import { formatDistanceToNow } from 'date-fns';
 
 export const BroadcastPage: React.FC = () => {
   const { streamId } = useParams<{ streamId: string }>();
-  const { navigateTo } = useFlowNavigation();
+  const navigate = useNavigate();
   const { data: stream, isLoading } = useStream(streamId);
   const { endStream } = useLiveStreamManager();
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -100,7 +99,7 @@ export const BroadcastPage: React.FC = () => {
         mediaStream.getTracks().forEach((track) => track.stop());
       }
       await endStream.mutateAsync(streamId);
-      navigateTo('/live');
+      navigate('/live');
     } catch (error) {
       console.error('Failed to end stream:', error);
       toast.error('Failed to end stream');
@@ -120,7 +119,7 @@ export const BroadcastPage: React.FC = () => {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-2">Stream Not Found</h1>
-          <Button onClick={() => navigateTo('/live')}>Go to Live</Button>
+          <Button onClick={() => navigate('/live')}>Go to Live</Button>
         </div>
       </div>
     );

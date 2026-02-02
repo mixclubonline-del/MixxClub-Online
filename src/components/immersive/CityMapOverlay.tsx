@@ -8,8 +8,8 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
 import { Button } from '@/components/ui/button';
 import { VisualHotspot } from '@/components/ui/VisualHotspot';
 import { DISTRICT_HOTSPOTS } from '@/lib/spatial-interface';
@@ -21,7 +21,7 @@ interface CityMapOverlayProps {
 }
 
 export const CityMapOverlay = ({ isOpen, onClose }: CityMapOverlayProps) => {
-  const { navigateTo } = useFlowNavigation();
+  const navigate = useNavigate();
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Close on Escape key
@@ -40,7 +40,7 @@ export const CityMapOverlay = ({ isOpen, onClose }: CityMapOverlayProps) => {
 
   const handleNavigate = (path: string) => {
     onClose();
-    navigateTo(path);
+    navigate(path);
   };
 
   return (

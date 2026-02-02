@@ -26,7 +26,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useFlowNavigation } from '@/core/fabric/useFlow';
+import { useNavigate } from "react-router-dom";
 
 const PROFILE_THEMES = [
   { value: "default", label: "Default", color: "bg-primary" },
@@ -40,7 +40,7 @@ const STATUS_EMOJIS = ["🎵", "🎧", "🎤", "🔥", "💫", "🎹", "🎸", "
 
 export function BrandHub() {
   const { user } = useAuth();
-  const { navigateTo } = useFlowNavigation();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isSaving, setIsSaving] = useState(false);
 
@@ -149,7 +149,7 @@ export function BrandHub() {
         </div>
         <div className="flex gap-3">
           {formData.username && (
-            <Button variant="outline" onClick={() => navigateTo(`/u/${formData.username}`)}>
+            <Button variant="outline" onClick={() => navigate(`/u/${formData.username}`)}>
               <Eye className="h-4 w-4 mr-2" />
               View Public Profile
             </Button>

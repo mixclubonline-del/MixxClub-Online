@@ -67,7 +67,6 @@ const MatchingDashboard = React.lazy(() => import("@/pages/MatchingDashboard"));
 const Sitemap = React.lazy(() => import("@/pages/Sitemap"));
 const PartnerProgram = React.lazy(() => import("@/pages/PartnerProgram"));
 const Economy = React.lazy(() => import("@/pages/Economy"));
-const PrimeContentDashboard = React.lazy(() => import("@/pages/admin/PrimeContentDashboard"));
 
 // Live Streaming pages
 const LivePage = React.lazy(() => import("@/pages/LivePage"));
@@ -182,18 +181,15 @@ export const appRoutes = (
     {/* Enterprise */}
     <Route path="/enterprise-demo" element={<EnterpriseDemo />} />
 
-    {/* Dream Engine (Vision Control) - Redirects to City District */}
-    <Route path="/dream-engine" element={<Navigate to="/city/dream" replace />} />
-    <Route path="/landing-forge" element={<Navigate to="/city/dream" replace />} />
+    {/* Dream Engine (Vision Control) */}
+    <Route path="/dream-engine" element={<DreamEngine />} />
+    <Route path="/landing-forge" element={<Navigate to="/dream-engine" replace />} />
 
     {/* Utility Pages */}
     <Route path="/freemium" element={<FreemiumOverview />} />
     <Route path="/matching" element={<MatchingDashboard />} />
     <Route path="/partner-program" element={<AppLayout><PartnerProgram /></AppLayout>} />
     <Route path="/sitemap" element={<Sitemap />} />
-    
-    {/* Admin - Prime Content Engine */}
-    <Route path="/admin/prime-content" element={<AppLayout><PrimeContentDashboard /></AppLayout>} />
 
     {/* Public Profiles */}
     <Route path="/u/:username" element={<AppLayout><PublicProfile /></AppLayout>} />

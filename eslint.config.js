@@ -3,10 +3,9 @@ import globals from "globals";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
-import mixxclubPlugin from "./eslint-rules/index.cjs";
 
 export default tseslint.config(
-  { ignores: ["dist", "eslint-rules"] },
+  { ignores: ["dist"] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],
@@ -17,15 +16,11 @@ export default tseslint.config(
     plugins: {
       "react-hooks": reactHooks,
       "react-refresh": reactRefresh,
-      "mixxclub": mixxclubPlugin,
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
       "@typescript-eslint/no-unused-vars": "off",
-      // FABRIC BOUNDARY: Error mode active - migration in progress
-      // Run: rg "useNavigate" src --files-with-matches | wc -l to track remaining files
-      "mixxclub/no-direct-navigate": "warn",
     },
   },
 );

@@ -2,13 +2,13 @@ import { useState, useCallback } from 'react';
 import { Upload, Sparkles, Music, CheckCircle, Zap } from 'lucide-react';
 import { Button } from './ui/button';
 import { toast } from 'sonner';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
+import { useNavigate } from 'react-router-dom';
 
 export const InstantDemoSection = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<string | null>(null);
-  const { goToAuth } = useFlowNavigation();
+  const navigate = useNavigate();
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -46,7 +46,7 @@ export const InstantDemoSection = () => {
       toast.success('Track analyzed! Preview your mastered version', {
         action: {
           label: 'Get Started',
-          onClick: () => goToAuth('signup')
+          onClick: () => navigate('/auth?mode=signup')
         }
       });
     }, 2500);
@@ -118,7 +118,7 @@ export const InstantDemoSection = () => {
                   <CheckCircle className="w-16 h-16 text-green-500" />
                   <div className="text-xl font-semibold">Ready to Preview!</div>
                   <p className="text-sm text-muted-foreground">{uploadedFile}</p>
-                  <Button onClick={() => goToAuth('signup')} size="lg" className="shadow-glow">
+                  <Button onClick={() => navigate('/auth?mode=signup')} size="lg" className="shadow-glow">
                     <Zap className="w-5 h-5 mr-2" />
                     Get Full Master (Free)
                   </Button>

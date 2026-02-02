@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
 import { supabase } from '@/integrations/supabase/client';
 import Navigation from '@/components/Navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,7 +8,6 @@ import { CollapsibleCard } from '@/components/ui/collapsible-card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { SubscriptionStatus, AnalyticsDashboard } from '@/backend-integration';
 import { 
   Music, 
   Users, 
@@ -32,12 +30,12 @@ import { LiveCollaborationStudio } from '@/components/mixing/LiveCollaborationSt
 
 const Dashboard = () => {
   const { user } = useAuth();
-  const { goToAuth, openEngineerCRM, openArtistCRM } = useFlowNavigation();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
     if (!user) {
-      goToAuth('login');
+      navigate('/auth');
       return;
     }
 
@@ -51,15 +49,15 @@ const Dashboard = () => {
 
       if (profile) {
         if (profile.role === 'engineer') {
-          openEngineerCRM();
+          navigate('/engineer-crm');
         } else if (profile.role === 'client') {
-          openArtistCRM();
+          navigate('/artist-crm');
         }
       }
     };
 
     checkUserRole();
-  }, [user, goToAuth, openEngineerCRM, openArtistCRM]);
+  }, [user, navigate]);
 
   const quickStats = [
     { label: 'Active Projects', value: 12, icon: Music, color: 'text-blue-500', bg: 'bg-blue-500/10' },
@@ -136,15 +134,30 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Subscription Status Bar */}
-        <div className="mb-6">
-            <SubscriptionStatus userId={user.id} />
-        </div>
-
-        {/* Quick Stats & Analytics */}
-        <div className="grid grid-cols-1 gap-6 mb-8">
-            <AnalyticsDashboard userId={user.id} />
-        </div>
+        {/* Quick Stats */}
+        <CollapsibleCard
+          title="Quick Stats"
+          storageKey="dashboard-quick-stats"
+          contentClassName="pt-0"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {quickStats.map((stat, index) => (
+              <Card key={index}>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-4">
+                    <div className={`p-3 rounded-lg ${stat.bg}`}>
+                      <stat.icon className={`w-6 h-6 ${stat.color}`} />
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold">{stat.value}</div>
+                      <div className="text-sm text-muted-foreground">{stat.label}</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </CollapsibleCard>
 
         {/* Main Content Tabs */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

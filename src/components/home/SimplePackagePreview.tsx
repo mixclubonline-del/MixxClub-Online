@@ -2,11 +2,11 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Sparkles } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
 
 export const SimplePackagePreview = () => {
-  const { openPricing } = useFlowNavigation();
+  const navigate = useNavigate();
 
   const packages = [
     {
@@ -100,7 +100,7 @@ export const SimplePackagePreview = () => {
                 <Button 
                   variant={pkg.highlight ? "default" : "outline"}
                   className="w-full group-hover:shadow-md transition-shadow"
-                  onClick={() => openPricing()}
+                  onClick={() => navigate('/pricing')}
                   size="lg"
                 >
                   Get Started
@@ -122,7 +122,7 @@ export const SimplePackagePreview = () => {
           <Button 
             variant="ghost" 
             size="lg"
-            onClick={() => openPricing()}
+            onClick={() => navigate('/pricing')}
             className="gap-2 text-lg"
           >
             See All Plans & Features

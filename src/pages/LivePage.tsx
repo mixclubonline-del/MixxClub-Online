@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Radio, TrendingUp } from 'lucide-react';
+import { Radio, Filter, TrendingUp } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LiveFeed } from '@/components/live/LiveFeed';
 import { GoLiveButton } from '@/components/live/GoLiveButton';
 import { useLiveStreams } from '@/hooks/useLiveStream';
+import { useNavigate } from 'react-router-dom';
 
 const CATEGORIES = [
   { value: 'all', label: 'All' },
@@ -17,6 +19,7 @@ const CATEGORIES = [
 ];
 
 export const LivePage: React.FC = () => {
+  const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const { data: allLiveStreams } = useLiveStreams({ isLive: true });
 

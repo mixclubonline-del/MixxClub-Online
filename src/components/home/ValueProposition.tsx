@@ -3,10 +3,10 @@ import { Music, Headphones, ArrowRight, CheckCircle, DollarSign, Target, Trendin
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
+import { useNavigate } from 'react-router-dom';
 
 export const ValueProposition = () => {
-  const { goToAuth } = useFlowNavigation();
+  const navigate = useNavigate();
 
   return (
     <section className="py-20 bg-muted/30">
@@ -61,7 +61,7 @@ export const ValueProposition = () => {
                 </div>
               </div>
 
-              <Button className="w-full" size="lg" onClick={() => goToAuth()}>
+              <Button className="w-full" size="lg" onClick={() => navigate('/auth')}>
                 Browse Engineers by Budget
                 <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
@@ -116,7 +116,7 @@ export const ValueProposition = () => {
                 </div>
               </div>
 
-              <Button className="w-full" size="lg" onClick={() => goToAuth()}>
+              <Button className="w-full" size="lg" onClick={() => navigate('/auth')}>
                 Start Earning Today
                 <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
@@ -182,7 +182,7 @@ export const ValueProposition = () => {
               <Button 
                 size="lg" 
                 className="w-full bg-gradient-to-r from-primary via-purple-600 to-pink-600 hover:opacity-90"
-                onClick={() => goToAuth()}
+                onClick={() => navigate('/auth')}
               >
                 Unlock Both Worlds
                 <Sparkles className="ml-2 w-4 h-4" />

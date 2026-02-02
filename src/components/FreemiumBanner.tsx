@@ -1,9 +1,9 @@
 import { Sparkles, CheckCircle } from 'lucide-react';
 import { Button } from './ui/button';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
+import { useNavigate } from 'react-router-dom';
 
 export const FreemiumBanner = () => {
-  const { goToAuth } = useFlowNavigation();
+  const navigate = useNavigate();
 
   return (
     <section className="py-20 bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 relative overflow-hidden">
@@ -59,7 +59,7 @@ export const FreemiumBanner = () => {
 
             {/* CTA */}
             <Button 
-              onClick={() => goToAuth('signup')}
+              onClick={() => navigate('/auth?mode=signup')}
               size="lg" 
               className="text-lg px-10 py-6 shadow-glow hover:scale-105 transition-transform duration-300"
             >

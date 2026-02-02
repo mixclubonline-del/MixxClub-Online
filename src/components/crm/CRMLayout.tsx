@@ -5,8 +5,7 @@ import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Home, Briefcase, Search, DollarSign, User, Music, Award, Headphones, Truck, Sparkles, Zap, TrendingUp, Users, Target, MessageSquare, Handshake } from 'lucide-react';
-import { NavLink } from 'react-router-dom';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { RoleSwitcher } from './RoleSwitcher';
@@ -37,11 +36,11 @@ interface CRMLayoutProps {
 
 export const CRMLayout = ({ children, userType, profile, stats, quickActions }: CRMLayoutProps) => {
   const isMobile = useIsMobile();
-  const { navigateTo } = useFlowNavigation();
+  const navigate = useNavigate();
   const { insights, isLoading: insightsLoading } = useAIDashboardInsights();
   
   const handleNavigate = (path: string) => {
-    navigateTo(path);
+    navigate(path);
   };
 
   const getLevelProgress = () => {

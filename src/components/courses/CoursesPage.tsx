@@ -4,7 +4,7 @@
  */
 
 import React, { useMemo } from 'react';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
+import { useNavigate } from 'react-router-dom';
 import { useCourses } from '@/hooks/useCourses';
 import { useCourseEnrollment } from '@/hooks/useCourseEnrollment';
 import { Star, Clock, Users, TrendingUp } from 'lucide-react';
@@ -132,7 +132,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, onEnroll, isEnrolled, i
 };
 
 export const CoursesPage: React.FC = () => {
-    const { goToAuth } = useFlowNavigation();
+    const navigate = useNavigate();
     const { user } = useAuth();
     const {
         courses,
@@ -159,7 +159,7 @@ export const CoursesPage: React.FC = () => {
     const handleEnroll = async (course: Course) => {
         if (!user) {
             toast.info('Please sign in to enroll in courses');
-            goToAuth('login', '/courses');
+            navigate('/auth?redirect=/courses');
             return;
         }
 

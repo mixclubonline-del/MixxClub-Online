@@ -1,41 +1,31 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Filter, TrendingUp, Users, CheckCircle, Clock, Loader2 } from 'lucide-react';
-import { useBackendMatchingEngine } from '@/backend-integration';
+import { Search, Filter, TrendingUp, Users, CheckCircle, Clock } from 'lucide-react';
+import { useMatchingEngine } from '../hooks/useMatchingEngine';
 import { MatchCard } from '../components/matching/MatchCard';
-import type { MatchResult } from '@/services/matchingEngineService';
+import { type Project, type Match } from '../stores/matchingEngineStore';
 
 const MatchingDashboard: React.FC = () => {
-    const [projectId, setProjectId] = useState<string>('project-1');
-    
     const {
-        matches: currentMatches,
-        loading: isLoading,
+        engineers,
+        projects,
         findMatches,
-        selectEngineer,
-    } = useBackendMatchingEngine(projectId);
+        getHighConfidenceMatches,
+        matchStats,
+        selectMatch,
+        selectedMatch,
+    } = useMatchingEngine();
 
-    const [selectedMatch, setSelectedMatch] = useState<MatchResult | null>(null);
     const [selectedGenreFilter, setSelectedGenreFilter] = useState<string>('');
     const [selectedConfidenceFilter, setSelectedConfidenceFilter] = useState<
         'all' | 'high' | 'medium' | 'low'
     >('all');
     const [searchQuery, setSearchQuery] = useState('');
-    const [filteredMatches, setFilteredMatches] = useState<MatchResult[]>([]);
+    const [currentMatches, setCurrentMatches] = useState<Match[]>([]);
+    const [filteredMatches, setFilteredMatches] = useState<Match[]>([]);
 
-    // Compute stats from matches
-    const matchStats = useMemo(() => ({
-        successRate: currentMatches.length > 0 
-            ? currentMatches.filter(m => m.status === 'completed').length / currentMatches.length 
-            : 0,
-        avgQuality: currentMatches.length > 0
-            ? Math.round(currentMatches.reduce((acc, m) => acc + m.match_score, 0) / currentMatches.length)
-            : 0,
-        totalMatches: currentMatches.length,
-    }), [currentMatches]);
-
-    // Sample project for demo
-    const demoProject = {
+    // Sample project for demo (in real app, would come from project selection)
+    const demoProject: Project = {
         id: 'project-1',
         title: 'Hip-Hop Album Mixing & Mastering',
         description: 'Professional mixing and mastering for 12-track hip-hop album',
@@ -50,38 +40,45 @@ const MatchingDashboard: React.FC = () => {
         createdAt: new Date(),
     };
 
+    // Find matches when component mounts
     useEffect(() => {
-        findMatches();
-    }, [projectId, findMatches]);
-
+        const matches = findMatches(demoProject.id, 10);
+        setCurrentMatches(matches);
+    }, [demoProject.id, findMatches]);    // Filter matches
     useEffect(() => {
-        if (!currentMatches) return;
-        
-        let filtered = [...currentMatches];
+        let filtered = currentMatches;
 
+        // Genre filter
+        if (selectedGenreFilter) {
+            filtered = filtered.filter((match) => {
+                const engineer = engineers.find((e) => e.id === match.engineerId);
+                return engineer?.genres.includes(selectedGenreFilter);
+            });
+        }
+
+        // Confidence filter
         if (selectedConfidenceFilter !== 'all') {
             filtered = filtered.filter((match) => match.confidence === selectedConfidenceFilter);
         }
 
+        // Search query
         if (searchQuery) {
-            filtered = filtered.filter((match) =>
-                match.engineer_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                match.reason?.toLowerCase().includes(searchQuery.toLowerCase())
-            );
+            filtered = filtered.filter((match) => {
+                const engineer = engineers.find((e) => e.id === match.engineerId);
+                return engineer?.name.toLowerCase().includes(searchQuery.toLowerCase());
+            });
         }
 
         setFilteredMatches(filtered);
-    }, [currentMatches, selectedGenreFilter, selectedConfidenceFilter, searchQuery]);
+    }, [currentMatches, selectedGenreFilter, selectedConfidenceFilter, searchQuery, engineers]);
 
-    const handleSelectMatch = (match: MatchResult) => {
-        setSelectedMatch(match);
-    };
-
-    const handleAcceptMatch = async (match: MatchResult) => {
-        const success = await selectEngineer(match.id, match.engineer_id);
-        if (success) {
-            findMatches();
-        }
+    // Get unique genres
+    const allGenres = useMemo(
+        () => Array.from(new Set(engineers.flatMap((e) => e.genres))).sort(),
+        [engineers]
+    ) as string[];    // Get engineer details
+    const getEngineerInfo = (engineerId: string) => {
+        return engineers.find((e) => e.id === engineerId);
     };
 
     return (
@@ -149,9 +146,9 @@ const MatchingDashboard: React.FC = () => {
                             >
                                 <div className="flex items-center gap-2 mb-1">
                                     <Clock size={18} className="text-amber-600" />
-                                    <span className="text-sm font-medium text-slate-600">Filtered</span>
+                                    <span className="text-sm font-medium text-slate-600">Engineers</span>
                                 </div>
-                                <div className="text-2xl font-bold text-amber-900">{filteredMatches?.length || 0}</div>
+                                <div className="text-2xl font-bold text-amber-900">{engineers.length}</div>
                             </motion.div>
                         </div>
                     </div>
@@ -190,6 +187,7 @@ const MatchingDashboard: React.FC = () => {
 
                 {/* Filters */}
                 <div className="space-y-4 mb-8">
+                    {/* Search */}
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" size={20} />
                         <input
@@ -201,8 +199,36 @@ const MatchingDashboard: React.FC = () => {
                         />
                     </div>
 
+                    {/* Filter Chips */}
                     <div className="flex flex-wrap gap-3 items-center">
                         <Filter size={18} className="text-slate-600" />
+
+                        {/* Genre Filter */}
+                        <div className="flex gap-2 flex-wrap">
+                            <button
+                                onClick={() => setSelectedGenreFilter('')}
+                                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${selectedGenreFilter === ''
+                                    ? 'bg-blue-500 text-white shadow-md'
+                                    : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                                    }`}
+                            >
+                                All Genres
+                            </button>
+                            {allGenres.map((genre) => (
+                                <button
+                                    key={genre}
+                                    onClick={() => setSelectedGenreFilter(genre)}
+                                    className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all capitalize ${selectedGenreFilter === genre
+                                        ? 'bg-blue-500 text-white shadow-md'
+                                        : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                                        }`}
+                                >
+                                    {genre}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Confidence Filter */}
                         <div className="flex gap-2">
                             {(['all', 'high', 'medium', 'low'] as const).map((confidence) => (
                                 <button
@@ -213,62 +239,58 @@ const MatchingDashboard: React.FC = () => {
                                         : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
                                         }`}
                                 >
-                                    {confidence === 'all' ? 'All Matches' : `${confidence} Confidence`}
+                                    {confidence === 'all' ? 'All Matches' : `${confidence} Matches`}
                                 </button>
                             ))}
                         </div>
                     </div>
                 </div>
 
-                {/* Loading State */}
-                {isLoading && (
-                    <div className="flex items-center justify-center py-12">
-                        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-                        <span className="ml-2 text-slate-600">Finding matches...</span>
-                    </div>
-                )}
-
                 {/* Matches Grid */}
-                {!isLoading && (
-                    <div className="space-y-4">
-                        <div className="flex justify-between items-center">
-                            <h3 className="text-lg font-bold text-slate-900">
-                                Top Matches ({filteredMatches.length})
-                            </h3>
-                            {filteredMatches.length > 0 && (
-                                <span className="text-sm text-slate-600">
-                                    Showing best matches for this project
-                                </span>
-                            )}
-                        </div>
-
-                        {filteredMatches.length > 0 ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {filteredMatches.map((match, index) => (
-                                    <MatchCard
-                                        key={match.id}
-                                        match={match}
-                                        engineerName={`Engineer ${match.engineer_id.slice(0, 8)}`}
-                                        engineerRating={match.performance_score / 20}
-                                        engineerGenres={[]}
-                                        highlighted={index === 0}
-                                        onSelect={() => handleSelectMatch(match)}
-                                        onAccept={() => handleAcceptMatch(match)}
-                                    />
-                                ))}
-                            </div>
-                        ) : (
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                className="text-center py-12 bg-slate-50 rounded-lg border border-slate-200"
-                            >
-                                <Users size={40} className="mx-auto text-slate-400 mb-3" />
-                                <p className="text-slate-600">No matches found. Try adjusting your filters.</p>
-                            </motion.div>
+                <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                        <h3 className="text-lg font-bold text-slate-900">
+                            Top Matches ({filteredMatches.length})
+                        </h3>
+                        {filteredMatches.length > 0 && (
+                            <span className="text-sm text-slate-600">
+                                Showing best matches for this project
+                            </span>
                         )}
                     </div>
-                )}
+
+                    {filteredMatches.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {filteredMatches.map((match, index) => {
+                                const engineer = getEngineerInfo(match.engineerId);
+                                return (
+                                    <MatchCard
+                                        key={`${match.engineerId}-${match.projectId}`}
+                                        match={match}
+                                        engineerName={engineer?.name || 'Unknown'}
+                                        engineerRating={engineer?.rating || 0}
+                                        engineerGenres={engineer?.genres || []}
+                                        highlighted={index === 0}
+                                        onSelect={() => selectMatch(match)}
+                                        onAccept={() => {
+                                            console.log(`Selected engineer: ${engineer?.name} for project`);
+                                            selectMatch(match);
+                                        }}
+                                    />
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="text-center py-12 bg-slate-50 rounded-lg border border-slate-200"
+                        >
+                            <Users size={40} className="mx-auto text-slate-400 mb-3" />
+                            <p className="text-slate-600">No matches found. Try adjusting your filters.</p>
+                        </motion.div>
+                    )}
+                </div>
 
                 {/* Selected Match Details */}
                 {selectedMatch && (
@@ -278,34 +300,79 @@ const MatchingDashboard: React.FC = () => {
                         className="mt-12 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-200/50 p-8"
                     >
                         <h3 className="text-2xl font-bold text-slate-900 mb-6">
-                            Match Details
+                            Match Details & Breakdown
                         </h3>
 
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <div className="bg-white rounded-lg p-4 border border-slate-200">
-                                <span className="text-sm text-slate-600">Match Score</span>
-                                <div className="text-2xl font-bold text-blue-600">{selectedMatch.match_score}%</div>
-                            </div>
-                            <div className="bg-white rounded-lg p-4 border border-slate-200">
-                                <span className="text-sm text-slate-600">Genre Match</span>
-                                <div className="text-2xl font-bold text-purple-600">{selectedMatch.genre_match}%</div>
-                            </div>
-                            <div className="bg-white rounded-lg p-4 border border-slate-200">
-                                <span className="text-sm text-slate-600">Experience</span>
-                                <div className="text-2xl font-bold text-emerald-600">{selectedMatch.experience_score}%</div>
-                            </div>
-                            <div className="bg-white rounded-lg p-4 border border-slate-200">
-                                <span className="text-sm text-slate-600">Confidence</span>
-                                <div className="text-2xl font-bold text-amber-600 capitalize">{selectedMatch.confidence}</div>
-                            </div>
-                        </div>
+                        {(() => {
+                            const engineer = getEngineerInfo(selectedMatch.engineerId);
+                            if (!engineer) return null;
 
-                        {selectedMatch.reason && (
-                            <div className="mt-6 p-4 bg-white rounded-lg border border-slate-200">
-                                <span className="text-sm font-medium text-slate-600">Match Reason</span>
-                                <p className="mt-1 text-slate-900">{selectedMatch.reason}</p>
-                            </div>
-                        )}
+                            return (
+                                <div className="space-y-6">
+                                    {/* Engineer Profile */}
+                                    <div className="flex items-center gap-4 pb-6 border-b border-blue-200/50">
+                                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg">
+                                            {engineer.name
+                                                .split(' ')
+                                                .map((n) => n[0])
+                                                .join('')}
+                                        </div>
+                                        <div>
+                                            <h4 className="text-xl font-bold text-slate-900">{engineer.name}</h4>
+                                            <p className="text-slate-600">{engineer.bio}</p>
+                                            <div className="flex items-center gap-2 mt-1">
+                                                <span className="text-sm font-medium text-slate-700">
+                                                    {engineer.completedProjects} projects completed
+                                                </span>
+                                                <span className="text-sm font-medium text-amber-600">
+                                                    {engineer.rating}★ rating
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Score Details */}
+                                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                                        {[
+                                            { label: 'Genre Match', value: selectedMatch.genreMatch },
+                                            { label: 'Experience', value: selectedMatch.experienceScore },
+                                            { label: 'Performance', value: selectedMatch.performanceScore },
+                                            { label: 'Price Alignment', value: selectedMatch.priceAlignment },
+                                            { label: 'Availability', value: selectedMatch.availabilityScore },
+                                        ].map((score) => (
+                                            <div key={score.label} className="bg-white rounded-lg p-4">
+                                                <div className="text-sm text-slate-600 mb-1">{score.label}</div>
+                                                <div className="text-3xl font-bold text-slate-900">{score.value}%</div>
+                                                <div className="h-1.5 bg-slate-200 rounded-full mt-2 overflow-hidden">
+                                                    <motion.div
+                                                        initial={{ width: 0 }}
+                                                        animate={{ width: `${score.value}%` }}
+                                                        transition={{ duration: 0.6 }}
+                                                        className="h-full bg-gradient-to-r from-blue-400 to-blue-600"
+                                                    />
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {/* Match Reason */}
+                                    <div className="bg-white rounded-lg p-4 border border-slate-200">
+                                        <h5 className="font-bold text-slate-900 mb-2">Why This Match?</h5>
+                                        <p className="text-slate-700">{selectedMatch.reason}</p>
+                                    </div>
+
+                                    {/* Action */}
+                                    <div className="flex gap-4">
+                                        <button className="flex-1 px-6 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold transition-all shadow-lg hover:shadow-xl">
+                                            Select This Engineer
+                                        </button>
+                                        <button className="flex-1 px-6 py-3 rounded-lg bg-white border-2 border-slate-200 hover:border-slate-300 text-slate-900 font-bold transition-all">
+                                            View Profile
+                                        </button>
+                                    </div>
+                                </div>
+                            );
+                        })()}
                     </motion.div>
                 )}
             </div>

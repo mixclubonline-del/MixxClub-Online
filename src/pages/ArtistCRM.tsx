@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { useSearchParams } from 'react-router-dom';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useServiceAccess } from '@/hooks/useServiceAccess';
@@ -49,7 +48,7 @@ import { StoreHub } from '@/components/crm/StoreHub';
 
 const ArtistCRM = () => {
   const { user } = useAuth();
-  const { goToAuth, navigateTo, openArtistCRM } = useFlowNavigation();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const currentTab = searchParams.get('tab') || 'dashboard';
   
@@ -79,7 +78,7 @@ const ArtistCRM = () => {
   useEffect(() => {
     const checkAccess = async () => {
       if (!user) {
-        goToAuth('login');
+        navigate('/auth');
         return;
       }
 
@@ -91,7 +90,7 @@ const ArtistCRM = () => {
 
       if (isAdmin) {
         toast.error('Please use the Admin Panel');
-        navigateTo('/admin');
+        navigate('/admin');
         return;
       }
 
@@ -100,7 +99,7 @@ const ArtistCRM = () => {
     };
 
     checkAccess();
-  }, [user, goToAuth, navigateTo]);
+  }, [user, navigate]);
 
   const handleSlideshowComplete = () => {
     if (user) {
@@ -124,7 +123,7 @@ const ArtistCRM = () => {
     }
     setShowAssistantIntro(false);
     // Navigate to dashboard after intro
-    openArtistCRM('dashboard');
+    navigate('/artist-crm?tab=dashboard');
   };
 
   const handleAssistantNavigate = (tab: string) => {
@@ -132,7 +131,7 @@ const ArtistCRM = () => {
       localStorage.setItem(`artist_assistant_intro_seen_${user.id}`, 'true');
     }
     setShowAssistantIntro(false);
-    openArtistCRM(tab);
+    navigate(`/artist-crm?tab=${tab}`);
   };
 
   const handleOpenChatbot = () => {
@@ -265,17 +264,17 @@ const ArtistCRM = () => {
     {
       label: 'New Project',
       icon: <Plus className="w-4 h-4" />,
-      onClick: () => openArtistCRM('active-work'),
+      onClick: () => navigate('/artist-crm?tab=active-work'),
     },
     {
       label: 'Book Session',
       icon: mixingAccess ? <Upload className="w-4 h-4" /> : <Lock className="w-4 h-4" />,
-      onClick: () => openArtistCRM('opportunities'),
+      onClick: () => navigate('/artist-crm?tab=opportunities'),
     },
     {
       label: 'AI Master',
       icon: masteringAccess ? <Sparkles className="w-4 h-4" /> : <Lock className="w-4 h-4" />,
-      onClick: () => navigateTo('/mixing-showcase'),
+      onClick: () => navigate('/mixing-showcase'),
     },
   ];
 

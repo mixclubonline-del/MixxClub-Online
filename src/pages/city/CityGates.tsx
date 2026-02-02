@@ -1,22 +1,24 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { GateCharacter, PathPreviewCard, GateActivityIndicator } from '@/components/city';
+import { useNavigate } from 'react-router-dom';
+import { VisualHotspot } from '@/components/ui/VisualHotspot';
 import cityGatesImage from '@/assets/city-gates.jpg';
-import { useFlow } from '@/core/fabric/useFlow';
 
 export default function CityGates() {
-  const { setIntent } = useFlow();
+  const navigate = useNavigate();
   const [entering, setEntering] = useState(false);
   const [selectedPath, setSelectedPath] = useState<'artist' | 'engineer' | null>(null);
-  const [hoveredPath, setHoveredPath] = useState<'artist' | 'engineer' | null>(null);
 
   const handlePathSelect = (role: 'artist' | 'engineer') => {
     setSelectedPath(role);
     setEntering(true);
     
-    // Navigate via Flow system after zoom animation
+    // Store role preference
+    localStorage.setItem('mixclub_role', role);
+    
+    // Navigate after zoom animation
     setTimeout(() => {
-      setIntent('ENTER_CITY', { role }, { source: 'CityGates' });
+      navigate('/city/tower');
     }, 1200);
   };
 
@@ -35,12 +37,12 @@ export default function CityGates() {
         />
         
         {/* Ambient overlay gradient */}
-        <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-background/40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-background/30" />
       </motion.div>
 
       {/* Floating ambient particles */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {[...Array(30)].map((_, i) => (
+        {[...Array(40)].map((_, i) => (
           <motion.div
             key={i}
             className="absolute w-1 h-1 rounded-full"
@@ -65,91 +67,36 @@ export default function CityGates() {
         ))}
       </div>
 
-      {/* Title - positioned at top */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: entering ? 0 : 1, y: entering ? -40 : 0 }}
-        transition={{ duration: 0.8, delay: 0.3 }}
-        className="absolute top-12 md:top-16 left-0 right-0 text-center z-10"
-      >
-        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-wider text-white drop-shadow-lg">
-          MIXCLUB CITY
-        </h1>
-        <p className="text-sm md:text-base text-white/70 mt-2">Choose your path</p>
-      </motion.div>
-
-      {/* Character Path Selection - Desktop: Side by side, Mobile: Stacked */}
+      {/* Path Hotspots - positioned on the diverging paths */}
       <AnimatePresence>
         {!entering && (
-          <div className="absolute inset-0 flex items-center justify-center z-10">
-            <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 lg:gap-24 px-4">
-              {/* Artist Path - Jax */}
-              <div 
-                className="relative"
-                onMouseEnter={() => setHoveredPath('artist')}
-                onMouseLeave={() => setHoveredPath(null)}
-              >
-                <GateCharacter
-                  characterId="jax"
-                  role="artist"
-                  position="left"
-                  onClick={() => handlePathSelect('artist')}
-                  isEntering={entering}
-                />
-                
-                {/* Path Preview Card - Desktop only */}
-                <AnimatePresence>
-                  {hoveredPath === 'artist' && (
-                    <PathPreviewCard
-                      role="artist"
-                      isVisible={true}
-                      className="hidden md:block left-full ml-8 top-1/2 -translate-y-1/2"
-                    />
-                  )}
-                </AnimatePresence>
-              </div>
+          <>
+            {/* Artist Path - Left side, purple-pink glow */}
+            <VisualHotspot
+              position={{ x: 35, y: 65 }}
+              state="active"
+              size="lg"
+              glowColor="280 65% 60%"
+              label="Artist Path"
+              description="Create, collaborate, and grow your music career"
+              onClick={() => handlePathSelect('artist')}
+            />
 
-              {/* Engineer Path - Rell */}
-              <div 
-                className="relative"
-                onMouseEnter={() => setHoveredPath('engineer')}
-                onMouseLeave={() => setHoveredPath(null)}
-              >
-                <GateCharacter
-                  characterId="rell"
-                  role="engineer"
-                  position="right"
-                  onClick={() => handlePathSelect('engineer')}
-                  isEntering={entering}
-                />
-                
-                {/* Path Preview Card - Desktop only */}
-                <AnimatePresence>
-                  {hoveredPath === 'engineer' && (
-                    <PathPreviewCard
-                      role="engineer"
-                      isVisible={true}
-                      className="hidden md:block right-full mr-8 top-1/2 -translate-y-1/2"
-                    />
-                  )}
-                </AnimatePresence>
-              </div>
-            </div>
-          </div>
+            {/* Engineer Path - Right side, cyan-blue glow */}
+            <VisualHotspot
+              position={{ x: 65, y: 65 }}
+              state="active"
+              size="lg"
+              glowColor="190 95% 50%"
+              label="Engineer Path"
+              description="Mix, master, and build your audio business"
+              onClick={() => handlePathSelect('engineer')}
+            />
+          </>
         )}
       </AnimatePresence>
 
-      {/* Activity Indicator - bottom center */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: entering ? 0 : 1 }}
-        transition={{ duration: 0.5, delay: 1 }}
-        className="absolute bottom-8 md:bottom-12 left-0 right-0 flex justify-center z-10"
-      >
-        <GateActivityIndicator />
-      </motion.div>
-
-      {/* Entry zoom effect - role-colored flash */}
+      {/* Entry zoom effect - white flash */}
       <AnimatePresence>
         {entering && (
           <motion.div
@@ -157,50 +104,33 @@ export default function CityGates() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="absolute inset-0 z-20"
-            style={{
-              background: selectedPath === 'artist'
-                ? 'radial-gradient(circle at center, hsl(280 65% 60% / 0.3), transparent 70%)'
-                : 'radial-gradient(circle at center, hsl(190 95% 50% / 0.3), transparent 70%)',
-            }}
+            className="absolute inset-0 bg-white/20 backdrop-blur-sm z-20"
           />
         )}
       </AnimatePresence>
 
-      {/* Selected path indicator - expanding ring */}
+      {/* Subtle title - fades in after a moment */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: entering ? 0 : 1, y: entering ? -20 : 0 }}
+        transition={{ duration: 0.8, delay: 0.5 }}
+        className="absolute bottom-12 left-0 right-0 text-center z-10"
+      >
+        <h1 className="text-2xl md:text-3xl font-bold tracking-wider text-white/90 drop-shadow-lg">
+          MIXCLUB CITY
+        </h1>
+        <p className="text-sm text-white/60 mt-1">Choose your path</p>
+      </motion.div>
+
+      {/* Selected path indicator */}
       <AnimatePresence>
         {selectedPath && (
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30"
           >
-            {/* Expanding rings */}
-            {[...Array(3)].map((_, i) => (
-              <motion.div
-                key={i}
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2"
-                style={{
-                  borderColor: selectedPath === 'artist' 
-                    ? 'hsl(280 65% 60%)' 
-                    : 'hsl(190 95% 50%)',
-                }}
-                initial={{ width: 20, height: 20, opacity: 0.8 }}
-                animate={{ 
-                  width: 200 + i * 100, 
-                  height: 200 + i * 100, 
-                  opacity: 0 
-                }}
-                transition={{ 
-                  duration: 1 + i * 0.2, 
-                  delay: i * 0.15,
-                  ease: 'easeOut' 
-                }}
-              />
-            ))}
-            
-            {/* Central glow */}
             <motion.div
               animate={{ scale: [1, 1.5, 2.5], opacity: [1, 0.8, 0] }}
               transition={{ duration: 1 }}

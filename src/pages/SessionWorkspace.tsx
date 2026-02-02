@@ -1,17 +1,16 @@
-import { useParams } from 'react-router-dom';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
+import { useParams, useNavigate } from 'react-router-dom';
 import CollaborationWorkspace from '@/components/collaboration/CollaborationWorkspace';
 
 const SessionWorkspace = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
-  const { navigateTo } = useFlowNavigation();
+  const navigate = useNavigate();
 
   const handleLeaveSession = () => {
-    navigateTo('/artist-studio');
+    navigate('/artist-studio');
   };
 
   if (!sessionId) {
-    navigateTo('/artist-studio');
+    navigate('/artist-studio');
     return null;
   }
 

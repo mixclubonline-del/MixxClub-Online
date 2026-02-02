@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useFlowNavigation } from '@/core/fabric/useFlow';
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -10,7 +10,7 @@ import { useNotificationPreferences } from "@/hooks/useNotificationPreferences";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function NotificationPreferences() {
-  const { goBack } = useFlowNavigation();
+  const navigate = useNavigate();
   const [userId, setUserId] = useState<string>();
   const { preferences, loading, updatePreference } = useNotificationPreferences(userId);
 
@@ -67,7 +67,7 @@ export default function NotificationPreferences() {
         <Button
           variant="ghost"
           className="mb-6"
-          onClick={() => goBack()}
+          onClick={() => navigate(-1)}
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back

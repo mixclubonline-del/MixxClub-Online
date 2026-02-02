@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Upload, Wand2, Search } from 'lucide-react';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
+import { Button } from '@/components/ui/button';
+import { Music, Sparkles, Users, Upload, Wand2, Search } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface GetStartedWizardProps {
   open: boolean;
@@ -8,7 +10,7 @@ interface GetStartedWizardProps {
 }
 
 export function GetStartedWizard({ open, onOpenChange }: GetStartedWizardProps) {
-  const { navigateTo } = useFlowNavigation();
+  const navigate = useNavigate();
 
   const options = [
     {
@@ -34,7 +36,7 @@ export function GetStartedWizard({ open, onOpenChange }: GetStartedWizardProps) 
       borderColor: 'border-[hsl(220_90%_60%)]/40 hover:border-[hsl(220_90%_60%)]',
       action: () => {
         onOpenChange(false);
-        navigateTo('/mixing');
+        navigate('/mixing');
       }
     },
     {
@@ -46,7 +48,7 @@ export function GetStartedWizard({ open, onOpenChange }: GetStartedWizardProps) 
       borderColor: 'border-[hsl(180_100%_50%)]/40 hover:border-[hsl(180_100%_50%)]',
       action: () => {
         onOpenChange(false);
-        navigateTo('/engineers');
+        navigate('/engineers');
       }
     }
   ];

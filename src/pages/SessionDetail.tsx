@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -47,7 +46,7 @@ interface HostProfile {
 
 export default function SessionDetail() {
   const { sessionId } = useParams<{ sessionId: string }>();
-  const { navigateTo, goToAuth } = useFlowNavigation();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
   
@@ -62,7 +61,7 @@ export default function SessionDetail() {
 
   useEffect(() => {
     if (!sessionId) {
-      navigateTo('/sessions');
+      navigate('/sessions');
       return;
     }
     fetchSessionDetails();
@@ -102,7 +101,7 @@ export default function SessionDetail() {
         description: 'The session you are looking for does not exist.',
         variant: 'destructive'
       });
-      navigateTo('/sessions');
+      navigate('/sessions');
     } finally {
       setIsLoading(false);
     }
@@ -110,7 +109,7 @@ export default function SessionDetail() {
 
   const handleJoinSession = async () => {
     if (!user) {
-      goToAuth('login', `/session/${sessionId}`);
+      navigate('/auth?redirect=' + encodeURIComponent(`/session/${sessionId}`));
       return;
     }
 
@@ -152,7 +151,7 @@ export default function SessionDetail() {
   };
 
   const handleEnterWorkspace = () => {
-    navigateTo(`/collaborate/${sessionId}`);
+    navigate(`/collaborate/${sessionId}`);
   };
 
   const getStatusBadge = (status: string) => {

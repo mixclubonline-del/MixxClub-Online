@@ -2,10 +2,10 @@ import { useEffect } from 'react';
 import Navigation from '@/components/Navigation';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Shield } from 'lucide-react';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
+import { useNavigate } from 'react-router-dom';
 
 export default function Privacy() {
-  const { navigateTo } = useFlowNavigation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -18,7 +18,7 @@ export default function Privacy() {
       <div className="container max-w-4xl py-12 px-6">
         <Button
           variant="ghost"
-          onClick={() => navigateTo('/')}
+          onClick={() => navigate('/')}
           className="mb-8"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />

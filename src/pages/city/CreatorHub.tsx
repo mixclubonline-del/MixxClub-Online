@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { 
   Upload, Music, FolderOpen, Clock, Star, 
   Plus, ArrowRight, FileAudio, Mic
@@ -23,8 +24,7 @@ const recentProjects = [
 ];
 
 export default function CreatorHub() {
-  // Note: CreatorHub doesn't actually use navigate anywhere - it was unused
-  // Removing the import entirely
+  const navigate = useNavigate();
 
   return (
     <DistrictPortal districtId="creator">

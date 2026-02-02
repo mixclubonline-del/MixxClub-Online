@@ -1,12 +1,12 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Upload, UserCheck, Radio, Download, Users, TrendingUp } from "lucide-react";
-import { useFlowNavigation } from '@/core/fabric/useFlow';
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 const HowItWorks = () => {
-  const { goToAuth } = useFlowNavigation();
+  const navigate = useNavigate();
   const [activeView, setActiveView] = useState<"artist" | "engineer">("artist");
 
   const artistSteps = [
@@ -120,7 +120,7 @@ const HowItWorks = () => {
               </p>
               <Button 
                 size="lg"
-                onClick={() => goToAuth('signup')}
+                onClick={() => navigate('/auth?mode=signup')}
                 className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90"
               >
                 {activeView === "artist" ? "Start Your First Project" : "Join as Engineer"}

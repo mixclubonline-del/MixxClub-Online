@@ -21,11 +21,11 @@ import {
   Users,
   ExternalLink
 } from 'lucide-react';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
+import { useNavigate } from 'react-router-dom';
 
 export const StorefrontManager = () => {
   const { user } = useAuth();
-  const { viewStore } = useFlowNavigation();
+  const navigate = useNavigate();
   const { storefront, isLoading } = useStorefront(user?.id);
   const { products } = useStorefrontProducts(storefront?.id);
   const { tracks } = useMusicCatalogue(user?.id);
@@ -99,7 +99,7 @@ export const StorefrontManager = () => {
         <div className="flex gap-2">
           <Button
             variant="outline"
-            onClick={() => viewStore(storefront.storefront_slug)}
+            onClick={() => navigate(`/store/${storefront.storefront_slug}`)}
           >
             <Eye className="w-4 h-4 mr-2" />
             View Store

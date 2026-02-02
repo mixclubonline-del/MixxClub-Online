@@ -1,11 +1,10 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Building2, Music, Brain, BarChart3, Store, Radio, 
   Users, Home, Sparkles, Compass, X, Settings, LogOut, Lock
 } from 'lucide-react';
-import { useFlowNavigation } from '@/core/fabric/useFlow';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { useDepthLayer } from '@/hooks/useDepthLayer';
@@ -126,7 +125,7 @@ const districts: District[] = [
 export const RadialNavigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [hoveredDistrict, setHoveredDistrict] = useState<string | null>(null);
-  const { navigateTo } = useFlowNavigation();
+  const navigate = useNavigate();
   const location = useLocation();
   const { signOut } = useAuth();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -189,7 +188,7 @@ export const RadialNavigation = () => {
 
   const handleNavigate = (path: string) => {
     setIsOpen(false);
-    navigateTo(path);
+    navigate(path);
   };
 
   const radius = 140; // Distance from center to icons
