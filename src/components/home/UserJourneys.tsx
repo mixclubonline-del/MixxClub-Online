@@ -2,11 +2,11 @@ import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { getCharacter } from '@/config/characters';
+import { useFlowNavigation } from '@/core/fabric/useFlow';
 
 export const UserJourneys = () => {
-  const navigate = useNavigate();
+  const { goToAuth } = useFlowNavigation();
   const jax = getCharacter('jax');
   const rell = getCharacter('rell');
 
@@ -141,7 +141,7 @@ export const UserJourneys = () => {
                   {/* CTA */}
                   <Button
                     size="lg"
-                    onClick={() => navigate('/auth?signup=true')}
+                    onClick={() => goToAuth('signup')}
                     className={`w-full gap-2 bg-gradient-to-r ${journey.color} hover:opacity-90`}
                   >
                     {journey.cta}

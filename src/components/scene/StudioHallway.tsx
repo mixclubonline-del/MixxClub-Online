@@ -16,8 +16,8 @@
 
 import { useState, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
 import { useStudios, useFeaturedSession, useSceneSystemInit } from '@/hooks/useSceneSystem';
+import { useFlowNavigation } from '@/core/fabric/useFlow';
 import { useDepthLayer } from '@/hooks/useDepthLayer';
 import { useAuth } from '@/hooks/useAuth';
 import { DepthAwareHotspot } from './DepthAwareHotspot';
@@ -49,7 +49,7 @@ interface StudioHallwayProps {
 }
 
 export function StudioHallway({ fullscreen = false, onEnter }: StudioHallwayProps) {
-  const navigate = useNavigate();
+  const { navigateTo } = useFlowNavigation();
   const { user } = useAuth();
   const { isConnected } = useSceneSystemInit();
   const { studios, activeCount } = useStudios();
@@ -82,7 +82,7 @@ export function StudioHallway({ fullscreen = false, onEnter }: StudioHallwayProp
     }
     
     if (room.visibility === 'public' && room.sessionId) {
-      navigate(`/session/${room.sessionId}`);
+      navigateTo(`/session/${room.sessionId}`);
     }
   };
   

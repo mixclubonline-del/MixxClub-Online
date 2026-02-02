@@ -2,10 +2,10 @@ import { motion } from 'framer-motion';
 import { Music, Headphones, ArrowRight, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { useNavigate } from 'react-router-dom';
+import { useFlowNavigation } from '@/core/fabric/useFlow';
 
 export const RoleSelectionCTA = () => {
-  const navigate = useNavigate();
+  const { goToAuth } = useFlowNavigation();
 
   const roles = [
     {
@@ -97,7 +97,7 @@ export const RoleSelectionCTA = () => {
                   {/* CTA */}
                   <Button 
                     size="lg" 
-                    onClick={() => navigate('/auth')}
+                    onClick={() => goToAuth('signup')}
                     className={`w-full gap-2 group/btn bg-gradient-to-r ${role.gradient} hover:opacity-90 text-white border-0`}
                   >
                     {role.cta}
