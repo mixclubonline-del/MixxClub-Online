@@ -1,144 +1,132 @@
 
 
-# Upgrading Scene Flow to Zustand State Machine
+# Making InsiderDemoExperience a True Scene
 
-## Current State
-The existing `SceneFlow.tsx` uses React's `useState` with Framer Motion's `AnimatePresence`. This works but is:
-- Isolated from other stores (no event bus integration)
-- Using opacity-only transitions (no "dissolve into light" effect)
-- Missing keyboard support
-- Not following the established Zustand patterns in the codebase
+## Current Issues Identified
 
-## Proposed Upgrade
+| Problem | Location | Impact |
+|---------|----------|--------|
+| `min-h-screen` allows scroll bleed | Lines 126, 218, 303 | Breaks 100svh scene cage |
+| Hard `navigate('/auth')` when embedded | Line 439 | Breaks dissolve flow |
+| No `onJoinNow` callback prop | Interface (line 29-33) | Can't route join through SceneFlow |
+| `skipToPhase` doesn't stop autoplay | Line 111-114 | Risk of double intervals |
 
-### Architecture Overview
+---
 
-```text
-┌────────────────────────────────────────────────────────────────┐
-│                      sceneFlowStore.ts                         │
-│  scene: HALLWAY | DEMO | INFO                                  │
-│  phase: IDLE | DISSOLVE_OUT | DISSOLVE_IN                      │
-│  go(next) → triggers timed phase sequence                      │
-│  back() → returns to lastScene                                 │
-└────────────────────────────────────────────────────────────────┘
-                              │
-              ┌───────────────┴───────────────┐
-              │                               │
-              ▼                               ▼
-┌─────────────────────────┐    ┌─────────────────────────────────┐
-│     SceneStage.tsx      │    │        SceneFlow.tsx            │
-│  Dissolve veil wrapper  │    │  Keyboard bindings + routing    │
-│  Light sweep + bloom    │    │  Renders current scene          │
-└─────────────────────────┘    └─────────────────────────────────┘
+## Technical Changes
+
+### 1. Fix Container Heights (No Scroll Bleed)
+
+**Pre-experience wrapper** (line 126):
+```tsx
+// Before
+<div className="min-h-screen bg-background flex items-center justify-center relative overflow-hidden">
+
+// After  
+<div className="h-[100svh] w-full bg-background flex items-center justify-center relative overflow-hidden">
 ```
 
-### File Changes
+**Main wrapper** (line 218):
+```tsx
+// Before
+<div className="min-h-screen bg-background relative overflow-hidden">
 
-| File | Action | Purpose |
-|------|--------|---------|
-| `src/stores/sceneFlowStore.ts` | Create | Zustand store with scene + phase state |
-| `src/components/scene/SceneStage.tsx` | Create | Dissolve veil wrapper with light effects |
-| `src/components/home/SceneFlow.tsx` | Rewrite | Use store, add keyboard, wire to SceneStage |
-| `src/lib/hubEventBus.ts` | Update | Add scene flow event types |
+// After
+<div className="h-[100svh] w-full bg-background relative overflow-hidden">
+```
 
----
+**Main content area** (line 303):
+```tsx
+// Before
+<main className="relative z-10 min-h-screen flex flex-col items-center justify-center px-6 pt-24 pb-40">
 
-## Technical Details
+// After
+<main className="relative z-10 h-[100svh] w-full flex flex-col items-center justify-center px-6 pt-24 pb-40">
+```
 
-### 1. Scene Flow Store (`src/stores/sceneFlowStore.ts`)
+### 2. Add `onJoinNow` Callback Prop
 
-State shape:
-- `scene`: Current visible scene (`HALLWAY` | `DEMO` | `INFO`)
-- `phase`: Transition state (`IDLE` | `DISSOLVE_OUT` | `DISSOLVE_IN`)
-- `toScene`: Target scene during transition
-- `lastScene`: Previous scene for `back()` navigation
-- `dissolveMs`: Configurable timing (default 950ms)
+Update the interface:
+```tsx
+interface InsiderDemoExperienceProps {
+  embedded?: boolean;
+  onLearnMore?: () => void;
+  onBack?: () => void;
+  onJoinNow?: () => void;  // NEW
+}
+```
 
-Actions:
-- `go(next)`: Initiates transition sequence with guards (no double-fire)
-- `back()`: Returns to previous scene
-- `setDissolveMs(ms)`: Runtime timing adjustment
+Update the "Join Now" button logic:
+```tsx
+<Button
+  size="lg"
+  onClick={() => {
+    if (embedded && onJoinNow) {
+      onJoinNow();
+      return;
+    }
+    navigate('/auth');
+  }}
+  className="gap-2 bg-gradient-to-r from-primary to-purple-600"
+>
+  Join Now
+  <ArrowRight className="w-5 h-5" />
+</Button>
+```
 
-Transition sequence:
-1. Set `phase: DISSOLVE_OUT` + `toScene`
-2. After `dissolveMs`, swap `scene` + set `phase: DISSOLVE_IN`
-3. After fade-in duration, set `phase: IDLE`
+### 3. Stabilize `skipToPhase`
 
-Event publishing:
-- `scene:transition_started` when dissolve begins
-- `scene:changed` when scene swaps
-- `scene:transition_completed` when idle resumes
+Prevent double intervals by stopping autoplay:
+```tsx
+const skipToPhase = (index: number) => {
+  setIsAutoPlay(false);  // Stop the interval loop cleanly
+  setCurrentPhase(index);
+  setPhaseProgress(0);
+};
+```
 
-### 2. Scene Stage Component (`src/components/scene/SceneStage.tsx`)
+### 4. Wire `onJoinNow` in SceneFlow
 
-A wrapper that adds the "dissolve into light" effect:
-- Outer container with `100svh` height, `overflow-hidden`
-- Inner content wrapper with opacity + scale transitions
-- Dissolve veil overlay (white bloom → fade) synced to phase
-- Pure CSS transitions (no heavy animation library)
+Update SceneFlow to pass the new callback with dissolve-then-navigate:
 
-Visual effects during dissolve:
-- Content scales slightly (0.98 → 1.02)
-- Opacity fades
-- Light bloom overlay sweeps across
-- Subtle blur during peak transition
+```tsx
+import { useNavigate } from 'react-router-dom';
 
-### 3. Updated SceneFlow Component
+// Inside SceneFlow component
+const navigate = useNavigate();
 
-Changes:
-- Subscribe to `sceneFlowStore` instead of local state
-- Wrap scenes in `SceneStage`
-- Add keyboard event listeners:
-  - `Enter` in hallway → `go('DEMO')`
-  - `Escape` anywhere → `back()` or `go('HALLWAY')`
-- Pass scene-specific props via callbacks
+const handleJoinNow = useCallback(() => {
+  // Dissolve out, then navigate after dissolve completes
+  go('HALLWAY'); // or could be a dedicated transition state
+  setTimeout(() => navigate('/auth'), 950); // matches dissolveMs
+}, [go, navigate]);
 
-### 4. Hub Event Bus Updates
-
-New event types:
-- `scene:transition_started`
-- `scene:changed`
-- `scene:transition_completed`
-
-This allows other systems (analytics, ALS, Prime Brain) to react to scene changes.
-
----
-
-## Information Scene No-Scroll Mode
-
-The user's spec emphasizes "no scroll" — the Info scene should either:
-1. Be full-viewport with internal snap sections, OR
-2. Be allowed to scroll but contained within a `100svh` outer wrapper
-
-For this implementation, we'll add the outer container constraint. Internal scroll behavior can be refined separately.
-
----
-
-## Keyboard Flow Summary
-
-| Key | Context | Action |
-|-----|---------|--------|
-| `Enter` | Hallway | Advance to Demo |
-| `Escape` | Demo | Return to Hallway |
-| `Escape` | Info | Return to Demo |
+// In the render:
+<InsiderDemoExperience 
+  embedded 
+  onLearnMore={handleLearnMore}
+  onBack={handleBackToHallway}
+  onJoinNow={handleJoinNow}
+/>
+```
 
 ---
 
-## Integration Points
+## File Changes Summary
 
-- **Pulse System**: Scene transitions can trigger energy shifts (HALLWAY = DISCOVER, DEMO = DISCOVER/CREATE, INFO = MANAGE)
-- **ALS Bar**: Can reflect scene state without interrupting
-- **Analytics**: Scene dwell time tracking via new events
+| File | Changes |
+|------|---------|
+| `src/components/demo/InsiderDemoExperience.tsx` | Replace `min-h-screen` with `h-[100svh]`, add `onJoinNow` prop, update Join button, stabilize `skipToPhase` |
+| `src/components/home/SceneFlow.tsx` | Add `useNavigate`, create `handleJoinNow` callback, pass it to demo |
 
 ---
 
-## Validation Criteria
+## What This Achieves
 
-- Hallway loads as full-screen (100svh, no scroll)
-- Single CTA triggers dissolve into light → Demo appears
-- Demo "Learn More" dissolves to Info
-- All back buttons dissolve in reverse
-- Enter/Escape keys work from hallway/demo
-- No page reloads, no URL changes
-- Console shows scene transition events
+- **Demo is a true scene**: 100svh container, no scroll bleed, fits inside SceneStage cage
+- **"Learn More" dissolves** into Info scene (already working)
+- **"Back" dissolves** into Hallway (already working)
+- **"Join Now" dissolves then routes**: Smooth light-pass transition before auth redirect
+- **No double intervals**: Skip phase stops autoplay cleanly
+- **Standalone mode preserved**: Non-embedded usage still navigates directly
 
