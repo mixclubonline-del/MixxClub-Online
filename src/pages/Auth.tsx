@@ -636,6 +636,7 @@ const Auth = () => {
                   className="bg-white/5 border-white/10 focus:border-primary/50 text-white placeholder:text-white/30"
                   required
                   minLength={6}
+                  autoComplete="new-password"
                 />
                 <p className="text-xs text-white/40">
                   Password must be at least 6 characters
@@ -653,6 +654,7 @@ const Auth = () => {
                   className="bg-white/5 border-white/10 focus:border-primary/50 text-white placeholder:text-white/30"
                   required
                   minLength={6}
+                  autoComplete="new-password"
                 />
               </div>
 
@@ -825,6 +827,7 @@ const Auth = () => {
                       onChange={(e) => setEmail(e.target.value)}
                       className="bg-white/5 border-white/10 focus:border-primary/50 text-white placeholder:text-white/30"
                       required
+                      autoComplete="email"
                     />
                   </div>
 
@@ -903,6 +906,7 @@ const Auth = () => {
                         onChange={(e) => setFullName(e.target.value)}
                         className="bg-white/5 border-white/10 focus:border-primary/50 text-white placeholder:text-white/30"
                         required
+                        autoComplete="name"
                       />
                       
                       {/* Username preview based on full name */}
@@ -920,7 +924,8 @@ const Auth = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="bg-white/5 border-white/10 focus:border-primary/50 text-white placeholder:text-white/30"
-                    required
+                   required
+                   autoComplete="email"
                   />
                 </div>
 
@@ -934,6 +939,7 @@ const Auth = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     className="bg-white/5 border-white/10 focus:border-primary/50 text-white placeholder:text-white/30"
                     required
+                    autoComplete={mode === "signup" ? "new-password" : "current-password"}
                   />
                   {mode === "signup" && (
                     <p className="text-xs text-white/40">

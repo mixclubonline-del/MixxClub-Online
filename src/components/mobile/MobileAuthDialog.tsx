@@ -163,7 +163,8 @@ export const MobileAuthDialog = ({ open, onOpenChange, mode = 'login' }: MobileA
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="h-12 text-base"
+                 className="h-12 text-base"
+                 autoComplete="email"
                 />
                 
                 <div className="flex gap-3">
@@ -203,7 +204,8 @@ export const MobileAuthDialog = ({ open, onOpenChange, mode = 'login' }: MobileA
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="h-12 text-base"
+           className="h-12 text-base"
+           autoComplete="email"
           />
           
           <Input
@@ -212,7 +214,8 @@ export const MobileAuthDialog = ({ open, onOpenChange, mode = 'login' }: MobileA
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="h-12 text-base"
+           className="h-12 text-base"
+           autoComplete={authMode === "signup" ? "new-password" : "current-password"}
           />
 
           {authMode === 'login' && (
