@@ -149,13 +149,13 @@ export const AIMatchesHub = ({ userType }: AIMatchesHubProps) => {
 
         setMatches(formattedMatches);
       } else {
-        // Generate sample matches for demo
-        setMatches(generateSampleMatches());
+        // No matches found - show empty state (no fake data)
+        setMatches([]);
       }
     } catch (error) {
       console.error('Error loading matches:', error);
-      // Fall back to sample data
-      setMatches(generateSampleMatches());
+      // Show empty state on error - don't use fake data
+      setMatches([]);
     } finally {
       setLoading(false);
     }
