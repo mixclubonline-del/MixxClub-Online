@@ -56,3 +56,6 @@ verify_jwt = true
 
 [functions.dream-engine-api]
 verify_jwt = false
+
+[functions.seed-comprehensive-demo-data]
+verify_jwt = false
