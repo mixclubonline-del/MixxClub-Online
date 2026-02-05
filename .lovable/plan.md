@@ -1,76 +1,73 @@
 
-# Putting the Economy on Screen
-## Producer & Fan Economic UI Implementation Plan
 
-This plan outlines the UI components needed to visualize and operationalize the MixxClub economy across Producer CRM and Fan Hub, building on the existing infrastructure.
+# Beat Marketplace Checkout Flow & Stripe Integration
+
+## Executive Summary
+
+This plan implements the complete beat purchase flow, allowing Artists and Fans to discover, preview, and purchase beats from Producers. The system integrates with the existing Stripe infrastructure and the MixxCoinz economy, with a 70/30 revenue split (70% to Producer, 30% platform).
 
 ---
 
-## Current Economic Infrastructure
+## Current Infrastructure Analysis
 
 ### What Already Exists
-
-| Component | Purpose |
-|-----------|---------|
-| `mixx_wallets` table | Dual-balance system (earned/purchased) |
-| `mixx_transactions` table | Full transaction ledger |
-| `mixx_missions` + `mixx_mission_progress` | Engagement reward system |
-| `useMixxWallet` hook | Wallet CRUD operations |
-| `useMissions` hook | Mission progress + claiming |
-| `useRevenueStreams` hook | 10-stream revenue analytics (Artist/Engineer) |
-| `WalletBalance` component | Visual balance display |
-| `MissionsList` component | Daily/Weekly/Achievement missions UI |
-| `MixxCoin` / `MixxCoin3D` | Currency visualization (Earned vs Purchased) |
-| `producer_beats` table | Beat catalog with pricing |
-| `producer_stats` table | Producer analytics |
-| `fan_stats` table | Fan engagement metrics |
-
-### What's Missing (Shells Only)
-
 | Component | Status |
 |-----------|--------|
-| `ProducerCatalogHub` | Empty state only |
-| `ProducerSalesHub` | Empty state only |
-| `FanWalletHub` | Empty state only |
-| `FanMissionsHub` | Empty state only |
-| Beat purchase flow | Not implemented |
-| Producer revenue streams | Not wired to `useRevenueStreams` |
+| `producer_beats` table | ✅ Has price_cents, exclusive_price_cents, license_type |
+| `beat_purchases` table | ✅ Created with RLS, has seller_earnings_cents column |
+| `update_producer_stats_on_sale` trigger | ✅ Auto-updates producer_stats + notifications |
+| `producer_stats` table | ✅ Tracks total_sales, total_revenue_cents |
+| Stripe webhook handler | ✅ Handles checkout.session.completed |
+| `verify-stripe-session` edge function | ✅ Verifies payment status |
+| `useProducerBeats` hook | ✅ CRUD for producer catalog |
+| `BeatCard` component | ✅ Display with play/pause, pricing |
+| `SpendingDestinations` | ✅ References "Beat Marketplace" |
+
+### What's Missing
+| Component | Status |
+|-----------|--------|
+| `create-beat-checkout` edge function | ❌ Not created |
+| `BeatMarketplace` page | ❌ Not created |
+| `BeatPreviewPlayer` component | ❌ Full audio player with purchase |
+| `LicenseSelector` component | ❌ Lease vs exclusive selection |
+| `BeatCheckoutModal` component | ❌ Stripe checkout trigger |
+| `useBeatMarketplace` hook | ❌ Browse public beats |
+| Beat purchase success handling | ❌ Not in verify-stripe-session |
+| `CoinzPurchaseModal` | ❌ Not created |
 
 ---
 
-## Architecture Vision
+## Architecture
 
 ```text
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                         MIXXCLUB ECONOMY FLOWS                          │
+│                      BEAT PURCHASE FLOW                                 │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                         │
-│  PRODUCER CRM                    FAN HUB                                │
-│  ┌─────────────────┐            ┌─────────────────┐                     │
-│  │ Beat Catalog    │──sells──►  │ Discover Feed   │                     │
-│  │ - Upload beats  │            │ - Browse beats  │                     │
-│  │ - Set pricing   │            │ - Preview audio │                     │
-│  │ - Manage licenses│           │ - Purchase flow │                     │
-│  └────────┬────────┘            └────────┬────────┘                     │
-│           │                              │                              │
-│           ▼                              ▼                              │
-│  ┌─────────────────┐            ┌─────────────────┐                     │
-│  │ Sales Dashboard │◄───────────│ MixxCoinz Wallet│                     │
-│  │ - Order history │   revenue  │ - Earned balance│                     │
-│  │ - Revenue chart │            │ - Spend tracking│                     │
-│  │ - Payout request│            │ - Purchase coinz│                     │
-│  └────────┬────────┘            └────────┬────────┘                     │
-│           │                              │                              │
-│           ▼                              ▼                              │
-│  ┌─────────────────┐            ┌─────────────────┐                     │
-│  │ Revenue Hub     │            │ Missions Board  │                     │
-│  │ - Beat Sales    │            │ - Daily tasks   │                     │
-│  │ - Royalty splits│            │ - Weekly goals  │                     │
-│  │ - Licensing $   │            │ - Earn coinz    │                     │
-│  └─────────────────┘            └─────────────────┘                     │
+│  1. DISCOVERY                  2. SELECTION                             │
+│  ┌─────────────────┐          ┌─────────────────┐                       │
+│  │ BeatMarketplace │──click──►│ BeatDetailModal │                       │
+│  │ - Browse grid   │          │ - Full player   │                       │
+│  │ - Filter/search │          │ - Producer info │                       │
+│  │ - Preview audio │          │ - License select│                       │
+│  └─────────────────┘          └────────┬────────┘                       │
+│                                        │                                │
+│                                        ▼                                │
+│  3. CHECKOUT                   4. FULFILLMENT                           │
+│  ┌─────────────────┐          ┌─────────────────┐                       │
+│  │ Stripe Checkout │──paid───►│ Webhook Handler │                       │
+│  │ - Payment form  │          │ - Record purchase│                       │
+│  │ - License terms │          │ - Update stats   │                       │
+│  └─────────────────┘          │ - Notify producer│                       │
+│                               │ - Enable download│                       │
+│                               └─────────────────┘                       │
 │                                                                         │
-│              ◄─────── 70/30 SPLIT ───────►                              │
-│         Platform 30%              Creator 70%                           │
+│  ┌──────────────────────────────────────────────────────────────────┐   │
+│  │                     REVENUE SPLIT                                 │   │
+│  │  Beat Sale ($19.99)                                               │   │
+│  │  ├── Producer (70%): $13.99                                       │   │
+│  │  └── Platform (30%): $6.00                                        │   │
+│  └──────────────────────────────────────────────────────────────────┘   │
 │                                                                         │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
@@ -79,339 +76,325 @@ This plan outlines the UI components needed to visualize and operationalize the 
 
 ## Implementation Plan
 
-### Phase 1: Producer Catalog Hub (Beat Management)
+### Phase 1: Edge Function - create-beat-checkout
 
-**1.1 Create `useProducerBeats` Hook**
+**File:** `supabase/functions/create-beat-checkout/index.ts`
 
+**Request Schema:**
 ```typescript
-// src/hooks/useProducerBeats.ts
-interface ProducerBeat {
-  id: string;
-  title: string;
-  bpm: number;
-  key_signature: string;
-  genre: string;
-  tags: string[];
-  audio_url: string;
-  preview_url: string;
-  price_cents: number;
-  license_type: 'lease' | 'exclusive' | 'both';
-  exclusive_price_cents: number;
-  downloads: number;
-  plays: number;
-  status: 'draft' | 'published' | 'archived';
-}
-
-export function useProducerBeats() {
-  // CRUD operations for producer_beats table
-  // Upload beat audio to storage
-  // Update pricing/licensing
-  // Track plays and downloads
+interface BeatCheckoutRequest {
+  beatId: string;
+  licenseType: 'lease' | 'exclusive';
+  successUrl?: string;
+  cancelUrl?: string;
 }
 ```
 
-**1.2 Build `ProducerCatalogHub` Components**
+**Core Logic:**
+1. Authenticate user
+2. Fetch beat details from `producer_beats`
+3. Verify beat is published and available
+4. For exclusive, check `is_exclusive_available`
+5. Create Stripe checkout session with metadata
+6. Return checkout URL
 
-| Component | Purpose |
-|-----------|---------|
-| `BeatUploadForm` | Multi-step beat upload with audio preview |
-| `BeatCard` | Card display with play/pause, stats, pricing |
-| `BeatPricingEditor` | Set lease/exclusive prices |
-| `BeatTagsInput` | Genre and mood tags with autocomplete |
-| `CatalogGrid` | Grid layout with filtering/sorting |
-| `CatalogEmptyState` | Tempo-guided first beat upload |
-
-**Key Features:**
-- Drag-and-drop audio upload
-- Waveform preview generation
-- BPM/key auto-detection (stretch goal)
-- Quick pricing templates ($19.99 lease / $299 exclusive)
-- Bulk actions (publish, archive, update pricing)
-
----
-
-### Phase 2: Producer Sales Hub (Revenue Tracking)
-
-**2.1 Create `useProducerSales` Hook**
-
+**Revenue Split Calculation:**
 ```typescript
-// src/hooks/useProducerSales.ts
-interface BeatSale {
-  id: string;
-  beat_id: string;
-  buyer_id: string;
-  license_type: 'lease' | 'exclusive';
-  amount_cents: number;
-  platform_fee_cents: number;
-  producer_earnings_cents: number;
-  purchased_at: string;
-}
+const PLATFORM_FEE_PERCENTAGE = 0.30;
+const priceCents = licenseType === 'exclusive' 
+  ? beat.exclusive_price_cents 
+  : beat.price_cents;
+const platformFeeCents = Math.round(priceCents * PLATFORM_FEE_PERCENTAGE);
+const sellerEarningsCents = priceCents - platformFeeCents;
+```
 
-export function useProducerSales() {
-  // Fetch sales from beat_purchases table (to be created)
-  // Calculate revenue analytics
-  // Generate earnings reports
+**Session Metadata:**
+```typescript
+metadata: {
+  purchase_type: 'beat',
+  beat_id: beatId,
+  seller_id: beat.producer_id,
+  buyer_id: user.id,
+  license_type: licenseType,
+  platform_fee_cents: platformFeeCents,
+  seller_earnings_cents: sellerEarningsCents,
 }
 ```
 
-**2.2 Build `ProducerSalesHub` Components**
-
-| Component | Purpose |
-|-----------|---------|
-| `SalesOverview` | Total earnings, this month, pending |
-| `SalesTable` | Sortable table of all transactions |
-| `EarningsChart` | Line chart of earnings over time |
-| `TopBeatsLeaderboard` | Best-selling beats ranking |
-| `PayoutRequestButton` | Trigger cashout flow |
-
-**Key Features:**
-- Real-time sales notifications
-- Filter by date range, beat, license type
-- Export to CSV for tax purposes
-- Stripe Connect payout integration
-
 ---
 
-### Phase 3: Fan Wallet Hub (MixxCoinz Management)
+### Phase 2: Webhook Handler Update
 
-**3.1 Enhance `FanWalletHub` Component**
+**File:** `supabase/functions/stripe-webhook/index.ts`
 
-Replace empty state with full wallet experience using existing `WalletBalance` and `TransactionLedger` components.
-
-| Component | Purpose |
-|-----------|---------|
-| `WalletBalance` (existing) | Total + earned/purchased breakdown |
-| `CoinzPurchaseModal` | Buy MixxCoinz with Stripe |
-| `SpendingDestinations` | Where to spend (merch, tips, unlocks) |
-| `TransactionLedger` (existing) | Full transaction history |
-| `TierProgressCard` | Show current tier + next milestone |
-
-**Key Features:**
-- One-tap purchase flows ($4.99 = 500 coinz, $9.99 = 1200 coinz)
-- Daily purchase limit indicator (2000/day)
-- Spending shortcuts to artist merch stores
-- Gifting interface for sending coinz to friends
-
----
-
-### Phase 4: Fan Missions Hub (Engagement Economy)
-
-**4.1 Enhance `FanMissionsHub` Component**
-
-Wrap existing `MissionsList` with fan-specific context and add new components.
-
-| Component | Purpose |
-|-----------|---------|
-| `MissionsList` (existing) | Daily/Weekly/Achievement missions |
-| `StreakTracker` | Show engagement streak with rewards |
-| `LeaderboardWidget` | Top earners this week |
-| `BonusMissionsCard` | Limited-time bonus opportunities |
-| `ReferralMissions` | Earn by inviting friends |
-
-**Key Features:**
-- Mission categories: Listen, Vote, Share, Comment
-- Streak multipliers (7-day streak = 2x rewards)
-- Seasonal/event missions
-- Community-wide goals (collective targets)
-
----
-
-### Phase 5: Producer Revenue Integration
-
-**5.1 Extend `useRevenueStreams` Hook**
-
-Add producer-specific revenue streams to the existing hook:
+**Add beat purchase handling in `handleCheckoutCompleted`:**
 
 ```typescript
-// New streams for producers
-{
-  id: 'beat_leases',
-  name: 'Beat Leases',
-  icon: 'disc-3',
-  amount: leaseSalesTotal,
-  color: 'hsl(45, 100%, 55%)',
-  description: 'Non-exclusive beat licenses'
-},
-{
-  id: 'exclusives',
-  name: 'Exclusive Sales',
-  icon: 'crown',
-  amount: exclusiveSalesTotal,
-  color: 'hsl(280, 100%, 60%)',
-  description: 'Full ownership transfers'
-},
-{
-  id: 'beat_royalties',
-  name: 'Beat Royalties',
-  icon: 'music',
-  amount: royaltyTotal,
-  color: 'hsl(120, 80%, 50%)',
-  description: 'Revenue share from released tracks'
+// Check if this is a beat purchase
+if (session.metadata?.purchase_type === 'beat') {
+  await handleBeatPurchase(supabase, session);
 }
 ```
 
-**5.2 Create Producer Revenue Hub Tab**
-
-Add producer-specific revenue dashboard tab to ProducerCRM.
+**New function: `handleBeatPurchase`**
+- Insert record into `beat_purchases`
+- Mark exclusive as unavailable if exclusive license
+- Trigger sends notification to producer (already handled by trigger)
+- Update producer_stats (already handled by trigger)
 
 ---
 
-### Phase 6: Beat Marketplace Integration
+### Phase 3: useBeatMarketplace Hook
 
-**6.1 Database Schema Additions**
+**File:** `src/hooks/useBeatMarketplace.ts`
 
-```sql
--- Beat purchases table
-CREATE TABLE public.beat_purchases (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  beat_id uuid REFERENCES producer_beats(id) ON DELETE SET NULL,
-  buyer_id uuid REFERENCES auth.users(id) ON DELETE SET NULL,
-  seller_id uuid REFERENCES auth.users(id) ON DELETE SET NULL,
-  license_type text NOT NULL,
-  amount_cents integer NOT NULL,
-  platform_fee_cents integer NOT NULL DEFAULT 0,
-  seller_earnings_cents integer NOT NULL,
-  stripe_payment_intent_id text,
-  status text DEFAULT 'pending',
-  downloaded_at timestamptz,
-  created_at timestamptz DEFAULT now()
-);
+**Features:**
+- Fetch published beats with producer profile info
+- Filter by genre, BPM range, key signature, price range
+- Search by title/tags
+- Sort by newest, most plays, price
+- Paginated results
 
--- Update producer_stats on sale
-CREATE OR REPLACE FUNCTION update_producer_stats_on_sale()
-RETURNS TRIGGER AS $$
-BEGIN
-  UPDATE producer_stats
-  SET 
-    total_sales = total_sales + 1,
-    total_revenue_cents = total_revenue_cents + NEW.seller_earnings_cents
-  WHERE user_id = NEW.seller_id;
+**Query:**
+```typescript
+const { data } = await supabase
+  .from('producer_beats')
+  .select(`
+    *,
+    producer:producer_id(id, username, avatar_url, full_name)
+  `)
+  .eq('status', 'published')
+  .order('created_at', { ascending: false })
+  .range(offset, offset + limit - 1);
+```
+
+---
+
+### Phase 4: BeatMarketplace Page
+
+**File:** `src/pages/BeatMarketplace.tsx`
+
+**Layout:**
+- Header with search bar and filters
+- Filter sidebar (genre, BPM, key, price)
+- Beat grid using enhanced BeatCard
+- Click to open BeatDetailModal
+
+**Route:** `/beats` (public, no auth required to browse)
+
+---
+
+### Phase 5: Beat Marketplace Components
+
+**5.1 BeatMarketplaceCard**
+**File:** `src/components/marketplace/BeatMarketplaceCard.tsx`
+
+Enhanced version of BeatCard for public marketplace:
+- Producer avatar and name
+- Audio preview on hover
+- Price display (lease / exclusive)
+- Quick buy button
+
+**5.2 BeatDetailModal**
+**File:** `src/components/marketplace/BeatDetailModal.tsx`
+
+Full-screen modal with:
+- Full audio player (waveform optional)
+- Producer profile card
+- License selection (LicenseSelector)
+- Terms and conditions
+- Buy button → Stripe checkout
+
+**5.3 LicenseSelector**
+**File:** `src/components/marketplace/LicenseSelector.tsx`
+
+Radio group showing:
+- Lease license: $X.XX - Non-exclusive, limited streams
+- Exclusive license: $X.XX - Full ownership, unlimited use
+- Comparison table of rights
+
+**5.4 BeatAudioPlayer**
+**File:** `src/components/marketplace/BeatAudioPlayer.tsx`
+
+Simple audio player with:
+- Play/pause
+- Progress bar
+- Time display
+- Volume control
+
+---
+
+### Phase 6: Beat Purchase Hook
+
+**File:** `src/hooks/useBeatPurchase.ts`
+
+```typescript
+export function useBeatPurchase() {
+  const createBeatCheckout = async (beatId: string, licenseType: 'lease' | 'exclusive') => {
+    const { data, error } = await supabase.functions.invoke('create-beat-checkout', {
+      body: { beatId, licenseType }
+    });
+    
+    if (data?.url) {
+      window.open(data.url, '_blank');
+    }
+  };
   
-  UPDATE producer_beats
-  SET downloads = downloads + 1
-  WHERE id = NEW.beat_id;
-  
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
+  return { createBeatCheckout, loading };
+}
 ```
-
-**6.2 Create Beat Purchase Flow**
-
-| Component | Purpose |
-|-----------|---------|
-| `BeatPreviewPlayer` | Full audio player with buy button |
-| `LicenseSelector` | Choose lease vs exclusive |
-| `BeatCheckout` | Stripe payment form |
-| `PurchaseConfirmation` | Download link + license PDF |
-
-**Edge Function: `create-beat-checkout`**
-- Creates Stripe checkout session for beat purchase
-- Applies 70/30 split (70% to producer)
-- Records transaction in beat_purchases
 
 ---
 
-### Phase 7: Cross-Hub Economy Wiring
+### Phase 7: My Purchases Page
 
-**7.1 Event Bus Integration**
+**File:** `src/pages/MyPurchases.tsx`
 
-Wire producer sales to fan spending:
+Dashboard for buyers showing:
+- Purchased beats with download links
+- License type and purchase date
+- Re-download capability
 
+**Route:** `/my-purchases` (requires auth)
+
+---
+
+### Phase 8: CoinzPurchaseModal (Fan Economy)
+
+**File:** `src/components/fan/CoinzPurchaseModal.tsx`
+
+Modal for purchasing MixxCoinz with Stripe:
+
+**Pricing Tiers:**
+| Package | Price | Coinz | Bonus |
+|---------|-------|-------|-------|
+| Starter | $4.99 | 500 | - |
+| Popular | $9.99 | 1,200 | +20% |
+| Best Value | $19.99 | 2,500 | +25% |
+
+**Features:**
+- Visual tier selection
+- Daily limit indicator (2000/day)
+- Stripe checkout integration
+- Webhook updates purchased_balance
+
+---
+
+### Phase 9: Payment Success Updates
+
+**Update:** `src/pages/PaymentSuccess.tsx`
+
+Add handling for beat purchases:
+- Show beat title and producer
+- Download link for audio files
+- License certificate download
+
+**Update:** `supabase/functions/verify-stripe-session/index.ts`
+
+Add beat purchase verification:
 ```typescript
-// When fan purchases beat
-hubEventBus.emit('beat_purchased', {
-  buyerId: fanId,
-  sellerId: producerId,
-  beatId,
-  amountCents,
-});
-
-// Producer receives notification
-hubEventBus.on('beat_purchased', async (data) => {
-  await createNotification(data.sellerId, {
-    type: 'sale',
-    title: 'New Beat Sale!',
-    message: `Your beat just sold for $${(data.amountCents / 100).toFixed(2)}`,
-  });
-});
+case 'beat':
+  const { data: beat } = await supabase
+    .from('producer_beats')
+    .select('title, producer:producer_id(username)')
+    .eq('id', session.metadata?.beat_id)
+    .single();
+  packageName = beat?.title || 'Beat Purchase';
+  break;
 ```
-
-**7.2 Fan Tier System Display**
-
-Show tier badges and progression in Fan Hub:
-
-| Tier | Threshold | Badge |
-|------|-----------|-------|
-| Newcomer | 0 coinz | Bronze |
-| Supporter | 500 coinz | Silver |
-| Advocate | 2000 coinz | Gold |
-| Champion | 5000 coinz | Platinum |
-| Legend | 10000 coinz | Diamond |
 
 ---
 
-## File Creation Summary
+### Phase 10: Navigation & Routing
+
+**Updates to:** `src/config/navigationConfig.ts`
+
+Add public marketplace link:
+```typescript
+{
+  label: 'Beat Store',
+  path: '/beats',
+  icon: Disc3,
+  roles: null, // Public
+  category: 'Discover',
+}
+```
+
+**Updates to:** `src/routes/appRoutes.tsx`
+
+Add routes:
+```typescript
+<Route path="/beats" element={<BeatMarketplace />} />
+<Route path="/my-purchases" element={<ProtectedRoute><MyPurchases /></ProtectedRoute>} />
+```
+
+---
+
+## File Summary
+
+### New Files (13)
 
 | File | Purpose |
 |------|---------|
-| `src/hooks/useProducerBeats.ts` | Beat catalog CRUD hook |
-| `src/hooks/useProducerSales.ts` | Sales analytics hook |
-| `src/components/producer/BeatUploadForm.tsx` | Beat upload UI |
-| `src/components/producer/BeatCard.tsx` | Beat display card |
-| `src/components/producer/BeatPricingEditor.tsx` | Pricing modal |
-| `src/components/producer/CatalogGrid.tsx` | Beat grid layout |
-| `src/components/producer/SalesOverview.tsx` | Sales dashboard header |
-| `src/components/producer/SalesTable.tsx` | Transaction table |
-| `src/components/producer/EarningsChart.tsx` | Revenue visualization |
-| `src/components/fan/CoinzPurchaseModal.tsx` | Buy coinz flow |
-| `src/components/fan/SpendingDestinations.tsx` | Spend options |
-| `src/components/fan/TierProgressCard.tsx` | Tier display |
-| `src/components/fan/StreakTracker.tsx` | Engagement streak |
-| `supabase/functions/create-beat-checkout/index.ts` | Stripe checkout |
+| `supabase/functions/create-beat-checkout/index.ts` | Stripe checkout for beats |
+| `supabase/functions/create-coinz-checkout/index.ts` | Stripe checkout for MixxCoinz |
+| `src/hooks/useBeatMarketplace.ts` | Browse public beats hook |
+| `src/hooks/useBeatPurchase.ts` | Beat checkout trigger hook |
+| `src/pages/BeatMarketplace.tsx` | Public beat store page |
+| `src/pages/MyPurchases.tsx` | User's purchased beats |
+| `src/components/marketplace/BeatMarketplaceCard.tsx` | Marketplace beat card |
+| `src/components/marketplace/BeatDetailModal.tsx` | Full beat details modal |
+| `src/components/marketplace/LicenseSelector.tsx` | License type picker |
+| `src/components/marketplace/BeatAudioPlayer.tsx` | Audio playback component |
+| `src/components/marketplace/index.ts` | Barrel export |
+| `src/components/fan/CoinzPurchaseModal.tsx` | Buy MixxCoinz modal |
+| `src/components/fan/CoinzPurchaseButton.tsx` | Trigger for purchase modal |
 
-## File Modification Summary
+### Modified Files (5)
 
 | File | Changes |
 |------|---------|
-| `src/components/crm/producer/ProducerCatalogHub.tsx` | Full catalog UI |
-| `src/components/crm/producer/ProducerSalesHub.tsx` | Full sales dashboard |
-| `src/components/crm/producer/ProducerDashboardHub.tsx` | Wire real stats |
-| `src/components/crm/fan/FanWalletHub.tsx` | Full wallet experience |
-| `src/components/crm/fan/FanMissionsHub.tsx` | Enhanced missions UI |
-| `src/hooks/useRevenueStreams.ts` | Add producer streams |
-| Database migration | Add beat_purchases table + triggers |
-
----
-
-## Rollout Sequence
-
-1. **Phase A: Database + Hooks** - beat_purchases table, useProducerBeats, useProducerSales
-2. **Phase B: Producer Catalog** - Upload, manage, price beats
-3. **Phase C: Fan Wallet** - Full wallet experience with purchase flow
-4. **Phase D: Producer Sales** - Revenue tracking and analytics
-5. **Phase E: Fan Missions** - Enhanced engagement with streaks
-6. **Phase F: Beat Marketplace** - Purchase flow + Stripe integration
-7. **Phase G: Cross-Hub Wiring** - Notifications + event bus
+| `supabase/functions/stripe-webhook/index.ts` | Add beat purchase handling |
+| `supabase/functions/verify-stripe-session/index.ts` | Add beat verification |
+| `src/pages/PaymentSuccess.tsx` | Add beat purchase success UI |
+| `src/config/navigationConfig.ts` | Add Beat Store nav item |
+| `src/routes/appRoutes.tsx` | Add marketplace routes |
 
 ---
 
 ## Technical Considerations
 
-### Revenue Split Logic
-- 70% to creator, 30% platform fee
-- Calculated server-side in edge function
-- Stored in beat_purchases for audit trail
+### License Terms
+- **Lease License:** Non-exclusive, up to 500K streams, credit required
+- **Exclusive License:** Full ownership transfer, unlimited use, no credit required
+- Terms displayed before checkout, acceptance required
 
-### Coinz Economy Balance
-- Earned coinz: High-status items, leaderboards
-- Purchased coinz: Convenience, no pay-to-win
-- Daily purchase limit: 2000 coinz
-- Cashout ratio: 200 coinz = $1 USD
+### Download Security
+- Signed URLs with expiration (24 hours)
+- Download link only visible after payment verified
+- Re-download capability from MyPurchases
+
+### Exclusive Beat Handling
+- When exclusive purchased, set `is_exclusive_available = false`
+- Producer cannot sell exclusive again
+- Lease purchases still allowed if configured as `license_type = 'both'`
 
 ### Real-time Updates
-- Use Supabase Realtime for sales notifications
-- Producer sees instant sale alerts
-- Fan wallet updates immediately after spend
+- Enable Supabase Realtime on `beat_purchases`
+- Producer dashboard shows instant sale notifications
+- Buyer sees confirmation immediately
 
-This plan transforms the current shell components into a fully operational economy where Producers monetize beats and Fans earn through engagement, all connected through the MixxCoinz currency system.
+---
+
+## Rollout Sequence
+
+1. **Phase A:** Edge functions (create-beat-checkout, webhook updates)
+2. **Phase B:** Hooks (useBeatMarketplace, useBeatPurchase)
+3. **Phase C:** Marketplace page + components
+4. **Phase D:** Payment success updates
+5. **Phase E:** My Purchases page
+6. **Phase F:** CoinzPurchaseModal
+7. **Phase G:** Navigation + routing
+
+This plan completes the economic loop where Producers monetize their beats and Artists/Fans can purchase through a seamless Stripe-integrated checkout experience.
+
