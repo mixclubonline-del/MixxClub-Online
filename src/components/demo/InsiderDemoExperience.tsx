@@ -24,6 +24,7 @@ import { usePhaseSync, PhaseMarker } from '@/hooks/usePhaseSync';
  import { useCommunityShowcase } from '@/hooks/useCommunityShowcase';
  import { AudioVisualizer } from '@/components/demo/AudioVisualizer';
  import { ParticleStorm } from '@/components/demo/ParticleStorm';
+  import { PhaseBackground } from '@/components/demo/PhaseBackground';
  import { CommunityShowcase } from '@/components/demo/CommunityShowcase';
  import { ProblemReveal } from '@/components/demo/ProblemReveal';
  import { TransformationVisual } from '@/components/demo/TransformationVisual';
@@ -251,14 +252,14 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
 
   return (
     <div className="h-[100svh] w-full bg-background relative overflow-hidden">
-      {/* Audio-Reactive Background */}
-      <motion.div 
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          background: `radial-gradient(circle at 30% 20%, hsl(var(--primary) / ${0.1 + (bass / 255) * 0.2}) 0%, transparent 50%),
-                      radial-gradient(circle at 70% 80%, hsl(280 100% 50% / ${0.08 + (mid / 255) * 0.15}) 0%, transparent 50%),
-                      radial-gradient(circle at 50% 50%, hsl(200 100% 50% / ${0.05 + (high / 255) * 0.1}) 0%, transparent 70%)`
-        }}
+      {/* Cinematic Phase Background with Audio-Reactive Glow */}
+      <PhaseBackground
+        phaseId={phase.id as 'problem' | 'discovery' | 'connection' | 'transformation' | 'tribe' | 'invitation'}
+        amplitude={amplitude}
+        bass={bass}
+        mid={mid}
+        high={high}
+        isPlaying={isPlaying}
       />
 
       <ParticleStorm amplitude={amplitude} bass={bass} isPlaying={isPlaying} particleCount={40} />
