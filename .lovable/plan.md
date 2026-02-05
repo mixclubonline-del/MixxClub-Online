@@ -1,132 +1,261 @@
 
 
-# Making InsiderDemoExperience a True Scene
+# Revised Demo Phase Structure: "Find Your People"
 
-## Current Issues Identified
+## The Narrative Problem with Current Demo
 
-| Problem | Location | Impact |
-|---------|----------|--------|
-| `min-h-screen` allows scroll bleed | Lines 126, 218, 303 | Breaks 100svh scene cage |
-| Hard `navigate('/auth')` when embedded | Line 439 | Breaks dissolve flow |
-| No `onJoinNow` callback prop | Interface (line 29-33) | Can't route join through SceneFlow |
-| `skipToPhase` doesn't stop autoplay | Line 111-114 | Risk of double intervals |
+| Current Phase | What It Says | What It Should Say |
+|--------------|--------------|-------------------|
+| THE DROP | Prime character appears | **MixClub** appears — this is about the platform, not the mascot |
+| THE SPARK | "What if your sound had no limits?" (vague) | **The Problem** — "87% of tracks never leave the hard drive" (real pain) |
+| YOUR PEOPLE | Generic "These aren't just users" | **Real Faces** — Show actual artist/engineer connection happening |
+| THE COLLABORATION | "Human + AI" (wrong focus) | **Human + Human** — Artist meets engineer, magic happens |
+| THE NETWORK | Stats grid (cold) | **The Proof** — Before/after audio transformation visual |
+| YOUR PLACE | Prime with vague text | **The Scale** — 10,000+ tribe, but personal ("your seat is saved") |
+| THE INVITATION | Role portals split too early | **One CTA** — Join first, choose role after |
 
 ---
 
-## Technical Changes
+## New Phase Structure (6 Phases)
 
-### 1. Fix Container Heights (No Scroll Bleed)
+### Phase 1: "THE PROBLEM" (8 seconds)
+**Emotional Beat**: Frustration → Recognition
 
-**Pre-experience wrapper** (line 126):
-```tsx
-// Before
-<div className="min-h-screen bg-background flex items-center justify-center relative overflow-hidden">
+**Visual**:
+- Full-screen, cinematic text reveal
+- Subtle hard drive icon animation
+- Dark, moody palette with destructive/orange accents
 
-// After  
-<div className="h-[100svh] w-full bg-background flex items-center justify-center relative overflow-hidden">
+**Content**:
+```
+Headline: "87% of tracks never leave the hard drive."
+Subtext: "Not because they're bad. Because pro mixing costs $1,500 a song."
 ```
 
-**Main wrapper** (line 218):
-```tsx
-// Before
-<div className="min-h-screen bg-background relative overflow-hidden">
+**No Prime**. Just the truth, landing hard.
 
-// After
-<div className="h-[100svh] w-full bg-background relative overflow-hidden">
+**Music Sync**: Intro tension, low bass, building
+
+---
+
+### Phase 2: "THE DISCOVERY" (10 seconds)
+**Emotional Beat**: Recognition → Hope
+
+**Visual**:
+- MixClub logo reveal (from `mixclub-3d-logo.png`)
+- Particle burst / light bloom effect
+- Colors shift from destructive → primary purple
+
+**Content**:
+```
+Headline: "What if pro sound wasn't about money?"
+Subtext: "What if it was about connection?"
 ```
 
-**Main content area** (line 303):
-```tsx
-// Before
-<main className="relative z-10 min-h-screen flex flex-col items-center justify-center px-6 pt-24 pb-40">
+**Message (typewriter)**:
+> "There's a global network of professional engineers who want to work with artists like you. Not for $1,500. For collaboration."
 
-// After
-<main className="relative z-10 h-[100svh] w-full flex flex-col items-center justify-center px-6 pt-24 pb-40">
+**Music Sync**: First beat drop, energy rise
+
+---
+
+### Phase 3: "THE CONNECTION" (12 seconds)
+**Emotional Beat**: Hope → Belief
+
+**Visual**:
+- Use existing `CommunityShowcase` component (already built well)
+- Show real profile cards floating with connection lines
+- Highlight one artist-engineer pair "connecting"
+
+**Content**:
+```
+Headline: "Your People Are Already Here"
 ```
 
-### 2. Add `onJoinNow` Callback Prop
+**Message (typewriter)**:
+> "Marcus in Brooklyn needed a master for his EP. Amara in Lagos had 10 years of experience and an empty calendar. MixClub connected them in 3 minutes."
 
-Update the interface:
-```tsx
-interface InsiderDemoExperienceProps {
-  embedded?: boolean;
-  onLearnMore?: () => void;
-  onBack?: () => void;
-  onJoinNow?: () => void;  // NEW
-}
+**Music Sync**: Groove section, community energy
+
+---
+
+### Phase 4: "THE TRANSFORMATION" (14 seconds)
+**Emotional Beat**: Belief → Awe
+
+**Visual**:
+- **Before/After waveform comparison** (use visual language from `TransformationDemo`)
+- Show messy waveform → clean waveform transition
+- LUFS meter climbing from -24 to -14
+- NO Prime, NO "AI" — this is **human engineering**
+
+**Content**:
+```
+Headline: "This Is What Happens"
+Subtext: "When vision meets craft."
 ```
 
-Update the "Join Now" button logic:
-```tsx
-<Button
-  size="lg"
-  onClick={() => {
-    if (embedded && onJoinNow) {
-      onJoinNow();
-      return;
-    }
-    navigate('/auth');
-  }}
-  className="gap-2 bg-gradient-to-r from-primary to-purple-600"
->
-  Join Now
-  <ArrowRight className="w-5 h-5" />
-</Button>
+**Stats overlay**:
+- Before: Muddy • Quiet • Unbalanced
+- After: Clear • Loud • Professional
+
+**Message (typewriter)**:
+> "Real engineers. Real transformation. From bedroom demo to streaming-ready in 24 hours."
+
+**Music Sync**: Peak energy, bass hits, visual pulses
+
+---
+
+### Phase 5: "THE TRIBE" (10 seconds)
+**Emotional Beat**: Awe → Belonging
+
+**Visual**:
+- Stats grid (10,000+ artists, 500+ engineers, 50,000+ tracks)
+- But with **human faces** behind the numbers (avatar constellation)
+- Connection lines pulsing between nodes
+- Live activity ticker: "Marcus just connected with Sarah in Atlanta"
+
+**Content**:
+```
+Headline: "The Network"
+Subtext: "10,000+ creators. One ecosystem. All connected through sound."
 ```
 
-### 3. Stabilize `skipToPhase`
+**Message (typewriter)**:
+> "Whether you're crafting beats in your bedroom or running sessions for labels — there's a seat saved for you."
 
-Prevent double intervals by stopping autoplay:
-```tsx
-const skipToPhase = (index: number) => {
-  setIsAutoPlay(false);  // Stop the interval loop cleanly
-  setCurrentPhase(index);
-  setPhaseProgress(0);
-};
+**Music Sync**: Plateau, warm pads, community feel
+
+---
+
+### Phase 6: "THE INVITATION" (holds until action)
+**Emotional Beat**: Belonging → Action
+
+**Visual**:
+- Full-screen gradient with MixClub logo
+- Single, prominent "Join Now" button
+- Subtle particles / glow
+- NO role selection split (that comes after signup)
+
+**Content**:
+```
+Headline: "Your Music Deserves to Be Heard"
+Subtext: "Your tribe is waiting."
 ```
 
-### 4. Wire `onJoinNow` in SceneFlow
+**CTAs**:
+- Primary: "Join Now" → `/auth`
+- Secondary: "Learn More" → Scene transition to INFO
 
-Update SceneFlow to pass the new callback with dissolve-then-navigate:
+**Music Sync**: Outro, emotional resolution
 
-```tsx
-import { useNavigate } from 'react-router-dom';
+---
 
-// Inside SceneFlow component
-const navigate = useNavigate();
+## Removed Elements
 
-const handleJoinNow = useCallback(() => {
-  // Dissolve out, then navigate after dissolve completes
-  go('HALLWAY'); // or could be a dedicated transition state
-  setTimeout(() => navigate('/auth'), 950); // matches dissolveMs
-}, [go, navigate]);
+| Element | Why Removed |
+|---------|-------------|
+| PrimeCharacter in most phases | Prime is for guidance inside the platform, not the welcome mat |
+| "Human + AI" messaging | The core value is human-to-human connection; AI is infrastructure, not hero |
+| RolePortals (Artist/Engineer split) | Asking users to self-identify too early creates friction; join first, discover role after |
+| Abstract emoji Before/After | Replaced with actual waveform transformation visual |
+| "THE SPARK" as a concept | Too abstract; replaced with concrete problem statement |
 
-// In the render:
-<InsiderDemoExperience 
-  embedded 
-  onLearnMore={handleLearnMore}
-  onBack={handleBackToHallway}
-  onJoinNow={handleJoinNow}
-/>
+---
+
+## New DEMO_PHASES Constant
+
+```typescript
+const DEMO_PHASES = [
+  { 
+    id: 'problem', 
+    title: 'THE PROBLEM', 
+    duration: 8000, 
+    message: "" // No typewriter, just impact text
+  },
+  { 
+    id: 'discovery', 
+    title: 'THE DISCOVERY', 
+    duration: 10000, 
+    message: "There's a global network of professional engineers who want to work with artists like you. Not for $1,500. For collaboration."
+  },
+  { 
+    id: 'connection', 
+    title: 'THE CONNECTION', 
+    duration: 12000, 
+    message: "Marcus in Brooklyn needed a master for his EP. Amara in Lagos had 10 years of experience and an empty calendar. MixClub connected them in 3 minutes."
+  },
+  { 
+    id: 'transformation', 
+    title: 'THE TRANSFORMATION', 
+    duration: 14000, 
+    message: "Real engineers. Real transformation. From bedroom demo to streaming-ready in 24 hours."
+  },
+  { 
+    id: 'tribe', 
+    title: 'THE TRIBE', 
+    duration: 10000, 
+    message: "Whether you're crafting beats in your bedroom or running sessions for labels — there's a seat saved for you."
+  },
+  { 
+    id: 'invitation', 
+    title: 'THE INVITATION', 
+    duration: 999999, 
+    message: "Your music deserves to be heard. Your skills deserve recognition. Your tribe is waiting."
+  },
+];
 ```
+
+---
+
+## Component Reuse Plan
+
+| Phase | Components to Use |
+|-------|-------------------|
+| problem | New: `ProblemReveal` (animated stat cards, destructive palette) |
+| discovery | Existing: `mixclub-3d-logo.png`, `ParticleStorm` |
+| connection | Existing: `CommunityShowcase` (already great) |
+| transformation | Adapted from: `TransformationDemo` (waveform before/after) |
+| tribe | Existing: Stats grid + `CommunityShowcase` avatar ring |
+| invitation | Simplified: Single CTA, no role split |
+
+---
+
+## Asset Requirements
+
+| Phase | Needed Asset | Source |
+|-------|--------------|--------|
+| problem | None (text-driven) | N/A |
+| discovery | `mixclub-3d-logo.png` | Already in codebase |
+| connection | Community avatars | `useCommunityShowcase` hook |
+| transformation | Waveform visualization | Adapt from `TransformationDemo` |
+| tribe | Stats + avatars | Existing hooks |
+| invitation | MixClub logo + gradient | Existing assets |
 
 ---
 
 ## File Changes Summary
 
-| File | Changes |
-|------|---------|
-| `src/components/demo/InsiderDemoExperience.tsx` | Replace `min-h-screen` with `h-[100svh]`, add `onJoinNow` prop, update Join button, stabilize `skipToPhase` |
-| `src/components/home/SceneFlow.tsx` | Add `useNavigate`, create `handleJoinNow` callback, pass it to demo |
+| File | Action | Description |
+|------|--------|-------------|
+| `src/components/demo/InsiderDemoExperience.tsx` | Rewrite | New 6-phase structure, new content, new components per phase |
+| `src/components/demo/ProblemReveal.tsx` | Create | Animated problem statement with stats (adapted from `ProblemStatementAnimated`) |
+| `src/components/demo/TransformationVisual.tsx` | Create | Before/after waveform with LUFS meter (adapted from `TransformationDemo`) |
+| `src/components/demo/CollaborationJourney.tsx` | Remove/Replace | Current version is AI-centric; replace with connection story |
+| `src/components/demo/RolePortals.tsx` | Remove from demo | Keep component but don't use in demo flow |
+| `src/components/demo/PrimeCharacter.tsx` | Keep but don't use | May be useful elsewhere, not in welcome demo |
 
 ---
 
-## What This Achieves
+## Validation Criteria
 
-- **Demo is a true scene**: 100svh container, no scroll bleed, fits inside SceneStage cage
-- **"Learn More" dissolves** into Info scene (already working)
-- **"Back" dissolves** into Hallway (already working)
-- **"Join Now" dissolves then routes**: Smooth light-pass transition before auth redirect
-- **No double intervals**: Skip phase stops autoplay cleanly
-- **Standalone mode preserved**: Non-embedded usage still navigates directly
+- Phase 1 lands the pain point (87% stat visible, emotional hit)
+- Phase 2 introduces MixClub as solution (logo, hope)
+- Phase 3 shows real human connection (names, locations, roles)
+- Phase 4 shows transformation proof (waveform before/after, no AI mention)
+- Phase 5 shows scale with belonging (stats + "your seat")
+- Phase 6 has ONE clear CTA (Join Now), no role split
+- Music syncs to emotional arc (tension → drop → groove → peak → warmth → resolution)
+- No scroll, 100svh maintained
+- Dissolve transitions work correctly
+- Console shows phase events for debugging
 
