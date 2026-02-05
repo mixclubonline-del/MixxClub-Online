@@ -986,6 +986,88 @@ export type Database = {
           },
         ]
       }
+      beat_royalties: {
+        Row: {
+          artist_amount: number
+          artist_percentage: number
+          beat_id: string | null
+          created_at: string
+          gross_revenue: number
+          id: string
+          paid_at: string | null
+          partnership_id: string
+          period_end: string
+          period_start: string
+          platform: string | null
+          platform_fee: number | null
+          producer_amount: number
+          producer_percentage: number
+          status: string | null
+          stream_count: number | null
+          track_release_id: string | null
+        }
+        Insert: {
+          artist_amount?: number
+          artist_percentage: number
+          beat_id?: string | null
+          created_at?: string
+          gross_revenue?: number
+          id?: string
+          paid_at?: string | null
+          partnership_id: string
+          period_end: string
+          period_start: string
+          platform?: string | null
+          platform_fee?: number | null
+          producer_amount?: number
+          producer_percentage: number
+          status?: string | null
+          stream_count?: number | null
+          track_release_id?: string | null
+        }
+        Update: {
+          artist_amount?: number
+          artist_percentage?: number
+          beat_id?: string | null
+          created_at?: string
+          gross_revenue?: number
+          id?: string
+          paid_at?: string | null
+          partnership_id?: string
+          period_end?: string
+          period_start?: string
+          platform?: string | null
+          platform_fee?: number | null
+          producer_amount?: number
+          producer_percentage?: number
+          status?: string | null
+          stream_count?: number | null
+          track_release_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "beat_royalties_beat_id_fkey"
+            columns: ["beat_id"]
+            isOneToOne: false
+            referencedRelation: "producer_beats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "beat_royalties_partnership_id_fkey"
+            columns: ["partnership_id"]
+            isOneToOne: false
+            referencedRelation: "partnerships"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "beat_royalties_track_release_id_fkey"
+            columns: ["track_release_id"]
+            isOneToOne: false
+            referencedRelation: "track_releases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       brand_assets: {
         Row: {
           asset_context: string | null
@@ -4871,12 +4953,17 @@ export type Database = {
           artist_earnings: number | null
           artist_id: string
           artist_percentage: number | null
+          beat_id: string | null
           created_at: string
           default_split_type: string
           engineer_earnings: number | null
-          engineer_id: string
+          engineer_id: string | null
           engineer_percentage: number | null
           id: string
+          partnership_type: string
+          producer_earnings: number | null
+          producer_id: string | null
+          producer_percentage: number | null
           status: string
           terms: string | null
           total_revenue: number | null
@@ -4887,12 +4974,17 @@ export type Database = {
           artist_earnings?: number | null
           artist_id: string
           artist_percentage?: number | null
+          beat_id?: string | null
           created_at?: string
           default_split_type?: string
           engineer_earnings?: number | null
-          engineer_id: string
+          engineer_id?: string | null
           engineer_percentage?: number | null
           id?: string
+          partnership_type?: string
+          producer_earnings?: number | null
+          producer_id?: string | null
+          producer_percentage?: number | null
           status?: string
           terms?: string | null
           total_revenue?: number | null
@@ -4903,18 +4995,38 @@ export type Database = {
           artist_earnings?: number | null
           artist_id?: string
           artist_percentage?: number | null
+          beat_id?: string | null
           created_at?: string
           default_split_type?: string
           engineer_earnings?: number | null
-          engineer_id?: string
+          engineer_id?: string | null
           engineer_percentage?: number | null
           id?: string
+          partnership_type?: string
+          producer_earnings?: number | null
+          producer_id?: string | null
+          producer_percentage?: number | null
           status?: string
           terms?: string | null
           total_revenue?: number | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "partnerships_beat_id_fkey"
+            columns: ["beat_id"]
+            isOneToOne: false
+            referencedRelation: "producer_beats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partnerships_producer_id_fkey"
+            columns: ["producer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       payment_links: {
         Row: {
@@ -7355,6 +7467,75 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      track_releases: {
+        Row: {
+          artist_name: string | null
+          beat_id: string | null
+          cover_art_url: string | null
+          created_at: string
+          id: string
+          isrc_code: string | null
+          partnership_id: string
+          release_date: string | null
+          status: string | null
+          streaming_platforms: Json | null
+          total_revenue: number | null
+          total_streams: number | null
+          track_title: string
+          upc_code: string | null
+          updated_at: string
+        }
+        Insert: {
+          artist_name?: string | null
+          beat_id?: string | null
+          cover_art_url?: string | null
+          created_at?: string
+          id?: string
+          isrc_code?: string | null
+          partnership_id: string
+          release_date?: string | null
+          status?: string | null
+          streaming_platforms?: Json | null
+          total_revenue?: number | null
+          total_streams?: number | null
+          track_title: string
+          upc_code?: string | null
+          updated_at?: string
+        }
+        Update: {
+          artist_name?: string | null
+          beat_id?: string | null
+          cover_art_url?: string | null
+          created_at?: string
+          id?: string
+          isrc_code?: string | null
+          partnership_id?: string
+          release_date?: string | null
+          status?: string | null
+          streaming_platforms?: Json | null
+          total_revenue?: number | null
+          total_streams?: number | null
+          track_title?: string
+          upc_code?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "track_releases_beat_id_fkey"
+            columns: ["beat_id"]
+            isOneToOne: false
+            referencedRelation: "producer_beats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "track_releases_partnership_id_fkey"
+            columns: ["partnership_id"]
+            isOneToOne: false
+            referencedRelation: "partnerships"
             referencedColumns: ["id"]
           },
         ]
