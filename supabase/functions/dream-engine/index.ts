@@ -104,16 +104,32 @@ async function generateImage(prompt: string, context?: string, style?: string): 
   }
 
   const data = await response.json();
-  const content = data.choices?.[0]?.message?.content;
-  
-  if (Array.isArray(content)) {
-    const imageContent = content.find((c: any) => c.type === "image_url");
-    if (imageContent?.image_url?.url) {
-      return { url: imageContent.image_url.url, provider: "lovable-gemini-3-pro" };
-    }
+   
+   // Primary path: Lovable AI gateway format with images array
+   const imageUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+   if (imageUrl) {
+     return { url: imageUrl, provider: "lovable-gemini-3-pro" };
+   }
+ 
+   // Fallback 1: Check content array format (OpenAI-style multimodal)
+   const content = data.choices?.[0]?.message?.content;
+   if (Array.isArray(content)) {
+     const imageContent = content.find((c: any) => c.type === "image_url");
+     if (imageContent?.image_url?.url) {
+       return { url: imageContent.image_url.url, provider: "lovable-gemini-3-pro" };
+     }
   }
 
-  throw new Error("No image generated in response");
+   // Fallback 2: Direct inline data from Gemini native format
+   const inlineData = data.candidates?.[0]?.content?.parts?.find((p: any) => p.inlineData);
+   if (inlineData?.inlineData) {
+     const dataUrl = `data:${inlineData.inlineData.mimeType};base64,${inlineData.inlineData.data}`;
+     return { url: dataUrl, provider: "lovable-gemini-3-pro" };
+   }
+ 
+   // Log actual response structure for debugging
+   console.error("Unexpected response structure:", JSON.stringify(data).substring(0, 500));
+   throw new Error("No image generated in response");
 }
 
 async function generateVideo(prompt: string, sourceImage?: string): Promise<{ url: string; provider: string }> {
