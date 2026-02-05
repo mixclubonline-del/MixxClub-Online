@@ -87,12 +87,20 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Fetch profiles separately to get names
+    // Fetch profiles separately to get names (use service role for public data)
     const userIds = (engineers || []).map((e: any) => e.user_id);
-    const { data: profiles } = await supabaseClient
+    console.log('[DEBUG] Fetching profiles for user IDs:', userIds.length);
+    
+    const { data: profiles, error: profilesError } = await supabaseClient
       .from('profiles')
       .select('id, full_name, avatar_url')
       .in('id', userIds);
+
+    if (profilesError) {
+      console.error('[DEBUG] Profiles fetch error:', profilesError);
+    } else {
+      console.log('[DEBUG] Fetched profiles:', profiles?.length || 0);
+    }
 
     const profileMap = new Map((profiles || []).map((p: any) => [p.id, p]));
 
