@@ -1,6 +1,7 @@
 import React from "react";
 import { Route, Navigate } from "react-router-dom";
 import { AppLayout } from "@/components/layouts/AppLayout";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 // Core app pages - static imports for frequently used routes
 import Dashboard from "@/pages/Dashboard";
@@ -144,9 +145,9 @@ export const appRoutes = (
     <Route path="/messaging-test" element={<MessagingTest />} />
 
     {/* Onboarding */}
-    <Route path="/onboarding/artist" element={<ArtistOnboarding />} />
-    <Route path="/onboarding/engineer" element={<EngineerOnboarding />} />
-    <Route path="/onboarding/hybrid" element={<HybridOnboarding />} />
+    <Route path="/onboarding/artist" element={<ProtectedRoute><ArtistOnboarding /></ProtectedRoute>} />
+    <Route path="/onboarding/engineer" element={<ProtectedRoute><EngineerOnboarding /></ProtectedRoute>} />
+    <Route path="/onboarding/hybrid" element={<ProtectedRoute><HybridOnboarding /></ProtectedRoute>} />
 
     {/* Projects & Orders */}
     <Route path="/project/:projectId" element={<AppLayout><ProjectDetail /></AppLayout>} />

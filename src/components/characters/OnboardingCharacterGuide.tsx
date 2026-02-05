@@ -47,6 +47,8 @@ export function OnboardingCharacterGuide({
         'flex items-end gap-3',
         // Mobile: smaller and more compact
         'max-md:bottom-4 max-md:left-4 max-md:gap-2',
+        // Hide on small phones to prevent overlap
+        'max-sm:hidden',
         className
       )}
     >

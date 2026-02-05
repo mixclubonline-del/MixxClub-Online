@@ -5446,6 +5446,8 @@ export type Database = {
           level: number | null
           location: string | null
           notification_preferences: Json | null
+          onboarding_completed: boolean | null
+          onboarding_completed_at: string | null
           pinned_track_id: string | null
           points: number | null
           profile_theme: string | null
@@ -5479,6 +5481,8 @@ export type Database = {
           level?: number | null
           location?: string | null
           notification_preferences?: Json | null
+          onboarding_completed?: boolean | null
+          onboarding_completed_at?: string | null
           pinned_track_id?: string | null
           points?: number | null
           profile_theme?: string | null
@@ -5512,6 +5516,8 @@ export type Database = {
           level?: number | null
           location?: string | null
           notification_preferences?: Json | null
+          onboarding_completed?: boolean | null
+          onboarding_completed_at?: string | null
           pinned_track_id?: string | null
           points?: number | null
           profile_theme?: string | null

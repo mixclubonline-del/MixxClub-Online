@@ -39,6 +39,7 @@ import { SessionsHub } from '@/components/crm/sessions';
 import { ClientsHub } from '@/components/crm/clients';
 import { MusicHub } from '@/components/crm/MusicHub';
 import { StoreHub } from '@/components/crm/StoreHub';
+import { OnboardingReminder } from '@/components/crm/OnboardingReminder';
 
 const EngineerCRM = () => {
   const { user } = useAuth();
@@ -383,7 +384,12 @@ const EngineerCRM = () => {
         return <CollaborativeEarnings userType="engineer" />;
 
       default:
-        return <DashboardHub />;
+        return (
+          <>
+            <OnboardingReminder userType="engineer" />
+            <DashboardHub />
+          </>
+        );
     }
   };
 
