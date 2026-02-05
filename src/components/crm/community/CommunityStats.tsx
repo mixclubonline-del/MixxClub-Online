@@ -1,74 +1,88 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Users, Heart, Share2, Zap, TrendingUp, MessageCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useCommunityStats } from '@/hooks/useCommunityStats';
 
 interface CommunityStatsProps {
   userType: 'artist' | 'engineer';
 }
 
 export const CommunityStats: React.FC<CommunityStatsProps> = ({ userType }) => {
-  const stats = [
+  const { data: stats, isLoading } = useCommunityStats();
+
+  const computedStats = [
     {
       label: 'Connections',
-      value: 2156,
+      value: stats?.totalUsers || 0,
       change: '+12%',
-      progress: 65,
+      progress: Math.min(100, ((stats?.totalUsers || 0) / 1000) * 100),
       icon: Users,
       color: 'text-blue-400',
       bgColor: 'bg-blue-500/10',
     },
     {
-      label: 'Total Likes',
-      value: 3421,
-      change: '+28%',
-      progress: 85,
+      label: 'Total Artists',
+      value: stats?.totalArtists || 0,
+      change: '+18%',
+      progress: Math.min(100, ((stats?.totalArtists || 0) / 500) * 100),
       icon: Heart,
       color: 'text-red-400',
       bgColor: 'bg-red-500/10',
     },
     {
-      label: 'Shares',
-      value: 847,
+      label: 'Engineers',
+      value: stats?.totalEngineers || 0,
       change: '+15%',
-      progress: 72,
+      progress: Math.min(100, ((stats?.totalEngineers || 0) / 200) * 100),
       icon: Share2,
       color: 'text-green-400',
       bgColor: 'bg-green-500/10',
     },
     {
-      label: 'Engagement',
-      value: '34.2%',
-      change: '+5%',
-      progress: 78,
+      label: 'Active Sessions',
+      value: stats?.activeSessions || 0,
+      change: `${stats?.activeSessions || 0} live`,
+      progress: Math.min(100, ((stats?.activeSessions || 0) / 50) * 100),
       icon: MessageCircle,
       color: 'text-purple-400',
       bgColor: 'bg-purple-500/10',
     },
     {
-      label: 'Viral Score',
-      value: 78,
+      label: 'Projects Done',
+      value: stats?.projectsCompleted || 0,
       change: '+8',
-      progress: 78,
+      progress: Math.min(100, ((stats?.projectsCompleted || 0) / 500) * 100),
       icon: Zap,
       color: 'text-yellow-400',
       bgColor: 'bg-yellow-500/10',
     },
     {
-      label: 'Growth Rate',
-      value: '+8.5%',
-      change: 'Monthly',
-      progress: 85,
+      label: 'Total Earnings',
+      value: `$${((stats?.totalEarnings || 0) / 100).toLocaleString()}`,
+      change: 'Paid out',
+      progress: Math.min(100, ((stats?.totalEarnings || 0) / 100000) * 100),
       icon: TrendingUp,
       color: 'text-cyan-400',
       bgColor: 'bg-cyan-500/10',
     },
   ];
 
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        {[...Array(6)].map((_, i) => (
+          <Skeleton key={i} className="h-32 rounded-xl" />
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-      {stats.map((stat, index) => (
+      {computedStats.map((stat, index) => (
         <motion.div
           key={stat.label}
           initial={{ opacity: 0, y: 20 }}
