@@ -30,6 +30,7 @@ interface InsiderDemoExperienceProps {
   embedded?: boolean;
   onLearnMore?: () => void;
   onBack?: () => void;
+  onJoinNow?: () => void;
 }
 
 const DEMO_PHASES = [
@@ -42,7 +43,7 @@ const DEMO_PHASES = [
   { id: 'invitation', title: 'THE INVITATION', duration: 999999, primeMessage: "Your music deserves to be heard. Your skills deserve recognition. Your tribe is waiting." },
 ];
 
-export function InsiderDemoExperience({ embedded, onLearnMore, onBack }: InsiderDemoExperienceProps) {
+export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow }: InsiderDemoExperienceProps) {
   const [currentPhase, setCurrentPhase] = useState(0);
   const [isAutoPlay, setIsAutoPlay] = useState(false);
   const [phaseProgress, setPhaseProgress] = useState(0);
@@ -109,6 +110,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack }: Insider
   }, [currentPhase]);
 
   const skipToPhase = (index: number) => {
+    setIsAutoPlay(false);
     setCurrentPhase(index);
     setPhaseProgress(0);
   };
@@ -123,7 +125,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack }: Insider
   // Pre-experience screen
   if (!isPlaying && !isAutoPlay) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center relative overflow-hidden">
+      <div className="h-[100svh] w-full bg-background flex items-center justify-center relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-purple-950/20" />
 
         {/* Back button for embedded mode */}
@@ -215,7 +217,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack }: Insider
   }
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
+    <div className="h-[100svh] w-full bg-background relative overflow-hidden">
       {/* Audio-Reactive Background */}
       <motion.div 
         className="fixed inset-0 pointer-events-none"
@@ -300,7 +302,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack }: Insider
       </div>
 
       {/* Main Content */}
-      <main className="relative z-10 min-h-screen flex flex-col items-center justify-center px-6 pt-24 pb-40">
+      <main className="relative z-10 h-[100svh] w-full flex flex-col items-center justify-center px-6 pt-24 pb-40 overflow-hidden">
         <AnimatePresence mode="wait">
           {phase.id === 'drop' && (
             <motion.div key="drop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, scale: 1.5 }} className="text-center">
@@ -436,7 +438,13 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack }: Insider
                   </Button>
                   <Button
                     size="lg"
-                    onClick={() => navigate('/auth')}
+                    onClick={() => {
+                      if (embedded && onJoinNow) {
+                        onJoinNow();
+                        return;
+                      }
+                      navigate('/auth');
+                    }}
                     className="gap-2 bg-gradient-to-r from-primary to-purple-600"
                   >
                     Join Now
