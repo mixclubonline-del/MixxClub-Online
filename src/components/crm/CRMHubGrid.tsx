@@ -22,7 +22,7 @@ import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface CRMHubGridProps {
-  userType: 'artist' | 'engineer';
+   userType: 'artist' | 'engineer' | 'producer' | 'fan';
   onHubSelect: (hubId: string) => void;
   quickActions: Array<{
     label: string;

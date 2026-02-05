@@ -7,7 +7,7 @@
  * Nova = Community/Culture Pulse
  */
 
-export type CharacterId = 'prime' | 'jax' | 'rell' | 'nova';
+ export type CharacterId = 'prime' | 'jax' | 'rell' | 'nova' | 'tempo';
 
 export type EmptyStateContext = 
   | 'sessions' 
@@ -25,6 +25,14 @@ export type EmptyStateContext =
   | 'activity'
   | 'reviews'
   | 'payments'
+   | 'beats'
+   | 'sales'
+   | 'collabs'
+   | 'catalog'
+   | 'feed'
+   | 'missions'
+   | 'wallet'
+   | 'favorites'
   | 'generic';
 
 export interface MixxClubCharacter {
@@ -152,6 +160,40 @@ export const MIXXCLUB_CHARACTERS: Record<CharacterId, MixxClubCharacter> = {
       payments: "Payments hit different when they're for your art.",
       generic: "This room's empty, but not for long. You're building."
     }
+   },
+   tempo: {
+     id: 'tempo',
+     name: 'Tempo',
+     role: 'Producer Entry',
+     tagline: 'The beat is the foundation.',
+     voiceId: '6OzrBCQf8cjERkYgzSg8',
+     avatarPath: '/assets/characters/tempo-portrait.png',
+     accentColor: 'hsl(45 90% 50%)',
+     accentGlow: 'shadow-[0_0_20px_hsl(45_90%_50%_/_0.4)]',
+     personality: ['Creative', 'Rhythm-focused', 'Collaborative'],
+     sampleQuotes: [
+       "Every hit starts with a beat.",
+       "I make the canvas. Artists paint on it.",
+       "The pocket is everything.",
+       "Your sound is your signature.",
+       "Stack the catalog. Build the legacy."
+     ],
+     locations: ['Producer landing', 'Beat marketplace', 'Producer CRM', 'Producer onboarding'],
+     onboardingQuotes: [
+       "Your sound. Your signature.",
+       "What's your production style?",
+       "Ready to get your beats heard.",
+       "The game needs your sound."
+     ],
+     contextQuotes: {
+       beats: "Your catalog is your legacy. Keep stacking.",
+       sales: "Every sale is proof your sound connects.",
+       collabs: "The right artist is out there. Let's link up.",
+       catalog: "Your beats are your portfolio. Make them shine.",
+       loading: "Good things take time. We're building something.",
+       search: "Searching for the right vibe? Adjust the frequency.",
+       generic: "Empty for now, but not for long. Stack that catalog."
+     }
   }
 };
 
@@ -179,11 +221,14 @@ export const CHARACTER_VOICES: Record<CharacterId, string> = {
   jax: '6OzrBCQf8cjERkYgzSg8',
   rell: 'CwhRBWXzGAHq8TQ4Fs17',
   nova: 'EXAVITQu4vr4xnSDxMaL',
+   tempo: '6OzrBCQf8cjERkYgzSg8',
 };
 
 // Entry point mapping
-export const ENTRY_POINT_CHARACTERS: Record<'artist' | 'engineer' | 'community', CharacterId> = {
+ export const ENTRY_POINT_CHARACTERS: Record<'artist' | 'engineer' | 'producer' | 'fan' | 'community', CharacterId> = {
   artist: 'jax',
   engineer: 'rell',
+   producer: 'tempo',
+   fan: 'nova',
   community: 'nova',
 };

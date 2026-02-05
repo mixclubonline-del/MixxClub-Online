@@ -16,7 +16,7 @@ import engineerBg from '@/assets/crm-engineer-bg.jpg';
 
 interface CRMPortalProps {
   children: ReactNode;
-  userType: 'artist' | 'engineer';
+   userType: 'artist' | 'engineer' | 'producer' | 'fan';
   profile: any;
   stats: Array<{
     icon: ReactNode;
@@ -47,8 +47,21 @@ export const CRMPortal: React.FC<CRMPortalProps> = ({
   const isMobile = useIsMobile();
   const [isHubGridVisible, setIsHubGridVisible] = useState(activeTab === 'dashboard' || activeTab === '');
   
-  const backgroundImage = userType === 'artist' ? artistBg : engineerBg;
-  const glowColor = userType === 'artist' ? 'hsl(280 70% 50%)' : 'hsl(30 90% 50%)';
+   // Map userType to background and glow colors
+   const backgrounds: Record<string, string> = {
+     artist: artistBg,
+     engineer: engineerBg,
+     producer: artistBg, // Reuse artist bg for now
+     fan: engineerBg,    // Reuse engineer bg for now
+   };
+   const glowColors: Record<string, string> = {
+     artist: 'hsl(280 70% 50%)',
+     engineer: 'hsl(30 90% 50%)',
+     producer: 'hsl(45 90% 50%)',
+     fan: 'hsl(330 80% 60%)',
+   };
+   const backgroundImage = backgrounds[userType] || artistBg;
+   const glowColor = glowColors[userType] || 'hsl(280 70% 50%)';
   
   const handleHubSelect = (hubId: string) => {
     onTabChange(hubId);

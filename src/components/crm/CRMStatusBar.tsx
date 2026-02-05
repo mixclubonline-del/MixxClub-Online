@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface CRMStatusBarProps {
-  userType: 'artist' | 'engineer';
+   userType: 'artist' | 'engineer' | 'producer' | 'fan';
   profile: any;
   stats: Array<{
     icon: ReactNode;
