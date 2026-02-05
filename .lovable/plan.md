@@ -1,261 +1,199 @@
 
 
-# Revised Demo Phase Structure: "Find Your People"
+# Music Timeline Synchronization for Demo Phases
 
-## The Narrative Problem with Current Demo
+## Current State
 
-| Current Phase | What It Says | What It Should Say |
-|--------------|--------------|-------------------|
-| THE DROP | Prime character appears | **MixClub** appears — this is about the platform, not the mascot |
-| THE SPARK | "What if your sound had no limits?" (vague) | **The Problem** — "87% of tracks never leave the hard drive" (real pain) |
-| YOUR PEOPLE | Generic "These aren't just users" | **Real Faces** — Show actual artist/engineer connection happening |
-| THE COLLABORATION | "Human + AI" (wrong focus) | **Human + Human** — Artist meets engineer, magic happens |
-| THE NETWORK | Stats grid (cold) | **The Proof** — Before/after audio transformation visual |
-| YOUR PLACE | Prime with vague text | **The Scale** — 10,000+ tribe, but personal ("your seat is saved") |
-| THE INVITATION | Role portals split too early | **One CTA** — Join first, choose role after |
+The demo currently uses **timer-based progression**:
+```typescript
+// Lines 100-119: Phase auto-progression
+const phase = DEMO_PHASES[currentPhase];
+const progressInterval = setInterval(() => {
+  const elapsed = Date.now() - startTime;
+  const progress = Math.min((elapsed / phase.duration) * 100, 100);
+  // ... advances phase when progress >= 100
+}, 50);
+```
+
+This means phases advance based on fixed durations, **not** the music timeline. The audio hook already provides `analysis.currentTime` and `analysis.duration`, but they're unused for phase control.
 
 ---
 
-## New Phase Structure (6 Phases)
+## Solution: Music-Synced Phase Transitions
 
-### Phase 1: "THE PROBLEM" (8 seconds)
-**Emotional Beat**: Frustration → Recognition
+### Phase Timing Map (configurable)
 
-**Visual**:
-- Full-screen, cinematic text reveal
-- Subtle hard drive icon animation
-- Dark, moody palette with destructive/orange accents
+Map each phase to a specific timestamp in the audio track:
 
-**Content**:
-```
-Headline: "87% of tracks never leave the hard drive."
-Subtext: "Not because they're bad. Because pro mixing costs $1,500 a song."
-```
+| Phase | ID | Music Start | Music End | Emotional Beat |
+|-------|-----|-------------|-----------|----------------|
+| 1 | problem | 0:00 | 0:08 | Tension build |
+| 2 | discovery | 0:08 | 0:18 | First drop |
+| 3 | connection | 0:18 | 0:32 | Groove section |
+| 4 | transformation | 0:32 | 0:48 | Peak energy |
+| 5 | tribe | 0:48 | 1:00 | Warm resolution |
+| 6 | invitation | 1:00+ | End | Hold until action |
 
-**No Prime**. Just the truth, landing hard.
-
-**Music Sync**: Intro tension, low bass, building
+These timestamps are estimates and should be tuned to the actual audio file's structure.
 
 ---
 
-### Phase 2: "THE DISCOVERY" (10 seconds)
-**Emotional Beat**: Recognition → Hope
+## Technical Implementation
 
-**Visual**:
-- MixClub logo reveal (from `mixclub-3d-logo.png`)
-- Particle burst / light bloom effect
-- Colors shift from destructive → primary purple
+### 1. Create `usePhaseSync` Hook
 
-**Content**:
-```
-Headline: "What if pro sound wasn't about money?"
-Subtext: "What if it was about connection?"
-```
+A dedicated hook that watches audio `currentTime` and triggers phase changes:
 
-**Message (typewriter)**:
-> "There's a global network of professional engineers who want to work with artists like you. Not for $1,500. For collaboration."
+```text
+src/hooks/usePhaseSync.ts
 
-**Music Sync**: First beat drop, energy rise
+Input:
+  - currentTime: number (from audio analysis)
+  - isPlaying: boolean
+  - phaseMarkers: { phaseId: string, startTime: number }[]
+  - onPhaseChange: (phaseIndex: number) => void
+  - enabled: boolean (whether sync is active)
 
----
+Behavior:
+  - Watches currentTime and compares to markers
+  - Calls onPhaseChange when crossing a threshold
+  - Handles seek (jumping backwards or forwards)
+  - Calculates progress within current phase
+  - Supports manual override when disabled
 
-### Phase 3: "THE CONNECTION" (12 seconds)
-**Emotional Beat**: Hope → Belief
-
-**Visual**:
-- Use existing `CommunityShowcase` component (already built well)
-- Show real profile cards floating with connection lines
-- Highlight one artist-engineer pair "connecting"
-
-**Content**:
-```
-Headline: "Your People Are Already Here"
+Returns:
+  - currentPhaseIndex: number
+  - phaseProgress: number (0-100)
+  - syncEnabled: boolean
+  - setSyncEnabled: (enabled: boolean) => void
 ```
 
-**Message (typewriter)**:
-> "Marcus in Brooklyn needed a master for his EP. Amara in Lagos had 10 years of experience and an empty calendar. MixClub connected them in 3 minutes."
+### 2. Define Phase Markers Constant
 
-**Music Sync**: Groove section, community energy
-
----
-
-### Phase 4: "THE TRANSFORMATION" (14 seconds)
-**Emotional Beat**: Belief → Awe
-
-**Visual**:
-- **Before/After waveform comparison** (use visual language from `TransformationDemo`)
-- Show messy waveform → clean waveform transition
-- LUFS meter climbing from -24 to -14
-- NO Prime, NO "AI" — this is **human engineering**
-
-**Content**:
-```
-Headline: "This Is What Happens"
-Subtext: "When vision meets craft."
-```
-
-**Stats overlay**:
-- Before: Muddy • Quiet • Unbalanced
-- After: Clear • Loud • Professional
-
-**Message (typewriter)**:
-> "Real engineers. Real transformation. From bedroom demo to streaming-ready in 24 hours."
-
-**Music Sync**: Peak energy, bass hits, visual pulses
-
----
-
-### Phase 5: "THE TRIBE" (10 seconds)
-**Emotional Beat**: Awe → Belonging
-
-**Visual**:
-- Stats grid (10,000+ artists, 500+ engineers, 50,000+ tracks)
-- But with **human faces** behind the numbers (avatar constellation)
-- Connection lines pulsing between nodes
-- Live activity ticker: "Marcus just connected with Sarah in Atlanta"
-
-**Content**:
-```
-Headline: "The Network"
-Subtext: "10,000+ creators. One ecosystem. All connected through sound."
-```
-
-**Message (typewriter)**:
-> "Whether you're crafting beats in your bedroom or running sessions for labels — there's a seat saved for you."
-
-**Music Sync**: Plateau, warm pads, community feel
-
----
-
-### Phase 6: "THE INVITATION" (holds until action)
-**Emotional Beat**: Belonging → Action
-
-**Visual**:
-- Full-screen gradient with MixClub logo
-- Single, prominent "Join Now" button
-- Subtle particles / glow
-- NO role selection split (that comes after signup)
-
-**Content**:
-```
-Headline: "Your Music Deserves to Be Heard"
-Subtext: "Your tribe is waiting."
-```
-
-**CTAs**:
-- Primary: "Join Now" → `/auth`
-- Secondary: "Learn More" → Scene transition to INFO
-
-**Music Sync**: Outro, emotional resolution
-
----
-
-## Removed Elements
-
-| Element | Why Removed |
-|---------|-------------|
-| PrimeCharacter in most phases | Prime is for guidance inside the platform, not the welcome mat |
-| "Human + AI" messaging | The core value is human-to-human connection; AI is infrastructure, not hero |
-| RolePortals (Artist/Engineer split) | Asking users to self-identify too early creates friction; join first, discover role after |
-| Abstract emoji Before/After | Replaced with actual waveform transformation visual |
-| "THE SPARK" as a concept | Too abstract; replaced with concrete problem statement |
-
----
-
-## New DEMO_PHASES Constant
+Store music timestamps alongside phase definitions:
 
 ```typescript
-const DEMO_PHASES = [
-  { 
-    id: 'problem', 
-    title: 'THE PROBLEM', 
-    duration: 8000, 
-    message: "" // No typewriter, just impact text
-  },
-  { 
-    id: 'discovery', 
-    title: 'THE DISCOVERY', 
-    duration: 10000, 
-    message: "There's a global network of professional engineers who want to work with artists like you. Not for $1,500. For collaboration."
-  },
-  { 
-    id: 'connection', 
-    title: 'THE CONNECTION', 
-    duration: 12000, 
-    message: "Marcus in Brooklyn needed a master for his EP. Amara in Lagos had 10 years of experience and an empty calendar. MixClub connected them in 3 minutes."
-  },
-  { 
-    id: 'transformation', 
-    title: 'THE TRANSFORMATION', 
-    duration: 14000, 
-    message: "Real engineers. Real transformation. From bedroom demo to streaming-ready in 24 hours."
-  },
-  { 
-    id: 'tribe', 
-    title: 'THE TRIBE', 
-    duration: 10000, 
-    message: "Whether you're crafting beats in your bedroom or running sessions for labels — there's a seat saved for you."
-  },
-  { 
-    id: 'invitation', 
-    title: 'THE INVITATION', 
-    duration: 999999, 
-    message: "Your music deserves to be heard. Your skills deserve recognition. Your tribe is waiting."
-  },
+const PHASE_MARKERS = [
+  { id: 'problem',        startTime: 0,    endTime: 8   },
+  { id: 'discovery',      startTime: 8,    endTime: 18  },
+  { id: 'connection',     startTime: 18,   endTime: 32  },
+  { id: 'transformation', startTime: 32,   endTime: 48  },
+  { id: 'tribe',          startTime: 48,   endTime: 60  },
+  { id: 'invitation',     startTime: 60,   endTime: 999 },
 ];
 ```
 
+### 3. Update InsiderDemoExperience
+
+Replace timer-based progression with music-synced progression:
+
+**Remove**: The interval-based phase progression effect (lines 100-119)
+
+**Add**: Integration with `usePhaseSync`:
+```typescript
+const { currentPhaseIndex, phaseProgress, syncEnabled, setSyncEnabled } = usePhaseSync({
+  currentTime: analysis.currentTime,
+  isPlaying,
+  phaseMarkers: PHASE_MARKERS,
+  onPhaseChange: (index) => setCurrentPhase(index),
+  enabled: isAutoPlay
+});
+```
+
+**Update**: Progress display to use music-synced `phaseProgress` instead of timer-based progress.
+
+### 4. Handle Edge Cases
+
+| Edge Case | Handling |
+|-----------|----------|
+| Audio loops (track restarts) | Detect currentTime jump back to 0, reset to phase 0 |
+| User seeks forward | Jump to correct phase based on new currentTime |
+| User seeks backward | Jump to correct phase based on new currentTime |
+| Manual skip (skip button) | Temporarily disable sync, seek audio to phase startTime |
+| Audio paused | Pause phase progression, maintain current phase |
+
+### 5. Sync Skip Button with Audio
+
+When user clicks skip or phase dots, also seek the audio:
+
+```typescript
+const skipToPhase = (index: number) => {
+  const marker = PHASE_MARKERS[index];
+  seek(marker.startTime); // Seek audio to phase start
+  setCurrentPhase(index);
+  setPhaseProgress(0);
+};
+```
+
 ---
 
-## Component Reuse Plan
-
-| Phase | Components to Use |
-|-------|-------------------|
-| problem | New: `ProblemReveal` (animated stat cards, destructive palette) |
-| discovery | Existing: `mixclub-3d-logo.png`, `ParticleStorm` |
-| connection | Existing: `CommunityShowcase` (already great) |
-| transformation | Adapted from: `TransformationDemo` (waveform before/after) |
-| tribe | Existing: Stats grid + `CommunityShowcase` avatar ring |
-| invitation | Simplified: Single CTA, no role split |
-
----
-
-## Asset Requirements
-
-| Phase | Needed Asset | Source |
-|-------|--------------|--------|
-| problem | None (text-driven) | N/A |
-| discovery | `mixclub-3d-logo.png` | Already in codebase |
-| connection | Community avatars | `useCommunityShowcase` hook |
-| transformation | Waveform visualization | Adapt from `TransformationDemo` |
-| tribe | Stats + avatars | Existing hooks |
-| invitation | MixClub logo + gradient | Existing assets |
-
----
-
-## File Changes Summary
+## File Changes
 
 | File | Action | Description |
 |------|--------|-------------|
-| `src/components/demo/InsiderDemoExperience.tsx` | Rewrite | New 6-phase structure, new content, new components per phase |
-| `src/components/demo/ProblemReveal.tsx` | Create | Animated problem statement with stats (adapted from `ProblemStatementAnimated`) |
-| `src/components/demo/TransformationVisual.tsx` | Create | Before/after waveform with LUFS meter (adapted from `TransformationDemo`) |
-| `src/components/demo/CollaborationJourney.tsx` | Remove/Replace | Current version is AI-centric; replace with connection story |
-| `src/components/demo/RolePortals.tsx` | Remove from demo | Keep component but don't use in demo flow |
-| `src/components/demo/PrimeCharacter.tsx` | Keep but don't use | May be useful elsewhere, not in welcome demo |
+| `src/hooks/usePhaseSync.ts` | Create | Music-timeline phase sync hook |
+| `src/components/demo/InsiderDemoExperience.tsx` | Update | Replace timer progression with music sync, add PHASE_MARKERS, update skip logic |
+
+---
+
+## Hook Implementation Details
+
+```text
+usePhaseSync logic:
+
+1. Find current phase:
+   - Loop through phaseMarkers
+   - Find marker where startTime <= currentTime < endTime
+   - Return that phase index
+
+2. Calculate progress:
+   - progress = (currentTime - startTime) / (endTime - startTime) * 100
+   - Clamp to 0-100
+
+3. Detect phase change:
+   - Compare newPhaseIndex to previous
+   - If different, call onPhaseChange(newPhaseIndex)
+
+4. Handle loop detection:
+   - If currentTime suddenly drops below previous currentTime by > 2 seconds
+   - Reset to phase 0
+
+5. Ref for previous state:
+   - previousTimeRef tracks last currentTime
+   - previousPhaseRef tracks last phase index
+```
+
+---
+
+## UI Enhancements
+
+### Progress Bar
+
+Update to show progress within current phase based on music position:
+- Start of phase = 0%
+- End of phase = 100%
+- Smoothly animates as audio plays
+
+### Phase Dots (left sidebar)
+
+Add visual feedback for music-synced state:
+- Active phase pulses with bass
+- Clicking a dot seeks audio to that timestamp
+
+### Skip Button
+
+Now also seeks audio forward to next phase's start time.
 
 ---
 
 ## Validation Criteria
 
-- Phase 1 lands the pain point (87% stat visible, emotional hit)
-- Phase 2 introduces MixClub as solution (logo, hope)
-- Phase 3 shows real human connection (names, locations, roles)
-- Phase 4 shows transformation proof (waveform before/after, no AI mention)
-- Phase 5 shows scale with belonging (stats + "your seat")
-- Phase 6 has ONE clear CTA (Join Now), no role split
-- Music syncs to emotional arc (tension → drop → groove → peak → warmth → resolution)
-- No scroll, 100svh maintained
-- Dissolve transitions work correctly
-- Console shows phase events for debugging
+- Phase 1 (problem) plays from 0:00 to 0:08
+- Phase 2 (discovery) starts exactly at the beat drop (~0:08)
+- Phase 4 (transformation) hits during peak energy section
+- Seeking audio forward/backward updates visible phase
+- Skip button both advances phase AND seeks audio
+- Audio loop resets demo to phase 1
+- Pausing audio pauses phase progression
+- Progress bar reflects actual audio position within phase
 
