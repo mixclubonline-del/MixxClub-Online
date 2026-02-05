@@ -11,6 +11,7 @@
   */
  
  import { useState, useEffect, useCallback } from 'react';
+import { usePhaseSync, PhaseMarker } from '@/hooks/usePhaseSync';
  import { motion, AnimatePresence } from 'framer-motion';
  import { useNavigate } from 'react-router-dom';
  import { Button } from '@/components/ui/button';
@@ -27,6 +28,16 @@
  import { ProblemReveal } from '@/components/demo/ProblemReveal';
  import { TransformationVisual } from '@/components/demo/TransformationVisual';
  import mixclubLogo from '@/assets/mixclub-3d-logo.png';
+
+// Phase markers synced to audio timeline (seconds)
+const PHASE_MARKERS: PhaseMarker[] = [
+  { id: 'problem',        startTime: 0,    endTime: 8   },
+  { id: 'discovery',      startTime: 8,    endTime: 18  },
+  { id: 'connection',     startTime: 18,   endTime: 32  },
+  { id: 'transformation', startTime: 32,   endTime: 48  },
+  { id: 'tribe',          startTime: 48,   endTime: 60  },
+  { id: 'invitation',     startTime: 60,   endTime: 999 },
+];
 
 interface InsiderDemoExperienceProps {
   embedded?: boolean;
@@ -78,45 +89,35 @@ interface InsiderDemoExperienceProps {
 export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow }: InsiderDemoExperienceProps) {
   const [currentPhase, setCurrentPhase] = useState(0);
   const [isAutoPlay, setIsAutoPlay] = useState(false);
-  const [phaseProgress, setPhaseProgress] = useState(0);
   const [typedText, setTypedText] = useState('');
   const [showTitle, setShowTitle] = useState(false);
   const [volume, setVolumeState] = useState(0.7);
   
   const navigate = useNavigate();
   
-  const { isLoading, isPlaying, analysis, play, pause, toggle, setVolume } = useInsiderAudio();
+  const { isLoading, isPlaying, analysis, play, pause, toggle, setVolume, seek } = useInsiderAudio();
   const { amplitude, bass, mid, high, beats } = analysis;
   const { activities } = useCommunityShowcase(6);
+
+  // Music-synced phase progression
+  const { currentPhaseIndex, phaseProgress, syncEnabled, setSyncEnabled } = usePhaseSync({
+    currentTime: analysis.currentTime,
+    isPlaying,
+    phaseMarkers: PHASE_MARKERS,
+    onPhaseChange: (index) => {
+      setCurrentPhase(index);
+    },
+    enabled: isAutoPlay,
+  });
 
   const startExperience = useCallback(async () => {
     await play();
     setIsAutoPlay(true);
+    // Reset to phase 0 when starting
+    setCurrentPhase(0);
     setShowTitle(true);
     setTimeout(() => setShowTitle(false), 3000);
   }, [play]);
-
-  // Phase auto-progression
-  useEffect(() => {
-    if (!isAutoPlay || currentPhase >= DEMO_PHASES.length - 1) return;
-    
-    const phase = DEMO_PHASES[currentPhase];
-    const startTime = Date.now();
-    
-    const progressInterval = setInterval(() => {
-      const elapsed = Date.now() - startTime;
-      const progress = Math.min((elapsed / phase.duration) * 100, 100);
-      setPhaseProgress(progress);
-      
-      if (progress >= 100) {
-        clearInterval(progressInterval);
-        setCurrentPhase(prev => prev + 1);
-        setPhaseProgress(0);
-      }
-    }, 50);
-    
-    return () => clearInterval(progressInterval);
-  }, [currentPhase, isAutoPlay]);
 
   // Typewriter effect
   useEffect(() => {
@@ -138,9 +139,12 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
   }, [currentPhase]);
 
   const skipToPhase = (index: number) => {
-    setIsAutoPlay(false);
+    // Seek audio to the phase start time
+    const marker = PHASE_MARKERS[index];
+    if (marker) {
+      seek(marker.startTime);
+    }
     setCurrentPhase(index);
-    setPhaseProgress(0);
   };
 
   const handleVolumeChange = (value: number) => {
@@ -305,8 +309,11 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
             </div>
             
             <Button variant="outline" size="sm" onClick={() => setIsAutoPlay(!isAutoPlay)} className="gap-2">
+              {isAutoPlay && syncEnabled && (
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              )}
               {isAutoPlay ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-              {isAutoPlay ? 'Pause' : 'Auto'}
+              {isAutoPlay ? 'Synced' : 'Auto'}
             </Button>
             
             <Button variant="outline" size="icon" onClick={() => skipToPhase(Math.min(currentPhase + 1, DEMO_PHASES.length - 1))}>
