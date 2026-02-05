@@ -31,7 +31,7 @@ export function ReferralMissionsCard() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const totalReferrals = referralStats?.totalReferrals || 0;
+  const totalReferrals = referralStats?.total || 0;
   const nextMilestone = REFERRAL_MILESTONES.find(m => m.count > totalReferrals);
   const progressToNext = nextMilestone 
     ? (totalReferrals / nextMilestone.count) * 100 
