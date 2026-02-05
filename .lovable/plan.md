@@ -1,9 +1,8 @@
 
+# DJ/Curator Role Features
+## Fans Pay Artists in MixxCoinz for Track Promotion & Premiere Slots
 
-# Producer Revenue Streams Integration
-## Wire Producer Revenue into useRevenueStreams + Create Producer-Specific Revenue Hub
-
-This plan integrates Producer-specific revenue streams (beat sales, licensing income, royalty splits) into the existing revenue infrastructure and creates a tailored Producer Revenue Hub.
+This plan introduces a full-featured DJ/Curator system where elevated Fans can promote tracks on playlists and premiere slots, creating a paid promotion economy using MixxCoinz.
 
 ---
 
@@ -12,329 +11,533 @@ This plan integrates Producer-specific revenue streams (beat sales, licensing in
 ### Existing Infrastructure
 | Component | Status | Notes |
 |-----------|--------|-------|
-| `useRevenueStreams` hook | Built | Artist/Engineer focused, 10 generic streams |
-| `RevenueHub` component | Built | Generic for artist/engineer, tabs for overview/payouts/goals/analytics |
-| `useProducerSales` hook | Built | Full beat sales analytics with monthly breakdowns |
-| `useBeatRoyalties` hook | Built | Royalty tracking with platform breakdowns |
-| `useProducerPartnerships` hook | Built | Collab splits and active partnerships |
-| `ProducerSalesHub` | Built | Sales overview + table |
-| `ProducerCRM` page | Built | No revenue tab wired up |
-| `CRMHubGrid` | Built | Has `revenue` hub defined but not producer-specific |
+| `curator_promotion_requests` table | Exists | Full schema with artist/curator IDs, payment_amount, status |
+| `playlists` table | Exists | User playlists with public/collaborative flags |
+| `playlist_tracks` table | Exists | Tracks in playlists with positions |
+| `premieres` table | Exists | Premiere slots with dates, ranks, ratings |
+| `usePlaylists` hook | Exists | CRUD for playlists |
+| `useMixxWallet` hook | Exists | Full earn/spend with transaction tracking |
+| `useFanStats` hook | Exists | Tier system, engagement tracking |
+| `TipArtistModal` | Exists | Pattern for MixxCoinz transfers |
+| `PowerVoteModal` | Exists | Pattern for spending coinz on features |
+| `app_role` enum | Exists | Includes 'fan' but not 'curator' or 'dj' |
+| RLS on `curator_promotion_requests` | Exists | Artists insert, curators update |
 
-### Gap Analysis
-| Missing | Purpose |
-|---------|---------|
-| `useProducerRevenueStreams` hook | Producer-specific revenue aggregation |
-| `ProducerRevenueHub` component | Tailored UI for beat/royalty/licensing revenue |
-| Revenue tab in ProducerCRM | Wire up the revenue hub |
-| Producer-specific stream definitions | Beat Sales, Leases, Exclusives, Royalties, Collabs |
+### Key Insight
+The `curator_promotion_requests` table already exists, suggesting an earlier design intent. Rather than creating a new role, we'll implement **Curator Mode** as a feature available to Fans who meet tier requirements (Champion+ tier = 5000+ MixxCoinz earned).
 
 ---
 
 ## Architecture
 
 ```text
-┌─────────────────────────────────────────────────────────────────────────┐
-│                    PRODUCER REVENUE SYSTEM                              │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                         │
-│  DATA SOURCES                                                           │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐         │
-│  │  beat_purchases │  │  beat_royalties │  │   partnerships  │         │
-│  │  (lease/excl)   │  │  (streaming $)  │  │  (collab splits)│         │
-│  └────────┬────────┘  └────────┬────────┘  └────────┬────────┘         │
-│           │                    │                    │                   │
-│           └────────────────────┼────────────────────┘                   │
-│                                │                                        │
-│                                ▼                                        │
-│  ┌──────────────────────────────────────────────────────────────────┐  │
-│  │              useProducerRevenueStreams Hook                       │  │
-│  │                                                                    │  │
-│  │  Aggregates into 6 Producer-Specific Revenue Streams:             │  │
-│  │  1. Beat Leases           (from beat_purchases, license=lease)    │  │
-│  │  2. Exclusive Sales       (from beat_purchases, license=exclusive)│  │
-│  │  3. Streaming Royalties   (from beat_royalties)                   │  │
-│  │  4. Collab Revenue Splits (from partnerships.producer_earnings)   │  │
-│  │  5. Sync Licensing        (future: licensing_deals table)         │  │
-│  │  6. Samples & Sound Kits  (from marketplace_items)                │  │
-│  │                                                                    │  │
-│  │  Returns: ProducerRevenueAnalytics                                 │  │
-│  │  - totalRevenue, thisMonth, lastMonth, monthlyGrowth              │  │
-│  │  - streams: ProducerRevenueStream[]                               │  │
-│  │  - salesBreakdown: { leases, exclusives, averageSaleValue }       │  │
-│  │  - royaltyMetrics: { totalStreams, platformBreakdown }            │  │
-│  │  - forecasts: RevenueForecast[]                                   │  │
-│  │  - recentTransactions: Transaction[]                              │  │
-│  └──────────────────────────────────────────────────────────────────┘  │
-│                                │                                        │
-│                                ▼                                        │
-│  ┌──────────────────────────────────────────────────────────────────┐  │
-│  │                    ProducerRevenueHub                             │  │
-│  │                                                                    │  │
-│  │  Tabs:                                                             │  │
-│  │  ┌─────────┬──────────┬──────────┬───────────┐                    │  │
-│  │  │Overview │ Beat Sales│ Royalties│ Analytics │                    │  │
-│  │  └─────────┴──────────┴──────────┴───────────┘                    │  │
-│  │                                                                    │  │
-│  │  Components:                                                       │  │
-│  │  - ProducerRevenueOverview (hero card + KPIs)                     │  │
-│  │  - ProducerRevenueStreamCards (6 producer streams)                │  │
-│  │  - BeatSalesBreakdown (leases vs exclusives chart)                │  │
-│  │  - RoyaltyEarningsPanel (streaming platform breakdown)            │  │
-│  │  - ProducerEarningsTimeline (revenue over time)                   │  │
-│  │  - RecentTransactionsTable (latest sales + royalties)             │  │
-│  └──────────────────────────────────────────────────────────────────┘  │
-│                                                                         │
-└─────────────────────────────────────────────────────────────────────────┘
++-------------------------------------------------------------------------+
+|                    DJ/CURATOR PROMOTION SYSTEM                          |
++-------------------------------------------------------------------------+
+|                                                                         |
+|  FAN/CURATOR SIDE                        ARTIST SIDE                    |
+|  +---------------------+                +---------------------+         |
+|  |  CuratorDashboard   |                |  Artist Track Mgmt  |         |
+|  |  - My Playlists     |                |  - Submit for promo |         |
+|  |  - Promo Requests   |                |  - Pending requests |         |
+|  |  - Premiere Slots   |                |  - Paid history     |         |
+|  +----------+----------+                +----------+----------+         |
+|             |                                      |                    |
+|             v                                      v                    |
+|  +----------------------------------------------------------+          |
+|  |             curator_promotion_requests                    |          |
+|  |  - artist_id        - curator_id                         |          |
+|  |  - track_id         - payment_amount (MixxCoinz)         |          |
+|  |  - payment_currency = 'mixxcoinz'                        |          |
+|  |  - status: pending -> accepted/declined -> completed     |          |
+|  +----------------------------------------------------------+          |
+|             |                                      |                    |
+|   On Accept |                           On Submit  |                    |
+|             v                                      v                    |
+|  +---------------------+                +---------------------+         |
+|  |  Artist Wallet      |                |  MixxCoinz Escrow   |         |
+|  |  Receives payment   |                |  Holds until accept |         |
+|  +---------------------+                +---------------------+         |
+|                                                                         |
+|  NEW TABLES NEEDED:                                                     |
+|  +----------------------------------------------------------+          |
+|  |  curator_profiles (extends fan profile for curators)      |          |
+|  |  - user_id, curator_name, bio, genres[], playlists[]     |          |
+|  |  - total_placements, earnings_lifetime, rating           |          |
+|  |  - verified (for top curators), featured_playlist_id     |          |
+|  +----------------------------------------------------------+          |
+|  |  curator_premiere_slots (premier slot offerings)          |          |
+|  |  - curator_id, slot_name, description, price_coinz       |          |
+|  |  - time_slot, max_duration, status, available_dates[]    |          |
+|  +----------------------------------------------------------+          |
+|  |  curator_slot_bookings (booked premiere slots)            |          |
+|  |  - slot_id, artist_id, premiere_id, payment_amount       |          |
+|  |  - booked_date, status, artist_notes                     |          |
+|  +----------------------------------------------------------+          |
+|                                                                         |
++-------------------------------------------------------------------------+
 ```
 
 ---
 
 ## Implementation Plan
 
-### Phase 1: Create Producer Revenue Hook
+### Phase 1: Database Schema
 
-**1.1 Create `useProducerRevenueStreams` Hook**
+**1.1 Create `curator_profiles` Table**
+```sql
+CREATE TABLE public.curator_profiles (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL UNIQUE,
+  curator_name text NOT NULL,
+  bio text,
+  genres text[] DEFAULT '{}',
+  avatar_url text,
+  cover_url text,
+  social_links jsonb DEFAULT '{}',
+  total_placements integer DEFAULT 0,
+  total_earnings integer DEFAULT 0,    -- in MixxCoinz
+  average_rating numeric DEFAULT 0,
+  total_reviews integer DEFAULT 0,
+  is_verified boolean DEFAULT false,
+  featured_playlist_id uuid REFERENCES public.playlists(id),
+  minimum_payment integer DEFAULT 50,  -- minimum coinz for promotion
+  response_time_hours integer DEFAULT 48,
+  tier_required text DEFAULT 'champion', -- Fan tier required to become curator
+  status text DEFAULT 'active' CHECK (status IN ('active', 'paused', 'suspended')),
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
+);
+```
 
-**File:** `src/hooks/useProducerRevenueStreams.ts`
+**1.2 Create `curator_premiere_slots` Table**
+```sql
+CREATE TABLE public.curator_premiere_slots (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  curator_id uuid REFERENCES public.curator_profiles(id) ON DELETE CASCADE NOT NULL,
+  slot_name text NOT NULL,
+  description text,
+  price_coinz integer NOT NULL,
+  slot_type text DEFAULT 'standard' CHECK (slot_type IN ('standard', 'featured', 'exclusive')),
+  time_window text,            -- e.g., "Friday 8PM-10PM EST"
+  max_duration_seconds integer DEFAULT 300,
+  available_days text[] DEFAULT '{}',
+  max_bookings_per_day integer DEFAULT 3,
+  is_active boolean DEFAULT true,
+  created_at timestamptz DEFAULT now()
+);
+```
+
+**1.3 Create `curator_slot_bookings` Table**
+```sql
+CREATE TABLE public.curator_slot_bookings (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  slot_id uuid REFERENCES public.curator_premiere_slots(id) ON DELETE CASCADE NOT NULL,
+  curator_id uuid REFERENCES public.curator_profiles(id) NOT NULL,
+  artist_id uuid REFERENCES public.profiles(id) NOT NULL,
+  track_id uuid,                 -- Reference to user_tracks or audio_files
+  track_title text NOT NULL,
+  track_url text,
+  premiere_date date NOT NULL,
+  payment_amount integer NOT NULL,
+  status text DEFAULT 'pending' CHECK (status IN ('pending', 'confirmed', 'completed', 'cancelled', 'refunded')),
+  artist_notes text,
+  curator_notes text,
+  escrow_transaction_id uuid,    -- Reference to mixx_transactions for escrow
+  created_at timestamptz DEFAULT now(),
+  confirmed_at timestamptz,
+  completed_at timestamptz
+);
+```
+
+**1.4 Add RLS Policies**
+- Curators can view/update their own profiles, slots, and bookings
+- Artists can view curator profiles and available slots
+- Artists can create bookings, curators can update booking status
+- Public can view active curator profiles
+
+**1.5 Add Indexes**
+```sql
+CREATE INDEX idx_curator_profiles_user ON public.curator_profiles(user_id);
+CREATE INDEX idx_curator_profiles_status ON public.curator_profiles(status) WHERE status = 'active';
+CREATE INDEX idx_curator_slots_curator ON public.curator_premiere_slots(curator_id);
+CREATE INDEX idx_curator_bookings_artist ON public.curator_slot_bookings(artist_id);
+CREATE INDEX idx_curator_bookings_status ON public.curator_slot_bookings(status);
+```
+
+---
+
+### Phase 2: Curator Hooks
+
+**2.1 Create `useCuratorProfile` Hook**
+**File:** `src/hooks/useCuratorProfile.ts`
 
 ```typescript
-export interface ProducerRevenueStream {
+interface CuratorProfile {
   id: string;
-  name: string;
-  icon: string;
-  amount: number;       // in cents for precision
-  displayAmount: number; // in dollars for display
-  trend: number;        // percentage change
-  color: string;
-  description: string;
-  transactionCount: number;
+  user_id: string;
+  curator_name: string;
+  bio: string | null;
+  genres: string[];
+  total_placements: number;
+  total_earnings: number;
+  average_rating: number;
+  is_verified: boolean;
+  minimum_payment: number;
+  status: 'active' | 'paused' | 'suspended';
 }
 
-export interface ProducerRevenueAnalytics {
-  // Core metrics
-  totalRevenue: number;        // lifetime in dollars
-  thisMonth: number;
-  lastMonth: number;
-  monthlyGrowth: number;
+// Functions:
+// - fetchCuratorProfile(userId)
+// - createCuratorProfile(data)
+// - updateCuratorProfile(updates)
+// - checkCuratorEligibility() - verifies fan tier
+```
+
+**2.2 Create `useCuratorSlots` Hook**
+**File:** `src/hooks/useCuratorSlots.ts`
+
+```typescript
+interface CuratorSlot {
+  id: string;
+  curator_id: string;
+  slot_name: string;
+  price_coinz: number;
+  slot_type: 'standard' | 'featured' | 'exclusive';
+  is_active: boolean;
+}
+
+// Functions:
+// - fetchMySlots()
+// - createSlot(data)
+// - updateSlot(id, updates)
+// - deleteSlot(id)
+// - fetchAvailableSlots(curatorId) - for artists browsing
+```
+
+**2.3 Create `useCuratorPromotions` Hook**
+**File:** `src/hooks/useCuratorPromotions.ts`
+
+```typescript
+// Functions:
+// - fetchPromotionRequests() - for curator
+// - fetchMySubmissions() - for artist
+// - submitForPromotion(curatorId, trackId, payment, notes)
+// - acceptPromotion(requestId)
+// - declinePromotion(requestId, reason)
+// - markCompleted(requestId, playlistUrl)
+```
+
+**2.4 Create `useCuratorBookings` Hook**
+**File:** `src/hooks/useCuratorBookings.ts`
+
+```typescript
+// Functions:
+// - fetchSlotBookings(slotId?)
+// - bookPremiereSlot(slotId, trackData, date)
+// - confirmBooking(bookingId)
+// - cancelBooking(bookingId, reason)
+// - completeBooking(bookingId)
+```
+
+---
+
+### Phase 3: Curator Dashboard Components
+
+**3.1 Create `CuratorDashboard` Page**
+**File:** `src/pages/CuratorDashboard.tsx`
+
+Main curator management page with tabs:
+- Overview (stats, quick actions)
+- Promotion Requests (pending, accepted, completed)
+- Premiere Slots (manage offerings)
+- Playlists (curated playlists)
+- Earnings (MixxCoinz history)
+
+**3.2 Create `CuratorOnboarding`**
+**File:** `src/components/curator/CuratorOnboarding.tsx`
+
+Guided setup for new curators:
+- Verify tier eligibility (Champion+)
+- Set curator name, bio, genres
+- Create first playlist
+- Set pricing structure
+- Feature initial slots
+
+**3.3 Create `CuratorProfileCard`**
+**File:** `src/components/curator/CuratorProfileCard.tsx`
+
+Display curator info:
+- Avatar, name, verified badge
+- Genres specialization
+- Stats (placements, rating)
+- Featured playlist preview
+- "Request Promotion" button
+
+**3.4 Create `PromotionRequestCard`**
+**File:** `src/components/curator/PromotionRequestCard.tsx`
+
+Card for managing incoming requests:
+- Artist info + track preview
+- Payment offered
+- Artist notes
+- Accept/Decline buttons
+- Playlist selector for placement
+
+**3.5 Create `PremiereSlotCard`**
+**File:** `src/components/curator/PremiereSlotCard.tsx`
+
+Display/manage premiere slot offerings:
+- Slot name + description
+- Price in MixxCoinz
+- Available dates/times
+- Booking count
+- Edit/Pause actions
+
+---
+
+### Phase 4: Artist-Side Components
+
+**4.1 Create `CuratorDiscovery`**
+**File:** `src/components/artist/CuratorDiscovery.tsx`
+
+Browse available curators:
+- Filter by genre, price range, rating
+- Sort by popularity, response time
+- Curator cards with quick view
+- Search functionality
+
+**4.2 Create `SubmitForPromotionModal`**
+**File:** `src/components/artist/SubmitForPromotionModal.tsx`
+
+Modal for artists to submit tracks:
+- Curator selection
+- Track selector from library
+- Payment amount (slider)
+- Message to curator
+- MixxCoinz balance display
+- Escrow explanation
+
+**4.3 Create `BookPremiereSlotModal`**
+**File:** `src/components/artist/BookPremiereSlotModal.tsx`
+
+Modal for booking premiere slots:
+- Date picker (available dates)
+- Track upload/selection
+- Slot details display
+- Payment confirmation
+- Terms agreement
+
+**4.4 Create `MyPromotionSubmissions`**
+**File:** `src/components/artist/MyPromotionSubmissions.tsx`
+
+Track submission history:
+- Pending submissions
+- Accepted/Completed
+- Declined with reasons
+- Refund status
+
+---
+
+### Phase 5: Payment Flow (MixxCoinz)
+
+**5.1 Escrow System Logic**
+```typescript
+// In useCuratorPromotions:
+
+async function submitForPromotion(curatorId, trackId, payment, notes) {
+  // 1. Verify artist can afford
+  if (!canAfford(payment)) throw new Error('Insufficient balance');
   
-  // Payout info
-  pendingEarnings: number;
-  availableBalance: number;
+  // 2. Spend coinz (held in escrow)
+  const txResult = await spendCoinz({
+    amount: payment,
+    source: 'curator_promo_escrow',
+    description: `Escrow for promotion request`,
+    referenceType: 'curator_promo_request',
+    referenceId: null, // Will update after request created
+  });
   
-  // Producer-specific
-  totalBeatsSold: number;
-  leaseSales: number;
-  exclusiveSales: number;
-  averageSaleValue: number;
-  topSellingBeatId: string | null;
+  // 3. Create promotion request
+  const request = await supabase
+    .from('curator_promotion_requests')
+    .insert({
+      artist_id: user.id,
+      curator_id: curatorId,
+      track_id: trackId,
+      payment_amount: payment,
+      payment_currency: 'mixxcoinz',
+      status: 'pending',
+    })
+    .select()
+    .single();
   
-  // Royalty metrics
-  totalStreamCount: number;
-  royaltyEarnings: number;
-  activeCollabCount: number;
+  // 4. Update transaction reference
+  // (tracked via reference_id on transaction)
   
-  // Revenue streams (6 producer-specific)
-  streams: ProducerRevenueStream[];
-  
-  // Charts
-  revenueByMonth: { month: string; leases: number; exclusives: number; royalties: number }[];
-  forecasts: { month: string; projected: number; actual?: number }[];
-  
-  // Recent activity
-  recentTransactions: {
-    id: string;
-    type: 'lease' | 'exclusive' | 'royalty' | 'collab';
-    amount: number;
-    beatTitle?: string;
-    date: string;
-    status: string;
-  }[];
+  return request;
 }
 ```
 
-Data fetching logic:
-- Query `beat_purchases` for sales (filter by `seller_id`)
-- Query `beat_royalties` via partnerships (filter by `producer_id`)
-- Query `partnerships` for collab revenue (filter `producer_artist` type)
-- Calculate trends by comparing current vs previous period
-- Build 6 revenue streams with real data
-
-### Phase 2: Create Producer Revenue Hub Components
-
-**2.1 Create `ProducerRevenueHub`**
-
-**File:** `src/components/crm/producer/ProducerRevenueHub.tsx`
-
-Main component with 4 tabs:
-- **Overview**: Hero revenue card + stream cards + recent transactions
-- **Beat Sales**: Detailed breakdown of leases vs exclusives with charts
-- **Royalties**: Streaming platform breakdown, collab earnings
-- **Analytics**: Forecasting, trends, performance comparison
-
-**2.2 Create `ProducerRevenueOverview`**
-
-**File:** `src/components/producer/revenue/ProducerRevenueOverview.tsx`
-
-Hero section showing:
-- Total lifetime revenue (big number)
-- This month earnings with growth badge
-- Available balance (ready for payout)
-- Pending earnings (processing)
-- Quick stats: Total beats sold, Average sale value, Active collabs
-
-**2.3 Create `ProducerRevenueStreamCards`**
-
-**File:** `src/components/producer/revenue/ProducerRevenueStreamCards.tsx`
-
-Grid of 6 producer-specific revenue stream cards:
-1. **Beat Leases** (icon: disc-3, color: blue)
-2. **Exclusive Sales** (icon: crown, color: purple)
-3. **Streaming Royalties** (icon: music, color: green)
-4. **Collab Splits** (icon: handshake, color: amber)
-5. **Sync Licensing** (icon: tv, color: red) - placeholder for future
-6. **Samples & Kits** (icon: package, color: cyan) - from marketplace
-
-Each card shows: amount, trend %, transaction count, % of total
-
-**2.4 Create `BeatSalesBreakdown`**
-
-**File:** `src/components/producer/revenue/BeatSalesBreakdown.tsx`
-
-Visual breakdown of beat sales:
-- Stacked bar chart: Leases vs Exclusives by month
-- Pie chart: License type distribution
-- Top selling beats list with sale counts
-- Average sale value comparison
-
-**2.5 Create `RoyaltyEarningsPanel`**
-
-**File:** `src/components/producer/revenue/RoyaltyEarningsPanel.tsx`
-
-Streaming royalty dashboard:
-- Platform breakdown (Spotify, Apple Music, YouTube, etc.)
-- Total streams counter
-- Earnings by track/collab
-- Monthly trend chart
-- Pending vs paid royalties
-
-**2.6 Create `RecentTransactionsTable`**
-
-**File:** `src/components/producer/revenue/RecentTransactionsTable.tsx`
-
-Table showing recent revenue activity:
-- Type badge (Lease/Exclusive/Royalty/Collab)
-- Beat/Track title
-- Amount earned
-- Date
-- Status (completed/pending/processing)
-
-### Phase 3: Wire into ProducerCRM
-
-**3.1 Update `ProducerCRM`**
-
-Add revenue tab to the renderContent switch:
+**5.2 Release/Refund Logic**
 ```typescript
-case 'revenue':
-  return <ProducerRevenueHub />;
-```
+// When curator accepts:
+async function acceptPromotion(requestId) {
+  // 1. Update request status
+  await supabase
+    .from('curator_promotion_requests')
+    .update({ status: 'accepted', responded_at: new Date() })
+    .eq('id', requestId);
+  
+  // 2. Transfer escrowed coinz to curator wallet
+  const request = await fetchRequest(requestId);
+  await earnCoinz({
+    userId: request.curator_id,
+    amount: request.payment_amount,
+    source: 'curator_promo_received',
+    description: `Promotion payment for "${request.track_title}"`,
+    referenceType: 'curator_promo_request',
+    referenceId: requestId,
+  });
+}
 
-**3.2 Update Producer Quick Actions**
-
-Add "View Revenue" quick action:
-```typescript
-{
-  label: 'View Revenue',
-  icon: <DollarSign className="w-4 h-4" />,
-  onClick: () => handleTabChange('revenue'),
-  variant: 'outline',
+// When curator declines or artist cancels:
+async function refundPromotion(requestId, reason) {
+  // 1. Update status
+  await supabase
+    .from('curator_promotion_requests')
+    .update({ status: 'declined', curator_notes: reason })
+    .eq('id', requestId);
+  
+  // 2. Refund to artist
+  const request = await fetchRequest(requestId);
+  await earnCoinz({
+    userId: request.artist_id,
+    amount: request.payment_amount,
+    source: 'curator_promo_refund',
+    description: `Refund for declined promotion`,
+    referenceType: 'curator_promo_refund',
+    referenceId: requestId,
+  });
 }
 ```
 
-**3.3 Update ProducerDashboardHub**
+---
 
-Wire real stats from the revenue hook:
+### Phase 6: FanHub Integration
+
+**6.1 Add Curator Tab to FanHub**
+Update `src/pages/FanHub.tsx`:
 ```typescript
-const { analytics } = useProducerRevenueStreams();
-
-// Use real values
-<p className="text-2xl font-bold">
-  ${analytics?.totalRevenue.toFixed(2) || '0'}
-</p>
+// Add tab for curator mode
+case 'curator':
+  return <FanCuratorHub />;
 ```
+
+**6.2 Create `FanCuratorHub`**
+**File:** `src/components/crm/fan/FanCuratorHub.tsx`
+
+Curator management within FanHub:
+- Eligibility check (tier gate)
+- Curator onboarding CTA
+- Active curator dashboard
+- Promotion requests queue
+- Earnings summary
+
+**6.3 Update Fan Stats Display**
+Add curator stats to fan profile:
+- Total placements
+- Curator earnings
+- Average rating
+
+---
+
+### Phase 7: Notifications
+
+**7.1 Notification Triggers**
+- New promotion request received (to curator)
+- Promotion accepted/declined (to artist)
+- Premiere slot booked (to curator)
+- Booking confirmed/cancelled (to artist)
+- Payment received (to curator)
+- Refund processed (to artist)
 
 ---
 
 ## File Summary
 
-### New Files (8)
+### New Files (16)
 
 | File | Purpose |
 |------|---------|
-| `src/hooks/useProducerRevenueStreams.ts` | Aggregate producer revenue from all sources |
-| `src/components/crm/producer/ProducerRevenueHub.tsx` | Main revenue hub with tabs |
-| `src/components/producer/revenue/ProducerRevenueOverview.tsx` | Hero card + KPIs |
-| `src/components/producer/revenue/ProducerRevenueStreamCards.tsx` | 6 stream cards |
-| `src/components/producer/revenue/BeatSalesBreakdown.tsx` | Leases vs exclusives charts |
-| `src/components/producer/revenue/RoyaltyEarningsPanel.tsx` | Streaming royalty dashboard |
-| `src/components/producer/revenue/RecentTransactionsTable.tsx` | Recent activity table |
-| `src/components/producer/revenue/index.ts` | Barrel exports |
+| `src/hooks/useCuratorProfile.ts` | Curator profile CRUD |
+| `src/hooks/useCuratorSlots.ts` | Premiere slot management |
+| `src/hooks/useCuratorPromotions.ts` | Promotion request handling |
+| `src/hooks/useCuratorBookings.ts` | Slot booking management |
+| `src/components/curator/CuratorOnboarding.tsx` | New curator setup flow |
+| `src/components/curator/CuratorProfileCard.tsx` | Curator display card |
+| `src/components/curator/PromotionRequestCard.tsx` | Request management card |
+| `src/components/curator/PremiereSlotCard.tsx` | Slot offering card |
+| `src/components/curator/CuratorStatsCard.tsx` | Stats overview |
+| `src/components/curator/index.ts` | Barrel exports |
+| `src/components/artist/CuratorDiscovery.tsx` | Browse curators |
+| `src/components/artist/SubmitForPromotionModal.tsx` | Submit track modal |
+| `src/components/artist/BookPremiereSlotModal.tsx` | Book slot modal |
+| `src/components/artist/MyPromotionSubmissions.tsx` | Submissions history |
+| `src/components/crm/fan/FanCuratorHub.tsx` | Curator tab in FanHub |
+| `src/pages/CuratorDashboard.tsx` | Full curator page |
+| Database migration | Schema changes |
 
-### Modified Files (3)
+### Modified Files (5)
 
 | File | Changes |
 |------|---------|
-| `src/pages/ProducerCRM.tsx` | Add revenue tab case, quick action |
-| `src/components/crm/producer/ProducerDashboardHub.tsx` | Wire real revenue stats |
-| `src/components/producer/index.ts` | Export revenue components |
-
----
-
-## Revenue Stream Definitions
-
-| Stream | Source | Calculation |
-|--------|--------|-------------|
-| Beat Leases | `beat_purchases` | `license_type = 'lease'`, sum `seller_earnings_cents` |
-| Exclusive Sales | `beat_purchases` | `license_type = 'exclusive'`, sum `seller_earnings_cents` |
-| Streaming Royalties | `beat_royalties` | sum `producer_amount` |
-| Collab Splits | `partnerships` | `producer_artist` type, sum `producer_earnings` |
-| Sync Licensing | future table | placeholder $0 for now |
-| Samples & Kits | `marketplace_items` | filter by producer, sum earnings |
-
----
-
-## Technical Considerations
-
-### Data Aggregation Strategy
-- Use `Promise.all` for parallel fetching from multiple tables
-- Calculate trends by comparing current period vs previous period
-- Build monthly breakdown for charts
-
-### Currency Handling
-- Store amounts in cents internally
-- Display in dollars with proper formatting
-- Use `toLocaleString` for thousand separators
-
-### Performance
-- Use React Query for caching and background updates
-- Memoize expensive calculations
-- Lazy load chart components
-
-### Real-time Updates
-- Add Supabase realtime subscription for `beat_purchases`
-- Trigger refetch when new sale comes in
-- Show toast notification on new sale
+| `src/pages/FanHub.tsx` | Add curator tab |
+| `src/components/crm/fan/index.ts` | Export FanCuratorHub |
+| `src/hooks/useFanStats.ts` | Add curator eligibility check |
+| `src/App.tsx` | Add CuratorDashboard route |
+| `src/components/fan/index.ts` | Export new components |
 
 ---
 
 ## Rollout Sequence
 
-1. **Phase A**: Create `useProducerRevenueStreams` hook with full data aggregation
-2. **Phase B**: Create `ProducerRevenueOverview` and `ProducerRevenueStreamCards`
-3. **Phase C**: Build `BeatSalesBreakdown` and `RoyaltyEarningsPanel`
-4. **Phase D**: Create `RecentTransactionsTable` and `ProducerRevenueHub`
-5. **Phase E**: Wire into `ProducerCRM` and update dashboard
-6. **Phase F**: Add real-time subscriptions and polish
+1. **Phase A: Database** - Create tables, RLS policies, indexes
+2. **Phase B: Hooks** - Build data layer with escrow logic
+3. **Phase C: Curator UI** - Dashboard, slots, request management
+4. **Phase D: Artist UI** - Discovery, submission, booking modals
+5. **Phase E: FanHub Integration** - Curator tab, eligibility gate
+6. **Phase F: Notifications** - Trigger notifications on key events
+7. **Phase G: Polish** - Verified badges, featured curators, analytics
 
-This implementation gives Producers a dedicated revenue dashboard that tracks their unique income streams: beat sales (leases vs exclusives), streaming royalties from collaborations, and partnership revenue splits - all with real data from the existing database tables.
+---
 
+## Technical Considerations
+
+### Curator Eligibility
+- Fans must reach **Champion tier** (5000+ MixxCoinz earned) to unlock Curator Mode
+- This ensures curators have demonstrated engagement and understand the platform
+- Eligibility checked via `fan_stats.mixxcoinz_earned >= 5000`
+
+### MixxCoinz Escrow Flow
+1. Artist submits request -> Coinz deducted immediately (escrow)
+2. Curator accepts -> Coinz transferred to curator wallet
+3. Curator declines OR 72hr timeout -> Coinz refunded to artist
+4. Dispute resolution: Admin can manually refund
+
+### Promotion Types
+- **Playlist Placement**: Add track to curator's public playlist
+- **Premiere Slot**: Featured playback at scheduled time
+- **Social Shoutout**: Curator promotes on connected socials (future)
+
+### Rating System
+- After completion, artists can rate curator (1-5 stars)
+- Affects curator's `average_rating` and visibility in discovery
+- Helps surface quality curators
+
+### Platform Cut
+- MixxClub takes **no cut** on curator-artist transactions
+- This is peer-to-peer within the MixxCoinz ecosystem
+- Encourages organic growth of the curator market
+
+This plan creates a complete ecosystem where engaged Fans can monetize their curation skills using MixxCoinz, while Artists gain access to authentic promotion channels within the MixxClub community.
