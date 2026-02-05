@@ -3734,6 +3734,77 @@ export type Database = {
           },
         ]
       }
+      licensing_agreements: {
+        Row: {
+          amount_cents: number
+          contract_url: string | null
+          created_at: string | null
+          end_date: string | null
+          id: string
+          license_type: string
+          licensee_name: string
+          licensor_id: string
+          metadata: Json | null
+          notes: string | null
+          royalty_percentage: number | null
+          start_date: string
+          status: string | null
+          track_id: string | null
+          track_name: string | null
+          updated_at: string | null
+          upfront_fee_cents: number | null
+          usage_context: string | null
+        }
+        Insert: {
+          amount_cents: number
+          contract_url?: string | null
+          created_at?: string | null
+          end_date?: string | null
+          id?: string
+          license_type: string
+          licensee_name: string
+          licensor_id: string
+          metadata?: Json | null
+          notes?: string | null
+          royalty_percentage?: number | null
+          start_date: string
+          status?: string | null
+          track_id?: string | null
+          track_name?: string | null
+          updated_at?: string | null
+          upfront_fee_cents?: number | null
+          usage_context?: string | null
+        }
+        Update: {
+          amount_cents?: number
+          contract_url?: string | null
+          created_at?: string | null
+          end_date?: string | null
+          id?: string
+          license_type?: string
+          licensee_name?: string
+          licensor_id?: string
+          metadata?: Json | null
+          notes?: string | null
+          royalty_percentage?: number | null
+          start_date?: string
+          status?: string | null
+          track_id?: string | null
+          track_name?: string | null
+          updated_at?: string | null
+          upfront_fee_cents?: number | null
+          usage_context?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "licensing_agreements_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "audio_files"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       listening_history: {
         Row: {
           duration_played: number | null
@@ -7503,6 +7574,62 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      streaming_royalties: {
+        Row: {
+          amount_cents: number
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          period_end: string
+          period_start: string
+          platform: string
+          status: string | null
+          streams_count: number
+          track_id: string | null
+          track_name: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          amount_cents?: number
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          period_end: string
+          period_start: string
+          platform: string
+          status?: string | null
+          streams_count?: number
+          track_id?: string | null
+          track_name?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          period_end?: string
+          period_start?: string
+          platform?: string
+          status?: string | null
+          streams_count?: number
+          track_id?: string | null
+          track_name?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "streaming_royalties_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "audio_files"
             referencedColumns: ["id"]
           },
         ]
