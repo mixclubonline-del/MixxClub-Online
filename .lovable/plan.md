@@ -1,35 +1,33 @@
 
-# Producer↔Artist Collaboration & Beat Royalty System
-## Extending Partnerships for Producer-Artist Revenue Sharing
 
-This plan extends the existing Artist-Engineer partnership model to support Producer↔Artist collaborations with revenue splits on released tracks and comprehensive beat royalty tracking.
+# Producer Revenue Streams Integration
+## Wire Producer Revenue into useRevenueStreams + Create Producer-Specific Revenue Hub
+
+This plan integrates Producer-specific revenue streams (beat sales, licensing income, royalty splits) into the existing revenue infrastructure and creates a tailored Producer Revenue Hub.
 
 ---
 
 ## Current State Analysis
 
-### Existing Partnership Infrastructure
+### Existing Infrastructure
 | Component | Status | Notes |
 |-----------|--------|-------|
-| `partnerships` table | Built | Only supports `artist_id` + `engineer_id` |
-| `collaborative_projects` table | Built | Tracks projects within partnerships |
-| `revenue_splits` table | Built | Records revenue distributions |
-| `usePartnershipEarnings` hook | Built | Full CRUD for Artist↔Engineer |
-| `EarningsDashboard` | Built | Shows partnerships + splits |
-| `NewPartnershipDialog` | Built | Only allows artist/engineer creation |
-| `producer_beats` table | Built | Full beat catalog schema |
-| `beat_purchases` table | Built | Tracks sales with 70/30 platform split |
+| `useRevenueStreams` hook | Built | Artist/Engineer focused, 10 generic streams |
+| `RevenueHub` component | Built | Generic for artist/engineer, tabs for overview/payouts/goals/analytics |
+| `useProducerSales` hook | Built | Full beat sales analytics with monthly breakdowns |
+| `useBeatRoyalties` hook | Built | Royalty tracking with platform breakdowns |
+| `useProducerPartnerships` hook | Built | Collab splits and active partnerships |
+| `ProducerSalesHub` | Built | Sales overview + table |
+| `ProducerCRM` page | Built | No revenue tab wired up |
+| `CRMHubGrid` | Built | Has `revenue` hub defined but not producer-specific |
 
 ### Gap Analysis
-| Missing Component | Purpose |
-|-------------------|---------|
-| `producer_id` column in partnerships | Enable Producer↔Artist pairs |
-| `beat_royalties` table | Track ongoing royalty streams |
-| `track_releases` table | Link beats to released tracks |
-| Partnership type field | Distinguish collab types |
-| Producer partnership UI | ProducerCollabsHub is empty |
-| Royalty calculation logic | Split revenue over time |
-| Artist beat licensing flow | Artist initiates collab request |
+| Missing | Purpose |
+|---------|---------|
+| `useProducerRevenueStreams` hook | Producer-specific revenue aggregation |
+| `ProducerRevenueHub` component | Tailored UI for beat/royalty/licensing revenue |
+| Revenue tab in ProducerCRM | Wire up the revenue hub |
+| Producer-specific stream definitions | Beat Sales, Leases, Exclusives, Royalties, Collabs |
 
 ---
 
@@ -37,526 +35,306 @@ This plan extends the existing Artist-Engineer partnership model to support Prod
 
 ```text
 ┌─────────────────────────────────────────────────────────────────────────┐
-│               PRODUCER ↔ ARTIST COLLABORATION SYSTEM                    │
+│                    PRODUCER REVENUE SYSTEM                              │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                         │
-│  PRODUCER SIDE                           ARTIST SIDE                    │
-│  ┌─────────────────────┐                ┌─────────────────────┐        │
-│  │  ProducerCollabsHub │                │  ArtistMatchesHub   │        │
-│  │  - Active collabs   │                │  - Beat discovery   │        │
-│  │  - Revenue splits   │                │  - Send collab req  │        │
-│  │  - Release tracker  │                │  - Pending splits   │        │
-│  └──────────┬──────────┘                └──────────┬──────────┘        │
-│             │                                      │                    │
-│             └───────────────┬──────────────────────┘                    │
-│                             │                                           │
-│                             ▼                                           │
+│  DATA SOURCES                                                           │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐         │
+│  │  beat_purchases │  │  beat_royalties │  │   partnerships  │         │
+│  │  (lease/excl)   │  │  (streaming $)  │  │  (collab splits)│         │
+│  └────────┬────────┘  └────────┬────────┘  └────────┬────────┘         │
+│           │                    │                    │                   │
+│           └────────────────────┼────────────────────┘                   │
+│                                │                                        │
+│                                ▼                                        │
 │  ┌──────────────────────────────────────────────────────────────────┐  │
-│  │                     PARTNERSHIPS TABLE                            │  │
-│  │  - producer_id (new)                                              │  │
-│  │  - artist_id                                                      │  │
-│  │  - partnership_type: 'artist_engineer' | 'producer_artist'        │  │
-│  │  - beat_id (for producer collabs)                                 │  │
-│  │  - producer_percentage / artist_percentage                        │  │
+│  │              useProducerRevenueStreams Hook                       │  │
+│  │                                                                    │  │
+│  │  Aggregates into 6 Producer-Specific Revenue Streams:             │  │
+│  │  1. Beat Leases           (from beat_purchases, license=lease)    │  │
+│  │  2. Exclusive Sales       (from beat_purchases, license=exclusive)│  │
+│  │  3. Streaming Royalties   (from beat_royalties)                   │  │
+│  │  4. Collab Revenue Splits (from partnerships.producer_earnings)   │  │
+│  │  5. Sync Licensing        (future: licensing_deals table)         │  │
+│  │  6. Samples & Sound Kits  (from marketplace_items)                │  │
+│  │                                                                    │  │
+│  │  Returns: ProducerRevenueAnalytics                                 │  │
+│  │  - totalRevenue, thisMonth, lastMonth, monthlyGrowth              │  │
+│  │  - streams: ProducerRevenueStream[]                               │  │
+│  │  - salesBreakdown: { leases, exclusives, averageSaleValue }       │  │
+│  │  - royaltyMetrics: { totalStreams, platformBreakdown }            │  │
+│  │  - forecasts: RevenueForecast[]                                   │  │
+│  │  - recentTransactions: Transaction[]                              │  │
 │  └──────────────────────────────────────────────────────────────────┘  │
-│                             │                                           │
-│             ┌───────────────┴───────────────────┐                       │
-│             ▼                                   ▼                       │
-│  ┌─────────────────────┐          ┌──────────────────────────┐         │
-│  │  track_releases     │          │     beat_royalties       │         │
-│  │  - beat_id          │          │  - partnership_id        │         │
-│  │  - partnership_id   │          │  - beat_id               │         │
-│  │  - track_title      │          │  - total_streams         │         │
-│  │  - streaming_links  │          │  - total_revenue         │         │
-│  │  - release_date     │          │  - producer_earned       │         │
-│  │  - status           │          │  - artist_earned         │         │
-│  └─────────────────────┘          │  - last_payout_at        │         │
-│                                   └──────────────────────────┘         │
-│                                                                         │
-│  ROYALTY FLOW                                                           │
-│  ┌────────────────────────────────────────────────────────────────┐    │
-│  │  1. Artist uses Producer's beat (lease/exclusive + royalty)    │    │
-│  │  2. Track is released to streaming platforms                   │    │
-│  │  3. Monthly royalty import (manual or DistroKid API)           │    │
-│  │  4. Auto-split based on partnership agreement                  │    │
-│  │  5. Revenue flows to revenue_splits table                      │    │
-│  │  6. Dashboard shows cumulative royalties per track             │    │
-│  └────────────────────────────────────────────────────────────────┘    │
+│                                │                                        │
+│                                ▼                                        │
+│  ┌──────────────────────────────────────────────────────────────────┐  │
+│  │                    ProducerRevenueHub                             │  │
+│  │                                                                    │  │
+│  │  Tabs:                                                             │  │
+│  │  ┌─────────┬──────────┬──────────┬───────────┐                    │  │
+│  │  │Overview │ Beat Sales│ Royalties│ Analytics │                    │  │
+│  │  └─────────┴──────────┴──────────┴───────────┘                    │  │
+│  │                                                                    │  │
+│  │  Components:                                                       │  │
+│  │  - ProducerRevenueOverview (hero card + KPIs)                     │  │
+│  │  - ProducerRevenueStreamCards (6 producer streams)                │  │
+│  │  - BeatSalesBreakdown (leases vs exclusives chart)                │  │
+│  │  - RoyaltyEarningsPanel (streaming platform breakdown)            │  │
+│  │  - ProducerEarningsTimeline (revenue over time)                   │  │
+│  │  - RecentTransactionsTable (latest sales + royalties)             │  │
+│  └──────────────────────────────────────────────────────────────────┘  │
 │                                                                         │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Database Schema Changes
-
-### 1. Extend `partnerships` Table
-
-```sql
-ALTER TABLE public.partnerships
-ADD COLUMN producer_id uuid REFERENCES public.profiles(id),
-ADD COLUMN partnership_type text NOT NULL DEFAULT 'artist_engineer',
-ADD COLUMN beat_id uuid REFERENCES public.producer_beats(id),
-ADD COLUMN producer_percentage numeric DEFAULT 50;
-
--- Add constraint: exactly 2 parties in each partnership
-ALTER TABLE public.partnerships
-ADD CONSTRAINT valid_partnership_parties CHECK (
-  (partnership_type = 'artist_engineer' AND artist_id IS NOT NULL AND engineer_id IS NOT NULL) OR
-  (partnership_type = 'producer_artist' AND producer_id IS NOT NULL AND artist_id IS NOT NULL)
-);
-
--- Make engineer_id nullable for producer partnerships
-ALTER TABLE public.partnerships
-ALTER COLUMN engineer_id DROP NOT NULL;
-
-CREATE INDEX idx_partnerships_producer ON public.partnerships(producer_id) WHERE producer_id IS NOT NULL;
-CREATE INDEX idx_partnerships_type ON public.partnerships(partnership_type);
-```
-
-### 2. Create `track_releases` Table
-
-```sql
-CREATE TABLE public.track_releases (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  partnership_id uuid NOT NULL REFERENCES public.partnerships(id) ON DELETE CASCADE,
-  beat_id uuid REFERENCES public.producer_beats(id),
-  track_title text NOT NULL,
-  artist_name text,
-  release_date date,
-  streaming_platforms jsonb DEFAULT '{}',
-  isrc_code text,
-  upc_code text,
-  cover_art_url text,
-  status text DEFAULT 'unreleased' CHECK (status IN ('unreleased', 'pending', 'released', 'archived')),
-  total_streams bigint DEFAULT 0,
-  total_revenue numeric DEFAULT 0,
-  created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now()
-);
-
-ALTER TABLE public.track_releases ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Partnership members can view releases"
-  ON public.track_releases FOR SELECT
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.partnerships p
-      WHERE p.id = track_releases.partnership_id
-      AND (p.artist_id = auth.uid() OR p.producer_id = auth.uid() OR p.engineer_id = auth.uid())
-    )
-  );
-
-CREATE POLICY "Partnership members can insert releases"
-  ON public.track_releases FOR INSERT
-  WITH CHECK (
-    EXISTS (
-      SELECT 1 FROM public.partnerships p
-      WHERE p.id = partnership_id
-      AND (p.artist_id = auth.uid() OR p.producer_id = auth.uid())
-    )
-  );
-```
-
-### 3. Create `beat_royalties` Table
-
-```sql
-CREATE TABLE public.beat_royalties (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  partnership_id uuid NOT NULL REFERENCES public.partnerships(id) ON DELETE CASCADE,
-  track_release_id uuid REFERENCES public.track_releases(id),
-  beat_id uuid REFERENCES public.producer_beats(id),
-  period_start date NOT NULL,
-  period_end date NOT NULL,
-  platform text, -- 'spotify', 'apple_music', 'youtube', etc.
-  stream_count bigint DEFAULT 0,
-  gross_revenue numeric NOT NULL DEFAULT 0,
-  producer_amount numeric NOT NULL DEFAULT 0,
-  artist_amount numeric NOT NULL DEFAULT 0,
-  platform_fee numeric DEFAULT 0,
-  producer_percentage numeric NOT NULL,
-  artist_percentage numeric NOT NULL,
-  status text DEFAULT 'pending' CHECK (status IN ('pending', 'processed', 'paid')),
-  paid_at timestamptz,
-  created_at timestamptz NOT NULL DEFAULT now()
-);
-
-ALTER TABLE public.beat_royalties ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Partnership members can view royalties"
-  ON public.beat_royalties FOR SELECT
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.partnerships p
-      WHERE p.id = beat_royalties.partnership_id
-      AND (p.artist_id = auth.uid() OR p.producer_id = auth.uid())
-    )
-  );
-
-CREATE INDEX idx_beat_royalties_partnership ON public.beat_royalties(partnership_id);
-CREATE INDEX idx_beat_royalties_period ON public.beat_royalties(period_start, period_end);
-```
-
-### 4. Update Revenue Trigger
-
-```sql
-CREATE OR REPLACE FUNCTION public.update_partnership_revenue_extended()
-RETURNS trigger
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path TO 'public'
-AS $function$
-BEGIN
-  UPDATE public.partnerships
-  SET 
-    total_revenue = COALESCE(total_revenue, 0) + NEW.total_amount,
-    artist_earnings = COALESCE(artist_earnings, 0) + NEW.artist_amount,
-    updated_at = now()
-  WHERE id = NEW.partnership_id;
-  
-  -- For producer partnerships, update producer earnings separately
-  IF EXISTS (SELECT 1 FROM partnerships WHERE id = NEW.partnership_id AND producer_id IS NOT NULL) THEN
-    UPDATE public.partnerships
-    SET producer_earnings = COALESCE(producer_earnings, 0) + NEW.producer_amount
-    WHERE id = NEW.partnership_id;
-  END IF;
-  
-  RETURN NEW;
-END;
-$function$;
-```
-
----
-
 ## Implementation Plan
 
-### Phase 1: Database & Types
+### Phase 1: Create Producer Revenue Hook
 
-**1.1 Database Migration**
-- Extend partnerships table with producer support
-- Create track_releases table
-- Create beat_royalties table
-- Add producer_earnings column
-- Update RLS policies
+**1.1 Create `useProducerRevenueStreams` Hook**
 
-**1.2 Update TypeScript Types**
-- Add `producer_id`, `partnership_type`, `beat_id` to Partnership interface
-- Create `TrackRelease` interface
-- Create `BeatRoyalty` interface
-- Extend `UserType` to include 'producer'
-
-### Phase 2: Producer Collaboration Hooks
-
-**2.1 Create `useProducerPartnerships` Hook**
-
-**File:** `src/hooks/useProducerPartnerships.ts`
+**File:** `src/hooks/useProducerRevenueStreams.ts`
 
 ```typescript
-interface ProducerPartnership {
+export interface ProducerRevenueStream {
   id: string;
-  producer_id: string;
-  artist_id: string;
-  beat_id: string;
-  beat?: ProducerBeat;
-  artist?: { full_name: string; avatar_url: string };
-  producer_percentage: number;
-  artist_percentage: number;
-  total_revenue: number;
-  producer_earnings: number;
-  artist_earnings: number;
-  status: string;
+  name: string;
+  icon: string;
+  amount: number;       // in cents for precision
+  displayAmount: number; // in dollars for display
+  trend: number;        // percentage change
+  color: string;
+  description: string;
+  transactionCount: number;
 }
 
-// Functions:
-// - fetchProducerPartnerships()
-// - createProducerPartnership(artistId, beatId, splitPercentage)
-// - acceptCollabRequest(partnershipId)
-// - declineCollabRequest(partnershipId)
-```
-
-**2.2 Create `useBeatRoyalties` Hook**
-
-**File:** `src/hooks/useBeatRoyalties.ts`
-
-```typescript
-interface RoyaltySummary {
-  totalRoyalties: number;
-  thisMonthRoyalties: number;
-  pendingPayouts: number;
-  topPerformingTracks: TrackRelease[];
-  royaltiesByPlatform: { platform: string; amount: number }[];
+export interface ProducerRevenueAnalytics {
+  // Core metrics
+  totalRevenue: number;        // lifetime in dollars
+  thisMonth: number;
+  lastMonth: number;
+  monthlyGrowth: number;
+  
+  // Payout info
+  pendingEarnings: number;
+  availableBalance: number;
+  
+  // Producer-specific
+  totalBeatsSold: number;
+  leaseSales: number;
+  exclusiveSales: number;
+  averageSaleValue: number;
+  topSellingBeatId: string | null;
+  
+  // Royalty metrics
+  totalStreamCount: number;
+  royaltyEarnings: number;
+  activeCollabCount: number;
+  
+  // Revenue streams (6 producer-specific)
+  streams: ProducerRevenueStream[];
+  
+  // Charts
+  revenueByMonth: { month: string; leases: number; exclusives: number; royalties: number }[];
+  forecasts: { month: string; projected: number; actual?: number }[];
+  
+  // Recent activity
+  recentTransactions: {
+    id: string;
+    type: 'lease' | 'exclusive' | 'royalty' | 'collab';
+    amount: number;
+    beatTitle?: string;
+    date: string;
+    status: string;
+  }[];
 }
-
-// Functions:
-// - fetchRoyalties(partnershipId?)
-// - recordRoyalty(data: RoyaltyInput)
-// - markRoyaltyPaid(royaltyId)
-// - getRoyaltySummary()
 ```
 
-**2.3 Create `useTrackReleases` Hook**
+Data fetching logic:
+- Query `beat_purchases` for sales (filter by `seller_id`)
+- Query `beat_royalties` via partnerships (filter by `producer_id`)
+- Query `partnerships` for collab revenue (filter `producer_artist` type)
+- Calculate trends by comparing current vs previous period
+- Build 6 revenue streams with real data
 
-**File:** `src/hooks/useTrackReleases.ts`
+### Phase 2: Create Producer Revenue Hub Components
 
+**2.1 Create `ProducerRevenueHub`**
+
+**File:** `src/components/crm/producer/ProducerRevenueHub.tsx`
+
+Main component with 4 tabs:
+- **Overview**: Hero revenue card + stream cards + recent transactions
+- **Beat Sales**: Detailed breakdown of leases vs exclusives with charts
+- **Royalties**: Streaming platform breakdown, collab earnings
+- **Analytics**: Forecasting, trends, performance comparison
+
+**2.2 Create `ProducerRevenueOverview`**
+
+**File:** `src/components/producer/revenue/ProducerRevenueOverview.tsx`
+
+Hero section showing:
+- Total lifetime revenue (big number)
+- This month earnings with growth badge
+- Available balance (ready for payout)
+- Pending earnings (processing)
+- Quick stats: Total beats sold, Average sale value, Active collabs
+
+**2.3 Create `ProducerRevenueStreamCards`**
+
+**File:** `src/components/producer/revenue/ProducerRevenueStreamCards.tsx`
+
+Grid of 6 producer-specific revenue stream cards:
+1. **Beat Leases** (icon: disc-3, color: blue)
+2. **Exclusive Sales** (icon: crown, color: purple)
+3. **Streaming Royalties** (icon: music, color: green)
+4. **Collab Splits** (icon: handshake, color: amber)
+5. **Sync Licensing** (icon: tv, color: red) - placeholder for future
+6. **Samples & Kits** (icon: package, color: cyan) - from marketplace
+
+Each card shows: amount, trend %, transaction count, % of total
+
+**2.4 Create `BeatSalesBreakdown`**
+
+**File:** `src/components/producer/revenue/BeatSalesBreakdown.tsx`
+
+Visual breakdown of beat sales:
+- Stacked bar chart: Leases vs Exclusives by month
+- Pie chart: License type distribution
+- Top selling beats list with sale counts
+- Average sale value comparison
+
+**2.5 Create `RoyaltyEarningsPanel`**
+
+**File:** `src/components/producer/revenue/RoyaltyEarningsPanel.tsx`
+
+Streaming royalty dashboard:
+- Platform breakdown (Spotify, Apple Music, YouTube, etc.)
+- Total streams counter
+- Earnings by track/collab
+- Monthly trend chart
+- Pending vs paid royalties
+
+**2.6 Create `RecentTransactionsTable`**
+
+**File:** `src/components/producer/revenue/RecentTransactionsTable.tsx`
+
+Table showing recent revenue activity:
+- Type badge (Lease/Exclusive/Royalty/Collab)
+- Beat/Track title
+- Amount earned
+- Date
+- Status (completed/pending/processing)
+
+### Phase 3: Wire into ProducerCRM
+
+**3.1 Update `ProducerCRM`**
+
+Add revenue tab to the renderContent switch:
 ```typescript
-// Functions:
-// - fetchReleases(partnershipId?)
-// - createRelease(data)
-// - updateRelease(id, data)
-// - linkStreamingPlatform(releaseId, platform, url)
+case 'revenue':
+  return <ProducerRevenueHub />;
 ```
 
-### Phase 3: Producer Collaboration UI
+**3.2 Update Producer Quick Actions**
 
-**3.1 Refactor `ProducerCollabsHub`**
-
-**File:** `src/components/crm/producer/ProducerCollabsHub.tsx`
-
-Replace empty shell with full collaboration management:
-- Pending collab requests (from artists)
-- Active collaborations with revenue splits
-- Track release tracker
-- Royalty earnings overview
-
-**3.2 Create `CollabRequestCard`**
-
-**File:** `src/components/producer/CollabRequestCard.tsx`
-
-Card showing:
-- Artist info (name, avatar, profile link)
-- Beat they want to use
-- Proposed split percentage
-- Accept/Decline buttons
-- Negotiate split option
-
-**3.3 Create `ActiveCollabCard`**
-
-**File:** `src/components/producer/ActiveCollabCard.tsx`
-
-Card showing:
-- Artist + Beat combo
-- Revenue split visualization
-- Total earnings so far
-- Track release status
-- Link to royalty details
-
-**3.4 Create `RoyaltyTrackerPanel`**
-
-**File:** `src/components/producer/RoyaltyTrackerPanel.tsx`
-
-Panel showing:
-- Monthly royalty breakdown by platform
-- Cumulative earnings chart
-- Pending vs. paid status
-- Export to CSV
-
-### Phase 4: Artist-Side Integration
-
-**4.1 Create `BeatCollabRequestModal`**
-
-**File:** `src/components/artist/BeatCollabRequestModal.tsx`
-
-When Artist wants to use a beat:
-- Select license type (lease with royalty share / exclusive)
-- Propose royalty split (slider)
-- Add message to producer
-- Submit collab request
-
-**4.2 Update `BeatDetailModal`**
-
-Add "Request Collab" button alongside purchase options:
+Add "View Revenue" quick action:
 ```typescript
-// New action button
-<Button onClick={() => setCollabModalOpen(true)}>
-  <Users className="h-4 w-4 mr-2" />
-  Request Revenue Share
-</Button>
-```
-
-**4.3 Create `ArtistCollabsView`**
-
-**File:** `src/components/artist/ArtistCollabsView.tsx`
-
-Add to Artist CRM:
-- My producer collaborations
-- Pending requests sent
-- Active revenue shares
-- Track releases using licensed beats
-
-### Phase 5: Track Release Management
-
-**5.1 Create `NewReleaseModal`**
-
-**File:** `src/components/producer/NewReleaseModal.tsx`
-
-Form to add a track release:
-- Partnership/collab selector
-- Track title, artist name
-- Release date picker
-- ISRC/UPC codes (optional)
-- Streaming platform links
-- Cover art upload
-
-**5.2 Create `ReleaseCard`**
-
-**File:** `src/components/producer/ReleaseCard.tsx`
-
-Card showing:
-- Track artwork + title
-- Streaming platform icons with links
-- Stream count (manual entry or API)
-- Revenue to date
-- Edit/Archive actions
-
-**5.3 Create `RecordRoyaltyModal`**
-
-**File:** `src/components/producer/RecordRoyaltyModal.tsx`
-
-Manual royalty entry (until API integration):
-- Select track release
-- Reporting period (month)
-- Platform breakdown
-- Stream counts + revenue
-- Auto-calculate split
-
-### Phase 6: Partnership Dialog Enhancement
-
-**6.1 Update `NewPartnershipDialog`**
-
-Add partnership type selector:
-```typescript
-// New field
-<RadioGroup value={partnershipType} onValueChange={setPartnershipType}>
-  <RadioGroupItem value="artist_engineer" label="Artist ↔ Engineer" />
-  <RadioGroupItem value="producer_artist" label="Producer ↔ Artist" />
-</RadioGroup>
-
-// Conditional fields based on type
-{partnershipType === 'producer_artist' && (
-  <BeatSelector value={selectedBeatId} onChange={setSelectedBeatId} />
-)}
-```
-
-**6.2 Create `BeatSelector` Component**
-
-**File:** `src/components/producer/BeatSelector.tsx`
-
-Dropdown/modal to select a beat for collaboration:
-- Search published beats
-- Show beat preview (waveform mini)
-- Display current pricing
-
-### Phase 7: Dashboard Integration
-
-**7.1 Update `ProducerDashboardHub`**
-
-Add collaboration stats:
-```typescript
-const stats = [
-  { label: 'Active Collabs', value: activeCollabs },
-  { label: 'Pending Requests', value: pendingRequests },
-  { label: 'Royalty Earnings', value: formatCurrency(royaltyTotal) },
-  { label: 'Released Tracks', value: releasedTracks },
-];
-```
-
-**7.2 Add Royalty Earnings to Revenue Hub**
-
-Create new revenue stream card for royalties:
-```typescript
-// In RevenueStreamCards
 {
-  id: 'beat_royalties',
-  name: 'Beat Royalties',
-  icon: Music,
-  amount: royaltyEarnings,
-  trend: royaltyTrend,
-  description: 'Revenue share from artist collaborations',
+  label: 'View Revenue',
+  icon: <DollarSign className="w-4 h-4" />,
+  onClick: () => handleTabChange('revenue'),
+  variant: 'outline',
 }
+```
+
+**3.3 Update ProducerDashboardHub**
+
+Wire real stats from the revenue hook:
+```typescript
+const { analytics } = useProducerRevenueStreams();
+
+// Use real values
+<p className="text-2xl font-bold">
+  ${analytics?.totalRevenue.toFixed(2) || '0'}
+</p>
 ```
 
 ---
 
 ## File Summary
 
-### New Files (14)
+### New Files (8)
 
 | File | Purpose |
 |------|---------|
-| `src/hooks/useProducerPartnerships.ts` | Producer↔Artist partnership CRUD |
-| `src/hooks/useBeatRoyalties.ts` | Royalty tracking and calculations |
-| `src/hooks/useTrackReleases.ts` | Track release management |
-| `src/components/producer/CollabRequestCard.tsx` | Pending collab request card |
-| `src/components/producer/ActiveCollabCard.tsx` | Active collaboration card |
-| `src/components/producer/RoyaltyTrackerPanel.tsx` | Monthly royalty breakdown |
-| `src/components/producer/NewReleaseModal.tsx` | Add track release form |
-| `src/components/producer/ReleaseCard.tsx` | Track release display card |
-| `src/components/producer/RecordRoyaltyModal.tsx` | Manual royalty entry |
-| `src/components/producer/BeatSelector.tsx` | Beat selection dropdown |
-| `src/components/artist/BeatCollabRequestModal.tsx` | Artist sends collab request |
-| `src/components/artist/ArtistCollabsView.tsx` | Artist's producer collabs |
-| `src/types/producer-partnership.ts` | TypeScript interfaces |
-| Database migration | Schema changes |
+| `src/hooks/useProducerRevenueStreams.ts` | Aggregate producer revenue from all sources |
+| `src/components/crm/producer/ProducerRevenueHub.tsx` | Main revenue hub with tabs |
+| `src/components/producer/revenue/ProducerRevenueOverview.tsx` | Hero card + KPIs |
+| `src/components/producer/revenue/ProducerRevenueStreamCards.tsx` | 6 stream cards |
+| `src/components/producer/revenue/BeatSalesBreakdown.tsx` | Leases vs exclusives charts |
+| `src/components/producer/revenue/RoyaltyEarningsPanel.tsx` | Streaming royalty dashboard |
+| `src/components/producer/revenue/RecentTransactionsTable.tsx` | Recent activity table |
+| `src/components/producer/revenue/index.ts` | Barrel exports |
 
-### Modified Files (8)
+### Modified Files (3)
 
 | File | Changes |
 |------|---------|
-| `src/types/partnership.ts` | Add producer partnership types |
-| `src/components/crm/producer/ProducerCollabsHub.tsx` | Full implementation |
-| `src/components/crm/producer/ProducerDashboardHub.tsx` | Add collab stats |
-| `src/components/crm/earnings/NewPartnershipDialog.tsx` | Partnership type selector |
-| `src/components/marketplace/BeatDetailModal.tsx` | "Request Collab" button |
-| `src/hooks/usePartnershipEarnings.ts` | Support producer partnerships |
-| `src/components/crm/revenue/RevenueStreamCards.tsx` | Add royalties stream |
-| `src/components/producer/index.ts` | Export new components |
+| `src/pages/ProducerCRM.tsx` | Add revenue tab case, quick action |
+| `src/components/crm/producer/ProducerDashboardHub.tsx` | Wire real revenue stats |
+| `src/components/producer/index.ts` | Export revenue components |
 
 ---
 
-## Rollout Sequence
+## Revenue Stream Definitions
 
-1. **Phase A: Database** - Schema migration, new tables, updated triggers
-2. **Phase B: Types & Hooks** - TypeScript interfaces, data fetching hooks
-3. **Phase C: Producer UI** - ProducerCollabsHub, collab cards, royalty tracker
-4. **Phase D: Artist UI** - Collab request modal, artist collabs view
-5. **Phase E: Track Releases** - Release management, royalty recording
-6. **Phase F: Integration** - Dashboard stats, revenue hub, notifications
+| Stream | Source | Calculation |
+|--------|--------|-------------|
+| Beat Leases | `beat_purchases` | `license_type = 'lease'`, sum `seller_earnings_cents` |
+| Exclusive Sales | `beat_purchases` | `license_type = 'exclusive'`, sum `seller_earnings_cents` |
+| Streaming Royalties | `beat_royalties` | sum `producer_amount` |
+| Collab Splits | `partnerships` | `producer_artist` type, sum `producer_earnings` |
+| Sync Licensing | future table | placeholder $0 for now |
+| Samples & Kits | `marketplace_items` | filter by producer, sum earnings |
 
 ---
 
 ## Technical Considerations
 
-### Revenue Split Flow
-1. Artist requests collab with proposed split (e.g., 70% artist / 30% producer)
-2. Producer accepts/negotiates
-3. Partnership created with agreed percentages
-4. Track is released, streams accrue
-5. Monthly: Artist/Producer manually records royalties (or future API)
-6. System auto-calculates split based on partnership agreement
-7. Earnings reflected in both parties' dashboards
+### Data Aggregation Strategy
+- Use `Promise.all` for parallel fetching from multiple tables
+- Calculate trends by comparing current period vs previous period
+- Build monthly breakdown for charts
 
-### Royalty Tracking Options
-- **Phase 1 (MVP)**: Manual entry via RecordRoyaltyModal
-- **Phase 2 (Future)**: DistroKid API integration for automated imports
-- **Phase 3 (Future)**: Spotify for Artists / Apple Music for Artists webhooks
+### Currency Handling
+- Store amounts in cents internally
+- Display in dollars with proper formatting
+- Use `toLocaleString` for thousand separators
 
-### Platform Split Handling
-- MixxClub takes no cut on royalties (pure revenue share between parties)
-- Only initial beat sale (if applicable) has 70/30 platform fee
-- Royalties are 100% split between producer and artist per agreement
+### Performance
+- Use React Query for caching and background updates
+- Memoize expensive calculations
+- Lazy load chart components
 
-### Beat Licensing + Royalty Combo
-Support for hybrid deals:
-- Artist pays upfront lease ($29.99)
-- PLUS ongoing royalty share (e.g., 20% to producer)
-- Both recorded: lease in `beat_purchases`, royalties in `beat_royalties`
+### Real-time Updates
+- Add Supabase realtime subscription for `beat_purchases`
+- Trigger refetch when new sale comes in
+- Show toast notification on new sale
 
-### Notifications
-Trigger notifications for:
-- New collab request received
-- Collab request accepted/declined
-- Track marked as released
-- Monthly royalty recorded
-- Royalty payout processed
+---
 
-This extension transforms MixxClub into a complete Producer↔Artist collaboration platform where beats become revenue-generating assets with tracked royalty streams, transparent splits, and professional release management.
+## Rollout Sequence
+
+1. **Phase A**: Create `useProducerRevenueStreams` hook with full data aggregation
+2. **Phase B**: Create `ProducerRevenueOverview` and `ProducerRevenueStreamCards`
+3. **Phase C**: Build `BeatSalesBreakdown` and `RoyaltyEarningsPanel`
+4. **Phase D**: Create `RecentTransactionsTable` and `ProducerRevenueHub`
+5. **Phase E**: Wire into `ProducerCRM` and update dashboard
+6. **Phase F**: Add real-time subscriptions and polish
+
+This implementation gives Producers a dedicated revenue dashboard that tracks their unique income streams: beat sales (leases vs exclusives), streaming royalties from collaborations, and partnership revenue splits - all with real data from the existing database tables.
+
