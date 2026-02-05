@@ -1,26 +1,26 @@
- import { CharacterEmptyState } from '@/components/characters/CharacterEmptyState';
+ import { useMixxWallet } from '@/hooks/useMixxWallet';
+ import { WalletBalance, TransactionLedger } from '@/components/economy';
+ import { TierProgressCard, SpendingDestinations } from '@/components/fan';
+ import { Skeleton } from '@/components/ui/skeleton';
  
  export const FanWalletHub = () => {
-   // TODO: Fetch wallet balance from mixx_wallets
-   const hasBalance = false;
+   const { wallet, totalBalance, isLoading } = useMixxWallet();
  
-   if (!hasBalance) {
+   if (isLoading) {
      return (
-       <CharacterEmptyState
-         type="wallet"
-         characterId="nova"
-         title="Your MixxCoinz Wallet"
-         message="Start earning MixxCoinz by completing missions and supporting artists."
-         actionLabel="Start Earning"
-         onAction={() => {}}
-       />
+       <div className="space-y-6">
+         <Skeleton className="h-40 w-full rounded-lg" />
+         <Skeleton className="h-32 w-full rounded-lg" />
+       </div>
      );
    }
  
    return (
      <div className="space-y-6">
-       <h2 className="text-xl font-semibold">Your Wallet</h2>
-       {/* Wallet balance and history will go here */}
+       <WalletBalance />
+       <TierProgressCard totalEarned={wallet?.total_earned || 0} />
+       <SpendingDestinations balance={totalBalance} />
+       <TransactionLedger />
      </div>
    );
  };

@@ -933,6 +933,59 @@ export type Database = {
         }
         Relationships: []
       }
+      beat_purchases: {
+        Row: {
+          amount_cents: number
+          beat_id: string | null
+          buyer_id: string
+          created_at: string | null
+          downloaded_at: string | null
+          id: string
+          license_type: string
+          platform_fee_cents: number
+          seller_earnings_cents: number
+          seller_id: string
+          status: string | null
+          stripe_payment_intent_id: string | null
+        }
+        Insert: {
+          amount_cents: number
+          beat_id?: string | null
+          buyer_id: string
+          created_at?: string | null
+          downloaded_at?: string | null
+          id?: string
+          license_type: string
+          platform_fee_cents?: number
+          seller_earnings_cents: number
+          seller_id: string
+          status?: string | null
+          stripe_payment_intent_id?: string | null
+        }
+        Update: {
+          amount_cents?: number
+          beat_id?: string | null
+          buyer_id?: string
+          created_at?: string | null
+          downloaded_at?: string | null
+          id?: string
+          license_type?: string
+          platform_fee_cents?: number
+          seller_earnings_cents?: number
+          seller_id?: string
+          status?: string | null
+          stripe_payment_intent_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "beat_purchases_beat_id_fkey"
+            columns: ["beat_id"]
+            isOneToOne: false
+            referencedRelation: "producer_beats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       brand_assets: {
         Row: {
           asset_context: string | null

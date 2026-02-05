@@ -1,10 +1,12 @@
  import { CharacterEmptyState } from '@/components/characters/CharacterEmptyState';
+ import { useProducerSales } from '@/hooks/useProducerSales';
+ import { SalesOverview } from '@/components/producer/SalesOverview';
+ import { SalesTable } from '@/components/producer/SalesTable';
  
  export const ProducerSalesHub = () => {
-   // TODO: Fetch sales data
-   const hasSales = false;
+   const { sales, analytics, isLoading } = useProducerSales();
  
-   if (!hasSales) {
+   if (!isLoading && sales.length === 0) {
      return (
        <CharacterEmptyState
          type="sales"
@@ -18,8 +20,8 @@
  
    return (
      <div className="space-y-6">
-       <h2 className="text-xl font-semibold">Sales</h2>
-       {/* Sales table will go here */}
+       <SalesOverview analytics={analytics} isLoading={isLoading} />
+       <SalesTable sales={sales} isLoading={isLoading} />
      </div>
    );
  };
