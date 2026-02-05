@@ -1,0 +1,1 @@
+export { BeatWaveformPlayer } from './BeatWaveformPlayer';
