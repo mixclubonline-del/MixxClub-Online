@@ -1,93 +1,69 @@
-/**
- * Scene Flow Controller
- * 
- * Manages the immersive scene-based homepage experience.
- * Dissolves between: Hallway (Intrigue) → Demo (Energy) → Information (Clarity)
- */
-
-import { useState, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+ /**
+  * Scene Flow Controller
+  * 
+  * Manages the immersive scene-based homepage experience.
+  * Dissolves between: Hallway (Intrigue) → Demo (Energy) → Information (Clarity)
+  * 
+  * Uses Zustand state machine for transitions and keyboard navigation.
+  */
+ 
+ import { useEffect, useCallback } from 'react';
+ import { useSceneFlowStore } from '@/stores/sceneFlowStore';
+ import { SceneStage } from '@/components/scene/SceneStage';
 import { StudioHallway } from '@/components/scene/StudioHallway';
 import { InsiderDemoExperience } from '@/components/demo/InsiderDemoExperience';
 import { InformationScene } from '@/components/home/InformationScene';
 
-export type HomeScene = 'hallway' | 'demo' | 'information';
-
-const dissolveVariants = {
-  initial: { opacity: 0, scale: 1.02 },
-  animate: { opacity: 1, scale: 1 },
-  exit: { opacity: 0, scale: 0.98 }
-};
-
-const dissolveTransition = {
-  duration: 0.8,
-  ease: 'easeInOut' as const
-};
-
 export function SceneFlow() {
-  const [currentScene, setCurrentScene] = useState<HomeScene>('hallway');
+   const scene = useSceneFlowStore((s) => s.scene);
+   const go = useSceneFlowStore((s) => s.go);
+   const back = useSceneFlowStore((s) => s.back);
 
-  const handleEnterDemo = useCallback(() => {
-    setCurrentScene('demo');
-  }, []);
+   // Keyboard navigation
+   useEffect(() => {
+     const onKeyDown = (e: KeyboardEvent) => {
+       // Ignore if user is typing in an input
+       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+         return;
+       }
 
-  const handleLearnMore = useCallback(() => {
-    setCurrentScene('information');
-  }, []);
+       if (e.key === 'Enter' && scene === 'HALLWAY') {
+         e.preventDefault();
+         go('DEMO');
+       }
+       
+       if (e.key === 'Escape') {
+         e.preventDefault();
+         back();
+       }
+     };
 
-  const handleBackToHallway = useCallback(() => {
-    setCurrentScene('hallway');
-  }, []);
+     window.addEventListener('keydown', onKeyDown);
+     return () => window.removeEventListener('keydown', onKeyDown);
+   }, [scene, go, back]);
+ 
+   const handleEnterDemo = useCallback(() => go('DEMO'), [go]);
+   const handleLearnMore = useCallback(() => go('INFO'), [go]);
+   const handleBackToHallway = useCallback(() => go('HALLWAY'), [go]);
+   const handleBackToDemo = useCallback(() => go('DEMO'), [go]);
 
   return (
-    <div className="min-h-screen bg-background overflow-hidden">
-      <AnimatePresence mode="wait">
-        {currentScene === 'hallway' && (
-          <motion.div
-            key="hallway"
-            variants={dissolveVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            transition={dissolveTransition}
-            className="min-h-screen"
-          >
-            <StudioHallway fullscreen onEnter={handleEnterDemo} />
-          </motion.div>
-        )}
-
-        {currentScene === 'demo' && (
-          <motion.div
-            key="demo"
-            variants={dissolveVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            transition={dissolveTransition}
-            className="min-h-screen"
-          >
-            <InsiderDemoExperience 
-              embedded 
-              onLearnMore={handleLearnMore}
-              onBack={handleBackToHallway}
-            />
-          </motion.div>
-        )}
-
-        {currentScene === 'information' && (
-          <motion.div
-            key="information"
-            variants={dissolveVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            transition={dissolveTransition}
-            className="min-h-screen"
-          >
-            <InformationScene onBack={handleBackToHallway} />
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+     <SceneStage>
+       {scene === 'HALLWAY' && (
+         <StudioHallway fullscreen onEnter={handleEnterDemo} />
+       )}
+ 
+       {scene === 'DEMO' && (
+         <InsiderDemoExperience 
+           embedded 
+           onLearnMore={handleLearnMore}
+           onBack={handleBackToHallway}
+         />
+       )}
+ 
+       {scene === 'INFO' && (
+         <InformationScene onBack={handleBackToDemo} />
+       )}
+     </SceneStage>
   );
 }

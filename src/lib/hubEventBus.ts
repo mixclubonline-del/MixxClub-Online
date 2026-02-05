@@ -31,7 +31,11 @@ export type HubEventType =
   | 'energy:transition_completed'
   // Depth layer events
   | 'depth:layer_changed'
-  | 'depth:capability_unlocked';
+   | 'depth:capability_unlocked'
+   // Scene flow events
+   | 'scene:transition_started'
+   | 'scene:changed'
+   | 'scene:transition_completed';
 
 export interface HubEvent<T = unknown> {
   type: HubEventType;
