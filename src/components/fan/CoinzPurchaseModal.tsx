@@ -112,7 +112,7 @@
                  <div className="flex items-center justify-between">
                    <div className="flex items-center gap-3">
                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/80 to-primary flex items-center justify-center">
-                       <MixxCoin size="sm" />
+                        <MixxCoin type="purchased" size="sm" />
                      </div>
                      <div>
                        <h4 className="font-semibold">{pkg.name}</h4>
