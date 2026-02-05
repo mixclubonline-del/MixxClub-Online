@@ -165,40 +165,8 @@ export const AIMatchesHub = ({ userType }: AIMatchesHubProps) => {
     loadMatches();
   }, [loadMatches]);
 
-  const generateSampleMatches = (): MatchProfile[] => {
-    const sampleNames = userType === 'artist' 
-      ? ['Alex Rivera', 'Marcus Chen', 'Jordan Taylor', 'Sam Williams', 'Chris Morgan']
-      : ['Luna Beats', 'DJ Shadow', 'Neon Nights', 'Urban Flow', 'Melodic Dreams'];
-    
-    const specialties = ['Mixing', 'Mastering', 'Vocal Production', 'Beat Making', 'Sound Design'];
-    const genres = ['Hip-Hop', 'R&B', 'Pop', 'EDM', 'Trap', 'Soul'];
-
-    return sampleNames.map((name, idx): MatchProfile => ({
-      id: `sample-${idx}`,
-      matchedUserId: `user-${idx}`,
-      name,
-      userType: userType === 'artist' ? 'engineer' : 'artist',
-      specialties: specialties.slice(idx, idx + 3),
-      genres: genres.slice(idx % 3, (idx % 3) + 2),
-      experience: 3 + idx * 2,
-      rating: 4.5 + (idx * 0.1),
-      completedProjects: 15 + idx * 10,
-      hourlyRate: 50 + idx * 25,
-      matchScore: 95 - idx * 5,
-      compatibilityScores: {
-        genre: 90 - idx * 3,
-        style: 88 - idx * 4,
-        technical: 92 - idx * 2,
-        availability: 85 + idx * 2,
-      },
-      matchReason: `Perfect match for ${genres[idx % genres.length]} projects`,
-      aiInsight: `This ${userType === 'artist' ? 'engineer' : 'artist'} has a strong track record with similar projects and excellent reviews.`,
-      saved: idx === 0,
-      status: (idx === 0 ? 'contacted' : 'pending') as 'pending' | 'contacted' | 'working' | 'completed',
-      lastActive: new Date(Date.now() - idx * 3600000),
-      createdAt: new Date(Date.now() - idx * 86400000),
-    }));
-  };
+  // Dead code removed: generateSampleMatches() was deprecated
+  // Matches now come exclusively from database via loadMatches()
 
   const handleRefresh = async () => {
     setRefreshing(true);
