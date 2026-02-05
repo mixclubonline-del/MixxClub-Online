@@ -2699,28 +2699,46 @@ export type Database = {
       }
       fan_stats: {
         Row: {
+          artists_supported: number | null
           created_at: string | null
+          current_tier: string | null
+          day1_badges: number | null
+          engagement_streak: number | null
           id: string
+          mixxcoinz_earned: number | null
           total_comments: number | null
           total_premieres_attended: number | null
+          total_shares: number | null
           total_votes: number | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
+          artists_supported?: number | null
           created_at?: string | null
+          current_tier?: string | null
+          day1_badges?: number | null
+          engagement_streak?: number | null
           id?: string
+          mixxcoinz_earned?: number | null
           total_comments?: number | null
           total_premieres_attended?: number | null
+          total_shares?: number | null
           total_votes?: number | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
+          artists_supported?: number | null
           created_at?: string | null
+          current_tier?: string | null
+          day1_badges?: number | null
+          engagement_streak?: number | null
           id?: string
+          mixxcoinz_earned?: number | null
           total_comments?: number | null
           total_premieres_attended?: number | null
+          total_shares?: number | null
           total_votes?: number | null
           updated_at?: string | null
           user_id?: string
@@ -5386,6 +5404,120 @@ export type Database = {
           updated_at?: string | null
           visual_identity?: Json | null
           voice_id?: string | null
+        }
+        Relationships: []
+      }
+      producer_beats: {
+        Row: {
+          audio_url: string | null
+          bpm: number | null
+          cover_image_url: string | null
+          created_at: string | null
+          description: string | null
+          downloads: number | null
+          exclusive_price_cents: number | null
+          genre: string | null
+          id: string
+          is_exclusive_available: boolean | null
+          key_signature: string | null
+          license_type: string | null
+          mood: string[] | null
+          plays: number | null
+          preview_url: string | null
+          price_cents: number | null
+          producer_id: string
+          status: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          audio_url?: string | null
+          bpm?: number | null
+          cover_image_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          downloads?: number | null
+          exclusive_price_cents?: number | null
+          genre?: string | null
+          id?: string
+          is_exclusive_available?: boolean | null
+          key_signature?: string | null
+          license_type?: string | null
+          mood?: string[] | null
+          plays?: number | null
+          preview_url?: string | null
+          price_cents?: number | null
+          producer_id: string
+          status?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          audio_url?: string | null
+          bpm?: number | null
+          cover_image_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          downloads?: number | null
+          exclusive_price_cents?: number | null
+          genre?: string | null
+          id?: string
+          is_exclusive_available?: boolean | null
+          key_signature?: string | null
+          license_type?: string | null
+          mood?: string[] | null
+          plays?: number | null
+          preview_url?: string | null
+          price_cents?: number | null
+          producer_id?: string
+          status?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      producer_stats: {
+        Row: {
+          avg_rating: number | null
+          id: string
+          monthly_plays: number | null
+          monthly_sales: number | null
+          total_beats: number | null
+          total_downloads: number | null
+          total_plays: number | null
+          total_revenue_cents: number | null
+          total_sales: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          avg_rating?: number | null
+          id?: string
+          monthly_plays?: number | null
+          monthly_sales?: number | null
+          total_beats?: number | null
+          total_downloads?: number | null
+          total_plays?: number | null
+          total_revenue_cents?: number | null
+          total_sales?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          avg_rating?: number | null
+          id?: string
+          monthly_plays?: number | null
+          monthly_sales?: number | null
+          total_beats?: number | null
+          total_downloads?: number | null
+          total_plays?: number | null
+          total_revenue_cents?: number | null
+          total_sales?: number | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -8202,7 +8334,14 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user" | "artist" | "engineer"
+      app_role:
+        | "admin"
+        | "moderator"
+        | "user"
+        | "artist"
+        | "engineer"
+        | "producer"
+        | "fan"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -8330,7 +8469,15 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user", "artist", "engineer"],
+      app_role: [
+        "admin",
+        "moderator",
+        "user",
+        "artist",
+        "engineer",
+        "producer",
+        "fan",
+      ],
     },
   },
 } as const

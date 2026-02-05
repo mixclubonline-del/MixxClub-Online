@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
-type AppRole = 'artist' | 'engineer' | 'admin';
+ type AppRole = 'artist' | 'engineer' | 'producer' | 'fan' | 'admin';
 
 interface AuthContextType {
   user: User | null;
@@ -62,22 +62,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           if (roles.includes('admin')) {
             setUserRole('admin');
             setActiveRoleState('admin');
+           } else if (roles.includes('producer')) {
+             setUserRole('producer');
+             setActiveRoleState('producer');
           } else if (roles.includes('engineer')) {
             setUserRole('engineer');
             setActiveRoleState('engineer');
           } else if (roles.includes('artist')) {
             setUserRole('artist');
             setActiveRoleState('artist');
+           } else if (roles.includes('fan')) {
+             setUserRole('fan');
+             setActiveRoleState('fan');
           } else {
-            // Default to artist if no recognized role
-            setUserRole('artist');
-            setActiveRoleState('artist');
+             // Default to fan if no recognized role
+             setUserRole('fan');
+             setActiveRoleState('fan');
           }
         } else {
-          // No roles in table, default to artist
-          setUserRole('artist');
-          setUserRoles(['artist']);
-          setActiveRoleState('artist');
+           // No roles in table, default to fan
+           setUserRole('fan');
+           setUserRoles(['fan']);
+           setActiveRoleState('fan');
         }
       }, 0);
     } else {

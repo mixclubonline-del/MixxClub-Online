@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { 
   Loader2, Plus, Search, MessageCircle, Music, Users, 
   DollarSign, Heart, Bell, Activity, Star, CreditCard,
-  Folder, Handshake
+   Folder, Handshake, Disc3, ShoppingBag, Sparkles, Compass, Wallet
 } from 'lucide-react';
 
 interface CharacterEmptyStateProps {
@@ -83,6 +83,38 @@ const typeConfig: Record<EmptyStateContext, {
     icon: CreditCard,
     defaultTitle: 'No payments yet',
   },
+   beats: {
+     icon: Disc3,
+     defaultTitle: 'No beats yet',
+   },
+   sales: {
+     icon: ShoppingBag,
+     defaultTitle: 'No sales yet',
+   },
+   collabs: {
+     icon: Handshake,
+     defaultTitle: 'No collaborations yet',
+   },
+   catalog: {
+     icon: Music,
+     defaultTitle: 'Catalog is empty',
+   },
+   feed: {
+     icon: Compass,
+     defaultTitle: 'Nothing in your feed',
+   },
+   missions: {
+     icon: Sparkles,
+     defaultTitle: 'No missions available',
+   },
+   wallet: {
+     icon: Wallet,
+     defaultTitle: 'Wallet is empty',
+   },
+   favorites: {
+     icon: Heart,
+     defaultTitle: 'No favorites yet',
+   },
   generic: {
     icon: Plus,
     defaultTitle: 'Nothing here yet',

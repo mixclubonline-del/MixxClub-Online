@@ -8,7 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface CRMActivePanelProps {
   hubId: string;
-  userType: 'artist' | 'engineer';
+   userType: 'artist' | 'engineer' | 'producer' | 'fan';
   children: ReactNode;
   onClose: () => void;
 }

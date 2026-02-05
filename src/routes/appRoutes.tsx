@@ -68,6 +68,8 @@ const MatchingDashboard = React.lazy(() => import("@/pages/MatchingDashboard"));
 const Sitemap = React.lazy(() => import("@/pages/Sitemap"));
 const PartnerProgram = React.lazy(() => import("@/pages/PartnerProgram"));
 const Economy = React.lazy(() => import("@/pages/Economy"));
+ const ProducerCRM = React.lazy(() => import("@/pages/ProducerCRM"));
+ const FanHub = React.lazy(() => import("@/pages/FanHub"));
 
 // Live Streaming pages
 const LivePage = React.lazy(() => import("@/pages/LivePage"));
@@ -88,6 +90,8 @@ export const appRoutes = (
     <Route path="/engineer-dashboard" element={<Navigate to="/engineer-crm" replace />} />
     <Route path="/artist-crm" element={<AppLayout><ArtistCRM /></AppLayout>} />
     <Route path="/engineer-crm" element={<AppLayout><EngineerCRM /></AppLayout>} />
+     <Route path="/producer-crm" element={<AppLayout><ProducerCRM /></AppLayout>} />
+     <Route path="/fan-hub" element={<AppLayout><FanHub /></AppLayout>} />
 
     {/* Sessions & Collaboration */}
     <Route path="/sessions" element={<SessionsBrowser />} />
