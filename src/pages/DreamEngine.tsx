@@ -14,6 +14,7 @@ import { GenerationPreview } from '@/components/dream/GenerationPreview';
 import { PromptCard } from '@/components/dream/PromptCard';
 import { FreeformDream } from '@/components/dream/FreeformDream';
 import { HistoryPanel } from '@/components/dream/HistoryPanel';
+import { DemoPhaseGenerator } from '@/components/dream/DemoPhaseGenerator';
 
 // ============================================
 // PROMPT PRESETS (Organized by context)
@@ -118,6 +119,44 @@ const PROMPT_PRESETS: Record<string, Array<{
       name: 'Community Hub',
       context: 'community_hub_hero',
       prompt: `Abstract visualization of a vibrant community space. Multiple nodes of light connected by flowing energy streams. Each node representing a creator, all contributing to a central shared space. Purple, cyan, and warm gold tones. Collaborative, welcoming, dynamic. The visual representation of creative community.`,
+    },
+  ],
+  demo_phase_: [
+    {
+      id: 'problem',
+      name: 'The Problem',
+      context: 'demo_phase_problem',
+      prompt: `Cinematic wide shot of a music producer alone at 3am in a small bedroom studio. Multiple monitors showing DAW with unfinished projects. Hard drives stacked on desk. The weight of unreleased music visible in their tired posture. Purple-blue mood lighting. Documentary style, real moment. 8K photorealistic.`,
+    },
+    {
+      id: 'discovery',
+      name: 'The Discovery',
+      context: 'demo_phase_discovery',
+      prompt: `Abstract cinematic visualization of hope dawning. Infinity symbol (MixClub logo shape) forming from light particles in dark space. Colors shifting from deep purple to warm gold. Digital gateway opening. The moment of realization. 8K digital art, premium quality. No people, pure concept.`,
+    },
+    {
+      id: 'connection',
+      name: 'The Connection',
+      context: 'demo_phase_connection',
+      prompt: `Split composition cinematic shot: Young Black male artist in home bedroom studio (Brooklyn aesthetic) on left, professional female engineer at mixing console (Lagos studio) on right. Subtle beam of musical energy/data visualization connecting them across the frame. Both focused, both real. Warm collaboration energy. Documentary photography style. 8K cinematic.`,
+    },
+    {
+      id: 'transformation',
+      name: 'The Transformation',
+      context: 'demo_phase_transformation',
+      prompt: `Abstract visualization of audio transformation. Raw chaotic waveform on left side morphing into clean, professional mastered waveform on right. LUFS meter climbing. Frequency spectrum analysis visible. The craft of audio engineering visualized. Purple, cyan, and gold color palette. 8K digital visualization. No people, pure audio art.`,
+    },
+    {
+      id: 'tribe',
+      name: 'The Tribe',
+      context: 'demo_phase_tribe',
+      prompt: `Global network visualization with real human elements. Glowing circular portrait nodes of diverse music creators around the world (different ages, ethnicities, genders) connected by pulsing light streams forming infinity symbol pattern. Community constellation floating in space. Purple, cyan, and gold connection lines. Some faces in focus, others abstract. 8K cinematic digital art.`,
+    },
+    {
+      id: 'invitation',
+      name: 'The Invitation',
+      context: 'demo_phase_invitation',
+      prompt: `Cinematic shot of ornate studio door opening into a vibrant, professional recording studio. Warm golden light spilling out into dark purple hallway. Inside: mixing console, monitors, instruments, plants. An empty chair at the desk — waiting for the viewer. The threshold to belonging. Welcoming, aspirational. 8K photorealistic.`,
     },
   ],
 };
@@ -296,6 +335,9 @@ export default function DreamEngine() {
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+        {/* Demo Phase Generator */}
+        <DemoPhaseGenerator />
+
         {/* Generation Preview (when pending) */}
         <AnimatePresence>
           {pendingResult && (
