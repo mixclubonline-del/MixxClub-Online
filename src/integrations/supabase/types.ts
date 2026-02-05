@@ -5472,6 +5472,7 @@ export type Database = {
           bpm: number | null
           cover_image_url: string | null
           created_at: string | null
+          custom_license_terms: Json | null
           description: string | null
           downloads: number | null
           exclusive_price_cents: number | null
@@ -5495,6 +5496,7 @@ export type Database = {
           bpm?: number | null
           cover_image_url?: string | null
           created_at?: string | null
+          custom_license_terms?: Json | null
           description?: string | null
           downloads?: number | null
           exclusive_price_cents?: number | null
@@ -5518,6 +5520,7 @@ export type Database = {
           bpm?: number | null
           cover_image_url?: string | null
           created_at?: string | null
+          custom_license_terms?: Json | null
           description?: string | null
           downloads?: number | null
           exclusive_price_cents?: number | null
