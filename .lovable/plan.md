@@ -1,160 +1,103 @@
 
-# Fix Remaining 'Maximum Update Depth' Risks on Auth Page
+# Fix OAuth Authentication - Use Lovable Cloud Auth
 
-## Summary
+## Problem
 
-The previous fix addressed the main form container and demo banner, but several Framer Motion components in the Auth page still use layout animations and hover effects that can trigger render loops during rapid user interaction. This plan hardens the remaining components.
+The OAuth sign-in (Google/Apple buttons) is not working because the `handleOAuthSignIn` function in `Auth.tsx` is calling `supabase.auth.signInWithOAuth()` directly instead of using the Lovable Cloud managed `lovable.auth.signInWithOAuth()`.
 
----
-
-## Root Cause Analysis
-
-The "Maximum update depth exceeded" (React invariant #185) occurs when:
-1. Framer Motion's layout animations trigger during React state updates (e.g., input focus)
-2. `layoutId` shared elements cause cross-component layout recalculations
-3. `whileHover`/`whileTap` animations interact with React's reconciliation
+This bypasses the Lovable Cloud OAuth flow, causing authentication to fail.
 
 ---
 
-## Targeted Fixes
+## Root Cause
 
-### 1. Main Form Wrapper (line 690)
+```text
+Current (broken):
+  Auth.tsx → supabase.auth.signInWithOAuth() → ❌ Fails
 
-**Current:**
-```tsx
-<motion.div 
-  className="w-full max-w-md"
-  initial={{ opacity: 0, y: 20 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.5 }}
->
+Required (correct):
+  Auth.tsx → lovable.auth.signInWithOAuth() → ✅ Lovable Cloud handles OAuth
 ```
 
-**Fix:** Add `layout={false}` to prevent layout thrashing during input interactions:
-```tsx
-<motion.div 
-  className="w-full max-w-md"
-  initial={{ opacity: 0, y: 20 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.5 }}
-  layout={false}
->
-```
+The `lovable.auth.signInWithOAuth()` function in `src/integrations/lovable/index.ts` is the correct method to use. It:
+1. Handles the OAuth flow through Lovable Cloud
+2. Sets the session on the Supabase client after successful auth
+3. Returns proper error handling
 
 ---
 
-### 2. RolePathSelector Component (lines 75-141)
+## Fix
 
-**Current Issue:**
-- Uses `motion.button` with `whileHover={{ scale: 1.02 }}` and `whileTap={{ scale: 0.98 }}`
-- Uses shared `layoutId="roleGlow"` which forces cross-button layout recalculations
+### File: `src/pages/Auth.tsx`
 
-**Fix:** Convert to CSS-based hover effects and remove `layoutId`:
+**Step 1:** Add import for lovable auth module
 
-```tsx
-// Remove motion.button, use regular button with CSS transitions
-<button
-  type="button"
-  onClick={() => onRoleChange("artist")}
-  className={`relative flex flex-col items-center justify-center gap-3 rounded-xl p-6 
-    transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
-    role === "artist" 
-      ? "bg-primary/30 border-2 border-primary shadow-lg shadow-primary/30" 
-      : "bg-white/5 border border-white/10 hover:bg-white/10"
-  }`}
->
-  {role === "artist" && (
-    <div 
-      className="absolute inset-0 rounded-xl bg-primary/20 animate-fade-in"
-      // Removed layoutId - use CSS animation instead
-    />
-  )}
-  {/* ... rest of button content ... */}
-</button>
+```typescript
+import { lovable } from "@/integrations/lovable";
+```
+
+**Step 2:** Update `handleOAuthSignIn` function (lines 218-250)
+
+```text
+Replace:
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider,
+    options: {
+      redirectTo: redirectUrl,
+      ...
+    }
+  });
+
+With:
+  const { error } = await lovable.auth.signInWithOAuth(provider, {
+    redirect_uri: window.location.origin,
+  });
 ```
 
 ---
 
-### 3. Header Animation Stack (lines 698-731)
+## Full Updated Function
 
-**Current:**
-- Multiple `motion.div` and `motion.h1`/`motion.p` with staggered delays
+```typescript
+const handleOAuthSignIn = async (provider: 'google' | 'apple') => {
+  setError("");
+  setLoading(true);
 
-**Fix:** Simplify to CSS-based fade-in with animation-delay:
+  try {
+    // Track OAuth attempt
+    trackEvent('oauth_attempt', { provider, mode });
+    
+    // Use Lovable Cloud managed OAuth
+    const { error } = await lovable.auth.signInWithOAuth(provider, {
+      redirect_uri: window.location.origin,
+    });
 
-```tsx
-<div className="text-center mb-6">
-  <div 
-    className="flex justify-center mb-4 animate-fade-in"
-    style={{ animationDelay: '200ms' }}
-  >
-    {/* Logo content */}
-  </div>
-  <h1 
-    className="text-2xl font-bold mb-1 text-white animate-fade-in"
-    style={{ animationDelay: '300ms' }}
-  >
-    {mode === "signup" ? "Enter the City" : "Welcome Back"}
-  </h1>
-  <p 
-    className="text-white/50 text-sm animate-fade-in"
-    style={{ animationDelay: '400ms' }}
-  >
-    {/* Subtitle */}
-  </p>
-</div>
+    if (error) {
+      setError(error.message);
+      setLoading(false);
+    }
+    // Don't set loading to false here as the redirect will happen
+  } catch (err) {
+    setError("Failed to sign in with " + provider);
+    setLoading(false);
+  }
+};
 ```
 
 ---
 
-### 4. Add CSS Animation Keyframe
+## File Changes Summary
 
-Add to `src/index.css` if not already present:
-
-```css
-@keyframes fade-in {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.animate-fade-in {
-  animation: fade-in 0.5s ease-out forwards;
-  opacity: 0;
-}
-```
-
----
-
-## Files to Modify
-
-| File | Changes |
-|------|---------|
-| `src/pages/Auth.tsx` | Add `layout={false}` to main form wrapper; convert RolePathSelector and header to CSS animations |
-| `src/index.css` | Add `fade-in` keyframe if missing |
+| File | Action | Description |
+|------|--------|-------------|
+| `src/pages/Auth.tsx` | Update | Add lovable import; replace `supabase.auth.signInWithOAuth` with `lovable.auth.signInWithOAuth` |
 
 ---
 
 ## Validation Steps
 
 1. Navigate to `/auth` page
-2. Rapidly type in email/password fields - verify no console warnings
-3. Toggle between Artist and Engineer roles 10+ times rapidly
-4. Switch between login and signup modes
-5. Check browser console for "Maximum update depth exceeded"
-
----
-
-## Technical Rationale
-
-- **`layout={false}`**: Disables Framer Motion's FLIP layout animations during React re-renders
-- **CSS hover effects**: `transition-all hover:scale-[1.02]` provides the same visual feedback without triggering React state
-- **Removed `layoutId`**: Shared layout IDs cause cross-component measurements that can cascade re-renders
-- **CSS keyframe animations**: One-time mount animations that don't interfere with React's reconciliation
-
----
-
-## Expected Outcome
-
-- Zero "Maximum update depth exceeded" warnings during any Auth page interaction
-- Preserved visual polish (hover effects, entry animations)
-- Improved input responsiveness during typing
+2. Click "Continue with Google" button
+3. Complete Google OAuth flow
+4. Verify redirect back to app with valid session
+5. Repeat test with Apple sign-in button
