@@ -1,211 +1,234 @@
 
 
-# Connect Matching Dashboard to Live Backend API
-## Wire the Frontend to Real Engineer Matching Data
+# Wire CRM Matches Hub to Live Backend API
+## Complete the Artist-to-Engineer Matching Integration
 
-The current matching flow uses a Zustand store with hardcoded demo data instead of calling the production `match-engineers` Edge Function. This plan connects the frontend to the live backend to complete the Artist-to-Engineer matching flow.
+The `MatchingDashboard` now uses the live backend API, but the CRM-embedded matching components (`MatchesHub`, `AIMatchesHub`, `AIMatchRecommendations`, `SavedMatches`, `MatchRequests`) still use hardcoded demo data. This phase connects all matching components to the production backend.
 
 ---
 
 ## Current Gap Analysis
 
 ```text
-CURRENT STATE (Broken Flow)
-+------------------------+     +------------------------+     +------------------------+
-| MatchingDashboard.tsx  | --> | matchingEngineStore.ts | --> | SAMPLE_ENGINEERS[]     |
-| (Uses Zustand store)   |     | (5 hardcoded engineers)|     | (Static demo data)     |
-+------------------------+     +------------------------+     +------------------------+
+WORKING (Live API)
++------------------------+
+| MatchingDashboard.tsx  | --> useEngineerMatchingAPI --> match-engineers Edge Function
++------------------------+
 
-TARGET STATE (Working Flow)  
+STILL HARDCODED (Demo Data)
 +------------------------+     +------------------------+     +------------------------+
-| MatchingDashboard.tsx  | --> | useEngineerMatching()  | --> | match-engineers        |
-| (Uses API hook)        |     | (New hook)             |     | (Edge Function)        |
+| MatchesHub.tsx         |     | AIMatchRecommendations |     | SavedMatches.tsx      |
+| (ArtistCRM tab)        |     | (3 static profiles)    |     | (3 static profiles)   |
++------------------------+     +------------------------+     +------------------------+
+        |                              |                              |
+        v                              v                              v
++------------------------+     +------------------------+     +------------------------+
+| AIMatchesHub.tsx       |     | MatchRequests.tsx      |     | user_matches table    |
+| (EngineerCRM tab)      |     | (4 static requests)    |     | (unused)              |
 +------------------------+     +------------------------+     +------------------------+
 ```
-
-**Root Cause:** The `MatchingDashboard` component uses `useMatchingEngine()` which pulls from `matchingEngineStore.ts` - a Zustand store containing 5 hardcoded sample engineers. The real `match-engineers` Edge Function exists and works but is never called.
 
 ---
 
 ## Implementation Plan
 
-### Phase 1: Create API-Connected Matching Hook
+### Phase 1: Create Unified Matching Hook
 
-**File:** `src/hooks/useEngineerMatchingAPI.ts` (NEW)
+**File:** `src/hooks/useMatchesAPI.ts` (NEW)
 
-A new hook that:
-- Calls the `match-engineers` Edge Function
-- Handles authentication headers
-- Manages loading/error states
-- Returns real engineer matches from the database
-
-```typescript
-// Key functionality:
-const matchEngineers = async (criteria: MatchCriteria) => {
-  const { data, error } = await supabase.functions.invoke('match-engineers', {
-    body: {
-      budgetRange: criteria.budget,
-      genres: criteria.genres,
-      projectType: criteria.projectType,
-    },
-  });
-  return data.matches;
-};
-```
-
-### Phase 2: Update MatchingDashboard Component
-
-**File:** `src/pages/MatchingDashboard.tsx`
-
-Changes:
-- Replace `useMatchingEngine()` with new `useEngineerMatchingAPI()` hook
-- Add project criteria input form (budget, genres, project type)
-- Display real matches from database
-- Keep existing UI/filtering components
-
-```text
-Before:
-  const { engineers, projects, findMatches } = useMatchingEngine();
-  const matches = findMatches(demoProject.id, 10);  // Static data
-
-After:
-  const { matches, loading, findMatches } = useEngineerMatchingAPI();
-  const matches = await findMatches({ budget, genres, projectType });  // Real API
-```
-
-### Phase 3: Add Project Creation Integration
-
-When a user selects an engineer match:
-1. Create a project in `collaborative_projects` table
-2. Link to the matched engineer
-3. Create partnership record if not exists
-4. Redirect to project workspace
-
-**Flow:**
-```text
-Select Match → Create Partnership → Create Project → Navigate to Workspace
-```
-
-### Phase 4: Connect Upload to Matching Flow
-
-**File:** `src/pages/AudioUpload.tsx`
-
-After successful upload:
-- Show "Find an Engineer" CTA
-- Pass audio metadata to matching criteria
-- Auto-detect genre from filename/metadata (future enhancement)
-
----
-
-## Files to Create/Modify
-
-| File | Action | Purpose |
-|------|--------|---------|
-| `src/hooks/useEngineerMatchingAPI.ts` | CREATE | New hook for API-based matching |
-| `src/pages/MatchingDashboard.tsx` | MODIFY | Wire to new hook, add criteria form |
-| `src/components/matching/MatchCriteriaForm.tsx` | CREATE | Budget/genre/type selection UI |
-| `src/components/matching/MatchCard.tsx` | MODIFY | Add "Hire Engineer" action |
-| `src/pages/AudioUpload.tsx` | MODIFY | Add post-upload matching CTA |
-
----
-
-## Technical Details
-
-### New Hook Interface
+Extend the existing hook to support:
+- Fetching saved matches from `user_matches` table
+- Fetching match requests (incoming/outgoing)
+- Saving/unsaving matches
+- Real-time subscriptions for match updates
 
 ```typescript
-interface MatchCriteria {
-  budgetRange: string;  // 'under-50' | '50-100' | '100-300' | '300-500' | '500+'
-  genres: string[];
-  projectType: string;  // 'mixing' | 'mastering' | 'production'
-}
-
-interface EngineerMatch {
-  engineerId: string;
-  engineerName: string;
-  avatarUrl?: string;
-  specialties: string[];
-  genres: string[];
-  experience: number;
-  rating: number;
-  completedProjects: number;
-  hourlyRate: number;
-  matchScore: number;
-  matchingGenres: string[];
-  portfolioUrl?: string;
-}
-
-interface UseEngineerMatchingAPI {
-  matches: EngineerMatch[];
+interface UseMatchesAPI {
+  // From existing hook
+  findMatches: (criteria: MatchCriteria) => Promise<EngineerMatch[]>;
+  hireEngineer: (engineerId: string, projectDetails: {...}) => Promise<HireResult>;
+  
+  // New capabilities
+  savedMatches: SavedMatch[];
+  matchRequests: { incoming: MatchRequest[]; outgoing: MatchRequest[] };
+  saveMatch: (matchedUserId: string) => Promise<void>;
+  unsaveMatch: (matchId: string) => Promise<void>;
+  acceptRequest: (requestId: string) => Promise<void>;
+  declineRequest: (requestId: string) => Promise<void>;
+  sendRequest: (engineerId: string, message: string) => Promise<void>;
   loading: boolean;
   error: string | null;
-  findMatches: (criteria: MatchCriteria) => Promise<void>;
-  selectEngineer: (engineerId: string) => Promise<{ partnershipId: string; projectId: string }>;
 }
 ```
 
-### Database Integration
+### Phase 2: Update CRM Match Components
 
-Uses existing tables:
-- `engineer_profiles` (read - matching)
-- `profiles` (read - names/avatars)
-- `partnerships` (write - create partnership)
-- `collaborative_projects` (write - create project)
+**Files to Modify:**
+
+| Component | Current State | Target State |
+|-----------|---------------|--------------|
+| `AIMatchRecommendations.tsx` | 3 hardcoded profiles | Uses `findMatches()` API |
+| `SavedMatches.tsx` | 3 hardcoded profiles | Reads from `user_matches` table |
+| `MatchRequests.tsx` | 4 hardcoded requests | Reads from `match_requests` table |
+| `MatchesHub.tsx` | Passes static data | Connects child components to API |
+| `AIMatchesHub.tsx` | Falls back to `generateSampleMatches()` | Uses API exclusively |
+
+### Phase 3: Database Schema Check
+
+**Required Tables:**
+
+| Table | Status | Purpose |
+|-------|--------|---------|
+| `user_matches` | EXISTS | Stores saved matches |
+| `match_requests` | NEEDS CHECK | Stores collaboration requests |
+| `engineer_profiles` | EXISTS | Engineer data for matching |
+
+If `match_requests` doesn't exist, create migration:
+
+```sql
+CREATE TABLE public.match_requests (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  sender_id UUID NOT NULL REFERENCES auth.users(id),
+  recipient_id UUID NOT NULL REFERENCES auth.users(id),
+  message TEXT,
+  project_type TEXT,
+  budget_range TEXT,
+  genres TEXT[],
+  status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'declined', 'expired')),
+  created_at TIMESTAMPTZ DEFAULT now(),
+  responded_at TIMESTAMPTZ,
+  UNIQUE(sender_id, recipient_id, status)
+);
+
+ALTER TABLE public.match_requests ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view their own requests"
+  ON public.match_requests FOR SELECT
+  USING (sender_id = auth.uid() OR recipient_id = auth.uid());
+
+CREATE POLICY "Users can create requests"
+  ON public.match_requests FOR INSERT
+  WITH CHECK (sender_id = auth.uid());
+
+CREATE POLICY "Recipients can update request status"
+  ON public.match_requests FOR UPDATE
+  USING (recipient_id = auth.uid());
+```
+
+### Phase 4: Component Updates
+
+**AIMatchRecommendations.tsx**
+
+```typescript
+// Before
+const recommendations = [/* hardcoded array */];
+
+// After
+const { matches, loading, findMatches } = useEngineerMatchingAPI();
+
+useEffect(() => {
+  findMatches({
+    budgetRange: '100-300',
+    genres: userProfile?.genres || ['Hip-Hop'],
+    projectType: 'mixing'
+  });
+}, [userProfile]);
+```
+
+**SavedMatches.tsx**
+
+```typescript
+// Before
+const savedMatches = [/* hardcoded array */];
+
+// After
+const { savedMatches, unsaveMatch, loading } = useMatchesAPI();
+
+// Render from real data
+```
+
+**MatchRequests.tsx**
+
+```typescript
+// Before
+const incomingRequests = [/* hardcoded array */];
+const outgoingRequests = [/* hardcoded array */];
+
+// After
+const { matchRequests, acceptRequest, declineRequest } = useMatchesAPI();
+const { incoming, outgoing } = matchRequests;
+```
 
 ---
 
-## Migration Required
+## Files Summary
 
-None - all required tables already exist:
-- `engineer_profiles`
-- `partnerships`
-- `collaborative_projects`
+### New Files (1)
+
+| File | Purpose |
+|------|---------|
+| `src/hooks/useMatchesAPI.ts` | Extended matching API hook |
+
+### Modified Files (5)
+
+| File | Changes |
+|------|---------|
+| `src/components/crm/matches/AIMatchRecommendations.tsx` | Wire to `findMatches()` API |
+| `src/components/crm/matches/SavedMatches.tsx` | Wire to `user_matches` table |
+| `src/components/crm/matches/MatchRequests.tsx` | Wire to `match_requests` table |
+| `src/components/crm/matches/MatchesHub.tsx` | Pass API state to children |
+| `src/components/crm/matches/AIMatchesHub.tsx` | Remove `generateSampleMatches()` fallback |
+
+### Possible Migration (1)
+
+| File | Purpose |
+|------|---------|
+| `match_requests` table migration | If table doesn't exist |
 
 ---
 
 ## End-to-End Flow After Implementation
 
 ```text
-1. Artist uploads track (/audio-upload)
-      ↓
-2. Clicks "Find an Engineer"
-      ↓
-3. Enters budget, selects genres (/matching)
-      ↓
-4. Sees matched engineers (from real database)
-      ↓
-5. Clicks "Hire" on preferred match
-      ↓
-6. Partnership created (partnerships table)
-      ↓
-7. Project created (collaborative_projects table)
-      ↓
-8. Redirected to project workspace
-      ↓
-9. Engineer notified (notifications table)
-      ↓
-10. Work completed, payment released
+Artist CRM (/artist-crm?tab=matches)
+         |
+         v
++------------------+     +------------------+     +------------------+
+| AI Recommendations| --> | Saved Matches   | --> | Match Requests   |
+| (Live API)       |     | (user_matches)  |     | (match_requests) |
++------------------+     +------------------+     +------------------+
+         |                       |                       |
+         v                       v                       v
++------------------------------------------------------------------------+
+|                     match-engineers Edge Function                       |
+|                     engineer_profiles + profiles tables                 |
++------------------------------------------------------------------------+
 ```
-
----
-
-## Backward Compatibility
-
-- Existing `useMatchingEngine()` hook remains for demo purposes
-- New hook is opt-in, no breaking changes
-- Existing MatchCard component receives same props
 
 ---
 
 ## Testing Checklist
 
 After implementation:
-- [ ] Can enter matching criteria (budget/genres)
-- [ ] API returns real engineers from database
-- [ ] Match scores display correctly
-- [ ] Can select and hire an engineer
-- [ ] Partnership record created
-- [ ] Project record created
-- [ ] Navigation to project workspace works
-- [ ] Engineer receives notification
+- [ ] AIMatchRecommendations shows real engineers from database
+- [ ] Clicking "Save" adds match to `user_matches` table
+- [ ] Saved Matches tab shows data from `user_matches`
+- [ ] Removing a saved match updates the table
+- [ ] Match Requests shows real incoming/outgoing requests
+- [ ] Accepting a request creates a partnership
+- [ ] Declining a request updates status
+- [ ] Real-time updates work when new matches appear
+- [ ] Empty states display correctly when no data exists
+
+---
+
+## Benefit Summary
+
+| Metric | Before | After |
+|--------|--------|-------|
+| Data source | Hardcoded demo | Live database |
+| Saved matches | Lost on refresh | Persistent |
+| Match requests | Non-functional | Fully working |
+| Real-time sync | None | Enabled |
+| Consistency | 2 separate systems | 1 unified API |
 
