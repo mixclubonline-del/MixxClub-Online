@@ -1,103 +1,80 @@
 
-# Fix OAuth Authentication - Use Lovable Cloud Auth
+# Fix User Roles INSERT Policy for Signup
 
 ## Problem
 
-The OAuth sign-in (Google/Apple buttons) is not working because the `handleOAuthSignIn` function in `Auth.tsx` is calling `supabase.auth.signInWithOAuth()` directly instead of using the Lovable Cloud managed `lovable.auth.signInWithOAuth()`.
+During email/password signup, the flow fails with a `403 Forbidden` error when trying to insert into `user_roles`:
 
-This bypasses the Lovable Cloud OAuth flow, causing authentication to fail.
+```
+POST /rest/v1/user_roles → 403 Forbidden
+```
+
+**Root Cause:** The `user_roles` table has RLS enabled but only has a SELECT policy. There is no INSERT policy, so authenticated users cannot assign themselves a role during signup.
 
 ---
 
-## Root Cause
+## Current RLS Policies on `user_roles`
 
-```text
-Current (broken):
-  Auth.tsx → supabase.auth.signInWithOAuth() → ❌ Fails
-
-Required (correct):
-  Auth.tsx → lovable.auth.signInWithOAuth() → ✅ Lovable Cloud handles OAuth
-```
-
-The `lovable.auth.signInWithOAuth()` function in `src/integrations/lovable/index.ts` is the correct method to use. It:
-1. Handles the OAuth flow through Lovable Cloud
-2. Sets the session on the Supabase client after successful auth
-3. Returns proper error handling
+| Policy Name | Command | Condition |
+|-------------|---------|-----------|
+| Users can view own roles | SELECT | `auth.uid() = user_id` |
+| *(missing)* | INSERT | *(none)* |
 
 ---
 
-## Fix
+## Security Considerations
 
-### File: `src/pages/Auth.tsx`
+The INSERT policy must:
+1. Only allow users to insert roles for themselves (`user_id = auth.uid()`)
+2. Restrict insertable roles to `artist` and `engineer` only (prevent `admin` privilege escalation)
+3. Prevent duplicate role assignments (already handled by table's UNIQUE constraint)
 
-**Step 1:** Add import for lovable auth module
+---
 
-```typescript
-import { lovable } from "@/integrations/lovable";
-```
+## Solution
 
-**Step 2:** Update `handleOAuthSignIn` function (lines 218-250)
+### Database Migration
 
-```text
-Replace:
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider,
-    options: {
-      redirectTo: redirectUrl,
-      ...
-    }
-  });
+Add an INSERT policy with security constraints:
 
-With:
-  const { error } = await lovable.auth.signInWithOAuth(provider, {
-    redirect_uri: window.location.origin,
-  });
+```sql
+-- Allow authenticated users to insert their own role during signup
+-- Restricted to 'artist' and 'engineer' roles only (no admin self-assignment)
+CREATE POLICY "Users can insert own role during signup"
+ON public.user_roles
+FOR INSERT
+TO authenticated
+WITH CHECK (
+  auth.uid() = user_id 
+  AND role IN ('artist'::app_role, 'engineer'::app_role)
+);
 ```
 
 ---
 
-## Full Updated Function
+## Why This Is Secure
 
-```typescript
-const handleOAuthSignIn = async (provider: 'google' | 'apple') => {
-  setError("");
-  setLoading(true);
-
-  try {
-    // Track OAuth attempt
-    trackEvent('oauth_attempt', { provider, mode });
-    
-    // Use Lovable Cloud managed OAuth
-    const { error } = await lovable.auth.signInWithOAuth(provider, {
-      redirect_uri: window.location.origin,
-    });
-
-    if (error) {
-      setError(error.message);
-      setLoading(false);
-    }
-    // Don't set loading to false here as the redirect will happen
-  } catch (err) {
-    setError("Failed to sign in with " + provider);
-    setLoading(false);
-  }
-};
-```
+1. **Self-only insertion**: `auth.uid() = user_id` ensures users can only create roles for themselves
+2. **No admin escalation**: `role IN ('artist', 'engineer')` blocks users from granting themselves admin privileges
+3. **Server-side enforcement**: RLS runs at the database level, not client-side
+4. **Unique constraint**: Table already has `UNIQUE (user_id, role)` preventing duplicate roles
 
 ---
 
-## File Changes Summary
+## Migration Summary
 
-| File | Action | Description |
-|------|--------|-------------|
-| `src/pages/Auth.tsx` | Update | Add lovable import; replace `supabase.auth.signInWithOAuth` with `lovable.auth.signInWithOAuth` |
+| Table | Action | Policy Name | Security |
+|-------|--------|-------------|----------|
+| `user_roles` | Add INSERT policy | "Users can insert own role during signup" | Self-only + non-admin roles |
 
 ---
 
 ## Validation Steps
 
-1. Navigate to `/auth` page
-2. Click "Continue with Google" button
-3. Complete Google OAuth flow
-4. Verify redirect back to app with valid session
-5. Repeat test with Apple sign-in button
+After migration:
+1. Navigate to `/auth` and select "Sign Up"
+2. Enter test email, password, and select a role (Artist or Engineer)
+3. Submit the form
+4. Verify no 403 error in console
+5. Check `user_roles` table for the new entry
+6. Attempt to manually insert `admin` role via console — should be blocked by policy
