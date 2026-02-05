@@ -1,18 +1,23 @@
- import { MissionsList } from '@/components/economy';
- import { StreakTracker } from '@/components/fan';
- 
- export const FanMissionsHub = () => {
-   // TODO: Fetch streak data from fan_stats
-   const streakData = {
-     currentStreak: 3,
-     longestStreak: 7,
-     todayComplete: false,
-   };
- 
-   return (
-     <div className="space-y-6">
-       <StreakTracker {...streakData} />
-       <MissionsList />
-     </div>
-   );
- };
+import { MissionsList } from '@/components/economy';
+import { StreakTracker, LeaderboardWidget, ReferralMissionsCard, BonusMissionsCard } from '@/components/fan';
+import { useFanStats } from '@/hooks/useFanStats';
+
+export const FanMissionsHub = () => {
+  const { stats, todayComplete } = useFanStats();
+
+  const streakData = {
+    currentStreak: stats?.engagement_streak || 0,
+    longestStreak: stats?.longest_streak || 0,
+    todayComplete,
+  };
+
+  return (
+    <div className="space-y-6">
+      <StreakTracker {...streakData} />
+      <BonusMissionsCard />
+      <MissionsList />
+      <ReferralMissionsCard />
+      <LeaderboardWidget />
+    </div>
+  );
+};

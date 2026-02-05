@@ -2758,6 +2758,8 @@ export type Database = {
           day1_badges: number | null
           engagement_streak: number | null
           id: string
+          last_activity_at: string | null
+          longest_streak: number | null
           mixxcoinz_earned: number | null
           total_comments: number | null
           total_premieres_attended: number | null
@@ -2773,6 +2775,8 @@ export type Database = {
           day1_badges?: number | null
           engagement_streak?: number | null
           id?: string
+          last_activity_at?: string | null
+          longest_streak?: number | null
           mixxcoinz_earned?: number | null
           total_comments?: number | null
           total_premieres_attended?: number | null
@@ -2788,6 +2792,8 @@ export type Database = {
           day1_badges?: number | null
           engagement_streak?: number | null
           id?: string
+          last_activity_at?: string | null
+          longest_streak?: number | null
           mixxcoinz_earned?: number | null
           total_comments?: number | null
           total_premieres_attended?: number | null
