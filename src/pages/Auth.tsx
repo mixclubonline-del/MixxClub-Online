@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
@@ -200,6 +200,17 @@ const Auth = () => {
   const [updatePasswordMode, setUpdatePasswordMode] = useState(false);
   const [enteringCity, setEnteringCity] = useState(false);
 
+  // Ref to track if component is mounted (prevents navigation after unmount)
+  const isMounted = useRef(true);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
   // Listen for PASSWORD_RECOVERY event to show update password form
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -341,7 +352,9 @@ const Auth = () => {
   const triggerEntryAnimation = (destination: string) => {
     setEnteringCity(true);
     setTimeout(() => {
-      navigate(destination);
+      if (isMounted.current) {
+        navigate(destination);
+      }
     }, 1000);
   };
 
@@ -381,17 +394,27 @@ const Auth = () => {
 
         // Insert role into user_roles table (not profiles.role)
         if (data.user) {
-          const roleToInsert = role === "artist" ? "artist" : "engineer";
-          const { error: roleError } = await supabase
-            .from('user_roles')
-            .insert({ user_id: data.user.id, role: roleToInsert });
-          
-          if (roleError) {
-            console.error('Failed to assign role:', roleError);
+          // Perform role assignment in isolated try-catch
+          // This should not block signup success
+          try {
+            const roleToInsert = role === "artist" ? "artist" : "engineer";
+            const { error: roleError } = await supabase
+              .from('user_roles')
+              .insert({ user_id: data.user.id, role: roleToInsert });
+            
+            if (roleError) {
+              console.error('Failed to assign role:', roleError);
+            }
+          } catch (roleErr) {
+            console.error('Role assignment failed:', roleErr);
           }
           
-          // Track signup
-          trackSignup('email');
+          // Track signup in isolated block
+          try {
+            trackSignup('email');
+          } catch (analyticsErr) {
+            console.warn('Analytics tracking failed:', analyticsErr);
+          }
         }
 
         toast.success("Account created! Entering the city...");
@@ -451,7 +474,15 @@ const Auth = () => {
       if (err instanceof z.ZodError) {
         setError(err.issues[0].message);
       } else {
-        setError("An unexpected error occurred. Please try again.");
+        console.error('Auth error:', err);
+        // Check if it's a known error type with a message
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        // Only show generic message if we can't extract a meaningful one
+        if (errorMessage && errorMessage !== '[object Object]') {
+          setError(parseAuthError({ message: errorMessage }));
+        } else {
+          setError("An unexpected error occurred. Please try again.");
+        }
       }
     } finally {
       setLoading(false);
