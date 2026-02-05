@@ -167,109 +167,76 @@ Deno.serve(async (req) => {
       achievements: 0
     };
 
-    // Phase 1: Create 100 profiles (50 engineers, 30 artists, 20 producers)
-    console.log('[Seeding] Phase 1: Creating profiles...');
+    // Phase 1: Get existing profiles and update them with demo data
+    console.log('[Seeding] Phase 1: Fetching and enriching existing profiles...');
     
-    const profilesData: any[] = [];
+    const { data: existingProfiles, error: fetchError } = await supabase
+      .from('profiles')
+      .select('id, role, full_name')
+      .limit(100);
+
+    if (fetchError) {
+      console.error('[Seeding] Fetch error:', fetchError);
+      throw new Error('Failed to fetch existing profiles');
+    }
+
     const createdProfileIds: { engineers: string[], artists: string[], producers: string[] } = {
       engineers: [],
       artists: [],
       producers: []
     };
 
-    // 50 Engineers
-    for (let i = 0; i < 50; i++) {
-      const firstName = randomItem(FIRST_NAMES);
-      const lastName = randomItem(LAST_NAMES);
-      const fullName = `${firstName} ${lastName}`;
-      const username = generateUsername(fullName, i);
+    if (!existingProfiles || existingProfiles.length === 0) {
+      throw new Error('No existing profiles found. Please create users first.');
+    }
+
+    console.log(`[Seeding] Found ${existingProfiles.length} existing profiles`);
+
+    // Assign roles and enrich profiles
+    for (let i = 0; i < existingProfiles.length; i++) {
+      const profile = existingProfiles[i];
+      let role: string;
+      let bio: string;
       
-      profilesData.push({
-        id: crypto.randomUUID(),
-        email: `demo.engineer${i}@mixxclub.demo`,
-        full_name: fullName,
-        username,
-        role: 'engineer',
-        bio: randomItem(ENGINEER_BIOS),
-        avatar_url: generateAvatarUrl(username),
-        location: randomItem(LOCATIONS),
-        is_verified: Math.random() < 0.4,
-        points: randomInt(100, 5000),
-        level: randomInt(1, 15),
-        follower_count: randomInt(50, 5000),
-        following_count: randomInt(20, 300),
-        profile_views_count: randomInt(100, 10000)
-      });
+      // Distribute roles: 50% engineers, 30% artists, 20% producers
+      if (i < existingProfiles.length * 0.5) {
+        role = 'engineer';
+        bio = randomItem(ENGINEER_BIOS);
+        createdProfileIds.engineers.push(profile.id);
+      } else if (i < existingProfiles.length * 0.8) {
+        role = 'artist';
+        bio = randomItem(ARTIST_BIOS);
+        createdProfileIds.artists.push(profile.id);
+      } else {
+        role = 'producer';
+        bio = `Producer crafting heat. Specializing in ${randomItem(GENRES)} beats.`;
+        createdProfileIds.producers.push(profile.id);
+      }
+
+      // Update profile with enriched data
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({
+          role,
+          bio,
+          avatar_url: generateAvatarUrl(profile.full_name || `user${i}`),
+          location: randomItem(LOCATIONS),
+          is_verified: Math.random() < 0.4,
+          points: randomInt(100, 5000),
+          level: randomInt(1, 15),
+          follower_count: randomInt(50, 5000),
+          following_count: randomInt(20, 300),
+          profile_views_count: randomInt(100, 10000)
+        })
+        .eq('id', profile.id);
+
+      if (updateError) {
+        console.error(`[Seeding] Error updating profile ${profile.id}:`, updateError);
+      }
     }
 
-    // 30 Artists
-    for (let i = 0; i < 30; i++) {
-      const firstName = randomItem(FIRST_NAMES);
-      const lastName = randomItem(LAST_NAMES);
-      const fullName = `${firstName} ${lastName}`;
-      const username = generateUsername(fullName, i + 50);
-      
-      profilesData.push({
-        id: crypto.randomUUID(),
-        email: `demo.artist${i}@mixxclub.demo`,
-        full_name: fullName,
-        username,
-        role: 'artist',
-        bio: randomItem(ARTIST_BIOS),
-        avatar_url: generateAvatarUrl(username),
-        location: randomItem(LOCATIONS),
-        is_verified: Math.random() < 0.3,
-        points: randomInt(100, 3000),
-        level: randomInt(1, 10),
-        follower_count: randomInt(100, 10000),
-        following_count: randomInt(50, 500),
-        profile_views_count: randomInt(200, 15000)
-      });
-    }
-
-    // 20 Producers
-    for (let i = 0; i < 20; i++) {
-      const producerName = randomItem(PRODUCER_NAMES) + randomInt(1, 99);
-      const username = producerName.toLowerCase().replace(/[^a-z0-9]/g, '');
-      
-      profilesData.push({
-        id: crypto.randomUUID(),
-        email: `demo.producer${i}@mixxclub.demo`,
-        full_name: producerName,
-        username,
-        role: 'producer',
-        bio: `Producer crafting heat. Specializing in ${randomItem(GENRES)} beats.`,
-        avatar_url: generateAvatarUrl(username),
-        location: randomItem(LOCATIONS),
-        is_verified: Math.random() < 0.5,
-        points: randomInt(200, 4000),
-        level: randomInt(1, 12),
-        follower_count: randomInt(200, 8000),
-        following_count: randomInt(30, 200),
-        profile_views_count: randomInt(500, 20000)
-      });
-    }
-
-    // Insert profiles
-    const { data: insertedProfiles, error: profileError } = await supabase
-      .from('profiles')
-      .insert(profilesData)
-      .select('id, role');
-
-    if (profileError) {
-      console.error('[Seeding] Profile error:', profileError);
-      throw profileError;
-    }
-
-    results.profiles = insertedProfiles?.length || 0;
-    console.log(`[Seeding] Created ${results.profiles} profiles`);
-
-    // Categorize profile IDs
-    insertedProfiles?.forEach((p: any) => {
-      if (p.role === 'engineer') createdProfileIds.engineers.push(p.id);
-      else if (p.role === 'artist') createdProfileIds.artists.push(p.id);
-      else if (p.role === 'producer') createdProfileIds.producers.push(p.id);
-    });
+    results.profiles = existingProfiles.length;
+    console.log(`[Seeding] Enriched ${results.profiles} profiles (${createdProfileIds.engineers.length} engineers, ${createdProfileIds.artists.length} artists, ${createdProfileIds.producers.length} producers)`);
 
     // Phase 2: Create engineer_profiles for engineers
     console.log('[Seeding] Phase 2: Creating engineer profiles...');
@@ -313,138 +280,141 @@ Deno.serve(async (req) => {
           exclusive_price_cents: randomInt(9999, 49999),
           plays: randomInt(100, 50000),
           downloads: randomInt(10, 500),
-          mood: randomItem(['dark', 'energetic', 'chill', 'aggressive', 'melodic', 'bouncy']),
+          mood: [randomItem(['dark', 'energetic', 'chill', 'aggressive', 'melodic', 'bouncy'])],
           tags: randomItems(['trap', 'drill', 'melodic', 'hard', 'chill', 'vibe', 'club', 'radio'], 2, 4),
-          is_exclusive_sold: false,
-          is_active: true
+          is_exclusive_available: true,
+          status: 'active'
         });
       }
     });
 
-    const { error: beatsError } = await supabase
-      .from('producer_beats')
-      .insert(beatsData);
+    if (beatsData.length > 0) {
+      const { error: beatsError } = await supabase
+        .from('producer_beats')
+        .insert(beatsData);
 
-    if (beatsError) {
-      console.error('[Seeding] Beats error:', beatsError);
-    } else {
-      results.producerBeats = beatsData.length;
-      console.log(`[Seeding] Created ${results.producerBeats} producer beats`);
+      if (beatsError) {
+        console.error('[Seeding] Beats error:', beatsError);
+      } else {
+        results.producerBeats = beatsData.length;
+        console.log(`[Seeding] Created ${results.producerBeats} producer beats`);
+      }
     }
 
-    // Phase 4: Create collaboration_sessions
+    // Phase 4: Create collaboration_sessions (using valid status values: active, completed, cancelled)
     console.log('[Seeding] Phase 4: Creating collaboration sessions...');
     
-    const sessionsData = createdProfileIds.engineers.slice(0, 25).map((engineerId, i) => {
-      const statuses = ['active', 'active', 'active', 'active', 'scheduled', 'scheduled', 'scheduled', 'scheduled', 'completed', 'completed'];
-      const status = statuses[i % statuses.length];
-      
-      return {
-        host_user_id: engineerId,
-        title: `${randomItem(['Mixing', 'Mastering', 'Recording', 'Vocal'])} Session ${i + 1}`,
-        description: `Professional ${randomItem(['mixing', 'mastering', 'recording'])} session. ${randomItem(['Bring your best work!', 'Let\'s create magic.', 'Quality guaranteed.'])}`,
-        status,
-        session_type: randomItem(['mixing', 'mastering', 'recording', 'collaboration']),
-        visibility: Math.random() < 0.8 ? 'public' : 'private',
-        max_participants: randomInt(2, 8),
-        audio_quality: randomItem(['high', 'studio', 'lossless'])
-      };
-    });
+    let createdSessionIds: string[] = [];
+    
+    if (createdProfileIds.engineers.length > 0) {
+      const sessionsData = createdProfileIds.engineers.slice(0, Math.min(25, createdProfileIds.engineers.length)).map((engineerId, i) => {
+        // Valid statuses per check constraint: active, completed, cancelled
+        const statuses = ['active', 'active', 'active', 'completed', 'completed', 'cancelled'];
+        const status = statuses[i % statuses.length];
+        
+        return {
+          host_user_id: engineerId,
+          title: `${randomItem(['Mixing', 'Mastering', 'Recording', 'Vocal'])} Session ${i + 1}`,
+          description: `Professional ${randomItem(['mixing', 'mastering', 'recording'])} session. ${randomItem(['Bring your best work!', 'Let\'s create magic.', 'Quality guaranteed.'])}`,
+          status,
+          session_type: randomItem(['mixing', 'mastering', 'recording', 'collaboration']),
+          visibility: Math.random() < 0.8 ? 'public' : 'private',
+          max_participants: randomInt(2, 8),
+          audio_quality: randomItem(['high', 'studio', 'lossless'])
+        };
+      });
 
-    const { error: sessionsError } = await supabase
-      .from('collaboration_sessions')
-      .insert(sessionsData);
+      const { data: insertedSessions, error: sessionsError } = await supabase
+        .from('collaboration_sessions')
+        .insert(sessionsData)
+        .select('id');
 
-    if (sessionsError) {
-      console.error('[Seeding] Sessions error:', sessionsError);
-    } else {
-      results.sessions = sessionsData.length;
-      console.log(`[Seeding] Created ${results.sessions} collaboration sessions`);
+      if (sessionsError) {
+        console.error('[Seeding] Sessions error:', sessionsError);
+      } else {
+        results.sessions = insertedSessions?.length || 0;
+        createdSessionIds = insertedSessions?.map((s: any) => s.id) || [];
+        console.log(`[Seeding] Created ${results.sessions} collaboration sessions`);
+      }
     }
 
-    // Phase 5: Create reviews
+    // Phase 5: Create reviews (requires session_id and review_type)
     console.log('[Seeding] Phase 5: Creating reviews...');
     
-    const reviewsData: any[] = [];
-    for (let i = 0; i < 100; i++) {
-      const reviewerId = randomItem(createdProfileIds.artists);
-      const reviewedId = randomItem(createdProfileIds.engineers);
-      
-      if (reviewerId !== reviewedId) {
-        reviewsData.push({
-          reviewer_id: reviewerId,
-          reviewed_id: reviewedId,
-          rating: randomItem([4, 4, 5, 5, 5, 5, 5]),
-          review_text: randomItem(REVIEW_TEXTS),
-          is_verified: Math.random() < 0.7
-        });
+    if (createdProfileIds.artists.length > 0 && createdProfileIds.engineers.length > 0 && createdSessionIds.length > 0) {
+      const reviewsData: any[] = [];
+      for (let i = 0; i < Math.min(50, createdSessionIds.length * 3); i++) {
+        const reviewerId = randomItem(createdProfileIds.artists);
+        const reviewedId = randomItem(createdProfileIds.engineers);
+        const sessionId = randomItem(createdSessionIds);
+        
+        if (reviewerId !== reviewedId) {
+          reviewsData.push({
+            session_id: sessionId,
+            reviewer_id: reviewerId,
+            reviewed_id: reviewedId,
+            rating: randomItem([4, 4, 5, 5, 5, 5, 5]),
+            review_text: randomItem(REVIEW_TEXTS),
+            review_type: randomItem(['engineer', 'session', 'artist']),
+            professionalism_rating: randomInt(4, 5),
+            communication_rating: randomInt(4, 5),
+            quality_rating: randomInt(4, 5),
+            would_work_again: Math.random() < 0.9,
+            is_public: true
+          });
+        }
       }
-    }
 
-    const { error: reviewsError } = await supabase
-      .from('reviews')
-      .insert(reviewsData);
+      // Deduplicate by session_id + reviewer_id + reviewed_id
+      const uniqueReviews = reviewsData.filter((r, i, arr) => 
+        arr.findIndex(x => x.session_id === r.session_id && x.reviewer_id === r.reviewer_id && x.reviewed_id === r.reviewed_id) === i
+      );
 
-    if (reviewsError) {
-      console.error('[Seeding] Reviews error:', reviewsError);
+      if (uniqueReviews.length > 0) {
+        const { error: reviewsError } = await supabase
+          .from('reviews')
+          .insert(uniqueReviews);
+
+        if (reviewsError) {
+          console.error('[Seeding] Reviews error:', reviewsError);
+        } else {
+          results.reviews = uniqueReviews.length;
+          console.log(`[Seeding] Created ${results.reviews} reviews`);
+        }
+      }
     } else {
-      results.reviews = reviewsData.length;
-      console.log(`[Seeding] Created ${results.reviews} reviews`);
+      console.log('[Seeding] Skipping reviews - need sessions first');
     }
 
-    // Phase 6: Create follows (social graph)
-    console.log('[Seeding] Phase 6: Creating social graph...');
+    // Phase 6: Skip follows for now - trigger has schema mismatch with notifications.metadata
+    console.log('[Seeding] Phase 6: Skipping social graph (trigger schema mismatch)...');
+    results.follows = 0;
     
-    const followsData: any[] = [];
     const allProfileIds = [...createdProfileIds.engineers, ...createdProfileIds.artists, ...createdProfileIds.producers];
-    
-    for (let i = 0; i < 200; i++) {
-      const followerId = randomItem(allProfileIds);
-      const followingId = randomItem(allProfileIds);
-      
-      if (followerId !== followingId) {
-        followsData.push({
-          follower_id: followerId,
-          following_id: followingId
-        });
-      }
-    }
 
-    // Deduplicate
-    const uniqueFollows = followsData.filter((f, i, arr) => 
-      arr.findIndex(x => x.follower_id === f.follower_id && x.following_id === f.following_id) === i
-    );
-
-    const { error: followsError } = await supabase
-      .from('user_follows')
-      .upsert(uniqueFollows, { onConflict: 'follower_id,following_id', ignoreDuplicates: true });
-
-    if (followsError) {
-      console.error('[Seeding] Follows error:', followsError);
-    } else {
-      results.follows = uniqueFollows.length;
-      console.log(`[Seeding] Created ${results.follows} follow relationships`);
-    }
-
-    // Phase 7: Create wallets
+    // Phase 7: Create wallets (using correct column names)
     console.log('[Seeding] Phase 7: Creating wallets...');
     
-    const walletsData = allProfileIds.map(userId => ({
-      user_id: userId,
-      balance: randomInt(0, 5000),
-      lifetime_earned: randomInt(0, 50000),
-      lifetime_spent: randomInt(0, 10000)
-    }));
+    if (allProfileIds.length > 0) {
+      const walletsData = allProfileIds.map(userId => ({
+        user_id: userId,
+        earned_balance: randomInt(0, 5000),
+        purchased_balance: randomInt(0, 1000),
+        total_earned: randomInt(0, 50000),
+        total_purchased: randomInt(0, 5000),
+        total_spent: randomInt(0, 10000)
+      }));
 
-    const { error: walletsError } = await supabase
-      .from('mixx_wallets')
-      .upsert(walletsData, { onConflict: 'user_id' });
+      const { error: walletsError } = await supabase
+        .from('mixx_wallets')
+        .upsert(walletsData, { onConflict: 'user_id' });
 
-    if (walletsError) {
-      console.error('[Seeding] Wallets error:', walletsError);
-    } else {
-      results.wallets = walletsData.length;
-      console.log(`[Seeding] Created ${results.wallets} wallets`);
+      if (walletsError) {
+        console.error('[Seeding] Wallets error:', walletsError);
+      } else {
+        results.wallets = walletsData.length;
+        console.log(`[Seeding] Created ${results.wallets} wallets`);
+      }
     }
 
     // Phase 8: Create activity feed
