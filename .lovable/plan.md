@@ -1,80 +1,104 @@
 
-# Fix User Roles INSERT Policy for Signup
+# Fix Dream Engine Image Generation Response Parsing
 
-## Problem
+## Problem Diagnosis
 
-During email/password signup, the flow fails with a `403 Forbidden` error when trying to insert into `user_roles`:
+The Dream Engine edge function is failing with `Error: No image generated in response` because it parses the Lovable AI gateway response incorrectly.
 
+**Current (Broken) Parsing:**
+```typescript
+const content = data.choices?.[0]?.message?.content;
+if (Array.isArray(content)) {
+  const imageContent = content.find((c: any) => c.type === "image_url");
+  if (imageContent?.image_url?.url) {
+    return { url: imageContent.image_url.url, provider: "lovable-gemini-3-pro" };
+  }
+}
 ```
-POST /rest/v1/user_roles → 403 Forbidden
+
+**Actual Lovable AI Gateway Response Format:**
+```json
+{
+  "choices": [{
+    "message": {
+      "images": [{ "image_url": { "url": "data:image/png;base64,..." } }],
+      "content": "..."
+    }
+  }]
+}
 ```
 
-**Root Cause:** The `user_roles` table has RLS enabled but only has a SELECT policy. There is no INSERT policy, so authenticated users cannot assign themselves a role during signup.
-
----
-
-## Current RLS Policies on `user_roles`
-
-| Policy Name | Command | Condition |
-|-------------|---------|-----------|
-| Users can view own roles | SELECT | `auth.uid() = user_id` |
-| *(missing)* | INSERT | *(none)* |
-
----
-
-## Security Considerations
-
-The INSERT policy must:
-1. Only allow users to insert roles for themselves (`user_id = auth.uid()`)
-2. Restrict insertable roles to `artist` and `engineer` only (prevent `admin` privilege escalation)
-3. Prevent duplicate role assignments (already handled by table's UNIQUE constraint)
+**Evidence:** The working `generate-landing-image` function correctly uses:
+```typescript
+const imageUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+```
 
 ---
 
 ## Solution
 
-### Database Migration
+Update the `generateImage` function in `dream-engine/index.ts` to:
 
-Add an INSERT policy with security constraints:
+1. Parse the response using the correct path: `data.choices[0].message.images[0].image_url.url`
+2. Add fallback logic to handle multiple possible response formats for resilience
+3. Add detailed logging of the actual response structure when parsing fails (to help debug future issues)
 
-```sql
--- Allow authenticated users to insert their own role during signup
--- Restricted to 'artist' and 'engineer' roles only (no admin self-assignment)
-CREATE POLICY "Users can insert own role during signup"
-ON public.user_roles
-FOR INSERT
-TO authenticated
-WITH CHECK (
-  auth.uid() = user_id 
-  AND role IN ('artist'::app_role, 'engineer'::app_role)
-);
+---
+
+## Code Changes
+
+### File: `supabase/functions/dream-engine/index.ts`
+
+Replace lines 106-116 with:
+
+```typescript
+const data = await response.json();
+
+// Primary path: Lovable AI gateway format with images array
+const imageUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+if (imageUrl) {
+  return { url: imageUrl, provider: "lovable-gemini-3-pro" };
+}
+
+// Fallback 1: Check content array format (OpenAI-style multimodal)
+const content = data.choices?.[0]?.message?.content;
+if (Array.isArray(content)) {
+  const imageContent = content.find((c: any) => c.type === "image_url");
+  if (imageContent?.image_url?.url) {
+    return { url: imageContent.image_url.url, provider: "lovable-gemini-3-pro" };
+  }
+}
+
+// Fallback 2: Direct inline data from Gemini native format
+const inlineData = data.candidates?.[0]?.content?.parts?.find((p: any) => p.inlineData);
+if (inlineData?.inlineData) {
+  const dataUrl = `data:${inlineData.inlineData.mimeType};base64,${inlineData.inlineData.data}`;
+  return { url: dataUrl, provider: "lovable-gemini-3-pro" };
+}
+
+// Log actual response structure for debugging
+console.error("Unexpected response structure:", JSON.stringify(data).substring(0, 500));
+throw new Error("No image generated in response");
 ```
 
 ---
 
-## Why This Is Secure
+## Why This Fix Works
 
-1. **Self-only insertion**: `auth.uid() = user_id` ensures users can only create roles for themselves
-2. **No admin escalation**: `role IN ('artist', 'engineer')` blocks users from granting themselves admin privileges
-3. **Server-side enforcement**: RLS runs at the database level, not client-side
-4. **Unique constraint**: Table already has `UNIQUE (user_id, role)` preventing duplicate roles
-
----
-
-## Migration Summary
-
-| Table | Action | Policy Name | Security |
-|-------|--------|-------------|----------|
-| `user_roles` | Add INSERT policy | "Users can insert own role during signup" | Self-only + non-admin roles |
+| Issue | Fix |
+|-------|-----|
+| Wrong response path | Use `message.images[0].image_url.url` matching working functions |
+| Single point of failure | Add fallback parsing for multiple API response formats |
+| Silent failures | Log actual response when all parsers fail |
 
 ---
 
 ## Validation Steps
 
-After migration:
-1. Navigate to `/auth` and select "Sign Up"
-2. Enter test email, password, and select a role (Artist or Engineer)
-3. Submit the form
-4. Verify no 403 error in console
-5. Check `user_roles` table for the new entry
-6. Attempt to manually insert `admin` role via console — should be blocked by policy
+After deploying:
+
+1. Navigate to `/dream-engine`
+2. Enter any image prompt (e.g., "A vibrant sunset over mountains")
+3. Select a context and click generate
+4. Verify image appears in preview (no 500 error)
+5. Check edge function logs for successful generation message
