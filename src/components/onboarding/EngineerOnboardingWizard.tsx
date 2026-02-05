@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
@@ -10,7 +10,7 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useUsernameValidation } from '@/hooks/useUsernameValidation';
 import { OnboardingPortal } from './OnboardingPortal';
 import { OnboardingWaypoints } from './OnboardingWaypoints';
@@ -51,13 +51,17 @@ const steps: WizardStep[] = [
 
 export function EngineerOnboardingWizard() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
   
+  // Pre-fill from URL params
+  const nameFromUrl = searchParams.get('name');
+  
   // Form state
-  const [fullName, setFullName] = useState('');
+  const [fullName, setFullName] = useState(nameFromUrl || '');
   const [bio, setBio] = useState('');
   const [portfolioUrl, setPortfolioUrl] = useState('');
   const [yearsExperience, setYearsExperience] = useState(3);
@@ -67,6 +71,26 @@ export function EngineerOnboardingWizard() {
 
   // Username validation
   const { username, setUsername, isChecking, isAvailable, error: usernameError, isValid: isUsernameValid } = useUsernameValidation();
+
+  // Check if user already completed onboarding
+  useEffect(() => {
+    const checkOnboardingStatus = async () => {
+      if (!user) return;
+      
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('onboarding_completed, username')
+        .eq('id', user.id)
+        .single();
+      
+      if (profile?.onboarding_completed || profile?.username) {
+        // Already completed, redirect to CRM
+        navigate('/engineer-crm');
+      }
+    };
+    
+    checkOnboardingStatus();
+  }, [user, navigate]);
 
   const toggleSpecialty = (specialty: string) => {
     setSelectedSpecialties(prev => 
@@ -118,7 +142,9 @@ export function EngineerOnboardingWizard() {
           full_name: fullName,
           username: username,
           bio: bio,
-          role: 'engineer'
+          role: 'engineer',
+          onboarding_completed: true,
+          onboarding_completed_at: new Date().toISOString()
         })
         .eq('id', user.id);
 
@@ -159,10 +185,14 @@ export function EngineerOnboardingWizard() {
     }
   };
 
-  const handleSkip = () => {
-    toast.info('You can complete your profile later from Settings');
-    navigate('/engineer-crm');
-  };
+  // Loading state while checking auth
+  if (!user) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-accent" />
+      </div>
+    );
+  }
 
   return (
     <OnboardingPortal
@@ -192,12 +222,12 @@ export function EngineerOnboardingWizard() {
         stepKey={currentStep}
         onBack={handleBack}
         onNext={handleNext}
-        onSkip={handleSkip}
         canProceed={canProceed()}
         isSubmitting={isSubmitting}
         isFirstStep={currentStep === 0}
         isLastStep={currentStep === steps.length - 1}
         variant="engineer"
+        destinationPath="/engineer-crm"
       >
         {currentStep === 0 && (
           <div className="space-y-4">

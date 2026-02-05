@@ -439,9 +439,12 @@ const Auth = () => {
           navigate(`/auth?mode=login&email=${encodeURIComponent(validationData.email)}`);
         } else {
           // No email confirmation required, proceed with navigation
+          // Pass name to onboarding for pre-fill
           const destination = redirectPath 
             ? redirectPath 
-            : (role === "engineer" ? "/onboarding/engineer" : "/onboarding/artist");
+            : (role === "engineer" 
+              ? `/onboarding/engineer?name=${encodeURIComponent(fullName)}&email=${encodeURIComponent(email)}`
+              : `/onboarding/artist?name=${encodeURIComponent(fullName)}&email=${encodeURIComponent(email)}`);
           triggerEntryAnimation(destination);
         }
       } else {

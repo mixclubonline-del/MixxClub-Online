@@ -21,8 +21,8 @@ export function OnboardingWaypoints({
   const accentColor = variant === 'artist' ? 'primary' : 'accent';
   
   return (
-    <div className="absolute bottom-32 left-0 right-0 px-8">
-      <div className="max-w-2xl mx-auto">
+    <div className="absolute bottom-32 max-md:bottom-20 left-0 right-0 px-8 max-md:px-4">
+      <div className="max-w-2xl mx-auto max-md:max-w-full">
         {/* Path line connecting waypoints */}
         <div className="relative flex items-center justify-between">
           {/* Background line */}
@@ -60,7 +60,7 @@ export function OnboardingWaypoints({
                 {/* Waypoint circle */}
                 <motion.div
                   className={`
-                    w-10 h-10 rounded-full flex items-center justify-center
+                    w-10 h-10 max-md:w-8 max-md:h-8 rounded-full flex items-center justify-center
                     border-2 transition-all duration-300
                     ${isComplete 
                       ? `bg-${accentColor} border-${accentColor}` 
@@ -81,9 +81,9 @@ export function OnboardingWaypoints({
                   }}
                 >
                   {isComplete ? (
-                    <CheckCircle className="w-5 h-5 text-primary-foreground" />
+                    <CheckCircle className="w-5 h-5 max-md:w-4 max-md:h-4 text-primary-foreground" />
                   ) : (
-                    <Icon className={`w-5 h-5 ${
+                    <Icon className={`w-5 h-5 max-md:w-4 max-md:h-4 ${
                       isActive ? `text-${accentColor}` : 'text-white/50'
                     }`} />
                   )}
@@ -92,7 +92,7 @@ export function OnboardingWaypoints({
                 {/* Waypoint label - appears on hover/active */}
                 <motion.span
                   className={`
-                    absolute -bottom-8 whitespace-nowrap text-xs font-medium
+                    absolute -bottom-8 max-md:-bottom-6 whitespace-nowrap text-xs max-md:text-[10px] font-medium
                     ${isActive ? 'text-white' : 'text-white/50'}
                   `}
                   initial={{ opacity: 0 }}

@@ -86,8 +86,7 @@ export const MIXXCLUB_CHARACTERS: Record<CharacterId, MixxClubCharacter> = {
     onboardingQuotes: [
       "Your name is your brand. Claim it.",
       "Hip-hop, R&B, Drill... what's in your DNA?",
-      "Mixing? Mastering? Collabs? Let's lock it in.",
-      "You did that. Prime's got you from here."
+      "Goals locked. Let's get you in the mix."
     ]
   },
   rell: {
@@ -108,9 +107,8 @@ export const MIXXCLUB_CHARACTERS: Record<CharacterId, MixxClubCharacter> = {
     locations: ['Engineer landing hero', 'Revenue sections', 'Engineer CRM', 'Membership tiers'],
     onboardingQuotes: [
       "Build your profile. Let the work speak.",
-      "Mixing, mastering, sound design... what's your bag?",
-      "Know your worth. Set your price.",
-      "Locked in. Prime's got it from here."
+      "Mixing, mastering, sound design... stack your expertise.",
+      "Know your worth. Set your price."
     ]
   },
   nova: {

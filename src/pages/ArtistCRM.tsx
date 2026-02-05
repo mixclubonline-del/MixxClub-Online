@@ -45,6 +45,7 @@ import { SessionsHub } from '@/components/crm/sessions/SessionsHub';
 import { ClientsHub } from '@/components/crm/clients';
 import { MusicHub } from '@/components/crm/MusicHub';
 import { StoreHub } from '@/components/crm/StoreHub';
+import { OnboardingReminder } from '@/components/crm/OnboardingReminder';
 
 const ArtistCRM = () => {
   const { user } = useAuth();
@@ -351,7 +352,12 @@ const ArtistCRM = () => {
         return <CollaborativeEarnings userType="artist" />;
 
       default:
-        return <DashboardHub />;
+        return (
+          <>
+            <OnboardingReminder userType="artist" />
+            <DashboardHub />
+          </>
+        );
     }
   };
 
