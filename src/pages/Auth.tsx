@@ -189,6 +189,15 @@ const Auth = () => {
   const { trackSignup, trackEvent } = useAnalytics();
   
   const [email, setEmail] = useState("");
+  const emailFromUrl = searchParams.get("email");
+
+  // Pre-fill email from URL params (e.g., after signup with email confirmation)
+  useEffect(() => {
+    if (emailFromUrl && !email) {
+      setEmail(emailFromUrl);
+    }
+  }, [emailFromUrl]);
+
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -418,12 +427,23 @@ const Auth = () => {
         }
 
         toast.success("Account created! Entering the city...");
-        
-        // Entry animation then navigate
-        const destination = redirectPath 
-          ? redirectPath 
-          : (role === "engineer" ? "/onboarding/engineer" : "/onboarding/artist");
-        triggerEntryAnimation(destination);
+
+        // Check if email confirmation is required
+        // When email confirmation is enabled, session will be null even though user exists
+        if (data.user && !data.session) {
+          // Email confirmation is pending - show clear message and switch to login tab
+          toast.info("📧 Please check your email to confirm your account before signing in.", {
+            duration: 10000,
+          });
+          // Navigate to login mode with email pre-filled hint
+          navigate(`/auth?mode=login&email=${encodeURIComponent(validationData.email)}`);
+        } else {
+          // No email confirmation required, proceed with navigation
+          const destination = redirectPath 
+            ? redirectPath 
+            : (role === "engineer" ? "/onboarding/engineer" : "/onboarding/artist");
+          triggerEntryAnimation(destination);
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
