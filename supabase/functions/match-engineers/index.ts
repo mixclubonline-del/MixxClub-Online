@@ -13,18 +13,20 @@ interface MatchRequest {
 }
 
 interface EngineerProfile {
+  id: string;
   user_id: string;
   specialties: string[];
-  years_of_experience: number;
-  rating_average: number;
-  total_reviews: number;
+  years_experience: number;
+  rating: number;
+  completed_projects: number;
   hourly_rate: number;
-  is_available: boolean;
-  portfolio_links: any;
-  profile: {
+  availability_status: string;
+  portfolio_url: string | null;
+  genres: string[];
+  profile?: {
     full_name: string;
     avatar_url?: string;
-  }[];
+  };
 }
 
 Deno.serve(async (req) => {
@@ -57,80 +59,84 @@ Deno.serve(async (req) => {
     const budget = budgetRanges[budgetRange] || { min: 0, max: 10000 };
 
     // Query engineer profiles
-    const { data: engineers, error } = await supabaseClient
+    const { data: engineers, error: engineerError } = await supabaseClient
       .from('engineer_profiles')
       .select(`
+        id,
         user_id,
         specialties,
-        years_of_experience,
-        rating_average,
-        total_reviews,
+        years_experience,
+        rating,
+        completed_projects,
         hourly_rate,
-        is_available,
-        portfolio_links,
-        profile:profiles!engineer_profiles_user_id_fkey (
-          full_name,
-          avatar_url
-        )
+        availability_status,
+        portfolio_url,
+        genres
       `)
-      .eq('is_available', true)
+      .eq('availability_status', 'available')
       .gte('hourly_rate', budget.min)
       .lte('hourly_rate', budget.max)
-      .order('rating_average', { ascending: false })
+      .order('rating', { ascending: false })
       .limit(20);
 
-    if (error) {
-      // Log full error server-side only
-      console.error('[INTERNAL] Database query error:', error);
-      // Return generic error to client
+    if (engineerError) {
+      console.error('[INTERNAL] Database query error:', engineerError);
       return new Response(
         JSON.stringify({ error: 'Failed to find matching engineers. Please try again.' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
+    // Fetch profiles separately to get names
+    const userIds = (engineers || []).map((e: any) => e.user_id);
+    const { data: profiles } = await supabaseClient
+      .from('profiles')
+      .select('id, full_name, avatar_url')
+      .in('id', userIds);
+
+    const profileMap = new Map((profiles || []).map((p: any) => [p.id, p]));
+
     // Calculate match scores
-    const scoredEngineers = (engineers as EngineerProfile[]).map((engineer) => {
+    const scoredEngineers = (engineers || []).map((engineer: EngineerProfile) => {
       let score = 0;
+      const profile = profileMap.get(engineer.user_id);
 
       // Budget match (40%)
-      const engineerRate = engineer.hourly_rate;
+      const engineerRate = engineer.hourly_rate || 0;
       const budgetMid = (budget.min + budget.max) / 2;
       const budgetDiff = Math.abs(engineerRate - budgetMid);
       const maxDiff = budget.max - budget.min;
       const budgetScore = maxDiff > 0 ? (1 - budgetDiff / maxDiff) * 40 : 40;
       score += budgetScore;
 
-      // Genre compatibility (30%)
-      const engineerGenres = engineer.specialties || [];
+      // Genre compatibility (30%) - check both genres and specialties
+      const engineerGenres = [...(engineer.genres || []), ...(engineer.specialties || [])];
       const matchingGenres = genres.filter((g) =>
-        engineerGenres.some((eg) => eg.toLowerCase() === g.toLowerCase())
+        engineerGenres.some((eg) => eg.toLowerCase().includes(g.toLowerCase()))
       );
       const genreScore = genres.length > 0 ? (matchingGenres.length / genres.length) * 30 : 15;
       score += genreScore;
 
       // Availability (15%)
-      score += engineer.is_available ? 15 : 0;
+      score += engineer.availability_status === 'available' ? 15 : 0;
 
-      // Rating/reviews (15%)
-      const ratingScore = (engineer.rating_average / 5) * 10;
-      const reviewScore = Math.min(engineer.total_reviews / 10, 1) * 5;
-      score += ratingScore + reviewScore;
-
-      const profileData = Array.isArray(engineer.profile) ? engineer.profile[0] : engineer.profile;
+      // Rating (15%)
+      const ratingScore = ((engineer.rating || 4) / 5) * 15;
+      score += ratingScore;
 
       return {
         engineerId: engineer.user_id,
-        engineerName: profileData?.full_name || 'Unknown',
-        avatarUrl: profileData?.avatar_url,
-        specialties: engineer.specialties,
-        experience: engineer.years_of_experience,
-        rating: engineer.rating_average,
-        totalReviews: engineer.total_reviews,
-        hourlyRate: engineer.hourly_rate,
+        engineerName: profile?.full_name || 'Unknown Engineer',
+        avatarUrl: profile?.avatar_url,
+        specialties: engineer.specialties || [],
+        genres: engineer.genres || [],
+        experience: engineer.years_experience || 0,
+        rating: engineer.rating || 0,
+        completedProjects: engineer.completed_projects || 0,
+        hourlyRate: engineer.hourly_rate || 0,
         matchScore: Math.round(score),
         matchingGenres,
-        portfolioLinks: engineer.portfolio_links || [],
+        portfolioUrl: engineer.portfolio_url,
       };
     });
 
