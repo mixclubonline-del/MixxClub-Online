@@ -1,383 +1,321 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search, Filter, TrendingUp, Users, CheckCircle, Clock } from 'lucide-react';
-import { useMatchingEngine } from '../hooks/useMatchingEngine';
-import { MatchCard } from '../components/matching/MatchCard';
-import { type Project, type Match } from '../stores/matchingEngineStore';
+import { Search, Filter, TrendingUp, Users, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { useEngineerMatchingAPI, type EngineerMatch, type MatchCriteria } from '@/hooks/useEngineerMatchingAPI';
+import { MatchCriteriaForm, type MatchCriteriaFormValues } from '@/components/matching/MatchCriteriaForm';
+import { APIMatchCard } from '@/components/matching/APIMatchCard';
+import { toast } from 'sonner';
 
 const MatchingDashboard: React.FC = () => {
-    const {
-        engineers,
-        projects,
-        findMatches,
-        getHighConfidenceMatches,
-        matchStats,
-        selectMatch,
-        selectedMatch,
-    } = useMatchingEngine();
+  const navigate = useNavigate();
+  const { matches, loading, error, hiring, findMatches, hireEngineer } = useEngineerMatchingAPI();
 
-    const [selectedGenreFilter, setSelectedGenreFilter] = useState<string>('');
-    const [selectedConfidenceFilter, setSelectedConfidenceFilter] = useState<
-        'all' | 'high' | 'medium' | 'low'
-    >('all');
-    const [searchQuery, setSearchQuery] = useState('');
-    const [currentMatches, setCurrentMatches] = useState<Match[]>([]);
-    const [filteredMatches, setFilteredMatches] = useState<Match[]>([]);
+  // Form state
+  const [criteria, setCriteria] = useState<MatchCriteriaFormValues>({
+    budgetRange: '',
+    genres: [],
+    projectType: '',
+  });
 
-    // Sample project for demo (in real app, would come from project selection)
-    const demoProject: Project = {
-        id: 'project-1',
-        title: 'Hip-Hop Album Mixing & Mastering',
-        description: 'Professional mixing and mastering for 12-track hip-hop album',
-        genres: ['hip-hop', 'trap'],
-        budget: 3000,
-        deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        artistId: 'artist-1',
-        artistName: 'Demo Artist',
-        skills: ['mixing', 'mastering', 'production'],
-        complexity: 'complex',
-        priority: 'high',
-        createdAt: new Date(),
-    };
+  // Filters
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedGenreFilter, setSelectedGenreFilter] = useState<string>('');
+  const [hasSearched, setHasSearched] = useState(false);
 
-    // Find matches when component mounts
-    useEffect(() => {
-        const matches = findMatches(demoProject.id, 10);
-        setCurrentMatches(matches);
-    }, [demoProject.id, findMatches]);    // Filter matches
-    useEffect(() => {
-        let filtered = currentMatches;
+  // Handle search
+  const handleSearch = async () => {
+    if (!criteria.budgetRange || criteria.genres.length === 0 || !criteria.projectType) {
+      toast.error('Please fill in all criteria');
+      return;
+    }
 
-        // Genre filter
-        if (selectedGenreFilter) {
-            filtered = filtered.filter((match) => {
-                const engineer = engineers.find((e) => e.id === match.engineerId);
-                return engineer?.genres.includes(selectedGenreFilter);
-            });
-        }
+    const results = await findMatches({
+      budgetRange: criteria.budgetRange,
+      genres: criteria.genres,
+      projectType: criteria.projectType,
+    });
 
-        // Confidence filter
-        if (selectedConfidenceFilter !== 'all') {
-            filtered = filtered.filter((match) => match.confidence === selectedConfidenceFilter);
-        }
+    setHasSearched(true);
 
-        // Search query
-        if (searchQuery) {
-            filtered = filtered.filter((match) => {
-                const engineer = engineers.find((e) => e.id === match.engineerId);
-                return engineer?.name.toLowerCase().includes(searchQuery.toLowerCase());
-            });
-        }
+    if (results.length === 0) {
+      toast.info('No engineers found matching your criteria. Try adjusting your filters.');
+    } else {
+      toast.success(`Found ${results.length} matching engineer${results.length === 1 ? '' : 's'}!`);
+    }
+  };
 
-        setFilteredMatches(filtered);
-    }, [currentMatches, selectedGenreFilter, selectedConfidenceFilter, searchQuery, engineers]);
+  // Handle hire
+  const handleHire = async (
+    engineerId: string,
+    projectDetails: { title: string; description?: string; projectType: string }
+  ) => {
+    const result = await hireEngineer(engineerId, projectDetails);
+    if (result) {
+      navigate(`/projects/${result.projectId}`);
+    }
+  };
 
-    // Get unique genres
-    const allGenres = useMemo(
-        () => Array.from(new Set(engineers.flatMap((e) => e.genres))).sort(),
-        [engineers]
-    ) as string[];    // Get engineer details
-    const getEngineerInfo = (engineerId: string) => {
-        return engineers.find((e) => e.id === engineerId);
-    };
+  // Filter matches
+  const filteredMatches = useMemo(() => {
+    let filtered = matches;
 
-    return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
-            {/* Header */}
-            <div className="sticky top-0 z-10 backdrop-blur-md bg-white/80 border-b border-slate-200/50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                    <div className="space-y-4">
-                        <div>
-                            <h1 className="text-3xl font-bold text-slate-900">AI Matching Engine</h1>
-                            <p className="text-slate-600">Auto-match engineers to your projects</p>
-                        </div>
+    // Search filter
+    if (searchQuery) {
+      filtered = filtered.filter((match) =>
+        match.engineerName.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
 
-                        {/* Stats */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                            <motion.div
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="bg-gradient-to-br from-emerald-50 to-emerald-100/50 rounded-lg p-3 border border-emerald-200/50"
-                            >
-                                <div className="flex items-center gap-2 mb-1">
-                                    <CheckCircle size={18} className="text-emerald-600" />
-                                    <span className="text-sm font-medium text-slate-600">Match Success</span>
-                                </div>
-                                <div className="text-2xl font-bold text-emerald-900">
-                                    {(matchStats.successRate * 100).toFixed(0)}%
-                                </div>
-                            </motion.div>
+    // Genre filter
+    if (selectedGenreFilter) {
+      filtered = filtered.filter((match) =>
+        match.genres.some((g) => g.toLowerCase() === selectedGenreFilter.toLowerCase()) ||
+        match.matchingGenres.some((g) => g.toLowerCase() === selectedGenreFilter.toLowerCase())
+      );
+    }
 
-                            <motion.div
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.1 }}
-                                className="bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-lg p-3 border border-blue-200/50"
-                            >
-                                <div className="flex items-center gap-2 mb-1">
-                                    <TrendingUp size={18} className="text-blue-600" />
-                                    <span className="text-sm font-medium text-slate-600">Avg Quality</span>
-                                </div>
-                                <div className="text-2xl font-bold text-blue-900">
-                                    {matchStats.avgQuality}%
-                                </div>
-                            </motion.div>
+    return filtered;
+  }, [matches, searchQuery, selectedGenreFilter]);
 
-                            <motion.div
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.2 }}
-                                className="bg-gradient-to-br from-purple-50 to-purple-100/50 rounded-lg p-3 border border-purple-200/50"
-                            >
-                                <div className="flex items-center gap-2 mb-1">
-                                    <Users size={18} className="text-purple-600" />
-                                    <span className="text-sm font-medium text-slate-600">Total Matches</span>
-                                </div>
-                                <div className="text-2xl font-bold text-purple-900">
-                                    {matchStats.totalMatches.toLocaleString()}
-                                </div>
-                            </motion.div>
+  // Get unique genres from matches
+  const availableGenres = useMemo(() => {
+    const genres = new Set<string>();
+    matches.forEach((match) => {
+      match.genres.forEach((g) => genres.add(g));
+    });
+    return Array.from(genres).sort();
+  }, [matches]);
 
-                            <motion.div
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.3 }}
-                                className="bg-gradient-to-br from-amber-50 to-amber-100/50 rounded-lg p-3 border border-amber-200/50"
-                            >
-                                <div className="flex items-center gap-2 mb-1">
-                                    <Clock size={18} className="text-amber-600" />
-                                    <span className="text-sm font-medium text-slate-600">Engineers</span>
-                                </div>
-                                <div className="text-2xl font-bold text-amber-900">{engineers.length}</div>
-                            </motion.div>
-                        </div>
-                    </div>
-                </div>
+  // Stats
+  const stats = useMemo(() => {
+    if (matches.length === 0) {
+      return { avgScore: 0, highMatches: 0, avgRate: 0 };
+    }
+    const avgScore = Math.round(matches.reduce((acc, m) => acc + m.matchScore, 0) / matches.length);
+    const highMatches = matches.filter((m) => m.matchScore >= 80).length;
+    const avgRate = Math.round(matches.reduce((acc, m) => acc + m.hourlyRate, 0) / matches.length);
+    return { avgScore, highMatches, avgRate };
+  }, [matches]);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
+      {/* Header */}
+      <div className="sticky top-0 z-10 backdrop-blur-md bg-white/80 border-b border-slate-200/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="space-y-4">
+            <div>
+              <h1 className="text-3xl font-bold text-slate-900">AI Matching Engine</h1>
+              <p className="text-slate-600">Find the perfect engineer for your project</p>
             </div>
 
-            {/* Main Content */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* Project Info */}
+            {/* Stats - Show after search */}
+            {hasSearched && matches.length > 0 && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="bg-white rounded-lg border border-slate-200 p-6 mb-8 shadow-sm"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-gradient-to-br from-emerald-50 to-emerald-100/50 rounded-lg p-3 border border-emerald-200/50"
                 >
-                    <h2 className="text-2xl font-bold text-slate-900 mb-2">{demoProject.title}</h2>
-                    <p className="text-slate-600 mb-4">{demoProject.description}</p>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div>
-                            <span className="text-sm text-slate-600">Budget</span>
-                            <div className="font-bold text-slate-900">${demoProject.budget.toLocaleString()}</div>
-                        </div>
-                        <div>
-                            <span className="text-sm text-slate-600">Genres</span>
-                            <div className="font-bold text-slate-900">{demoProject.genres.join(', ')}</div>
-                        </div>
-                        <div>
-                            <span className="text-sm text-slate-600">Complexity</span>
-                            <div className="font-bold text-slate-900 capitalize">{demoProject.complexity}</div>
-                        </div>
-                        <div>
-                            <span className="text-sm text-slate-600">Priority</span>
-                            <div className="font-bold text-slate-900 capitalize">{demoProject.priority}</div>
-                        </div>
-                    </div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <CheckCircle size={18} className="text-emerald-600" />
+                    <span className="text-sm font-medium text-slate-600">High Matches</span>
+                  </div>
+                  <div className="text-2xl font-bold text-emerald-900">{stats.highMatches}</div>
                 </motion.div>
 
-                {/* Filters */}
-                <div className="space-y-4 mb-8">
-                    {/* Search */}
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" size={20} />
-                        <input
-                            type="text"
-                            placeholder="Search engineers..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent"
-                        />
-                    </div>
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-lg p-3 border border-blue-200/50"
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <TrendingUp size={18} className="text-blue-600" />
+                    <span className="text-sm font-medium text-slate-600">Avg Score</span>
+                  </div>
+                  <div className="text-2xl font-bold text-blue-900">{stats.avgScore}%</div>
+                </motion.div>
 
-                    {/* Filter Chips */}
-                    <div className="flex flex-wrap gap-3 items-center">
-                        <Filter size={18} className="text-slate-600" />
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="bg-gradient-to-br from-purple-50 to-purple-100/50 rounded-lg p-3 border border-purple-200/50"
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <Users size={18} className="text-purple-600" />
+                    <span className="text-sm font-medium text-slate-600">Results</span>
+                  </div>
+                  <div className="text-2xl font-bold text-purple-900">{matches.length}</div>
+                </motion.div>
 
-                        {/* Genre Filter */}
-                        <div className="flex gap-2 flex-wrap">
-                            <button
-                                onClick={() => setSelectedGenreFilter('')}
-                                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${selectedGenreFilter === ''
-                                    ? 'bg-blue-500 text-white shadow-md'
-                                    : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-                                    }`}
-                            >
-                                All Genres
-                            </button>
-                            {allGenres.map((genre) => (
-                                <button
-                                    key={genre}
-                                    onClick={() => setSelectedGenreFilter(genre)}
-                                    className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all capitalize ${selectedGenreFilter === genre
-                                        ? 'bg-blue-500 text-white shadow-md'
-                                        : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-                                        }`}
-                                >
-                                    {genre}
-                                </button>
-                            ))}
-                        </div>
-
-                        {/* Confidence Filter */}
-                        <div className="flex gap-2">
-                            {(['all', 'high', 'medium', 'low'] as const).map((confidence) => (
-                                <button
-                                    key={confidence}
-                                    onClick={() => setSelectedConfidenceFilter(confidence)}
-                                    className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all capitalize ${selectedConfidenceFilter === confidence
-                                        ? 'bg-emerald-500 text-white shadow-md'
-                                        : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-                                        }`}
-                                >
-                                    {confidence === 'all' ? 'All Matches' : `${confidence} Matches`}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-                {/* Matches Grid */}
-                <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                        <h3 className="text-lg font-bold text-slate-900">
-                            Top Matches ({filteredMatches.length})
-                        </h3>
-                        {filteredMatches.length > 0 && (
-                            <span className="text-sm text-slate-600">
-                                Showing best matches for this project
-                            </span>
-                        )}
-                    </div>
-
-                    {filteredMatches.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {filteredMatches.map((match, index) => {
-                                const engineer = getEngineerInfo(match.engineerId);
-                                return (
-                                    <MatchCard
-                                        key={`${match.engineerId}-${match.projectId}`}
-                                        match={match}
-                                        engineerName={engineer?.name || 'Unknown'}
-                                        engineerRating={engineer?.rating || 0}
-                                        engineerGenres={engineer?.genres || []}
-                                        highlighted={index === 0}
-                                        onSelect={() => selectMatch(match)}
-                                        onAccept={() => {
-                                            console.log(`Selected engineer: ${engineer?.name} for project`);
-                                            selectMatch(match);
-                                        }}
-                                    />
-                                );
-                            })}
-                        </div>
-                    ) : (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="text-center py-12 bg-slate-50 rounded-lg border border-slate-200"
-                        >
-                            <Users size={40} className="mx-auto text-slate-400 mb-3" />
-                            <p className="text-slate-600">No matches found. Try adjusting your filters.</p>
-                        </motion.div>
-                    )}
-                </div>
-
-                {/* Selected Match Details */}
-                {selectedMatch && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="mt-12 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-200/50 p-8"
-                    >
-                        <h3 className="text-2xl font-bold text-slate-900 mb-6">
-                            Match Details & Breakdown
-                        </h3>
-
-                        {(() => {
-                            const engineer = getEngineerInfo(selectedMatch.engineerId);
-                            if (!engineer) return null;
-
-                            return (
-                                <div className="space-y-6">
-                                    {/* Engineer Profile */}
-                                    <div className="flex items-center gap-4 pb-6 border-b border-blue-200/50">
-                                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg">
-                                            {engineer.name
-                                                .split(' ')
-                                                .map((n) => n[0])
-                                                .join('')}
-                                        </div>
-                                        <div>
-                                            <h4 className="text-xl font-bold text-slate-900">{engineer.name}</h4>
-                                            <p className="text-slate-600">{engineer.bio}</p>
-                                            <div className="flex items-center gap-2 mt-1">
-                                                <span className="text-sm font-medium text-slate-700">
-                                                    {engineer.completedProjects} projects completed
-                                                </span>
-                                                <span className="text-sm font-medium text-amber-600">
-                                                    {engineer.rating}★ rating
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Score Details */}
-                                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                                        {[
-                                            { label: 'Genre Match', value: selectedMatch.genreMatch },
-                                            { label: 'Experience', value: selectedMatch.experienceScore },
-                                            { label: 'Performance', value: selectedMatch.performanceScore },
-                                            { label: 'Price Alignment', value: selectedMatch.priceAlignment },
-                                            { label: 'Availability', value: selectedMatch.availabilityScore },
-                                        ].map((score) => (
-                                            <div key={score.label} className="bg-white rounded-lg p-4">
-                                                <div className="text-sm text-slate-600 mb-1">{score.label}</div>
-                                                <div className="text-3xl font-bold text-slate-900">{score.value}%</div>
-                                                <div className="h-1.5 bg-slate-200 rounded-full mt-2 overflow-hidden">
-                                                    <motion.div
-                                                        initial={{ width: 0 }}
-                                                        animate={{ width: `${score.value}%` }}
-                                                        transition={{ duration: 0.6 }}
-                                                        className="h-full bg-gradient-to-r from-blue-400 to-blue-600"
-                                                    />
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    {/* Match Reason */}
-                                    <div className="bg-white rounded-lg p-4 border border-slate-200">
-                                        <h5 className="font-bold text-slate-900 mb-2">Why This Match?</h5>
-                                        <p className="text-slate-700">{selectedMatch.reason}</p>
-                                    </div>
-
-                                    {/* Action */}
-                                    <div className="flex gap-4">
-                                        <button className="flex-1 px-6 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold transition-all shadow-lg hover:shadow-xl">
-                                            Select This Engineer
-                                        </button>
-                                        <button className="flex-1 px-6 py-3 rounded-lg bg-white border-2 border-slate-200 hover:border-slate-300 text-slate-900 font-bold transition-all">
-                                            View Profile
-                                        </button>
-                                    </div>
-                                </div>
-                            );
-                        })()}
-                    </motion.div>
-                )}
-            </div>
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="bg-gradient-to-br from-amber-50 to-amber-100/50 rounded-lg p-3 border border-amber-200/50"
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <Clock size={18} className="text-amber-600" />
+                    <span className="text-sm font-medium text-slate-600">Avg Rate</span>
+                  </div>
+                  <div className="text-2xl font-bold text-amber-900">${stats.avgRate}/hr</div>
+                </motion.div>
+              </div>
+            )}
+          </div>
         </div>
-    );
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Criteria Form */}
+        <MatchCriteriaForm
+          values={criteria}
+          onChange={setCriteria}
+          onSubmit={handleSearch}
+          loading={loading}
+        />
+
+        {/* Error State */}
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-8 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3"
+          >
+            <AlertCircle className="w-5 h-5 text-red-600" />
+            <p className="text-red-700">{error}</p>
+          </motion.div>
+        )}
+
+        {/* Results Section */}
+        {hasSearched && matches.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-8 space-y-6"
+          >
+            {/* Filters */}
+            <div className="space-y-4">
+              {/* Search */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" size={20} />
+                <input
+                  type="text"
+                  placeholder="Search engineers by name..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent"
+                />
+              </div>
+
+              {/* Genre Filter Chips */}
+              {availableGenres.length > 0 && (
+                <div className="flex flex-wrap gap-2 items-center">
+                  <Filter size={18} className="text-slate-600" />
+                  <button
+                    onClick={() => setSelectedGenreFilter('')}
+                    className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                      selectedGenreFilter === ''
+                        ? 'bg-blue-500 text-white shadow-md'
+                        : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                    }`}
+                  >
+                    All Genres
+                  </button>
+                  {availableGenres.map((genre) => (
+                    <button
+                      key={genre}
+                      onClick={() => setSelectedGenreFilter(genre)}
+                      className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all capitalize ${
+                        selectedGenreFilter === genre
+                          ? 'bg-blue-500 text-white shadow-md'
+                          : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                      }`}
+                    >
+                      {genre}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Matches Grid */}
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-bold text-slate-900">
+                  Top Matches ({filteredMatches.length})
+                </h3>
+                <span className="text-sm text-slate-600">
+                  Sorted by match score
+                </span>
+              </div>
+
+              {filteredMatches.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredMatches.map((match, index) => (
+                    <APIMatchCard
+                      key={match.engineerId}
+                      match={match}
+                      onHire={handleHire}
+                      highlighted={index === 0}
+                      projectType={criteria.projectType}
+                      hiring={hiring}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-center py-12 bg-slate-50 rounded-lg border border-slate-200"
+                >
+                  <Users size={40} className="mx-auto text-slate-400 mb-3" />
+                  <p className="text-slate-600">No matches found with current filters.</p>
+                </motion.div>
+              )}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Empty State - Before Search */}
+        {!hasSearched && !loading && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="mt-12 text-center py-16"
+          >
+            <div className="inline-flex p-4 rounded-full bg-blue-50 mb-4">
+              <Users size={48} className="text-blue-600" />
+            </div>
+            <h3 className="text-xl font-bold text-slate-900 mb-2">Find Your Perfect Engineer</h3>
+            <p className="text-slate-600 max-w-md mx-auto">
+              Set your budget, select your genres, and choose the service type above.
+              Our AI will match you with the best engineers for your project.
+            </p>
+          </motion.div>
+        )}
+
+        {/* Empty Results */}
+        {hasSearched && matches.length === 0 && !loading && !error && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-8 text-center py-12 bg-slate-50 rounded-lg border border-slate-200"
+          >
+            <Users size={48} className="mx-auto text-slate-400 mb-4" />
+            <h3 className="text-lg font-bold text-slate-900 mb-2">No Engineers Found</h3>
+            <p className="text-slate-600 max-w-md mx-auto">
+              No engineers match your current criteria. Try adjusting your budget range,
+              selecting different genres, or changing the service type.
+            </p>
+          </motion.div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default MatchingDashboard;

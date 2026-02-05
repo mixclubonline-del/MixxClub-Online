@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   Upload, Music, Check, Trash2, Play, Pause, 
-  ArrowLeft, Copy, ExternalLink, Loader2, FileAudio, LogIn, Sparkles
+  ArrowLeft, Copy, ExternalLink, Loader2, FileAudio, LogIn, Sparkles, Users
 } from 'lucide-react';
 import mixclubLogo from '@/assets/mixclub-3d-logo.png';
 
@@ -406,8 +406,30 @@ export default function AudioUpload() {
                 ))}
               </div>
               
+              {/* Find an Engineer CTA */}
+              <Card className="mt-6 p-6 bg-gradient-to-br from-primary/10 to-accent/10 border-primary/30">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 rounded-full bg-primary/20">
+                    <Users className="w-6 h-6 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-bold text-foreground">Ready to mix your tracks?</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Find a professional engineer to mix and master your uploaded audio
+                    </p>
+                  </div>
+                  <Button 
+                    onClick={() => navigate('/matching')}
+                    className="bg-gradient-to-r from-primary to-accent hover:opacity-90"
+                  >
+                    <Users className="w-4 h-4 mr-2" />
+                    Find an Engineer
+                  </Button>
+                </div>
+              </Card>
+
               {/* URL Copy Helper */}
-              <Card className="mt-6 p-4 bg-primary/5 border-primary/20">
+              <Card className="mt-4 p-4 bg-muted/50 border-border">
                 <p className="text-sm text-muted-foreground mb-2">
                   <strong>Tip:</strong> Click the copy icon to get the URL for use in your app code or database.
                 </p>
