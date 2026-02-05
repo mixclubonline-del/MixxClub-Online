@@ -61,19 +61,39 @@ export const useDemoData = (type: 'all' | 'engineers' | 'sessions' | 'activity' 
   const [data, setData] = useState<Partial<DemoData>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const MAX_RETRIES = 2;
 
   useEffect(() => {
     const fetchDemoData = async () => {
       try {
         setIsLoading(true);
+        setError(null);
+        
         const { data: responseData, error: fetchError } = await supabase.functions.invoke('get-demo-data', {
           body: { type }
         });
 
         if (fetchError) throw fetchError;
-        setData(responseData);
+        
+        // Check if we got valid data
+        if (responseData && (responseData.engineers || responseData.sessions || responseData.activity || responseData.stats)) {
+          setData(responseData);
+          setRetryCount(0);
+        } else {
+          throw new Error('Empty response from get-demo-data');
+        }
       } catch (err) {
         console.error('Error fetching demo data:', err);
+        
+        // Retry logic
+        if (retryCount < MAX_RETRIES) {
+          console.log(`Retrying demo data fetch (${retryCount + 1}/${MAX_RETRIES})...`);
+          setRetryCount(prev => prev + 1);
+          setTimeout(fetchDemoData, 1000 * (retryCount + 1));
+          return;
+        }
+        
         setError(err instanceof Error ? err.message : 'Failed to fetch demo data');
         
         // Fallback to static data if edge function fails
@@ -96,5 +116,10 @@ export const useDemoData = (type: 'all' | 'engineers' | 'sessions' | 'activity' 
     fetchDemoData();
   }, [type]);
 
-  return { data, isLoading, error };
+  const refetch = () => {
+    setRetryCount(0);
+    setIsLoading(true);
+  };
+
+  return { data, isLoading, error, refetch };
 };
