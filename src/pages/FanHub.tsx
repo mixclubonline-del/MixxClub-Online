@@ -10,10 +10,11 @@
    Sparkles,
    Music
  } from 'lucide-react';
- import { FanFeedHub } from '@/components/crm/fan/FanFeedHub';
- import { FanDay1sHub } from '@/components/crm/fan/FanDay1sHub';
- import { FanMissionsHub } from '@/components/crm/fan/FanMissionsHub';
- import { FanWalletHub } from '@/components/crm/fan/FanWalletHub';
+import { FanFeedHub } from '@/components/crm/fan/FanFeedHub';
+import { FanDay1sHub } from '@/components/crm/fan/FanDay1sHub';
+import { FanMissionsHub } from '@/components/crm/fan/FanMissionsHub';
+import { FanWalletHub } from '@/components/crm/fan/FanWalletHub';
+import { FanCuratorHub } from '@/components/crm/fan/FanCuratorHub';
  
  const FanHub = () => {
    const { user } = useAuth();
@@ -56,19 +57,21 @@
      },
    ];
  
-   const renderContent = () => {
-     switch (activeTab) {
-       case 'day1s':
-         return <FanDay1sHub />;
-       case 'missions':
-         return <FanMissionsHub />;
-       case 'wallet':
-         return <FanWalletHub />;
-       case 'feed':
-       default:
-         return <FanFeedHub />;
-     }
-   };
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'day1s':
+        return <FanDay1sHub />;
+      case 'missions':
+        return <FanMissionsHub />;
+      case 'wallet':
+        return <FanWalletHub />;
+      case 'curator':
+        return <FanCuratorHub />;
+      case 'feed':
+      default:
+        return <FanFeedHub />;
+    }
+  };
  
    return (
      <CRMPortal

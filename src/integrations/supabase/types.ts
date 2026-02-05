@@ -2005,6 +2005,140 @@ export type Database = {
         }
         Relationships: []
       }
+      curator_premiere_slots: {
+        Row: {
+          available_days: string[] | null
+          created_at: string | null
+          curator_id: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          max_bookings_per_day: number | null
+          max_duration_seconds: number | null
+          price_coinz: number
+          slot_name: string
+          slot_type: string | null
+          time_window: string | null
+        }
+        Insert: {
+          available_days?: string[] | null
+          created_at?: string | null
+          curator_id: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_bookings_per_day?: number | null
+          max_duration_seconds?: number | null
+          price_coinz: number
+          slot_name: string
+          slot_type?: string | null
+          time_window?: string | null
+        }
+        Update: {
+          available_days?: string[] | null
+          created_at?: string | null
+          curator_id?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_bookings_per_day?: number | null
+          max_duration_seconds?: number | null
+          price_coinz?: number
+          slot_name?: string
+          slot_type?: string | null
+          time_window?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curator_premiere_slots_curator_id_fkey"
+            columns: ["curator_id"]
+            isOneToOne: false
+            referencedRelation: "curator_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      curator_profiles: {
+        Row: {
+          avatar_url: string | null
+          average_rating: number | null
+          bio: string | null
+          cover_url: string | null
+          created_at: string | null
+          curator_name: string
+          featured_playlist_id: string | null
+          genres: string[] | null
+          id: string
+          is_verified: boolean | null
+          minimum_payment: number | null
+          response_time_hours: number | null
+          social_links: Json | null
+          status: string | null
+          total_earnings: number | null
+          total_placements: number | null
+          total_reviews: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          average_rating?: number | null
+          bio?: string | null
+          cover_url?: string | null
+          created_at?: string | null
+          curator_name: string
+          featured_playlist_id?: string | null
+          genres?: string[] | null
+          id?: string
+          is_verified?: boolean | null
+          minimum_payment?: number | null
+          response_time_hours?: number | null
+          social_links?: Json | null
+          status?: string | null
+          total_earnings?: number | null
+          total_placements?: number | null
+          total_reviews?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          average_rating?: number | null
+          bio?: string | null
+          cover_url?: string | null
+          created_at?: string | null
+          curator_name?: string
+          featured_playlist_id?: string | null
+          genres?: string[] | null
+          id?: string
+          is_verified?: boolean | null
+          minimum_payment?: number | null
+          response_time_hours?: number | null
+          social_links?: Json | null
+          status?: string | null
+          total_earnings?: number | null
+          total_placements?: number | null
+          total_reviews?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curator_profiles_featured_playlist_id_fkey"
+            columns: ["featured_playlist_id"]
+            isOneToOne: false
+            referencedRelation: "playlists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "curator_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       curator_promotion_requests: {
         Row: {
           artist_id: string
@@ -2058,6 +2192,85 @@ export type Database = {
           track_url?: string | null
         }
         Relationships: []
+      }
+      curator_slot_bookings: {
+        Row: {
+          artist_id: string
+          artist_notes: string | null
+          completed_at: string | null
+          confirmed_at: string | null
+          created_at: string | null
+          curator_id: string
+          curator_notes: string | null
+          escrow_transaction_id: string | null
+          id: string
+          payment_amount: number
+          premiere_date: string
+          slot_id: string
+          status: string | null
+          track_id: string | null
+          track_title: string
+          track_url: string | null
+        }
+        Insert: {
+          artist_id: string
+          artist_notes?: string | null
+          completed_at?: string | null
+          confirmed_at?: string | null
+          created_at?: string | null
+          curator_id: string
+          curator_notes?: string | null
+          escrow_transaction_id?: string | null
+          id?: string
+          payment_amount: number
+          premiere_date: string
+          slot_id: string
+          status?: string | null
+          track_id?: string | null
+          track_title: string
+          track_url?: string | null
+        }
+        Update: {
+          artist_id?: string
+          artist_notes?: string | null
+          completed_at?: string | null
+          confirmed_at?: string | null
+          created_at?: string | null
+          curator_id?: string
+          curator_notes?: string | null
+          escrow_transaction_id?: string | null
+          id?: string
+          payment_amount?: number
+          premiere_date?: string
+          slot_id?: string
+          status?: string | null
+          track_id?: string | null
+          track_title?: string
+          track_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curator_slot_bookings_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "curator_slot_bookings_curator_id_fkey"
+            columns: ["curator_id"]
+            isOneToOne: false
+            referencedRelation: "curator_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "curator_slot_bookings_slot_id_fkey"
+            columns: ["slot_id"]
+            isOneToOne: false
+            referencedRelation: "curator_premiere_slots"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       demo_beats: {
         Row: {
