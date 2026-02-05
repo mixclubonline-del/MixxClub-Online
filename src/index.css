@@ -289,6 +289,12 @@
     animation: float-particle 4s ease-in-out infinite;
   }
   
+  /* Auth page fade-in animation utility */
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out forwards;
+    opacity: 0;
+  }
+  
   /* Reduce Motion Support - Accessibility First */
   @media (prefers-reduced-motion: reduce) {
     *,

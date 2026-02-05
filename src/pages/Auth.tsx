@@ -61,7 +61,7 @@ const AmbientParticles = () => {
   );
 };
 
-// Role selection as visual paths
+// Role selection as visual paths - CSS-based for performance (no Framer Motion)
 const RolePathSelector = ({ 
   role, 
   onRoleChange 
@@ -72,71 +72,55 @@ const RolePathSelector = ({
   <div className="space-y-3">
     <Label className="text-white/80">Choose your path</Label>
     <div className="grid grid-cols-2 gap-4">
-      <motion.button
+      <button
         type="button"
         onClick={() => onRoleChange("artist")}
-        className={`relative flex flex-col items-center justify-center gap-3 rounded-xl p-6 transition-all ${
+        className={`relative flex flex-col items-center justify-center gap-3 rounded-xl p-6 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
           role === "artist" 
             ? "bg-primary/30 border-2 border-primary shadow-lg shadow-primary/30" 
             : "bg-white/5 border border-white/10 hover:bg-white/10"
         }`}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
       >
         {role === "artist" && (
-          <motion.div 
-            className="absolute inset-0 rounded-xl bg-primary/20"
-            layoutId="roleGlow"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-          />
+          <div className="absolute inset-0 rounded-xl bg-primary/20 animate-fade-in" />
         )}
-        <div className={`w-14 h-14 rounded-full flex items-center justify-center ${
+        <div className={`relative z-10 w-14 h-14 rounded-full flex items-center justify-center ${
           role === "artist" ? "bg-primary/40" : "bg-white/10"
         }`}>
           <Mic2 className={`w-7 h-7 ${role === "artist" ? "text-primary" : "text-white/60"}`} />
         </div>
-        <span className={`font-semibold ${role === "artist" ? "text-white" : "text-white/70"}`}>
+        <span className={`relative z-10 font-semibold ${role === "artist" ? "text-white" : "text-white/70"}`}>
           Artist
         </span>
-        <span className="text-xs text-white/50 text-center">
+        <span className="relative z-10 text-xs text-white/50 text-center">
           Get professional mixing & mastering
         </span>
-      </motion.button>
+      </button>
       
-      <motion.button
+      <button
         type="button"
         onClick={() => onRoleChange("engineer")}
-        className={`relative flex flex-col items-center justify-center gap-3 rounded-xl p-6 transition-all ${
+        className={`relative flex flex-col items-center justify-center gap-3 rounded-xl p-6 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
           role === "engineer" 
             ? "bg-cyan-500/30 border-2 border-cyan-400 shadow-lg shadow-cyan-500/30" 
             : "bg-white/5 border border-white/10 hover:bg-white/10"
         }`}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
       >
         {role === "engineer" && (
-          <motion.div 
-            className="absolute inset-0 rounded-xl bg-cyan-500/20"
-            layoutId="roleGlow"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-          />
+          <div className="absolute inset-0 rounded-xl bg-cyan-500/20 animate-fade-in" />
         )}
-        <div className={`w-14 h-14 rounded-full flex items-center justify-center ${
+        <div className={`relative z-10 w-14 h-14 rounded-full flex items-center justify-center ${
           role === "engineer" ? "bg-cyan-500/40" : "bg-white/10"
         }`}>
           <Headphones className={`w-7 h-7 ${role === "engineer" ? "text-cyan-400" : "text-white/60"}`} />
         </div>
-        <span className={`font-semibold ${role === "engineer" ? "text-white" : "text-white/70"}`}>
+        <span className={`relative z-10 font-semibold ${role === "engineer" ? "text-white" : "text-white/70"}`}>
           Engineer
         </span>
-        <span className="text-xs text-white/50 text-center">
+        <span className="relative z-10 text-xs text-white/50 text-center">
           Offer mixing & mastering services
         </span>
-      </motion.button>
+      </button>
     </div>
   </div>
 );
@@ -692,14 +676,13 @@ const Auth = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
+        layout={false}
       >
         {/* Header */}
-        <div className="text-center mb-6">
-          <motion.div 
-            className="flex justify-center mb-4"
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.2 }}
+        <div className="text-center mb-6" style={{ contain: 'layout' }}>
+          <div 
+            className="flex justify-center mb-4 animate-fade-in"
+            style={{ animationDelay: '200ms' }}
           >
             <div className="relative group">
               <div className="absolute inset-0 bg-primary/40 rounded-full blur-2xl animate-pulse"></div>
@@ -709,26 +692,22 @@ const Auth = () => {
                 className="w-16 h-12 object-contain relative z-10"
               />
             </div>
-          </motion.div>
-          <motion.h1 
-            className="text-2xl font-bold mb-1 text-white"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
+          </div>
+          <h1 
+            className="text-2xl font-bold mb-1 text-white animate-fade-in"
+            style={{ animationDelay: '300ms' }}
           >
             {mode === "signup" ? "Enter the City" : "Welcome Back"}
-          </motion.h1>
-          <motion.p 
-            className="text-white/50 text-sm"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
+          </h1>
+          <p 
+            className="text-white/50 text-sm animate-fade-in"
+            style={{ animationDelay: '400ms' }}
           >
             {mode === "signup" 
               ? "Join the future of music collaboration" 
               : "The studio awaits"
             }
-          </motion.p>
+          </p>
         </div>
 
         {/* Demo Banner */}
