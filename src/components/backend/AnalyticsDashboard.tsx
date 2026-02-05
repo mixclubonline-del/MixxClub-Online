@@ -7,8 +7,8 @@ import React, { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { TrendingUp, Users, ShoppingCart } from 'lucide-react';
 import { SubscriptionService } from '@/services/subscriptionService';
-import { MatchingEngineService } from '@/services/matchingEngineService';
 import { MarketplaceService } from '@/services/marketplaceService';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AnalyticStats {
     subscriptionStats: {
@@ -32,6 +32,27 @@ interface AnalyticsDashboardProps {
     userId: string;
 }
 
+// Helper to fetch matching analytics from ai_collaboration_matches
+async function getMatchingAnalytics() {
+    const { data, error } = await supabase
+        .from('ai_collaboration_matches')
+        .select('match_score, status');
+    
+    if (error || !data) {
+        return { total_matches: 0, match_success_rate: 0, avg_match_quality: 0 };
+    }
+    
+    const total = data.length;
+    const accepted = data.filter(m => m.status === 'accepted').length;
+    const avgScore = total > 0 ? data.reduce((sum, m) => sum + (m.match_score || 0), 0) / total : 0;
+    
+    return {
+        total_matches: total,
+        match_success_rate: total > 0 ? Math.round((accepted / total) * 100) : 0,
+        avg_match_quality: Math.round(avgScore),
+    };
+}
+
 export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ userId }) => {
     const [analytics, setAnalytics] = useState<AnalyticStats>({
         subscriptionStats: null,
@@ -47,7 +68,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ userId }
                 setLoading(true);
                 const [subStats, matchStats, sellerStats] = await Promise.all([
                     SubscriptionService.getSubscriptionAnalytics(),
-                    MatchingEngineService.getMatchingAnalytics(),
+                    getMatchingAnalytics(),
                     MarketplaceService.getSellerAnalytics(userId),
                 ]);
 
