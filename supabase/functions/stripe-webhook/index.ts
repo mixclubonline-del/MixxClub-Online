@@ -192,6 +192,16 @@ async function handleCheckoutCompleted(
       });
     }
   }
+
+  // Handle beat purchase
+  if (session.metadata?.purchase_type === 'beat') {
+    await handleBeatPurchase(supabase, session);
+  }
+
+  // Handle coinz purchase
+  if (session.metadata?.purchase_type === 'coinz') {
+    await handleCoinzPurchase(supabase, session);
+  }
 }
 
 /**
@@ -612,4 +622,159 @@ async function handleCourseEnrollment(
   }
 
   console.log(`[STRIPE-WEBHOOK] Course enrollment complete: ${enrollment.id}`);
+}
+
+/**
+ * Handle beat purchase after successful payment
+ * Records purchase, marks exclusive as unavailable, trigger handles notifications
+ */
+async function handleBeatPurchase(
+  supabase: ReturnType<typeof createClient>,
+  session: Stripe.Checkout.Session
+) {
+  const metadata = session.metadata;
+  const beatId = metadata?.beat_id;
+  const buyerId = metadata?.buyer_id;
+  const sellerId = metadata?.seller_id;
+  const licenseType = metadata?.license_type;
+  const amountCents = session.amount_total || 0;
+  const platformFeeCents = parseInt(metadata?.platform_fee_cents || '0');
+  const sellerEarningsCents = parseInt(metadata?.seller_earnings_cents || '0');
+
+  console.log('[STRIPE-WEBHOOK] Processing beat purchase:', { beatId, buyerId, licenseType });
+
+  if (!beatId || !buyerId || !sellerId) {
+    console.error('[STRIPE-WEBHOOK] Missing required beat purchase metadata');
+    return;
+  }
+
+  // Insert beat purchase record
+  const { data: purchase, error: purchaseError } = await supabase
+    .from('beat_purchases')
+    .insert({
+      beat_id: beatId,
+      buyer_id: buyerId,
+      seller_id: sellerId,
+      license_type: licenseType,
+      amount_cents: amountCents,
+      platform_fee_cents: platformFeeCents,
+      seller_earnings_cents: sellerEarningsCents,
+      stripe_payment_intent_id: session.payment_intent as string,
+      status: 'completed',
+    })
+    .select()
+    .single();
+
+  if (purchaseError) {
+    console.error('[STRIPE-WEBHOOK] Error recording beat purchase:', purchaseError);
+    return;
+  }
+
+  console.log('[STRIPE-WEBHOOK] Beat purchase recorded:', purchase.id);
+
+  // If exclusive license, mark beat as unavailable for exclusive purchases
+  if (licenseType === 'exclusive') {
+    const { error: updateError } = await supabase
+      .from('producer_beats')
+      .update({ is_exclusive_available: false })
+      .eq('id', beatId);
+
+    if (updateError) {
+      console.error('[STRIPE-WEBHOOK] Error marking beat exclusive unavailable:', updateError);
+    } else {
+      console.log('[STRIPE-WEBHOOK] Beat marked as exclusive unavailable:', beatId);
+    }
+  }
+
+  // Producer notification is handled by update_producer_stats_on_sale trigger
+}
+
+/**
+ * Handle MixxCoinz purchase after successful payment
+ * Updates wallet balance and records transaction
+ */
+async function handleCoinzPurchase(
+  supabase: ReturnType<typeof createClient>,
+  session: Stripe.Checkout.Session
+) {
+  const metadata = session.metadata;
+  const userId = metadata?.user_id;
+  const coinzAmount = parseInt(metadata?.coinz_amount || '0');
+  const packageId = metadata?.package_id;
+
+  console.log('[STRIPE-WEBHOOK] Processing coinz purchase:', { userId, coinzAmount, packageId });
+
+  if (!userId || !coinzAmount) {
+    console.error('[STRIPE-WEBHOOK] Missing required coinz purchase metadata');
+    return;
+  }
+
+  // Get or create wallet using RPC function
+  const { data: wallet, error: walletError } = await supabase
+    .rpc('get_or_create_wallet', { p_user_id: userId });
+
+  if (walletError) {
+    console.error('[STRIPE-WEBHOOK] Error getting wallet:', walletError);
+    return;
+  }
+
+  // Calculate daily limit reset
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  
+  const resetNeeded = !wallet.daily_purchased_reset_at || 
+    new Date(wallet.daily_purchased_reset_at) < todayStart;
+
+  // Update wallet with new coinz
+  const { error: updateError } = await supabase
+    .from('mixx_wallets')
+    .update({
+      purchased_balance: (wallet.purchased_balance || 0) + coinzAmount,
+      total_purchased: (wallet.total_purchased || 0) + coinzAmount,
+      daily_purchased: resetNeeded ? coinzAmount : (wallet.daily_purchased || 0) + coinzAmount,
+      daily_purchased_reset_at: new Date().toISOString(),
+    })
+    .eq('user_id', userId);
+
+  if (updateError) {
+    console.error('[STRIPE-WEBHOOK] Error updating wallet:', updateError);
+    return;
+  }
+
+  console.log('[STRIPE-WEBHOOK] Wallet updated with', coinzAmount, 'coinz');
+
+  // Record transaction
+  const { error: txError } = await supabase
+    .from('mixx_transactions')
+    .insert({
+      user_id: userId,
+      transaction_type: 'PURCHASE',
+      source: 'stripe_checkout',
+      amount: coinzAmount,
+      balance_type: 'purchased',
+      description: `Purchased ${coinzAmount} MixxCoinz`,
+      metadata: { 
+        package_id: packageId, 
+        session_id: session.id,
+        stripe_payment_intent_id: session.payment_intent,
+      },
+    });
+
+  if (txError) {
+    console.error('[STRIPE-WEBHOOK] Error recording transaction:', txError);
+  }
+
+  // Create notification
+  try {
+    await supabase.rpc('create_notification', {
+      p_user_id: userId,
+      p_title: '💰 MixxCoinz Added!',
+      p_message: `${coinzAmount} MixxCoinz have been added to your wallet.`,
+      p_type: 'coinz_purchase',
+    });
+  } catch (notifError) {
+    console.warn('[STRIPE-WEBHOOK] Notification error:', notifError);
+  }
+
+  console.log('[STRIPE-WEBHOOK] Coinz purchase complete');
 }
