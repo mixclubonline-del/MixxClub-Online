@@ -10,6 +10,61 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ArrowLeft, Music, Sparkles, Users, Zap, Headphones, Mic2, Apple, KeyRound } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
+
+// Parse Supabase auth errors into user-friendly messages
+const parseAuthError = (error: { message: string; code?: string; status?: number }): string => {
+  const msg = error.message?.toLowerCase() || '';
+  const code = error.code?.toLowerCase() || '';
+  
+  // Password-related errors
+  if (msg.includes('password') && (msg.includes('weak') || msg.includes('pwned') || msg.includes('compromised'))) {
+    return "This password has been exposed in data breaches. Please choose a stronger, unique password.";
+  }
+  if (msg.includes('password') && msg.includes('short')) {
+    return "Password must be at least 6 characters long.";
+  }
+  if (code === 'weak_password' || msg.includes('weak_password')) {
+    return "Password is too weak. Please use a mix of letters, numbers, and symbols.";
+  }
+  
+  // Email-related errors
+  if (msg.includes('email') && msg.includes('invalid')) {
+    return "Please enter a valid email address.";
+  }
+  if (msg.includes('already registered') || msg.includes('user already exists')) {
+    return "This email is already registered. Please sign in instead.";
+  }
+  if (msg.includes('email not confirmed') || msg.includes('email_not_confirmed')) {
+    return "Please confirm your email before signing in. Check your inbox for the verification link.";
+  }
+  
+  // Login errors
+  if (msg.includes('invalid login credentials') || msg.includes('invalid_credentials')) {
+    return "Invalid email or password. Please try again.";
+  }
+  if (msg.includes('too many requests') || code === 'over_request_limit') {
+    return "Too many attempts. Please wait a moment before trying again.";
+  }
+  
+  // Rate limiting
+  if (msg.includes('rate limit') || msg.includes('ratelimit')) {
+    return "Too many requests. Please wait a few minutes and try again.";
+  }
+  
+  // Network/server errors
+  if (msg.includes('network') || msg.includes('fetch')) {
+    return "Network error. Please check your connection and try again.";
+  }
+  
+  // Signup-specific
+  if (msg.includes('signup') && msg.includes('disabled')) {
+    return "Sign-ups are currently disabled. Please try again later.";
+  }
+  
+  // Return original message if no specific match (Supabase messages are often user-friendly)
+  return error.message || "An unexpected error occurred. Please try again.";
+};
+
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { motion, AnimatePresence } from "framer-motion";
 import authGatewayImage from "@/assets/auth-gateway.jpg";
@@ -320,11 +375,7 @@ const Auth = () => {
         });
 
         if (error) {
-          if (error.message.includes("already registered")) {
-            setError("This email is already registered. Please sign in instead.");
-          } else {
-            setError(error.message);
-          }
+          setError(parseAuthError(error));
           return;
         }
 
@@ -357,13 +408,7 @@ const Auth = () => {
         });
 
         if (error) {
-          if (error.message.includes("Invalid login credentials")) {
-            setError("Invalid email or password. Please try again.");
-          } else if (error.message.includes("Email not confirmed")) {
-            setError("Please confirm your email before signing in.");
-          } else {
-            setError(error.message);
-          }
+          setError(parseAuthError(error));
           return;
         }
 
