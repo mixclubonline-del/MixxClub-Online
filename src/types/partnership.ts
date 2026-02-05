@@ -5,8 +5,9 @@
  * collaborative projects, and payment links between artists and engineers.
  */
 
-export type UserType = 'artist' | 'engineer';
-export type PartnershipStatus = 'proposed' | 'accepted' | 'active' | 'paused' | 'completed' | 'dissolved';
+export type UserType = 'artist' | 'engineer' | 'producer';
+export type PartnershipType = 'artist_engineer' | 'producer_artist';
+export type PartnershipStatus = 'proposed' | 'accepted' | 'active' | 'paused' | 'completed' | 'dissolved' | 'negotiating';
 export type RevenueSplitType = 'equal' | 'custom' | 'percentage' | 'milestone';
 export type PaymentStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'refunded';
 
