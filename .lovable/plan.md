@@ -1,263 +1,211 @@
 
 
-# Consolidate 209 Migrations into Clean Baseline Schema
-## Reduce Deployment Risk with Single-Source-of-Truth Schema
+# Connect Matching Dashboard to Live Backend API
+## Wire the Frontend to Real Engineer Matching Data
 
-This plan creates a clean, unified baseline migration that captures the current production schema state, replacing 209 incremental migrations with a single, readable, maintainable schema file.
-
----
-
-## Current State
-
-| Metric | Count |
-|--------|-------|
-| Migration files | 211 |
-| Tables | 180 |
-| RLS Policies | 396 |
-| Indexes | 450 |
-| Functions | 51 |
-| Triggers | 30+ |
-| Views | 2 |
-| Types/Enums | Multiple |
-
-**Risk Factors:**
-- Each migration adds potential failure points during deployment
-- Incremental changes accumulate technical debt (redundant ALTER statements)
-- Difficult to understand current schema state
-- Longer deployment times
-- Migration ordering issues can cause failures
+The current matching flow uses a Zustand store with hardcoded demo data instead of calling the production `match-engineers` Edge Function. This plan connects the frontend to the live backend to complete the Artist-to-Engineer matching flow.
 
 ---
 
-## Consolidation Strategy
+## Current Gap Analysis
 
 ```text
-BEFORE (211 files, ~15,000+ lines)
-+----------------------------------------+
-| 20240107_premium_courses.sql           |
-| 20250929_xxx.sql                       |
-| 20250929_yyy.sql                       |
-| 20250930_xxx.sql                       |
-| ...                                    |
-| 20260205_fix_search_paths.sql          |
-+----------------------------------------+
-        |
-        | Generate baseline from live schema
-        v
-AFTER (3 files, organized)
-+----------------------------------------+
-| 00000000000000_baseline_schema.sql     | <- Tables, Types, Indexes
-| 00000000000001_baseline_functions.sql  | <- All 51 functions
-| 00000000000002_baseline_policies.sql   | <- All 396 RLS policies
-+----------------------------------------+
+CURRENT STATE (Broken Flow)
++------------------------+     +------------------------+     +------------------------+
+| MatchingDashboard.tsx  | --> | matchingEngineStore.ts | --> | SAMPLE_ENGINEERS[]     |
+| (Uses Zustand store)   |     | (5 hardcoded engineers)|     | (Static demo data)     |
++------------------------+     +------------------------+     +------------------------+
+
+TARGET STATE (Working Flow)  
++------------------------+     +------------------------+     +------------------------+
+| MatchingDashboard.tsx  | --> | useEngineerMatching()  | --> | match-engineers        |
+| (Uses API hook)        |     | (New hook)             |     | (Edge Function)        |
++------------------------+     +------------------------+     +------------------------+
 ```
+
+**Root Cause:** The `MatchingDashboard` component uses `useMatchingEngine()` which pulls from `matchingEngineStore.ts` - a Zustand store containing 5 hardcoded sample engineers. The real `match-engineers` Edge Function exists and works but is never called.
 
 ---
 
-## Implementation Phases
+## Implementation Plan
 
-### Phase 1: Generate Baseline Schema Dump
+### Phase 1: Create API-Connected Matching Hook
 
-Extract current production schema into organized sections:
+**File:** `src/hooks/useEngineerMatchingAPI.ts` (NEW)
 
-**1.1 Tables & Types (baseline_schema.sql)**
-```sql
--- MixxClub Baseline Schema
--- Generated: 2026-02-05
--- Tables: 180, Types: X
+A new hook that:
+- Calls the `match-engineers` Edge Function
+- Handles authentication headers
+- Manages loading/error states
+- Returns real engineer matches from the database
 
--- Custom Types
-CREATE TYPE public.app_role AS ENUM ('admin', 'moderator', 'user');
--- ... all other types
-
--- Tables (alphabetical order)
-CREATE TABLE public.achievement_definitions (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  achievement_type TEXT NOT NULL,
-  title TEXT NOT NULL,
-  -- ... complete column definitions
-);
--- ... all 180 tables
+```typescript
+// Key functionality:
+const matchEngineers = async (criteria: MatchCriteria) => {
+  const { data, error } = await supabase.functions.invoke('match-engineers', {
+    body: {
+      budgetRange: criteria.budget,
+      genres: criteria.genres,
+      projectType: criteria.projectType,
+    },
+  });
+  return data.matches;
+};
 ```
 
-**1.2 Functions (baseline_functions.sql)**
-```sql
--- MixxClub Database Functions
--- Total: 51 functions
+### Phase 2: Update MatchingDashboard Component
 
--- Security hardened functions (all with search_path set)
-CREATE OR REPLACE FUNCTION public.award_points(...)
-  SET search_path TO 'public'
-  ...
+**File:** `src/pages/MatchingDashboard.tsx`
 
-CREATE OR REPLACE FUNCTION public.calculate_partnership_health(...)
-  SET search_path TO 'public'
-  ...
--- ... all 51 functions
-```
-
-**1.3 RLS Policies (baseline_policies.sql)**
-```sql
--- MixxClub Row Level Security Policies
--- Total: 396 policies across 180 tables
-
--- achievement_definitions policies
-ALTER TABLE public.achievement_definitions ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "..." ON public.achievement_definitions ...;
-
--- achievements policies
-ALTER TABLE public.achievements ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "..." ON public.achievements ...;
--- ... all 396 policies
-```
-
-### Phase 2: Add Triggers & Views
-
-**2.1 Triggers (baseline_triggers.sql)**
-```sql
--- MixxClub Database Triggers
--- Total: 30+ triggers
-
-CREATE TRIGGER update_profiles_updated_at
-  BEFORE UPDATE ON public.profiles
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
--- ... all triggers
-```
-
-**2.2 Views (baseline_views.sql)**
-```sql
--- MixxClub Database Views
-
-CREATE VIEW public.engineer_leaderboard AS ...;
-CREATE VIEW public.streaming_connections_safe AS ...;
-```
-
-### Phase 3: Archive Old Migrations
-
-Move old migrations to archive folder for reference:
+Changes:
+- Replace `useMatchingEngine()` with new `useEngineerMatchingAPI()` hook
+- Add project criteria input form (budget, genres, project type)
+- Display real matches from database
+- Keep existing UI/filtering components
 
 ```text
-supabase/
-├── migrations/
-│   ├── 00000000000000_baseline_schema.sql
-│   ├── 00000000000001_baseline_functions.sql
-│   ├── 00000000000002_baseline_policies.sql
-│   ├── 00000000000003_baseline_triggers.sql
-│   └── 00000000000004_baseline_views.sql
-└── migrations_archive/
-    ├── README.md  (explains archive purpose)
-    └── [all 211 original migrations]
+Before:
+  const { engineers, projects, findMatches } = useMatchingEngine();
+  const matches = findMatches(demoProject.id, 10);  // Static data
+
+After:
+  const { matches, loading, findMatches } = useEngineerMatchingAPI();
+  const matches = await findMatches({ budget, genres, projectType });  // Real API
 ```
 
-### Phase 4: Add Baseline Marker
+### Phase 3: Add Project Creation Integration
 
-Create a migration tracking record to prevent re-running baseline:
+When a user selects an engineer match:
+1. Create a project in `collaborative_projects` table
+2. Link to the matched engineer
+3. Create partnership record if not exists
+4. Redirect to project workspace
 
-```sql
--- In baseline_schema.sql
-INSERT INTO supabase_migrations.schema_migrations (version)
-VALUES 
-  ('20240107000000'),
-  ('20250929225718'),
-  -- ... all original migration versions
-ON CONFLICT DO NOTHING;
+**Flow:**
+```text
+Select Match → Create Partnership → Create Project → Navigate to Workspace
+```
+
+### Phase 4: Connect Upload to Matching Flow
+
+**File:** `src/pages/AudioUpload.tsx`
+
+After successful upload:
+- Show "Find an Engineer" CTA
+- Pass audio metadata to matching criteria
+- Auto-detect genre from filename/metadata (future enhancement)
+
+---
+
+## Files to Create/Modify
+
+| File | Action | Purpose |
+|------|--------|---------|
+| `src/hooks/useEngineerMatchingAPI.ts` | CREATE | New hook for API-based matching |
+| `src/pages/MatchingDashboard.tsx` | MODIFY | Wire to new hook, add criteria form |
+| `src/components/matching/MatchCriteriaForm.tsx` | CREATE | Budget/genre/type selection UI |
+| `src/components/matching/MatchCard.tsx` | MODIFY | Add "Hire Engineer" action |
+| `src/pages/AudioUpload.tsx` | MODIFY | Add post-upload matching CTA |
+
+---
+
+## Technical Details
+
+### New Hook Interface
+
+```typescript
+interface MatchCriteria {
+  budgetRange: string;  // 'under-50' | '50-100' | '100-300' | '300-500' | '500+'
+  genres: string[];
+  projectType: string;  // 'mixing' | 'mastering' | 'production'
+}
+
+interface EngineerMatch {
+  engineerId: string;
+  engineerName: string;
+  avatarUrl?: string;
+  specialties: string[];
+  genres: string[];
+  experience: number;
+  rating: number;
+  completedProjects: number;
+  hourlyRate: number;
+  matchScore: number;
+  matchingGenres: string[];
+  portfolioUrl?: string;
+}
+
+interface UseEngineerMatchingAPI {
+  matches: EngineerMatch[];
+  loading: boolean;
+  error: string | null;
+  findMatches: (criteria: MatchCriteria) => Promise<void>;
+  selectEngineer: (engineerId: string) => Promise<{ partnershipId: string; projectId: string }>;
+}
+```
+
+### Database Integration
+
+Uses existing tables:
+- `engineer_profiles` (read - matching)
+- `profiles` (read - names/avatars)
+- `partnerships` (write - create partnership)
+- `collaborative_projects` (write - create project)
+
+---
+
+## Migration Required
+
+None - all required tables already exist:
+- `engineer_profiles`
+- `partnerships`
+- `collaborative_projects`
+
+---
+
+## End-to-End Flow After Implementation
+
+```text
+1. Artist uploads track (/audio-upload)
+      ↓
+2. Clicks "Find an Engineer"
+      ↓
+3. Enters budget, selects genres (/matching)
+      ↓
+4. Sees matched engineers (from real database)
+      ↓
+5. Clicks "Hire" on preferred match
+      ↓
+6. Partnership created (partnerships table)
+      ↓
+7. Project created (collaborative_projects table)
+      ↓
+8. Redirected to project workspace
+      ↓
+9. Engineer notified (notifications table)
+      ↓
+10. Work completed, payment released
 ```
 
 ---
 
-## Technical Approach
+## Backward Compatibility
 
-### Extraction Method
-
-Use database introspection queries to generate clean SQL:
-
-**Tables:**
-```sql
-SELECT 'CREATE TABLE ' || quote_ident(table_name) || ' (' || 
-  string_agg(column_definition, ', ') || ');'
-FROM (
-  SELECT c.table_name,
-    c.column_name || ' ' || c.data_type || 
-    CASE WHEN c.is_nullable = 'NO' THEN ' NOT NULL' ELSE '' END ||
-    CASE WHEN c.column_default IS NOT NULL THEN ' DEFAULT ' || c.column_default ELSE '' END
-    AS column_definition
-  FROM information_schema.columns c
-  WHERE c.table_schema = 'public'
-  ORDER BY c.ordinal_position
-) sub
-GROUP BY table_name;
-```
-
-**Functions:**
-```sql
-SELECT pg_get_functiondef(p.oid)
-FROM pg_proc p
-JOIN pg_namespace n ON p.pronamespace = n.oid
-WHERE n.nspname = 'public';
-```
-
-**Policies:**
-```sql
-SELECT 'CREATE POLICY ' || quote_ident(policyname) || 
-  ' ON ' || quote_ident(tablename) ||
-  ' FOR ' || cmd ||
-  ' USING (' || qual || ')' ||
-  CASE WHEN with_check IS NOT NULL THEN ' WITH CHECK (' || with_check || ')' ELSE '' END
-FROM pg_policies
-WHERE schemaname = 'public';
-```
+- Existing `useMatchingEngine()` hook remains for demo purposes
+- New hook is opt-in, no breaking changes
+- Existing MatchCard component receives same props
 
 ---
 
-## File Summary
+## Testing Checklist
 
-### New Files (6)
-
-| File | Purpose | Estimated Lines |
-|------|---------|-----------------|
-| `supabase/migrations/00000000000000_baseline_schema.sql` | Tables, types, indexes | ~8,000 |
-| `supabase/migrations/00000000000001_baseline_functions.sql` | All 51 functions | ~2,000 |
-| `supabase/migrations/00000000000002_baseline_policies.sql` | All 396 RLS policies | ~2,500 |
-| `supabase/migrations/00000000000003_baseline_triggers.sql` | All triggers | ~300 |
-| `supabase/migrations/00000000000004_baseline_views.sql` | Views | ~100 |
-| `supabase/migrations_archive/README.md` | Archive documentation | ~50 |
-
-### Archived Files (211)
-
-All original migrations moved to `supabase/migrations_archive/`
-
----
-
-## Benefits
-
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| Migration files | 211 | 5 | 98% reduction |
-| Deployment time | ~30s | ~5s | 6x faster |
-| Schema readability | Scattered | Organized | 100% improvement |
-| Failure points | 211 | 5 | 98% reduction |
-| Maintenance burden | High | Low | Significant |
-
----
-
-## Risk Mitigation
-
-1. **No Data Loss**: Baseline only captures structure, not data
-2. **Rollback Safe**: Archive preserves all original migrations
-3. **Idempotent**: Uses `CREATE IF NOT EXISTS` / `CREATE OR REPLACE`
-4. **Tested Approach**: Baseline generated from live production schema
-5. **Version Tracking**: Records all original migration versions as applied
-
----
-
-## Execution Order
-
-1. Extract current schema state via SQL queries
-2. Generate 5 organized baseline files
-3. Create archive folder with README
-4. Move 211 original migrations to archive
-5. Test baseline deployment on fresh database (optional)
-6. Update documentation
-
-This consolidation transforms a fragile 211-file migration chain into a clean, maintainable 5-file baseline that accurately represents the production schema.
+After implementation:
+- [ ] Can enter matching criteria (budget/genres)
+- [ ] API returns real engineers from database
+- [ ] Match scores display correctly
+- [ ] Can select and hire an engineer
+- [ ] Partnership record created
+- [ ] Project record created
+- [ ] Navigation to project workspace works
+- [ ] Engineer receives notification
 
