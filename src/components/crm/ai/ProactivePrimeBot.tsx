@@ -41,7 +41,7 @@ interface ProactiveInsight {
 }
 
 interface ProactivePrimeBotProps {
-  userType: 'artist' | 'engineer';
+  userType: 'artist' | 'engineer' | 'producer' | 'fan';
   onNavigate?: (path: string) => void;
 }
 
@@ -83,11 +83,19 @@ export const ProactivePrimeBot = ({ userType, onNavigate }: ProactivePrimeBotPro
         .is('read_at', null);
 
       // Check active projects needing attention
-      const projectQuery = userType === 'artist'
-        ? supabase.from('projects').select('id, title, status').eq('client_id', user.id).eq('status', 'in_progress')
-        : supabase.from('projects').select('id, title, status').eq('engineer_id', user.id).eq('status', 'in_progress');
+      let projectQuery;
+      if (userType === 'artist') {
+        projectQuery = supabase.from('projects').select('id, title, status').eq('client_id', user.id).eq('status', 'in_progress');
+      } else if (userType === 'engineer') {
+        projectQuery = supabase.from('projects').select('id, title, status').eq('engineer_id', user.id).eq('status', 'in_progress');
+      } else if (userType === 'producer') {
+        projectQuery = supabase.from('producer_beats').select('id, title, status').eq('producer_id', user.id).eq('status', 'active');
+      } else {
+        // Fan - no active projects, just skip
+        projectQuery = null;
+      }
       
-      const { data: activeProjects } = await projectQuery;
+      const { data: activeProjects } = projectQuery ? await projectQuery : { data: [] };
 
       // Check streak data
       const { data: streakData } = await supabase
@@ -127,7 +135,12 @@ export const ProactivePrimeBot = ({ userType, onNavigate }: ProactivePrimeBotPro
           id: 'new-opportunities',
           type: 'opportunity',
           title: 'Hot Opportunities! 🔥',
-          message: `${jobs.length} new ${userType === 'engineer' ? 'gigs' : 'collaboration requests'} just dropped. "${jobs[0].title}" looks perfect for you.`,
+          message: `${jobs.length} new ${
+            userType === 'engineer' ? 'gigs' : 
+            userType === 'producer' ? 'beat requests' : 
+            userType === 'fan' ? 'discoveries' : 
+            'collaboration requests'
+          } just dropped. "${jobs[0].title}" looks perfect for you.`,
           action: {
             label: 'Check Them Out',
             href: '?tab=opportunities'

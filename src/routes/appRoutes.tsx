@@ -34,6 +34,8 @@ import ProjectDetail from "@/pages/ProjectDetail";
 import ArtistOnboarding from "@/pages/ArtistOnboarding";
 import EngineerOnboarding from "@/pages/EngineerOnboarding";
 import HybridOnboarding from "@/pages/HybridOnboarding";
+import ProducerOnboarding from "@/pages/ProducerOnboarding";
+import FanOnboarding from "@/pages/FanOnboarding";
 
 // Service showcase pages
 import MixingShowcase from "@/pages/MixingShowcase";
@@ -152,6 +154,8 @@ export const appRoutes = (
     <Route path="/onboarding/artist" element={<ProtectedRoute><ArtistOnboarding /></ProtectedRoute>} />
     <Route path="/onboarding/engineer" element={<ProtectedRoute><EngineerOnboarding /></ProtectedRoute>} />
     <Route path="/onboarding/hybrid" element={<ProtectedRoute><HybridOnboarding /></ProtectedRoute>} />
+    <Route path="/onboarding/producer" element={<ProtectedRoute><ProducerOnboarding /></ProtectedRoute>} />
+    <Route path="/onboarding/fan" element={<ProtectedRoute><FanOnboarding /></ProtectedRoute>} />
 
     {/* Projects & Orders */}
     <Route path="/project/:projectId" element={<AppLayout><ProjectDetail /></AppLayout>} />

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ArrowLeft, Music, Sparkles, Users, Zap, Headphones, Mic2, Apple, KeyRound } from "lucide-react";
+import { ArrowLeft, Music, Sparkles, Users, Zap, Headphones, Mic2, Apple, KeyRound, Disc3, Heart } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -85,7 +85,7 @@ const authSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
   fullName: z.string().min(2, "Full name must be at least 2 characters").optional(),
-  role: z.enum(["artist", "engineer"]).optional(),
+  role: z.enum(["artist", "engineer", "producer", "fan"]).optional(),
 });
 
 // Optimized ambient particles - CSS-based for performance
@@ -122,16 +122,43 @@ const RolePathSelector = ({
   role, 
   onRoleChange 
 }: { 
-  role: "artist" | "engineer"; 
-  onRoleChange: (role: "artist" | "engineer") => void;
+  role: "artist" | "engineer" | "producer" | "fan"; 
+  onRoleChange: (role: "artist" | "engineer" | "producer" | "fan") => void;
 }) => (
   <div className="space-y-3">
     <Label className="text-white/80">Choose your path</Label>
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-2 gap-3">
+      {/* Producer */}
+      <button
+        type="button"
+        onClick={() => onRoleChange("producer")}
+        className={`relative flex flex-col items-center justify-center gap-2 rounded-xl p-4 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
+          role === "producer" 
+            ? "bg-amber-500/30 border-2 border-amber-400 shadow-lg shadow-amber-500/30" 
+            : "bg-white/5 border border-white/10 hover:bg-white/10"
+        }`}
+      >
+        {role === "producer" && (
+          <div className="absolute inset-0 rounded-xl bg-amber-500/20 animate-fade-in" />
+        )}
+        <div className={`relative z-10 w-12 h-12 rounded-full flex items-center justify-center ${
+          role === "producer" ? "bg-amber-500/40" : "bg-white/10"
+        }`}>
+          <Disc3 className={`w-6 h-6 ${role === "producer" ? "text-amber-400" : "text-white/60"}`} />
+        </div>
+        <span className={`relative z-10 font-semibold text-sm ${role === "producer" ? "text-white" : "text-white/70"}`}>
+          Producer
+        </span>
+        <span className="relative z-10 text-[10px] text-white/50 text-center">
+          I make beats
+        </span>
+      </button>
+      
+      {/* Artist */}
       <button
         type="button"
         onClick={() => onRoleChange("artist")}
-        className={`relative flex flex-col items-center justify-center gap-3 rounded-xl p-6 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
+        className={`relative flex flex-col items-center justify-center gap-2 rounded-xl p-4 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
           role === "artist" 
             ? "bg-primary/30 border-2 border-primary shadow-lg shadow-primary/30" 
             : "bg-white/5 border border-white/10 hover:bg-white/10"
@@ -140,23 +167,24 @@ const RolePathSelector = ({
         {role === "artist" && (
           <div className="absolute inset-0 rounded-xl bg-primary/20 animate-fade-in" />
         )}
-        <div className={`relative z-10 w-14 h-14 rounded-full flex items-center justify-center ${
+        <div className={`relative z-10 w-12 h-12 rounded-full flex items-center justify-center ${
           role === "artist" ? "bg-primary/40" : "bg-white/10"
         }`}>
-          <Mic2 className={`w-7 h-7 ${role === "artist" ? "text-primary" : "text-white/60"}`} />
+          <Mic2 className={`w-6 h-6 ${role === "artist" ? "text-primary" : "text-white/60"}`} />
         </div>
-        <span className={`relative z-10 font-semibold ${role === "artist" ? "text-white" : "text-white/70"}`}>
+        <span className={`relative z-10 font-semibold text-sm ${role === "artist" ? "text-white" : "text-white/70"}`}>
           Artist
         </span>
-        <span className="relative z-10 text-xs text-white/50 text-center">
-          Get professional mixing & mastering
+        <span className="relative z-10 text-[10px] text-white/50 text-center">
+          I make music
         </span>
       </button>
       
+      {/* Engineer */}
       <button
         type="button"
         onClick={() => onRoleChange("engineer")}
-        className={`relative flex flex-col items-center justify-center gap-3 rounded-xl p-6 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
+        className={`relative flex flex-col items-center justify-center gap-2 rounded-xl p-4 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
           role === "engineer" 
             ? "bg-cyan-500/30 border-2 border-cyan-400 shadow-lg shadow-cyan-500/30" 
             : "bg-white/5 border border-white/10 hover:bg-white/10"
@@ -165,16 +193,42 @@ const RolePathSelector = ({
         {role === "engineer" && (
           <div className="absolute inset-0 rounded-xl bg-cyan-500/20 animate-fade-in" />
         )}
-        <div className={`relative z-10 w-14 h-14 rounded-full flex items-center justify-center ${
+        <div className={`relative z-10 w-12 h-12 rounded-full flex items-center justify-center ${
           role === "engineer" ? "bg-cyan-500/40" : "bg-white/10"
         }`}>
-          <Headphones className={`w-7 h-7 ${role === "engineer" ? "text-cyan-400" : "text-white/60"}`} />
+          <Headphones className={`w-6 h-6 ${role === "engineer" ? "text-cyan-400" : "text-white/60"}`} />
         </div>
-        <span className={`relative z-10 font-semibold ${role === "engineer" ? "text-white" : "text-white/70"}`}>
+        <span className={`relative z-10 font-semibold text-sm ${role === "engineer" ? "text-white" : "text-white/70"}`}>
           Engineer
         </span>
-        <span className="relative z-10 text-xs text-white/50 text-center">
-          Offer mixing & mastering services
+        <span className="relative z-10 text-[10px] text-white/50 text-center">
+          I mix & master
+        </span>
+      </button>
+      
+      {/* Fan */}
+      <button
+        type="button"
+        onClick={() => onRoleChange("fan")}
+        className={`relative flex flex-col items-center justify-center gap-2 rounded-xl p-4 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
+          role === "fan" 
+            ? "bg-pink-500/30 border-2 border-pink-400 shadow-lg shadow-pink-500/30" 
+            : "bg-white/5 border border-white/10 hover:bg-white/10"
+        }`}
+      >
+        {role === "fan" && (
+          <div className="absolute inset-0 rounded-xl bg-pink-500/20 animate-fade-in" />
+        )}
+        <div className={`relative z-10 w-12 h-12 rounded-full flex items-center justify-center ${
+          role === "fan" ? "bg-pink-500/40" : "bg-white/10"
+        }`}>
+          <Heart className={`w-6 h-6 ${role === "fan" ? "text-pink-400" : "text-white/60"}`} />
+        </div>
+        <span className={`relative z-10 font-semibold text-sm ${role === "fan" ? "text-white" : "text-white/70"}`}>
+          Fan
+        </span>
+        <span className="relative z-10 text-[10px] text-white/50 text-center">
+          I discover & support
         </span>
       </button>
     </div>
@@ -201,7 +255,7 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  const [role, setRole] = useState<"artist" | "engineer">("artist");
+  const [role, setRole] = useState<"artist" | "engineer" | "producer" | "fan">("artist");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [resetMode, setResetMode] = useState(false);
@@ -442,9 +496,7 @@ const Auth = () => {
           // Pass name to onboarding for pre-fill
           const destination = redirectPath 
             ? redirectPath 
-            : (role === "engineer" 
-              ? `/onboarding/engineer?name=${encodeURIComponent(fullName)}&email=${encodeURIComponent(email)}`
-              : `/onboarding/artist?name=${encodeURIComponent(fullName)}&email=${encodeURIComponent(email)}`);
+            : `/onboarding/${role}?name=${encodeURIComponent(fullName)}&email=${encodeURIComponent(email)}`;
           triggerEntryAnimation(destination);
         }
       } else {
@@ -483,7 +535,17 @@ const Auth = () => {
                 .eq('user_id', authUser.id);
 
               const roles = userRoles?.map(r => r.role) || [];
-              destination = roles.includes('engineer') ? "/engineer-crm" : "/artist-crm";
+              if (roles.includes('producer')) {
+                destination = "/producer-crm";
+              } else if (roles.includes('engineer')) {
+                destination = "/engineer-crm";
+              } else if (roles.includes('artist')) {
+                destination = "/artist-crm";
+              } else if (roles.includes('fan')) {
+                destination = "/fan-hub";
+              } else {
+                destination = "/artist-crm";
+              }
             }
           }
           

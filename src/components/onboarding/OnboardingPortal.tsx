@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 
 interface OnboardingPortalProps {
-  role: 'artist' | 'engineer';
+  role: 'artist' | 'engineer' | 'producer' | 'fan';
   backgroundImage: string;
   currentStep: number;
   totalSteps: number;
@@ -36,12 +36,16 @@ export function OnboardingPortal({
       
       // Trigger confetti
       confetti({
-        particleCount: role === 'engineer' ? 150 : 100,
+        particleCount: role === 'engineer' || role === 'producer' ? 150 : 100,
         spread: 100,
         origin: { y: 0.6 },
-        colors: role === 'engineer' 
-          ? ['#FFD700', '#FFA500', '#FF6347'] 
-          : ['#A855F7', '#EC4899', '#8B5CF6'],
+        colors: role === 'engineer'
+          ? ['#FFD700', '#FFA500', '#FF6347']
+          : role === 'producer'
+            ? ['#FFD700', '#F59E0B', '#D97706']
+            : role === 'fan'
+              ? ['#EC4899', '#F472B6', '#F9A8D4']
+              : ['#A855F7', '#EC4899', '#8B5CF6'],
       });
       
       // Navigate after celebration
@@ -125,11 +129,16 @@ export function OnboardingPortal({
                 }}
                 className="text-6xl mb-4"
               >
-                {role === 'artist' ? '🎤' : '🎛️'}
+                {role === 'artist' ? '🎤' : role === 'engineer' ? '🎛️' : role === 'producer' ? '🎹' : '💜'}
               </motion.div>
               <h2 className="text-3xl font-bold mb-2">Welcome to MIXXCLUB!</h2>
               <p className="text-muted-foreground">
-                Entering your {role === 'artist' ? 'Creative Hub' : 'Engineering Bay'}...
+                Entering your {
+                  role === 'artist' ? 'Creative Hub' : 
+                  role === 'engineer' ? 'Engineering Bay' : 
+                  role === 'producer' ? 'Beat Forge' : 
+                  'Fan Zone'
+                }...
               </p>
               <motion.div
                 initial={{ width: 0 }}
