@@ -1,26 +1,18 @@
- import { CharacterEmptyState } from '@/components/characters/CharacterEmptyState';
+ import { MissionsList } from '@/components/economy';
+ import { StreakTracker } from '@/components/fan';
  
  export const FanMissionsHub = () => {
-   // TODO: Fetch available missions
-   const hasMissions = false;
- 
-   if (!hasMissions) {
-     return (
-       <CharacterEmptyState
-         type="missions"
-         characterId="nova"
-         title="Earn MixxCoinz"
-         message="Complete missions to earn MixxCoinz and unlock rewards."
-         actionLabel="Check Back Soon"
-         onAction={() => {}}
-       />
-     );
-   }
+   // TODO: Fetch streak data from fan_stats
+   const streakData = {
+     currentStreak: 3,
+     longestStreak: 7,
+     todayComplete: false,
+   };
  
    return (
      <div className="space-y-6">
-       <h2 className="text-xl font-semibold">Missions</h2>
-       {/* Mission cards will go here */}
+       <StreakTracker {...streakData} />
+       <MissionsList />
      </div>
    );
  };
