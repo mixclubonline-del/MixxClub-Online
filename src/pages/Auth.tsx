@@ -569,12 +569,13 @@ const Auth = () => {
   if (updatePasswordMode) {
     return (
       <GatewayWrapper>
-        <motion.div 
-          className="w-full max-w-md"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
+  <motion.div 
+    className="w-full max-w-md"
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5 }}
+    layout={false}
+  >
           {/* Header */}
           <div className="text-center mb-8">
             <div className="flex justify-center mb-6">
@@ -731,13 +732,9 @@ const Auth = () => {
         </div>
 
         {/* Demo Banner */}
-        <motion.div 
+        <div 
           onClick={() => navigate('/insider-demo')}
-          className="mb-4 p-3 rounded-xl bg-white/5 border border-primary/30 cursor-pointer hover:bg-white/10 hover:border-primary/50 transition-all group"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          whileHover={{ scale: 1.02 }}
+          className="mb-4 p-3 rounded-xl bg-white/5 border border-primary/30 cursor-pointer hover:bg-white/10 hover:border-primary/50 transition-all group hover:scale-[1.02]"
         >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-primary/30 flex items-center justify-center">
@@ -748,17 +745,14 @@ const Auth = () => {
               <p className="text-xs text-white/50">See the full experience demo →</p>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Social Proof Stats */}
         <AuthSocialProof className="mb-4" />
 
         {/* Glass panel form */}
-        <motion.div 
+        <div 
           className="backdrop-blur-xl bg-black/40 border border-white/10 rounded-2xl p-6 shadow-2xl"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
         >
           {/* Social Sign-in Buttons */}
           <div className="space-y-3 mb-5">
@@ -1029,7 +1023,7 @@ const Auth = () => {
               )}
             </>
           )}
-        </motion.div>
+        </div>
       </motion.div>
     </GatewayWrapper>
   );
