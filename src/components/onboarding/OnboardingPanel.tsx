@@ -24,7 +24,7 @@ interface OnboardingPanelProps {
   isSubmitting?: boolean;
   isFirstStep?: boolean;
   isLastStep?: boolean;
-  variant?: 'artist' | 'engineer';
+  variant?: 'artist' | 'engineer' | 'producer' | 'fan';
   destinationPath?: string;
 }
 
@@ -72,7 +72,12 @@ export function OnboardingPanel({
           style={{
             background: 'linear-gradient(135deg, hsl(var(--background) / 0.8) 0%, hsl(var(--background) / 0.6) 100%)',
             boxShadow: `
-              0 25px 50px -12px hsl(var(--${variant === 'artist' ? 'primary' : 'accent'}) / 0.15),
+              0 25px 50px -12px ${
+                variant === 'artist' ? 'hsl(var(--primary) / 0.15)' : 
+                variant === 'engineer' ? 'hsl(var(--accent) / 0.15)' : 
+                variant === 'producer' ? 'hsl(45 90% 50% / 0.15)' : 
+                'hsl(330 80% 60% / 0.15)'
+              },
               inset 0 1px 0 hsl(var(--foreground) / 0.05)
             `,
           }}
@@ -119,11 +124,15 @@ export function OnboardingPanel({
             <Button
               onClick={onNext}
               disabled={!canProceed || isSubmitting}
-              className={`gap-2 ${
-                variant === 'artist' 
-                  ? 'bg-primary hover:bg-primary/90' 
-                  : 'bg-accent hover:bg-accent/90'
-              }`}
+              className="gap-2"
+              style={{
+                backgroundColor: 
+                  variant === 'artist' ? 'hsl(var(--primary))' : 
+                  variant === 'engineer' ? 'hsl(var(--accent))' : 
+                  variant === 'producer' ? 'hsl(45, 90%, 50%)' : 
+                  'hsl(330, 80%, 60%)',
+                color: variant === 'producer' ? 'hsl(0, 0%, 10%)' : 'hsl(var(--primary-foreground))',
+              }}
             >
               {isLastStep ? (
                 isSubmitting ? 'Entering...' : 'Enter MIXXCLUB'

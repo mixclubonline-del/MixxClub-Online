@@ -130,7 +130,7 @@ export const AuthSocialProof = ({ className }: AuthSocialProofProps) => {
   );
 };
 
-export const RoleBenefits = ({ role }: { role: 'artist' | 'engineer' }) => {
+export const RoleBenefits = ({ role }: { role: 'artist' | 'engineer' | 'producer' | 'fan' }) => {
   const artistBenefits = [
     { icon: <Zap className="w-4 h-4" />, text: "AI-Powered Mastering" },
     { icon: <Users className="w-4 h-4" />, text: "Smart Engineer Matching" },
@@ -143,8 +143,24 @@ export const RoleBenefits = ({ role }: { role: 'artist' | 'engineer' }) => {
     { icon: <TrendingUp className="w-4 h-4" />, text: "Professional Portfolio" },
   ];
 
-  const benefits = role === 'artist' ? artistBenefits : engineerBenefits;
-  const accentColor = role === 'artist' ? 'text-primary' : 'text-cyan-400';
+  const producerBenefits = [
+    { icon: <Music className="w-4 h-4" />, text: "Beat Catalog & Sales" },
+    { icon: <Users className="w-4 h-4" />, text: "Connect with Artists" },
+    { icon: <DollarSign className="w-4 h-4" />, text: "Licensing & Revenue" },
+  ];
+
+  const fanBenefits = [
+    { icon: <Music className="w-4 h-4" />, text: "Exclusive Premieres" },
+    { icon: <Zap className="w-4 h-4" />, text: "Earn MixxCoinz" },
+    { icon: <Users className="w-4 h-4" />, text: "Day 1 Badges" },
+  ];
+
+  const benefits = role === 'artist' ? artistBenefits : 
+                   role === 'engineer' ? engineerBenefits :
+                   role === 'producer' ? producerBenefits : fanBenefits;
+  const accentColor = role === 'artist' ? 'text-primary' : 
+                      role === 'engineer' ? 'text-cyan-400' :
+                      role === 'producer' ? 'text-amber-400' : 'text-pink-400';
 
   return (
     <div className="space-y-2 mt-4">
