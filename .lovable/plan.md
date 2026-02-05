@@ -1,128 +1,80 @@
 
 
-# Music Timeline Synchronization for Demo Phases
+# Cinematic Phase Backgrounds: MixClub Edition
 
-## Current State
+## The Shift
 
-The demo currently uses **timer-based progression**:
-```typescript
-// Lines 100-119: Phase auto-progression
-const phase = DEMO_PHASES[currentPhase];
-const progressInterval = setInterval(() => {
-  const elapsed = Date.now() - startTime;
-  const progress = Math.min((elapsed / phase.duration) * 100, 100);
-  // ... advances phase when progress >= 100
-}, 50);
-```
-
-This means phases advance based on fixed durations, **not** the music timeline. The audio hook already provides `analysis.currentTime` and `analysis.duration`, but they're unused for phase control.
+| Before | After |
+|--------|-------|
+| Prime character renders | Real people making music |
+| AI mascot-centric | Human connection-centric |
+| Existing prime_* assets | Fresh Dream Engine generations |
+| Single character focus | Community/network visuals |
 
 ---
 
-## Solution: Music-Synced Phase Transitions
+## New Background Concept: "The People Behind the Music"
 
-### Phase Timing Map (configurable)
+Each phase background should feel like a **documentary still** — real moments from the creative process, not character portraits.
 
-Map each phase to a specific timestamp in the audio track:
-
-| Phase | ID | Music Start | Music End | Emotional Beat |
-|-------|-----|-------------|-----------|----------------|
-| 1 | problem | 0:00 | 0:08 | Tension build |
-| 2 | discovery | 0:08 | 0:18 | First drop |
-| 3 | connection | 0:18 | 0:32 | Groove section |
-| 4 | transformation | 0:32 | 0:48 | Peak energy |
-| 5 | tribe | 0:48 | 1:00 | Warm resolution |
-| 6 | invitation | 1:00+ | End | Hold until action |
-
-These timestamps are estimates and should be tuned to the actual audio file's structure.
-
----
-
-## Technical Implementation
-
-### 1. Create `usePhaseSync` Hook
-
-A dedicated hook that watches audio `currentTime` and triggers phase changes:
+### Phase 1: "THE PROBLEM"
+**Visual**: Lone creator at 3am, surrounded by unfinished projects
+**Mood**: Isolation, frustration, unrealized potential
+**No Prime**: This is about the artist's struggle, not a guide
+**Palette**: Deep purple shadows, harsh screen glow
 
 ```text
-src/hooks/usePhaseSync.ts
-
-Input:
-  - currentTime: number (from audio analysis)
-  - isPlaying: boolean
-  - phaseMarkers: { phaseId: string, startTime: number }[]
-  - onPhaseChange: (phaseIndex: number) => void
-  - enabled: boolean (whether sync is active)
-
-Behavior:
-  - Watches currentTime and compares to markers
-  - Calls onPhaseChange when crossing a threshold
-  - Handles seek (jumping backwards or forwards)
-  - Calculates progress within current phase
-  - Supports manual override when disabled
-
-Returns:
-  - currentPhaseIndex: number
-  - phaseProgress: number (0-100)
-  - syncEnabled: boolean
-  - setSyncEnabled: (enabled: boolean) => void
+Prompt: "Cinematic wide shot of a music producer alone at 3am in a small bedroom studio. Multiple monitors showing DAW with unfinished projects. Hard drives stacked on desk. The weight of unreleased music visible in their tired posture. Purple-blue mood lighting. Documentary style, real moment. 8K photorealistic."
 ```
 
-### 2. Define Phase Markers Constant
+### Phase 2: "THE DISCOVERY"  
+**Visual**: Light breaking through — the MixClub logo/portal emerging
+**Mood**: Hope, possibility, the solution appearing
+**No Prime**: The platform itself is the discovery
+**Palette**: Dark purple transitioning to warm gold
 
-Store music timestamps alongside phase definitions:
-
-```typescript
-const PHASE_MARKERS = [
-  { id: 'problem',        startTime: 0,    endTime: 8   },
-  { id: 'discovery',      startTime: 8,    endTime: 18  },
-  { id: 'connection',     startTime: 18,   endTime: 32  },
-  { id: 'transformation', startTime: 32,   endTime: 48  },
-  { id: 'tribe',          startTime: 48,   endTime: 60  },
-  { id: 'invitation',     startTime: 60,   endTime: 999 },
-];
+```text
+Prompt: "Abstract cinematic visualization of hope dawning. Infinity symbol (MixClub logo shape) forming from light particles in dark space. Colors shifting from deep purple to warm gold. Digital gateway opening. The moment of realization. 8K digital art, premium quality. No people, pure concept."
 ```
 
-### 3. Update InsiderDemoExperience
+### Phase 3: "THE CONNECTION"
+**Visual**: Split-screen of artist + engineer in their respective spaces, connected
+**Mood**: Collaboration across distance, human bond
+**No Prime**: Two real people, not a mascot introducing them
+**Palette**: Warm tones, connection energy
 
-Replace timer-based progression with music-synced progression:
-
-**Remove**: The interval-based phase progression effect (lines 100-119)
-
-**Add**: Integration with `usePhaseSync`:
-```typescript
-const { currentPhaseIndex, phaseProgress, syncEnabled, setSyncEnabled } = usePhaseSync({
-  currentTime: analysis.currentTime,
-  isPlaying,
-  phaseMarkers: PHASE_MARKERS,
-  onPhaseChange: (index) => setCurrentPhase(index),
-  enabled: isAutoPlay
-});
+```text
+Prompt: "Split composition cinematic shot: Young Black male artist in home bedroom studio (Brooklyn aesthetic) on left, professional female engineer at mixing console (Lagos studio) on right. Subtle beam of musical energy/data visualization connecting them across the frame. Both focused, both real. Warm collaboration energy. Documentary photography style. 8K cinematic."
 ```
 
-**Update**: Progress display to use music-synced `phaseProgress` instead of timer-based progress.
+### Phase 4: "THE TRANSFORMATION"
+**Visual**: Before/after sonic transformation — waveforms, meters, the craft
+**Mood**: Technical excellence, the magic of engineering
+**No Prime**: The work speaks for itself
+**Palette**: Purple to gold gradient, frequency spectrum colors
 
-### 4. Handle Edge Cases
+```text
+Prompt: "Abstract visualization of audio transformation. Raw chaotic waveform on left side morphing into clean, professional mastered waveform on right. LUFS meter climbing. Frequency spectrum analysis visible. The craft of audio engineering visualized. Purple, cyan, and gold color palette. 8K digital visualization. No people, pure audio art."
+```
 
-| Edge Case | Handling |
-|-----------|----------|
-| Audio loops (track restarts) | Detect currentTime jump back to 0, reset to phase 0 |
-| User seeks forward | Jump to correct phase based on new currentTime |
-| User seeks backward | Jump to correct phase based on new currentTime |
-| Manual skip (skip button) | Temporarily disable sync, seek audio to phase startTime |
-| Audio paused | Pause phase progression, maintain current phase |
+### Phase 5: "THE TRIBE"
+**Visual**: Global network of creators — constellation of real faces
+**Mood**: Belonging, community, scale with intimacy
+**No Prime**: The community IS the star
+**Palette**: Deep space with warm node glows
 
-### 5. Sync Skip Button with Audio
+```text
+Prompt: "Global network visualization with real human elements. Glowing circular portrait nodes of diverse music creators around the world (different ages, ethnicities, genders) connected by pulsing light streams forming infinity symbol pattern. Community constellation floating in space. Purple, cyan, and gold connection lines. Some faces in focus, others abstract. 8K cinematic digital art."
+```
 
-When user clicks skip or phase dots, also seek the audio:
+### Phase 6: "THE INVITATION"
+**Visual**: Open door to a vibrant studio space — the threshold
+**Mood**: Welcoming, aspirational, "your seat is saved"
+**No Prime**: An empty chair waiting for YOU
+**Palette**: Purple shadows outside, golden warmth inside
 
-```typescript
-const skipToPhase = (index: number) => {
-  const marker = PHASE_MARKERS[index];
-  seek(marker.startTime); // Seek audio to phase start
-  setCurrentPhase(index);
-  setPhaseProgress(0);
-};
+```text
+Prompt: "Cinematic shot of ornate studio door opening into a vibrant, professional recording studio. Warm golden light spilling out into dark purple hallway. Inside: mixing console, monitors, instruments, plants. An empty chair at the desk — waiting for the viewer. The threshold to belonging. Welcoming, aspirational. 8K photorealistic."
 ```
 
 ---
@@ -131,69 +83,96 @@ const skipToPhase = (index: number) => {
 
 | File | Action | Description |
 |------|--------|-------------|
-| `src/hooks/usePhaseSync.ts` | Create | Music-timeline phase sync hook |
-| `src/components/demo/InsiderDemoExperience.tsx` | Update | Replace timer progression with music sync, add PHASE_MARKERS, update skip logic |
+| `src/components/demo/PhaseBackground.tsx` | Create | Cinematic phase background component with cross-fade transitions |
+| `src/hooks/useDemoPhaseAssets.ts` | Create | Hook to fetch demo_phase_* assets from brand_assets table |
+| `src/components/demo/InsiderDemoExperience.tsx` | Update | Integrate PhaseBackground component |
 
 ---
 
-## Hook Implementation Details
+## Asset Context Naming
+
+All new assets will use the `demo_phase_` prefix:
+
+| Phase ID | Asset Context |
+|----------|---------------|
+| problem | `demo_phase_problem` |
+| discovery | `demo_phase_discovery` |
+| connection | `demo_phase_connection` |
+| transformation | `demo_phase_transformation` |
+| tribe | `demo_phase_tribe` |
+| invitation | `demo_phase_invitation` |
+
+---
+
+## PhaseBackground Component Design
 
 ```text
-usePhaseSync logic:
+Layer Stack (bottom to top):
 
-1. Find current phase:
-   - Loop through phaseMarkers
-   - Find marker where startTime <= currentTime < endTime
-   - Return that phase index
+1. Cinematic Image (object-cover, 0.5-0.7 opacity)
+   - Cross-fades between phases
+   - AnimatePresence for smooth transitions
 
-2. Calculate progress:
-   - progress = (currentTime - startTime) / (endTime - startTime) * 100
-   - Clamp to 0-100
+2. Darkening Gradient Overlay
+   - Ensures text readability
+   - from-background/80 via-background/40 to-background/90
 
-3. Detect phase change:
-   - Compare newPhaseIndex to previous
-   - If different, call onPhaseChange(newPhaseIndex)
+3. Audio-Reactive Glow Layer
+   - Existing radial gradients
+   - Pulses with bass/amplitude
 
-4. Handle loop detection:
-   - If currentTime suddenly drops below previous currentTime by > 2 seconds
-   - Reset to phase 0
-
-5. Ref for previous state:
-   - previousTimeRef tracks last currentTime
-   - previousPhaseRef tracks last phase index
+4. Content Layer
+   - Phase text, typewriter, CTAs
 ```
 
 ---
 
-## UI Enhancements
+## Generation Strategy
 
-### Progress Bar
+### Option A: Generate Now (Recommended)
+Use Dream Engine to generate all 6 backgrounds before implementing:
+1. Navigate to admin Dream Engine page
+2. Generate each image with prompts above
+3. Save with `demo_phase_{phaseId}` context
+4. Implement PhaseBackground component to consume them
 
-Update to show progress within current phase based on music position:
-- Start of phase = 0%
-- End of phase = 100%
-- Smoothly animates as audio plays
+### Option B: Implement First, Generate Later
+Build the component with gradient-only fallbacks, then generate assets when ready
 
-### Phase Dots (left sidebar)
+---
 
-Add visual feedback for music-synced state:
-- Active phase pulses with bass
-- Clicking a dot seeks audio to that timestamp
+## Fallback Behavior
 
-### Skip Button
+Since we're NOT using prime_* assets:
 
-Now also seeks audio forward to next phase's start time.
+```text
+1. Check for demo_phase_{phaseId} asset → Use if exists
+2. Use phase-specific gradient palette → Always works
+
+NO prime_* fallback chain.
+```
+
+Each phase will have a unique gradient palette as fallback:
+
+| Phase | Fallback Gradient |
+|-------|-------------------|
+| problem | Deep purple + destructive red accents |
+| discovery | Purple to gold radial bloom |
+| connection | Warm split (pink left, cyan right) |
+| transformation | Purple to gold horizontal |
+| tribe | Multi-point network glow |
+| invitation | Gold center, purple edges (doorway) |
 
 ---
 
 ## Validation Criteria
 
-- Phase 1 (problem) plays from 0:00 to 0:08
-- Phase 2 (discovery) starts exactly at the beat drop (~0:08)
-- Phase 4 (transformation) hits during peak energy section
-- Seeking audio forward/backward updates visible phase
-- Skip button both advances phase AND seeks audio
-- Audio loop resets demo to phase 1
-- Pausing audio pauses phase progression
-- Progress bar reflects actual audio position within phase
+- Zero Prime assets used in demo backgrounds
+- Each phase has a unique, cinematic background
+- Imagery focuses on real people or abstract concepts (not mascots)
+- Backgrounds tell the "Find Your People" story visually
+- Cross-fade transitions are smooth (0.8-1s)
+- Content remains readable over all backgrounds
+- Audio-reactive layer still visible
+- Graceful gradient fallback if assets missing
 
