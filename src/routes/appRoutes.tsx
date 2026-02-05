@@ -29,6 +29,10 @@ import MyCertifications from "@/pages/MyCertifications";
 import Tutorials from "@/pages/Tutorials";
 import MessagingTest from "@/pages/MessagingTest";
 import ProjectDetail from "@/pages/ProjectDetail";
+ 
+ // Marketplace
+ import BeatMarketplace from "@/pages/BeatMarketplace";
+ const MyPurchases = React.lazy(() => import("@/pages/MyPurchases"));
 
 // Onboarding pages
 import ArtistOnboarding from "@/pages/ArtistOnboarding";
@@ -175,6 +179,8 @@ export const appRoutes = (
     <Route path="/my-certifications" element={<MyCertifications />} />
     <Route path="/tutorials" element={<Tutorials />} />
     <Route path="/marketplace" element={<Marketplace />} />
+     <Route path="/beats" element={<BeatMarketplace />} />
+     <Route path="/my-purchases" element={<ProtectedRoute><MyPurchases /></ProtectedRoute>} />
     <Route path="/label-services" element={<LabelServices />} />
     <Route path="/integrations" element={<Integrations />} />
     <Route path="/ai-audio-intelligence" element={<AIAudioIntelligence />} />
