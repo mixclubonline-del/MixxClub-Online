@@ -4210,6 +4210,48 @@ export type Database = {
         }
         Relationships: []
       }
+      match_requests: {
+        Row: {
+          budget_range: string | null
+          created_at: string | null
+          genres: string[] | null
+          id: string
+          message: string | null
+          project_type: string | null
+          recipient_id: string
+          responded_at: string | null
+          sender_id: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          budget_range?: string | null
+          created_at?: string | null
+          genres?: string[] | null
+          id?: string
+          message?: string | null
+          project_type?: string | null
+          recipient_id: string
+          responded_at?: string | null
+          sender_id: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          budget_range?: string | null
+          created_at?: string | null
+          genres?: string[] | null
+          id?: string
+          message?: string | null
+          project_type?: string | null
+          recipient_id?: string
+          responded_at?: string | null
+          sender_id?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       matches: {
         Row: {
           artist_id: string

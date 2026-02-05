@@ -1,10 +1,16 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useEffect, useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
-import { Sparkles, MessageSquare, Heart, Star, Music, Headphones } from 'lucide-react';
+import { Sparkles, MessageSquare, Heart, Star, Music, Headphones, Loader2 } from 'lucide-react';
+import { useMatchesAPI } from '@/hooks/useMatchesAPI';
+import { useAuth } from '@/hooks/useAuth';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { toast } from 'sonner';
 
 interface AIMatchRecommendationsProps {
   userType: 'artist' | 'engineer';
@@ -12,105 +18,111 @@ interface AIMatchRecommendationsProps {
 }
 
 export const AIMatchRecommendations: React.FC<AIMatchRecommendationsProps> = ({ userType, searchQuery }) => {
-  const recommendations = [
-    {
-      id: '1',
-      name: userType === 'artist' ? 'Marcus "808King" Williams' : 'Zara "VelvetVox" Johnson',
-      avatar: '',
-      matchScore: 96,
-      genres: ['Hip-Hop', 'Trap', 'R&B'],
-      skills: userType === 'artist' ? ['Mixing', 'Mastering', 'Vocal Production'] : ['Songwriting', 'Vocal Performance', 'Hook Writing'],
-      rating: 4.9,
-      completedProjects: 127,
-      hourlyRate: userType === 'artist' ? 85 : undefined,
-      bio: userType === 'artist' 
-        ? 'Grammy-nominated engineer specializing in modern hip-hop production'
-        : 'Rising artist with 2M+ streams looking for premium mixing',
-      matchReasons: ['Genre alignment', 'Style compatibility', 'Budget match'],
-      isVerified: true,
-      isOnline: true,
-    },
-    {
-      id: '2',
-      name: userType === 'artist' ? 'Sarah "BeatMaven" Chen' : 'DeShawn "FlowMaster" Davis',
-      avatar: '',
-      matchScore: 92,
-      genres: ['R&B', 'Soul', 'Neo-Soul'],
-      skills: userType === 'artist' ? ['Mixing', 'Sound Design', 'Arrangement'] : ['Rap', 'Freestyle', 'Lyricism'],
-      rating: 4.8,
-      completedProjects: 89,
-      hourlyRate: userType === 'artist' ? 65 : undefined,
-      bio: userType === 'artist'
-        ? 'Specializing in warm, analog-style mixes with modern clarity'
-        : 'Independent artist seeking collaborative mixing sessions',
-      matchReasons: ['Similar past projects', 'Complementary skills', 'Availability'],
-      isVerified: true,
-      isOnline: false,
-    },
-    {
-      id: '3',
-      name: userType === 'artist' ? 'James "LowEnd" Thompson' : 'Aaliyah "NightOwl" Martinez',
-      avatar: '',
-      matchScore: 88,
-      genres: ['Drill', 'UK Rap', 'Grime'],
-      skills: userType === 'artist' ? ['Mixing', 'Bass Enhancement', 'Spatial Audio'] : ['Singing', 'Melodies', 'Harmonies'],
-      rating: 4.7,
-      completedProjects: 156,
-      hourlyRate: userType === 'artist' ? 75 : undefined,
-      bio: userType === 'artist'
-        ? 'Expert in hard-hitting drill and UK rap productions'
-        : 'Multi-genre vocalist looking to expand into hip-hop collaborations',
-      matchReasons: ['Technical expertise', 'Quick turnaround', 'Communication style'],
-      isVerified: false,
-      isOnline: true,
-    },
-  ];
+  const { user } = useAuth();
+  const { matches, findMatches, loading, saveMatch, sendRequest, savedMatches } = useMatchesAPI(userType);
+  const [connectingId, setConnectingId] = useState<string | null>(null);
+  const [connectMessage, setConnectMessage] = useState('');
+  const [connectProjectType, setConnectProjectType] = useState('mixing');
 
-  const filteredRecommendations = recommendations.filter(rec =>
-    rec.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    rec.genres.some(g => g.toLowerCase().includes(searchQuery.toLowerCase())) ||
-    rec.skills.some(s => s.toLowerCase().includes(searchQuery.toLowerCase()))
+  useEffect(() => {
+    // Load initial matches with default criteria
+    findMatches({
+      budgetRange: '100-300',
+      genres: ['Hip-Hop', 'R&B'],
+      projectType: 'mixing',
+    });
+  }, [findMatches]);
+
+  const handleSave = async (engineerId: string, matchScore: number) => {
+    await saveMatch(engineerId, matchScore);
+  };
+
+  const handleConnect = async (engineerId: string) => {
+    if (!connectMessage.trim()) {
+      toast.error('Please add a message');
+      return;
+    }
+
+    await sendRequest(
+      engineerId,
+      connectMessage,
+      connectProjectType,
+      '100-300',
+      ['Hip-Hop', 'R&B']
+    );
+    setConnectingId(null);
+    setConnectMessage('');
+  };
+
+  const isSaved = (engineerId: string) => {
+    return savedMatches.some(m => m.matchedUserId === engineerId);
+  };
+
+  const filteredMatches = matches.filter(match =>
+    match.engineerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    match.genres.some(g => g.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    match.specialties.some(s => s.toLowerCase().includes(searchQuery.toLowerCase()))
   );
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+        <p className="text-muted-foreground">Finding your perfect matches...</p>
+      </div>
+    );
+  }
+
+  if (filteredMatches.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <Sparkles className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+        <h3 className="text-lg font-medium text-foreground mb-2">No matches found</h3>
+        <p className="text-muted-foreground">
+          Try adjusting your search or upload a track to get personalized recommendations
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2 mb-4">
         <Sparkles className="h-5 w-5 text-primary animate-pulse" />
         <span className="text-sm text-muted-foreground">
-          AI analyzed your profile and found {filteredRecommendations.length} high-compatibility matches
+          AI analyzed your profile and found {filteredMatches.length} high-compatibility matches
         </span>
       </div>
 
       <div className="grid gap-4">
-        {filteredRecommendations.map((match) => (
-          <Card key={match.id} className="bg-card/50 backdrop-blur-sm border-border/50 hover:border-primary/50 transition-colors">
+        {filteredMatches.map((match) => (
+          <Card key={match.engineerId} className="bg-card/50 backdrop-blur-sm border-border/50 hover:border-primary/50 transition-colors">
             <CardContent className="p-6">
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex items-start gap-4 flex-1">
                   <div className="relative">
                     <Avatar className="h-16 w-16">
-                      <AvatarImage src={match.avatar} />
+                      <AvatarImage src={match.avatarUrl} />
                       <AvatarFallback className="bg-primary/20 text-primary text-lg">
-                        {match.name.charAt(0)}
+                        {match.engineerName.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
-                    {match.isOnline && (
-                      <span className="absolute bottom-0 right-0 h-4 w-4 bg-green-500 border-2 border-background rounded-full" />
-                    )}
                   </div>
                   
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="font-semibold text-foreground">{match.name}</h3>
-                      {match.isVerified && (
+                      <h3 className="font-semibold text-foreground">{match.engineerName}</h3>
+                      {match.completedProjects > 10 && (
                         <Badge variant="secondary" className="text-xs">Verified</Badge>
                       )}
                     </div>
                     
-                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{match.bio}</p>
+                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                      {match.experience}+ years experience • {match.completedProjects} projects completed
+                    </p>
                     
                     <div className="flex flex-wrap gap-1 mt-2">
-                      {match.genres.map((genre) => (
+                      {match.genres.slice(0, 3).map((genre) => (
                         <Badge key={genre} variant="outline" className="text-xs">
                           <Music className="h-3 w-3 mr-1" />
                           {genre}
@@ -119,7 +131,7 @@ export const AIMatchRecommendations: React.FC<AIMatchRecommendationsProps> = ({ 
                     </div>
                     
                     <div className="flex flex-wrap gap-1 mt-2">
-                      {match.skills.slice(0, 3).map((skill) => (
+                      {match.specialties.slice(0, 3).map((skill) => (
                         <Badge key={skill} variant="secondary" className="text-xs">
                           <Headphones className="h-3 w-3 mr-1" />
                           {skill}
@@ -143,35 +155,93 @@ export const AIMatchRecommendations: React.FC<AIMatchRecommendationsProps> = ({ 
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <span className="flex items-center gap-1">
                       <Star className="h-4 w-4 text-yellow-500" />
-                      {match.rating}
+                      {match.rating.toFixed(1)}
                     </span>
                     <span>{match.completedProjects} projects</span>
-                    {match.hourlyRate && <span>${match.hourlyRate}/hr</span>}
+                    {match.hourlyRate > 0 && <span>${match.hourlyRate}/hr</span>}
                   </div>
                   
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm">
-                      <Heart className="h-4 w-4 mr-1" />
-                      Save
+                    <Button 
+                      variant={isSaved(match.engineerId) ? "secondary" : "outline"} 
+                      size="sm"
+                      onClick={() => handleSave(match.engineerId, match.matchScore)}
+                      disabled={isSaved(match.engineerId)}
+                    >
+                      <Heart className={`h-4 w-4 mr-1 ${isSaved(match.engineerId) ? 'fill-primary' : ''}`} />
+                      {isSaved(match.engineerId) ? 'Saved' : 'Save'}
                     </Button>
-                    <Button size="sm">
-                      <MessageSquare className="h-4 w-4 mr-1" />
-                      Connect
-                    </Button>
+                    
+                    <Dialog open={connectingId === match.engineerId} onOpenChange={(open) => !open && setConnectingId(null)}>
+                      <DialogTrigger asChild>
+                        <Button size="sm" onClick={() => setConnectingId(match.engineerId)}>
+                          <MessageSquare className="h-4 w-4 mr-1" />
+                          Connect
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Connect with {match.engineerName}</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                          <div>
+                            <label className="text-sm font-medium mb-2 block">Project Type</label>
+                            <Select value={connectProjectType} onValueChange={setConnectProjectType}>
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="mixing">Mixing</SelectItem>
+                                <SelectItem value="mastering">Mastering</SelectItem>
+                                <SelectItem value="production">Production</SelectItem>
+                                <SelectItem value="full-service">Full Service</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium mb-2 block">Message</label>
+                            <Textarea
+                              placeholder="Introduce yourself and describe your project..."
+                              value={connectMessage}
+                              onChange={(e) => setConnectMessage(e.target.value)}
+                              rows={4}
+                            />
+                          </div>
+                          <Button 
+                            className="w-full" 
+                            onClick={() => handleConnect(match.engineerId)}
+                          >
+                            Send Request
+                          </Button>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-4 pt-4 border-t border-border/50">
-                <p className="text-xs text-muted-foreground mb-2">Why this match:</p>
-                <div className="flex flex-wrap gap-2">
-                  {match.matchReasons.map((reason) => (
-                    <Badge key={reason} variant="outline" className="text-xs bg-primary/5">
-                      ✓ {reason}
-                    </Badge>
-                  ))}
+              {match.matchingGenres.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-border/50">
+                  <p className="text-xs text-muted-foreground mb-2">Why this match:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {match.matchingGenres.map((genre) => (
+                      <Badge key={genre} variant="outline" className="text-xs bg-primary/5">
+                        ✓ {genre} specialist
+                      </Badge>
+                    ))}
+                    {match.rating >= 4.5 && (
+                      <Badge variant="outline" className="text-xs bg-primary/5">
+                        ✓ Highly rated
+                      </Badge>
+                    )}
+                    {match.completedProjects > 20 && (
+                      <Badge variant="outline" className="text-xs bg-primary/5">
+                        ✓ Experienced
+                      </Badge>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
             </CardContent>
           </Card>
         ))}
