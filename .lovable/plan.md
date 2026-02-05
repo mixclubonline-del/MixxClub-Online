@@ -1,109 +1,198 @@
 
-# Add Autocomplete Attributes to Auth Form Inputs
 
-## Background
+# Fix Post-Signup Error Message on Successful Signup
 
-Browser console warnings recommend adding `autocomplete` attributes to form inputs to improve autofill UX and eliminate "Input elements should have autocomplete attributes" warnings.
+## Root Cause Analysis
 
----
+The error message "An unexpected error occurred. Please try again." appears after successful signup due to **an unhandled exception in the generic catch block** at lines 450-455 of `Auth.tsx`.
 
-## Files to Update
+### The Problem Flow
 
-### 1. `src/pages/Auth.tsx`
-
-| Location | Input Type | Autocomplete Value |
-|----------|------------|-------------------|
-| Line 630 | New Password | `autocomplete="new-password"` |
-| Line 648 | Confirm Password | `autocomplete="new-password"` |
-| Line 820 | Reset Email | `autocomplete="email"` |
-| Line 898 | Full Name (signup) | `autocomplete="name"` |
-| Line 916 | Email | `autocomplete="email"` |
-| Line 930 | Password | `autocomplete="current-password"` (login) or `autocomplete="new-password"` (signup) |
-
-### 2. `src/components/mobile/MobileAuthDialog.tsx`
-
-| Location | Input Type | Autocomplete Value |
-|----------|------------|-------------------|
-| Line 161 | Reset Email | `autocomplete="email"` |
-| Line 200 | Email | `autocomplete="email"` |
-| Line 209 | Password | `autocomplete="current-password"` (login) or `autocomplete="new-password"` (signup) |
-
----
-
-## Autocomplete Attribute Reference
-
-| Scenario | Attribute Value |
-|----------|-----------------|
-| User signing in | `autocomplete="current-password"` |
-| User creating account | `autocomplete="new-password"` |
-| Email field | `autocomplete="email"` |
-| Full name field | `autocomplete="name"` |
-| Password reset (new) | `autocomplete="new-password"` |
-
----
-
-## Code Changes
-
-### Auth.tsx - Password Reset Form (lines 630, 648)
-```tsx
-<Input
-  id="password"
-  type="password"
-  autocomplete="new-password"
-  ...
-/>
-<Input
-  id="confirmPassword"
-  type="password"
-  autocomplete="new-password"
-  ...
-/>
+```text
+1. User submits signup form
+2. supabase.auth.signUp() succeeds → returns data.user
+3. Role insertion to user_roles table succeeds (201 response)
+4. trackSignup('email') is called
+5. toast.success() shows "Account created!"
+6. triggerEntryAnimation() is called
+7. ⚠️ Some async operation throws an exception
+8. catch block catches it and displays generic error
 ```
 
-### Auth.tsx - Main Form (lines 898, 916, 930)
+### Likely Culprits
+
+1. **`trackSignup('email')` throwing silently** — The analytics service calls `console.log` in dev mode which shouldn't throw, but if there's any issue with the internal queue or unexpected state, it could throw.
+
+2. **`triggerEntryAnimation()` timing issue** — This function sets state (`setEnteringCity(true)`) and schedules a navigation after 1000ms. If the component unmounts before the timeout completes (e.g., due to auth state change), it could cause issues.
+
+3. **Auth state listener race condition** — The `useAuth` hook's `onAuthStateChange` listener triggers role fetching via `fetchUserRoles()`. This runs asynchronously with a `setTimeout(..., 0)` wrapper. If the signup flow completes and the component tries to navigate while role fetching is in progress, the component may unmount and cause navigation conflicts.
+
+4. **Zod validation on edge case** — If `validationData` contains unexpected properties after signup succeeds, the catch block would fire with a non-ZodError exception.
+
+---
+
+## Solution
+
+### Fix 1: Wrap post-signup operations in try-catch
+
+Isolate the role insertion and analytics tracking to prevent any failures in these secondary operations from triggering the generic error message.
+
+**File:** `src/pages/Auth.tsx`
+**Lines:** 382-403
+
 ```tsx
-<Input
-  id="fullName"
-  type="text"
-  autocomplete="name"
-  ...
-/>
-<Input
-  id="email"
-  type="email"
-  autocomplete="email"
-  ...
-/>
-<Input
-  id="password"
-  type="password"
-  autocomplete={mode === "signup" ? "new-password" : "current-password"}
-  ...
-/>
+// Current (problematic)
+if (data.user) {
+  const roleToInsert = role === "artist" ? "artist" : "engineer";
+  const { error: roleError } = await supabase
+    .from('user_roles')
+    .insert({ user_id: data.user.id, role: roleToInsert });
+  
+  if (roleError) {
+    console.error('Failed to assign role:', roleError);
+  }
+  
+  // Track signup
+  trackSignup('email');
+}
+
+toast.success("Account created! Entering the city...");
+
+// Entry animation then navigate
+const destination = redirectPath 
+  ? redirectPath 
+  : (role === "engineer" ? "/onboarding/engineer" : "/onboarding/artist");
+triggerEntryAnimation(destination);
 ```
 
-### MobileAuthDialog.tsx (lines 161, 200, 209)
 ```tsx
-<Input
-  type="email"
-  autocomplete="email"
-  ...
-/>
-<Input
-  type="password"
-  autocomplete={authMode === "signup" ? "new-password" : "current-password"}
-  ...
-/>
+// Fixed (wrapped in isolated try-catch)
+if (data.user) {
+  // Perform role assignment in isolated try-catch
+  // This should not block signup success
+  try {
+    const roleToInsert = role === "artist" ? "artist" : "engineer";
+    const { error: roleError } = await supabase
+      .from('user_roles')
+      .insert({ user_id: data.user.id, role: roleToInsert });
+    
+    if (roleError) {
+      console.error('Failed to assign role:', roleError);
+    }
+  } catch (roleErr) {
+    console.error('Role assignment failed:', roleErr);
+  }
+  
+  // Track signup in isolated block
+  try {
+    trackSignup('email');
+  } catch (analyticsErr) {
+    console.warn('Analytics tracking failed:', analyticsErr);
+  }
+}
+
+toast.success("Account created! Entering the city...");
+
+// Entry animation then navigate
+const destination = redirectPath 
+  ? redirectPath 
+  : (role === "engineer" ? "/onboarding/engineer" : "/onboarding/artist");
+triggerEntryAnimation(destination);
+```
+
+### Fix 2: Guard the entry animation timeout
+
+Prevent navigation if component unmounts during the animation delay.
+
+**File:** `src/pages/Auth.tsx`
+**Lines:** 341-346
+
+```tsx
+// Current
+const triggerEntryAnimation = (destination: string) => {
+  setEnteringCity(true);
+  setTimeout(() => {
+    navigate(destination);
+  }, 1000);
+};
+```
+
+```tsx
+// Fixed with cleanup ref
+import { useRef } from "react";
+
+// Inside component:
+const isMounted = useRef(true);
+
+useEffect(() => {
+  isMounted.current = true;
+  return () => {
+    isMounted.current = false;
+  };
+}, []);
+
+const triggerEntryAnimation = (destination: string) => {
+  setEnteringCity(true);
+  setTimeout(() => {
+    if (isMounted.current) {
+      navigate(destination);
+    }
+  }, 1000);
+};
+```
+
+### Fix 3: Add specific error logging to catch block
+
+Improve debugging by logging the actual error before displaying the generic message.
+
+**File:** `src/pages/Auth.tsx`
+**Lines:** 450-455
+
+```tsx
+// Current
+} catch (err) {
+  if (err instanceof z.ZodError) {
+    setError(err.issues[0].message);
+  } else {
+    setError("An unexpected error occurred. Please try again.");
+  }
+}
+```
+
+```tsx
+// Fixed with logging
+} catch (err) {
+  if (err instanceof z.ZodError) {
+    setError(err.issues[0].message);
+  } else {
+    console.error('Auth error:', err);
+    // Check if it's a known error type with a message
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    // Only show generic message if we can't extract a meaningful one
+    if (errorMessage && errorMessage !== '[object Object]') {
+      setError(parseAuthError({ message: errorMessage }));
+    } else {
+      setError("An unexpected error occurred. Please try again.");
+    }
+  }
+}
 ```
 
 ---
 
-## Validation
+## Files to Modify
 
-1. Open browser console on `/auth` page
-2. Verify no "autocomplete" warnings appear
-3. Test password manager autofill works correctly for:
-   - Login flow
-   - Signup flow
-   - Password reset flow
-4. Test on mobile auth dialog as well
+| File | Changes |
+|------|---------|
+| `src/pages/Auth.tsx` | 1. Wrap role insertion + analytics in isolated try-catch blocks<br>2. Add mounted ref guard for animation timeout<br>3. Improve error logging in catch block |
+
+---
+
+## Testing Plan
+
+1. Create a new test account via the signup form
+2. Verify the toast shows "Account created!" without the error message appearing
+3. Verify navigation to onboarding page completes smoothly
+4. Check console for any logged errors that were silently caught
+5. Test on mobile viewport to ensure MobileBottomNav doesn't interfere
+
