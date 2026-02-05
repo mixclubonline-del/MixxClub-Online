@@ -23,6 +23,25 @@ export const MobileBottomNav = () => {
   const { trigger, medium, heavy } = useHaptics();
   const [pressedTab, setPressedTab] = useState<string | null>(null);
 
+   // All useCallback hooks must be declared before any early returns
+   const handleTabPress = useCallback((path: string, isCenter: boolean = false) => {
+     // Stronger haptic for center action button
+     if (isCenter) {
+       heavy();
+     } else {
+       medium();
+     }
+     navigate(path);
+   }, [navigate, medium, heavy]);
+ 
+   const handleTouchStart = useCallback((path: string) => {
+     setPressedTab(path);
+   }, []);
+ 
+   const handleTouchEnd = useCallback(() => {
+     setPressedTab(null);
+   }, []);
+ 
   // Core navigation tabs based on role - 5 tabs max for thumb reach
   const getNavTabs = (): NavTab[] => {
     const notificationTab: NavTab = { 
@@ -70,24 +89,6 @@ export const MobileBottomNav = () => {
   // Don't show on immersive experiences
   const excludedPaths = ['/insider-demo', '/mixxclub-demo', '/city-gates', '/hybrid-daw'];
   if (excludedPaths.some(path => location.pathname.startsWith(path))) return null;
-
-  const handleTabPress = useCallback((path: string, isCenter: boolean = false) => {
-    // Stronger haptic for center action button
-    if (isCenter) {
-      heavy();
-    } else {
-      medium();
-    }
-    navigate(path);
-  }, [navigate, medium, heavy]);
-
-  const handleTouchStart = useCallback((path: string) => {
-    setPressedTab(path);
-  }, []);
-
-  const handleTouchEnd = useCallback(() => {
-    setPressedTab(null);
-  }, []);
 
   return (
     <nav 
