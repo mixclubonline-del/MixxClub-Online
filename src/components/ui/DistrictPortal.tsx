@@ -2,8 +2,9 @@ import { useState, useEffect, ReactNode } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useCityAssets } from '@/hooks/useCityAssets';
 
-// District portal backgrounds
+// Static fallback imports (used when no dynamic asset exists)
 import districtTower from '@/assets/district-tower.jpg';
 import districtRsd from '@/assets/district-rsd.jpg';
 import districtCreator from '@/assets/district-creator.jpg';
@@ -14,20 +15,37 @@ import districtData from '@/assets/district-data.jpg';
 import districtBroadcast from '@/assets/district-broadcast.jpg';
 import cityGates from '@/assets/city-gates.jpg';
 
-export const DISTRICT_PORTALS: Record<string, { image: string; glowColor: string }> = {
-  gates: { image: cityGates, glowColor: '280 65% 60%' },
-  tower: { image: districtTower, glowColor: '262 83% 58%' },
-  rsd: { image: districtRsd, glowColor: '25 95% 53%' },
-  creator: { image: districtCreator, glowColor: '280 65% 60%' },
-  neural: { image: districtNeural, glowColor: '190 95% 50%' },
-  arena: { image: districtArena, glowColor: '350 80% 55%' },
-  commerce: { image: districtCommerce, glowColor: '40 95% 55%' },
-  data: { image: districtData, glowColor: '160 84% 40%' },
-  broadcast: { image: districtBroadcast, glowColor: '250 75% 60%' },
+// Static fallbacks map for when dynamic assets aren't loaded yet
+const STATIC_FALLBACKS: Record<string, string> = {
+  gates: cityGates,
+  tower: districtTower,
+  rsd: districtRsd,
+  creator: districtCreator,
+  neural: districtNeural,
+  arena: districtArena,
+  commerce: districtCommerce,
+  data: districtData,
+  broadcast: districtBroadcast,
 };
 
+// District glow colors
+const DISTRICT_GLOW_COLORS: Record<string, string> = {
+  gates: '280 65% 60%',
+  tower: '262 83% 58%',
+  rsd: '25 95% 53%',
+  creator: '280 65% 60%',
+  neural: '190 95% 50%',
+  arena: '350 80% 55%',
+  commerce: '40 95% 55%',
+  data: '160 84% 40%',
+  broadcast: '250 75% 60%',
+};
+
+// Export for external use
+export const DISTRICT_PORTALS = DISTRICT_GLOW_COLORS;
+
 interface DistrictPortalProps {
-  districtId: keyof typeof DISTRICT_PORTALS;
+  districtId: string;
   children: ReactNode;
   className?: string;
 }
@@ -37,7 +55,13 @@ export function DistrictPortal({ districtId, children, className }: DistrictPort
   const [hasScrolled, setHasScrolled] = useState(false);
   const { scrollY } = useScroll();
   
-  const portal = DISTRICT_PORTALS[districtId];
+  // Get dynamic asset with fallback
+  const { getDistrictPortal, isLoading } = useCityAssets();
+  const dynamicPortal = getDistrictPortal(districtId);
+  
+  // Use dynamic image if available, otherwise fall back to static
+  const portalImage = dynamicPortal.image || STATIC_FALLBACKS[districtId] || '';
+  const glowColor = DISTRICT_GLOW_COLORS[districtId] || '280 65% 60%';
   
   // Parallax effect for the background
   const backgroundY = useTransform(scrollY, [0, 500], [0, 150]);
@@ -68,7 +92,7 @@ export function DistrictPortal({ districtId, children, className }: DistrictPort
           style={{ y: backgroundY }}
         >
           <img
-            src={portal.image}
+            src={portalImage}
             alt=""
             className={cn(
               "w-full h-full object-cover transition-opacity duration-1000",
@@ -84,7 +108,7 @@ export function DistrictPortal({ districtId, children, className }: DistrictPort
               isLoaded ? "opacity-0" : "opacity-100"
             )}
             style={{
-              background: `radial-gradient(circle at center, hsl(${portal.glowColor} / 0.2), hsl(var(--background)))`
+              background: `radial-gradient(circle at center, hsl(${glowColor} / 0.2), hsl(var(--background)))`
             }}
           />
         </motion.div>
@@ -93,7 +117,7 @@ export function DistrictPortal({ districtId, children, className }: DistrictPort
         <div 
           className="absolute inset-0 pointer-events-none"
           style={{
-            background: `radial-gradient(ellipse at 50% 30%, hsl(${portal.glowColor} / 0.15) 0%, transparent 60%)`
+            background: `radial-gradient(ellipse at 50% 30%, hsl(${glowColor} / 0.15) 0%, transparent 60%)`
           }}
         />
         
@@ -114,7 +138,7 @@ export function DistrictPortal({ districtId, children, className }: DistrictPort
                 height: Math.random() * 4 + 1,
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
-                backgroundColor: `hsl(${portal.glowColor} / ${Math.random() * 0.4 + 0.1})`,
+                backgroundColor: `hsl(${glowColor} / ${Math.random() * 0.4 + 0.1})`,
               }}
               animate={{
                 y: [0, -30, 0],
@@ -144,7 +168,7 @@ export function DistrictPortal({ districtId, children, className }: DistrictPort
           >
             <ChevronDown 
               className="w-8 h-8 text-foreground/50"
-              style={{ filter: `drop-shadow(0 0 10px hsl(${portal.glowColor} / 0.5))` }}
+              style={{ filter: `drop-shadow(0 0 10px hsl(${glowColor} / 0.5))` }}
             />
           </motion.div>
         </motion.div>
@@ -160,7 +184,7 @@ export function DistrictPortal({ districtId, children, className }: DistrictPort
             transition={{ delay: 0.5, duration: 0.6 }}
             className="rounded-t-3xl bg-background/80 backdrop-blur-xl border border-border/50 shadow-2xl overflow-hidden"
             style={{
-              boxShadow: `0 -20px 60px -10px hsl(${portal.glowColor} / 0.1)`
+              boxShadow: `0 -20px 60px -10px hsl(${glowColor} / 0.1)`
             }}
           >
             {children}

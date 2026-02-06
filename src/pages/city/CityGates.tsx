@@ -2,12 +2,17 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { VisualHotspot } from '@/components/ui/VisualHotspot';
-import cityGatesImage from '@/assets/city-gates.jpg';
+import { useCityAssets } from '@/hooks/useCityAssets';
+import cityGatesStatic from '@/assets/city-gates.jpg';
 
 export default function CityGates() {
   const navigate = useNavigate();
   const [entering, setEntering] = useState(false);
   const [selectedPath, setSelectedPath] = useState<'artist' | 'engineer' | null>(null);
+  
+  // Dynamic asset with static fallback
+  const { gates: dynamicGates, isLoading } = useCityAssets();
+  const cityGatesImage = dynamicGates || cityGatesStatic;
 
   const handlePathSelect = (role: 'artist' | 'engineer') => {
     setSelectedPath(role);
