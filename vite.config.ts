@@ -14,7 +14,12 @@ export default defineConfig(({ mode }) => ({
     react(), 
     mode === "development" && componentTagger(),
     VitePWA({
-      registerType: 'autoUpdate',
+      // Use 'prompt' to prevent automatic reload loops - users can choose when to update
+      registerType: 'prompt',
+      // Disable SW in development to prevent caching issues during dev
+      devOptions: {
+        enabled: false
+      },
       includeAssets: ['icon-192.png', 'icon-512.png', 'apple-touch-icon.png'],
       manifest: {
         name: 'MixClub - Audio Engineering Platform',
@@ -40,8 +45,13 @@ export default defineConfig(({ mode }) => ({
         ]
       },
       workbox: {
+        // Skip waiting disabled - let users control updates
+        skipWaiting: false,
+        clientsClaim: false,
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         maximumFileSizeToCacheInBytes: 25 * 1024 * 1024, // 25 MB limit for WASM files
+        // Don't cache auth-related routes
+        navigateFallbackDenylist: [/^\/auth/, /^\/api/],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/htvmkylgrrlaydhdbonl\.supabase\.co\/.*/i,
