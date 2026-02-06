@@ -17,6 +17,7 @@
 | **Self-Generating Platform** | Use the product's own tools to generate its assets, demo data, and branding. The platform proves itself by building itself. |
 | **Proprietary Ownership** | Build core technology in-house. Avoid third-party API lock-in for critical capabilities. Own the experience end-to-end. |
 | **Showcase-First Visual Standard** | Every content section leads with imagery. Use the `ShowcaseFeature` pattern as baseline. No text-only feature grids. Alternating layouts, hover stat overlays, tech badges. Elevate or don't ship. See `VISUAL_STANDARDS.md` for full doctrine. |
+| **Culture-First Representation** | All human imagery reflects hip-hop culture authentically — African American, Hispanic, Caribbean communities. Urban aesthetic, real creators, no corporate sterility. If it doesn't look like us, it doesn't ship. |
 
 ---
 
@@ -121,6 +122,9 @@ Before any feature ships:
 - [ ] Implements scroll-triggered animations (whileInView)
 - [ ] Hover interactions reveal stats on desktop
 - [ ] Mobile displays stats by default
+- [ ] Human subjects reflect hip-hop culture (ethnicity, style, setting)
+- [ ] No generic stock-photo aesthetic
+- [ ] Urban/street-elevated styling, not corporate
 
 ---
 

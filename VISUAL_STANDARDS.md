@@ -205,5 +205,78 @@ The standard only moves forward. We never regress.
 
 ---
 
+## Cultural Representation Standards
+
+> **MixxClub represents hip-hop culture authentically.**  
+> Our community is predominantly African American, Hispanic/Latino, Caribbean, and diverse urban creators.  
+> All imagery must reflect this reality.
+
+### Mandatory Demographics
+
+When generating or sourcing images with human subjects:
+
+| Priority | Demographics | Representation |
+|----------|-------------|----------------|
+| Primary | African American | 50%+ of human subjects |
+| Primary | Hispanic/Latino | 25%+ of human subjects |
+| Secondary | Caribbean, African, Mixed | Represented throughout |
+| Inclusive | All ethnicities | Welcome, but not at expense of primary representation |
+
+### Style Requirements
+
+| Element | Standard | Anti-Pattern |
+|---------|----------|--------------|
+| **Clothing** | Streetwear, contemporary urban, authentic creator style | Business casual, corporate attire |
+| **Setting** | Home studios, pro studios, urban environments | Stock-photo offices, generic "creative spaces" |
+| **Expression** | Authentic focus, confidence, real moments | Stock-photo smiles, posed "diversity" |
+| **Age Range** | 18-45 primarily, veterans included | Only young or only old |
+
+### Image Generation Prompt Templates
+
+When using Dream Engine (Gemini 3 Pro Image), always include cultural context:
+
+**For Artist Imagery:**
+```
+young [African American/Hispanic/Black] artist, [specific action], 
+[specific setting: bedroom studio/home setup/professional booth], 
+hip-hop aesthetic, [clothing: streetwear/hoodie/contemporary urban], 
+authentic music creator, cinematic lighting, 16:9
+```
+
+**For Engineer Imagery:**
+```
+[African American/Hispanic/veteran Black] audio engineer, 
+[specific action: at console/adjusting EQ/reviewing mix], 
+professional studio environment, focused expression, 
+contemporary urban professional style, warm studio lighting, 16:9
+```
+
+**For Collaboration Imagery:**
+```
+[diverse pairing: young Black artist + veteran Hispanic engineer], 
+real collaboration moment, [video call/same room/split view], 
+genuine connection, hip-hop production context, 16:9
+```
+
+### Examples of Correct vs. Incorrect
+
+| Correct ✓ | Incorrect ✗ |
+|-----------|-------------|
+| "Young Black producer in hoodie, bedroom studio with LED strips" | "Diverse group of professionals in meeting room" |
+| "Hispanic engineer at SSL console, focused on mix" | "Generic engineer at computer workstation" |
+| "African American artist recording in booth, authentic expression" | "Smiling person holding headphones near microphone" |
+
+### The Cultural Doctrine
+
+```
+This is hip-hop. This is our culture.
+African American, Hispanic, Caribbean, urban creators.
+Streetwear over suits. Real studios over stock offices.
+Authentic expression over posed smiles.
+If it doesn't look like us, it doesn't ship.
+```
+
+---
+
 **Last Updated:** February 2026  
 **Maintained By:** MixxTech Development Team
