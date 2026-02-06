@@ -2,7 +2,7 @@
  * The Green Room
  * 
  * Room 2: Your people are already here.
- * Community presence and role portals.
+ * Community presence and role portals with cinematic imagery.
  */
 
 import { motion } from 'framer-motion';
@@ -11,6 +11,8 @@ import { Link } from 'react-router-dom';
 import { ClubRoom } from '../ClubRoom';
 import { useOnlineUsers } from '@/hooks/useOnlineUsers';
 import { getCharacter } from '@/config/characters';
+import portalArtistImg from '@/assets/portal-artist.jpg';
+import portalEngineerImg from '@/assets/portal-engineer.jpg';
 
 export function GreenRoom() {
   const { totalOnline, onlineEngineers, onlineArtists, isLoading } = useOnlineUsers();
@@ -26,6 +28,7 @@ export function GreenRoom() {
       onlineCount: onlineArtists,
       href: '/for-artists',
       color: 'hsl(142, 76%, 36%)',
+      portalImage: portalArtistImg,
     },
     {
       character: rell,
@@ -34,6 +37,7 @@ export function GreenRoom() {
       onlineCount: onlineEngineers,
       href: '/for-engineers',
       color: 'hsl(var(--secondary))',
+      portalImage: portalEngineerImg,
     },
   ];
 
@@ -69,7 +73,7 @@ export function GreenRoom() {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
         >
-          <div className="flex items-center gap-3 px-6 py-3 rounded-full bg-primary/10 border border-primary/20">
+          <div className="flex items-center gap-3 px-6 py-3 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-sm">
             <motion.span
               className="relative flex h-3 w-3"
               animate={{ scale: [1, 1.2, 1] }}
@@ -84,22 +88,36 @@ export function GreenRoom() {
           </div>
         </motion.div>
 
-        {/* Role Portals */}
+        {/* Role Portals with Image Headers */}
         <div className="grid md:grid-cols-2 gap-8 w-full max-w-4xl mb-12">
           {roles.map((role, index) => (
             <Link to={role.href} key={role.title}>
               <motion.div
-                className="group relative p-8 rounded-2xl bg-muted/20 border border-border/30 hover:border-primary/40 transition-all overflow-hidden"
+                className="group relative rounded-2xl bg-muted/20 border border-border/30 hover:border-primary/40 transition-all overflow-hidden"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.15 }}
                 whileHover={{ y: -4, scale: 1.02 }}
               >
-                {/* Character avatar */}
-                <div className="flex items-center gap-4 mb-6">
+                {/* Portal Image Header */}
+                <div className="relative h-[160px] overflow-hidden">
+                  <img
+                    src={role.portalImage}
+                    alt={`${role.title} portal`}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                  />
+                  <div 
+                    className="absolute inset-0"
+                    style={{
+                      background: 'linear-gradient(to bottom, transparent 30%, hsl(var(--background)) 100%)'
+                    }}
+                  />
+                  
+                  {/* Character avatar overlapping image bottom */}
                   <motion.div
-                    className="w-16 h-16 rounded-xl overflow-hidden"
+                    className="absolute -bottom-6 left-6 w-16 h-16 rounded-xl overflow-hidden border-4 border-background"
                     style={{ boxShadow: `0 0 30px ${role.color}40` }}
                     whileHover={{ scale: 1.05 }}
                   >
@@ -109,25 +127,29 @@ export function GreenRoom() {
                       className="w-full h-full object-cover"
                     />
                   </motion.div>
-                  <div>
+                </div>
+
+                {/* Card content */}
+                <div className="p-8 pt-10">
+                  <div className="mb-4">
                     <h3 className="text-2xl font-bold">{role.title}</h3>
                     <p className="text-muted-foreground">{role.subtitle}</p>
                   </div>
-                </div>
 
-                {/* Quote */}
-                <p className="text-muted-foreground italic mb-6">
-                  "{role.character.sampleQuotes[0]}"
-                </p>
+                  {/* Quote */}
+                  <p className="text-muted-foreground italic mb-6">
+                    "{role.character.sampleQuotes[0]}"
+                  </p>
 
-                {/* Online count + CTA */}
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">
-                    {role.onlineCount} online
-                  </span>
-                  <span className="flex items-center gap-1 text-primary font-medium group-hover:gap-2 transition-all">
-                    Explore <ArrowRight className="w-4 h-4" />
-                  </span>
+                  {/* Online count + CTA */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">
+                      {role.onlineCount} online
+                    </span>
+                    <span className="flex items-center gap-1 text-primary font-medium group-hover:gap-2 transition-all">
+                      Explore <ArrowRight className="w-4 h-4" />
+                    </span>
+                  </div>
                 </div>
 
                 {/* Hover glow */}

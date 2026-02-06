@@ -4,6 +4,8 @@ import { Upload, Brain, Users, Headphones, Sparkles, ArrowRight, CheckCircle2 } 
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { PrimeCharacter } from './PrimeCharacter';
+import artistUploadImg from '@/assets/promo/artist-upload-cloud.jpg';
+import engineerWorkspaceImg from '@/assets/promo/engineer-workspace-hero.jpg';
 
 interface CollaborationJourneyProps {
   amplitude: number;
@@ -28,7 +30,7 @@ export const CollaborationJourney = ({ amplitude, bass, isPlaying, primeImage }:
   useEffect(() => {
     if (!isPlaying) return;
 
-    const stepDuration = 2500; // 2.5s per step
+    const stepDuration = 2500;
     let progress = 0;
     
     const interval = setInterval(() => {
@@ -120,20 +122,20 @@ export const CollaborationJourney = ({ amplitude, bass, isPlaying, primeImage }:
       {/* Step Detail Cards */}
       <div className="grid grid-cols-3 gap-6">
         {/* Artist Column */}
-        <Card className={`p-6 bg-card/50 backdrop-blur border-cyan-500/30 transition-all ${
+        <Card className={`overflow-hidden bg-card/50 backdrop-blur border-cyan-500/30 transition-all ${
           currentStep <= 1 ? 'ring-2 ring-cyan-500/50' : ''
         }`}>
-          <div className="text-center">
-            <motion.div
-              className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center"
-              animate={{ 
-                scale: currentStep === 0 ? [1, 1.1, 1] : 1,
-                rotate: currentStep === 0 && isPlaying ? [0, 5, -5, 0] : 0
-              }}
-              transition={{ duration: 1, repeat: currentStep === 0 ? Infinity : 0 }}
-            >
-              <Upload className="w-8 h-8 text-white" />
-            </motion.div>
+          {/* Image Header */}
+          <div className="relative h-[120px] overflow-hidden">
+            <img
+              src={artistUploadImg}
+              alt="Artist uploading"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-card/90" />
+          </div>
+
+          <div className="p-6 text-center">
             <h3 className="font-bold text-lg mb-2">Artist</h3>
             <p className="text-sm text-muted-foreground">Uploads raw track with vision notes</p>
             
@@ -209,20 +211,20 @@ export const CollaborationJourney = ({ amplitude, bass, isPlaying, primeImage }:
         </Card>
 
         {/* Engineer Column */}
-        <Card className={`p-6 bg-card/50 backdrop-blur border-purple-500/30 transition-all ${
+        <Card className={`overflow-hidden bg-card/50 backdrop-blur border-purple-500/30 transition-all ${
           currentStep >= 3 ? 'ring-2 ring-purple-500/50' : ''
         }`}>
-          <div className="text-center">
-            <motion.div
-              className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center"
-              animate={{ 
-                scale: currentStep >= 3 ? [1, 1.1, 1] : 1,
-                rotate: currentStep >= 3 && isPlaying ? [0, -5, 5, 0] : 0
-              }}
-              transition={{ duration: 1, repeat: currentStep >= 3 ? Infinity : 0 }}
-            >
-              <Headphones className="w-8 h-8 text-white" />
-            </motion.div>
+          {/* Image Header */}
+          <div className="relative h-[120px] overflow-hidden">
+            <img
+              src={engineerWorkspaceImg}
+              alt="Engineer workspace"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-card/90" />
+          </div>
+
+          <div className="p-6 text-center">
             <h3 className="font-bold text-lg mb-2">Engineer</h3>
             <p className="text-sm text-muted-foreground">Mixes, masters, delivers professional sound</p>
             
@@ -253,7 +255,7 @@ export const CollaborationJourney = ({ amplitude, bass, isPlaying, primeImage }:
           animate={{ opacity: 1, y: 0 }}
         >
           <motion.div
-            className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/50"
+            className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/50 backdrop-blur-sm"
             animate={{ scale: [1, 1.02, 1] }}
             transition={{ duration: 1, repeat: Infinity }}
           >
