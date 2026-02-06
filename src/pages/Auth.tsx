@@ -345,7 +345,11 @@ const Auth = () => {
     }
   };
 
-  const handleOAuthSignIn = async (provider: 'google' | 'apple') => {
+  const handleOAuthSignIn = async (e: React.MouseEvent, provider: 'google' | 'apple') => {
+    // Prevent any default behavior and stop propagation
+    e.preventDefault();
+    e.stopPropagation();
+    
     setError("");
     setLoading(true);
 
@@ -749,6 +753,7 @@ const Auth = () => {
                   placeholder="Enter new password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  onKeyDownCapture={(e) => e.stopPropagation()}
                   className="bg-white/5 border-white/10 focus:border-primary/50 text-white placeholder:text-white/30"
                   required
                   minLength={6}
@@ -767,6 +772,7 @@ const Auth = () => {
                   placeholder="Confirm new password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
+                  onKeyDownCapture={(e) => e.stopPropagation()}
                   className="bg-white/5 border-white/10 focus:border-primary/50 text-white placeholder:text-white/30"
                   required
                   minLength={6}
@@ -893,7 +899,8 @@ const Auth = () => {
               type="button"
               variant="outline"
               className="w-full border-white/10 hover:bg-white/10 hover:border-white/20 text-white bg-white/5"
-              onClick={() => handleOAuthSignIn('google')}
+              onClick={(e) => handleOAuthSignIn(e, 'google')}
+              onKeyDown={(e) => e.stopPropagation()}
               disabled={loading}
             >
               <GoogleIcon />
@@ -903,7 +910,8 @@ const Auth = () => {
               type="button"
               variant="outline"
               className="w-full border-white/10 hover:bg-white/10 hover:border-white/20 text-white bg-white/5"
-              onClick={() => handleOAuthSignIn('apple')}
+              onClick={(e) => handleOAuthSignIn(e, 'apple')}
+              onKeyDown={(e) => e.stopPropagation()}
               disabled={loading}
             >
               <Apple className="w-5 h-5" />
@@ -941,6 +949,7 @@ const Auth = () => {
                       placeholder="Enter your email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
+                      onKeyDownCapture={(e) => e.stopPropagation()}
                       className="bg-white/5 border-white/10 focus:border-primary/50 text-white placeholder:text-white/30"
                       required
                       autoComplete="email"
@@ -1020,6 +1029,7 @@ const Auth = () => {
                         placeholder="Enter your full name"
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
+                        onKeyDownCapture={(e) => e.stopPropagation()}
                         className="bg-white/5 border-white/10 focus:border-primary/50 text-white placeholder:text-white/30"
                         required
                         autoComplete="name"
@@ -1039,6 +1049,7 @@ const Auth = () => {
                     placeholder="Enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    onKeyDownCapture={(e) => e.stopPropagation()}
                     className="bg-white/5 border-white/10 focus:border-primary/50 text-white placeholder:text-white/30"
                    required
                    autoComplete="email"
@@ -1053,6 +1064,7 @@ const Auth = () => {
                     placeholder="Enter your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    onKeyDownCapture={(e) => e.stopPropagation()}
                     className="bg-white/5 border-white/10 focus:border-primary/50 text-white placeholder:text-white/30"
                     required
                     autoComplete={mode === "signup" ? "new-password" : "current-password"}
