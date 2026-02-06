@@ -13,7 +13,7 @@ import { useNavigate } from 'react-router-dom';
  import { SceneStage } from '@/components/scene/SceneStage';
 import { StudioHallway } from '@/components/scene/StudioHallway';
 import { InsiderDemoExperience } from '@/components/demo/InsiderDemoExperience';
-import { InformationScene } from '@/components/home/InformationScene';
+import { ClubScene } from '@/components/home/ClubScene';
 
 export function SceneFlow() {
    const scene = useSceneFlowStore((s) => s.scene);
@@ -30,15 +30,21 @@ export function SceneFlow() {
          return;
        }
 
-       if (e.key === 'Enter' && scene === 'HALLWAY') {
-         e.preventDefault();
-         go('DEMO');
-       }
-       
-       if (e.key === 'Escape') {
-         e.preventDefault();
-         back();
-       }
+        if (e.key === 'Enter' && scene === 'HALLWAY') {
+          e.preventDefault();
+          go('DEMO');
+        }
+        
+        // Press 'I' to skip to info (from Hallway)
+        if ((e.key === 'i' || e.key === 'I') && scene === 'HALLWAY') {
+          e.preventDefault();
+          go('INFO');
+        }
+        
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          back();
+        }
      };
 
      window.addEventListener('keydown', onKeyDown);
@@ -46,6 +52,7 @@ export function SceneFlow() {
    }, [scene, go, back]);
  
    const handleEnterDemo = useCallback(() => go('DEMO'), [go]);
+   const handleSkipToInfo = useCallback(() => go('INFO'), [go]);
    const handleLearnMore = useCallback(() => go('INFO'), [go]);
    const handleBackToHallway = useCallback(() => go('HALLWAY'), [go]);
    const handleBackToDemo = useCallback(() => go('DEMO'), [go]);
@@ -58,8 +65,8 @@ export function SceneFlow() {
   return (
      <SceneStage>
        {scene === 'HALLWAY' && (
-         <StudioHallway fullscreen onEnter={handleEnterDemo} />
-       )}
+          <StudioHallway fullscreen onEnter={handleEnterDemo} onSkipToInfo={handleSkipToInfo} />
+        )}
  
        {scene === 'DEMO' && (
          <InsiderDemoExperience 
@@ -70,9 +77,9 @@ export function SceneFlow() {
          />
        )}
  
-       {scene === 'INFO' && (
-         <InformationScene onBack={handleBackToDemo} />
-       )}
+        {scene === 'INFO' && (
+          <ClubScene onBack={handleBackToDemo} />
+        )}
      </SceneStage>
   );
 }

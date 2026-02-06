@@ -11,7 +11,7 @@
  * - On Stage: Featured glow (you ARE the energy)
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useStudios, useFeaturedSession, useSceneSystemInit } from '@/hooks/useSceneSystem';
@@ -40,10 +40,12 @@ const DOOR_POSITIONS = [
 interface StudioHallwayProps {
   fullscreen?: boolean;
   onEnter?: () => void;
+  onSkipToInfo?: () => void;
 }
 
-export function StudioHallway({ fullscreen = false, onEnter }: StudioHallwayProps) {
+export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: StudioHallwayProps) {
   const navigate = useNavigate();
+  const [showSkipHint, setShowSkipHint] = useState(false);
   const { user } = useAuth();
   const { isConnected } = useSceneSystemInit();
   const { studios, activeCount } = useStudios();
@@ -52,6 +54,13 @@ export function StudioHallway({ fullscreen = false, onEnter }: StudioHallwayProp
   const [imageError, setImageError] = useState(false);
   
   const hasActiveSessions = activeCount > 0;
+  
+  // Show skip hint after 3 seconds idle in fullscreen mode
+  useEffect(() => {
+    if (!fullscreen || !onSkipToInfo) return;
+    const timer = setTimeout(() => setShowSkipHint(true), 3000);
+    return () => clearTimeout(timer);
+  }, [fullscreen, onSkipToInfo]);
   
   // Check if current user has a featured session (On Stage gets the glow)
   const userFeaturedRoomId = useMemo(() => {
@@ -283,6 +292,21 @@ export function StudioHallway({ fullscreen = false, onEnter }: StudioHallwayProp
             Sign in to see who's creating
           </p>
         </motion.div>
+      )}
+
+      {/* Skip to Info hint - appears after 3s in fullscreen */}
+      {fullscreen && showSkipHint && onSkipToInfo && (
+        <motion.button
+          onClick={onSkipToInfo}
+          className="absolute top-6 right-6 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/40 backdrop-blur-sm text-muted-foreground/60 hover:text-muted-foreground hover:bg-background/60 transition-all text-xs"
+          initial={{ opacity: 0, x: 10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <span>Already know what you need?</span>
+          <span className="text-primary">→</span>
+          <span className="hidden sm:inline ml-1 px-1.5 py-0.5 rounded bg-muted/50 text-[10px] font-mono">I</span>
+        </motion.button>
       )}
     </section>
   );

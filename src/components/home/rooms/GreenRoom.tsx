@@ -1,0 +1,156 @@
+/**
+ * The Green Room
+ * 
+ * Room 2: Your people are already here.
+ * Community presence and role portals.
+ */
+
+import { motion } from 'framer-motion';
+import { Users, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ClubRoom } from '../ClubRoom';
+import { useOnlineUsers } from '@/hooks/useOnlineUsers';
+import { getCharacter } from '@/config/characters';
+
+export function GreenRoom() {
+  const { totalOnline, onlineEngineers, onlineArtists, isLoading } = useOnlineUsers();
+  
+  const jax = getCharacter('jax');
+  const rell = getCharacter('rell');
+
+  const roles = [
+    {
+      character: jax,
+      title: 'Artist',
+      subtitle: 'Creator, Musician',
+      onlineCount: onlineArtists,
+      href: '/for-artists',
+      color: 'hsl(142, 76%, 36%)',
+    },
+    {
+      character: rell,
+      title: 'Engineer', 
+      subtitle: 'Mixer, Producer',
+      onlineCount: onlineEngineers,
+      href: '/for-engineers',
+      color: 'hsl(var(--secondary))',
+    },
+  ];
+
+  return (
+    <ClubRoom id="green" className="bg-background">
+      <div className="container px-6 py-20 flex flex-col items-center justify-center min-h-[100svh]">
+        {/* Header */}
+        <motion.div
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <Users className="w-5 h-5 text-primary" />
+            <span className="text-sm uppercase tracking-widest text-primary/80">
+              The Green Room
+            </span>
+          </div>
+
+          <h2 className="text-4xl md:text-6xl font-black mb-4">
+            Your people are{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
+              already here.
+            </span>
+          </h2>
+        </motion.div>
+
+        {/* Live counter */}
+        <motion.div
+          className="mb-16"
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+        >
+          <div className="flex items-center gap-3 px-6 py-3 rounded-full bg-primary/10 border border-primary/20">
+            <motion.span
+              className="relative flex h-3 w-3"
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            >
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-primary" />
+            </motion.span>
+            <span className="text-lg font-semibold text-primary">
+              {isLoading ? '...' : totalOnline.toLocaleString()} creators online now
+            </span>
+          </div>
+        </motion.div>
+
+        {/* Role Portals */}
+        <div className="grid md:grid-cols-2 gap-8 w-full max-w-4xl mb-12">
+          {roles.map((role, index) => (
+            <Link to={role.href} key={role.title}>
+              <motion.div
+                className="group relative p-8 rounded-2xl bg-muted/20 border border-border/30 hover:border-primary/40 transition-all overflow-hidden"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.15 }}
+                whileHover={{ y: -4, scale: 1.02 }}
+              >
+                {/* Character avatar */}
+                <div className="flex items-center gap-4 mb-6">
+                  <motion.div
+                    className="w-16 h-16 rounded-xl overflow-hidden"
+                    style={{ boxShadow: `0 0 30px ${role.color}40` }}
+                    whileHover={{ scale: 1.05 }}
+                  >
+                    <img
+                      src={role.character.avatarPath}
+                      alt={role.character.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </motion.div>
+                  <div>
+                    <h3 className="text-2xl font-bold">{role.title}</h3>
+                    <p className="text-muted-foreground">{role.subtitle}</p>
+                  </div>
+                </div>
+
+                {/* Quote */}
+                <p className="text-muted-foreground italic mb-6">
+                  "{role.character.sampleQuotes[0]}"
+                </p>
+
+                {/* Online count + CTA */}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">
+                    {role.onlineCount} online
+                  </span>
+                  <span className="flex items-center gap-1 text-primary font-medium group-hover:gap-2 transition-all">
+                    Explore <ArrowRight className="w-4 h-4" />
+                  </span>
+                </div>
+
+                {/* Hover glow */}
+                <div 
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+                  style={{ background: `radial-gradient(circle at center, ${role.color}10 0%, transparent 70%)` }}
+                />
+              </motion.div>
+            </Link>
+          ))}
+        </div>
+
+        {/* Connection tagline */}
+        <motion.p
+          className="text-lg text-muted-foreground text-center"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+        >
+          Brooklyn ↔ Lagos.{' '}
+          <span className="text-primary">Connected in 3 minutes.</span>
+        </motion.p>
+      </div>
+    </ClubRoom>
+  );
+}
