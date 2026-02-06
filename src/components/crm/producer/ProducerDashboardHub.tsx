@@ -4,9 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Disc3, TrendingUp, DollarSign, Users } from 'lucide-react';
 import { useProducerRevenueStreams } from '@/hooks/useProducerRevenueStreams';
+import { usePersonalUnlockables } from '@/hooks/useUnlockables';
+import { PersonalUnlocksWidget } from '@/components/unlock/PersonalUnlocksWidget';
 
 export const ProducerDashboardHub = () => {
   const { analytics, loading } = useProducerRevenueStreams();
+  const { data: personalUnlockables, isLoading: unlockablesLoading } = usePersonalUnlockables('producer');
   
   const hasData = !loading && analytics && (analytics.totalBeatsSold > 0 || analytics.totalRevenue > 0);
 
@@ -63,6 +66,7 @@ export const ProducerDashboardHub = () => {
 
   return (
     <div className="space-y-6">
+      {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, idx) => (
           <motion.div
@@ -97,6 +101,14 @@ export const ProducerDashboardHub = () => {
           </motion.div>
         ))}
       </div>
+
+      {/* Beat Empire Progress */}
+      <PersonalUnlocksWidget
+        unlockables={personalUnlockables?.unlockables || []}
+        title="Beat Empire Progress"
+        description="Your journey to producer greatness"
+        isLoading={unlockablesLoading}
+      />
     </div>
   );
 };
