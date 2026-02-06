@@ -1,11 +1,10 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Home, 
   Users, 
   Briefcase, 
   Headphones, 
-  DollarSign, 
   TrendingUp, 
   Target, 
   MessageSquare,
@@ -14,15 +13,28 @@ import {
   Music,
   ShoppingBag,
   Sparkles,
-  Search
+  Search,
+  Disc3,
+  Compass,
+  Star,
+  Coins,
+  Heart,
+  type LucideIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CRMHubModule } from './CRMHubModule';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 
+interface HubDefinition {
+  id: string;
+  label: string;
+  icon: LucideIcon;
+  description: string;
+}
+
 interface CRMHubGridProps {
-   userType: 'artist' | 'engineer' | 'producer' | 'fan';
+  userType: 'artist' | 'engineer' | 'producer' | 'fan';
   onHubSelect: (hubId: string) => void;
   quickActions: Array<{
     label: string;
@@ -32,22 +44,56 @@ interface CRMHubGridProps {
   }>;
 }
 
-const HUB_DEFINITIONS = [
-  { id: 'dashboard', label: 'Dashboard', icon: Home, description: 'Overview & momentum' },
-  { id: 'clients', label: 'Clients', icon: Users, description: 'Contact management' },
-  { id: 'matches', label: 'AI Matches', icon: Sparkles, description: 'Smart connections' },
-  { id: 'sessions', label: 'Sessions', icon: Headphones, description: 'Portfolio & history' },
-  { id: 'opportunities', label: 'Opportunities', icon: Search, description: 'Gig marketplace' },
-  { id: 'active-work', label: 'Active Work', icon: Briefcase, description: 'Current projects' },
-  { id: 'revenue', label: 'Revenue', icon: TrendingUp, description: 'Analytics & streams' },
-  { id: 'community', label: 'Community', icon: Users, description: 'Network & grow' },
-  { id: 'growth', label: 'Growth', icon: Target, description: 'Career coaching' },
-  { id: 'messages', label: 'Messages', icon: MessageSquare, description: 'Communications' },
-  { id: 'earnings', label: 'Earnings', icon: Handshake, description: 'Collaborative pay' },
-  { id: 'music', label: 'Music', icon: Music, description: 'Your catalog' },
-  { id: 'store', label: 'Store', icon: ShoppingBag, description: 'Merch & products' },
-  { id: 'profile', label: 'Brand Hub', icon: User, description: 'Your identity' },
-];
+// Role-specific hub definitions
+const ROLE_HUB_DEFINITIONS: Record<string, HubDefinition[]> = {
+  artist: [
+    { id: 'dashboard', label: 'Dashboard', icon: Home, description: 'Overview & momentum' },
+    { id: 'clients', label: 'Clients', icon: Users, description: 'Contact management' },
+    { id: 'matches', label: 'AI Matches', icon: Sparkles, description: 'Smart connections' },
+    { id: 'sessions', label: 'Sessions', icon: Headphones, description: 'Portfolio & history' },
+    { id: 'opportunities', label: 'Opportunities', icon: Search, description: 'Gig marketplace' },
+    { id: 'active-work', label: 'Active Work', icon: Briefcase, description: 'Current projects' },
+    { id: 'revenue', label: 'Revenue', icon: TrendingUp, description: 'Analytics & streams' },
+    { id: 'community', label: 'Community', icon: Users, description: 'Network & grow' },
+    { id: 'growth', label: 'Growth', icon: Target, description: 'Career coaching' },
+    { id: 'messages', label: 'Messages', icon: MessageSquare, description: 'Communications' },
+    { id: 'earnings', label: 'Earnings', icon: Handshake, description: 'Collaborative pay' },
+    { id: 'music', label: 'Music', icon: Music, description: 'Your catalog' },
+    { id: 'store', label: 'Store', icon: ShoppingBag, description: 'Merch & products' },
+    { id: 'profile', label: 'Brand Hub', icon: User, description: 'Your identity' },
+  ],
+  engineer: [
+    { id: 'dashboard', label: 'Dashboard', icon: Home, description: 'Business control center' },
+    { id: 'clients', label: 'Clients', icon: Users, description: 'Contact management' },
+    { id: 'matches', label: 'AI Matches', icon: Sparkles, description: 'Smart connections' },
+    { id: 'sessions', label: 'Sessions', icon: Headphones, description: 'Portfolio & history' },
+    { id: 'opportunities', label: 'Opportunities', icon: Search, description: 'Gig marketplace' },
+    { id: 'active-work', label: 'Active Work', icon: Briefcase, description: 'Current projects' },
+    { id: 'revenue', label: 'Revenue', icon: TrendingUp, description: 'Earnings analytics' },
+    { id: 'community', label: 'Community', icon: Users, description: 'Engineer network' },
+    { id: 'growth', label: 'Growth', icon: Target, description: 'Career coaching' },
+    { id: 'messages', label: 'Messages', icon: MessageSquare, description: 'Communications' },
+    { id: 'earnings', label: 'Earnings', icon: Handshake, description: 'Collaborative pay' },
+    { id: 'profile', label: 'Brand Hub', icon: User, description: 'Your identity' },
+  ],
+  producer: [
+    { id: 'dashboard', label: 'Dashboard', icon: Home, description: 'Your beat empire' },
+    { id: 'catalog', label: 'Catalog', icon: Disc3, description: 'Your beat library' },
+    { id: 'sales', label: 'Sales', icon: ShoppingBag, description: 'Transaction history' },
+    { id: 'collabs', label: 'Collabs', icon: Users, description: 'Artist connections' },
+    { id: 'revenue', label: 'Revenue', icon: TrendingUp, description: 'Earnings analytics' },
+    { id: 'community', label: 'Community', icon: Users, description: 'Producer network' },
+    { id: 'profile', label: 'Brand Hub', icon: User, description: 'Your identity' },
+  ],
+  fan: [
+    { id: 'feed', label: 'Feed', icon: Compass, description: 'Discover new music' },
+    { id: 'day1s', label: 'Day 1s', icon: Star, description: 'Your early supports' },
+    { id: 'missions', label: 'Missions', icon: Target, description: 'Earn MixxCoinz' },
+    { id: 'wallet', label: 'Wallet', icon: Coins, description: 'Your rewards' },
+    { id: 'curator', label: 'Curator', icon: Sparkles, description: 'Playlist power' },
+    { id: 'favorites', label: 'Favorites', icon: Heart, description: 'Saved music' },
+  ],
+};
 
 export const CRMHubGrid: React.FC<CRMHubGridProps> = ({
   userType,
@@ -55,6 +101,11 @@ export const CRMHubGrid: React.FC<CRMHubGridProps> = ({
   quickActions,
 }) => {
   const isMobile = useIsMobile();
+  
+  // Get role-specific hubs
+  const hubs = useMemo(() => {
+    return ROLE_HUB_DEFINITIONS[userType] || ROLE_HUB_DEFINITIONS.artist;
+  }, [userType]);
 
   return (
     <div className="space-y-8">
@@ -99,7 +150,7 @@ export const CRMHubGrid: React.FC<CRMHubGridProps> = ({
         "grid gap-4",
         isMobile ? "grid-cols-2" : "grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
       )}>
-        {HUB_DEFINITIONS.map((hub, index) => (
+        {hubs.map((hub, index) => (
           <CRMHubModule
             key={hub.id}
             hubId={hub.id}

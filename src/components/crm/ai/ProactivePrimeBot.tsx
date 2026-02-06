@@ -1,31 +1,26 @@
 /**
- * ProactivePrimeBot - AI assistant with proactive nudges and daily briefings
- * Provides contextual help without waiting for user questions
+ * ProactivePrimeBot - Role-specific AI guide with proactive nudges and daily briefings
+ * Uses Jax (Artist), Rell (Engineer), Tempo (Producer), or Nova (Fan) based on role
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { 
-  Sparkles, 
   X, 
   Bell, 
   TrendingUp, 
-  Music, 
-  DollarSign, 
-  Users,
   Trophy,
-  Flame,
   MessageCircle,
   ArrowRight,
   Volume2,
-  VolumeX
+  VolumeX,
+  Sparkles
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import mixclub3DLogo from '@/assets/mixclub-3d-logo.png';
+import { getCharacter, getRandomQuote, ENTRY_POINT_CHARACTERS, type CharacterId } from '@/config/characters';
 
 interface ProactiveInsight {
   id: string;
@@ -53,6 +48,18 @@ export const ProactivePrimeBot = ({ userType, onNavigate }: ProactivePrimeBotPro
   const [isDismissed, setIsDismissed] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [hasShownBriefing, setHasShownBriefing] = useState(false);
+  
+  // Get role-specific AI guide
+  const guide = useMemo(() => {
+    const characterId = ENTRY_POINT_CHARACTERS[userType as keyof typeof ENTRY_POINT_CHARACTERS] || 'jax';
+    return getCharacter(characterId);
+  }, [userType]);
+  
+  // Get a personalized quote from the guide
+  const guideQuote = useMemo(() => {
+    const characterId = ENTRY_POINT_CHARACTERS[userType as keyof typeof ENTRY_POINT_CHARACTERS] || 'jax';
+    return getRandomQuote(characterId);
+  }, [userType]);
 
   // Check last login and activity
   useEffect(() => {
@@ -301,17 +308,25 @@ export const ProactivePrimeBot = ({ userType, onNavigate }: ProactivePrimeBotPro
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
           className="fixed bottom-24 right-6 z-50 max-w-sm"
         >
-          <Card className={`bg-gradient-to-br ${getInsightGradient(currentInsight.type)} backdrop-blur-xl border shadow-2xl overflow-hidden`}>
+          <Card 
+            className="backdrop-blur-xl border shadow-2xl overflow-hidden"
+            style={{
+              background: `linear-gradient(135deg, ${guide.accentColor}20, ${guide.accentColor}10)`,
+              borderColor: `${guide.accentColor}40`
+            }}
+          >
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-border/30">
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-accent flex items-center justify-center">
+                  <div 
+                    className="w-10 h-10 rounded-full overflow-hidden"
+                    style={{ boxShadow: `0 0 12px ${guide.accentColor}` }}
+                  >
                     <img 
-                      src={mixclub3DLogo} 
-                      alt="Prime" 
-                      className="w-6 h-4 object-contain"
-                      style={{ filter: 'drop-shadow(0 0 4px hsl(var(--primary)))' }}
+                      src={guide.avatarPath} 
+                      alt={guide.name} 
+                      className="w-full h-full object-cover"
                     />
                   </div>
                   <motion.div
@@ -321,8 +336,8 @@ export const ProactivePrimeBot = ({ userType, onNavigate }: ProactivePrimeBotPro
                   />
                 </div>
                 <div>
-                  <p className="text-sm font-bold">Prime 4.0</p>
-                  <p className="text-xs text-muted-foreground">Proactive Mode</p>
+                  <p className="text-sm font-bold">{guide.name}</p>
+                  <p className="text-xs text-muted-foreground">{guide.role}</p>
                 </div>
               </div>
               <div className="flex items-center gap-1">
