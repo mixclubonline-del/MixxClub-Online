@@ -154,39 +154,74 @@ async function fetchUnlockablesWithProgress(): Promise<UnlockablesData> {
   };
 }
 
+// Helper to map raw unlockable data to Unlockable type
+function mapToUnlockable(u: Record<string, unknown>, currentValue: number): Unlockable {
+  const targetValue = Number(u.target_value) || 1;
+  const progressPercentage = Math.min(Math.round((currentValue / targetValue) * 100), 100);
+  
+  return {
+    id: String(u.id),
+    unlock_type: u.unlock_type as Unlockable['unlock_type'],
+    name: String(u.name),
+    description: u.description as string | null,
+    icon_name: String(u.icon_name || 'star'),
+    metric_type: String(u.metric_type),
+    target_value: targetValue,
+    current_value: currentValue,
+    progress_percentage: progressPercentage,
+    is_unlocked: Boolean(u.is_unlocked),
+    unlocked_at: u.unlocked_at as string | null,
+    reward_description: u.reward_description as string | null,
+    tier: Number(u.tier),
+    ai_reasoning: u.ai_reasoning as string | null,
+    created_by: String(u.created_by || 'system'),
+  };
+}
+
 async function fetchPersonalProgress(userId: string, role: 'producer' | 'fan'): Promise<PersonalProgressResult> {
   if (role === 'producer') {
-    const beatsResult = await supabase.from('producer_beats').select('id', { count: 'exact', head: true }).eq('user_id', userId);
-    const salesResult = await supabase.from('beat_purchases').select('id', { count: 'exact', head: true }).eq('seller_id', userId);
-    const unlockablesResult = await supabase.from('unlockables').select('*').eq('unlock_type', 'producer').order('tier');
+    // Break query chains to avoid deep type instantiation
+    const beatsQuery = supabase.from('producer_beats').select('id', { count: 'exact', head: true });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const beatsResult = await (beatsQuery as any).eq('user_id', userId);
+    
+    const salesQuery = supabase.from('beat_purchases').select('id', { count: 'exact', head: true });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const salesResult = await (salesQuery as any).eq('seller_id', userId);
+    
+    const unlockQuery = supabase.from('unlockables').select('*').eq('unlock_type', 'producer');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const unlockablesResult = await (unlockQuery as any).order('tier');
 
     const metrics: Record<string, number> = {
       beats_uploaded: beatsResult.count || 0,
       beats_sold: salesResult.count || 0,
     };
 
-    const unlockables = (unlockablesResult.data || []).map((u): Unlockable => {
-      const currentValue = metrics[u.metric_type] || 0;
-      const progressPercentage = Math.min(Math.round((currentValue / u.target_value) * 100), 100);
-      
-      return {
-        ...u,
-        current_value: currentValue,
-        progress_percentage: progressPercentage,
-      } as Unlockable;
+    const rawData = (unlockablesResult.data || []) as Record<string, unknown>[];
+    const unlockables = rawData.map((u) => {
+      const metricType = String(u.metric_type);
+      const currentValue = metrics[metricType] || 0;
+      return mapToUnlockable(u, currentValue);
     });
 
     return { metrics, unlockables };
   }
 
-  // Fan role
-  const [fanStatsResult, day1sResult, unlockablesResult] = await Promise.all([
-    supabase.from('fan_stats').select('*').eq('user_id', userId).limit(1),
-    supabase.from('artist_day1s').select('id', { count: 'exact', head: true }).eq('fan_id', userId),
-    supabase.from('unlockables').select('*').eq('unlock_type', 'fan').order('tier', { ascending: true }),
-  ]);
+  // Fan role - break query chains
+  const fanStatsQuery = supabase.from('fan_stats').select('*').eq('user_id', userId);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const fanStatsResult = await (fanStatsQuery as any).limit(1);
+  
+  const day1sQuery = supabase.from('artist_day1s').select('id', { count: 'exact', head: true });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const day1sResult = await (day1sQuery as any).eq('fan_id', userId);
+  
+  const unlockQuery = supabase.from('unlockables').select('*').eq('unlock_type', 'fan');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const unlockablesResult = await (unlockQuery as any).order('tier', { ascending: true });
 
-  const fanStatsData = fanStatsResult.data?.[0];
+  const fanStatsData = fanStatsResult.data?.[0] as Record<string, unknown> | undefined;
   const metrics: Record<string, number> = {
     day1_badges: day1sResult.count || 0,
     engagement_streak: Number(fanStatsData?.engagement_streak) || 0,
@@ -195,16 +230,13 @@ async function fetchPersonalProgress(userId: string, role: 'producer' | 'fan'): 
     mixxcoinz_earned: Number(fanStatsData?.mixxcoinz_earned) || 0,
   };
 
-  const unlockables = (unlockablesResult.data || []).map((u): Unlockable => {
-    const currentValue = metrics[u.metric_type] || 0;
-    const progressPercentage = Math.min(Math.round((currentValue / u.target_value) * 100), 100);
-    
-    return {
-      ...u,
-      current_value: currentValue,
-      progress_percentage: progressPercentage,
-    } as Unlockable;
+  const rawData = (unlockablesResult.data || []) as Record<string, unknown>[];
+  const unlockables = rawData.map((u) => {
+    const metricType = String(u.metric_type);
+    const currentValue = metrics[metricType] || 0;
+    return mapToUnlockable(u, currentValue);
   });
+
 
   return { metrics, unlockables };
 }
