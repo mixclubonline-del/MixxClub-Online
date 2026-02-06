@@ -16,7 +16,7 @@
    }
  
    return (
-     <div className="space-y-6">
+      <div className="space-y-8">
        <WalletBalance />
        <TierProgressCard totalEarned={wallet?.total_earned || 0} />
        <SpendingDestinations balance={totalBalance} />

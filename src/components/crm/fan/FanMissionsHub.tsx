@@ -15,9 +15,9 @@ export const FanMissionsHub = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <StreakTracker {...streakData} />
-      
+
       {/* Supporter Journey Progress */}
       <PersonalUnlocksWidget
         unlockables={personalUnlockables?.unlockables || []}
