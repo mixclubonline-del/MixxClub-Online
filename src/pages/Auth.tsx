@@ -460,10 +460,10 @@ const Auth = () => {
           // Perform role assignment in isolated try-catch
           // This should not block signup success
           try {
-            const roleToInsert = role === "artist" ? "artist" : "engineer";
+            // Support all 4 roles directly
             const { error: roleError } = await supabase
               .from('user_roles')
-              .insert({ user_id: data.user.id, role: roleToInsert });
+              .insert({ user_id: data.user.id, role });
             
             if (roleError) {
               console.error('Failed to assign role:', roleError);

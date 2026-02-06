@@ -40,6 +40,7 @@ import EngineerOnboarding from "@/pages/EngineerOnboarding";
 import HybridOnboarding from "@/pages/HybridOnboarding";
 import ProducerOnboarding from "@/pages/ProducerOnboarding";
 import FanOnboarding from "@/pages/FanOnboarding";
+import RoleSelection from "@/pages/RoleSelection";
 
 // Service showcase pages
 import MixingShowcase from "@/pages/MixingShowcase";
@@ -154,7 +155,8 @@ export const appRoutes = (
     <Route path="/jobs" element={<AppLayout><JobBoard /></AppLayout>} />
     <Route path="/messaging-test" element={<MessagingTest />} />
 
-    {/* Onboarding */}
+    {/* Role Selection & Onboarding */}
+    <Route path="/select-role" element={<ProtectedRoute><RoleSelection /></ProtectedRoute>} />
     <Route path="/onboarding/artist" element={<ProtectedRoute><ArtistOnboarding /></ProtectedRoute>} />
     <Route path="/onboarding/engineer" element={<ProtectedRoute><EngineerOnboarding /></ProtectedRoute>} />
     <Route path="/onboarding/hybrid" element={<ProtectedRoute><HybridOnboarding /></ProtectedRoute>} />
