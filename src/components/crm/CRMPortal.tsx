@@ -9,6 +9,8 @@ import { CRMHubGrid } from './CRMHubGrid';
 import { CRMActivePanel } from './CRMActivePanel';
 import { CRMStatusBar } from './CRMStatusBar';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { AdminRolePreview } from '@/components/admin/AdminRolePreview';
+import { useAdminPreview } from '@/stores/useAdminPreview';
 
 // Import backgrounds
 import artistBg from '@/assets/crm-artist-bg.jpg';
@@ -45,6 +47,7 @@ export const CRMPortal: React.FC<CRMPortalProps> = ({
 }) => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { isPreviewMode } = useAdminPreview();
   const [isHubGridVisible, setIsHubGridVisible] = useState(activeTab === 'dashboard' || activeTab === '');
   
    // Map userType to background and glow colors
@@ -82,6 +85,7 @@ export const CRMPortal: React.FC<CRMPortalProps> = ({
   return (
     <>
       <RoleSwitcher />
+      {isPreviewMode && <AdminRolePreview />}
       <div className="min-h-screen relative overflow-hidden">
         {/* Immersive Background */}
         <motion.div 

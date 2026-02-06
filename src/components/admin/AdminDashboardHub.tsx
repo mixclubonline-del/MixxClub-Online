@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Users, Headphones, DollarSign, Activity, TrendingUp, Clock } from 'lucide-react';
 import { format } from 'date-fns';
+import { AdminViewAsRole } from './AdminViewAsRole';
 
 interface PlatformStats {
   totalUsers: number;
@@ -106,6 +107,9 @@ export const AdminDashboardHub = () => {
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
+        {/* View as Role */}
+        <AdminViewAsRole />
+
         {/* Role Distribution */}
         <Card className="bg-background/50 backdrop-blur-sm border-border/50">
           <CardHeader className="pb-3">
