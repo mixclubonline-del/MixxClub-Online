@@ -1,286 +1,221 @@
 
 
-# Unlockable System Elevation: Phase 2
+# Phase 3: Unlockable System Completion & Polish
 
 ## Current State Assessment
 
-Based on exploration of the codebase:
+**Phase 1 (Database Extension) - Complete:**
+- Producer and Fan unlockables seeded in database (5 each)
+- `useUnlockables.tsx` extended with all 5 unlock types
+- `usePersonalUnlockables(role)` hook for individual progress
+- `PersonalUnlocksWidget.tsx` created and integrated
 
-**Already Built:**
-- `PersonalUnlocksWidget.tsx` - Reusable widget showing role-specific progress (just created)
-- `UnlockAnnouncement.tsx` - Full-screen celebration modal (exists but not triggered)
-- `CommunityMilestoneTracker.tsx` - Grid display of community milestones (exists but not used)
-- `useUnlockables.tsx` - Complete hook with all 5 unlock types (community, artist, engineer, producer, fan)
-- `prime-generate-unlockables` edge function - Live progress calculation
-- Producer/Fan unlockables seeded in database
+**Phase 2 (Core Infrastructure) - Complete:**
+- `useUnlockCelebration.tsx` - Detects new unlocks, manages seen state
+- `UnlockCelebrationProvider.tsx` - App-level celebration with confetti
+- `UnlockPulseIndicator.tsx` - Header progress indicator
+- `CommunityUnlocksWidget.tsx` - Dashboard community progress widget
+- `VaultRoom.tsx` - ClubScene unlock showcase room
+- `StageDoor.tsx` - Dynamic unlock-aware CTA
+- Integrated into `App.tsx` and `Navigation.tsx`
+- Producer and Fan dashboards have `PersonalUnlocksWidget`
 
-**Not Yet Built:**
-- `UnlockPulseIndicator` - Persistent header indicator showing next milestone
-- `VaultRoom` - ClubScene room showcasing the unlock system
-- `CommunityUnlocksWidget` - Platform-wide progress for CRM dashboards
-- `useUnlockCelebration` hook - Detect and trigger celebrations
-- Live data wiring for `ComingSoon.tsx` (still uses `currentUsers = 42`)
-- StageDoor dynamic CTA based on unlock progress
-- FeatureGated integration with unlock progress display
+**Still Remaining:**
 
----
-
-## Implementation Plan
-
-### Phase 2A: Core Infrastructure
-
-**1. Create `useUnlockCelebration` Hook**
-
-Detects newly unlocked milestones since last visit and triggers celebration:
-
-```text
-src/hooks/useUnlockCelebration.tsx
-
-Logic:
-- On mount, fetch all unlocked milestones
-- Compare with localStorage 'seen_unlocks' array
-- If new unlock found, return it for celebration trigger
-- After celebration, update localStorage
-- Supports both community and personal unlocks
-```
-
-**2. Create `UnlockPulseIndicator` Component**
-
-Persistent header indicator showing community progress:
-
-```text
-src/components/unlock/UnlockPulseIndicator.tsx
-
-Features:
-- Compact pill showing next milestone name + progress %
-- Pulses/glows when progress > 80%
-- Clicking opens a popover with full milestone details
-- Uses useCommunityMilestones() hook
-- Mobile: Icon-only mode with badge
-```
-
-**3. Create `CommunityUnlocksWidget` Component**
-
-Platform-wide progress display for dashboards:
-
-```text
-src/components/unlock/CommunityUnlocksWidget.tsx
-
-Features:
-- Shows next community milestone with large progress bar
-- List of recent unlocks (last 3)
-- "X of Y unlocked" summary
-- Call to action: "Invite friends to unlock faster"
-```
+| Item | Status | Priority |
+|------|--------|----------|
+| Wire `ComingSoon.tsx` to live data | Not done | High |
+| Add `CommunityUnlocksWidget` to all CRM dashboards | Partial | High |
+| Create `UnlockAttributionToast` | Not done | Medium |
+| Create `useUnlockContribution` hook | Not done | Medium |
+| Realtime subscription for unlockables | Not done | Low |
+| Artist/Engineer personal unlock widgets | Missing | Medium |
 
 ---
 
-### Phase 2B: Entry Experience Integration
+## Phase 3 Implementation Plan
 
-**4. Create `VaultRoom` for ClubScene**
+### 3A: Wire ComingSoon.tsx to Live Data
 
-New room between ControlRoom and VIPBooth:
+The `ComingSoon.tsx` page currently uses hardcoded data:
+- `currentUsers = 42` (line 103)
+- `featureData` array with hardcoded milestones/targets
 
-```text
-src/components/home/rooms/VaultRoom.tsx
-
-Content:
-- "The Vault" header with lock/unlock animation
-- Visual timeline of unlock tiers (1-5)
-- Current community progress prominently displayed
-- "Features you'll unlock together" preview
-- Uses live data from useUnlockables()
-```
-
-**5. Update ClubScene Room Order**
+**Changes:**
+1. Replace hardcoded `currentUsers` with live platform stats from `useUnlockables()`
+2. Replace `featureData` array with database unlockables grouped by tier
+3. Add the existing `CommunityMilestoneTracker` component for rich display
+4. Show real progress toward each community milestone
 
 ```text
-src/components/home/ClubScene.tsx
-
-Changes:
-- Add 'vault' to ROOM_IDS array
-- Import and render VaultRoom
-- Update room order: listening → green → control → vault → vip → stage
+Before: currentUsers = 42
+After:  const { platformStats } = useUnlockables();
+        const currentUsers = platformStats.users;
 ```
 
-**6. Update StageDoor with Dynamic CTA**
+### 3B: Add CommunityUnlocksWidget to All CRM Dashboards
 
+Currently only Producer (`ProducerDashboardHub`) and Fan (`FanMissionsHub`) have unlock widgets integrated.
+
+**Add to:**
+1. `EnhancedDashboardHub.tsx` - Used by both Artist and Engineer via `DashboardHub`
+2. Consider adding personal unlocks for artist/engineer types as well
+
+**Integration approach:**
 ```text
-src/components/home/rooms/StageDoor.tsx
+// EnhancedDashboardHub.tsx
+import { CommunityUnlocksWidget } from '@/components/unlock/CommunityUnlocksWidget';
+import { PersonalUnlocksWidget } from '@/components/unlock/PersonalUnlocksWidget';
+import { usePersonalUnlockables } from '@/hooks/useUnlockables';
 
-Changes:
-- Fetch next community milestone
-- Replace "Join the Club" with "Join and help unlock [Milestone Name]"
-- Show progress bar: "X more members needed"
-- Add urgency when close to milestone (>80%)
+// In component:
+const { data: personalUnlockables } = usePersonalUnlockables(userType);
+
+// In render (after AI Insights section):
+<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+  <CommunityUnlocksWidget />
+  <PersonalUnlocksWidget 
+    unlockables={personalUnlockables?.unlockables || []}
+    title={userType === 'artist' ? 'Session Journey' : 'Project Progress'}
+    description="Your personal milestones"
+  />
+</div>
 ```
+
+### 3C: Create UnlockAttributionToast System
+
+When a user completes an action that contributes to community progress, show a toast linking their action to collective progress.
+
+**New files:**
+- `src/components/unlock/UnlockAttributionToast.tsx`
+- `src/hooks/useUnlockContribution.tsx`
+
+**Usage scenarios:**
+- Artist completes a session: "Your session moved us 0.3% closer to Century Club!"
+- Engineer delivers a project: "Great work! The community is 2 members from unlocking Marketplace."
+- Producer uploads a beat: "First upload complete! You're building the catalog."
+- Fan earns a Day 1 badge: "You're among the first! 12 more Day 1s to unlock Curator Mode."
+
+**Hook logic:**
+```text
+useUnlockContribution(metricType: string)
+  - Takes the metric that just changed
+  - Fetches relevant milestone for that metric
+  - Returns attribution message + progress delta
+  - Can be called after actions like:
+    - Session completion
+    - Project delivery
+    - Beat upload
+    - Day 1 badge earned
+```
+
+**Toast component:**
+```text
+UnlockAttributionToast
+  - Subtle toast variant (not intrusive)
+  - Shows: action completed + impact on nearest milestone
+  - Optional link to full unlock dashboard
+  - Auto-dismiss after 4 seconds
+```
+
+### 3D: Add Personal Unlocks to Artist/Engineer Dashboards
+
+Artists and Engineers also have unlock types in the database (`artist` and `engineer`). We should show their personal progress alongside community progress.
+
+**For Artists:**
+- Metric: `sessions_completed`
+- Tiers: First Session, 5 Sessions, 10 Sessions, etc.
+
+**For Engineers:**
+- Metric: `projects_delivered`
+- Tiers: First Project, 10 Projects, 50 Projects, etc.
+
+These already exist in the database schema but need UI integration in `EnhancedDashboardHub`.
 
 ---
-
-### Phase 2C: Authenticated Experience
-
-**7. Add UnlockPulseIndicator to Navigation**
-
-```text
-src/components/Navigation.tsx
-
-Changes:
-- Import UnlockPulseIndicator
-- Add next to NotificationCenter for logged-in users
-- Show for all authenticated users
-```
-
-**8. Wire CommunityUnlocksWidget to CRM Dashboards**
-
-Add community progress section to all role dashboards:
-
-```text
-Files to modify:
-- src/components/crm/artist/ArtistDashboardHub.tsx
-- src/components/crm/engineer/EngineerDashboardHub.tsx
-- src/components/crm/producer/ProducerDashboardHub.tsx
-- src/pages/FanHub.tsx
-
-Each gets:
-- CommunityUnlocksWidget showing platform progress
-- Existing PersonalUnlocksWidget (already added for producer/fan)
-```
-
----
-
-### Phase 2D: Celebration System
-
-**9. Create Celebration Trigger in App**
-
-```text
-src/components/unlock/UnlockCelebrationProvider.tsx
-
-Features:
-- Wraps app, checks for new unlocks on mount
-- If new unlock detected, renders UnlockAnnouncement modal
-- Uses useUnlockCelebration() hook
-- After dismiss, marks as seen
-```
-
-**10. Integrate Celebration Provider in App.tsx**
-
-```text
-src/App.tsx
-
-Changes:
-- Import UnlockCelebrationProvider
-- Wrap main app content (inside AuthProvider, QueryClientProvider)
-```
-
----
-
-### Phase 2E: Live Data & Polish
-
-**11. Wire ComingSoon.tsx to Live Data**
-
-```text
-src/pages/ComingSoon.tsx
-
-Changes:
-- Replace hardcoded currentUsers = 42 with useUnlockables()
-- Pull tier data from database instead of hardcoded featureData
-- Show real progress toward each tier
-- Add CommunityMilestoneTracker component
-```
-
-**12. Update FeatureGated to Show Unlock Progress**
-
-```text
-src/components/backend/FeatureGated.tsx
-
-Changes:
-- Add optional communityGated prop
-- If communityGated, check unlock status instead of subscription
-- Show progress toward unlock instead of "Upgrade Now"
-- Display: "This feature unlocks at X members. We're at Y."
-```
-
----
-
-## New Files to Create
-
-| File | Purpose |
-|------|---------|
-| `src/hooks/useUnlockCelebration.tsx` | Detect new unlocks, manage seen state |
-| `src/components/unlock/UnlockPulseIndicator.tsx` | Header progress indicator |
-| `src/components/unlock/CommunityUnlocksWidget.tsx` | Dashboard community progress |
-| `src/components/home/rooms/VaultRoom.tsx` | ClubScene unlock showcase room |
-| `src/components/unlock/UnlockCelebrationProvider.tsx` | App-level celebration trigger |
 
 ## Files to Modify
 
 | File | Change |
 |------|--------|
-| `src/components/home/ClubScene.tsx` | Add VaultRoom to room sequence |
-| `src/components/home/rooms/StageDoor.tsx` | Dynamic unlock-aware CTA |
-| `src/components/Navigation.tsx` | Add UnlockPulseIndicator |
-| `src/pages/ComingSoon.tsx` | Wire to live data |
-| `src/components/backend/FeatureGated.tsx` | Add community unlock support |
-| `src/App.tsx` | Add UnlockCelebrationProvider |
-| CRM Dashboard files (4) | Add CommunityUnlocksWidget |
+| `src/pages/ComingSoon.tsx` | Replace hardcoded data with live `useUnlockables()` query |
+| `src/components/crm/dashboard/EnhancedDashboardHub.tsx` | Add CommunityUnlocksWidget + PersonalUnlocksWidget |
+
+## Files to Create
+
+| File | Purpose |
+|------|---------|
+| `src/components/unlock/UnlockAttributionToast.tsx` | Post-action attribution toast |
+| `src/hooks/useUnlockContribution.tsx` | Calculate contribution to milestones |
 
 ---
 
 ## Technical Details
 
-### useUnlockCelebration Logic
+### ComingSoon.tsx Transformation
 
 ```text
-1. On mount, fetch all unlockables with is_unlocked = true
-2. Get 'mixx_seen_unlocks' from localStorage (array of IDs)
-3. Find unlocks not in seen array
-4. Return { newUnlock, markAsSeen }
-5. markAsSeen() adds ID to localStorage array
+Current structure:
+- Hardcoded featureData array (5 tiers)
+- Hardcoded currentUsers = 42
+- Progress calculated against hardcoded milestone numbers
+
+New structure:
+- Fetch community unlockables via useCommunityMilestones()
+- Group by tier for display
+- Show real user count from platformStats
+- Use CommunityMilestoneTracker for grid display
+- Add dynamic "next unlock" calculation
 ```
 
-### UnlockPulseIndicator States
+### Attribution Toast Logic
 
 ```text
-- Default: "Next: [Name] (X%)" with subtle glow
-- Near (>80%): Pulsing glow, "Almost there!" text
-- Just unlocked (within 24h): "New unlock!" celebration state
+After session completion:
+1. Identify relevant metric: 'sessions_completed' or 'total_users'
+2. Fetch milestone that tracks this metric
+3. Calculate: "X more until [Milestone Name]"
+4. If progress > 80%: Add urgency messaging
+5. Show toast with contribution message
+
+Example messages:
+- "Session complete! 47 more sessions until we unlock Pro Matching."
+- "You're on fire! The community is 3 members away from Marketplace."
+- "Your 5th session! Personal milestone unlocked: Repeat Collaborator Badge."
 ```
 
-### VaultRoom Visual Structure
+### Dashboard Integration Layout
 
 ```text
-┌─────────────────────────────────────────────────────┐
-│                     THE VAULT                       │
-│            "Unlocked by the community"              │
-│                                                     │
-│  ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐  │
-│  │ T1 ✓ │──│ T2 ✓ │──│ T3   │──│ T4   │──│ T5   │  │
-│  └──────┘  └──────┘  └──────┘  └──────┘  └──────┘  │
-│                         ▲                           │
-│                    [You are here]                   │
-│                                                     │
-│           ┌───────────────────────────┐            │
-│           │  Next Unlock: Marketplace │            │
-│           │  ████████████░░░ 78%     │            │
-│           │  56 more members needed  │            │
-│           └───────────────────────────┘            │
-│                                                     │
-│  "Every signup brings us closer. Every session     │
-│   counts. This isn't our platform. It's ours."    │
-└─────────────────────────────────────────────────────┘
+EnhancedDashboardHub sections:
+1. Welcome Experience (new users)
+2. Header
+3. Who's Live + Gamification + Social (grid)
+4. Hip-Hop Pulse
+5. Career Momentum
+6. Revenue Analytics
+7. **NEW: Unlock Progress Section** <-- Add here
+   - CommunityUnlocksWidget (left)
+   - PersonalUnlocksWidget (right)
+8. AI Insights
+9. Recent Activity
 ```
 
 ---
 
 ## Summary
 
-This phase transforms the unlock system from a hidden database feature into the **central narrative** of MixxClub:
+Phase 3 completes the unlockable system by:
 
-1. **Pre-auth visibility**: VaultRoom in ClubScene, dynamic StageDoor CTA
-2. **Persistent awareness**: UnlockPulseIndicator in navigation
-3. **Dashboard integration**: Both personal and community progress visible
-4. **Celebration moments**: Full-screen announcements when milestones hit
-5. **Live data everywhere**: No more hardcoded user counts
+1. **Live Data Everywhere**: ComingSoon page uses real database values
+2. **Universal Dashboard Integration**: All CRM dashboards show unlock progress
+3. **Action Attribution**: Users see how their actions contribute to collective goals
+4. **Complete Role Coverage**: Artist and Engineer personal unlocks displayed
 
-The dual narrative of "your progress" + "our progress" creates both personal investment and community belonging.
+This creates the full "your work matters to everyone" narrative loop:
+- User takes action (session, project, upload)
+- Toast shows immediate contribution
+- Dashboard shows personal + community progress
+- ComingSoon page reflects real platform state
+- Celebration triggers when milestones are reached
 
