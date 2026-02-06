@@ -2,6 +2,7 @@ import React from "react";
 import { Route, Navigate } from "react-router-dom";
 import { AppLayout } from "@/components/layouts/AppLayout";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { AdminRoute } from "@/components/auth/AdminRoute";
 
 // Core app pages - static imports for frequently used routes
 import Dashboard from "@/pages/Dashboard";
@@ -77,6 +78,7 @@ const PartnerProgram = React.lazy(() => import("@/pages/PartnerProgram"));
 const Economy = React.lazy(() => import("@/pages/Economy"));
  const ProducerCRM = React.lazy(() => import("@/pages/ProducerCRM"));
  const FanHub = React.lazy(() => import("@/pages/FanHub"));
+const AdminCRM = React.lazy(() => import("@/pages/AdminCRM"));
 
 // Live Streaming pages
 const LivePage = React.lazy(() => import("@/pages/LivePage"));
@@ -98,7 +100,8 @@ export const appRoutes = (
     <Route path="/artist-crm" element={<AppLayout><ArtistCRM /></AppLayout>} />
     <Route path="/engineer-crm" element={<AppLayout><EngineerCRM /></AppLayout>} />
      <Route path="/producer-crm" element={<AppLayout><ProducerCRM /></AppLayout>} />
-     <Route path="/fan-hub" element={<AppLayout><FanHub /></AppLayout>} />
+      <Route path="/fan-hub" element={<AppLayout><FanHub /></AppLayout>} />
+    <Route path="/admin" element={<AdminRoute><AppLayout><AdminCRM /></AppLayout></AdminRoute>} />
 
     {/* Sessions & Collaboration */}
     <Route path="/sessions" element={<SessionsBrowser />} />

@@ -16,7 +16,7 @@ import engineerBg from '@/assets/crm-engineer-bg.jpg';
 
 interface CRMPortalProps {
   children: ReactNode;
-   userType: 'artist' | 'engineer' | 'producer' | 'fan';
+   userType: 'artist' | 'engineer' | 'producer' | 'fan' | 'admin';
   profile: any;
   stats: Array<{
     icon: ReactNode;
@@ -48,18 +48,20 @@ export const CRMPortal: React.FC<CRMPortalProps> = ({
   const [isHubGridVisible, setIsHubGridVisible] = useState(activeTab === 'dashboard' || activeTab === '');
   
    // Map userType to background and glow colors
-   const backgrounds: Record<string, string> = {
-     artist: artistBg,
-     engineer: engineerBg,
-     producer: artistBg, // Reuse artist bg for now
-     fan: engineerBg,    // Reuse engineer bg for now
-   };
-   const glowColors: Record<string, string> = {
-     artist: 'hsl(280 70% 50%)',
-     engineer: 'hsl(30 90% 50%)',
-     producer: 'hsl(45 90% 50%)',
-     fan: 'hsl(330 80% 60%)',
-   };
+    const backgrounds: Record<string, string> = {
+      artist: artistBg,
+      engineer: engineerBg,
+      producer: artistBg,
+      fan: engineerBg,
+      admin: engineerBg,
+    };
+    const glowColors: Record<string, string> = {
+      artist: 'hsl(280 70% 50%)',
+      engineer: 'hsl(30 90% 50%)',
+      producer: 'hsl(45 90% 50%)',
+      fan: 'hsl(330 80% 60%)',
+      admin: 'hsl(200 80% 50%)',
+    };
    const backgroundImage = backgrounds[userType] || artistBg;
    const glowColor = glowColors[userType] || 'hsl(280 70% 50%)';
   
@@ -191,7 +193,7 @@ export const CRMPortal: React.FC<CRMPortalProps> = ({
         </div>
         
         {/* Proactive Prime Bot */}
-        <ProactivePrimeBot userType={userType} onNavigate={handleNavigate} />
+        {userType !== 'admin' && <ProactivePrimeBot userType={userType} onNavigate={handleNavigate} />}
       </div>
     </>
   );

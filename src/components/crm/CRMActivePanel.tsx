@@ -8,7 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface CRMActivePanelProps {
   hubId: string;
-   userType: 'artist' | 'engineer' | 'producer' | 'fan';
+   userType: 'artist' | 'engineer' | 'producer' | 'fan' | 'admin';
   children: ReactNode;
   onClose: () => void;
 }
@@ -29,6 +29,11 @@ const HUB_TITLES: Record<string, string> = {
   store: 'Store',
   profile: 'Brand Hub',
   business: 'Business',
+  // Admin hubs
+  users: 'User Management',
+  content: 'Content Management',
+  assets: 'Brand Assets',
+  system: 'System Controls',
 };
 
 export const CRMActivePanel: React.FC<CRMActivePanelProps> = ({
@@ -40,9 +45,14 @@ export const CRMActivePanel: React.FC<CRMActivePanelProps> = ({
   const isMobile = useIsMobile();
   const title = HUB_TITLES[hubId] || 'Hub';
   
-  const glowColor = userType === 'artist' 
-    ? 'hsl(280 70% 50% / 0.1)' 
-    : 'hsl(30 90% 50% / 0.1)';
+  const glowColorMap: Record<string, string> = {
+    artist: 'hsl(280 70% 50% / 0.1)',
+    engineer: 'hsl(30 90% 50% / 0.1)',
+    producer: 'hsl(45 90% 50% / 0.1)',
+    fan: 'hsl(330 80% 60% / 0.1)',
+    admin: 'hsl(200 80% 50% / 0.1)',
+  };
+  const glowColor = glowColorMap[userType] || 'hsl(280 70% 50% / 0.1)';
 
   return (
     <motion.div
@@ -73,7 +83,7 @@ export const CRMActivePanel: React.FC<CRMActivePanelProps> = ({
           <div>
             <h2 className="text-xl font-bold text-foreground">{title}</h2>
             <p className="text-sm text-muted-foreground">
-              {userType === 'artist' ? 'Artist' : 'Engineer'} Command Center
+              {userType === 'admin' ? 'Platform' : userType === 'artist' ? 'Artist' : userType === 'producer' ? 'Producer' : userType === 'fan' ? 'Fan' : 'Engineer'} Command Center
             </p>
           </div>
         </div>

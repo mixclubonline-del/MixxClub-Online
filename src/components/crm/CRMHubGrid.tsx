@@ -34,7 +34,7 @@ interface HubDefinition {
 }
 
 interface CRMHubGridProps {
-  userType: 'artist' | 'engineer' | 'producer' | 'fan';
+  userType: 'artist' | 'engineer' | 'producer' | 'fan' | 'admin';
   onHubSelect: (hubId: string) => void;
   quickActions: Array<{
     label: string;
@@ -92,6 +92,16 @@ const ROLE_HUB_DEFINITIONS: Record<string, HubDefinition[]> = {
     { id: 'wallet', label: 'Wallet', icon: Coins, description: 'Your rewards' },
     { id: 'curator', label: 'Curator', icon: Sparkles, description: 'Playlist power' },
     { id: 'favorites', label: 'Favorites', icon: Heart, description: 'Saved music' },
+  ],
+  admin: [
+    { id: 'dashboard', label: 'Dashboard', icon: Home, description: 'Platform overview' },
+    { id: 'users', label: 'Users', icon: Users, description: 'User management' },
+    { id: 'sessions', label: 'Sessions', icon: Headphones, description: 'All sessions' },
+    { id: 'revenue', label: 'Revenue', icon: TrendingUp, description: 'Payments & payouts' },
+    { id: 'content', label: 'Content', icon: Briefcase, description: 'Files & beats' },
+    { id: 'community', label: 'Community', icon: Users, description: 'Activity & battles' },
+    { id: 'assets', label: 'Assets', icon: Star, description: 'Dream Engine assets' },
+    { id: 'system', label: 'System', icon: Target, description: 'Seeding & security' },
   ],
 };
 
