@@ -1,249 +1,156 @@
 
-# Wire Revenue Hub to Complete Backend Data Sources
-## Replace Random Mock Values with Real Database Queries
+# Phase E: Visual/Animation Math.random() Cleanup
 
-The Revenue Hub currently uses `useRevenueStreams.ts` which fetches real data for 6 of 10 revenue streams, but falls back to `Math.random()` for the remaining 4 streams. This phase completes the backend integration so all revenue data is accurate and persistent.
+## Overview
+This phase eliminates Math.random() from data-displaying components per the **Live Data First** doctrine, replacing simulated values with real database queries. Purely decorative/visual animations (particle effects, waveforms) will be retained as acceptable cosmetic randomness.
+
+## Scope Analysis
+
+### Found: 114 files with Math.random() usage (789+ occurrences)
+
+**Categorized into 3 tiers:**
 
 ---
 
-## Current Gap Analysis
+## Tier 1: Data Simulation → Live Query (Priority)
 
-```text
-REVENUE STREAMS STATUS
+These components display fake statistics that should come from real database queries:
 
-WORKING (Real Database)             BROKEN (Random Values)
-+-----------------------+           +------------------------+
-| ✓ Mixing Services     |           | ✗ Marketplace Sales    |
-| ✓ Mastering           |           | ✗ Course Sales         |
-| ✓ Project Payments    |           | ✗ Streaming Royalties  |
-| ✓ Partnership Splits  |           | ✗ Sync Licensing       |
-| ✓ Referral Bonuses    |           +------------------------+
-| ✓ Subscription Revenue|
-+-----------------------+
+| Component | Current Behavior | Fix |
+|-----------|------------------|-----|
+| `useCollaborationStatus.tsx` | Random activeUsers, onlineEngineers, activeSessions | Query `profiles.last_active_at` and `collaboration_sessions.status` |
+| `OnlineNowCounter.tsx` | Simulated ~127 users fluctuating randomly | Query `profiles WHERE last_active_at >= NOW() - 15min` |
+| `CommunityLeaderboard.tsx` | `change` and `streak` are Math.random() | Wire to `user_streaks` table (exists) |
+| `EnhancedLeaderboard.tsx` | `rankChange` is random | Compute from historical rank snapshots or remove |
+| `StudioHub.tsx` | "This Week" collaborations is random | Query `collaboration_sessions` created in last 7 days |
+| `AIActivityFeed.tsx` | Generates fake AI activity logs | Query `activity_feed` table for real platform events |
+| `useLiveActivity.tsx` (hook) | Interval generates fake user activity | Use realtime subscription on `activity_feed` |
 
-Trends: Math.random() for all streams (should compare to previous period)
-Forecasts: Math.random() noise (should use actual historical data)
-```
+---
 
-**Root Cause in `useRevenueStreams.ts`:**
-```typescript
-// Line 175-202: These use Math.random() instead of real data
-amount: Math.floor(Math.random() * 500),  // Marketplace
-amount: Math.floor(Math.random() * 300),  // Courses
-amount: Math.floor(Math.random() * 800),  // Royalties
-amount: Math.floor(Math.random() * 1200), // Licensing
-```
+## Tier 2: Simulation Fallback → Audio State (Medium)
+
+These hooks simulate audio data when no real audio is playing:
+
+| Hook | Current Behavior | Fix |
+|------|------------------|-----|
+| `useAudioReactivity.tsx` | `isPlaying: Math.random() > 0.2` | Return static idle state when not connected to audio |
+| `useAudioVisualization.tsx` | Random bars every 100ms | Return flat bars when `isPlaying: false` |
+
+---
+
+## Tier 3: Cosmetic Randomness (Keep As-Is)
+
+These are acceptable for visual polish and do not represent data:
+
+- `ParticleStorm.tsx` - particle positions/sizes
+- `PlazaAmbience.tsx` - ambient floating particles  
+- `WaveformVisualizer.tsx` - waveform generation
+- `AudioWaveformBg.tsx` - decorative bars
+- `ConnectionWeb.tsx` - network node positions
+- `LogoAnimations.tsx` - beat-reactive particles
+- `SpatialBackground.tsx` - 3D particle cloud
+- `RolePortals.tsx` - portal particle effects
+- ID generators (`useVersionHistory`, `useAudioImport`) - UUIDs
 
 ---
 
 ## Implementation Plan
 
-### Phase 1: Complete Revenue Data Integration
-
-**File:** `src/hooks/useRevenueStreams.ts`
-
-Replace random values with real database queries:
-
-| Stream | Current Source | Target Source |
-|--------|----------------|---------------|
-| Marketplace Sales | `Math.random() * 500` | `marketplace_items` where `seller_id = user.id` |
-| Course Sales | `Math.random() * 300` | `course_enrollments` where instructor = user |
-| Streaming Royalties | `Math.random() * 800` | `streaming_analytics` or `royalty_payments` table |
-| Sync Licensing | `Math.random() * 1200` | `licensing_agreements` table |
-
-### Phase 2: Add Missing Tables (If Needed)
-
-Check if these tables exist; create migrations if missing:
-
-| Table | Purpose | Status |
-|-------|---------|--------|
-| `marketplace_items` | Seller's products | EXISTS |
-| `marketplace_purchases` | Purchase records | EXISTS |
-| `streaming_royalties` | Royalty tracking | CHECK |
-| `licensing_agreements` | Sync license deals | CHECK |
-| `course_instructor_earnings` | Course sales revenue | CHECK |
-
-### Phase 3: Fix Trend Calculations
-
-Replace random trend generation:
-
-```typescript
-// BEFORE (random)
-const calculateTrend = () => Math.floor(Math.random() * 30) - 10;
-
-// AFTER (real comparison)
-const calculateTrend = (currentAmount: number, previousAmount: number) => {
-  if (previousAmount === 0) return currentAmount > 0 ? 100 : 0;
-  return Math.round(((currentAmount - previousAmount) / previousAmount) * 100);
-};
-```
-
-This requires fetching previous period data (last month vs this month).
-
-### Phase 4: Fix Forecast Generation
-
-Replace random forecast noise with actual historical trend-based projection:
-
-```typescript
-// BEFORE (random noise)
-projected: totalRevenue * (0.1 + i * 0.02) + Math.random() * 500,
-
-// AFTER (trend-based)
-projected: calculateProjection(historicalData, monthsAhead);
-```
-
----
-
-## Database Schema Additions
-
-**If `streaming_royalties` doesn't exist:**
-
-```sql
-CREATE TABLE public.streaming_royalties (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES auth.users(id),
-  platform TEXT NOT NULL, -- 'spotify', 'apple_music', 'youtube', etc.
-  track_id UUID REFERENCES audio_files(id),
-  amount_cents INTEGER NOT NULL DEFAULT 0,
-  streams_count INTEGER NOT NULL DEFAULT 0,
-  period_start DATE NOT NULL,
-  period_end DATE NOT NULL,
-  status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'paid', 'disputed')),
-  created_at TIMESTAMPTZ DEFAULT now()
-);
-
-ALTER TABLE public.streaming_royalties ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Users can view their own royalties"
-  ON public.streaming_royalties FOR SELECT
-  USING (user_id = auth.uid());
-```
-
-**If `licensing_agreements` doesn't exist:**
-
-```sql
-CREATE TABLE public.licensing_agreements (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  licensor_id UUID NOT NULL REFERENCES auth.users(id),
-  track_id UUID REFERENCES audio_files(id),
-  licensee_name TEXT NOT NULL,
-  license_type TEXT NOT NULL, -- 'sync', 'master', 'mechanical', 'performance'
-  usage_context TEXT, -- 'film', 'tv', 'commercial', 'game', 'web'
-  amount_cents INTEGER NOT NULL,
-  royalty_percentage NUMERIC(5,2),
-  start_date DATE NOT NULL,
-  end_date DATE,
-  status TEXT DEFAULT 'active' CHECK (status IN ('pending', 'active', 'completed', 'expired')),
-  created_at TIMESTAMPTZ DEFAULT now()
-);
-
-ALTER TABLE public.licensing_agreements ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Users can view their own licensing agreements"
-  ON public.licensing_agreements FOR SELECT
-  USING (licensor_id = auth.uid());
-
-CREATE POLICY "Users can create their own licensing agreements"
-  ON public.licensing_agreements FOR INSERT
-  WITH CHECK (licensor_id = auth.uid());
-```
-
----
-
-## Secondary Fix: AIMatchesHub Fallback Removal
-
-**File:** `src/components/crm/matches/AIMatchesHub.tsx`
-
-Remove the `generateSampleMatches()` fallback that produces fake data when no matches exist. Instead, show a proper empty state encouraging users to complete their profile or wait for real matches.
-
-```typescript
-// Lines 151-158: BEFORE
-} else {
-  setMatches(generateSampleMatches()); // Fake data
-}
-
-// AFTER
-} else {
-  setMatches([]); // Real empty state
-}
-```
-
----
-
-## Files Summary
-
-### Modified Files (2)
-
-| File | Changes |
-|------|---------|
-| `src/hooks/useRevenueStreams.ts` | Replace 4 random streams with real queries; fix trends/forecasts |
-| `src/components/crm/matches/AIMatchesHub.tsx` | Remove `generateSampleMatches()` fallback |
-
-### New Database Tables (2, if missing)
-
-| Table | Purpose |
-|-------|---------|
-| `streaming_royalties` | Track royalty payments from streaming platforms |
-| `licensing_agreements` | Track sync/licensing deals |
-
----
-
-## Updated Data Flow
-
+### Step 1: Create/Enhance `useOnlineUsers` Hook
 ```text
-useRevenueStreams()
-       |
-       v
-+------------------------------------------+
-| Parallel Queries (10 sources)            |
-|------------------------------------------|
-| 1. engineer_earnings      -> Mixing      |
-| 2. engineer_earnings      -> Mastering   |
-| 3. payments               -> Projects    |
-| 4. partnerships           -> Splits      |
-| 5. referrals              -> Bonuses     |
-| 6. user_subscriptions     -> Subs        |
-| 7. marketplace_purchases  -> Marketplace | <- NEW
-| 8. course_enrollments     -> Courses     | <- FIX
-| 9. streaming_royalties    -> Royalties   | <- NEW
-| 10. licensing_agreements  -> Licensing   | <- NEW
-+------------------------------------------+
-       |
-       v
-+------------------------------------------+
-| Trend Calculation (Compare Periods)      |
-| This month vs Last month                 |
-+------------------------------------------+
-       |
-       v
-+------------------------------------------+
-| Forecast Generation (Historical Trend)   |
-| 6-month projection based on growth rate  |
-+------------------------------------------+
+Query: profiles WHERE last_active_at >= NOW() - INTERVAL '15 minutes'
+Returns: { count, isLoading }
+```
+Wire to: `OnlineNowCounter`, `useCollaborationStatus`
+
+### Step 2: Update `useCollaborationStatus` 
+Replace random simulation with:
+- `activeUsers` → useOnlineUsers count
+- `activeSessions` → COUNT from `collaboration_sessions WHERE status = 'active'`
+- `onlineEngineers` → COUNT from `profiles WHERE role = 'engineer' AND last_active_at recent`
+
+### Step 3: Wire Streak Data to `user_streaks` Table
+In `CommunityLeaderboard.tsx`:
+- Join query to `user_streaks` table
+- Use `current_count` for streak display
+- Remove `Math.floor(Math.random() * 14) + 1`
+
+### Step 4: Wire Week Stats in `StudioHub.tsx`
+Replace `Math.floor(Math.random() * 50) + 20` with:
+```text
+COUNT(*) FROM collaboration_sessions 
+WHERE created_at >= NOW() - INTERVAL '7 days'
+```
+
+### Step 5: Update `AIActivityFeed.tsx`
+Replace `generateRealtimeLog()` with:
+- Query last 5 from `activity_feed` WHERE `activity_type` IN ('analysis', 'sync', 'match', 'process')
+- Use realtime subscription for live updates
+
+### Step 6: Fix `useLiveActivity.tsx` (duplicate file issue)
+There are two versions:
+- `src/hooks/useLiveActivity.ts` - wired to `activity_feed` (correct)
+- `src/hooks/useLiveActivity.tsx` - uses Math.random() interval (incorrect)
+
+Consolidate to single `.ts` version, delete `.tsx` duplicate.
+
+### Step 7: Audio Hooks Idle State
+Update `useAudioReactivity` to return stable idle state:
+```typescript
+// When no audio callback provided
+setAudioState({
+  isPlaying: false,
+  amplitude: 0,
+  frequency: 440,
+  beats: Array(8).fill(20) // Flat bars
+});
 ```
 
 ---
 
-## Testing Checklist
+## Database Tables Available
 
-After implementation:
-- [ ] Marketplace Sales shows real data from `marketplace_purchases`
-- [ ] Course Sales shows real data from courses where user is instructor
-- [ ] Streaming Royalties shows data from `streaming_royalties` table
-- [ ] Sync Licensing shows data from `licensing_agreements` table
-- [ ] Trends show actual period-over-period comparison
-- [ ] Forecasts use historical growth rate (no random noise)
-- [ ] AIMatchesHub shows empty state when no matches (not fake data)
-- [ ] Revenue Hub displays consistent values on page refresh
+| Table | Key Columns | Usage |
+|-------|-------------|-------|
+| `profiles` | `last_active_at`, `points`, `level` | Online counts, XP |
+| `user_streaks` | `user_id`, `current_count`, `streak_type` | Streak data |
+| `collaboration_sessions` | `status`, `created_at` | Active/weekly sessions |
+| `activity_feed` | `activity_type`, `is_public` | Real platform activity |
 
 ---
 
-## Benefit Summary
+## Files to Modify
 
-| Metric | Before | After |
-|--------|--------|-------|
-| Accurate streams | 6/10 | 10/10 |
-| Data persistence | Partial | Full |
-| Random values | 15+ usages | 0 usages |
-| Refresh consistency | Values change | Values stable |
-| Trend accuracy | Random ±15% | Real comparison |
+1. **Create**: `src/hooks/useOnlineUsers.ts` (new)
+2. **Modify**: `src/hooks/useCollaborationStatus.tsx`
+3. **Modify**: `src/components/community/OnlineNowCounter.tsx`
+4. **Modify**: `src/components/crm/community/CommunityLeaderboard.tsx`
+5. **Modify**: `src/components/gamification/EnhancedLeaderboard.tsx`
+6. **Modify**: `src/components/studio/StudioHub.tsx`
+7. **Modify**: `src/components/dashboard/AIActivityFeed.tsx`
+8. **Delete**: `src/hooks/useLiveActivity.tsx` (keep `.ts` version)
+9. **Modify**: `src/hooks/useAudioReactivity.tsx`
+10. **Modify**: `src/hooks/useAudioVisualization.tsx`
+
+---
+
+## Technical Notes
+
+**Realtime Subscriptions**
+For `OnlineNowCounter` and `AIActivityFeed`, consider adding:
+```sql
+ALTER PUBLICATION supabase_realtime ADD TABLE activity_feed;
+```
+
+**Graceful Fallbacks**
+All queries will include fallback to 0/empty when data unavailable, maintaining UI stability during cold-start conditions.
+
+---
+
+## Estimated Changes
+- **10 files** modified
+- **1 file** deleted  
+- **1 hook** created
+- **~50** Math.random() instances eliminated from data paths
+
