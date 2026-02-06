@@ -18,7 +18,7 @@ interface FeatureGatedProps {
     requiredTier?: 'starter' | 'pro' | 'studio';
     /** If true, checks community unlock status instead of subscription */
     communityGated?: boolean;
-    /** The milestone feature_key to check for community unlocks */
+    /** The milestone feature_key (metric_type) to check for community unlocks */
     communityMilestoneKey?: string;
 }
 
@@ -38,7 +38,7 @@ export const FeatureGated: React.FC<FeatureGatedProps> = ({
     const { hasFeature } = useBackendSubscription(userId);
     const { data: milestones, isLoading: milestonesLoading } = useCommunityMilestones();
 
-    // Find the relevant community milestone
+    // Find the relevant community milestone by feature_key (derived from metric_type)
     const communityMilestone = communityGated && communityMilestoneKey
         ? milestones.find((m) => m.feature_key === communityMilestoneKey)
         : null;

@@ -2,9 +2,12 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useUnlockContribution } from '@/hooks/useUnlockContribution';
+import { attributionToasts } from '@/components/unlock/UnlockAttributionToast';
 
 const AuthCallback = () => {
   const navigate = useNavigate();
+  const { getContributionMessage } = useUnlockContribution();
 
   useEffect(() => {
     const handleCallback = async () => {
@@ -41,6 +44,9 @@ const AuthCallback = () => {
           // If no profile exists or no role set, redirect to onboarding
           if (!profile || !profile.role) {
             toast.success('Please complete your profile');
+            // Show welcome attribution toast for new signups
+            const contribution = getContributionMessage('user_count', 'Your signup');
+            attributionToasts.userJoined(contribution);
             navigate('/onboarding/artist');
             return;
           }
