@@ -36,7 +36,8 @@ serve(async (req) => {
     });
 
     const BASE_URL = "https://generativelanguage.googleapis.com/v1beta";
-    const MODEL_ID = "veo-2.0-generate-001";
+    // VEO 3.1 is available via Gemini API without GCP billing requirement
+    const MODEL_ID = "veo-3.1-generate-preview";
     const apiUrl = `${BASE_URL}/models/${MODEL_ID}:predictLongRunning`;
 
     // Build request body
