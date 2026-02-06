@@ -1,285 +1,242 @@
 
-# The Club Scene: Exclusive Information Experience
 
-## Vision
+# Extending the Unlockable System to Producer & Fan
 
-Transform the existing `InformationScene` into **"The Club Scene"** — an immersive, scroll-based information experience that feels like you've been let into the backroom of an exclusive establishment. The vibe: *"You made it past the velvet rope. Here's what you need to know."*
+## Overview
 
-This replaces the current generic "Everything You Need to Know" approach with a curated, atmospheric reveal that maintains the cinematic quality established in the Hallway and Demo scenes.
+The current unlockable system supports three types: `community`, `artist`, and `engineer`. We need to add `producer` and `fan` types to create personalized progression paths for all four roles in the MixxClub ecosystem.
 
----
-
-## Conceptual Framework
-
-### The "If You Know, You Know" Philosophy
-
-Instead of a standard marketing page, we create **rooms within the club** that users scroll through:
-
-1. **The Listening Room** — See real transformations (before/after audio)
-2. **The Green Room** — Meet the community (artists + engineers)
-3. **The Control Room** — Understand how it works
-4. **The VIP Booth** — Pricing as an exclusive reveal
-5. **The Stage Door** — Final invitation
-
-Each "room" has:
-- Atmospheric background imagery
-- Cinematic entrance animation
-- Focused content without traditional website clutter
-- Subtle audio-reactive elements (if demo audio continues)
+This creates the full unlockable matrix:
+- **Community**: Platform-wide milestones (everyone benefits)
+- **Artist**: Session-based progression  
+- **Engineer**: Project delivery progression
+- **Producer**: Beat catalog & sales progression (new)
+- **Fan**: Engagement & support progression (new)
 
 ---
 
-## Entry Points
+## Producer Unlockables - The Beat Empire Path
 
-**From Demo (Phase 6 "Learn More"):**
-- Dissolve transition into The Club Scene
-- Audio can optionally continue (ambient fade)
+Producers progress by building their catalog and generating sales:
 
-**From Hallway ("Skip to Info" affordance):**
-- New subtle CTA appears after 3s idle on Hallway
-- "Already know what you need? →" ghost text
-- Keyboard shortcut: Press "I" for info
+| Tier | Name | Metric | Target | Reward |
+|------|------|--------|--------|--------|
+| 1 | First Upload | beats_uploaded | 1 | Profile Featured Badge |
+| 2 | Catalog Started | beats_uploaded | 5 | Beat Preview Player |
+| 3 | First Sale | beats_sold | 1 | Sales Analytics Dashboard |
+| 4 | Building Momentum | beats_sold | 10 | Premium Licensing Templates |
+| 5 | Empire Status | beats_sold | 50 | Label Partnership Access |
 
----
-
-## Scene Structure
-
-### Room 1: The Listening Room
-*"Real sound. Real results."*
-
-```text
-┌─────────────────────────────────────────────┐
-│  [Waveform visualization: Before/After]     │
-│                                             │
-│      "87% of bedroom tracks never get       │
-│       finished. These ones did."            │
-│                                             │
-│  [3 featured transformations with audio]    │
-│  ► "Neon Dreams" — Marcus → Pro Master      │
-│  ► "Late Night" — Sarah → Streaming Ready   │
-│  ► "Moonlight" — Jamal → Radio Play         │
-│                                             │
-│        [Scroll indicator: ↓]                │
-└─────────────────────────────────────────────┘
-```
-
-**Components to reuse/adapt:**
-- `TransformationDemo.tsx` — audio comparison widget
-- `SocialProofSection.tsx` — testimonial data
+**Metrics sourced from:**
+- `producer_beats` table (COUNT for beats_uploaded)
+- `beat_purchases` table WHERE status='completed' (COUNT for beats_sold)
+- `producer_stats.total_revenue_cents` (for revenue milestones)
 
 ---
 
-### Room 2: The Green Room  
-*"Your people are already here."*
+## Fan Unlockables - The Supporter Path
 
-```text
-┌─────────────────────────────────────────────┐
-│                                             │
-│      [Live community counter pulsing]       │
-│         "12,847 creators online"            │
-│                                             │
-│  ┌─────────┐  ┌─────────┐  ┌─────────┐     │
-│  │ Artist  │  │Engineer │  │Producer │     │
-│  │ Portal  │  │ Portal  │  │ Portal  │     │
-│  │ (Jax)   │  │ (Rell)  │  │ (Nova)  │     │
-│  └────▲────┘  └────▲────┘  └────▲────┘     │
-│       │            │            │          │
-│  [Hover reveals character quote + stats]   │
-│                                             │
-│  "Brooklyn ↔ Lagos. Connected in 3 min."   │
-│                                             │
-└─────────────────────────────────────────────┘
-```
+Fans progress through engagement and early artist support:
 
-**Components to reuse/adapt:**
-- `RoleGateway.tsx` — Jax/Rell portals
-- `OnlineNowCounter.tsx` — live stats
-- `NetworkExplainer.tsx` — connection visualization
+| Tier | Name | Metric | Target | Reward |
+|------|------|--------|--------|--------|
+| 1 | First Day 1 | day1_badges | 1 | Day 1 Collector Badge |
+| 2 | Streak Starter | engagement_streak | 7 | 2x MixxCoinz Multiplier |
+| 3 | Super Supporter | artists_supported | 10 | Early Access to Premieres |
+| 4 | Streak Master | longest_streak | 30 | Curator Mode Unlocked |
+| 5 | Legend Status | mixxcoinz_earned | 10000 | VIP Community Access |
 
----
-
-### Room 3: The Control Room
-*"How the magic happens."*
-
-```text
-┌─────────────────────────────────────────────┐
-│                                             │
-│         [Step indicator: 1 2 3 4]           │
-│                                             │
-│    ┌──────────────────────────────────┐    │
-│    │   CREATE → MATCH → COLLABORATE   │    │
-│    │              → RELEASE           │    │
-│    └──────────────────────────────────┘    │
-│                                             │
-│    [Each step reveals on scroll with       │
-│     minimal animation, no clutter]          │
-│                                             │
-│    AI matching: 98% success rate            │
-│    Avg delivery: 24 hours                   │
-│    Platforms: 30+ stores                    │
-│                                             │
-└─────────────────────────────────────────────┘
-```
-
-**Components to reuse/adapt:**
-- `BedroomToBillboard.tsx` — journey steps
-- Stats from live database queries
-
----
-
-### Room 4: The VIP Booth
-*"Member access."*
-
-```text
-┌─────────────────────────────────────────────┐
-│                                             │
-│      [Exclusive pricing reveal]             │
-│                                             │
-│   ┌───────────────────────────────────┐    │
-│   │  FREE        STARTER      PRO     │    │
-│   │   $0          $19         $49     │    │
-│   │              /month      /month   │    │
-│   │                                   │    │
-│   │  [Feature comparison - minimal]   │    │
-│   └───────────────────────────────────┘    │
-│                                             │
-│   "No hidden fees. No contracts.            │
-│    Cancel anytime."                         │
-│                                             │
-│   [Scarcity indicator if applicable]        │
-│                                             │
-└─────────────────────────────────────────────┘
-```
-
-**Components to reuse/adapt:**
-- `PricingTierCards.tsx` — plan cards
-- `useSubscriptionPlans` hook — live data
-- `ScarcityIndicator` — limited spots
-
----
-
-### Room 5: The Stage Door
-*"Your seat is waiting."*
-
-```text
-┌─────────────────────────────────────────────┐
-│                                             │
-│         [MixClub logo with glow]            │
-│                                             │
-│      "From Bedroom to Billboard."           │
-│                                             │
-│      ┌─────────────────────────────┐        │
-│      │    [ JOIN THE CLUB ]        │        │
-│      └─────────────────────────────┘        │
-│                                             │
-│   [Ghost text: "Already a member? Sign in"] │
-│                                             │
-│   ───────────────────────────────────────   │
-│                                             │
-│   [Compact footer with essential links]     │
-│                                             │
-└─────────────────────────────────────────────┘
-```
+**Metrics sourced from:**
+- `fan_stats` table columns: `day1_badges`, `engagement_streak`, `artists_supported`, `longest_streak`, `mixxcoinz_earned`
+- `artist_day1s` table (COUNT for day1_badges if not in fan_stats)
 
 ---
 
 ## Technical Implementation
 
-### New Components
+### Step 1: Database - Add Unlockable Records
 
-| Component | Purpose |
-|-----------|---------|
-| `ClubScene.tsx` | Main scene controller with room sections |
-| `ClubRoom.tsx` | Wrapper for each room section with entrance animation |
-| `RoomProgress.tsx` | Vertical progress indicator (which room you're in) |
-| `ClubAmbience.tsx` | Atmospheric background layer for the scene |
+Insert 5 producer and 5 fan unlockables into the `unlockables` table.
 
-### Modified Components
+```text
+INSERT INTO unlockables (
+  unlock_type, name, description, icon_name, 
+  metric_type, target_value, tier, reward_description,
+  created_by, ai_reasoning
+)
+VALUES
+  -- Producer unlockables
+  ('producer', 'First Upload', 'Upload your first beat', 'upload', 
+   'beats_uploaded', 1, 1, 'Profile Featured Badge',
+   'prime_ai', 'Every empire starts with a single beat.'),
+  
+  ('producer', 'Catalog Started', 'Build a catalog of 5 beats', 'disc-3',
+   'beats_uploaded', 5, 2, 'Beat Preview Player',
+   'prime_ai', 'Five beats means you have options to offer.'),
+  
+  -- ... (5 producer, 5 fan records)
+```
 
-| Component | Changes |
-|-----------|---------|
-| `InformationScene.tsx` | Replace entirely with new `ClubScene` |
-| `SceneFlow.tsx` | Update INFO scene to render `ClubScene` |
-| `StudioHallway.tsx` | Add "I" keyboard shortcut + skip affordance |
+### Step 2: Update TypeScript Types
 
-### Preserved/Reused Components
+Extend the `Unlockable` interface:
 
-| Component | Usage |
-|-----------|-------|
-| `TransformationDemo` | Room 1 audio comparison |
-| `RoleGateway` | Room 2 role portals (Jax/Rell) |
-| `BedroomToBillboard` | Room 3 journey steps (adapted) |
-| `HomeFooter` | Room 5 footer |
-| Pricing hooks | Room 4 live data |
+```typescript
+// src/hooks/useUnlockables.tsx
+export interface Unlockable {
+  id: string;
+  unlock_type: 'community' | 'artist' | 'engineer' | 'producer' | 'fan';
+  // ... rest unchanged
+}
+
+export interface UnlockablesData {
+  community: Unlockable[];
+  artist: Unlockable[];
+  engineer: Unlockable[];
+  producer: Unlockable[];  // NEW
+  fan: Unlockable[];       // NEW
+  platformStats: { ... };
+}
+```
+
+### Step 3: Update Hook - Add Producer/Fan Stats
+
+Extend `fetchUnlockablesWithProgress` to query producer and fan metrics:
+
+```typescript
+// Add to Promise.all queries
+const [
+  profilesResult, 
+  sessionsResult, 
+  projectsResult,
+  producerBeatsResult,   // NEW
+  beatPurchasesResult,   // NEW
+  fanStatsResult,        // NEW
+  unlockablesResult
+] = await Promise.all([
+  supabase.from('profiles').select('id', { count: 'exact', head: true }),
+  supabase.from('collaboration_sessions').select('id', { count: 'exact', head: true }),
+  supabase.from('projects').select('id', { count: 'exact', head: true }),
+  supabase.from('producer_beats').select('id', { count: 'exact', head: true }),
+  supabase.from('beat_purchases').select('id', { count: 'exact', head: true })
+    .eq('status', 'completed'),
+  supabase.from('fan_stats').select('*'), // For aggregate metrics
+  supabase.from('unlockables').select('*').order('tier', { ascending: true }),
+]);
+
+// Extend metric_type switch
+case 'beats_uploaded':
+  currentValue = producerBeatsResult.count || 0;
+  break;
+case 'beats_sold':
+  currentValue = beatPurchasesResult.count || 0;
+  break;
+case 'day1_badges':
+  currentValue = aggregateFanStat(fanStatsResult.data, 'day1_badges');
+  break;
+// ... etc
+```
+
+### Step 4: Add Role-Specific Hooks
+
+```typescript
+// Already exists pattern - add producer/fan
+export function useProducerUnlockables() {
+  const { data, ...rest } = useUnlockables();
+  return {
+    data: data?.producer || [],
+    ...rest,
+  };
+}
+
+export function useFanUnlockables() {
+  const { data, ...rest } = useUnlockables();
+  return {
+    data: data?.fan || [],
+    ...rest,
+  };
+}
+```
+
+### Step 5: Update Edge Function
+
+Extend `prime-generate-unlockables/index.ts` with producer and fan metric queries and grouping.
+
+### Step 6: Wire to CRM Dashboards
+
+**ProducerDashboardHub.tsx:**
+```tsx
+import { useProducerUnlockables } from '@/hooks/useUnlockables';
+
+// In dashboard, add UnlocksProgressWidget
+<UnlocksProgressWidget 
+  unlockables={producerUnlockables} 
+  title="Beat Empire Progress" 
+/>
+```
+
+**FanFeedHub.tsx or FanMissionsHub.tsx:**
+```tsx
+import { useFanUnlockables } from '@/hooks/useUnlockables';
+
+<UnlocksProgressWidget 
+  unlockables={fanUnlockables} 
+  title="Supporter Journey" 
+/>
+```
 
 ---
-
-## Animation & Transitions
-
-**Room Entry Effects:**
-- Each room fades in as user scrolls into view
-- Subtle parallax on background imagery
-- Progress indicator updates position
-
-**Scroll Behavior:**
-- Smooth scroll with snap points (one room at a time)
-- Mobile: Swipe navigation between rooms
-- Keyboard: Arrow keys for room navigation
-
-**Audio Continuity (Optional):**
-- Demo audio can continue at lower volume
-- Subtle reactive glow on room headers
-
----
-
-## Mobile Considerations
-
-- Full-screen immersive rooms (100svh each)
-- Swipe-to-navigate between rooms
-- Simplified content per room
-- Large touch targets on CTAs
-- Room progress dots at bottom
-
----
-
-## Keyboard Shortcuts
-
-| Key | Action |
-|-----|--------|
-| `↓` / `Space` | Next room |
-| `↑` | Previous room |
-| `Escape` | Back to Demo |
-| `Enter` | Activate primary CTA |
-
----
-
-## Files to Create
-
-1. `src/components/home/ClubScene.tsx` — Main scene controller
-2. `src/components/home/ClubRoom.tsx` — Room wrapper component
-3. `src/components/home/ClubProgress.tsx` — Room progress indicator
-4. `src/components/home/ClubAmbience.tsx` — Background atmosphere
-5. `src/components/home/rooms/ListeningRoom.tsx` — Room 1
-6. `src/components/home/rooms/GreenRoom.tsx` — Room 2
-7. `src/components/home/rooms/ControlRoom.tsx` — Room 3
-8. `src/components/home/rooms/VIPBooth.tsx` — Room 4
-9. `src/components/home/rooms/StageDoor.tsx` — Room 5
 
 ## Files to Modify
 
-1. `src/components/home/SceneFlow.tsx` — Swap INFO scene to ClubScene
-2. `src/components/scene/StudioHallway.tsx` — Add skip affordance
-3. `src/stores/sceneFlowStore.ts` — Optional: Add direct INFO shortcut
+| File | Change |
+|------|--------|
+| `src/hooks/useUnlockables.tsx` | Add producer/fan types, hooks, and metric queries |
+| `supabase/functions/prime-generate-unlockables/index.ts` | Add producer/fan metric queries and grouping |
+
+## Files to Create
+
+| File | Purpose |
+|------|---------|
+| `src/components/unlock/PersonalUnlocksWidget.tsx` | Reusable widget for role-specific progress |
+
+## Database Changes
+
+Insert 10 new unlockable records (5 producer, 5 fan) with appropriate metric_types.
+
+---
+
+## Personal vs Platform Context
+
+For producer and fan unlockables, we need to support **personal** progress tracking (how many beats has THIS producer uploaded) in addition to platform-wide stats:
+
+```typescript
+// For personal unlockables, pass userId
+export function usePersonalUnlockables(userId: string, role: 'producer' | 'fan') {
+  return useQuery({
+    queryKey: ['personal-unlockables', userId, role],
+    queryFn: () => fetchPersonalProgress(userId, role),
+  });
+}
+```
+
+This queries:
+- Producer: `producer_beats WHERE user_id = ?`
+- Fan: `fan_stats WHERE user_id = ?`
 
 ---
 
 ## Summary
 
-This approach transforms the Information Scene from a traditional scrolling webpage into an atmospheric club tour. Users feel like they've been let into an exclusive space, with each "room" revealing more about what MixClub offers without the typical marketing page feel.
+This extension creates a 5-path unlockable system:
 
-The "if you know, you know" energy comes from:
-- No overt marketing language
-- Letting the work speak (audio demos)
-- Community presence (live counters)
-- Exclusive framing (VIP Booth for pricing)
-- Single, confident CTA (Join the Club)
+| Path | Who | Progression |
+|------|-----|-------------|
+| Community | Everyone | Platform growth |
+| Artist | Artists | Sessions completed |
+| Engineer | Engineers | Projects delivered |
+| Producer | Producers | Beats uploaded & sold |
+| Fan | Fans | Engagement & support |
+
+Every role now has personal milestones to achieve alongside the collective community goals. The "you vs. we" dual narrative is complete.
+
