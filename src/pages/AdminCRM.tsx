@@ -4,7 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { CRMPortal } from '@/components/crm/CRMPortal';
-import { Users, Headphones, DollarSign, Shield, Activity } from 'lucide-react';
+import { Users, Headphones, DollarSign, Shield, Activity, Eye } from 'lucide-react';
+import { useAdminPreview } from '@/stores/useAdminPreview';
 import { toast } from 'sonner';
 
 // Admin hub components
@@ -115,6 +116,8 @@ const AdminCRM = () => {
     },
   ];
 
+  const { enterPreview } = useAdminPreview();
+
   const quickActions = [
     {
       label: 'Manage Users',
@@ -125,6 +128,14 @@ const AdminCRM = () => {
       label: 'View Revenue',
       icon: <DollarSign className="w-4 h-4" />,
       onClick: () => handleTabChange('revenue'),
+    },
+    {
+      label: 'View as Artist',
+      icon: <Eye className="w-4 h-4" />,
+      onClick: () => {
+        enterPreview('artist');
+        navigate('/artist-crm');
+      },
     },
     {
       label: 'System Controls',

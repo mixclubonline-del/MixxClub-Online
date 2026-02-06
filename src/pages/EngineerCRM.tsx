@@ -3,6 +3,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useAdminPreview } from '@/stores/useAdminPreview';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -67,6 +68,8 @@ const EngineerCRM = () => {
   const [showAssistantIntro, setShowAssistantIntro] = useState(false);
   const [showSlideshow, setShowSlideshow] = useState(false);
 
+  const { isPreviewMode } = useAdminPreview();
+
   useEffect(() => {
     const checkAccess = async () => {
       if (!user) {
@@ -74,23 +77,25 @@ const EngineerCRM = () => {
         return;
       }
 
-      // Check if user is admin - admins should use admin panel
-      const { data: isAdmin } = await supabase.rpc('has_role', {
-        _user_id: user.id,
-        _role: 'admin'
-      });
+      // Check if user is admin - admins should use admin panel (unless previewing)
+      if (!isPreviewMode) {
+        const { data: isAdmin } = await supabase.rpc('has_role', {
+          _user_id: user.id,
+          _role: 'admin'
+        });
 
-      if (isAdmin) {
-        toast.error('Please use the Admin Panel');
-        navigate('/admin');
-        return;
+        if (isAdmin) {
+          toast.error('Please use the Admin Panel');
+          navigate('/admin');
+          return;
+        }
       }
 
       fetchData();
     };
 
     checkAccess();
-  }, [user, navigate]);
+  }, [user, navigate, isPreviewMode]);
 
   const fetchData = async () => {
     try {

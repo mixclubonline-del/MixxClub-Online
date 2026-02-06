@@ -3,6 +3,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useAdminPreview } from '@/stores/useAdminPreview';
 import { useServiceAccess } from '@/hooks/useServiceAccess';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -76,6 +77,8 @@ const ArtistCRM = () => {
     loading: servicesLoading
   } = useServiceAccess();
 
+  const { isPreviewMode } = useAdminPreview();
+
   useEffect(() => {
     const checkAccess = async () => {
       if (!user) {
@@ -83,16 +86,18 @@ const ArtistCRM = () => {
         return;
       }
 
-      // Check if user is admin - admins should use admin panel
-      const { data: isAdmin } = await supabase.rpc('has_role', {
-        _user_id: user.id,
-        _role: 'admin'
-      });
+      // Check if user is admin - admins should use admin panel (unless previewing)
+      if (!isPreviewMode) {
+        const { data: isAdmin } = await supabase.rpc('has_role', {
+          _user_id: user.id,
+          _role: 'admin'
+        });
 
-      if (isAdmin) {
-        toast.error('Please use the Admin Panel');
-        navigate('/admin');
-        return;
+        if (isAdmin) {
+          toast.error('Please use the Admin Panel');
+          navigate('/admin');
+          return;
+        }
       }
 
       setCheckingSlideshow(false);
@@ -100,7 +105,7 @@ const ArtistCRM = () => {
     };
 
     checkAccess();
-  }, [user, navigate]);
+  }, [user, navigate, isPreviewMode]);
 
   const handleSlideshowComplete = () => {
     if (user) {
