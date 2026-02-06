@@ -4,9 +4,14 @@ import { Music, Sparkles, Radio, Brain, Sliders } from 'lucide-react';
 import { ServicesDistrict } from '@/components/services/ServicesDistrict';
 import { ServicePortal } from '@/components/services/ServicePortal';
 import { DistrictWelcome } from '@/components/services/DistrictWelcome';
-import servicesLobby from '@/assets/services-lobby.jpg';
+import { useServicesAssets } from '@/hooks/useServicesAssets';
+import servicesLobbyStatic from '@/assets/services-lobby.jpg';
 
 export default function Services() {
+  // Dynamic asset with static fallback
+  const { lobby: dynamicLobby, isLoading } = useServicesAssets();
+  const servicesLobby = dynamicLobby || servicesLobbyStatic;
+
   const services = [
     {
       id: 'mixing',
