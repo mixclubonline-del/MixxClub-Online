@@ -11,14 +11,19 @@ import {
   MessageSquare,
   Share2,
   Headphones,
-  CheckCircle
 } from "lucide-react";
 import { Helmet } from "react-helmet-async";
 import { ServiceRoomView } from "@/components/services/ServiceRoomView";
-import { GlassFeaturePanel } from "@/components/services/GlassFeaturePanel";
+import { ShowcaseFeature } from "@/components/services/ShowcaseFeature";
 import { MixingPackages } from "@/components/mixing/MixingPackages";
 import { Badge } from "@/components/ui/badge";
 import mixingRoomBg from "@/assets/service-mixing-room.jpg";
+
+// Import showcase images
+import mixingConsole from "@/assets/promo/mixing-console-close.jpg";
+import mixingCollab from "@/assets/promo/mixing-collaboration.jpg";
+import mixingStemSeparation from "@/assets/promo/mixing-stem-separation.jpg";
+import mixingRealtimeFeedback from "@/assets/promo/mixing-realtime-feedback.jpg";
 
 const MixingShowcase = () => {
   const [activeDemo, setActiveDemo] = useState(0);
@@ -66,46 +71,58 @@ const MixingShowcase = () => {
     }
   ];
 
-  const features = [
+  const showcaseFeatures = [
     {
+      image: mixingConsole,
+      icon: Sliders,
+      title: "Professional Console",
+      subtitle: "Analog Warmth",
+      description: "Access the same mixing tools used in world-class studios. Our cloud-based console emulates legendary hardware with SSL, Neve, and API processing at your fingertips.",
+      stats: [
+        { label: "Channels", value: "64" },
+        { label: "Plugins", value: "200+" },
+        { label: "Sample Rate", value: "96kHz" }
+      ],
+      techDetails: ["SSL Emulation", "Neve EQ", "API Compression", "UAD Integration"]
+    },
+    {
+      image: mixingCollab,
+      icon: Users,
       title: "Three-Way Collaboration",
-      description: "Artist, Engineer, and AI working together for the perfect mix",
-      icon: <Users className="w-8 h-8" />,
-      details: [
-        "Real-time communication between all parties",
-        "Shared workspace with version control",
-        "AI provides intelligent suggestions throughout"
-      ]
+      subtitle: "Real-Time Sessions",
+      description: "Artist, engineer, and AI working together in perfect harmony. Watch your mix evolve in real-time with video chat, instant feedback, and shared control.",
+      stats: [
+        { label: "Latency", value: "<50ms" },
+        { label: "Resolution", value: "4K" },
+        { label: "Participants", value: "∞" }
+      ],
+      techDetails: ["Video Chat", "Screen Share", "Real-Time Sync", "Version Control"]
     },
     {
-      title: "AI-Powered Insights",
-      description: "Machine learning that enhances human creativity",
-      icon: <Brain className="w-8 h-8" />,
-      details: [
-        "Automatic stem separation and analysis",
-        "Genre-specific mixing suggestions",
-        "Real-time frequency and dynamic analysis"
-      ]
+      image: mixingStemSeparation,
+      icon: Brain,
+      title: "AI-Powered Stem Separation",
+      subtitle: "Intelligent Analysis",
+      description: "Our neural network automatically separates and analyzes your stems, providing genre-specific insights and optimization suggestions for the perfect mix.",
+      stats: [
+        { label: "Accuracy", value: "99.2%" },
+        { label: "Stems", value: "8+" },
+        { label: "Genres", value: "50+" }
+      ],
+      techDetails: ["Neural Processing", "Genre Detection", "BPM Analysis", "Key Detection"]
     },
     {
-      title: "Professional Engineers", 
-      description: "Vetted professionals with proven track records",
-      icon: <UserCheck className="w-8 h-8" />,
-      details: [
-        "Industry-certified mixing engineers",
-        "Specialized in multiple genres",
-        "Portfolio of successful releases"
-      ]
-    },
-    {
-      title: "Real-Time Studio",
-      description: "Virtual mixing studio with professional tools",
-      icon: <Headphones className="w-8 h-8" />,
-      details: [
-        "Cloud-based mixing console",
-        "Professional plugins and effects",
-        "Instant preview and sharing"
-      ]
+      image: mixingRealtimeFeedback,
+      icon: MessageSquare,
+      title: "Real-Time Feedback",
+      subtitle: "Instant Communication",
+      description: "Drop comments directly on the timeline, mark sections for revision, and communicate seamlessly with your engineer throughout the entire mixing process.",
+      stats: [
+        { label: "Response", value: "Instant" },
+        { label: "Revisions", value: "Unlimited" },
+        { label: "History", value: "Full" }
+      ],
+      techDetails: ["Timeline Comments", "Revision Marks", "Chat Integration", "Notification System"]
     }
   ];
 
@@ -137,10 +154,10 @@ const MixingShowcase = () => {
         subtitle="Where artist vision meets engineering expertise, enhanced by AI intelligence"
         accentColor="from-blue-500/20 to-green-500/20"
       >
-        {/* Features Grid */}
+        {/* Showcase Features */}
         <section className="mb-20">
           <motion.div
-            className="text-center mb-12"
+            className="text-center mb-16"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -157,15 +174,12 @@ const MixingShowcase = () => {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature, index) => (
-              <GlassFeaturePanel
-                key={index}
-                icon={feature.icon}
-                title={feature.title}
-                description={feature.description}
-                details={feature.details}
-                delay={index * 0.1}
+          <div className="space-y-24 lg:space-y-32">
+            {showcaseFeatures.map((feature, index) => (
+              <ShowcaseFeature
+                key={feature.title}
+                {...feature}
+                reversed={index % 2 !== 0}
               />
             ))}
           </div>

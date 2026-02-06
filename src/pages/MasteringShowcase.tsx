@@ -10,15 +10,20 @@ import {
   Music,
   Award,
   Brain,
-  CheckCircle
 } from "lucide-react";
 import { Helmet } from "react-helmet-async";
 import { ServiceRoomView } from "@/components/services/ServiceRoomView";
-import { GlassFeaturePanel } from "@/components/services/GlassFeaturePanel";
+import { ShowcaseFeature } from "@/components/services/ShowcaseFeature";
 import { MasteringPackages } from "@/components/mastering/MasteringPackages";
 import { MasteringChatbot } from "@/components/MasteringChatbot";
 import { Badge } from "@/components/ui/badge";
 import masteringRoomBg from "@/assets/service-mastering-room.jpg";
+
+// Import showcase images
+import masteringEqCurve from "@/assets/promo/mastering-eq-curve.jpg";
+import masteringLoudnessMeter from "@/assets/promo/mastering-loudness-meter.jpg";
+import masteringBeforeAfter from "@/assets/promo/mastering-before-after.jpg";
+import masteringStereoField from "@/assets/promo/mastering-stereo-field.jpg";
 
 const MasteringShowcase = () => {
   const [activeDemo, setActiveDemo] = useState(0);
@@ -58,46 +63,58 @@ const MasteringShowcase = () => {
     }
   ];
 
-  const features = [
+  const showcaseFeatures = [
     {
-      title: "AI Neural Networks",
-      description: "Trained on 100,000+ Grammy-winning masters across all genres",
-      icon: <Brain className="w-8 h-8" />,
-      details: [
-        "Deep learning models trained on professional masters",
-        "Genre-specific processing algorithms",
-        "Real-time spectral analysis and correction"
-      ]
+      image: masteringEqCurve,
+      icon: Waves,
+      title: "Parametric EQ Mastery",
+      subtitle: "Frequency Sculpting",
+      description: "Advanced parametric equalization with AI-guided frequency analysis. Our system identifies problem areas and applies surgical corrections while preserving the character of your mix.",
+      stats: [
+        { label: "Bands", value: "32" },
+        { label: "Resolution", value: "0.1dB" },
+        { label: "Frequency", value: "20Hz-20kHz" }
+      ],
+      techDetails: ["Linear Phase", "Dynamic EQ", "M/S Processing", "Harmonic Shaping"]
     },
     {
-      title: "Instant Processing",
-      description: "Get professional masters in under 30 seconds, not hours",
-      icon: <Zap className="w-8 h-8" />,
-      details: [
-        "Cloud-based processing power",
-        "No queue times or delays",
-        "Instant A/B comparisons available"
-      ]
+      image: masteringLoudnessMeter,
+      icon: Target,
+      title: "Platform Optimization",
+      subtitle: "Streaming Ready",
+      description: "Automatically masters to the exact loudness standards of every major streaming platform. Get separate versions optimized for Spotify, Apple Music, YouTube, TikTok, and more.",
+      stats: [
+        { label: "Platforms", value: "15+" },
+        { label: "LUFS Target", value: "-14" },
+        { label: "True Peak", value: "-1dB" }
+      ],
+      techDetails: ["Spotify Optimized", "Apple Hi-Res", "YouTube Ready", "TikTok Format"]
     },
     {
-      title: "Platform Optimization", 
-      description: "Automatically optimized for every major streaming platform",
-      icon: <Target className="w-8 h-8" />,
-      details: [
-        "Spotify (-14 LUFS) optimization",
-        "Apple Music Hi-Res ready",
-        "YouTube and TikTok compatible"
-      ]
+      image: masteringBeforeAfter,
+      icon: Sparkles,
+      title: "Before & After Comparison",
+      subtitle: "Hear The Difference",
+      description: "See and hear the dramatic transformation with our visual comparison tools. Real-time waveform display shows the dynamic range improvements and frequency balance achieved.",
+      stats: [
+        { label: "Dynamic Range", value: "+6dB" },
+        { label: "Clarity", value: "+40%" },
+        { label: "Punch", value: "+25%" }
+      ],
+      techDetails: ["A/B Comparison", "Waveform View", "Spectrum Analyzer", "Phase Correlation"]
     },
     {
-      title: "Professional Quality",
-      description: "Meet industry standards with every master",
-      icon: <Award className="w-8 h-8" />,
-      details: [
-        "True Peak limiting to -1dBFS",
-        "Optimal dynamic range preservation",
-        "Professional loudness standards"
-      ]
+      image: masteringStereoField,
+      icon: Music,
+      title: "Stereo Width Enhancement",
+      subtitle: "Spatial Imaging",
+      description: "Analyze and enhance your stereo field with precision. Our goniometer visualization shows exactly how your mix translates, with intelligent widening that maintains mono compatibility.",
+      stats: [
+        { label: "Width", value: "120%" },
+        { label: "Correlation", value: "0.95" },
+        { label: "Channels", value: "M/S" }
+      ],
+      techDetails: ["Stereo Widening", "Mono Compatible", "Phase Aligned", "Correlation Meter"]
     }
   ];
 
@@ -121,10 +138,10 @@ const MasteringShowcase = () => {
         subtitle="Grammy-quality masters instantly with revolutionary AI technology"
         accentColor="from-purple-500/20 to-pink-500/20"
       >
-        {/* Features Grid */}
+        {/* Showcase Features */}
         <section className="mb-20">
           <motion.div
-            className="text-center mb-12"
+            className="text-center mb-16"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -141,15 +158,12 @@ const MasteringShowcase = () => {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature, index) => (
-              <GlassFeaturePanel
-                key={index}
-                icon={feature.icon}
-                title={feature.title}
-                description={feature.description}
-                details={feature.details}
-                delay={index * 0.1}
+          <div className="space-y-24 lg:space-y-32">
+            {showcaseFeatures.map((feature, index) => (
+              <ShowcaseFeature
+                key={feature.title}
+                {...feature}
+                reversed={index % 2 !== 0}
               />
             ))}
           </div>
