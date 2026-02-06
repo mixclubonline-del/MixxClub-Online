@@ -27,6 +27,7 @@ interface DreamResponse {
     type: string;
     context?: string;
     savedAssetId?: string;
+    operationId?: string;
   };
   provider?: string;
   generationTimeMs?: number;
@@ -132,11 +133,56 @@ async function generateImage(prompt: string, context?: string, style?: string): 
    throw new Error("No image generated in response");
 }
 
-async function generateVideo(prompt: string, sourceImage?: string): Promise<{ url: string; provider: string }> {
+async function generateVideo(prompt: string, sourceImage?: string, model?: string): Promise<{ url: string; provider: string; operationId?: string }> {
+  // Premium path: VEO 2.0 (async, high quality)
+  if (model === 'veo') {
+    const googleKey = Deno.env.get("GOOGLE_AI_API_KEY");
+    if (!googleKey) {
+      throw new Error("GOOGLE_AI_API_KEY not configured for VEO video generation");
+    }
+
+    const BASE_URL = "https://generativelanguage.googleapis.com/v1beta";
+    const apiUrl = `${BASE_URL}/models/veo-2.0-generate-001:predictLongRunning`;
+
+    const instance: Record<string, unknown> = {
+      prompt: `${prompt}. Cinematic quality, professional lighting, smooth motion.`,
+    };
+    if (sourceImage) {
+      instance.image = { uri: sourceImage };
+    }
+
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "x-goog-api-key": googleKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        instances: [instance],
+        parameters: { aspectRatio: "16:9", sampleCount: 1 },
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("VEO API error:", response.status, errorText);
+      throw new Error(`VEO API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const operationName = data.name;
+    if (!operationName) {
+      throw new Error("VEO did not return an operation name");
+    }
+
+    // Return operation ID for async polling
+    return { url: "", provider: "veo-2.0", operationId: operationName };
+  }
+
+  // Primary path: Replicate (sync, fast)
   const replicateKey = Deno.env.get("REPLICATE_API_KEY");
   
   if (replicateKey) {
-    // Use Replicate for video generation
     const { default: Replicate } = await import("npm:replicate@0.25.2");
     const replicate = new Replicate({ auth: replicateKey });
     
@@ -165,37 +211,7 @@ async function generateVideo(prompt: string, sourceImage?: string): Promise<{ ur
     throw new Error("Replicate did not return video URL");
   }
   
-  // Fallback: Use Lovable AI Veo if available
-  const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
-  if (!lovableApiKey) {
-    throw new Error("No video generation provider available. Configure REPLICATE_API_KEY.");
-  }
-  
-  // Try Lovable AI video generation
-  const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${lovableApiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "google/veo-3.1",
-      messages: [{ role: "user", content: prompt }],
-    }),
-  });
-  
-  if (!response.ok) {
-    throw new Error("Video generation not available through Lovable AI");
-  }
-  
-  const data = await response.json();
-  // Parse video URL from response
-  const videoUrl = data.choices?.[0]?.message?.content;
-  if (typeof videoUrl === "string" && videoUrl.startsWith("http")) {
-    return { url: videoUrl, provider: "lovable-veo" };
-  }
-  
-  throw new Error("Video generation failed");
+  throw new Error("No video generation provider available. Configure REPLICATE_API_KEY or use model='veo'.");
 }
 
 async function generateAudio(prompt: string): Promise<{ url: string; provider: string }> {
@@ -396,7 +412,7 @@ Deno.serve(async (req) => {
         result = await generateImage(`${prompt}. Reference image: ${sourceAsset}`, context, options?.style);
         break;
       case 'video':
-        result = await generateVideo(prompt, sourceAsset);
+        result = await generateVideo(prompt, sourceAsset, options?.model);
         break;
       case 'audio':
         result = await generateAudio(prompt);
@@ -454,6 +470,7 @@ Deno.serve(async (req) => {
         type: mode === 'video' ? 'video' : mode === 'audio' ? 'audio' : 'image',
         context,
         savedAssetId,
+        operationId: 'operationId' in result ? (result as any).operationId : undefined,
       },
       provider: result.provider,
       generationTimeMs,
