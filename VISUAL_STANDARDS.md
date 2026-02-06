@@ -146,10 +146,10 @@ Before any page ships, verify:
 - [x] `/services/mixing` — Upgraded Feb 2026
 - [x] `/services/mastering` — Upgraded Feb 2026
 - [x] `/services/ai-mastering` — Upgraded Feb 2026
+- [x] `/for-artists` — Upgraded Feb 2026 with ShowcaseJourney + ShowcaseFeature
+- [x] `/for-engineers` — Upgraded Feb 2026 with ShowcaseFeature sections
 
 ### High Priority (Phase 4)
-- [ ] `/for-artists` — Portal page with benefits
-- [ ] `/for-engineers` — Portal page with benefits
 - [ ] `/how-it-works` — Platform explainer
 - [ ] `/enterprise` — Enterprise info
 

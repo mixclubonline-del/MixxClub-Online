@@ -15,51 +15,164 @@ import {
 } from "lucide-react";
 import { LandingPortal } from "@/components/landing/LandingPortal";
 import { PortalHero } from "@/components/landing/PortalHero";
-import { JourneyPreview } from "@/components/landing/JourneyPreview";
-import { FeatureGlassCards } from "@/components/landing/FeatureGlassCards";
+import { ShowcaseJourney, ShowcaseStep } from "@/components/landing/ShowcaseJourney";
+import { ShowcaseFeature } from "@/components/services/ShowcaseFeature";
 import { PortalInvitation } from "@/components/landing/PortalInvitation";
 import { FoundingBanner } from "@/components/landing/FoundingBanner";
 import { SessionPreview } from "@/components/home/SessionPreview";
 import { TransformationDemo } from "@/components/home/TransformationDemo";
+import { ScrollRevealSection } from "@/components/landing/ScrollRevealSection";
+import { Badge } from "@/components/ui/badge";
 import portalArtistImage from "@/assets/portal-artist.jpg";
 
+// Journey Images
+import artistUploadCloud from "@/assets/promo/artist-upload-cloud.jpg";
+import artistAiAnalysis from "@/assets/promo/artist-ai-analysis.jpg";
+import artistEngineerMatch from "@/assets/promo/artist-engineer-match.jpg";
+import artistLiveCollab from "@/assets/promo/artist-live-collab.jpg";
+import artistDelivery from "@/assets/promo/artist-delivery.jpg";
+import artistReleaseGrowth from "@/assets/promo/artist-release-growth.jpg";
+
+// CRM Images
+import artistCrmDashboard from "@/assets/promo/artist-crm-dashboard.jpg";
+import artistCrmSessions from "@/assets/promo/artist-crm-sessions.jpg";
+import artistCrmProjects from "@/assets/promo/artist-crm-projects.jpg";
+import artistCrmCommunity from "@/assets/promo/artist-crm-community.jpg";
+
 const ForArtists = () => {
-  const journeySteps = [
+  const journeySteps: ShowcaseStep[] = [
     {
-      number: 1,
-      icon: <Upload className="w-6 h-6" />,
+      image: artistUploadCloud,
+      icon: Upload,
+      stepNumber: 1,
       title: "Upload Your Track",
-      description: "Drop your stems or mixdown into our secure cloud workspace"
+      description: "Drop your stems or mixdown into our secure cloud workspace. Supports all major formats with unlimited storage and automatic backup.",
+      stats: [
+        { label: "Formats", value: "15+" },
+        { label: "Max Size", value: "2GB" },
+        { label: "Storage", value: "∞" }
+      ],
+      techDetails: ["Lossless Upload", "Stem Detection", "Auto-Organize", "Version Control"]
     },
     {
-      number: 2,
-      icon: <Sparkles className="w-6 h-6" />,
+      image: artistAiAnalysis,
+      icon: Sparkles,
+      stepNumber: 2,
       title: "AI Session Prep",
-      description: "Our AI analyzes your track and prepares detailed session notes"
+      description: "Our AI analyzes your track and prepares detailed session notes, identifying genre, key, BPM, and potential mixing opportunities.",
+      stats: [
+        { label: "Analysis", value: "<30s" },
+        { label: "Accuracy", value: "99.2%" },
+        { label: "Insights", value: "25+" }
+      ],
+      techDetails: ["Neural Analysis", "Genre Detection", "Session Notes", "Mix Suggestions"]
     },
     {
-      number: 3,
-      icon: <Users className="w-6 h-6" />,
+      image: artistEngineerMatch,
+      icon: Users,
+      stepNumber: 3,
       title: "Perfect Match",
-      description: "Get paired with an engineer who specializes in your genre"
+      description: "Get paired with an engineer who specializes in your genre and style. Our matching algorithm considers skill, availability, and past collaborations.",
+      stats: [
+        { label: "Match Time", value: "2.3s" },
+        { label: "Success Rate", value: "98%" },
+        { label: "Engineers", value: "2,500+" }
+      ],
+      techDetails: ["AI Matching", "Genre Specialists", "Style Analysis", "Verified Pros"]
     },
     {
-      number: 4,
-      icon: <Headphones className="w-6 h-6" />,
+      image: artistLiveCollab,
+      icon: Headphones,
+      stepNumber: 4,
       title: "Real-Time Collaboration",
-      description: "Work together in our live studio workspace with instant feedback"
+      description: "Work together in our live studio workspace with instant feedback. See changes in real-time, communicate via video, and approve every decision.",
+      stats: [
+        { label: "Latency", value: "<50ms" },
+        { label: "Video HD", value: "1080p" },
+        { label: "Regions", value: "Global" }
+      ],
+      techDetails: ["Live Audio", "HD Video", "Real-Time DAW", "Instant Feedback"]
     },
     {
-      number: 5,
-      icon: <Download className="w-6 h-6" />,
+      image: artistDelivery,
+      icon: Download,
+      stepNumber: 5,
       title: "Professional Delivery",
-      description: "Receive your polished mix/master in all required formats"
+      description: "Receive your polished mix/master in all required formats. Every deliverable is quality-checked and ready for distribution.",
+      stats: [
+        { label: "Formats", value: "8+" },
+        { label: "Quality", value: "32-bit" },
+        { label: "Delivery", value: "24h" }
+      ],
+      techDetails: ["Multi-Format", "Quality Check", "Stems Included", "Instant Download"]
     },
     {
-      number: 6,
-      icon: <Share2 className="w-6 h-6" />,
+      image: artistReleaseGrowth,
+      icon: Share2,
+      stepNumber: 6,
       title: "Release & Grow",
-      description: "Distribute to all platforms and track your success"
+      description: "Distribute to all platforms and track your success. Access analytics, playlist pitching tools, and growth resources.",
+      stats: [
+        { label: "Platforms", value: "150+" },
+        { label: "Analytics", value: "Real-Time" },
+        { label: "Support", value: "24/7" }
+      ],
+      techDetails: ["Distribution", "Analytics", "Playlist Tools", "Growth Academy"]
+    }
+  ];
+
+  const crmFeatures = [
+    {
+      image: artistCrmDashboard,
+      icon: TrendingUp,
+      title: "Career Dashboard",
+      subtitle: "Command Center",
+      description: "Track your career momentum with real-time metrics. See streaming numbers, earnings, session history, and achievement progress all in one beautiful interface.",
+      stats: [
+        { label: "Metrics", value: "50+" },
+        { label: "Updates", value: "Real-Time" },
+        { label: "History", value: "Unlimited" }
+      ],
+      techDetails: ["Live KPIs", "Earnings Tracker", "Goal Setting", "AI Insights"]
+    },
+    {
+      image: artistCrmSessions,
+      icon: Headphones,
+      title: "Session Management",
+      subtitle: "Collaboration Hub",
+      description: "Manage all your collaboration sessions from scheduling to completion. Track progress, communicate with engineers, and access session recordings.",
+      stats: [
+        { label: "Active", value: "Unlimited" },
+        { label: "History", value: "Forever" },
+        { label: "Video", value: "Included" }
+      ],
+      techDetails: ["Calendar Sync", "Session Timeline", "Engineer Chat", "Recording Archive"]
+    },
+    {
+      image: artistCrmProjects,
+      icon: Music,
+      title: "Project Tracker",
+      subtitle: "From Upload to Release",
+      description: "Track every project from initial upload through release. See milestones, manage versions, and never lose track of where your music stands.",
+      stats: [
+        { label: "Projects", value: "Unlimited" },
+        { label: "Versions", value: "Auto-Saved" },
+        { label: "Milestones", value: "12/Track" }
+      ],
+      techDetails: ["Version Control", "Milestone Tracking", "Release Pipeline", "Asset Library"]
+    },
+    {
+      image: artistCrmCommunity,
+      icon: Trophy,
+      title: "Community & Achievements",
+      subtitle: "Grow Together",
+      description: "Connect with other artists, earn achievements, and unlock rewards. Your journey is celebrated every step of the way.",
+      stats: [
+        { label: "Badges", value: "100+" },
+        { label: "Rewards", value: "Exclusive" },
+        { label: "Network", value: "10,000+" }
+      ],
+      techDetails: ["Achievement System", "XP Progression", "Artist Network", "Exclusive Events"]
     }
   ];
 
@@ -68,15 +181,6 @@ const ForArtists = () => {
     { value: "2.3 sec", label: "Average Match Time" },
     { value: "98%", label: "Satisfaction Rate" },
     { value: "24/7", label: "Global Collaboration" },
-  ];
-
-  const crmFeatures = [
-    { icon: TrendingUp, title: "Dashboard", description: "Track your career momentum and key metrics" },
-    { icon: Users, title: "Sessions", description: "Manage all your collaboration sessions" },
-    { icon: Sparkles, title: "AI Matching", description: "Find the perfect engineer for your sound" },
-    { icon: Headphones, title: "Projects", description: "Track every project from upload to release" },
-    { icon: Award, title: "Achievements", description: "Earn badges and unlock rewards" },
-    { icon: Trophy, title: "Community", description: "Connect with other artists and grow together" },
   ];
 
   return (
@@ -119,23 +223,43 @@ const ForArtists = () => {
         <TransformationDemo />
       </div>
 
-      {/* The Journey Section */}
-      <JourneyPreview
+      {/* The Journey Section - Upgraded to ShowcaseJourney */}
+      <ShowcaseJourney
         badge={{ icon: <Star className="w-4 h-4" />, text: "Your Path to Success" }}
         title="From Upload to Release"
-        subtitle="We've streamlined the entire production process."
+        subtitle="We've streamlined the entire production process into six powerful steps."
         steps={journeySteps}
         variant="artist"
       />
 
-      {/* CRM Preview Section */}
-      <FeatureGlassCards
-        badge={{ icon: <Star className="w-4 h-4" />, text: "Your Command Center" }}
-        title="This is YOUR Artist CRM"
-        subtitle="Everything you need to manage your music career in one place."
-        features={crmFeatures}
-        variant="artist"
-      />
+      {/* CRM Preview Section - Upgraded to ShowcaseFeature */}
+      <section className="py-24 px-6 relative">
+        <div className="container mx-auto max-w-6xl">
+          <ScrollRevealSection className="text-center mb-16">
+            <Badge 
+              variant="outline" 
+              className="mb-4 bg-background/30 backdrop-blur-md border-white/20"
+            >
+              <Star className="w-4 h-4" />
+              <span className="ml-2">Your Command Center</span>
+            </Badge>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">This is YOUR Artist CRM</h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Everything you need to manage your music career in one place.
+            </p>
+          </ScrollRevealSection>
+          
+          <div className="space-y-24">
+            {crmFeatures.map((feature, index) => (
+              <ShowcaseFeature
+                key={feature.title}
+                {...feature}
+                reversed={index % 2 !== 0}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Final CTA - Portal Invitation */}
       <PortalInvitation
