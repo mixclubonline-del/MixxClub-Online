@@ -36,6 +36,9 @@ import { RevenueAnalyticsDashboard } from '../revenue/RevenueAnalyticsDashboard'
 import { WhosLiveWidget } from '@/components/live/WhosLiveWidget';
 import { WhoToFollowWidget } from '@/components/social/WhoToFollowWidget';
 import { WelcomeExperience, RecommendedEngineers, OpenSessionsForEngineers } from '../WelcomeExperience';
+import { CommunityUnlocksWidget } from '@/components/unlock/CommunityUnlocksWidget';
+import { PersonalUnlocksWidget } from '@/components/unlock/PersonalUnlocksWidget';
+import { useArtistUnlockables, useEngineerUnlockables } from '@/hooks/useUnlockables';
 
 interface DashboardMetrics {
   careerMomentum: {
@@ -77,6 +80,11 @@ export const EnhancedDashboardHub = ({ userType }: EnhancedDashboardHubProps) =>
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
+  
+  // Fetch personal unlockables based on user type
+  const { data: artistUnlockables } = useArtistUnlockables();
+  const { data: engineerUnlockables } = useEngineerUnlockables();
+  const personalUnlockables = userType === 'artist' ? artistUnlockables : engineerUnlockables;
 
   useEffect(() => {
     if (user) {
@@ -323,6 +331,16 @@ export const EnhancedDashboardHub = ({ userType }: EnhancedDashboardHubProps) =>
 
       {/* Revenue Analytics Dashboard - Full 10 Stream System */}
       <RevenueAnalyticsDashboard />
+
+      {/* Unlock Progress Section - Community + Personal */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <CommunityUnlocksWidget />
+        <PersonalUnlocksWidget 
+          unlockables={personalUnlockables || []}
+          title={userType === 'artist' ? 'Session Journey' : 'Project Progress'}
+          description={userType === 'artist' ? 'Your path to session mastery' : 'Your engineering milestones'}
+        />
+      </div>
 
       {/* AI Insights from PrimeBot 4.0 */}
       <Card>

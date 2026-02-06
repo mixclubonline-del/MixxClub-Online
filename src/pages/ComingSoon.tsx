@@ -1,106 +1,33 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Navigation from "@/components/Navigation";
-import { FEATURE_FLAGS } from "@/config/featureFlags";
-import { Lock, Users, Sparkles, GraduationCap, ShoppingBag, Plug, Brain, Disc, BarChart3, Music, DollarSign } from "lucide-react";
+import { Lock, Users, Sparkles } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-
-const featureData = [
-  {
-    tier: 1,
-    milestone: 100,
-    title: "Mix Battles Arena",
-    features: [
-      {
-        flag: "TIER_1_BATTLES_STUDIOS" as keyof typeof FEATURE_FLAGS,
-        name: "Mix Battles & Studio Partnerships",
-        description: "Compete in mixing challenges and access exclusive studio partnership beta program",
-        icon: Music,
-      },
-    ],
-  },
-  {
-    tier: 2,
-    milestone: 250,
-    title: "Knowledge & Collaboration",
-    features: [
-      {
-        flag: "TIER_2_EDUCATION_HUB" as keyof typeof FEATURE_FLAGS,
-        name: "Educational Hub",
-        description: "Access comprehensive courses, tutorials, and certification programs",
-        icon: GraduationCap,
-      },
-    ],
-  },
-  {
-    tier: 3,
-    milestone: 500,
-    title: "Commerce & Expansion",
-    features: [
-      {
-        flag: "TIER_3_MARKETPLACE" as keyof typeof FEATURE_FLAGS,
-        name: "Marketplace",
-        description: "Buy and sell beats, samples, and production services",
-        icon: ShoppingBag,
-      },
-    ],
-  },
-  {
-    tier: 4,
-    milestone: 1000,
-    title: "Advanced Tools",
-    features: [
-      {
-        flag: "TIER_4_INTEGRATIONS" as keyof typeof FEATURE_FLAGS,
-        name: "Integrations Hub",
-        description: "Connect with your favorite DAWs and production tools",
-        icon: Plug,
-      },
-      {
-        flag: "TIER_4_AI_TOOLS" as keyof typeof FEATURE_FLAGS,
-        name: "AI Audio Intelligence",
-        description: "Advanced AI-powered mixing, mastering, and production assistance",
-        icon: Brain,
-      },
-      {
-        flag: "TIER_4_DISTRIBUTION" as keyof typeof FEATURE_FLAGS,
-        name: "Distribution Platform",
-        description: "Release your music to all major streaming platforms",
-        icon: Disc,
-      },
-      {
-        flag: "TIER_4_ANALYTICS" as keyof typeof FEATURE_FLAGS,
-        name: "Advanced Analytics",
-        description: "Deep insights into your music performance and audience",
-        icon: BarChart3,
-      },
-    ],
-  },
-  {
-    tier: 5,
-    milestone: 2500,
-    title: "Revenue & Growth",
-    features: [
-      {
-        flag: "TIER_5_REVENUE_SHARE" as keyof typeof FEATURE_FLAGS,
-        name: "Revenue Sharing System",
-        description: "Transparent revenue sharing and commission system for collaborators",
-        icon: DollarSign,
-      },
-    ],
-  },
-];
+import { useCommunityUnlockables } from "@/hooks/useUnlockables";
+import { CommunityMilestoneTracker } from "@/components/CommunityMilestoneTracker";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ComingSoon = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
-  const currentUsers = 42;
+  
+  // Fetch live data from database
+  const { data: communityMilestones, platformStats, isLoading } = useCommunityUnlockables();
+
+  const currentUsers = platformStats?.userCount || 0;
+  
+  // Find next locked milestone
+  const nextMilestone = communityMilestones.find(m => !m.is_unlocked);
+  const nextTarget = nextMilestone?.target_value || 100;
+  const progressToNext = nextMilestone 
+    ? Math.min((currentUsers / nextMilestone.target_value) * 100, 100)
+    : 100;
 
   const handleNotifyMe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -146,100 +73,115 @@ const ComingSoon = () => {
           </form>
         </motion.div>
 
-        {/* Community Progress */}
+        {/* Community Progress - Live Data */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           className="mb-16"
         >
-          <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="w-5 h-5" />
-                Community Progress
-              </CardTitle>
-              <CardDescription>
-                We're at {currentUsers} members! Next milestone: 100 users
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Progress value={(currentUsers / 100) * 100} className="h-3" />
-              <p className="text-sm text-muted-foreground mt-2">
-                {100 - currentUsers} more members needed to unlock Tier 1 features
-              </p>
-            </CardContent>
-          </Card>
+          {isLoading ? (
+            <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+              <CardHeader>
+                <Skeleton className="h-6 w-48" />
+                <Skeleton className="h-4 w-64 mt-2" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-3 w-full" />
+                <Skeleton className="h-4 w-48 mt-2" />
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="w-5 h-5" />
+                  Community Progress
+                </CardTitle>
+                <CardDescription>
+                  We're at {currentUsers} members! 
+                  {nextMilestone && ` Next milestone: ${nextMilestone.name} at ${nextMilestone.target_value} users`}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Progress value={progressToNext} className="h-3" />
+                <div className="flex items-center justify-between mt-2">
+                  <p className="text-sm text-muted-foreground">
+                    {nextMilestone 
+                      ? `${nextMilestone.target_value - currentUsers} more members needed`
+                      : 'All milestones unlocked! 🎉'
+                    }
+                  </p>
+                  {nextMilestone && nextMilestone.progress_percentage >= 80 && (
+                    <Badge variant="default" className="animate-pulse">
+                      <Sparkles className="w-3 h-3 mr-1" />
+                      Almost there!
+                    </Badge>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </motion.div>
 
-        {/* Feature Tiers */}
-        <div className="space-y-12">
-          {featureData.map((tier, tierIndex) => (
-            <motion.div
-              key={tier.tier}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 + tierIndex * 0.1 }}
-            >
-              <div className="mb-6">
-                <Badge variant="outline" className="mb-2">
-                  Tier {tier.tier} • {tier.milestone} Users
-                </Badge>
-                <h2 className="text-3xl font-bold">{tier.title}</h2>
-              </div>
+        {/* Community Milestone Tracker - Live Data from Database */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="mb-16"
+        >
+          <CommunityMilestoneTracker />
+        </motion.div>
 
-              <div className="grid md:grid-cols-2 gap-6">
-                {tier.features.map((feature) => {
-                  const Icon = feature.icon;
-                  const isEnabled = FEATURE_FLAGS[feature.flag];
-                  
-                  return (
-                    <Card key={feature.name} className={isEnabled ? "border-primary" : ""}>
-                      <CardHeader>
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-lg bg-primary/10">
-                              <Icon className="w-6 h-6 text-primary" />
-                            </div>
-                            <div>
-                              <CardTitle className="text-xl">{feature.name}</CardTitle>
-                            </div>
-                          </div>
-                          {isEnabled ? (
-                            <Badge variant="default">Live</Badge>
-                          ) : (
-                            <Badge variant="secondary">
-                              <Lock className="w-3 h-3 mr-1" />
-                              Locked
-                            </Badge>
-                          )}
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-muted-foreground">{feature.description}</p>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            </motion.div>
-          ))}
-
-        </div>
+        {/* Platform Stats Summary */}
+        {!isLoading && platformStats && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16"
+          >
+            <Card>
+              <CardContent className="pt-6 text-center">
+                <div className="text-3xl font-bold text-primary">{platformStats.userCount}</div>
+                <p className="text-sm text-muted-foreground">Members</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-6 text-center">
+                <div className="text-3xl font-bold text-primary">{platformStats.sessionCount}</div>
+                <p className="text-sm text-muted-foreground">Sessions</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-6 text-center">
+                <div className="text-3xl font-bold text-primary">{platformStats.projectCount}</div>
+                <p className="text-sm text-muted-foreground">Projects</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-6 text-center">
+                <div className="text-3xl font-bold text-primary">{platformStats.beatsUploaded}</div>
+                <p className="text-sm text-muted-foreground">Beats</p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
 
         {/* CTA Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
-          className="text-center mt-16 p-12 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20"
+          transition={{ delay: 0.4 }}
+          className="text-center p-12 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20"
         >
           <h2 className="text-3xl font-bold mb-4">Help Us Unlock These Features</h2>
           <p className="text-lg text-muted-foreground mb-6 max-w-2xl mx-auto">
-            Every new member brings us closer to unlocking these powerful tools. Join MixClub today and be part of the journey.
+            Every new member brings us closer to unlocking these powerful tools. Join MixxClub today and be part of the journey.
           </p>
           <Button size="lg" onClick={() => navigate("/auth")}>
-            Join MixClub Now
+            Join MixxClub Now
           </Button>
         </motion.div>
       </main>
