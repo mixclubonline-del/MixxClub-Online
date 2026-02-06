@@ -1,13 +1,15 @@
 // src/integrations/supabase/client.ts for Launch Control Center
 // This connects to the SAME Supabase backend as the main MixClub app
+// 
+// NOTE: This is documentation only. The actual client uses environment variables.
+// See: src/integrations/supabase/client.ts for the real implementation.
 
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-// These are the SAME credentials as the main MixClub app
-// Both apps share the same Supabase backend
-const SUPABASE_URL = "https://kbbrehnyqpulbxyesril.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtiYnJlaG55cXB1bGJ4eWVzcmlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzOTI3NDIsImV4cCI6MjA3ODk2ODc0Mn0.vnPyNMOg1HiHh2QzKH059F4GOrjiR6P2OeW8qjOFKkQ";
+// Use environment variables - these are set automatically by Lovable Cloud
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
