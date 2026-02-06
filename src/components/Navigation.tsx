@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { NotificationCenter } from "./notifications/NotificationCenter";
 import { isFeatureEnabled } from "@/config/featureFlags";
 import { UserLevelBadge } from "./gamification/UserLevelBadge";
+import { UnlockPulseIndicator } from "./unlock/UnlockPulseIndicator";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -151,6 +152,7 @@ const Navigation = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
+            {user && <UnlockPulseIndicator />}
             {user && <NotificationCenter />}
 
             {navLinks.map((link, index) => {

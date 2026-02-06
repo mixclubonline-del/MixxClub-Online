@@ -1,16 +1,18 @@
 /**
  * The Stage Door
  * 
- * Room 5: Your seat is waiting.
- * Final CTA and compact footer.
+ * Room 6: Your seat is waiting.
+ * Final CTA with dynamic unlock-aware messaging.
  */
 
 import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Users } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ClubRoom } from '../ClubRoom';
 import { Button } from '@/components/ui/button';
 import { HomeFooter } from '../HomeFooter';
+import { useCommunityMilestones } from '@/hooks/useCommunityMilestones';
+import { Progress } from '@/components/ui/progress';
 
 interface StageDoorProps {
   onJoin: () => void;
@@ -18,6 +20,14 @@ interface StageDoorProps {
 
 export function StageDoor({ onJoin }: StageDoorProps) {
   const navigate = useNavigate();
+  const { data: milestones, isLoading } = useCommunityMilestones();
+
+  // Find next milestone for dynamic CTA
+  const nextMilestone = milestones.find((m) => !m.is_unlocked);
+  const isNearUnlock = nextMilestone && nextMilestone.progress_percentage >= 80;
+  const membersNeeded = nextMilestone 
+    ? nextMilestone.target_value - nextMilestone.current_value 
+    : 0;
 
   return (
     <ClubRoom id="stage" className="bg-background flex flex-col">
@@ -57,6 +67,33 @@ export function StageDoor({ onJoin }: StageDoorProps) {
           </span>
         </motion.p>
 
+        {/* Milestone Progress (when near unlock) */}
+        {nextMilestone && (
+          <motion.div
+            className="w-full max-w-md mb-8"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+          >
+            <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Users className="w-4 h-4" />
+                  <span>Unlocking: {nextMilestone.milestone_name}</span>
+                </div>
+                <span className="text-sm font-bold text-primary">
+                  {nextMilestone.progress_percentage}%
+                </span>
+              </div>
+              <Progress value={nextMilestone.progress_percentage} className="h-2" />
+              <p className="mt-2 text-xs text-center text-muted-foreground">
+                {membersNeeded} more {membersNeeded === 1 ? 'member' : 'members'} to unlock
+              </p>
+            </div>
+          </motion.div>
+        )}
+
         {/* Primary CTA */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -67,9 +104,9 @@ export function StageDoor({ onJoin }: StageDoorProps) {
           <Button
             onClick={onJoin}
             size="lg"
-            className="group text-lg px-10 py-6 h-auto"
+            className={`group text-lg px-10 py-6 h-auto ${isNearUnlock ? 'animate-pulse' : ''}`}
           >
-            Join the Club
+            {isNearUnlock ? 'Help Us Unlock!' : 'Join the Club'}
             <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
           </Button>
         </motion.div>

@@ -14,6 +14,7 @@ import { ClubProgress } from './ClubProgress';
 import { ListeningRoom } from './rooms/ListeningRoom';
 import { GreenRoom } from './rooms/GreenRoom';
 import { ControlRoom } from './rooms/ControlRoom';
+import { VaultRoom } from './rooms/VaultRoom';
 import { VIPBooth } from './rooms/VIPBooth';
 import { StageDoor } from './rooms/StageDoor';
 
@@ -21,7 +22,7 @@ interface ClubSceneProps {
   onBack?: () => void;
 }
 
-const ROOM_IDS = ['listening', 'green', 'control', 'vip', 'stage'];
+const ROOM_IDS = ['listening', 'green', 'control', 'vault', 'vip', 'stage'];
 
 export function ClubScene({ onBack }: ClubSceneProps) {
   const navigate = useNavigate();
@@ -136,6 +137,7 @@ export function ClubScene({ onBack }: ClubSceneProps) {
         <ListeningRoom onScrollHint={scrollToNext} />
         <GreenRoom />
         <ControlRoom />
+        <VaultRoom />
         <VIPBooth />
         <StageDoor onJoin={handleJoin} />
       </div>
