@@ -1,15 +1,20 @@
+## Completed: Auth Wizard Stabilization & Unification
 
-
-## Next Phase: Auth Wizard Stabilization & Unification
+### Phase 2 Summary ✅
+- ✅ `MobileLanding.tsx` now navigates to `/auth` instead of showing legacy dialog
+- ✅ `RoleStep.tsx` now displays `AuthSocialProof` for live stats during signup
+- ✅ `MobileAuthDialog.tsx` marked as deprecated
+- ✅ Wizard flow remains stable with magic link + Google OAuth
 
 ### Current State Summary
-The wizard-style magic link authentication system (Phase 1) is now implemented with:
-- ✅ `RoleStep` → Choose Producer/Artist/Engineer/Fan
+The wizard-style magic link authentication system is now unified:
+- ✅ `RoleStep` → Choose Producer/Artist/Engineer/Fan + Social Proof stats
 - ✅ `EmailStep` → Enter email for magic link + Google OAuth fallback
 - ✅ `ConfirmationStep` → Check inbox for magic link
 - ✅ `AuthCallback` → Handles token exchange and role-based routing
 - ✅ Routes configured (`/auth`, `/auth/callback`)
 - ✅ Event propagation hardening (prevents refresh-on-type)
+- ✅ Mobile entry unified (no more legacy dialog)
 
 ### What This Phase Delivers
 

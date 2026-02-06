@@ -1,6 +1,7 @@
 import { Disc3, Mic2, Headphones, Heart, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AppRole } from '@/hooks/useAuthWizard';
+import { AuthSocialProof } from '../AuthSocialProof';
 
 interface RoleStepProps {
   selectedRole: AppRole | null;
@@ -99,6 +100,9 @@ export function RoleStep({ selectedRole, onSelectRole, onNext, onSwitchToLogin, 
           {error}
         </div>
       )}
+
+      {/* Social Proof */}
+      <AuthSocialProof className="pt-2" />
 
       {/* Continue button */}
       <Button
