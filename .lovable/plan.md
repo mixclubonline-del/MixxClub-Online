@@ -1,197 +1,136 @@
 
 
-## New Authentication Page: Wizard-Style Magic Link Flow
+## Next Phase: Auth Wizard Stabilization & Unification
 
-### Goal
+### Current State Summary
+The wizard-style magic link authentication system (Phase 1) is now implemented with:
+- ✅ `RoleStep` → Choose Producer/Artist/Engineer/Fan
+- ✅ `EmailStep` → Enter email for magic link + Google OAuth fallback
+- ✅ `ConfirmationStep` → Check inbox for magic link
+- ✅ `AuthCallback` → Handles token exchange and role-based routing
+- ✅ Routes configured (`/auth`, `/auth/callback`)
+- ✅ Event propagation hardening (prevents refresh-on-type)
 
-Replace the current 1,170-line monolithic `Auth.tsx` with a clean, modular wizard-style authentication experience using passwordless magic links.
+### What This Phase Delivers
 
-### Why This Approach
+**1. Unify Mobile Auth Entry Point**
+The `MobileAuthDialog` component (used on `/mobile-landing`) still uses the legacy password-based flow. We need to redirect mobile users to the new wizard instead of showing a separate dialog.
 
-1. **Magic Link Benefits**
-   - No passwords to forget or manage
-   - Inherently more secure (no credential stuffing attacks)
-   - Modern UX pattern used by Slack, Notion, Linear
-   - Simpler form (just email + role selection)
+Files affected:
+- `src/pages/MobileLanding.tsx` - Replace dialog trigger with navigation to `/auth`
+- `src/components/mobile/MobileAuthDialog.tsx` - Mark as deprecated or delete
 
-2. **Wizard Flow Benefits**
-   - Guided experience reduces cognitive load
-   - Step-by-step progression is mobile-friendly
-   - Easier to add future steps (e.g., profile setup)
-   - Cleaner separation of concerns
+**2. Add Social Proof to Wizard**
+The existing `AuthSocialProof` component shows live activity and stats but isn't connected to the new wizard. We'll add it to the `RoleStep` for engagement.
 
-3. **Current Issues Being Resolved**
-   - Refresh-on-interaction bug (from stale PWA/global handlers)
-   - 1,170+ lines in single file (unmaintainable)
-   - Complex state management mixing login/signup/reset/update-password modes
-   - Framer Motion layout conflicts
+Files affected:
+- `src/components/auth/steps/RoleStep.tsx` - Add `AuthSocialProof` below role cards
+
+**3. Polish Confirmation Step**
+Add troubleshooting tips and ensure the resend cooldown is visible.
+
+Files affected:
+- `src/components/auth/steps/ConfirmationStep.tsx` - Already good, minor polish
+
+**4. Cleanup Legacy Password References**
+Remove password-related code from mobile auth while keeping DemoLogin intact (it's used for demo accounts).
 
 ---
 
-### Architecture
+### Implementation Details
 
+**Step 1: Redirect Mobile Landing to /auth**
 ```text
-src/
-├── pages/
-│   ├── Auth.tsx                    # NEW: Lightweight wizard container
-│   └── AuthCallback.tsx            # NEW: Magic link callback handler
-├── components/auth/
-│   ├── steps/
-│   │   ├── RoleStep.tsx            # Step 1: Choose your path
-│   │   ├── EmailStep.tsx           # Step 2: Enter email
-│   │   └── ConfirmationStep.tsx    # Step 3: Check your inbox
-│   ├── AuthWizard.tsx              # Wizard controller
-│   ├── AuthLayout.tsx              # Gateway visual wrapper
-│   └── AuthSocialProof.tsx         # KEEP (existing)
-└── hooks/
-    └── useAuthWizard.ts            # Wizard state management
+MobileLanding.tsx changes:
+- Remove MobileAuthDialog import and state
+- Replace "Sign In" / "Sign Up" buttons with navigate('/auth')
 ```
 
----
-
-### Wizard Steps
-
-**Step 1: Choose Your Path (Role Selection)**
-- Four role cards: Producer, Artist, Engineer, Fan
-- Visual selection with role-specific icons and taglines
-- Progress indicator: Step 1 of 3
-
-**Step 2: Enter Email**
-- Single email input field
-- "Send Magic Link" button
-- Google OAuth as alternative (below separator)
-- Progress indicator: Step 2 of 3
-
-**Step 3: Check Your Inbox**
-- Animated confirmation with envelope icon
-- Clear instruction: "Click the link in your email"
-- Resend link option (with 60-second cooldown)
-- Change email option (goes back to Step 2)
-
-**Returning User Flow**
-- Skip Step 1 (role selection)
-- Show "Welcome back" instead of "Enter the City"
-- Same magic link flow
-
----
-
-### Technical Implementation
-
-**1. Magic Link Auth (Supabase)**
-```typescript
-// Sign in/up with magic link
-const { error } = await supabase.auth.signInWithOtp({
-  email,
-  options: {
-    shouldCreateUser: true, // Allow new signups
-    emailRedirectTo: `${window.location.origin}/auth/callback`,
-    data: {
-      role: selectedRole,
-      full_name: '', // Collected in onboarding
-    }
-  }
-});
+**Step 2: Add Social Proof to RoleStep**
+```text
+RoleStep.tsx changes:
+- Import AuthSocialProof
+- Add below role cards, above Continue button
+- Shows live activity + stats during signup
 ```
 
-**2. Callback Handler (AuthCallback.tsx)**
-- Handles magic link redirect
-- Exchanges token for session
-- Assigns role to `user_roles` table
-- Redirects to role-specific onboarding
-
-**3. Wizard State (useAuthWizard.ts)**
-```typescript
-interface AuthWizardState {
-  step: 'role' | 'email' | 'confirmation';
-  mode: 'signup' | 'login';
-  selectedRole: AppRole | null;
-  email: string;
-  loading: boolean;
-  error: string | null;
-  resendCooldown: number;
-}
+**Step 3: Deprecate MobileAuthDialog**
+```text
+Add deprecation comment:
+// @deprecated Use /auth page with AuthWizard instead
+// Kept for reference during migration
 ```
 
-**4. Visual Layout (AuthLayout.tsx)**
-- Reuses existing `auth-gateway.jpg` background
-- Glass-morphism card containing wizard steps
-- Ambient particles (CSS-based, no Framer layout animations)
-- Safe area insets for mobile
-- Back button to landing
+**Step 4: Verify DemoLogin Stays Functional**
+The `DemoLogin.tsx` uses password auth for demo accounts - this is intentional and must remain unchanged.
 
 ---
 
-### Form Hardening
+### Files to Modify
 
-All inputs and buttons will include:
-- `onKeyDownCapture={(e) => e.stopPropagation()}` to prevent global shortcut interference
-- `type="button"` on all non-submit buttons
-- `e.preventDefault()` on form submission
-- No Framer Motion `layout` animations on interactive elements
+| File | Action | Purpose |
+|------|--------|---------|
+| `src/pages/MobileLanding.tsx` | Edit | Replace dialog with navigation to /auth |
+| `src/components/auth/steps/RoleStep.tsx` | Edit | Add AuthSocialProof component |
+| `src/components/mobile/MobileAuthDialog.tsx` | Edit | Add deprecation comment |
 
----
+### Files Unchanged
 
-### Files to Create/Modify
-
-| Action | File | Purpose |
-|--------|------|---------|
-| DELETE | `src/pages/Auth.tsx` | Remove current 1,170-line file |
-| CREATE | `src/pages/Auth.tsx` | New lightweight wizard container (~100 lines) |
-| CREATE | `src/pages/AuthCallback.tsx` | Magic link callback handler (~80 lines) |
-| CREATE | `src/components/auth/AuthWizard.tsx` | Wizard state + step renderer (~150 lines) |
-| CREATE | `src/components/auth/AuthLayout.tsx` | Visual wrapper with background (~80 lines) |
-| CREATE | `src/components/auth/steps/RoleStep.tsx` | Role selection cards (~100 lines) |
-| CREATE | `src/components/auth/steps/EmailStep.tsx` | Email input + Google OAuth (~120 lines) |
-| CREATE | `src/components/auth/steps/ConfirmationStep.tsx` | Check inbox UI (~80 lines) |
-| CREATE | `src/hooks/useAuthWizard.ts` | Wizard state hook (~100 lines) |
-| MODIFY | `src/routes/index.tsx` | Add `/auth/callback` route |
-| KEEP | `src/components/auth/AuthSocialProof.tsx` | Reuse existing component |
-| KEEP | `src/components/auth/ProtectedRoute.tsx` | No changes needed |
-
----
-
-### Edge Cases Handled
-
-1. **User already exists (login vs signup)**
-   - Magic link works for both
-   - Backend detects existing user, skips role assignment
-   - Redirects to CRM instead of onboarding
-
-2. **Email not delivered**
-   - Resend button with 60-second cooldown
-   - Toast with troubleshooting tips (check spam)
-
-3. **Session recovery**
-   - `AuthCallback.tsx` handles token exchange
-   - Falls back to login if token expired
-
-4. **Google OAuth fallback**
-   - Kept as alternative for users who prefer it
-   - Uses existing `lovable.auth.signInWithOAuth`
-
-5. **Password reset users**
-   - Removed (no passwords = no reset needed)
-   - Existing reset links will still work via Supabase
-
----
-
-### Migration Path
-
-1. New auth system built alongside old
-2. Old `Auth.tsx` renamed to `Auth.legacy.tsx` temporarily
-3. New `Auth.tsx` takes over `/auth` route
-4. After validation, delete legacy file
+| File | Reason |
+|------|--------|
+| `src/pages/DemoLogin.tsx` | Intentionally uses password auth for demo accounts |
+| `src/pages/AudioUpload.tsx` | Uses password auth for temporary upload accounts |
 
 ---
 
 ### Acceptance Criteria
 
-- Typing in email field does not refresh page
-- Magic link sends successfully
-- Clicking link in email signs user in
-- New users go to role-specific onboarding
-- Returning users go to their CRM hub
-- Google OAuth still works
-- Works on desktop Chrome, mobile Safari, mobile Chrome
-- No console errors or CSP blocks
+- [ ] Clicking "Sign In" on mobile landing navigates to /auth
+- [ ] Role selection step shows live social proof stats
+- [ ] Magic link sends successfully
+- [ ] Clicking link in email signs user in
+- [ ] New users route to role-specific onboarding
+- [ ] Returning users route to their CRM hub
+- [ ] Google OAuth still works as fallback
+- [ ] No console errors or CSP blocks
+- [ ] No page refresh on typing in fields
+
+---
+
+### Testing Plan
+
+1. **Fresh signup flow**
+   - Navigate to /auth
+   - Select role (Producer)
+   - Enter test email
+   - Verify magic link email received
+   - Click link → verify redirect to /producer-onboarding
+
+2. **Returning user flow**
+   - Navigate to /auth
+   - Click "Sign in" to skip role selection
+   - Enter existing email
+   - Verify magic link works
+   - Verify redirect to CRM (not onboarding)
+
+3. **Google OAuth fallback**
+   - Click Google button
+   - Complete OAuth flow
+   - Verify session established
+
+4. **Mobile experience**
+   - Open /auth on mobile viewport
+   - Verify responsive design
+   - Test touch interactions
+
+---
+
+### Risk Assessment
+
+| Risk | Mitigation |
+|------|------------|
+| Magic link emails not delivered | Resend button with cooldown; troubleshooting tips in UI |
+| OAuth redirect fails | CSP already updated to allow Lovable/Google domains |
+| Session not persisting | AuthCallback exchanges tokens properly |
+| Demo accounts break | DemoLogin.tsx left unchanged |
 
