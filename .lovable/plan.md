@@ -1,65 +1,62 @@
 
 
-## Fix Admin CRM: Add Missing RLS Policies
+## Add Admin Write RLS Policies
 
 ### Problem
-The Admin CRM is fully built and correctly wired, but 6 database tables lack admin-level SELECT policies. This means the admin dashboard shows incomplete or empty data in the Users, Sessions, Content, Revenue, and Community hubs.
+The Admin CRM hubs have working read access, but every write action (assigning roles, removing roles, updating payout statuses, moderating content) will silently fail because no INSERT/UPDATE/DELETE policies exist for admin users on the relevant tables.
 
-### Root Cause
-When these tables were created, only user-scoped policies were added (e.g., "view own data" or "view public data"). No admin override policies exist for bulk data access.
+### What This Fixes
 
-### Database Migration
+The AdminUsersHub already has `handleAssignRole` and `handleRemoveRole` functions wired to buttons. When you click "Add role" or click a role badge to remove it, those calls hit the database and get blocked by RLS. This migration unblocks them.
 
-Add 6 new RLS policies using the existing `has_role` security definer function:
+---
 
-```text
-Table: user_roles
-Policy: "Admins can view all user roles"
-Rule: SELECT where has_role(auth.uid(), 'admin')
+### Policies to Add (9 total)
 
-Table: collaboration_sessions  
-Policy: "Admins can view all sessions"
-Rule: SELECT where has_role(auth.uid(), 'admin')
+**user_roles** (role assignment from Users Hub):
+- Admin INSERT: assign any role to any user
+- Admin DELETE: remove any role from any user
 
-Table: audio_files
-Policy: "Admins can view all audio files"
-Rule: SELECT where has_role(auth.uid(), 'admin')
+**profiles** (user management from Users Hub):
+- Admin UPDATE: edit user profiles (e.g., ban, update info)
 
-Table: producer_beats
-Policy: "Admins can view all beats"
-Rule: SELECT where has_role(auth.uid(), 'admin')
+**collaboration_sessions** (session management from Sessions Hub):
+- Admin UPDATE: change session status (cancel, complete)
+- Admin DELETE: remove sessions
 
-Table: engineer_payouts
-Policy: "Admins can view all payouts"
-Rule: SELECT where has_role(auth.uid(), 'admin')
+**audio_files** (content moderation from Content Hub):
+- Admin UPDATE: flag or update audio file metadata
+- Admin DELETE: remove violating audio files
 
-Table: activity_feed
-Policy: "Admins can view all activity"
-Rule: SELECT where has_role(auth.uid(), 'admin')
-```
+**producer_beats** (content moderation from Content Hub):
+- Admin UPDATE: flag or update beat metadata
+- Admin DELETE: remove violating beats
 
-All policies use the existing `has_role` security definer function, which queries `user_roles` without triggering RLS recursion.
+**engineer_payouts** (payout processing from Revenue Hub):
+- Admin UPDATE: mark payouts as processed/failed
 
-### Why This Is Safe
+**activity_feed** (community moderation from Community Hub):
+- Admin DELETE: remove inappropriate activity entries
 
-- The `has_role` function is `SECURITY DEFINER` -- it bypasses RLS on the `user_roles` table itself, preventing circular policy checks.
-- Only users with the `admin` role in `user_roles` can access this data.
-- No client-side bypass is possible; the check runs server-side in Postgres.
+---
 
-### No Code Changes Required
+### Security Notes
 
-All frontend components (AdminCRM, hub components, AdminRoute) are already correctly built. This is purely a database policy fix.
+- All policies use the same `has_role(auth.uid(), 'admin')` security definer function
+- No new functions needed; the existing `has_role` function handles everything
+- Only database-validated admin accounts can execute these writes
+- The `user_roles` INSERT policy for admins is unrestricted on role type (admins can assign any role including admin)
+- The existing user self-signup INSERT policy remains untouched (only allows artist/engineer self-assignment)
+
+### No Code Changes
+
+All frontend components are already wired for these operations. The `AdminUsersHub` has assign/remove handlers, the `PayoutProcessingControl` calls the edge function (which uses service role), and the System Hub already works via `admin_security_events` ALL policy. This is purely a database policy addition.
 
 ### Files Changed
 - None (database migration only)
 
-### Verification Steps After Migration
-1. Sign in with mixclubonline@gmail.com
-2. Navigate to /admin
-3. Confirm Dashboard shows total user count, role distribution, and recent activity
-4. Open Users hub -- verify all users appear with their role badges
-5. Open Sessions hub -- verify all sessions (including private) appear
-6. Open Content hub -- verify audio files and beats from all users appear
-7. Open Revenue hub -- verify payouts section shows data
-8. Open Community hub -- verify full activity feed loads
+### Verification After Migration
+1. Open Users Hub, assign a role to a user -- verify it sticks
+2. Click a role badge to remove it -- verify it disappears
+3. Check that non-admin users still cannot assign or remove roles
 
