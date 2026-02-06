@@ -38,6 +38,7 @@ import { MobileOptimizations } from "@/components/MobileOptimizations";
 import { DepthProvider } from "@/contexts/DepthContext";
 import { PulseProvider } from "@/contexts/PulseContext";
 import { EnergyTransition } from "@/components/pulse/PulseComponents";
+import { UnlockCelebrationProvider } from "@/components/unlock/UnlockCelebrationProvider";
 
 // Route modules - organized by domain
 import { publicRoutes, appRoutes, mobileRoutes, cityRoutes } from "@/routes";
@@ -123,20 +124,22 @@ const App = () => {
                   <GlobalPlayerProvider>
                     <TutorialProvider>
                       <PulseProvider>
-                        <PWAInstallPrompt />
-                        <EnergyTransition />
-                        <AppContent />
-                        <GlobalNavigation />
-                        <GlobalInteractions />
-                        <GlobalKeyboardShortcuts />
-                        <MobileOptimizations />
-                        <DesktopOnlyComponents />
-                        <TutorialOverlay />
-                        <GlobalAudioPlayer />
-                        <GlobalMusicPlayer />
-                        <GlobalPrimeChat />
-                        <PerformanceMonitor />
-                        <CookieConsent />
+                        <UnlockCelebrationProvider>
+                          <PWAInstallPrompt />
+                          <EnergyTransition />
+                          <AppContent />
+                          <GlobalNavigation />
+                          <GlobalInteractions />
+                          <GlobalKeyboardShortcuts />
+                          <MobileOptimizations />
+                          <DesktopOnlyComponents />
+                          <TutorialOverlay />
+                          <GlobalAudioPlayer />
+                          <GlobalMusicPlayer />
+                          <GlobalPrimeChat />
+                          <PerformanceMonitor />
+                          <CookieConsent />
+                        </UnlockCelebrationProvider>
                       </PulseProvider>
                     </TutorialProvider>
                   </GlobalPlayerProvider>
