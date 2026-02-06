@@ -48,8 +48,10 @@ export const useCollaboration = ({
     setConnectionStatus('connecting');
     
     try {
-      // Use the correct project's Supabase URL for WebSocket connection
-      const wsUrl = `wss://kbbrehnyqpulbxyesril.supabase.co/functions/v1/collaboration-websocket?sessionId=${sessionId}&userId=${userId}&userName=${encodeURIComponent(userName)}`;
+      // Build WebSocket URL from environment variable
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+      const wsHost = supabaseUrl.replace('https://', 'wss://');
+      const wsUrl = `${wsHost}/functions/v1/collaboration-websocket?sessionId=${sessionId}&userId=${userId}&userName=${encodeURIComponent(userName)}`;
       
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;

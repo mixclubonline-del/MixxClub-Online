@@ -11,7 +11,11 @@ interface AudioAnalysis {
   duration: number;
 }
 
-const AUDIO_URL = 'https://kbbrehnyqpulbxyesril.supabase.co/storage/v1/object/public/audio-files/uploads/1764786509897-m8ucjp.mp3';
+// Dynamic audio URL from environment - gracefully handles missing files
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
+const AUDIO_URL = SUPABASE_URL 
+  ? `${SUPABASE_URL}/storage/v1/object/public/audio-files/insider-track.mp3`
+  : '';
 
 export const useInsiderAudio = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -51,10 +55,13 @@ export const useInsiderAudio = () => {
       audio.loop = true;
       audioElementRef.current = audio;
 
-      // Wait for audio to load
+      // Wait for audio to load - handle missing files gracefully
       await new Promise<void>((resolve, reject) => {
         audio.oncanplaythrough = () => resolve();
-        audio.onerror = () => reject(new Error('Failed to load audio'));
+        audio.onerror = () => {
+          console.warn('Insider audio not available - feature disabled');
+          reject(new Error('Audio file not found'));
+        };
         audio.load();
       });
 
