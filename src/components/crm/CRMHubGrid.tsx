@@ -105,12 +105,22 @@ const ROLE_HUB_DEFINITIONS: Record<string, HubDefinition[]> = {
   ],
 };
 
+// Role-specific quick action accent map
+const QUICK_ACTION_ACCENTS: Record<string, string> = {
+  artist: 'hover:bg-purple-500/20 hover:border-purple-500/40 hover:shadow-purple-500/20',
+  engineer: 'hover:bg-orange-500/20 hover:border-orange-500/40 hover:shadow-orange-500/20',
+  producer: 'hover:bg-yellow-500/20 hover:border-yellow-500/40 hover:shadow-yellow-500/20',
+  fan: 'hover:bg-pink-500/20 hover:border-pink-500/40 hover:shadow-pink-500/20',
+  admin: 'hover:bg-cyan-500/20 hover:border-cyan-500/40 hover:shadow-cyan-500/20',
+};
+
 export const CRMHubGrid: React.FC<CRMHubGridProps> = ({
   userType,
   onHubSelect,
   quickActions,
 }) => {
   const isMobile = useIsMobile();
+  const accentClasses = QUICK_ACTION_ACCENTS[userType] || QUICK_ACTION_ACCENTS.artist;
   
   // Get role-specific hubs
   const hubs = useMemo(() => {
@@ -119,19 +129,27 @@ export const CRMHubGrid: React.FC<CRMHubGridProps> = ({
 
   return (
     <div className="space-y-8">
-      {/* Quick Actions Row */}
+      {/* Quick Actions Row — Glassmorphic */}
       <motion.div
         className={cn(
-          "backdrop-blur-xl bg-background/30 border border-border/40 rounded-2xl p-5",
-          "shadow-lg"
+          "backdrop-blur-2xl rounded-2xl p-5",
+          "shadow-xl"
         )}
+        style={{
+          background: 'rgba(var(--background-rgb, 0, 0, 0), 0.3)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 32px -8px rgba(0,0,0,0.4)',
+        }}
         initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ delay: 0.1, duration: 0.5 }}
       >
         <div className="flex items-center gap-3 mb-4">
-          <Sparkles className="h-5 w-5 text-primary" />
-          <h3 className="font-semibold text-foreground">Quick Actions</h3>
+          <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center backdrop-blur-md border border-primary/20">
+            <Sparkles className="h-4 w-4 text-primary" />
+          </div>
+          <h3 className="font-semibold text-foreground text-sm tracking-wide uppercase">Quick Actions</h3>
         </div>
         <div className={cn(
           "flex gap-3",
@@ -143,8 +161,9 @@ export const CRMHubGrid: React.FC<CRMHubGridProps> = ({
               onClick={action.onClick}
               variant={action.variant || 'outline'}
               className={cn(
-                "gap-2 backdrop-blur-md bg-background/40 hover:bg-primary/20 border-border/50",
-                "transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/20",
+                "gap-2 backdrop-blur-xl bg-white/5 border-white/10",
+                "transition-all duration-400 hover:scale-[1.03] hover:shadow-lg",
+                accentClasses,
                 isMobile ? "flex-1" : ""
               )}
             >
@@ -155,7 +174,7 @@ export const CRMHubGrid: React.FC<CRMHubGridProps> = ({
         </div>
       </motion.div>
 
-      {/* Hub Modules Grid */}
+      {/* Hub Modules Grid — Responsive with whileInView */}
       <div className={cn(
         "grid gap-4",
         isMobile ? "grid-cols-2" : "grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
@@ -166,9 +185,9 @@ export const CRMHubGrid: React.FC<CRMHubGridProps> = ({
             hubId={hub.id}
             label={hub.label}
             description={hub.description}
-            icon={<hub.icon className="h-6 w-6" />}
+            icon={<hub.icon className="h-5 w-5" />}
             onClick={() => onHubSelect(hub.id)}
-            delay={index * 0.05}
+            delay={index * 0.04}
             userType={userType}
           />
         ))}

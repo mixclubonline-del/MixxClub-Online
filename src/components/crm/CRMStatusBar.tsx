@@ -27,6 +27,15 @@ const ROLE_STUDIO_LABELS: Record<string, string> = {
   admin: 'Command Center',
 };
 
+// Role badge accent classes
+const ROLE_BADGE_ACCENTS: Record<string, string> = {
+  artist: 'bg-purple-500/15 border-purple-500/30 text-purple-300',
+  engineer: 'bg-orange-500/15 border-orange-500/30 text-orange-300',
+  producer: 'bg-yellow-500/15 border-yellow-500/30 text-yellow-300',
+  fan: 'bg-pink-500/15 border-pink-500/30 text-pink-300',
+  admin: 'bg-cyan-500/15 border-cyan-500/30 text-cyan-300',
+};
+
 interface CRMStatusBarProps {
    userType: 'artist' | 'engineer' | 'producer' | 'fan' | 'admin';
   profile: any;
@@ -46,6 +55,7 @@ export const CRMStatusBar: React.FC<CRMStatusBarProps> = ({
   onBackToGrid,
 }) => {
   const isMobile = useIsMobile();
+  const badgeAccent = ROLE_BADGE_ACCENTS[userType] || ROLE_BADGE_ACCENTS.artist;
   
   // Get role-specific AI guide character
   const guide = useMemo(() => {
@@ -63,10 +73,14 @@ export const CRMStatusBar: React.FC<CRMStatusBarProps> = ({
   return (
     <motion.div
       className={cn(
-        "backdrop-blur-xl bg-background/40 border border-border/50 rounded-2xl",
-        "shadow-lg shadow-primary/5",
+        "backdrop-blur-2xl rounded-2xl",
         isMobile ? "p-4" : "p-5"
       )}
+      style={{
+        background: 'rgba(var(--background-rgb, 0, 0, 0), 0.35)',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 32px -8px rgba(0,0,0,0.4)',
+      }}
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
@@ -86,7 +100,7 @@ export const CRMStatusBar: React.FC<CRMStatusBarProps> = ({
           )}
           
           <div className="flex items-center gap-3">
-            <Avatar className="h-12 w-12 border-2 border-primary/50 shadow-lg shadow-primary/20">
+            <Avatar className="h-12 w-12 border-2 border-white/10 shadow-lg shadow-primary/10">
               <AvatarImage src={profile?.avatar_url} />
               <AvatarFallback className="bg-primary/20 text-primary font-bold">
                 {profile?.full_name?.charAt(0) || '?'}
@@ -100,8 +114,8 @@ export const CRMStatusBar: React.FC<CRMStatusBarProps> = ({
                 </h2>
                 {/* AI Guide Avatar */}
                 <div 
-                  className="w-6 h-6 rounded-full overflow-hidden border border-border/50"
-                  style={{ boxShadow: `0 0 8px ${guide.accentColor}` }}
+                  className="w-6 h-6 rounded-full overflow-hidden border border-white/15"
+                  style={{ boxShadow: `0 0 10px ${guide.accentColor}` }}
                   title={`${guide.name} is your guide`}
                 >
                   <img 
@@ -110,7 +124,10 @@ export const CRMStatusBar: React.FC<CRMStatusBarProps> = ({
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <Badge variant="outline" className="text-xs bg-primary/10 border-primary/30">
+                <Badge 
+                  variant="outline" 
+                  className={cn("text-xs", badgeAccent)}
+                >
                   {ROLE_LABELS[userType] || 'Creator'}
                 </Badge>
               </div>
@@ -130,13 +147,17 @@ export const CRMStatusBar: React.FC<CRMStatusBarProps> = ({
           </div>
         </div>
         
-        {/* Right section: Stats */}
+        {/* Right section: Stats — Glassmorphic stat pills */}
         {!isMobile && (
           <div className="flex items-center gap-3">
             {stats.slice(0, 4).map((stat, index) => (
               <motion.div
                 key={index}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-background/50 border border-border/30"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl backdrop-blur-md"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.04)',
+                  border: '1px solid rgba(255, 255, 255, 0.06)',
+                }}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: index * 0.1 }}
@@ -157,7 +178,7 @@ export const CRMStatusBar: React.FC<CRMStatusBarProps> = ({
         {isMobile && (
           <div className="flex items-center gap-2">
             <div 
-              className="w-7 h-7 rounded-full overflow-hidden border border-border/50"
+              className="w-7 h-7 rounded-full overflow-hidden border border-white/15"
               style={{ boxShadow: `0 0 8px ${guide.accentColor}` }}
             >
               <img 
@@ -179,7 +200,11 @@ export const CRMStatusBar: React.FC<CRMStatusBarProps> = ({
           {stats.map((stat, index) => (
             <div
               key={index}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-background/50 border border-border/30 shrink-0"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg backdrop-blur-md shrink-0"
+              style={{
+                background: 'rgba(255, 255, 255, 0.04)',
+                border: '1px solid rgba(255, 255, 255, 0.06)',
+              }}
             >
               <div className={cn("p-1 rounded", stat.color)}>
                 {stat.icon}
