@@ -15,6 +15,7 @@ const ROLE_LABELS: Record<string, string> = {
   engineer: 'Engineer',
   producer: 'Producer',
   fan: 'Fan',
+  admin: 'Admin',
 };
 
 // Role-specific studio labels for mobile
@@ -23,10 +24,11 @@ const ROLE_STUDIO_LABELS: Record<string, string> = {
   engineer: 'Pro Studio',
   producer: 'Beat Lab',
   fan: 'Fan Zone',
+  admin: 'Command Center',
 };
 
 interface CRMStatusBarProps {
-   userType: 'artist' | 'engineer' | 'producer' | 'fan';
+   userType: 'artist' | 'engineer' | 'producer' | 'fan' | 'admin';
   profile: any;
   stats: Array<{
     icon: ReactNode;

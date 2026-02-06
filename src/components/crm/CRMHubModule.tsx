@@ -9,7 +9,7 @@ interface CRMHubModuleProps {
   icon: ReactNode;
   onClick: () => void;
   delay?: number;
-   userType: 'artist' | 'engineer' | 'producer' | 'fan';
+   userType: 'artist' | 'engineer' | 'producer' | 'fan' | 'admin';
 }
 
 export const CRMHubModule: React.FC<CRMHubModuleProps> = ({
@@ -28,6 +28,7 @@ export const CRMHubModule: React.FC<CRMHubModuleProps> = ({
      engineer: 'rgba(249, 115, 22, 0.4)',
      producer: 'rgba(234, 179, 8, 0.4)',
      fan: 'rgba(236, 72, 153, 0.4)',
+     admin: 'rgba(56, 189, 248, 0.4)',
    };
    const glowColor = glowColors[userType] || 'rgba(168, 85, 247, 0.4)';
 
