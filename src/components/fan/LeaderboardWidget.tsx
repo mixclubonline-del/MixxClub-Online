@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import { Crown, Medal, Award, TrendingUp, User } from 'lucide-react';
-import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -17,9 +16,9 @@ const TIER_COLORS: Record<string, string> = {
 };
 
 const RANK_ICONS = [
-  { icon: Crown, color: 'text-amber-400', bgColor: 'bg-amber-500/20' },
-  { icon: Medal, color: 'text-zinc-300', bgColor: 'bg-zinc-500/20' },
-  { icon: Award, color: 'text-amber-600', bgColor: 'bg-amber-600/20' },
+  { icon: Crown, color: 'text-amber-400', glow: 'rgba(251,191,36,0.2)' },
+  { icon: Medal, color: 'text-zinc-300', glow: 'rgba(212,212,216,0.15)' },
+  { icon: Award, color: 'text-amber-600', glow: 'rgba(217,119,6,0.15)' },
 ];
 
 interface LeaderboardWidgetProps {
@@ -32,7 +31,14 @@ export function LeaderboardWidget({ compact = true }: LeaderboardWidgetProps) {
 
   if (isLoading) {
     return (
-      <Card className="p-4">
+      <div
+        className="rounded-xl border border-white/[0.06] p-4"
+        style={{
+          background: 'rgba(255,255,255,0.02)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+        }}
+      >
         <div className="flex items-center gap-2 mb-4">
           <Skeleton className="h-5 w-5 rounded" />
           <Skeleton className="h-5 w-32" />
@@ -42,7 +48,7 @@ export function LeaderboardWidget({ compact = true }: LeaderboardWidgetProps) {
             <Skeleton key={i} className="h-12 w-full rounded-lg" />
           ))}
         </div>
-      </Card>
+      </div>
     );
   }
 
@@ -55,18 +61,23 @@ export function LeaderboardWidget({ compact = true }: LeaderboardWidgetProps) {
       <motion.div
         key={entry.user_id}
         initial={{ opacity: 0, x: -10 }}
-        animate={{ opacity: 1, x: 0 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true }}
         transition={{ delay: index * 0.05 }}
-        className={`flex items-center gap-3 p-2 rounded-lg transition-colors ${
+        className={`flex items-center gap-3 p-2.5 rounded-lg transition-all ${
           isCurrentUser 
-            ? 'bg-primary/10 border border-primary/20' 
-            : 'hover:bg-accent/50'
+            ? 'border border-primary/20' 
+            : 'hover:bg-white/[0.03]'
         }`}
+        style={isCurrentUser ? { background: 'rgba(var(--primary), 0.06)' } : undefined}
       >
         {/* Rank */}
         <div className="w-8 flex justify-center">
           {rankConfig ? (
-            <div className={`p-1.5 rounded-full ${rankConfig.bgColor}`}>
+            <div
+              className="p-1.5 rounded-full"
+              style={{ background: rankConfig.glow }}
+            >
               <rankConfig.icon className={`h-4 w-4 ${rankConfig.color}`} />
             </div>
           ) : (
@@ -106,36 +117,57 @@ export function LeaderboardWidget({ compact = true }: LeaderboardWidgetProps) {
   };
 
   return (
-    <Card className="p-4 bg-gradient-to-br from-purple-500/5 to-pink-500/5 border-purple-500/10">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-purple-500/20">
-            <TrendingUp className="h-4 w-4 text-purple-400" />
-          </div>
-          <h3 className="font-semibold">Top Fans</h3>
-        </div>
-        {compact && (
-          <Badge variant="outline" className="text-xs">
-            This Week
-          </Badge>
-        )}
-      </div>
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{ duration: 0.5, delay: 0.2 }}
+    >
+      <div
+        className="relative rounded-xl border border-purple-500/10 p-4 overflow-hidden"
+        style={{
+          background: 'linear-gradient(135deg, rgba(168,85,247,0.05) 0%, rgba(244,114,182,0.04) 100%)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+        }}
+      >
+        <div className="absolute -bottom-12 -right-12 w-36 h-36 rounded-full bg-purple-500/8 blur-3xl pointer-events-none" />
 
-      <div className="space-y-1">
-        {leaderboard.map((entry, i) => renderEntry(entry, i))}
-      </div>
-
-      {/* User's rank if not in top */}
-      {!isUserInTop && userRank && (
-        <div className="mt-3 pt-3 border-t border-border/50">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Your Rank</span>
-            <Badge variant="secondary" className="font-mono">
-              #{userRank.toLocaleString()}
-            </Badge>
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <div
+                className="p-1.5 rounded-lg"
+                style={{ background: 'rgba(168,85,247,0.15)' }}
+              >
+                <TrendingUp className="h-4 w-4 text-purple-400" />
+              </div>
+              <h3 className="font-semibold">Top Fans</h3>
+            </div>
+            {compact && (
+              <Badge variant="outline" className="text-xs border-white/10 bg-white/[0.03]">
+                This Week
+              </Badge>
+            )}
           </div>
+
+          <div className="space-y-1">
+            {leaderboard.map((entry, i) => renderEntry(entry, i))}
+          </div>
+
+          {/* User's rank if not in top */}
+          {!isUserInTop && userRank && (
+            <div className="mt-3 pt-3 border-t border-white/[0.06]">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Your Rank</span>
+                <Badge variant="secondary" className="font-mono">
+                  #{userRank.toLocaleString()}
+                </Badge>
+              </div>
+            </div>
+          )}
         </div>
-      )}
-    </Card>
+      </div>
+    </motion.div>
   );
 }

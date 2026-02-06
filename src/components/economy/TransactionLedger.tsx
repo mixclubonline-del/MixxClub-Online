@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import { 
-  ArrowUpCircle, 
   ArrowDownCircle, 
   ShoppingCart, 
   Gift, 
@@ -8,7 +7,6 @@ import {
   TrendingUp,
   Wallet
 } from 'lucide-react';
-import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -37,14 +35,14 @@ const TRANSACTION_COLORS: Record<string, string> = {
   REFUND: 'text-purple-400',
 };
 
-const TRANSACTION_BG: Record<string, string> = {
-  EARN: 'bg-emerald-500/10',
-  SPEND: 'bg-red-500/10',
-  PURCHASE: 'bg-blue-500/10',
-  GIFT_SENT: 'bg-pink-500/10',
-  GIFT_RECEIVED: 'bg-pink-500/10',
-  CASHOUT: 'bg-amber-500/10',
-  REFUND: 'bg-purple-500/10',
+const TRANSACTION_GLOWS: Record<string, string> = {
+  EARN: 'rgba(52,211,153,0.12)',
+  SPEND: 'rgba(248,113,113,0.12)',
+  PURCHASE: 'rgba(96,165,250,0.12)',
+  GIFT_SENT: 'rgba(244,114,182,0.12)',
+  GIFT_RECEIVED: 'rgba(244,114,182,0.12)',
+  CASHOUT: 'rgba(251,191,36,0.12)',
+  REFUND: 'rgba(192,132,252,0.12)',
 };
 
 function TransactionRow({ transaction }: { transaction: MixxTransaction }) {
@@ -55,10 +53,13 @@ function TransactionRow({ transaction }: { transaction: MixxTransaction }) {
     <motion.div
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
-      className="flex items-center gap-4 p-3 rounded-lg hover:bg-accent/50 transition-colors"
+      className="flex items-center gap-4 p-3 rounded-lg hover:bg-white/[0.03] transition-colors"
     >
       {/* Icon */}
-      <div className={`p-2 rounded-lg ${TRANSACTION_BG[transaction.transaction_type]}`}>
+      <div
+        className="p-2 rounded-lg"
+        style={{ background: TRANSACTION_GLOWS[transaction.transaction_type] || 'rgba(255,255,255,0.05)' }}
+      >
         <Icon className={`h-4 w-4 ${TRANSACTION_COLORS[transaction.transaction_type]}`} />
       </div>
 
@@ -68,7 +69,7 @@ function TransactionRow({ transaction }: { transaction: MixxTransaction }) {
           <span className="font-medium text-sm capitalize">
             {transaction.transaction_type.toLowerCase().replace('_', ' ')}
           </span>
-          <Badge variant="outline" className="text-[10px]">
+          <Badge variant="outline" className="text-[10px] border-white/10">
             {transaction.balance_type}
           </Badge>
         </div>
@@ -113,7 +114,14 @@ export function TransactionLedger() {
 
   if (transactions.length === 0) {
     return (
-      <Card className="p-8 text-center">
+      <div
+        className="rounded-xl border border-white/[0.06] p-8 text-center"
+        style={{
+          background: 'rgba(255,255,255,0.02)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+        }}
+      >
         <div className="flex justify-center mb-4">
           <MixxCoin type="earned" size="xl" showGlow />
         </div>
@@ -121,26 +129,40 @@ export function TransactionLedger() {
         <p className="text-muted-foreground">
           Complete missions and engage with the platform to earn your first coinz!
         </p>
-      </Card>
+      </div>
     );
   }
 
   return (
-    <Card className="overflow-hidden">
-      <div className="p-4 border-b border-border">
-        <div className="flex items-center justify-between">
-          <h3 className="font-semibold">Transaction History</h3>
-          <Badge variant="secondary">{transactions.length} transactions</Badge>
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{ duration: 0.5, delay: 0.2 }}
+    >
+      <div
+        className="rounded-xl border border-white/[0.06] overflow-hidden"
+        style={{
+          background: 'rgba(255,255,255,0.02)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+        }}
+      >
+        <div className="p-4 border-b border-white/[0.06]">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold">Transaction History</h3>
+            <Badge variant="secondary">{transactions.length} transactions</Badge>
+          </div>
         </div>
+        
+        <ScrollArea className="h-[400px]">
+          <div className="p-2 space-y-1">
+            {transactions.map((tx) => (
+              <TransactionRow key={tx.id} transaction={tx} />
+            ))}
+          </div>
+        </ScrollArea>
       </div>
-      
-      <ScrollArea className="h-[400px]">
-        <div className="p-2 space-y-1">
-          {transactions.map((tx) => (
-            <TransactionRow key={tx.id} transaction={tx} />
-          ))}
-        </div>
-      </ScrollArea>
-    </Card>
+    </motion.div>
   );
 }
