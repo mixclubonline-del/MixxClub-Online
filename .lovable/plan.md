@@ -2,6 +2,16 @@
 
 # MixxClub: The Final Arrangement
 
+## ✅ Phase Complete: P0 Fixes Done
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Fix hook usage in callbacks | ✅ Done | Already correct - hooks at top level |
+| Fix realtime unlockables subscription | ✅ Done | Already implemented in useUnlockCelebration |
+| Elevate VaultRoom in ClubScene | ✅ Done | Moved to 2nd position (Listening → Vault → Green → Control → VIP → Stage) |
+
+---
+
 ## The Studio Session (Current State Analysis)
 
 Like staring at a mixing console with 150 tracks recorded across multiple sessions, MixxClub has substantial raw material spread across the codebase. Let me break down what we have on each "channel" before we arrange the final track.

@@ -22,7 +22,7 @@ interface ClubSceneProps {
   onBack?: () => void;
 }
 
-const ROOM_IDS = ['listening', 'green', 'control', 'vault', 'vip', 'stage'];
+const ROOM_IDS = ['listening', 'vault', 'green', 'control', 'vip', 'stage'];
 
 export function ClubScene({ onBack }: ClubSceneProps) {
   const navigate = useNavigate();
@@ -135,9 +135,9 @@ export function ClubScene({ onBack }: ClubSceneProps) {
         style={{ scrollbarWidth: 'none' }}
       >
         <ListeningRoom onScrollHint={scrollToNext} />
+        <VaultRoom />
         <GreenRoom />
         <ControlRoom />
-        <VaultRoom />
         <VIPBooth />
         <StageDoor onJoin={handleJoin} />
       </div>
