@@ -1,242 +1,286 @@
 
 
-# Extending the Unlockable System to Producer & Fan
+# Unlockable System Elevation: Phase 2
 
-## Overview
+## Current State Assessment
 
-The current unlockable system supports three types: `community`, `artist`, and `engineer`. We need to add `producer` and `fan` types to create personalized progression paths for all four roles in the MixxClub ecosystem.
+Based on exploration of the codebase:
 
-This creates the full unlockable matrix:
-- **Community**: Platform-wide milestones (everyone benefits)
-- **Artist**: Session-based progression  
-- **Engineer**: Project delivery progression
-- **Producer**: Beat catalog & sales progression (new)
-- **Fan**: Engagement & support progression (new)
+**Already Built:**
+- `PersonalUnlocksWidget.tsx` - Reusable widget showing role-specific progress (just created)
+- `UnlockAnnouncement.tsx` - Full-screen celebration modal (exists but not triggered)
+- `CommunityMilestoneTracker.tsx` - Grid display of community milestones (exists but not used)
+- `useUnlockables.tsx` - Complete hook with all 5 unlock types (community, artist, engineer, producer, fan)
+- `prime-generate-unlockables` edge function - Live progress calculation
+- Producer/Fan unlockables seeded in database
 
----
-
-## Producer Unlockables - The Beat Empire Path
-
-Producers progress by building their catalog and generating sales:
-
-| Tier | Name | Metric | Target | Reward |
-|------|------|--------|--------|--------|
-| 1 | First Upload | beats_uploaded | 1 | Profile Featured Badge |
-| 2 | Catalog Started | beats_uploaded | 5 | Beat Preview Player |
-| 3 | First Sale | beats_sold | 1 | Sales Analytics Dashboard |
-| 4 | Building Momentum | beats_sold | 10 | Premium Licensing Templates |
-| 5 | Empire Status | beats_sold | 50 | Label Partnership Access |
-
-**Metrics sourced from:**
-- `producer_beats` table (COUNT for beats_uploaded)
-- `beat_purchases` table WHERE status='completed' (COUNT for beats_sold)
-- `producer_stats.total_revenue_cents` (for revenue milestones)
+**Not Yet Built:**
+- `UnlockPulseIndicator` - Persistent header indicator showing next milestone
+- `VaultRoom` - ClubScene room showcasing the unlock system
+- `CommunityUnlocksWidget` - Platform-wide progress for CRM dashboards
+- `useUnlockCelebration` hook - Detect and trigger celebrations
+- Live data wiring for `ComingSoon.tsx` (still uses `currentUsers = 42`)
+- StageDoor dynamic CTA based on unlock progress
+- FeatureGated integration with unlock progress display
 
 ---
 
-## Fan Unlockables - The Supporter Path
+## Implementation Plan
 
-Fans progress through engagement and early artist support:
+### Phase 2A: Core Infrastructure
 
-| Tier | Name | Metric | Target | Reward |
-|------|------|--------|--------|--------|
-| 1 | First Day 1 | day1_badges | 1 | Day 1 Collector Badge |
-| 2 | Streak Starter | engagement_streak | 7 | 2x MixxCoinz Multiplier |
-| 3 | Super Supporter | artists_supported | 10 | Early Access to Premieres |
-| 4 | Streak Master | longest_streak | 30 | Curator Mode Unlocked |
-| 5 | Legend Status | mixxcoinz_earned | 10000 | VIP Community Access |
+**1. Create `useUnlockCelebration` Hook**
 
-**Metrics sourced from:**
-- `fan_stats` table columns: `day1_badges`, `engagement_streak`, `artists_supported`, `longest_streak`, `mixxcoinz_earned`
-- `artist_day1s` table (COUNT for day1_badges if not in fan_stats)
-
----
-
-## Technical Implementation
-
-### Step 1: Database - Add Unlockable Records
-
-Insert 5 producer and 5 fan unlockables into the `unlockables` table.
+Detects newly unlocked milestones since last visit and triggers celebration:
 
 ```text
-INSERT INTO unlockables (
-  unlock_type, name, description, icon_name, 
-  metric_type, target_value, tier, reward_description,
-  created_by, ai_reasoning
-)
-VALUES
-  -- Producer unlockables
-  ('producer', 'First Upload', 'Upload your first beat', 'upload', 
-   'beats_uploaded', 1, 1, 'Profile Featured Badge',
-   'prime_ai', 'Every empire starts with a single beat.'),
-  
-  ('producer', 'Catalog Started', 'Build a catalog of 5 beats', 'disc-3',
-   'beats_uploaded', 5, 2, 'Beat Preview Player',
-   'prime_ai', 'Five beats means you have options to offer.'),
-  
-  -- ... (5 producer, 5 fan records)
+src/hooks/useUnlockCelebration.tsx
+
+Logic:
+- On mount, fetch all unlocked milestones
+- Compare with localStorage 'seen_unlocks' array
+- If new unlock found, return it for celebration trigger
+- After celebration, update localStorage
+- Supports both community and personal unlocks
 ```
 
-### Step 2: Update TypeScript Types
+**2. Create `UnlockPulseIndicator` Component**
 
-Extend the `Unlockable` interface:
+Persistent header indicator showing community progress:
 
-```typescript
-// src/hooks/useUnlockables.tsx
-export interface Unlockable {
-  id: string;
-  unlock_type: 'community' | 'artist' | 'engineer' | 'producer' | 'fan';
-  // ... rest unchanged
-}
+```text
+src/components/unlock/UnlockPulseIndicator.tsx
 
-export interface UnlockablesData {
-  community: Unlockable[];
-  artist: Unlockable[];
-  engineer: Unlockable[];
-  producer: Unlockable[];  // NEW
-  fan: Unlockable[];       // NEW
-  platformStats: { ... };
-}
+Features:
+- Compact pill showing next milestone name + progress %
+- Pulses/glows when progress > 80%
+- Clicking opens a popover with full milestone details
+- Uses useCommunityMilestones() hook
+- Mobile: Icon-only mode with badge
 ```
 
-### Step 3: Update Hook - Add Producer/Fan Stats
+**3. Create `CommunityUnlocksWidget` Component**
 
-Extend `fetchUnlockablesWithProgress` to query producer and fan metrics:
+Platform-wide progress display for dashboards:
 
-```typescript
-// Add to Promise.all queries
-const [
-  profilesResult, 
-  sessionsResult, 
-  projectsResult,
-  producerBeatsResult,   // NEW
-  beatPurchasesResult,   // NEW
-  fanStatsResult,        // NEW
-  unlockablesResult
-] = await Promise.all([
-  supabase.from('profiles').select('id', { count: 'exact', head: true }),
-  supabase.from('collaboration_sessions').select('id', { count: 'exact', head: true }),
-  supabase.from('projects').select('id', { count: 'exact', head: true }),
-  supabase.from('producer_beats').select('id', { count: 'exact', head: true }),
-  supabase.from('beat_purchases').select('id', { count: 'exact', head: true })
-    .eq('status', 'completed'),
-  supabase.from('fan_stats').select('*'), // For aggregate metrics
-  supabase.from('unlockables').select('*').order('tier', { ascending: true }),
-]);
+```text
+src/components/unlock/CommunityUnlocksWidget.tsx
 
-// Extend metric_type switch
-case 'beats_uploaded':
-  currentValue = producerBeatsResult.count || 0;
-  break;
-case 'beats_sold':
-  currentValue = beatPurchasesResult.count || 0;
-  break;
-case 'day1_badges':
-  currentValue = aggregateFanStat(fanStatsResult.data, 'day1_badges');
-  break;
-// ... etc
-```
-
-### Step 4: Add Role-Specific Hooks
-
-```typescript
-// Already exists pattern - add producer/fan
-export function useProducerUnlockables() {
-  const { data, ...rest } = useUnlockables();
-  return {
-    data: data?.producer || [],
-    ...rest,
-  };
-}
-
-export function useFanUnlockables() {
-  const { data, ...rest } = useUnlockables();
-  return {
-    data: data?.fan || [],
-    ...rest,
-  };
-}
-```
-
-### Step 5: Update Edge Function
-
-Extend `prime-generate-unlockables/index.ts` with producer and fan metric queries and grouping.
-
-### Step 6: Wire to CRM Dashboards
-
-**ProducerDashboardHub.tsx:**
-```tsx
-import { useProducerUnlockables } from '@/hooks/useUnlockables';
-
-// In dashboard, add UnlocksProgressWidget
-<UnlocksProgressWidget 
-  unlockables={producerUnlockables} 
-  title="Beat Empire Progress" 
-/>
-```
-
-**FanFeedHub.tsx or FanMissionsHub.tsx:**
-```tsx
-import { useFanUnlockables } from '@/hooks/useUnlockables';
-
-<UnlocksProgressWidget 
-  unlockables={fanUnlockables} 
-  title="Supporter Journey" 
-/>
+Features:
+- Shows next community milestone with large progress bar
+- List of recent unlocks (last 3)
+- "X of Y unlocked" summary
+- Call to action: "Invite friends to unlock faster"
 ```
 
 ---
+
+### Phase 2B: Entry Experience Integration
+
+**4. Create `VaultRoom` for ClubScene**
+
+New room between ControlRoom and VIPBooth:
+
+```text
+src/components/home/rooms/VaultRoom.tsx
+
+Content:
+- "The Vault" header with lock/unlock animation
+- Visual timeline of unlock tiers (1-5)
+- Current community progress prominently displayed
+- "Features you'll unlock together" preview
+- Uses live data from useUnlockables()
+```
+
+**5. Update ClubScene Room Order**
+
+```text
+src/components/home/ClubScene.tsx
+
+Changes:
+- Add 'vault' to ROOM_IDS array
+- Import and render VaultRoom
+- Update room order: listening → green → control → vault → vip → stage
+```
+
+**6. Update StageDoor with Dynamic CTA**
+
+```text
+src/components/home/rooms/StageDoor.tsx
+
+Changes:
+- Fetch next community milestone
+- Replace "Join the Club" with "Join and help unlock [Milestone Name]"
+- Show progress bar: "X more members needed"
+- Add urgency when close to milestone (>80%)
+```
+
+---
+
+### Phase 2C: Authenticated Experience
+
+**7. Add UnlockPulseIndicator to Navigation**
+
+```text
+src/components/Navigation.tsx
+
+Changes:
+- Import UnlockPulseIndicator
+- Add next to NotificationCenter for logged-in users
+- Show for all authenticated users
+```
+
+**8. Wire CommunityUnlocksWidget to CRM Dashboards**
+
+Add community progress section to all role dashboards:
+
+```text
+Files to modify:
+- src/components/crm/artist/ArtistDashboardHub.tsx
+- src/components/crm/engineer/EngineerDashboardHub.tsx
+- src/components/crm/producer/ProducerDashboardHub.tsx
+- src/pages/FanHub.tsx
+
+Each gets:
+- CommunityUnlocksWidget showing platform progress
+- Existing PersonalUnlocksWidget (already added for producer/fan)
+```
+
+---
+
+### Phase 2D: Celebration System
+
+**9. Create Celebration Trigger in App**
+
+```text
+src/components/unlock/UnlockCelebrationProvider.tsx
+
+Features:
+- Wraps app, checks for new unlocks on mount
+- If new unlock detected, renders UnlockAnnouncement modal
+- Uses useUnlockCelebration() hook
+- After dismiss, marks as seen
+```
+
+**10. Integrate Celebration Provider in App.tsx**
+
+```text
+src/App.tsx
+
+Changes:
+- Import UnlockCelebrationProvider
+- Wrap main app content (inside AuthProvider, QueryClientProvider)
+```
+
+---
+
+### Phase 2E: Live Data & Polish
+
+**11. Wire ComingSoon.tsx to Live Data**
+
+```text
+src/pages/ComingSoon.tsx
+
+Changes:
+- Replace hardcoded currentUsers = 42 with useUnlockables()
+- Pull tier data from database instead of hardcoded featureData
+- Show real progress toward each tier
+- Add CommunityMilestoneTracker component
+```
+
+**12. Update FeatureGated to Show Unlock Progress**
+
+```text
+src/components/backend/FeatureGated.tsx
+
+Changes:
+- Add optional communityGated prop
+- If communityGated, check unlock status instead of subscription
+- Show progress toward unlock instead of "Upgrade Now"
+- Display: "This feature unlocks at X members. We're at Y."
+```
+
+---
+
+## New Files to Create
+
+| File | Purpose |
+|------|---------|
+| `src/hooks/useUnlockCelebration.tsx` | Detect new unlocks, manage seen state |
+| `src/components/unlock/UnlockPulseIndicator.tsx` | Header progress indicator |
+| `src/components/unlock/CommunityUnlocksWidget.tsx` | Dashboard community progress |
+| `src/components/home/rooms/VaultRoom.tsx` | ClubScene unlock showcase room |
+| `src/components/unlock/UnlockCelebrationProvider.tsx` | App-level celebration trigger |
 
 ## Files to Modify
 
 | File | Change |
 |------|--------|
-| `src/hooks/useUnlockables.tsx` | Add producer/fan types, hooks, and metric queries |
-| `supabase/functions/prime-generate-unlockables/index.ts` | Add producer/fan metric queries and grouping |
-
-## Files to Create
-
-| File | Purpose |
-|------|---------|
-| `src/components/unlock/PersonalUnlocksWidget.tsx` | Reusable widget for role-specific progress |
-
-## Database Changes
-
-Insert 10 new unlockable records (5 producer, 5 fan) with appropriate metric_types.
+| `src/components/home/ClubScene.tsx` | Add VaultRoom to room sequence |
+| `src/components/home/rooms/StageDoor.tsx` | Dynamic unlock-aware CTA |
+| `src/components/Navigation.tsx` | Add UnlockPulseIndicator |
+| `src/pages/ComingSoon.tsx` | Wire to live data |
+| `src/components/backend/FeatureGated.tsx` | Add community unlock support |
+| `src/App.tsx` | Add UnlockCelebrationProvider |
+| CRM Dashboard files (4) | Add CommunityUnlocksWidget |
 
 ---
 
-## Personal vs Platform Context
+## Technical Details
 
-For producer and fan unlockables, we need to support **personal** progress tracking (how many beats has THIS producer uploaded) in addition to platform-wide stats:
+### useUnlockCelebration Logic
 
-```typescript
-// For personal unlockables, pass userId
-export function usePersonalUnlockables(userId: string, role: 'producer' | 'fan') {
-  return useQuery({
-    queryKey: ['personal-unlockables', userId, role],
-    queryFn: () => fetchPersonalProgress(userId, role),
-  });
-}
+```text
+1. On mount, fetch all unlockables with is_unlocked = true
+2. Get 'mixx_seen_unlocks' from localStorage (array of IDs)
+3. Find unlocks not in seen array
+4. Return { newUnlock, markAsSeen }
+5. markAsSeen() adds ID to localStorage array
 ```
 
-This queries:
-- Producer: `producer_beats WHERE user_id = ?`
-- Fan: `fan_stats WHERE user_id = ?`
+### UnlockPulseIndicator States
+
+```text
+- Default: "Next: [Name] (X%)" with subtle glow
+- Near (>80%): Pulsing glow, "Almost there!" text
+- Just unlocked (within 24h): "New unlock!" celebration state
+```
+
+### VaultRoom Visual Structure
+
+```text
+┌─────────────────────────────────────────────────────┐
+│                     THE VAULT                       │
+│            "Unlocked by the community"              │
+│                                                     │
+│  ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐  │
+│  │ T1 ✓ │──│ T2 ✓ │──│ T3   │──│ T4   │──│ T5   │  │
+│  └──────┘  └──────┘  └──────┘  └──────┘  └──────┘  │
+│                         ▲                           │
+│                    [You are here]                   │
+│                                                     │
+│           ┌───────────────────────────┐            │
+│           │  Next Unlock: Marketplace │            │
+│           │  ████████████░░░ 78%     │            │
+│           │  56 more members needed  │            │
+│           └───────────────────────────┘            │
+│                                                     │
+│  "Every signup brings us closer. Every session     │
+│   counts. This isn't our platform. It's ours."    │
+└─────────────────────────────────────────────────────┘
+```
 
 ---
 
 ## Summary
 
-This extension creates a 5-path unlockable system:
+This phase transforms the unlock system from a hidden database feature into the **central narrative** of MixxClub:
 
-| Path | Who | Progression |
-|------|-----|-------------|
-| Community | Everyone | Platform growth |
-| Artist | Artists | Sessions completed |
-| Engineer | Engineers | Projects delivered |
-| Producer | Producers | Beats uploaded & sold |
-| Fan | Fans | Engagement & support |
+1. **Pre-auth visibility**: VaultRoom in ClubScene, dynamic StageDoor CTA
+2. **Persistent awareness**: UnlockPulseIndicator in navigation
+3. **Dashboard integration**: Both personal and community progress visible
+4. **Celebration moments**: Full-screen announcements when milestones hit
+5. **Live data everywhere**: No more hardcoded user counts
 
-Every role now has personal milestones to achieve alongside the collective community goals. The "you vs. we" dual narrative is complete.
+The dual narrative of "your progress" + "our progress" creates both personal investment and community belonging.
 
