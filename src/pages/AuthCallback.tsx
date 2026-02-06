@@ -2,12 +2,9 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { useUnlockContribution } from '@/hooks/useUnlockContribution';
-import { attributionToasts } from '@/components/unlock/UnlockAttributionToast';
 
 const AuthCallback = () => {
   const navigate = useNavigate();
-  const { getContributionMessage } = useUnlockContribution();
 
   useEffect(() => {
     const handleCallback = async () => {
@@ -41,22 +38,28 @@ const AuthCallback = () => {
             .eq('id', session.user.id)
             .single();
 
-          // If no profile exists or no role set, redirect to onboarding
+          // If no profile exists or no role set, redirect to role selection
           if (!profile || !profile.role) {
-            toast.success('Please complete your profile');
-            // Show welcome attribution toast for new signups
-            const contribution = getContributionMessage('user_count', 'Your signup');
-            attributionToasts.userJoined(contribution);
-            navigate('/onboarding/artist');
+            toast.success('Choose your path in MixClub');
+            navigate('/select-role');
             return;
           }
 
           // Redirect based on role
           toast.success('Welcome back!');
-          if (profile.role === 'engineer') {
-            navigate('/engineer-crm');
-          } else {
-            navigate('/artist-crm');
+          switch (profile.role) {
+            case 'producer':
+              navigate('/producer-crm');
+              break;
+            case 'engineer':
+              navigate('/engineer-crm');
+              break;
+            case 'fan':
+              navigate('/fan-hub');
+              break;
+            default:
+              navigate('/artist-crm');
+              break;
           }
         } else {
           navigate('/auth');
