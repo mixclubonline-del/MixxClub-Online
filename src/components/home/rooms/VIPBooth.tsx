@@ -2,7 +2,7 @@
  * The VIP Booth
  * 
  * Room 4: Member access.
- * Exclusive pricing reveal with subscription plans.
+ * Exclusive pricing reveal with hero imagery and glassmorphic cards.
  */
 
 import { motion } from 'framer-motion';
@@ -11,6 +11,7 @@ import { ClubRoom } from '../ClubRoom';
 import { Button } from '@/components/ui/button';
 import { useSubscriptionPlans, getYearlyDiscountPercent } from '@/hooks/useSubscriptionPlans';
 import { useNavigate } from 'react-router-dom';
+import engineerHeroImg from '@/assets/promo/engineer-workspace-hero.jpg';
 
 export function VIPBooth() {
   const { data: plans, isLoading } = useSubscriptionPlans();
@@ -28,7 +29,7 @@ export function VIPBooth() {
       <div className="container px-6 py-20 flex flex-col items-center justify-center min-h-[100svh]">
         {/* Header */}
         <motion.div
-          className="text-center mb-16"
+          className="text-center mb-12"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -52,7 +53,28 @@ export function VIPBooth() {
           </p>
         </motion.div>
 
-        {/* Pricing cards */}
+        {/* Hero Banner Image */}
+        <motion.div
+          className="w-full max-w-5xl mb-12 rounded-2xl overflow-hidden relative"
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+        >
+          <img
+            src={engineerHeroImg}
+            alt="Professional studio workspace"
+            className="w-full h-[240px] object-cover"
+            loading="lazy"
+          />
+          <div 
+            className="absolute inset-0"
+            style={{
+              background: 'linear-gradient(to bottom, transparent 30%, hsl(var(--background)) 100%)'
+            }}
+          />
+        </motion.div>
+
+        {/* Pricing cards — Glassmorphic */}
         <div className="grid md:grid-cols-3 gap-6 w-full max-w-5xl mb-12">
           {displayPlans.map((plan, index) => {
             const isPopular = index === 1;
@@ -63,9 +85,9 @@ export function VIPBooth() {
             return (
               <motion.div
                 key={plan.id}
-                className={`relative p-6 rounded-2xl border transition-all ${
+                className={`relative p-6 rounded-2xl border transition-all backdrop-blur-sm ${
                   isPopular 
-                    ? 'bg-primary/5 border-primary/40 scale-105' 
+                    ? 'bg-primary/5 border-primary/40 scale-105 backdrop-blur-md' 
                     : 'bg-muted/20 border-border/30 hover:border-primary/30'
                 }`}
                 initial={{ opacity: 0, y: 30 }}

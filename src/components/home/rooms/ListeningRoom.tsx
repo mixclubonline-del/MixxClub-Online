@@ -8,6 +8,7 @@
 import { motion } from 'framer-motion';
 import { Volume2, Play, ChevronDown } from 'lucide-react';
 import { ClubRoom } from '../ClubRoom';
+import mixingConsoleImg from '@/assets/promo/mixing-console-close.jpg';
 
 const FEATURED_TRACKS = [
   { title: 'Neon Dreams', artist: 'Marcus', result: 'Pro Master', genre: 'Hip-Hop' },
@@ -25,7 +26,7 @@ export function ListeningRoom({ onScrollHint }: ListeningRoomProps) {
       <div className="container px-6 py-20 flex flex-col items-center justify-center min-h-[100svh]">
         {/* Header */}
         <motion.div
-          className="text-center mb-16"
+          className="text-center mb-12"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -50,19 +51,40 @@ export function ListeningRoom({ onScrollHint }: ListeningRoomProps) {
           </p>
         </motion.div>
 
+        {/* Hero Image */}
+        <motion.div
+          className="w-full max-w-5xl mb-12 rounded-2xl overflow-hidden relative"
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+        >
+          <img
+            src={mixingConsoleImg}
+            alt="Professional mixing console"
+            className="w-full h-[200px] object-cover"
+            loading="lazy"
+          />
+          <div 
+            className="absolute inset-0"
+            style={{
+              background: 'linear-gradient(to bottom, transparent 40%, hsl(var(--background)) 100%)'
+            }}
+          />
+        </motion.div>
+
         {/* Track Cards */}
         <div className="grid md:grid-cols-3 gap-6 w-full max-w-5xl mb-16">
           {FEATURED_TRACKS.map((track, index) => (
             <motion.div
               key={track.title}
-              className="group relative p-6 rounded-2xl bg-muted/30 border border-border/30 hover:border-primary/30 transition-all cursor-pointer"
+              className="group relative p-6 rounded-2xl bg-muted/30 border border-border/30 hover:border-primary/30 transition-all cursor-pointer backdrop-blur-sm overflow-hidden"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
               whileHover={{ y: -4 }}
             >
-              {/* Waveform placeholder */}
+              {/* Waveform area */}
               <div className="h-20 mb-4 flex items-end justify-around gap-0.5 px-2">
                 {Array.from({ length: 24 }).map((_, i) => (
                   <motion.div

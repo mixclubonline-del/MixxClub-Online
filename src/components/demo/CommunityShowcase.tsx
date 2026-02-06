@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { useCommunityShowcase } from '@/hooks/useCommunityShowcase';
 import { Mic2, Headphones, MapPin } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import mixingCollabImg from '@/assets/promo/mixing-collaboration.jpg';
 
 interface CommunityShowcaseProps {
   amplitude: number;
@@ -39,6 +40,18 @@ export const CommunityShowcase = ({ amplitude, bass, isPlaying }: CommunityShowc
 
   return (
     <div className="relative w-full h-[500px] flex items-center justify-center overflow-visible">
+      {/* Atmospheric Background Image */}
+      <div className="absolute inset-0 -z-10 overflow-hidden rounded-3xl">
+        <img
+          src={mixingCollabImg}
+          alt=""
+          className="w-full h-full object-cover"
+          style={{ opacity: 0.2 }}
+          loading="lazy"
+        />
+        <div className="absolute inset-0 bg-background/70 md:bg-background/60" />
+      </div>
+
       {/* Connection lines between members */}
       <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ overflow: 'visible' }}>
         {members.map((member, i) => {

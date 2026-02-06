@@ -11,6 +11,7 @@ import { ClubRoom } from '../ClubRoom';
 import { useCommunityMilestones } from '@/hooks/useCommunityMilestones';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
+import studioConsoleImg from '@/assets/promo/studio-console-hero.jpg';
 
 export function VaultRoom() {
   const { data: milestones, isLoading } = useCommunityMilestones();
@@ -21,7 +22,6 @@ export function VaultRoom() {
   // Group milestones by tier (1-5)
   const tiers = [1, 2, 3, 4, 5].map((tierNum) => {
     const tierMilestones = milestones.filter((m) => {
-      // Determine tier from target_value
       if (m.target_value <= 100) return tierNum === 1;
       if (m.target_value <= 250) return tierNum === 2;
       if (m.target_value <= 500) return tierNum === 3;
@@ -43,10 +43,19 @@ export function VaultRoom() {
 
   return (
     <ClubRoom id="vault" className="bg-background relative overflow-hidden">
-      {/* Atmospheric background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-primary/5" />
+      {/* Atmospheric background image */}
+      <div className="absolute inset-0">
+        <img
+          src={studioConsoleImg}
+          alt=""
+          className="w-full h-full object-cover"
+          style={{ opacity: 0.15 }}
+          loading="lazy"
+        />
+        <div className="absolute inset-0 bg-background/80" />
+      </div>
       
-      {/* Vault door effect */}
+      {/* Vault door glow effect */}
       <motion.div
         className="absolute inset-0 pointer-events-none"
         initial={{ opacity: 0.5 }}
@@ -65,7 +74,7 @@ export function VaultRoom() {
           viewport={{ once: true }}
         >
           <motion.div
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6 backdrop-blur-sm"
             animate={{ scale: [1, 1.02, 1] }}
             transition={{ duration: 3, repeat: Infinity }}
           >
@@ -97,7 +106,7 @@ export function VaultRoom() {
               {/* Tier Node */}
               <motion.div
                 className={cn(
-                  'relative w-12 h-12 md:w-16 md:h-16 rounded-xl flex items-center justify-center border-2 transition-all',
+                  'relative w-12 h-12 md:w-16 md:h-16 rounded-xl flex items-center justify-center border-2 transition-all backdrop-blur-sm',
                   tier.isUnlocked && 'bg-green-500/20 border-green-500/50',
                   tier.isCurrent && 'bg-primary/20 border-primary/50 animate-pulse',
                   !tier.isUnlocked && !tier.isCurrent && 'bg-muted/20 border-border/50'
@@ -144,17 +153,17 @@ export function VaultRoom() {
           ))}
         </motion.div>
 
-        {/* Next Milestone Card */}
+        {/* Next Milestone Card — Glassmorphic */}
         {nextMilestone && (
           <motion.div
-            className="w-full max-w-md p-6 rounded-2xl bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20"
+            className="w-full max-w-md p-6 rounded-2xl bg-background/40 backdrop-blur-md border border-primary/20"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.4 }}
           >
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center backdrop-blur-sm">
                 <Lock className="w-5 h-5 text-primary" />
               </div>
               <div>
