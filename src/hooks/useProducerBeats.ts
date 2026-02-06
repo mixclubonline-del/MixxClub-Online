@@ -1,8 +1,10 @@
- import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
- import { supabase } from '@/integrations/supabase/client';
- import { useAuth } from '@/hooks/useAuth';
- import { useToast } from '@/hooks/use-toast';
- import type { Database } from '@/integrations/supabase/types';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
+import { useUnlockContribution } from '@/hooks/useUnlockContribution';
+import { attributionToasts } from '@/components/unlock/UnlockAttributionToast';
+import type { Database } from '@/integrations/supabase/types';
  
  type ProducerBeatRow = Database['public']['Tables']['producer_beats']['Row'];
  
@@ -31,10 +33,11 @@
    cover_image_url?: string;
  }
  
- export function useProducerBeats() {
-   const { user } = useAuth();
-   const { toast } = useToast();
-   const queryClient = useQueryClient();
+export function useProducerBeats() {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const { getContributionMessage } = useUnlockContribution();
  
    const beatsQuery = useQuery({
      queryKey: ['producer-beats', user?.id],
@@ -97,13 +100,16 @@
        if (error) throw error;
        return { ...data, cover_url: data.cover_image_url };
      },
-     onSuccess: () => {
-       queryClient.invalidateQueries({ queryKey: ['producer-beats'] });
-       toast({
-         title: 'Beat Created',
-         description: 'Your beat has been added to the catalog.',
-       });
-     },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['producer-beats'] });
+      toast({
+        title: 'Beat Created',
+        description: 'Your beat has been added to the catalog.',
+      });
+      // Show community contribution toast
+      const contribution = getContributionMessage('beats_uploaded', 'Beat');
+      attributionToasts.beatUploaded(contribution);
+    },
      onError: (error) => {
        toast({
          title: 'Failed to create beat',

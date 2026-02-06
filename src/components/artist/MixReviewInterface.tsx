@@ -8,6 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { createSignedUrl } from "@/lib/storage/signedUrls";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
+import { useUnlockContribution } from "@/hooks/useUnlockContribution";
+import { attributionToasts } from "@/components/unlock/UnlockAttributionToast";
 
 interface MixReviewInterfaceProps {
   deliverable: {
@@ -34,6 +36,7 @@ export const MixReviewInterface = ({
   const [isPlaying, setIsPlaying] = useState(false);
   const [revisionNotes, setRevisionNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { getContributionMessage } = useUnlockContribution();
 
   const getDeliveryLabel = (type: string) => {
     const labels: Record<string, string> = {
@@ -72,6 +75,10 @@ export const MixReviewInterface = ({
           .from('projects')
           .update({ status: 'completed' })
           .eq('id', projectId);
+        
+        // Show community contribution toast for project completion
+        const contribution = getContributionMessage('projects_completed', 'Project');
+        attributionToasts.projectDelivered(contribution);
       }
 
       toast.success("Mix approved! The engineer has been notified.");
