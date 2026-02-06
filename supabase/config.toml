@@ -1,1 +1,337 @@
 project_id = "wmhwiwjxzpnnzckxezcu"
+
+[functions.admin-chat-enhanced]
+verify_jwt = false
+
+[functions.admin-reset-password]
+verify_jwt = false
+
+[functions.advanced-mastering]
+verify_jwt = false
+
+[functions.ai-audio-processing]
+verify_jwt = false
+
+[functions.ai-mixing-assistant]
+verify_jwt = false
+
+[functions.ai-project-insights]
+verify_jwt = false
+
+[functions.ai-studio-assistant]
+verify_jwt = false
+
+[functions.analyze-audio-upload]
+verify_jwt = false
+
+[functions.analyze-audio]
+verify_jwt = false
+
+[functions.analyze-launch-metrics]
+verify_jwt = false
+
+[functions.analyze-melody]
+verify_jwt = false
+
+[functions.analyze-mix-readiness]
+verify_jwt = false
+
+[functions.block-ip-address]
+verify_jwt = false
+
+[functions.business-analytics]
+verify_jwt = false
+
+[functions.calculate-trending]
+verify_jwt = false
+
+[functions.capture-paypal-order]
+verify_jwt = false
+
+[functions.chat-simple]
+verify_jwt = false
+
+[functions.chat-vercel-ai]
+verify_jwt = false
+
+[functions.check-rate-limit]
+verify_jwt = false
+
+[functions.check-video-status]
+verify_jwt = false
+
+[functions.cleanup-rate-limits]
+verify_jwt = false
+
+[functions.collaboration-websocket]
+verify_jwt = false
+
+[functions.collect-system-metrics]
+verify_jwt = false
+
+[functions.compare-reference-track]
+verify_jwt = false
+
+[functions.copilot-chat]
+verify_jwt = false
+
+[functions.create-addon-payment]
+verify_jwt = false
+
+[functions.create-beat-checkout]
+verify_jwt = false
+
+[functions.create-coinz-checkout]
+verify_jwt = false
+
+[functions.create-course-checkout]
+verify_jwt = false
+
+[functions.create-crypto-checkout]
+verify_jwt = false
+
+[functions.create-demo-session]
+verify_jwt = false
+
+[functions.create-distribution-checkout]
+verify_jwt = false
+
+[functions.create-enterprise-payment-link]
+verify_jwt = false
+
+[functions.create-mastering-checkout]
+verify_jwt = false
+
+[functions.create-mixing-checkout]
+verify_jwt = false
+
+[functions.create-payment-checkout]
+verify_jwt = false
+
+[functions.create-payment-intent]
+verify_jwt = false
+
+[functions.create-paypal-order]
+verify_jwt = false
+
+[functions.create-presentation-share]
+verify_jwt = false
+
+[functions.create-shareable-payment-link]
+verify_jwt = false
+
+[functions.create-stripe-payout]
+verify_jwt = false
+
+[functions.create-subscription-checkout]
+verify_jwt = false
+
+[functions.crypto-payment-webhook]
+verify_jwt = false
+
+[functions.delete-user-account]
+verify_jwt = false
+
+[functions.deploy-to-production]
+verify_jwt = false
+
+[functions.docusign-send-for-review]
+verify_jwt = false
+
+[functions.docusign-webhook]
+verify_jwt = false
+
+[functions.dream-engine-api]
+verify_jwt = false
+
+[functions.dream-engine]
+verify_jwt = false
+
+[functions.export-audio]
+verify_jwt = false
+
+[functions.export-user-data]
+verify_jwt = false
+
+[functions.financial-forecast]
+verify_jwt = false
+
+[functions.financial-reconciliation]
+verify_jwt = false
+
+[functions.generate-ad-copy]
+verify_jwt = false
+
+[functions.generate-ai-avatar]
+verify_jwt = false
+
+[functions.generate-album-art]
+verify_jwt = false
+
+[functions.generate-automation]
+verify_jwt = false
+
+[functions.generate-chords]
+verify_jwt = false
+
+[functions.generate-economy-asset]
+verify_jwt = false
+
+[functions.generate-financial-insights]
+verify_jwt = false
+
+[functions.generate-image-gemini]
+verify_jwt = false
+
+[functions.generate-invoice]
+verify_jwt = false
+
+[functions.generate-landing-image]
+verify_jwt = false
+
+[functions.generate-music]
+verify_jwt = false
+
+[functions.generate-social-posts]
+verify_jwt = false
+
+[functions.generate-track-name]
+verify_jwt = false
+
+[functions.generate-trap-beat]
+verify_jwt = false
+
+[functions.generate-video-gemini]
+verify_jwt = false
+
+[functions.generate-video]
+verify_jwt = false
+
+[functions.generate-waveform]
+verify_jwt = false
+
+[functions.get-demo-data]
+verify_jwt = false
+
+[functions.get-stripe-connect-status]
+verify_jwt = false
+
+[functions.google-ai-gateway]
+verify_jwt = false
+
+[functions.mastering-chat]
+verify_jwt = false
+
+[functions.match-engineers]
+verify_jwt = false
+
+[functions.n8n-webhook-handler]
+verify_jwt = false
+
+[functions.predict-revenue]
+verify_jwt = false
+
+[functions.prepare-session-package]
+verify_jwt = false
+
+[functions.prime-chat]
+verify_jwt = false
+
+[functions.prime-generate-unlockables]
+verify_jwt = false
+
+[functions.prime-speak]
+verify_jwt = false
+
+[functions.printful-create-order]
+verify_jwt = false
+
+[functions.printful-sync-products]
+verify_jwt = false
+
+[functions.process-email-sequences]
+verify_jwt = false
+
+[functions.process-engineer-payout]
+verify_jwt = false
+
+[functions.process-refund]
+verify_jwt = false
+
+[functions.quality-control]
+verify_jwt = false
+
+[functions.release-payment]
+verify_jwt = false
+
+[functions.request-payout]
+verify_jwt = false
+
+[functions.restore-audio]
+verify_jwt = false
+
+[functions.save-brand-asset]
+verify_jwt = false
+
+[functions.scheduled-payout-processor]
+verify_jwt = false
+
+[functions.seed-comprehensive-demo-data]
+verify_jwt = false
+
+[functions.seed-demo-data]
+verify_jwt = false
+
+[functions.seed-platform-demo-data]
+verify_jwt = false
+
+[functions.send-attorney-notification-email]
+verify_jwt = false
+
+[functions.send-payment-receipt]
+verify_jwt = false
+
+[functions.send-push-notification]
+verify_jwt = false
+
+[functions.send-receipt-email]
+verify_jwt = false
+
+[functions.send-welcome-email]
+verify_jwt = false
+
+[functions.separate-stems]
+verify_jwt = false
+
+[functions.setup-stripe-connect]
+verify_jwt = false
+
+[functions.sign-project-agreement]
+verify_jwt = false
+
+[functions.stem-separation]
+verify_jwt = false
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.studio-websocket]
+verify_jwt = false
+
+[functions.text-to-speech]
+verify_jwt = false
+
+[functions.track-analytics-event]
+verify_jwt = false
+
+[functions.transcribe-audio]
+verify_jwt = false
+
+[functions.trigger-contract-check]
+verify_jwt = false
+
+[functions.verify-presentation-share]
+verify_jwt = false
+
+[functions.verify-stripe-session]
+verify_jwt = false

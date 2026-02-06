@@ -17,6 +17,7 @@ export interface GenerationResult {
   type: string;
   context?: string;
   savedAssetId?: string;
+  operationId?: string;
 }
 
 export interface GenerationHistoryItem {
@@ -44,6 +45,8 @@ interface UseDreamEngineReturn {
   isGenerating: boolean;
   lastResult: GenerationResult | null;
   error: string | null;
+  pendingOperation: string | null;
+  isPolling: boolean;
   
   // Contexts
   contexts: AssetContext[];
@@ -66,6 +69,7 @@ interface UseDreamEngineReturn {
     prompt: string,
     context?: string,
     options?: {
+      model?: string;
       style?: string;
       save?: boolean;
       makeActive?: boolean;
@@ -73,6 +77,8 @@ interface UseDreamEngineReturn {
       sourceAsset?: string;
     }
   ) => Promise<GenerationResult | null>;
+  
+  pollOperation: (operationId: string) => Promise<GenerationResult | null>;
   
   saveGeneration: (
     url: string,
@@ -93,6 +99,8 @@ export function useDreamEngine(): UseDreamEngineReturn {
   const [isGenerating, setIsGenerating] = useState(false);
   const [lastResult, setLastResult] = useState<GenerationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [pendingOperation, setPendingOperation] = useState<string | null>(null);
+  const [isPolling, setIsPolling] = useState(false);
   
   const [contexts, setContexts] = useState<AssetContext[]>([]);
   const [loadingContexts, setLoadingContexts] = useState(true);
@@ -190,6 +198,7 @@ export function useDreamEngine(): UseDreamEngineReturn {
     prompt: string,
     context?: string,
     options?: {
+      model?: string;
       style?: string;
       save?: boolean;
       makeActive?: boolean;
@@ -208,6 +217,7 @@ export function useDreamEngine(): UseDreamEngineReturn {
           context,
           sourceAsset: options?.sourceAsset,
           options: {
+            model: options?.model,
             style: options?.style,
             save: options?.save,
             makeActive: options?.makeActive,
@@ -224,7 +234,20 @@ export function useDreamEngine(): UseDreamEngineReturn {
         type: data.asset.type,
         context: data.asset.context,
         savedAssetId: data.asset.savedAssetId,
+        operationId: data.asset.operationId,
       };
+
+      // If this is an async VEO operation, start polling
+      if (result.operationId) {
+        setPendingOperation(result.operationId);
+        toast.info("Video generation started — this takes 1-2 minutes...");
+        // Auto-poll
+        const polledResult = await pollOperationInternal(result.operationId);
+        if (polledResult) {
+          return polledResult;
+        }
+        return result;
+      }
       
       setLastResult(result);
       toast.success(`${mode} generated successfully!`);
@@ -244,6 +267,64 @@ export function useDreamEngine(): UseDreamEngineReturn {
       setIsGenerating(false);
     }
   }, [refreshLiveAssets]);
+
+  // Poll a VEO operation until complete
+  const pollOperationInternal = useCallback(async (operationId: string): Promise<GenerationResult | null> => {
+    setIsPolling(true);
+    setPendingOperation(operationId);
+
+    const maxAttempts = 30; // 5 minutes at 10s intervals
+    let attempts = 0;
+
+    try {
+      while (attempts < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, 10000)); // 10s delay
+        attempts++;
+
+        console.log(`Polling VEO operation (attempt ${attempts}/${maxAttempts}):`, operationId);
+
+        const { data, error: fnError } = await supabase.functions.invoke("check-video-status", {
+          body: { operationName: operationId },
+        });
+
+        if (fnError) {
+          console.error("Poll error:", fnError);
+          continue;
+        }
+
+        if (!data?.success) {
+          console.error("Poll failed:", data?.error);
+          continue;
+        }
+
+        if (data.done) {
+          const result: GenerationResult = {
+            url: data.videoUrl,
+            type: 'video',
+          };
+          setLastResult(result);
+          setPendingOperation(null);
+          toast.success("Video generation complete!");
+          return result;
+        }
+      }
+
+      throw new Error("Video generation timed out after 5 minutes");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Polling failed";
+      setError(message);
+      toast.error(message);
+      return null;
+    } finally {
+      setIsPolling(false);
+      setPendingOperation(null);
+    }
+  }, []);
+
+  // Public poll method
+  const pollOperation = useCallback(async (operationId: string): Promise<GenerationResult | null> => {
+    return pollOperationInternal(operationId);
+  }, [pollOperationInternal]);
 
   // Save a generation to brand_assets
   const saveGeneration = useCallback(async (
@@ -318,6 +399,8 @@ export function useDreamEngine(): UseDreamEngineReturn {
     isGenerating,
     lastResult,
     error,
+    pendingOperation,
+    isPolling,
     contexts,
     loadingContexts,
     refreshContexts,
@@ -328,6 +411,7 @@ export function useDreamEngine(): UseDreamEngineReturn {
     loadingLiveAssets,
     refreshLiveAssets,
     generate,
+    pollOperation,
     saveGeneration,
     setAssetActive,
     capabilities,
