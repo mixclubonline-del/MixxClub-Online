@@ -1,3 +1,7 @@
+/**
+ * @deprecated Use /auth page with AuthWizard instead.
+ * Kept for reference during migration - will be removed in future cleanup.
+ */
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';

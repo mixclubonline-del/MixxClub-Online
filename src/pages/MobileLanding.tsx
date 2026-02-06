@@ -1,7 +1,7 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MobileEnhancedNav } from '@/components/mobile/MobileEnhancedNav';
 import { MobileOnboardingWizard } from '@/components/mobile/MobileOnboardingWizard';
-import { MobileAuthDialog } from '@/components/mobile/MobileAuthDialog';
 import { PullToRefresh } from '@/components/mobile/PullToRefresh';
 import Hero from '@/components/Hero';
 import Services from '@/components/Services';
@@ -13,8 +13,7 @@ import { useMobileOptimization } from '@/hooks/useMobileOptimization';
 
 const MobileLanding = () => {
   const [showWizard, setShowWizard] = useState(false);
-  const [showAuth, setShowAuth] = useState(false);
-  const [authMode, setAuthMode] = useState<'login' | 'signup'>('signup');
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { triggerHaptic } = useMobileOptimization({ enableHaptics: true });
 
@@ -28,15 +27,13 @@ const MobileLanding = () => {
     if (user) {
       setShowWizard(true);
     } else {
-      setAuthMode('signup');
-      setShowAuth(true);
+      navigate('/auth');
     }
   };
 
   const handleSignIn = () => {
     triggerHaptic('light');
-    setAuthMode('login');
-    setShowAuth(true);
+    navigate('/auth');
   };
 
   return (
@@ -81,12 +78,6 @@ const MobileLanding = () => {
       <MobileOnboardingWizard 
         open={showWizard} 
         onOpenChange={setShowWizard} 
-      />
-      
-      <MobileAuthDialog 
-        open={showAuth} 
-        onOpenChange={setShowAuth}
-        mode={authMode}
       />
     </div>
   );
