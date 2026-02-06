@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ArrowLeft, Music, Sparkles, Users, Zap, Headphones, Mic2, Apple, KeyRound, Disc3, Heart } from "lucide-react";
+import { ArrowLeft, Music, Sparkles, Users, Zap, Headphones, Mic2, KeyRound, Disc3, Heart } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -905,17 +905,6 @@ const Auth = () => {
             >
               <GoogleIcon />
               <span className="ml-2">Continue with Google</span>
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full border-white/10 hover:bg-white/10 hover:border-white/20 text-white bg-white/5"
-              onClick={(e) => handleOAuthSignIn(e, 'apple')}
-              onKeyDown={(e) => e.stopPropagation()}
-              disabled={loading}
-            >
-              <Apple className="w-5 h-5" />
-              <span className="ml-2">Continue with Apple</span>
             </Button>
           </div>
 
