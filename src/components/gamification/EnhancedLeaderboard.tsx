@@ -68,6 +68,7 @@ export const EnhancedLeaderboard = () => {
         .select('user_id, badge_name')
         .in('user_id', engineerIds);
 
+      // Transform data without Math.random() - rank change requires historical tracking
       const enrichedData: LeaderboardEntry[] = (leaderboardData || []).map((entry, index) => {
         const profile = profiles?.find(p => p.id === entry.engineer_id);
         const userBadges = achievements
@@ -84,7 +85,7 @@ export const EnhancedLeaderboard = () => {
           projects: entry.completed_projects || 0,
           earnings: entry.total_earnings || 0,
           badges: userBadges?.slice(0, 3) || [],
-          rankChange: Math.floor(Math.random() * 5) - 2 // Mock rank change
+          rankChange: 0 // Rank change requires historical snapshots - show 0 for now
         };
       });
 

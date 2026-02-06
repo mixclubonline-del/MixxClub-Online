@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useAIDashboardInsights } from "@/hooks/useAIDashboardInsights";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { formatDistanceToNow } from "date-fns";
 
 interface ActivityLog {
   id: string;
@@ -9,47 +11,33 @@ interface ActivityLog {
   type: 'analysis' | 'sync' | 'match' | 'process';
 }
 
-const generateRealtimeLog = (): ActivityLog => {
-  const messages = [
-    { msg: "Analyzing frequency spectrum on Artist Track #42", type: 'analysis' as const },
-    { msg: "Syncing stems for Engineer Mix Session", type: 'sync' as const },
-    { msg: "Matching Artist profile with Engineer #127", type: 'match' as const },
-    { msg: "Processing mastering preset 'Warm Analog'", type: 'process' as const },
-    { msg: "AI analyzing vocal dynamics", type: 'analysis' as const },
-    { msg: "Syncing project files to cloud", type: 'sync' as const },
-    { msg: "Generating mix suggestions", type: 'process' as const },
-    { msg: "Matching genre tags for discovery", type: 'match' as const },
-  ];
-  
-  const random = messages[Math.floor(Math.random() * messages.length)];
-  return {
-    id: `log-${Date.now()}-${Math.random()}`,
-    message: random.msg,
-    timestamp: new Date(),
-    type: random.type
-  };
-};
-
+/**
+ * AIActivityFeed - Real activity from database
+ * Follows Live Data First doctrine - no Math.random() simulation
+ */
 export default function AIActivityFeed() {
-  const [logs, setLogs] = useState<ActivityLog[]>([]);
-  const { insights, isLoading } = useAIDashboardInsights();
+  const { data: logs, isLoading } = useQuery({
+    queryKey: ['ai-activity-feed'],
+    queryFn: async (): Promise<ActivityLog[]> => {
+      const { data, error } = await supabase
+        .from('activity_feed')
+        .select('id, title, activity_type, created_at')
+        .eq('is_public', true)
+        .order('created_at', { ascending: false })
+        .limit(5);
 
-  useEffect(() => {
-    // Initialize with a few logs
-    const initialLogs = Array.from({ length: 3 }, generateRealtimeLog);
-    setLogs(initialLogs);
+      if (error) throw error;
 
-    // Add new log every 3-5 seconds
-    const interval = setInterval(() => {
-      setLogs(prev => {
-        const newLog = generateRealtimeLog();
-        const updated = [newLog, ...prev].slice(0, 5); // Keep only last 5
-        return updated;
-      });
-    }, Math.random() * 2000 + 3000); // Random between 3-5 seconds
-
-    return () => clearInterval(interval);
-  }, []);
+      return (data || []).map((item) => ({
+        id: item.id,
+        message: item.title || 'Platform activity',
+        timestamp: new Date(item.created_at),
+        type: mapActivityType(item.activity_type),
+      }));
+    },
+    staleTime: 15000,
+    refetchInterval: 30000,
+  });
 
   if (isLoading) {
     return (
@@ -60,10 +48,12 @@ export default function AIActivityFeed() {
     );
   }
 
+  const displayLogs = logs && logs.length > 0 ? logs : getIdleLogs();
+
   return (
     <div className="space-y-2">
       <AnimatePresence mode="popLayout">
-        {logs.map((log) => (
+        {displayLogs.map((log) => (
           <motion.div
             key={log.id}
             initial={{ opacity: 0, x: -20 }}
@@ -80,16 +70,54 @@ export default function AIActivityFeed() {
   );
 }
 
+// Map activity types to display categories
+function mapActivityType(activityType: string): 'analysis' | 'sync' | 'match' | 'process' {
+  const typeMap: Record<string, 'analysis' | 'sync' | 'match' | 'process'> = {
+    'project': 'process',
+    'session': 'sync',
+    'collab': 'match',
+    'upload': 'process',
+    'achievement': 'analysis',
+    'signup': 'sync',
+    'follow': 'match',
+  };
+  return typeMap[activityType] || 'process';
+}
+
+// Idle state logs when no real activity exists
+function getIdleLogs(): ActivityLog[] {
+  return [
+    { id: 'idle-1', message: 'PrimeBot monitoring platform...', timestamp: new Date(), type: 'analysis' },
+    { id: 'idle-2', message: 'Waiting for activity...', timestamp: new Date(), type: 'sync' },
+  ];
+}
+
 export function useRealtimeAILog() {
   const [currentLog, setCurrentLog] = useState<string>("PrimeBot analyzing data...");
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentLog(generateRealtimeLog().message);
-    }, 4000);
+  const { data } = useQuery({
+    queryKey: ['latest-ai-log'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('activity_feed')
+        .select('title')
+        .eq('is_public', true)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
 
-    return () => clearInterval(interval);
-  }, []);
+      if (error) return "PrimeBot monitoring...";
+      return data?.title || "PrimeBot monitoring...";
+    },
+    staleTime: 10000,
+    refetchInterval: 15000,
+  });
+
+  useEffect(() => {
+    if (data) {
+      setCurrentLog(data);
+    }
+  }, [data]);
 
   return currentLog;
 }
