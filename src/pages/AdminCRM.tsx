@@ -23,6 +23,7 @@ const AdminCRM = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const currentTab = searchParams.get('tab') || 'dashboard';
+  const { enterPreview } = useAdminPreview();
 
   const [profile, setProfile] = useState<any>(null);
   const [platformStats, setPlatformStats] = useState({
@@ -116,7 +117,6 @@ const AdminCRM = () => {
     },
   ];
 
-  const { enterPreview } = useAdminPreview();
 
   const quickActions = [
     {
