@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -19,7 +20,39 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+
+/**
+ * Weekly Collaborations Card - queries real data instead of Math.random()
+ */
+const WeeklyCollaborationsCard = () => {
+  const { data: weeklyCount, isLoading } = useQuery({
+    queryKey: ['weekly-collaborations-count'],
+    queryFn: async () => {
+      const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+      const { count, error } = await supabase
+        .from('collaboration_sessions')
+        .select('id', { count: 'exact', head: true })
+        .gte('created_at', oneWeekAgo);
+
+      if (error) throw error;
+      return count || 0;
+    },
+    staleTime: 60000,
+  });
+
+  return (
+    <Card className="p-6 bg-gradient-to-br from-accent-cyan/20 to-accent-cyan/5 border-accent-cyan/30 animate-fade-in animate-delay-200">
+      <div className="flex items-center gap-3 mb-3">
+        <TrendingUp className="w-6 h-6 text-accent-cyan" />
+        <h4 className="font-semibold">This Week</h4>
+      </div>
+      <div className="text-4xl font-bold text-accent-cyan mb-1">
+        {isLoading ? '...' : `+${weeklyCount}`}
+      </div>
+      <p className="text-sm text-muted-foreground">New collaborations</p>
+    </Card>
+  );
+};
 
 interface StudioHubProps {
   userRole: 'artist' | 'engineer';
@@ -256,7 +289,7 @@ const StudioHub = ({ userRole }: StudioHubProps) => {
                   <span className="text-sm">{activity}</span>
                   <span className="ml-auto text-xs text-muted-foreground">
                     <Clock className="w-3 h-3 inline mr-1" />
-                    {Math.floor(Math.random() * 5) + 1}m ago
+                    recent
                   </span>
                 </div>
               ))}
@@ -287,14 +320,7 @@ const StudioHub = ({ userRole }: StudioHubProps) => {
               <p className="text-sm text-muted-foreground">Live sessions worldwide</p>
             </Card>
 
-            <Card className="p-6 bg-gradient-to-br from-accent-cyan/20 to-accent-cyan/5 border-accent-cyan/30 animate-fade-in animate-delay-200">
-              <div className="flex items-center gap-3 mb-3">
-                <TrendingUp className="w-6 h-6 text-accent-cyan" />
-                <h4 className="font-semibold">This Week</h4>
-              </div>
-              <div className="text-4xl font-bold text-accent-cyan mb-1">+{Math.floor(Math.random() * 50) + 20}</div>
-              <p className="text-sm text-muted-foreground">New collaborations</p>
-            </Card>
+            <WeeklyCollaborationsCard />
 
             <Card className="p-6 bg-gradient-to-br from-accent-blue/20 to-accent-blue/5 border-accent-blue/30 animate-fade-in animate-delay-300">
               <div className="flex items-center gap-3 mb-3">

@@ -55,7 +55,18 @@ export const CommunityLeaderboard: React.FC<CommunityLeaderboardProps> = ({ user
         projectMap.set(p.user_id, count + 1);
       });
 
-      // Transform to leaderboard entries
+      // Fetch streak data from user_streaks table
+      const { data: streakData } = await supabase
+        .from('user_streaks')
+        .select('user_id, current_count')
+        .eq('streak_type', 'daily_login');
+
+      const streakMap = new Map<string, number>();
+      (streakData || []).forEach((s) => {
+        streakMap.set(s.user_id, s.current_count || 0);
+      });
+
+      // Transform to leaderboard entries - no Math.random()
       const entries: LeaderboardEntry[] = (profiles || []).map((profile, index) => ({
         rank: index + 1,
         id: profile.id,
@@ -63,9 +74,9 @@ export const CommunityLeaderboard: React.FC<CommunityLeaderboardProps> = ({ user
         avatar: profile.avatar_url,
         role: profile.role || 'artist',
         score: profile.points || 0,
-        change: Math.floor(Math.random() * 6) - 2, // Simulated change for now
+        change: 0, // Rank change requires historical tracking - show 0 for now
         projects: projectMap.get(profile.id) || 0,
-        streak: Math.floor(Math.random() * 14) + 1, // Simulated streak
+        streak: streakMap.get(profile.id) || 0, // Real streak from database
         isYou: profile.id === user?.id,
       }));
 
