@@ -1,163 +1,211 @@
 
 
-## Phase 4: Upgrade HowItWorks and Enterprise Pages to 2026 Visual Standards
+## Extend useDynamicLandingAssets to Universal Dynamic Asset System
 
-### Current State Analysis
+### The Problem
 
-| Page | Current Pattern | Violation |
-|------|-----------------|-----------|
-| `/how-it-works` | `JourneyPath` with icon-only steps, no imagery | No imagery, text-only |
-| `/enterprise` | Icon-only Card grids for features and pricing | No imagery, corporate sterile |
+Currently, `useDynamicLandingAssets` only queries `landing_%` and `prime_%` contexts, leaving other pages with hardcoded static asset imports:
 
-Both pages use legacy patterns that violate the 2026 doctrine: icon-only grids without dedicated imagery, no hover stat reveals, and no culture-authentic representation.
+| Page | Current Pattern | Problem |
+|------|----------------|---------|
+| `/city` | `import cityGatesImage from '@/assets/city-gates.jpg'` | Static, requires code change |
+| `/city/*` | `DistrictPortal` uses hardcoded `DISTRICT_PORTALS` map | No admin control |
+| `/community` | `import communityPlazaBg from '@/assets/community-plaza.jpg'` | Static |
+| `/services` | `import servicesLobby from '@/assets/services-lobby.jpg'` | Static |
 
----
-
-### Implementation Strategy
-
-#### 1. HowItWorks Page Upgrade
-
-**Current structure:**
-- Uses `JourneyGateway` (role switcher) + `JourneyPath` (icon-only steps)
-- Steps have icons, titles, descriptions, and time estimates
-- No imagery at all
-
-**Upgrade approach:**
-- Replace `JourneyPath` with `ShowcaseJourney` (already built)
-- Generate 10 new culturally-authentic images (5 artist path + 5 engineer path)
-- Keep `JourneyGateway` for role switching (already has good interaction design)
-- Add stats and tech details to each step
-
-**New assets needed (10 images):**
-
-| File Name | Subject | Prompt Context |
-|-----------|---------|----------------|
-| `journey-artist-upload.jpg` | Young Black artist uploading | Hip-hop aesthetic, bedroom studio, streetwear |
-| `journey-artist-ai.jpg` | AI analyzing waveform | Neural network visualization, warm studio tones |
-| `journey-artist-match.jpg` | Artist matched with engineer | Split view, diverse pairing, connection moment |
-| `journey-artist-collab.jpg` | Real-time collaboration | Video call, DAW visible, authentic expression |
-| `journey-artist-download.jpg` | Artist celebrating final track | Victory moment, streaming platforms visible |
-| `journey-engineer-profile.jpg` | Hispanic engineer setting up profile | Professional studio, portfolio showcase |
-| `journey-engineer-match.jpg` | Engineer reviewing opportunities | Project board, client cards visible |
-| `journey-engineer-work.jpg` | Black engineer at SSL console | Focused expression, professional environment |
-| `journey-engineer-earn.jpg` | Engineer receiving payment | Revenue dashboard, earnings visualization |
-| `journey-cta-join.jpg` | Diverse group in studio | Celebration moment, community energy |
-
-#### 2. Enterprise Page Upgrade
-
-**Current structure:**
-- Icon-only feature cards (6 features)
-- Icon-only pricing cards (3 tiers)
-- Comparison table (text-only)
-- Corporate sterile aesthetic (slate-900 background, blue-600 accents)
-
-**Upgrade approach:**
-- Add hero imagery with culture-authentic enterprise context
-- Replace feature grid with ShowcaseFeature alternating sections
-- Keep pricing cards but add imagery context
-- Update color scheme to match MixxClub brand (primary/secondary instead of corporate blue)
-
-**New assets needed (6 images):**
-
-| File Name | Subject | Prompt Context |
-|-----------|---------|----------------|
-| `enterprise-hero.jpg` | Label executives and artists together | Urban record label, diverse executives, modern office meets studio |
-| `enterprise-team.jpg` | Team collaboration | Multi-person creative session, diverse creators |
-| `enterprise-analytics.jpg` | Analytics dashboard on big screen | Data visualization, revenue charts, modern tech |
-| `enterprise-contracts.jpg` | Digital contract signing | Professional but urban-elevated aesthetic |
-| `enterprise-whitelabel.jpg` | Custom branded platform | Platform on multiple devices, brand customization |
-| `enterprise-security.jpg` | Security/compliance visualization | Lock icons, data protection, trust |
+The `asset_contexts` table already defines prefixes for these areas (`city_`, `community_`, `services_`, `studio_`, `room_`, etc.), but no frontend hook queries them.
 
 ---
 
-### Technical Implementation
+### Solution Architecture
 
-#### HowItWorks Page Changes
+Create a **universal dynamic asset hook** that:
 
-**File:** `src/pages/HowItWorks.tsx`
+1. Queries all relevant context prefixes from the database
+2. Provides typed section-to-context mappings
+3. Offers fallback to static imports when no database asset exists
+4. Enables real-time updates via Supabase subscription
 
-Replace the current step structure with `ShowcaseStep` format:
+---
+
+### Phase 1: Refactor Hook to Support All Page Contexts
+
+**Rename and Extend:** `useDynamicLandingAssets` → `useDynamicAssets`
+
+**New Query Pattern:**
+```sql
+-- Instead of:
+.or('asset_context.like.landing_%,asset_context.like.prime_%')
+
+-- Query ALL page-relevant contexts:
+.or('asset_context.like.landing_%,asset_context.like.prime_%,asset_context.like.city_%,asset_context.like.community_%,asset_context.like.services_%,asset_context.like.studio_%,asset_context.like.hallway_%,asset_context.like.district_%')
+```
+
+**Extended Section Map:**
+```typescript
+const SECTION_ASSET_MAP: Record<string, string[]> = {
+  // === Existing Landing/Prime ===
+  hero_background: ['landing_origin_architect', 'landing_origin_basement', 'landing_origin_penthouse'],
+  hero_prime: ['prime_drop', 'prime_hero'],
+  // ... existing mappings ...
+
+  // === City Districts (NEW) ===
+  city_gates: ['city_gates', 'city_entrance'],
+  city_tower: ['district_tower', 'city_tower', 'mixxtech_tower'],
+  city_studio: ['district_rsd', 'city_studio', 'rsd_chamber'],
+  city_creator: ['district_creator', 'city_creator', 'creator_hub'],
+  city_neural: ['district_neural', 'city_neural', 'neural_engine'],
+  city_arena: ['district_arena', 'city_arena', 'the_arena'],
+  city_commerce: ['district_commerce', 'city_commerce', 'commerce_district'],
+  city_data: ['district_data', 'city_data', 'data_realm'],
+  city_broadcast: ['district_broadcast', 'city_broadcast', 'broadcast_tower'],
+
+  // === Community Plaza (NEW) ===
+  community_plaza: ['community_plaza', 'community_background'],
+  community_arena: ['community_arena', 'battle_arena'],
+  community_stage: ['community_stage', 'premiere_stage'],
+  community_leaderboard: ['community_leaderboard'],
+  community_network: ['community_network', 'connection_web'],
+
+  // === Services District (NEW) ===
+  services_lobby: ['services_lobby', 'services_background'],
+  services_mixing: ['services_mixing', 'mixing_studio'],
+  services_mastering: ['services_mastering', 'mastering_suite'],
+  services_ai: ['services_ai', 'ai_mastering'],
+  services_distribution: ['services_distribution', 'distribution_hub'],
+
+  // === Studio Environments (NEW) ===
+  studio_hallway_base: ['studio_hallway_base'],
+  studio_hallway_active: ['studio_hallway_active'],
+  studio_session_room: ['studio_session_room'],
+};
+```
+
+---
+
+### Phase 2: Add Fallback System
+
+When no database asset exists for a section, fall back to static imports:
 
 ```typescript
-// Before: Icon-only steps
-const artistSteps = [
-  { icon: Upload, title: "Upload Your Track", description: "...", time: "2 minutes" }
-];
+// Fallback map for when no dynamic asset exists
+const STATIC_FALLBACKS: Record<string, string> = {
+  city_gates: '/src/assets/city-gates.jpg',
+  city_tower: '/src/assets/district-tower.jpg',
+  city_studio: '/src/assets/district-rsd.jpg',
+  // ... etc
+};
 
-// After: ShowcaseStep with imagery and stats
-const artistSteps: ShowcaseStep[] = [
-  {
-    image: journeyArtistUpload,
-    icon: Upload,
-    stepNumber: 1,
-    title: "Upload Your Track",
-    description: "Drop your stems or mixdown into our secure cloud. We support all major formats.",
-    stats: [
-      { label: "Formats", value: "15+" },
-      { label: "Max Size", value: "2GB" },
-      { label: "Time", value: "2 min" }
-    ],
-    techDetails: ["Lossless Upload", "Auto-Organize", "Secure Cloud"]
-  }
-];
+// Enhanced getter with fallback
+const getImageUrl = (section: SectionKey, fallback?: string): string => {
+  const dynamicUrl = getAssetForSection(section)?.public_url;
+  return dynamicUrl || fallback || STATIC_FALLBACKS[section] || '';
+};
 ```
 
-**Replace JourneyPath call with ShowcaseJourney:**
+---
 
-```tsx
-// Before
-<JourneyPath 
-  steps={steps} 
-  activeStep={activeStep}
-  onStepClick={setActiveStep}
-  variant={activeRole}
-/>
+### Phase 3: Add Real-Time Subscription
 
-// After
-<ShowcaseJourney
-  badge={{ icon: <Star />, text: "Your Journey" }}
-  title={activeRole === "artist" ? "From Upload to Release" : "From Profile to Profit"}
-  subtitle="Follow the path to professional sound"
-  steps={activeRole === "artist" ? artistShowcaseSteps : engineerShowcaseSteps}
-  variant={activeRole}
-/>
+Enable live updates when admins change assets:
+
+```typescript
+useEffect(() => {
+  // Subscribe to real-time changes
+  const channel = supabase
+    .channel('dynamic-assets')
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'brand_assets',
+        filter: 'is_active=eq.true'
+      },
+      () => {
+        // Refetch on any change
+        fetchAssets();
+      }
+    )
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}, []);
 ```
 
-#### Enterprise Page Changes
+---
 
-**File:** `src/pages/Enterprise.tsx`
+### Phase 4: Create Convenience Hooks
 
-1. **Add hero section with imagery**
-2. **Replace feature grid with ShowcaseFeature sections**
-3. **Update color scheme from corporate blue to brand primary**
-4. **Add culturally-authentic imagery**
+For clean imports in page components:
 
-```tsx
-// Replace the icon-only keyFeatures grid with ShowcaseFeature sections
-const enterpriseFeatures = [
-  {
-    image: enterpriseTeam,
-    icon: Users,
-    title: "Team Management",
-    subtitle: "Scale Your Operation",
-    description: "Invite team members with role-based access. Manage your entire roster from one dashboard.",
-    stats: [
-      { label: "Team Size", value: "∞" },
-      { label: "Roles", value: "10+" },
-      { label: "SSO", value: "✓" }
-    ],
-    techDetails: ["RBAC", "SSO/LDAP", "Audit Logging"]
-  },
-  // ... more features
-];
+```typescript
+// src/hooks/useCityAssets.ts
+export const useCityAssets = () => {
+  const { getImageUrl, isLoading } = useDynamicAssets();
+  
+  return {
+    isLoading,
+    gates: getImageUrl('city_gates'),
+    tower: getImageUrl('city_tower'),
+    studio: getImageUrl('city_studio'),
+    creator: getImageUrl('city_creator'),
+    neural: getImageUrl('city_neural'),
+    arena: getImageUrl('city_arena'),
+    commerce: getImageUrl('city_commerce'),
+    data: getImageUrl('city_data'),
+    broadcast: getImageUrl('city_broadcast'),
+  };
+};
 
-{enterpriseFeatures.map((feature, index) => (
-  <ShowcaseFeature
-    key={feature.title}
-    {...feature}
-    reversed={index % 2 !== 0}
-  />
-))}
+// src/hooks/useCommunityAssets.ts
+export const useCommunityAssets = () => {
+  const { getImageUrl, isLoading } = useDynamicAssets();
+  
+  return {
+    isLoading,
+    plaza: getImageUrl('community_plaza'),
+    arena: getImageUrl('community_arena'),
+    stage: getImageUrl('community_stage'),
+  };
+};
+
+// src/hooks/useServicesAssets.ts
+export const useServicesAssets = () => {
+  const { getImageUrl, isLoading } = useDynamicAssets();
+  
+  return {
+    isLoading,
+    lobby: getImageUrl('services_lobby'),
+    mixing: getImageUrl('services_mixing'),
+    mastering: getImageUrl('services_mastering'),
+    ai: getImageUrl('services_ai'),
+    distribution: getImageUrl('services_distribution'),
+  };
+};
+```
+
+---
+
+### Phase 5: Update DistrictPortal for Dynamic Assets
+
+Refactor `DistrictPortal` to use dynamic assets with static fallbacks:
+
+```typescript
+// Before: Hardcoded imports
+import districtTower from '@/assets/district-tower.jpg';
+export const DISTRICT_PORTALS = {
+  tower: { image: districtTower, glowColor: '262 83% 58%' },
+};
+
+// After: Dynamic with fallback
+const { getImageUrl } = useDynamicAssets();
+const portal = {
+  image: getImageUrl(`city_${districtId}`, STATIC_FALLBACKS[districtId]),
+  glowColor: DISTRICT_GLOW_COLORS[districtId],
+};
 ```
 
 ---
@@ -166,60 +214,73 @@ const enterpriseFeatures = [
 
 | File | Purpose |
 |------|---------|
-| `src/assets/promo/journey-artist-upload.jpg` | Artist upload step |
-| `src/assets/promo/journey-artist-ai.jpg` | AI analysis step |
-| `src/assets/promo/journey-artist-match.jpg` | Match step |
-| `src/assets/promo/journey-artist-collab.jpg` | Collaboration step |
-| `src/assets/promo/journey-artist-download.jpg` | Delivery step |
-| `src/assets/promo/journey-engineer-profile.jpg` | Profile step |
-| `src/assets/promo/journey-engineer-match.jpg` | Opportunities step |
-| `src/assets/promo/journey-engineer-work.jpg` | Work step |
-| `src/assets/promo/journey-engineer-earn.jpg` | Earnings step |
-| `src/assets/promo/journey-cta-join.jpg` | CTA section |
-| `src/assets/promo/enterprise-hero.jpg` | Enterprise hero |
-| `src/assets/promo/enterprise-team.jpg` | Team feature |
-| `src/assets/promo/enterprise-analytics.jpg` | Analytics feature |
-| `src/assets/promo/enterprise-contracts.jpg` | Contracts feature |
-| `src/assets/promo/enterprise-whitelabel.jpg` | White-label feature |
-| `src/assets/promo/enterprise-security.jpg` | Security feature |
-
-**Total: 16 new images**
+| `src/hooks/useDynamicAssets.ts` | Universal dynamic asset hook (replaces/extends useDynamicLandingAssets) |
+| `src/hooks/useCityAssets.ts` | Convenience wrapper for city district assets |
+| `src/hooks/useCommunityAssets.ts` | Convenience wrapper for community assets |
+| `src/hooks/useServicesAssets.ts` | Convenience wrapper for services assets |
 
 ### Files to Modify
 
 | File | Changes |
 |------|---------|
-| `src/pages/HowItWorks.tsx` | Replace JourneyPath with ShowcaseJourney, add image imports |
-| `src/pages/Enterprise.tsx` | Add hero imagery, replace feature grid with ShowcaseFeature, update color scheme |
-| `VISUAL_STANDARDS.md` | Mark `/how-it-works` and `/enterprise` as compliant |
+| `src/hooks/useDynamicLandingAssets.ts` | Re-export from new hook for backward compatibility |
+| `src/components/ui/DistrictPortal.tsx` | Use dynamic assets with fallback |
+| `src/pages/city/CityGates.tsx` | Use useCityAssets hook |
+| `src/pages/Community.tsx` | Use useCommunityAssets hook |
+| `src/pages/Services.tsx` | Use useServicesAssets hook |
 
 ---
 
-### Cultural Representation Requirements
+### Database: New Asset Contexts
 
-All human-centric images will follow the Cultural Representation Standards:
+Add new context prefixes to `asset_contexts` table for completeness:
 
-**Journey Images (10):**
-- Artist steps: Young African American and Hispanic creators
-- Engineer steps: Veteran Black and Hispanic engineers
-- Settings: Bedroom studios, professional consoles, urban environments
-- Style: Streetwear, contemporary urban, authentic expression
-
-**Enterprise Images (6):**
-- Urban-elevated professional aesthetic (not corporate sterile)
-- Diverse executives and creators in modern label/studio environments
-- Mix of professional attire with urban influence (no suits without personality)
+| context_prefix | name | icon |
+|----------------|------|------|
+| `city_` | City Districts | building |
+| `services_` | Services District | sliders |
+| `district_` | District Backgrounds | map |
 
 ---
 
-### Rollout Sequence
+### Technical Details
 
-1. **Generate 16 culturally-authentic images** using Dream Engine
-2. **Update HowItWorks.tsx** with ShowcaseJourney integration
-3. **Update Enterprise.tsx** with ShowcaseFeature sections and brand colors
-4. **Test responsive behavior** on mobile/tablet/desktop
-5. **Update VISUAL_STANDARDS.md** to mark pages as compliant
-6. **Verify alternating layout rhythm** and hover interactions
+**Type Definitions:**
+
+```typescript
+export type PageContext = 
+  | 'landing' 
+  | 'prime' 
+  | 'city' 
+  | 'community' 
+  | 'services' 
+  | 'studio' 
+  | 'hallway';
+
+export type SectionKey = 
+  // Landing
+  | 'hero_background' | 'hero_prime' 
+  | 'community_artists' | 'community_engineers'
+  | 'journey_transformation' | 'future_ownership'
+  // Prime phases
+  | 'prime_drop' | 'prime_spark' | 'prime_community' 
+  | 'prime_collaboration' | 'prime_network' | 'prime_place' | 'prime_invitation'
+  // City districts
+  | 'city_gates' | 'city_tower' | 'city_studio' | 'city_creator' 
+  | 'city_neural' | 'city_arena' | 'city_commerce' | 'city_data' | 'city_broadcast'
+  // Community
+  | 'community_plaza' | 'community_arena' | 'community_stage' 
+  | 'community_leaderboard' | 'community_network'
+  // Services
+  | 'services_lobby' | 'services_mixing' | 'services_mastering' 
+  | 'services_ai' | 'services_distribution'
+  // Studio
+  | 'studio_hallway_base' | 'studio_hallway_active' | 'studio_session_room';
+```
+
+**Query Optimization:**
+
+The hook uses a single query with OR filters to fetch all page-relevant assets in one call, caching locally and refreshing via realtime subscription. This prevents N+1 query patterns while keeping the UI responsive.
 
 ---
 
@@ -227,21 +288,21 @@ All human-centric images will follow the Cultural Representation Standards:
 
 After implementation:
 
-- Both pages use ShowcaseFeature/ShowcaseJourney patterns
-- All content sections have dedicated, culturally-authentic imagery
-- Scroll-triggered animations on all sections
-- Hover stat reveals on desktop, visible stats on mobile
-- Hip-hop culture properly represented (African American, Hispanic, Caribbean)
-- No corporate sterility in enterprise page
-- Brand colors (primary/secondary) instead of generic blue
+- Admins can upload new district/community/services backgrounds via Dream Engine
+- Assets appear automatically in the UI without code changes
+- Real-time updates when assets are changed
+- Static fallbacks ensure no broken images during transition
+- Type-safe section keys prevent typos
+- Backward compatibility maintained for existing `useDynamicLandingAssets` consumers
 
 ---
 
-### The 2026 Standard
+### Admin Workflow (Post-Implementation)
 
-```text
-HowItWorks: The journey is visual. Every step has an image.
-Enterprise: Enterprise-grade, culture-authentic. Not corporate sterile.
-If it doesn't look like us, it doesn't ship.
-```
+1. **Open Dream Engine** → Select context (e.g., "City Districts")
+2. **Generate/upload image** → Tagged with `city_gates`, `city_tower`, etc.
+3. **Set active** → Image immediately appears on live site
+4. **No code deploy required**
+
+This transforms imagery management from "developer task" to "admin task" — exactly what the MixxClub doctrine demands.
 
