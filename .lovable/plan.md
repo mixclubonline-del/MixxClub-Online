@@ -1,230 +1,126 @@
 
 
-# Phase 6: Unified CRM Navigation + AI Guide Integration
+# Fix: Remove Hardcoded OLD Supabase URLs
 
-## Current State Analysis
+## Root Cause Analysis
 
-The CRM system has strong foundations but fragmented implementations across the four roles:
+The console errors show CORS failures and 400 errors because **two files have hardcoded URLs pointing to an OLD Supabase project** (`kbbrehnyqpulbxyesril`) that's no longer connected to this app. The current project uses `wmhwiwjxzpnnzckxezcu`.
 
-### Navigation Gaps
-
-| Component | Artist/Engineer | Producer | Fan |
-|-----------|----------------|----------|-----|
-| CRMPortal | Full 14-hub grid | Uses same portal, but wrong hubs | Uses same portal, but wrong hubs |
-| Hub Definitions | 14 hubs hardcoded | 5 custom tabs | 5 custom tabs |
-| Status Bar | Shows "Artist" or "Engineer" only | Shows correct role badge | Missing role-specific styling |
-| AI Guide | ProactivePrimeBot (generic) | ProactivePrimeBot (generic) | ProactivePrimeBot (generic) |
-
-### The Problem
-
-1. **CRMHubGrid** has 14 hardcoded hubs that apply to Artist/Engineer but NOT Producer/Fan
-2. **CRMStatusBar** only shows "Artist" or "Engineer" badge (line 78)
-3. **ProactivePrimeBot** uses generic "Prime 4.0" branding instead of role-specific AI guides
-4. The characters Jax, Rell, Tempo, and Nova exist in config but aren't surfaced in CRMs
-
----
-
-## Implementation
-
-### 1. Role-Specific Hub Definitions
-
-Create hub configurations per role in `CRMHubGrid.tsx`:
-
+**Evidence from Console:**
 ```text
-ROLE_HUB_DEFINITIONS = {
-  artist: [
-    dashboard, clients, matches, sessions, opportunities, 
-    active-work, revenue, community, growth, messages, 
-    earnings, music, store, profile
-  ],
-  engineer: [
-    dashboard, clients, matches, sessions, opportunities, 
-    active-work, revenue, community, growth, messages, 
-    earnings, profile
-  ],
-  producer: [
-    dashboard, catalog, sales, collabs, revenue, 
-    community, profile
-  ],
-  fan: [
-    feed, day1s, missions, wallet, curator
-  ]
-}
+kbbrehnyqpulbxyesril.supabase.co/rest/v1/profiles... CORS blocked
+kbbrehnyqpulbxyesril.supabase.co/storage/v1/.../m8ucjp.mp3 → 400 error
 ```
 
-**Changes in CRMHubGrid.tsx:**
-- Replace single `HUB_DEFINITIONS` array with `ROLE_HUB_DEFINITIONS` object
-- Select hubs based on `userType` prop
-- Add role-specific descriptions and icons
+## Files With Hardcoded OLD URLs
 
-### 2. Fix CRMStatusBar Role Badge
+| File | Issue |
+|------|-------|
+| `src/hooks/useCollaboration.tsx` (line 52) | WebSocket URL hardcoded to old project |
+| `src/hooks/useInsiderAudio.tsx` (line 14) | Audio file URL hardcoded to old storage bucket |
+| `docs/launch-control-center/supabase-client.ts` | Documentation file with old credentials (not runtime issue, but confusing) |
 
-Currently line 78 only handles artist/engineer:
+## Fix Strategy
+
+### 1. Fix useCollaboration.tsx
+
+Replace hardcoded WebSocket URL with dynamic URL from environment:
+
 ```typescript
-{userType === 'artist' ? 'Artist' : 'Engineer'}
+// BEFORE (line 52):
+const wsUrl = `wss://kbbrehnyqpulbxyesril.supabase.co/functions/v1/...`;
+
+// AFTER:
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+const wsHost = supabaseUrl.replace('https://', 'wss://');
+const wsUrl = `${wsHost}/functions/v1/collaboration-websocket?...`;
 ```
 
-Should become a proper lookup:
+### 2. Fix useInsiderAudio.tsx
+
+Replace hardcoded audio URL with dynamic storage URL:
+
 ```typescript
-const ROLE_LABELS = {
-  artist: 'Artist',
-  engineer: 'Engineer', 
-  producer: 'Producer',
-  fan: 'Fan'
+// BEFORE (line 14):
+const AUDIO_URL = 'https://kbbrehnyqpulbxyesril.supabase.co/storage/v1/...';
+
+// AFTER:
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
+const AUDIO_URL = `${SUPABASE_URL}/storage/v1/object/public/audio-files/insider-track.mp3`;
+```
+
+**Note:** The specific audio file (`1764786509897-m8ucjp.mp3`) was in the OLD project's storage and won't exist in the new project. We'll need to either:
+- Upload a new audio file to the current project's storage
+- Use a fallback/placeholder approach if no file exists
+- Gracefully handle the missing file without errors
+
+### 3. Update Documentation (Optional)
+
+Update `docs/launch-control-center/supabase-client.ts` to use env vars or remove outdated credentials to prevent confusion.
+
+## Implementation Details
+
+### useCollaboration.tsx Changes
+
+```typescript
+// Line 2: Add import for env var access (already available via Vite)
+// Lines 51-54: Replace hardcoded URL
+
+const connect = useCallback(() => {
+  // ... existing checks ...
+  
+  try {
+    // Build WebSocket URL from environment variable
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+    const wsHost = supabaseUrl.replace('https://', 'wss://');
+    const wsUrl = `${wsHost}/functions/v1/collaboration-websocket?sessionId=${sessionId}&userId=${userId}&userName=${encodeURIComponent(userName)}`;
+    
+    const ws = new WebSocket(wsUrl);
+    // ... rest of connection logic ...
+  }
+}, [...]);
+```
+
+### useInsiderAudio.tsx Changes
+
+```typescript
+// Lines 14-16: Use dynamic URL with graceful fallback
+
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
+// Insider audio track - uses audio-files bucket
+// If no track is uploaded, audio features will be disabled gracefully
+const AUDIO_URL = SUPABASE_URL 
+  ? `${SUPABASE_URL}/storage/v1/object/public/audio-files/insider-track.mp3`
+  : '';
+```
+
+Add error handling for missing audio:
+```typescript
+// In initAudio callback, handle missing file gracefully:
+audio.onerror = (e) => {
+  console.warn('Insider audio not available - feature disabled');
+  setIsReady(false);
+  setIsLoading(false);
 };
-// ...
-{ROLE_LABELS[userType]}
 ```
-
-### 3. Role-Specific AI Guide in ProactivePrimeBot
-
-Replace generic "Prime 4.0" with the role-specific character:
-
-| Role | Character | Avatar | Personality |
-|------|-----------|--------|-------------|
-| Artist | Jax | jax-portrait.png | "Your vision. Perfected." |
-| Engineer | Rell | rell-portrait.png | "The craft speaks for itself." |
-| Producer | Tempo | tempo-portrait.png | "The beat is the foundation." |
-| Fan | Nova | nova-portrait.png | "You're in the right room." |
-
-**Changes in ProactivePrimeBot.tsx:**
-- Import `getCharacter` and `ENTRY_POINT_CHARACTERS` from config
-- Replace hardcoded "Prime 4.0" with character name
-- Use character's avatar image
-- Style card with character's accent color
-- Use character-specific quotes in nudges
-
-### 4. Add Character Avatar to CRMStatusBar
-
-Surface the AI guide visually next to the user's profile:
-
-```text
-┌─────────────────────────────────────────────────────┐
-│  [Avatar] Your Name  [Jax] Artist                   │
-│           Level 5 ████░░ 450 XP                     │
-└─────────────────────────────────────────────────────┘
-```
-
-The small guide avatar indicates "Jax is your guide" for artists, etc.
-
----
 
 ## Files to Modify
 
-| File | Changes |
-|------|---------|
-| `src/components/crm/CRMHubGrid.tsx` | Role-specific hub definitions |
-| `src/components/crm/CRMStatusBar.tsx` | Fix role badge + add guide avatar |
-| `src/components/crm/ai/ProactivePrimeBot.tsx` | Role-specific character integration |
-| `src/components/crm/CRMPortal.tsx` | Pass character info to children (minor) |
+| File | Change Summary |
+|------|---------------|
+| `src/hooks/useCollaboration.tsx` | Line 52: Dynamic WebSocket URL |
+| `src/hooks/useInsiderAudio.tsx` | Line 14: Dynamic storage URL + error handling |
 
----
+## Why This Fixes the Errors
 
-## Technical Details
-
-### CRMHubGrid Refactor
-
-```text
-const ROLE_HUB_DEFINITIONS: Record<string, typeof HUB_DEFINITIONS> = {
-  artist: [
-    { id: 'dashboard', label: 'Dashboard', icon: Home, description: 'Overview & momentum' },
-    { id: 'clients', label: 'Clients', icon: Users, description: 'Contact management' },
-    // ... 12 more artist hubs
-  ],
-  engineer: [
-    { id: 'dashboard', label: 'Dashboard', icon: Home, description: 'Overview & momentum' },
-    // ... 11 more engineer hubs
-  ],
-  producer: [
-    { id: 'dashboard', label: 'Dashboard', icon: Home, description: 'Your beat empire' },
-    { id: 'catalog', label: 'Catalog', icon: Disc3, description: 'Your beat library' },
-    { id: 'sales', label: 'Sales', icon: ShoppingBag, description: 'Transaction history' },
-    { id: 'collabs', label: 'Collabs', icon: Users, description: 'Artist connections' },
-    { id: 'revenue', label: 'Revenue', icon: TrendingUp, description: 'Earnings analytics' },
-    { id: 'community', label: 'Community', icon: Users, description: 'Producer network' },
-    { id: 'profile', label: 'Brand Hub', icon: User, description: 'Your identity' },
-  ],
-  fan: [
-    { id: 'feed', label: 'Feed', icon: Compass, description: 'Discover new music' },
-    { id: 'day1s', label: 'Day 1s', icon: Star, description: 'Your early supports' },
-    { id: 'missions', label: 'Missions', icon: Target, description: 'Earn MixxCoinz' },
-    { id: 'wallet', label: 'Wallet', icon: Coins, description: 'Your rewards' },
-    { id: 'curator', label: 'Curator', icon: Sparkles, description: 'Playlist power' },
-  ],
-};
-
-// In component:
-const hubs = ROLE_HUB_DEFINITIONS[userType] || ROLE_HUB_DEFINITIONS.artist;
-```
-
-### ProactivePrimeBot Character Integration
-
-```text
-import { getCharacter, ENTRY_POINT_CHARACTERS } from '@/config/characters';
-
-// In component:
-const characterId = ENTRY_POINT_CHARACTERS[userType];
-const character = getCharacter(characterId);
-
-// In header:
-<div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-accent">
-  <img src={character.avatarPath} alt={character.name} />
-</div>
-<p className="text-sm font-bold">{character.name}</p>
-<p className="text-xs text-muted-foreground">{character.tagline}</p>
-```
-
----
-
-## User Experience After Implementation
-
-### Artist CRM
-- Jax appears as guide in ProactiveBot
-- 14 hubs in grid (full creative suite)
-- Green accent from Jax's config
-- Jax's quotes in nudges
-
-### Engineer CRM
-- Rell appears as guide
-- 12 hubs in grid (business-focused)
-- Secondary accent from Rell's config
-- Rell's quotes in nudges
-
-### Producer CRM
-- Tempo appears as guide
-- 7 hubs in grid (catalog + sales focus)
-- Gold accent from Tempo's config
-- Tempo's quotes in nudges
-
-### Fan Hub
-- Nova appears as guide
-- 5 hubs in grid (discovery + rewards)
-- Pink/magenta accent from Nova's config
-- Nova's quotes in nudges
-
----
+1. **CORS errors disappear**: No more requests to `kbbrehnyqpulbxyesril` - all requests go to `wmhwiwjxzpnnzckxezcu`
+2. **400 errors handled**: Missing audio file handled gracefully instead of throwing
+3. **Environment-aware**: URLs automatically adapt to any Supabase project
 
 ## Acceptance Criteria
 
-- [ ] Each role sees only their relevant hubs in CRMHubGrid
-- [ ] CRMStatusBar shows correct role name for all 4 roles
-- [ ] ProactivePrimeBot uses role-specific character (Jax/Rell/Tempo/Nova)
-- [ ] Character avatar appears in the bot's header
-- [ ] Character's accent color is reflected in the UI
-- [ ] Producer CRM shows 7 hubs (not 14)
-- [ ] Fan Hub shows 5 hubs (not 14)
-- [ ] Character quotes appear in nudges and briefings
-
----
-
-## Summary
-
-This phase unifies the CRM navigation by:
-
-1. **Contextualizing the hub grid** to each role's workflow
-2. **Surfacing AI guides** (Jax/Rell/Tempo/Nova) visually in the experience
-3. **Fixing status bar** to properly label all four roles
-4. **Personalizing nudges** with character-specific quotes
-
-The result: each role feels like a tailored product, not a one-size-fits-all dashboard.
+- [ ] No console errors referencing `kbbrehnyqpulbxyesril`
+- [ ] WebSocket connections use current project URL
+- [ ] Audio feature gracefully degrades if file missing
+- [ ] Build completes without errors
 
