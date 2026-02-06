@@ -6,23 +6,29 @@ import {
   Award,
   TrendingUp,
   Globe,
-  CheckCircle2,
   ArrowRight,
   Sliders,
   Briefcase,
   BarChart3
 } from "lucide-react";
-import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { LandingPortal } from "@/components/landing/LandingPortal";
 import { PortalHero } from "@/components/landing/PortalHero";
-import { FeatureGlassCards } from "@/components/landing/FeatureGlassCards";
+import { ShowcaseFeature } from "@/components/services/ShowcaseFeature";
 import { PortalInvitation } from "@/components/landing/PortalInvitation";
 import { FoundingBanner } from "@/components/landing/FoundingBanner";
 import { ScrollRevealSection } from "@/components/landing/ScrollRevealSection";
 import { RevenuePreview } from "@/components/home/RevenuePreview";
 import { StudioPreview } from "@/components/home/StudioPreview";
 import portalEngineerImage from "@/assets/portal-engineer.jpg";
+
+// Engineer Images
+import engineerRevenueStreams from "@/assets/promo/engineer-revenue-streams.jpg";
+import engineerClientPipeline from "@/assets/promo/engineer-client-pipeline.jpg";
+import engineerOpportunities from "@/assets/promo/engineer-opportunities.jpg";
+import engineerTierProgression from "@/assets/promo/engineer-tier-progression.jpg";
+import engineerGrowthCoaching from "@/assets/promo/engineer-growth-coaching.jpg";
+import engineerWorkspaceHero from "@/assets/promo/engineer-workspace-hero.jpg";
 
 export default function ForEngineers() {
   const stats = [
@@ -32,40 +38,85 @@ export default function ForEngineers() {
     { value: "2,500+", label: "Engineers Earning" },
   ];
 
-  const tiers = [
+  const businessFeatures = [
     {
-      tier: "Bronze",
-      split: "70%",
-      requirements: ["New engineers", "Basic remote tools"],
-      color: "from-orange-600 to-orange-400"
+      image: engineerRevenueStreams,
+      icon: DollarSign,
+      title: "10 Revenue Streams",
+      subtitle: "Multiple Income Sources",
+      description: "Diversify your income with mixing, mastering, consulting, courses, sample packs, and more. Our platform maximizes every opportunity to earn.",
+      stats: [
+        { label: "Streams", value: "10" },
+        { label: "Avg/Month", value: "$4,200" },
+        { label: "Top Earners", value: "$15K+" }
+      ],
+      techDetails: ["Mixing", "Mastering", "Consulting", "Courses", "Sample Packs"]
     },
     {
-      tier: "Silver", 
-      split: "75%",
-      requirements: ["3+ months", "4.0+ rating"],
-      color: "from-slate-400 to-slate-300"
+      image: engineerTierProgression,
+      icon: TrendingUp,
+      title: "Industry-Leading Splits",
+      subtitle: "Tier Progression",
+      description: "Start at 70% and climb to 85% as you grow. Our tier system rewards consistency, quality, and client satisfaction with increasing revenue share.",
+      stats: [
+        { label: "Bronze", value: "70%" },
+        { label: "Silver", value: "75%" },
+        { label: "Platinum", value: "85%" }
+      ],
+      techDetails: ["Bronze → Silver → Gold → Platinum", "Performance Bonuses", "Locked Rates"]
     },
     {
-      tier: "Gold",
-      split: "80%",
-      requirements: ["6+ months", "4.5+ rating", "20+ projects"],
-      color: "from-yellow-600 to-yellow-400"
+      image: engineerClientPipeline,
+      icon: Users,
+      title: "Full CRM Pipeline",
+      subtitle: "Client Management",
+      description: "Manage your entire client pipeline from lead to closed deal. Track every interaction, set follow-ups, and never lose a potential project.",
+      stats: [
+        { label: "Pipeline Stages", value: "6" },
+        { label: "Auto-Reminders", value: "✓" },
+        { label: "Win Rate", value: "+40%" }
+      ],
+      techDetails: ["Deal Pipeline", "Client Cards", "Interaction History", "Auto Follow-Up"]
     },
     {
-      tier: "Platinum",
-      split: "85%",
-      requirements: ["1+ year", "4.8+ rating", "50+ projects"],
-      color: "from-purple-600 to-purple-400"
+      image: engineerOpportunities,
+      icon: Globe,
+      title: "Global Opportunity Board",
+      subtitle: "Find Projects Worldwide",
+      description: "Access projects from artists around the world. Filter by genre, budget, timeline, and style. Submit proposals and grow your international client base.",
+      stats: [
+        { label: "Daily Projects", value: "200+" },
+        { label: "Countries", value: "50+" },
+        { label: "Genres", value: "All" }
+      ],
+      techDetails: ["AI Matching", "Genre Filters", "Budget Ranges", "Proposal Templates"]
+    },
+    {
+      image: engineerWorkspaceHero,
+      icon: BarChart3,
+      title: "Business Dashboard",
+      subtitle: "Your Command Center",
+      description: "See everything at a glance: earnings, active projects, client health, and growth metrics. Make data-driven decisions to scale your audio business.",
+      stats: [
+        { label: "Metrics", value: "30+" },
+        { label: "Reports", value: "Weekly" },
+        { label: "Forecasting", value: "AI" }
+      ],
+      techDetails: ["Live Analytics", "Revenue Tracking", "Client Insights", "Goal Tracking"]
+    },
+    {
+      image: engineerGrowthCoaching,
+      icon: Award,
+      title: "Growth Academy",
+      subtitle: "Level Up Your Skills",
+      description: "Access mentorship, courses, and coaching to improve your craft and business acumen. Set goals, track progress, and unlock your full potential.",
+      stats: [
+        { label: "Courses", value: "50+" },
+        { label: "Mentors", value: "Verified" },
+        { label: "Certifications", value: "Industry" }
+      ],
+      techDetails: ["Skill Tracking", "Goal Setting", "Peer Coaching", "Certifications"]
     }
-  ];
-
-  const crmFeatures = [
-    { icon: BarChart3, title: "Dashboard", description: "Real-time business metrics and earnings" },
-    { icon: Users, title: "Clients Hub", description: "Full CRM with deal pipeline" },
-    { icon: DollarSign, title: "Revenue Hub", description: "Track all 10 revenue streams" },
-    { icon: Video, title: "Sessions", description: "Manage live collaboration sessions" },
-    { icon: Globe, title: "Opportunities", description: "Browse and bid on projects" },
-    { icon: Award, title: "Growth Hub", description: "Level up with coaching and goals" },
   ];
 
   return (
@@ -108,56 +159,34 @@ export default function ForEngineers() {
         <StudioPreview />
       </div>
 
-      {/* Revenue Tiers Section */}
+      {/* Business Features Section - Upgraded to ShowcaseFeature */}
       <section className="py-24 px-6 relative">
         <div className="container mx-auto max-w-6xl">
-          <ScrollRevealSection className="text-center mb-12">
+          <ScrollRevealSection className="text-center mb-16">
             <Badge 
               variant="outline" 
               className="mb-4 bg-background/30 backdrop-blur-md border-white/20"
             >
-              <TrendingUp className="w-4 h-4 mr-2" />
-              Revenue Tiers
+              <Briefcase className="w-4 h-4" />
+              <span className="ml-2">Your Business HQ</span>
             </Badge>
-            <h2 className="text-4xl font-bold mb-4">Industry-Leading Splits</h2>
-            <p className="text-xl text-muted-foreground">
-              Grow your career and increase your earnings
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">This is YOUR Engineer CRM</h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Everything you need to run and grow your audio business.
             </p>
           </ScrollRevealSection>
-
-          <div className="grid md:grid-cols-4 gap-6">
-            {tiers.map((tier, i) => (
-              <ScrollRevealSection key={i} delay={i * 0.1}>
-                <motion.div
-                  className="relative p-6 rounded-2xl bg-background/40 backdrop-blur-md border border-white/10 overflow-hidden hover:shadow-lg transition-all"
-                  whileHover={{ y: -4 }}
-                >
-                  <div className={`absolute top-0 left-0 right-0 h-2 bg-gradient-to-r ${tier.color}`} />
-                  <h3 className="text-2xl font-bold mb-2 mt-2">{tier.tier}</h3>
-                  <div className="text-4xl font-bold text-secondary mb-4">{tier.split}</div>
-                  <ul className="space-y-2">
-                    {tier.requirements.map((req, j) => (
-                      <li key={j} className="flex items-start gap-2 text-sm">
-                        <CheckCircle2 className="w-4 h-4 text-secondary mt-0.5 flex-shrink-0" />
-                        <span>{req}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </motion.div>
-              </ScrollRevealSection>
+          
+          <div className="space-y-24">
+            {businessFeatures.map((feature, index) => (
+              <ShowcaseFeature
+                key={feature.title}
+                {...feature}
+                reversed={index % 2 !== 0}
+              />
             ))}
           </div>
         </div>
       </section>
-
-      {/* CRM Preview Section */}
-      <FeatureGlassCards
-        badge={{ icon: <Briefcase className="w-4 h-4" />, text: "Your Business HQ" }}
-        title="This is YOUR Engineer CRM"
-        subtitle="Everything you need to run your audio business."
-        features={crmFeatures}
-        variant="engineer"
-      />
 
       {/* Final CTA - Portal Invitation */}
       <PortalInvitation
