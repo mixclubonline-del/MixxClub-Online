@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -7,6 +7,23 @@ import { Progress } from '@/components/ui/progress';
 import { ChevronLeft, Award, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { getCharacter, ENTRY_POINT_CHARACTERS, type CharacterId } from '@/config/characters';
+
+// Role labels for badge display
+const ROLE_LABELS: Record<string, string> = {
+  artist: 'Artist',
+  engineer: 'Engineer',
+  producer: 'Producer',
+  fan: 'Fan',
+};
+
+// Role-specific studio labels for mobile
+const ROLE_STUDIO_LABELS: Record<string, string> = {
+  artist: 'Artist Studio',
+  engineer: 'Pro Studio',
+  producer: 'Beat Lab',
+  fan: 'Fan Zone',
+};
 
 interface CRMStatusBarProps {
    userType: 'artist' | 'engineer' | 'producer' | 'fan';
@@ -27,6 +44,12 @@ export const CRMStatusBar: React.FC<CRMStatusBarProps> = ({
   onBackToGrid,
 }) => {
   const isMobile = useIsMobile();
+  
+  // Get role-specific AI guide character
+  const guide = useMemo(() => {
+    const characterId = ENTRY_POINT_CHARACTERS[userType as keyof typeof ENTRY_POINT_CHARACTERS] || 'jax';
+    return getCharacter(characterId);
+  }, [userType]);
   
   const getLevelProgress = () => {
     if (!profile) return 0;
@@ -73,8 +96,20 @@ export const CRMStatusBar: React.FC<CRMStatusBarProps> = ({
                 <h2 className="font-bold text-foreground">
                   {profile?.full_name || 'Welcome'}
                 </h2>
+                {/* AI Guide Avatar */}
+                <div 
+                  className="w-6 h-6 rounded-full overflow-hidden border border-border/50"
+                  style={{ boxShadow: `0 0 8px ${guide.accentColor}` }}
+                  title={`${guide.name} is your guide`}
+                >
+                  <img 
+                    src={guide.avatarPath} 
+                    alt={guide.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
                 <Badge variant="outline" className="text-xs bg-primary/10 border-primary/30">
-                  {userType === 'artist' ? 'Artist' : 'Engineer'}
+                  {ROLE_LABELS[userType] || 'Creator'}
                 </Badge>
               </div>
               
@@ -116,12 +151,21 @@ export const CRMStatusBar: React.FC<CRMStatusBarProps> = ({
           </div>
         )}
         
-        {/* Mobile: Compact stats */}
+        {/* Mobile: Compact stats with guide */}
         {isMobile && (
           <div className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary animate-pulse" />
+            <div 
+              className="w-7 h-7 rounded-full overflow-hidden border border-border/50"
+              style={{ boxShadow: `0 0 8px ${guide.accentColor}` }}
+            >
+              <img 
+                src={guide.avatarPath} 
+                alt={guide.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
             <span className="text-sm font-medium text-primary">
-              {userType === 'artist' ? 'Artist Studio' : 'Pro Studio'}
+              {ROLE_STUDIO_LABELS[userType] || 'Studio'}
             </span>
           </div>
         )}
