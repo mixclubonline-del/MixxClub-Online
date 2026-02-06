@@ -14,11 +14,24 @@ import { useCommunityShowcase } from '@/hooks/useCommunityShowcase';
 import { PrimeCharacter } from '@/components/demo/PrimeCharacter';
 import { AudioVisualizer } from '@/components/demo/AudioVisualizer';
 import { ParticleStorm } from '@/components/demo/ParticleStorm';
+import { PhaseBackground } from '@/components/demo/PhaseBackground';
 import { CommunityShowcase } from '@/components/demo/CommunityShowcase';
 import { CollaborationJourney } from '@/components/demo/CollaborationJourney';
 import { RolePortals } from '@/components/demo/RolePortals';
+import { DemoPhaseId } from '@/hooks/useDemoPhaseAssets';
 import mixclubLogo from '@/assets/mixclub-3d-logo.png';
 import primeLaunchHero from '@/assets/prime-launch-hero.png';
+
+// Map standalone 7-phase IDs to PhaseBackground's 6-phase visual palette
+const PHASE_VISUAL_MAP: Record<string, DemoPhaseId> = {
+  drop: 'problem',
+  spark: 'discovery',
+  community: 'connection',
+  collaboration: 'transformation',
+  network: 'tribe',
+  place: 'tribe',
+  invitation: 'invitation',
+};
 
 // NEW 7-Phase Journey: Community Belonging + AI Collaboration
 const DEMO_PHASES = [
@@ -242,14 +255,14 @@ export default function InsiderDemo() {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Audio-Reactive Background */}
-      <motion.div 
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          background: `radial-gradient(circle at 30% 20%, hsl(var(--primary) / ${0.1 + (bass / 255) * 0.2}) 0%, transparent 50%),
-                      radial-gradient(circle at 70% 80%, hsl(280 100% 50% / ${0.08 + (mid / 255) * 0.15}) 0%, transparent 50%),
-                      radial-gradient(circle at 50% 50%, hsl(200 100% 50% / ${0.05 + (high / 255) * 0.1}) 0%, transparent 70%)`
-        }}
+      {/* Cinematic Phase Background with Audio-Reactive Glow */}
+      <PhaseBackground
+        phaseId={PHASE_VISUAL_MAP[phase.id] || 'problem'}
+        amplitude={amplitude}
+        bass={bass}
+        mid={mid}
+        high={high}
+        isPlaying={isPlaying}
       />
 
       {/* Particle Storm */}
