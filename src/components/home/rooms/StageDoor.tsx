@@ -2,13 +2,13 @@
  * The Stage Door
  * 
  * Room 6: Your seat is waiting.
- * Final CTA with full-bleed cinematic background and dynamic unlock-aware messaging.
+ * Cinematic full-bleed CTA with glassmorphic overlay and dynamic unlock messaging.
  */
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Users } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { ClubRoom } from '../ClubRoom';
 import { Button } from '@/components/ui/button';
 import { HomeFooter } from '../HomeFooter';
@@ -22,11 +22,9 @@ interface StageDoorProps {
 }
 
 export function StageDoor({ onJoin }: StageDoorProps) {
-  const navigate = useNavigate();
   const { data: milestones, isLoading } = useCommunityMilestones();
   const [videoBgUrl, setVideoBgUrl] = useState<string | null>(null);
 
-  // Check for dynamic video background from brand_assets
   useEffect(() => {
     const fetchStageBg = async () => {
       const { data } = await supabase
@@ -44,7 +42,6 @@ export function StageDoor({ onJoin }: StageDoorProps) {
     fetchStageBg();
   }, []);
 
-  // Find next milestone for dynamic CTA
   const nextMilestone = milestones.find((m) => !m.is_unlocked);
   const isNearUnlock = nextMilestone && nextMilestone.progress_percentage >= 80;
   const membersNeeded = nextMilestone 
@@ -63,45 +60,56 @@ export function StageDoor({ onJoin }: StageDoorProps) {
             loop
             playsInline
             className="w-full h-full object-cover"
-            style={{ opacity: 0.2 }}
+            style={{ opacity: 0.18 }}
           />
         ) : (
           <img
             src={studioConsoleImg}
             alt=""
             className="w-full h-full object-cover"
-            style={{ opacity: 0.2 }}
+            style={{ opacity: 0.18 }}
             loading="lazy"
           />
         )}
         <div 
           className="absolute inset-0"
           style={{
-            background: `linear-gradient(to bottom, hsl(var(--background) / 0.6) 0%, hsl(var(--background) / 0.4) 40%, hsl(var(--background) / 0.4) 60%, hsl(var(--background) / 0.7) 100%)`
+            background: `linear-gradient(to bottom, hsl(var(--background) / 0.5) 0%, hsl(var(--background) / 0.35) 40%, hsl(var(--background) / 0.35) 60%, hsl(var(--background) / 0.65) 100%)`
           }}
         />
       </div>
 
-      {/* Main CTA area — Glassmorphic Container */}
+      {/* Ambient glow orbs */}
+      <motion.div
+        className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full pointer-events-none"
+        style={{ background: 'radial-gradient(circle, hsl(var(--primary) / 0.1) 0%, transparent 70%)' }}
+        animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.5, 0.3] }}
+        transition={{ duration: 5, repeat: Infinity }}
+      />
+
+      {/* Main CTA — Enhanced Glassmorphic Container */}
       <div className="relative flex-1 flex flex-col items-center justify-center px-6 py-20">
         <motion.div
-          className="bg-background/40 backdrop-blur-lg rounded-3xl p-8 md:p-12 border border-border/20 flex flex-col items-center max-w-2xl w-full"
+          className="rounded-3xl p-8 md:p-12 border flex flex-col items-center max-w-2xl w-full"
+          style={{
+            background: 'rgba(255, 255, 255, 0.04)',
+            borderColor: 'rgba(255, 255, 255, 0.08)',
+            backdropFilter: 'blur(32px)',
+            WebkitBackdropFilter: 'blur(32px)',
+            boxShadow: '0 0 100px -30px hsl(var(--primary) / 0.15)',
+          }}
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
         >
           {/* Logo glow */}
-          <motion.div
-            className="relative mb-8"
-          >
-            {/* Glow effect */}
+          <motion.div className="relative mb-8">
             <motion.div
-              className="absolute inset-0 w-32 h-32 rounded-full bg-primary/30 blur-3xl"
+              className="absolute inset-0 w-32 h-32 rounded-full blur-3xl"
+              style={{ background: 'hsl(var(--primary) / 0.25)' }}
               animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.5, 0.3] }}
               transition={{ duration: 4, repeat: Infinity }}
             />
-            
-            {/* Logo text */}
             <span className="relative text-5xl md:text-7xl font-black bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
               MIXXCLUB
             </span>
@@ -121,7 +129,7 @@ export function StageDoor({ onJoin }: StageDoorProps) {
             </span>
           </motion.p>
 
-          {/* Milestone Progress (when near unlock) */}
+          {/* Milestone Progress */}
           {nextMilestone && (
             <motion.div
               className="w-full max-w-md mb-8"
@@ -130,7 +138,14 @@ export function StageDoor({ onJoin }: StageDoorProps) {
               viewport={{ once: true }}
               transition={{ delay: 0.3 }}
             >
-              <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 backdrop-blur-md">
+              <div
+                className="p-4 rounded-xl border"
+                style={{
+                  background: 'hsl(var(--primary) / 0.04)',
+                  borderColor: 'hsl(var(--primary) / 0.15)',
+                  backdropFilter: 'blur(16px)',
+                }}
+              >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Users className="w-4 h-4" />
