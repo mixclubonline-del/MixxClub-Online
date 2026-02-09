@@ -2,7 +2,7 @@
  * The Control Room
  * 
  * Room 3: How the magic happens.
- * Alternating image+content showcase layout.
+ * Alternating image+content showcase with glassmorphic cards and role-aware accents.
  */
 
 import { motion } from 'framer-motion';
@@ -12,6 +12,13 @@ import artistUploadImg from '@/assets/promo/artist-upload-cloud.jpg';
 import aiNeuralImg from '@/assets/promo/ai-neural-network.jpg';
 import mixingFeedbackImg from '@/assets/promo/mixing-realtime-feedback.jpg';
 import artistDeliveryImg from '@/assets/promo/artist-delivery.jpg';
+
+const STEP_ACCENTS = [
+  'hsl(var(--primary))',
+  'hsl(var(--secondary))',
+  'hsl(var(--accent))',
+  'hsl(var(--primary))',
+];
 
 const STEPS = [
   {
@@ -50,8 +57,16 @@ const STEPS = [
 
 export function ControlRoom() {
   return (
-    <ClubRoom id="control" className="bg-background">
-      <div className="container px-6 py-20 flex flex-col items-center justify-center min-h-[100svh]">
+    <ClubRoom id="control" className="bg-background relative overflow-hidden">
+      {/* Ambient glow */}
+      <motion.div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full pointer-events-none"
+        style={{ background: 'radial-gradient(circle, hsl(var(--primary) / 0.06) 0%, transparent 70%)' }}
+        animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.5, 0.3] }}
+        transition={{ duration: 8, repeat: Infinity }}
+      />
+
+      <div className="relative container px-6 py-20 flex flex-col items-center justify-center min-h-[100svh]">
         {/* Header */}
         <motion.div
           className="text-center mb-16"
@@ -75,11 +90,12 @@ export function ControlRoom() {
           </h2>
         </motion.div>
 
-        {/* Alternating Image+Content Steps */}
+        {/* Alternating Steps — Glassmorphic */}
         <div className="w-full max-w-5xl space-y-12 md:space-y-16 mb-16">
           {STEPS.map((step, index) => {
             const Icon = step.icon;
             const isReversed = index % 2 !== 0;
+            const accent = STEP_ACCENTS[index];
 
             return (
               <motion.div
@@ -92,31 +108,44 @@ export function ControlRoom() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                {/* Image Side */}
+                {/* Image Side — with glassmorphic overlay */}
                 <div className="w-full md:w-1/2">
                   <motion.div
-                    className="relative aspect-[4/3] rounded-2xl overflow-hidden group"
+                    className="relative aspect-[4/3] rounded-2xl overflow-hidden group border border-white/[0.06]"
                     whileHover={{ scale: 1.02 }}
                   >
                     <img
                       src={step.image}
                       alt={step.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                       loading="lazy"
                     />
-                    <div 
-                      className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent"
-                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/70 to-transparent" />
                     
-                    {/* Step number overlay */}
-                    <div className="absolute top-4 left-4 w-8 h-8 rounded-full bg-primary text-primary-foreground text-sm font-bold flex items-center justify-center">
+                    {/* Step number */}
+                    <div
+                      className="absolute top-4 left-4 w-9 h-9 rounded-full text-sm font-bold flex items-center justify-center border"
+                      style={{
+                        background: 'rgba(0, 0, 0, 0.5)',
+                        borderColor: accent,
+                        color: accent,
+                        backdropFilter: 'blur(8px)',
+                      }}
+                    >
                       {index + 1}
                     </div>
 
                     {/* Stat overlay (desktop hover) */}
                     <div className="absolute bottom-4 right-4 hidden md:block opacity-0 group-hover:opacity-100 transition-opacity">
-                      <div className="px-3 py-2 rounded-lg bg-background/80 backdrop-blur-sm border border-border/20">
-                        <div className="text-2xl font-black text-primary">{step.stat}</div>
+                      <div
+                        className="px-4 py-2.5 rounded-xl border"
+                        style={{
+                          background: 'rgba(0, 0, 0, 0.6)',
+                          borderColor: 'rgba(255, 255, 255, 0.08)',
+                          backdropFilter: 'blur(16px)',
+                        }}
+                      >
+                        <div className="text-2xl font-black" style={{ color: accent }}>{step.stat}</div>
                         <div className="text-xs text-muted-foreground">{step.statLabel}</div>
                       </div>
                     </div>
@@ -127,7 +156,12 @@ export function ControlRoom() {
                 <div className="w-full md:w-1/2">
                   <div className="flex items-center gap-3 mb-4">
                     <motion.div
-                      className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center"
+                      className="w-12 h-12 rounded-xl flex items-center justify-center border"
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.04)',
+                        borderColor: 'rgba(255, 255, 255, 0.08)',
+                        backdropFilter: 'blur(12px)',
+                      }}
                       whileHover={{ scale: 1.1, rotate: 5 }}
                     >
                       <Icon className="w-6 h-6 text-primary" />
@@ -150,30 +184,38 @@ export function ControlRoom() {
           })}
         </div>
 
-        {/* Stats row — Glassmorphic */}
+        {/* Stats row — Enhanced Glassmorphic */}
         <motion.div
-          className="rounded-2xl bg-background/60 backdrop-blur-md border border-border/20 p-8"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
+          className="rounded-2xl border p-8 w-full max-w-5xl"
+          style={{
+            background: 'rgba(255, 255, 255, 0.03)',
+            borderColor: 'rgba(255, 255, 255, 0.06)',
+            backdropFilter: 'blur(24px)',
+            WebkitBackdropFilter: 'blur(24px)',
+            boxShadow: '0 0 80px -30px hsl(var(--primary) / 0.1)',
+          }}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div>
-              <div className="text-3xl font-black text-primary">98%</div>
-              <div className="text-sm text-muted-foreground">Match Success</div>
-            </div>
-            <div>
-              <div className="text-3xl font-black text-secondary">24h</div>
-              <div className="text-sm text-muted-foreground">Avg Delivery</div>
-            </div>
-            <div>
-              <div className="text-3xl font-black text-accent">30+</div>
-              <div className="text-sm text-muted-foreground">Platforms</div>
-            </div>
-            <div>
-              <div className="text-3xl font-black text-primary">0</div>
-              <div className="text-sm text-muted-foreground">Hidden Fees</div>
-            </div>
+            {[
+              { value: '98%', label: 'Match Success', color: 'text-primary' },
+              { value: '24h', label: 'Avg Delivery', color: 'text-secondary' },
+              { value: '30+', label: 'Platforms', color: 'text-accent' },
+              { value: '0', label: 'Hidden Fees', color: 'text-primary' },
+            ].map((stat, i) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08 }}
+              >
+                <div className={`text-3xl font-black ${stat.color}`}>{stat.value}</div>
+                <div className="text-sm text-muted-foreground">{stat.label}</div>
+              </motion.div>
+            ))}
           </div>
         </motion.div>
       </div>

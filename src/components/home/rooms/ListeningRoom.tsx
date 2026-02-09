@@ -2,7 +2,7 @@
  * The Listening Room
  * 
  * Room 1: Real sound, real results.
- * Features audio transformation demos and social proof.
+ * Features audio transformation demos with glassmorphic cards and cinematic hero.
  */
 
 import { motion } from 'framer-motion';
@@ -22,8 +22,22 @@ interface ListeningRoomProps {
 
 export function ListeningRoom({ onScrollHint }: ListeningRoomProps) {
   return (
-    <ClubRoom id="listening" className="bg-background">
-      <div className="container px-6 py-20 flex flex-col items-center justify-center min-h-[100svh]">
+    <ClubRoom id="listening" className="bg-background relative overflow-hidden">
+      {/* Ambient glow orbs */}
+      <motion.div
+        className="absolute top-1/3 left-1/4 w-[400px] h-[400px] rounded-full pointer-events-none"
+        style={{ background: 'radial-gradient(circle, hsl(var(--primary) / 0.08) 0%, transparent 70%)' }}
+        animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0.7, 0.4] }}
+        transition={{ duration: 6, repeat: Infinity }}
+      />
+      <motion.div
+        className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] rounded-full pointer-events-none"
+        style={{ background: 'radial-gradient(circle, hsl(var(--secondary) / 0.06) 0%, transparent 70%)' }}
+        animate={{ scale: [1.1, 0.9, 1.1], opacity: [0.3, 0.6, 0.3] }}
+        transition={{ duration: 8, repeat: Infinity }}
+      />
+
+      <div className="relative container px-6 py-20 flex flex-col items-center justify-center min-h-[100svh]">
         {/* Header */}
         <motion.div
           className="text-center mb-12"
@@ -51,9 +65,9 @@ export function ListeningRoom({ onScrollHint }: ListeningRoomProps) {
           </p>
         </motion.div>
 
-        {/* Hero Image */}
+        {/* Hero Image — Enlarged & Cinematic */}
         <motion.div
-          className="w-full max-w-5xl mb-12 rounded-2xl overflow-hidden relative"
+          className="w-full max-w-5xl mb-14 rounded-2xl overflow-hidden relative group"
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
@@ -61,35 +75,49 @@ export function ListeningRoom({ onScrollHint }: ListeningRoomProps) {
           <img
             src={mixingConsoleImg}
             alt="Professional mixing console"
-            className="w-full h-[200px] object-cover"
+            className="w-full h-[280px] md:h-[340px] object-cover group-hover:scale-[1.02] transition-transform duration-700"
             loading="lazy"
           />
           <div 
             className="absolute inset-0"
             style={{
-              background: 'linear-gradient(to bottom, transparent 40%, hsl(var(--background)) 100%)'
+              background: 'linear-gradient(to bottom, transparent 30%, hsl(var(--background)) 100%)'
             }}
           />
+          {/* Subtle border glow */}
+          <div className="absolute inset-0 rounded-2xl border border-white/[0.06] pointer-events-none" />
         </motion.div>
 
-        {/* Track Cards */}
+        {/* Track Cards — Glassmorphic */}
         <div className="grid md:grid-cols-3 gap-6 w-full max-w-5xl mb-16">
           {FEATURED_TRACKS.map((track, index) => (
             <motion.div
               key={track.title}
-              className="group relative p-6 rounded-2xl bg-muted/30 border border-border/30 hover:border-primary/30 transition-all cursor-pointer backdrop-blur-sm overflow-hidden"
+              className="group relative p-6 rounded-2xl border border-white/[0.06] hover:border-primary/30 transition-all cursor-pointer overflow-hidden"
+              style={{
+                background: 'rgba(255, 255, 255, 0.03)',
+                backdropFilter: 'blur(24px)',
+                WebkitBackdropFilter: 'blur(24px)',
+              }}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              whileHover={{ y: -4 }}
+              transition={{ delay: index * 0.12 }}
+              whileHover={{ y: -6 }}
             >
+              {/* Hover glow */}
+              <div
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl"
+                style={{ background: 'radial-gradient(circle at 50% 80%, hsl(var(--primary) / 0.12) 0%, transparent 70%)' }}
+              />
+
               {/* Waveform area */}
-              <div className="h-20 mb-4 flex items-end justify-around gap-0.5 px-2">
+              <div className="relative h-20 mb-4 flex items-end justify-around gap-0.5 px-2">
                 {Array.from({ length: 24 }).map((_, i) => (
                   <motion.div
                     key={i}
-                    className="w-1 bg-primary/60 rounded-full"
+                    className="w-1 rounded-full"
+                    style={{ background: 'hsl(var(--primary) / 0.5)' }}
                     initial={{ height: '20%' }}
                     whileInView={{ height: `${30 + Math.sin(i * 0.5) * 30 + 20}%` }}
                     viewport={{ once: true }}
@@ -99,7 +127,7 @@ export function ListeningRoom({ onScrollHint }: ListeningRoomProps) {
               </div>
 
               {/* Track info */}
-              <div className="flex items-center justify-between">
+              <div className="relative flex items-center justify-between">
                 <div>
                   <h3 className="font-bold text-foreground">{track.title}</h3>
                   <p className="text-sm text-muted-foreground">
@@ -109,7 +137,8 @@ export function ListeningRoom({ onScrollHint }: ListeningRoomProps) {
                 
                 {/* Play button */}
                 <motion.button
-                  className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-primary opacity-0 group-hover:opacity-100 transition-opacity border border-primary/20"
+                  style={{ background: 'hsl(var(--primary) / 0.15)' }}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -118,7 +147,10 @@ export function ListeningRoom({ onScrollHint }: ListeningRoomProps) {
               </div>
 
               {/* Genre tag */}
-              <span className="absolute top-4 right-4 text-xs px-2 py-1 rounded-full bg-primary/10 text-primary/80">
+              <span
+                className="absolute top-4 right-4 text-xs px-2.5 py-1 rounded-full text-primary/90 border border-primary/15"
+                style={{ background: 'hsl(var(--primary) / 0.08)' }}
+              >
                 {track.genre}
               </span>
             </motion.div>

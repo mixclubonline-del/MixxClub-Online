@@ -2,7 +2,7 @@
  * The Green Room
  * 
  * Room 2: Your people are already here.
- * Community presence and role portals with cinematic imagery.
+ * Community presence and role portals with glassmorphic cards.
  */
 
 import { motion } from 'framer-motion';
@@ -27,7 +27,8 @@ export function GreenRoom() {
       subtitle: 'Creator, Musician',
       onlineCount: onlineArtists,
       href: '/for-artists',
-      color: 'hsl(142, 76%, 36%)',
+      glowColor: 'rgba(168, 85, 247, 0.15)',
+      accentHsl: 'hsl(271, 91%, 65%)',
       portalImage: portalArtistImg,
     },
     {
@@ -36,14 +37,23 @@ export function GreenRoom() {
       subtitle: 'Mixer, Producer',
       onlineCount: onlineEngineers,
       href: '/for-engineers',
-      color: 'hsl(var(--secondary))',
+      glowColor: 'rgba(249, 115, 22, 0.15)',
+      accentHsl: 'hsl(25, 95%, 53%)',
       portalImage: portalEngineerImg,
     },
   ];
 
   return (
-    <ClubRoom id="green" className="bg-background">
-      <div className="container px-6 py-20 flex flex-col items-center justify-center min-h-[100svh]">
+    <ClubRoom id="green" className="bg-background relative overflow-hidden">
+      {/* Ambient orbs */}
+      <motion.div
+        className="absolute top-1/3 right-1/4 w-[350px] h-[350px] rounded-full pointer-events-none"
+        style={{ background: 'radial-gradient(circle, hsl(var(--primary) / 0.07) 0%, transparent 70%)' }}
+        animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0.6, 0.4] }}
+        transition={{ duration: 7, repeat: Infinity }}
+      />
+
+      <div className="relative container px-6 py-20 flex flex-col items-center justify-center min-h-[100svh]">
         {/* Header */}
         <motion.div
           className="text-center mb-16"
@@ -66,14 +76,22 @@ export function GreenRoom() {
           </h2>
         </motion.div>
 
-        {/* Live counter */}
+        {/* Live counter — Glassmorphic pill */}
         <motion.div
           className="mb-16"
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
         >
-          <div className="flex items-center gap-3 px-6 py-3 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-sm">
+          <div
+            className="flex items-center gap-3 px-6 py-3 rounded-full border"
+            style={{
+              background: 'hsl(var(--primary) / 0.06)',
+              borderColor: 'hsl(var(--primary) / 0.15)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+            }}
+          >
             <motion.span
               className="relative flex h-3 w-3"
               animate={{ scale: [1, 1.2, 1] }}
@@ -88,37 +106,42 @@ export function GreenRoom() {
           </div>
         </motion.div>
 
-        {/* Role Portals with Image Headers */}
+        {/* Role Portals — Glassmorphic Cards */}
         <div className="grid md:grid-cols-2 gap-8 w-full max-w-4xl mb-12">
           {roles.map((role, index) => (
             <Link to={role.href} key={role.title}>
               <motion.div
-                className="group relative rounded-2xl bg-muted/20 border border-border/30 hover:border-primary/40 transition-all overflow-hidden"
+                className="group relative rounded-2xl border border-white/[0.06] hover:border-white/[0.12] transition-all overflow-hidden"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.03)',
+                  backdropFilter: 'blur(24px)',
+                  WebkitBackdropFilter: 'blur(24px)',
+                }}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.15 }}
-                whileHover={{ y: -4, scale: 1.02 }}
+                whileHover={{ y: -6, scale: 1.01 }}
               >
                 {/* Portal Image Header */}
-                <div className="relative h-[160px] overflow-hidden">
+                <div className="relative h-[180px] overflow-hidden">
                   <img
                     src={role.portalImage}
                     alt={`${role.title} portal`}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     loading="lazy"
                   />
                   <div 
                     className="absolute inset-0"
                     style={{
-                      background: 'linear-gradient(to bottom, transparent 30%, hsl(var(--background)) 100%)'
+                      background: 'linear-gradient(to bottom, transparent 20%, hsl(var(--background)) 100%)'
                     }}
                   />
                   
-                  {/* Character avatar overlapping image bottom */}
+                  {/* Character avatar */}
                   <motion.div
                     className="absolute -bottom-6 left-6 w-16 h-16 rounded-xl overflow-hidden border-4 border-background"
-                    style={{ boxShadow: `0 0 30px ${role.color}40` }}
+                    style={{ boxShadow: `0 0 30px ${role.glowColor}` }}
                     whileHover={{ scale: 1.05 }}
                   >
                     <img
@@ -136,12 +159,10 @@ export function GreenRoom() {
                     <p className="text-muted-foreground">{role.subtitle}</p>
                   </div>
 
-                  {/* Quote */}
                   <p className="text-muted-foreground italic mb-6">
                     "{role.character.sampleQuotes[0]}"
                   </p>
 
-                  {/* Online count + CTA */}
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">
                       {role.onlineCount} online
@@ -154,8 +175,8 @@ export function GreenRoom() {
 
                 {/* Hover glow */}
                 <div 
-                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
-                  style={{ background: `radial-gradient(circle at center, ${role.color}10 0%, transparent 70%)` }}
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                  style={{ background: `radial-gradient(circle at center 70%, ${role.glowColor} 0%, transparent 70%)` }}
                 />
               </motion.div>
             </Link>
