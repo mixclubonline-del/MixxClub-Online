@@ -143,19 +143,25 @@ export const useInsiderAudio = () => {
   }, []);
 
   const play = useCallback(async () => {
-    if (!audioContextRef.current || !audioElementRef.current) {
-      await initAudio();
-    }
+    try {
+      if (!audioContextRef.current || !audioElementRef.current) {
+        await initAudio();
+      }
 
-    if (audioContextRef.current?.state === 'suspended') {
-      await audioContextRef.current.resume();
-    }
+      if (audioContextRef.current?.state === 'suspended') {
+        await audioContextRef.current.resume();
+      }
 
-    if (audioElementRef.current) {
-      await audioElementRef.current.play();
-      setIsPlaying(true);
-      analyzeAudio();
+      if (audioElementRef.current) {
+        await audioElementRef.current.play();
+        analyzeAudio();
+      }
+    } catch {
+      // Audio unavailable — proceed silently so the demo still plays
+      console.warn('Audio playback unavailable — running demo in silent mode');
     }
+    // Always mark as playing so the demo can proceed even without audio
+    setIsPlaying(true);
   }, [initAudio, analyzeAudio]);
 
   const pause = useCallback(() => {
