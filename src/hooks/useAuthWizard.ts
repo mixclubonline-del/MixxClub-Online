@@ -45,13 +45,37 @@ export function useAuthWizard() {
     };
   }, []);
 
-  // Check if user is already authenticated
+  // Check if user is already authenticated — redirect to their CRM
   useEffect(() => {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user && isMountedRef.current) {
-        navigate('/');
+      if (!session?.user || !isMountedRef.current) return;
+
+      // Look up user's role to route them correctly
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role, onboarding_completed')
+        .eq('id', session.user.id)
+        .single();
+
+      const role = profile?.role;
+      if (!role) {
+        navigate('/select-role');
+        return;
       }
+
+      if (!profile?.onboarding_completed) {
+        navigate(`/onboarding/${role}`);
+        return;
+      }
+
+      const crmMap: Record<string, string> = {
+        producer: '/producer-crm',
+        engineer: '/engineer-crm',
+        fan: '/fan-hub',
+        artist: '/artist-crm',
+      };
+      navigate(crmMap[role] || '/artist-crm');
     };
     checkSession();
   }, [navigate]);

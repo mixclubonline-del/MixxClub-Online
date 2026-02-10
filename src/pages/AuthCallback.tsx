@@ -95,37 +95,17 @@ const AuthCallback = () => {
         toast.success('Welcome to MixClub!');
         
         if (!onboardingComplete) {
-          // Route to role-specific onboarding
-          switch (userRole) {
-            case 'producer':
-              navigate('/producer-onboarding');
-              break;
-            case 'engineer':
-              navigate('/engineer-onboarding');
-              break;
-            case 'fan':
-              navigate('/fan-onboarding');
-              break;
-            default:
-              navigate('/artist-onboarding');
-              break;
-          }
+          // Route to role-specific onboarding (canonical paths)
+          navigate(`/onboarding/${userRole || 'artist'}`);
         } else {
           // Route to role-specific CRM/hub
-          switch (userRole) {
-            case 'producer':
-              navigate('/producer-crm');
-              break;
-            case 'engineer':
-              navigate('/engineer-crm');
-              break;
-            case 'fan':
-              navigate('/fan-hub');
-              break;
-            default:
-              navigate('/artist-crm');
-              break;
-          }
+          const crmMap: Record<string, string> = {
+            producer: '/producer-crm',
+            engineer: '/engineer-crm',
+            fan: '/fan-hub',
+            artist: '/artist-crm',
+          };
+          navigate(crmMap[userRole] || '/artist-crm');
         }
       } catch (err) {
         console.error('Auth callback error:', err);
