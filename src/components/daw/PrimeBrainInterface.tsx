@@ -353,7 +353,7 @@ export function PrimeBrainInterface({ isOpen, onClose }: PrimeBrainInterfaceProp
                             <div className="prime-brain__subtitle">AI Assistant</div>
                         </div>
                     </div>
-                    <button className="prime-brain__close" onClick={handleClose}>
+                    <button className="prime-brain__close" onClick={handleClose} aria-label="Close Prime Brain">
                         <X size={16} />
                     </button>
                 </div>
@@ -462,6 +462,7 @@ export function PrimeBrainInterface({ isOpen, onClose }: PrimeBrainInterfaceProp
                             className="prime-brain__send-btn"
                             onClick={handleSend}
                             disabled={isStreaming || !inputValue.trim()}
+                            aria-label="Send message"
                         >
                             <Send />
                         </button>

@@ -382,7 +382,7 @@ const AuraDAW = () => {
             {/* ══════════ TRANSPORT BAR ══════════ */}
             <div className="aura-transport">
                 {/* Left: Logo + Controls */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div className="flex items-center gap-3">
                     <span className="aura-transport__logo">AURA</span>
 
                     <div className="aura-transport__controls">
@@ -430,7 +430,7 @@ const AuraDAW = () => {
                 <div className="aura-transport__status">
                     <div className={`aura-status-dot ${isRecording ? 'aura-status-dot--recording' : isPlaying ? 'aura-status-dot--playing' : ''}`} />
                     <span>{isRecording ? 'REC' : isPlaying ? 'PLAY' : 'STOP'}</span>
-                    <span style={{ opacity: 0.5, marginLeft: 8 }}>48kHz · 24bit</span>
+                    <span className="opacity-50 ml-2">48kHz · 24bit</span>
                 </div>
             </div>
 
@@ -514,7 +514,7 @@ const AuraDAW = () => {
                 </div>
 
                 {/* ── Track Headers + Arrangement ── */}
-                <div style={{ display: 'flex', flex: 1, minWidth: 0, flexDirection: 'column' }}>
+                <div className="flex flex-1 min-w-0 flex-col">
                     {tracks.length === 0 ? (
                         /* ═══ EMPTY STATE ═══ */
                         <div className="aura-empty">
@@ -528,7 +528,7 @@ const AuraDAW = () => {
                         </div>
                     ) : (
                         /* ═══ TRACK HEADERS + TIMELINE ═══ */
-                        <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
+                        <div className="flex flex-1 min-h-0">
                             {/* Track Headers */}
                             <div className="aura-tracks">
                                 <div className="aura-tracks__header-spacer">
@@ -560,10 +560,12 @@ const AuraDAW = () => {
                                                         tracks.forEach(t => { if (t.id !== track.id && t.solo) updateTrack(t.id, { solo: false }); });
                                                         updateTrack(track.id, { solo: !track.solo });
                                                     }}
+                                                    aria-label={`Solo ${track.name}`}
                                                 >S</button>
                                                 <button
                                                     className={`aura-track-smr ${track.mute ? 'aura-track-smr--mute-active' : ''}`}
                                                     onClick={(e) => { e.stopPropagation(); updateTrack(track.id, { mute: !track.mute }); }}
+                                                    aria-label={`Mute ${track.name}`}
                                                 >M</button>
                                                 <button
                                                     className={`aura-track-smr ${track.armed ? 'aura-track-smr--rec-active' : ''}`}
@@ -572,6 +574,7 @@ const AuraDAW = () => {
                                                         if (track.armed) stopRecording();
                                                         else startRecording(track.id);
                                                     }}
+                                                    aria-label={`Arm ${track.name} for recording`}
                                                 >R</button>
                                             </div>
                                             {/* Inline VU */}
@@ -705,7 +708,7 @@ const AuraDAW = () => {
                     <div style={{ background: 'var(--aura-surface)', borderRadius: 16, border: '1px solid var(--aura-border)', padding: 24, maxWidth: 600, width: '100%' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
                             <span style={{ fontWeight: 700, fontSize: 16 }}>808 Drum Machine</span>
-                            <button onClick={() => setShow808(false)} style={{ background: 'none', border: 'none', color: 'var(--aura-text-muted)', cursor: 'pointer' }}>✕</button>
+                            <button onClick={() => setShow808(false)} className="bg-transparent border-none text-[var(--aura-text-muted)] cursor-pointer" aria-label="Close 808">✕</button>
                         </div>
                         <DrumMachine808 onNoteTriggered={(note, vel) => console.log('808:', note, vel)} />
                     </div>
@@ -717,7 +720,7 @@ const AuraDAW = () => {
                     <div style={{ background: 'var(--aura-surface)', borderRadius: 16, border: '1px solid var(--aura-border)', padding: 24, maxWidth: 900, width: '100%', maxHeight: '80vh', overflowY: 'auto' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
                             <span style={{ fontWeight: 700, fontSize: 16 }}>AI Beat Generator</span>
-                            <button onClick={() => setShowAIBeats(false)} style={{ background: 'none', border: 'none', color: 'var(--aura-text-muted)', cursor: 'pointer' }}>✕</button>
+                            <button onClick={() => setShowAIBeats(false)} className="bg-transparent border-none text-[var(--aura-text-muted)] cursor-pointer" aria-label="Close AI Beat Generator">✕</button>
                         </div>
                         <AIBeatGenerator />
                     </div>

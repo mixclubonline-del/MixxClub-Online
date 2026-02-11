@@ -191,7 +191,7 @@ const Navigation = () => {
             className="flex items-center gap-3 group transition-all duration-300 hover:scale-105"
           >
             <div className="relative">
-              <div className="absolute inset-0 rounded-lg blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-glass-glow-pulse" style={{ boxShadow: '0 0 40px hsl(var(--primary))' }}></div>
+              <div className="absolute inset-0 rounded-lg blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-glass-glow-pulse shadow-[0_0_40px_hsl(var(--primary))]"></div>
               <img
                 src={mixclub3DLogo}
                 alt="MixClub 3D Logo"
@@ -299,6 +299,7 @@ const Navigation = () => {
           <button
             className="md:hidden p-2 rounded-lg hover:bg-primary/10 transition-all duration-300"
             onClick={() => setIsOpen(!isOpen)}
+            aria-label="Toggle mobile menu"
           >
             <div className="relative w-6 h-6">
               <Menu className={`w-6 h-6 absolute transition-all duration-300 ${isOpen ? 'opacity-0 rotate-90' : 'opacity-100 rotate-0'}`} />
