@@ -138,7 +138,7 @@ const EngineerCRM = () => {
         .order('created_at', { ascending: false });
 
       if (projectsError) throw projectsError;
-      setProjects(projectsData || []);
+      setProjects((projectsData || []) as any);
 
       const { data: achievementsData, error: achievementsError } = await supabase
         .from('achievements')
@@ -396,7 +396,7 @@ const EngineerCRM = () => {
         return <CommunityHub userType="engineer" />;
 
       case 'growth':
-        return <GrowthHub userType="engineer" />;
+        return <GrowthHub />;
 
       case 'messages':
         return <MessagingHub userType="engineer" />;
