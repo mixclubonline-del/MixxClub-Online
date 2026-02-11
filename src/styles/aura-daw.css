@@ -1,0 +1,956 @@
+/* ═══════════════════════════════════════════════
+   AURA DAW — Design System
+   "The interface IS the instrument"
+   ═══════════════════════════════════════════════ */
+
+:root {
+  /* ── Core Palette ── */
+  --aura-bg: #0a0e1a;
+  --aura-surface: #121829;
+  --aura-surface-hover: #1a2240;
+  --aura-surface-glass: rgba(18, 24, 41, 0.75);
+  --aura-border: #1e2a4a;
+  --aura-border-glow: #2a3a5c;
+  --aura-border-subtle: rgba(200, 162, 255, 0.06);
+
+  /* ── Text ── */
+  --aura-text: #e8e6f0;
+  --aura-text-muted: #6b7194;
+  --aura-text-dim: #3d4466;
+
+  /* ── Accent Colors ── */
+  --aura-violet: #c8a2ff;
+  --aura-violet-dim: rgba(200, 162, 255, 0.15);
+  --aura-amber: #f5a623;
+  --aura-red: #ff4444;
+  --aura-green: #22c55e;
+  --aura-cyan: #06b6d4;
+
+  /* ── Track Color Palette ── */
+  --aura-track-purple: #a855f7;
+  --aura-track-magenta: #ec4899;
+  --aura-track-cyan: #06b6d4;
+  --aura-track-orange: #f97316;
+  --aura-track-gold: #eab308;
+  --aura-track-teal: #14b8a6;
+  --aura-track-rose: #f43f5e;
+  --aura-track-blue: #3b82f6;
+
+  /* ── Meter Gradient ── */
+  --aura-meter-low: #1e40af;
+  --aura-meter-mid: #06b6d4;
+  --aura-meter-good: #22c55e;
+  --aura-meter-warn: #eab308;
+  --aura-meter-hot: #f97316;
+  --aura-meter-clip: #ef4444;
+
+  /* ── Spacing ── */
+  --aura-toolbar-w: 44px;
+  --aura-header-w: 200px;
+  --aura-transport-h: 56px;
+  --aura-console-h: 180px;
+
+  /* ── Glass ── */
+  --aura-glass-blur: 12px;
+  --aura-glass-bg: rgba(15, 21, 37, 0.8);
+}
+
+/* ── Base Reset for DAW ── */
+.aura-daw {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--aura-bg);
+  color: var(--aura-text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  overflow: hidden;
+  z-index: 9999;
+}
+
+/* ── Transport Bar — Glassmorphism ── */
+.aura-transport {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--aura-transport-h);
+  padding: 0 16px;
+  background: var(--aura-glass-bg);
+  backdrop-filter: blur(var(--aura-glass-blur)) saturate(1.4);
+  -webkit-backdrop-filter: blur(var(--aura-glass-blur)) saturate(1.4);
+  border-bottom: 1px solid var(--aura-border);
+  box-shadow: 0 1px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  flex-shrink: 0;
+  gap: 16px;
+  position: relative;
+  z-index: 10;
+}
+
+.aura-transport__logo {
+  font-family: 'Inter', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 4px;
+  color: var(--aura-violet);
+  text-shadow: 0 0 20px rgba(200, 162, 255, 0.3);
+  flex-shrink: 0;
+}
+
+.aura-transport__controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(18, 24, 41, 0.6);
+  border: 1px solid var(--aura-border);
+  border-radius: 10px;
+  padding: 3px;
+  backdrop-filter: blur(8px);
+}
+
+.aura-transport__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--aura-text-muted);
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.aura-transport__btn:hover {
+  background: var(--aura-surface-hover);
+  color: var(--aura-text);
+}
+
+.aura-transport__btn--active {
+  background: var(--aura-violet);
+  color: #fff;
+  box-shadow: 0 0 12px rgba(200, 162, 255, 0.4);
+}
+
+.aura-transport__btn--record {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+
+.aura-transport__btn--record:hover {
+  background: rgba(255, 68, 68, 0.2);
+}
+
+.aura-transport__btn--record-active {
+  background: var(--aura-red);
+  color: #fff;
+  box-shadow: 0 0 12px rgba(255, 68, 68, 0.5);
+  animation: aura-pulse-red 1.5s ease infinite;
+}
+
+.aura-timecode {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(10, 14, 26, 0.7);
+  border: 1px solid var(--aura-border);
+  border-radius: 10px;
+  padding: 4px 20px;
+  height: 40px;
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 16px rgba(245, 166, 35, 0.06);
+}
+
+.aura-timecode__time {
+  font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--aura-amber);
+  letter-spacing: 1px;
+  text-shadow: 0 0 8px rgba(245, 166, 35, 0.3);
+  min-width: 140px;
+  text-align: center;
+}
+
+.aura-timecode__divider {
+  width: 1px;
+  height: 24px;
+  background: var(--aura-border);
+}
+
+.aura-timecode__bpm {
+  font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--aura-text);
+  min-width: 54px;
+  text-align: center;
+}
+
+.aura-timecode__bpm-label {
+  font-size: 9px;
+  color: var(--aura-text-muted);
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.aura-transport__status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--aura-text-muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.aura-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--aura-text-dim);
+  transition: all 0.3s ease;
+}
+
+.aura-status-dot--playing {
+  background: var(--aura-green);
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+}
+
+.aura-status-dot--recording {
+  background: var(--aura-red);
+  box-shadow: 0 0 8px rgba(255, 68, 68, 0.5);
+  animation: aura-pulse-red 1s ease infinite;
+}
+
+/* ── Waveform Overview Strip ── */
+.aura-overview {
+  height: 28px;
+  background: linear-gradient(180deg, rgba(18, 24, 41, 0.9) 0%, rgba(10, 14, 26, 0.95) 100%);
+  border-bottom: 1px solid var(--aura-border);
+  position: relative;
+  flex-shrink: 0;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.aura-overview__waveform {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.aura-overview__waveform canvas {
+  width: 100%;
+  height: 100%;
+}
+
+/* Mini waveform bars for the overview when no canvas */
+.aura-overview__bars {
+  position: absolute;
+  inset: 4px 0;
+  display: flex;
+  align-items: flex-end;
+  gap: 1px;
+  opacity: 0.4;
+}
+
+.aura-overview__bar {
+  flex: 1;
+  background: var(--aura-violet);
+  border-radius: 1px 1px 0 0;
+  min-height: 1px;
+  transition: height 0.1s ease;
+}
+
+.aura-overview__viewport {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  background: rgba(200, 162, 255, 0.08);
+  border: 1px solid rgba(200, 162, 255, 0.3);
+  border-radius: 3px;
+  pointer-events: none;
+  transition: left 0.1s ease, width 0.1s ease;
+}
+
+.aura-overview__playhead {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--aura-amber);
+  box-shadow: 0 0 4px rgba(245, 166, 35, 0.5);
+  z-index: 2;
+  pointer-events: none;
+  transition: left 0.1s ease;
+}
+
+/* ── Main Body ── */
+.aura-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ── Toolbar — Glass ribbon ── */
+.aura-toolbar {
+  width: var(--aura-toolbar-w);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 0;
+  gap: 4px;
+  background: var(--aura-glass-bg);
+  backdrop-filter: blur(var(--aura-glass-blur));
+  -webkit-backdrop-filter: blur(var(--aura-glass-blur));
+  border-right: 1px solid var(--aura-border);
+  flex-shrink: 0;
+}
+
+.aura-toolbar__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: none;
+  background: transparent;
+  color: var(--aura-text-dim);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.aura-toolbar__btn:hover {
+  background: var(--aura-surface-hover);
+  color: var(--aura-text-muted);
+  box-shadow: 0 0 8px rgba(200, 162, 255, 0.1);
+}
+
+.aura-toolbar__btn--active {
+  color: var(--aura-violet);
+  background: rgba(200, 162, 255, 0.1);
+}
+
+.aura-toolbar__btn--active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 18px;
+  background: var(--aura-violet);
+  border-radius: 0 2px 2px 0;
+}
+
+.aura-toolbar__spacer {
+  flex: 1;
+}
+
+.aura-toolbar__divider {
+  width: 24px;
+  height: 1px;
+  background: var(--aura-border);
+  margin: 4px 0;
+}
+
+/* ── Track Headers Panel ── */
+.aura-tracks {
+  width: var(--aura-header-w);
+  display: flex;
+  flex-direction: column;
+  background: var(--aura-surface);
+  border-right: 1px solid var(--aura-border);
+  flex-shrink: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.aura-tracks__header-spacer {
+  height: 28px;
+  /* matches timeline ruler */
+  border-bottom: 1px solid var(--aura-border);
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.aura-track-header {
+  display: flex;
+  align-items: stretch;
+  min-height: 64px;
+  border-bottom: 1px solid var(--aura-border);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.aura-track-header:hover {
+  background: var(--aura-surface-hover);
+  box-shadow: inset 0 0 20px rgba(200, 162, 255, 0.03);
+}
+
+.aura-track-header--selected {
+  background: rgba(200, 162, 255, 0.08);
+  border-left: 2px solid var(--aura-violet);
+  box-shadow: inset 4px 0 12px rgba(200, 162, 255, 0.06);
+}
+
+.aura-track-header--selected:hover {
+  background: rgba(200, 162, 255, 0.1);
+}
+
+.aura-track-header--muted {
+  opacity: 0.5;
+}
+
+.aura-track-header__color-strip {
+  width: 4px;
+  flex-shrink: 0;
+  transition: width 0.15s ease;
+}
+
+.aura-track-header:hover .aura-track-header__color-strip {
+  width: 5px;
+  box-shadow: 2px 0 8px currentColor;
+}
+
+.aura-track-header__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 6px 8px;
+  min-width: 0;
+  gap: 4px;
+}
+
+.aura-track-header__name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--aura-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.aura-track-header__controls {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.aura-track-smr {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 18px;
+  font-size: 9px;
+  font-weight: 700;
+  border: 1px solid var(--aura-border);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--aura-text-dim);
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+
+.aura-track-smr:hover {
+  border-color: var(--aura-text-muted);
+  color: var(--aura-text-muted);
+}
+
+.aura-track-smr--solo-active {
+  background: var(--aura-amber);
+  color: #000;
+  border-color: var(--aura-amber);
+}
+
+.aura-track-smr--mute-active {
+  background: var(--aura-red);
+  color: #fff;
+  border-color: var(--aura-red);
+}
+
+.aura-track-smr--rec-active {
+  background: var(--aura-red);
+  color: #fff;
+  border-color: var(--aura-red);
+  animation: aura-pulse-red 1.5s ease infinite;
+}
+
+/* ── Inline VU Meter ── */
+.aura-track-vu {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.aura-track-vu__fill {
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg,
+      var(--aura-meter-low) 0%,
+      var(--aura-meter-mid) 30%,
+      var(--aura-meter-good) 55%,
+      var(--aura-meter-warn) 75%,
+      var(--aura-meter-hot) 88%,
+      var(--aura-meter-clip) 100%);
+  transition: width 0.08s ease-out;
+}
+
+/* Volume fader */
+.aura-track-fader {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.aura-track-fader__slider {
+  flex: 1;
+  -webkit-appearance: none;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--aura-border);
+  outline: none;
+}
+
+.aura-track-fader__slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--aura-text-muted);
+  cursor: pointer;
+  border: 1px solid var(--aura-border-glow);
+  transition: all 0.15s ease;
+}
+
+.aura-track-fader__slider::-webkit-slider-thumb:hover {
+  background: var(--aura-violet);
+  box-shadow: 0 0 6px rgba(200, 162, 255, 0.4);
+}
+
+.aura-track-fader__db {
+  font-size: 9px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--aura-text-dim);
+  min-width: 28px;
+  text-align: right;
+}
+
+/* ── Arrangement Area ── */
+.aura-arrangement {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--aura-bg);
+  position: relative;
+}
+
+/* ── Playhead Line ── */
+.aura-playhead {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--aura-amber);
+  z-index: 20;
+  pointer-events: none;
+  box-shadow: 0 0 6px rgba(245, 166, 35, 0.4);
+}
+
+.aura-playhead--playing {
+  animation: aura-playhead-breathe 2s ease-in-out infinite;
+}
+
+.aura-playhead::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -4px;
+  width: 9px;
+  height: 10px;
+  background: var(--aura-amber);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+
+.aura-playhead::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -2px;
+  width: 5px;
+  background: linear-gradient(90deg, rgba(245, 166, 35, 0.08), transparent);
+  pointer-events: none;
+}
+
+/* ── Console Strip (Bottom) — Glass surface ── */
+.aura-console {
+  height: var(--aura-console-h);
+  background: var(--aura-glass-bg);
+  backdrop-filter: blur(var(--aura-glass-blur));
+  -webkit-backdrop-filter: blur(var(--aura-glass-blur));
+  border-top: 1px solid var(--aura-border);
+  box-shadow: 0 -1px 20px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.02);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.aura-console--collapsed {
+  height: 32px;
+}
+
+.aura-console__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  height: 32px;
+  border-bottom: 1px solid var(--aura-border);
+  flex-shrink: 0;
+  cursor: pointer;
+  user-select: none;
+}
+
+.aura-console__toggle:hover {
+  background: var(--aura-surface-hover);
+}
+
+.aura-console__toggle-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--aura-text-muted);
+}
+
+.aura-console__channels {
+  flex: 1;
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 6px 8px;
+  gap: 2px;
+}
+
+.aura-channel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 56px;
+  width: 56px;
+  gap: 3px;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+}
+
+.aura-channel:hover {
+  background: var(--aura-surface-hover);
+  border-color: var(--aura-border);
+}
+
+.aura-channel--selected {
+  background: rgba(200, 162, 255, 0.06);
+  border-color: rgba(200, 162, 255, 0.2);
+  box-shadow: 0 0 12px rgba(200, 162, 255, 0.08);
+}
+
+.aura-channel__name {
+  font-size: 8px;
+  font-weight: 600;
+  color: var(--aura-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  text-align: center;
+}
+
+.aura-channel__meter-wrap {
+  display: flex;
+  gap: 2px;
+  flex: 1;
+  min-height: 0;
+}
+
+.aura-channel__meter {
+  width: 6px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.aura-channel__meter-fill {
+  width: 100%;
+  border-radius: 2px;
+  background: linear-gradient(0deg,
+      var(--aura-meter-low) 0%,
+      var(--aura-meter-mid) 30%,
+      var(--aura-meter-good) 55%,
+      var(--aura-meter-warn) 75%,
+      var(--aura-meter-hot) 88%,
+      var(--aura-meter-clip) 100%);
+  transition: height 0.08s ease-out;
+}
+
+.aura-channel__fader {
+  width: 100%;
+}
+
+.aura-channel__fader input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 3px;
+  background: var(--aura-border);
+  border-radius: 2px;
+  outline: none;
+}
+
+.aura-channel__fader input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 8px;
+  background: var(--aura-text-muted);
+  border-radius: 2px;
+  cursor: pointer;
+  border: 1px solid var(--aura-border-glow);
+}
+
+/* ── Master Channel ── */
+.aura-channel--master {
+  min-width: 80px;
+  width: 80px;
+  border-left: 1px solid var(--aura-border);
+  margin-left: 4px;
+  padding-left: 8px;
+}
+
+.aura-channel--master .aura-channel__name {
+  color: var(--aura-amber);
+  font-weight: 700;
+}
+
+.aura-channel--master .aura-channel__meter {
+  width: 8px;
+}
+
+/* ── Empty State ── */
+.aura-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.aura-empty__rings {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.aura-empty__ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(200, 162, 255, 0.12);
+  animation: aura-ring-expand 8s ease-out infinite;
+}
+
+.aura-empty__ring:nth-child(1) {
+  width: 200px;
+  height: 200px;
+  animation-delay: 0s;
+}
+
+.aura-empty__ring:nth-child(2) {
+  width: 320px;
+  height: 320px;
+  animation-delay: 1s;
+}
+
+.aura-empty__ring:nth-child(3) {
+  width: 440px;
+  height: 440px;
+  animation-delay: 2s;
+}
+
+.aura-empty__ring:nth-child(4) {
+  width: 560px;
+  height: 560px;
+  animation-delay: 3s;
+}
+
+.aura-empty__ring:nth-child(5) {
+  width: 680px;
+  height: 680px;
+  animation-delay: 4s;
+}
+
+.aura-empty__title {
+  font-size: 48px;
+  font-weight: 800;
+  letter-spacing: 12px;
+  color: var(--aura-violet);
+  text-shadow: 0 0 40px rgba(200, 162, 255, 0.3);
+  z-index: 1;
+  margin-bottom: 16px;
+}
+
+.aura-empty__subtitle {
+  font-size: 14px;
+  color: var(--aura-text-muted);
+  z-index: 1;
+  text-align: center;
+  line-height: 2;
+}
+
+.aura-empty__kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 6px;
+  background: var(--aura-surface);
+  border: 1px solid var(--aura-border);
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--aura-text-muted);
+  margin: 0 2px;
+}
+
+/* ── Animations ── */
+@keyframes aura-pulse-red {
+
+  0%,
+  100% {
+    box-shadow: 0 0 8px rgba(255, 68, 68, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 16px rgba(255, 68, 68, 0.6);
+  }
+}
+
+@keyframes aura-ring-expand {
+  0% {
+    opacity: 0.8;
+    transform: scale(0.85);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.4);
+  }
+}
+
+@keyframes aura-playhead-breathe {
+
+  0%,
+  100% {
+    box-shadow: 0 0 6px rgba(245, 166, 35, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 14px rgba(245, 166, 35, 0.6), 0 0 2px rgba(245, 166, 35, 0.8);
+  }
+}
+
+@keyframes aura-pulse-green {
+
+  0%,
+  100% {
+    box-shadow: 0 0 6px rgba(34, 197, 94, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 12px rgba(34, 197, 94, 0.6);
+  }
+}
+
+@keyframes aura-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes aura-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Track Entry Animation ── */
+.aura-track-header {
+  animation: aura-fade-in 0.25s ease-out;
+}
+
+.aura-channel {
+  animation: aura-slide-up 0.3s ease-out;
+}
+
+/* ── Status dot pulse when playing ── */
+.aura-status-dot--playing {
+  animation: aura-pulse-green 2s ease infinite;
+}
+
+/* ── Scrollbar Styling ── */
+.aura-daw ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.aura-daw ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.aura-daw ::-webkit-scrollbar-thumb {
+  background: var(--aura-border);
+  border-radius: 3px;
+}
+
+.aura-daw ::-webkit-scrollbar-thumb:hover {
+  background: var(--aura-border-glow);
+}
+
+/* ── Google Fonts link is loaded in HTML head ── */
+/* Import JetBrains Mono for monospace elements */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');

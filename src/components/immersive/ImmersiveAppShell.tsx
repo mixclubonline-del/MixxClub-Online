@@ -38,6 +38,7 @@ const fullImmersiveRoutes = [
   '/auth',
   '/onboarding',
   '/city/gates',
+  '/hybrid-daw', // AURA DAW manages its own full-screen layout
 ];
 
 // Energy-aware ambient configuration
@@ -98,22 +99,22 @@ export const ImmersiveAppShell = ({ children }: ImmersiveAppShellProps) => {
   const [isMapOpen, setIsMapOpen] = useState(false);
   const location = useLocation();
   const { user } = useAuth();
-  
+
   // Get current energy state for ambient adaptation
   const pulseContext = usePulse();
   const currentEnergy = pulseContext?.currentEnergy ?? 'DISCOVER';
   const isFocusMode = pulseContext?.isFocusMode ?? false;
-  
+
   // Get ambient config for current energy
   const ambient = useMemo(() => ENERGY_AMBIENTS[currentEnergy], [currentEnergy]);
 
   // Check if current route should use immersive mode
-  const isImmersiveRoute = immersiveRoutes.some(route => 
+  const isImmersiveRoute = immersiveRoutes.some(route =>
     location.pathname.startsWith(route)
   );
 
   // Check if we should hide all navigation
-  const isFullImmersive = fullImmersiveRoutes.some(route => 
+  const isFullImmersive = fullImmersiveRoutes.some(route =>
     location.pathname === route || location.pathname.startsWith(route)
   );
 
@@ -131,16 +132,16 @@ export const ImmersiveAppShell = ({ children }: ImmersiveAppShellProps) => {
     <div className="min-h-screen bg-background relative">
       {/* Ambient background - energy-aware */}
       <div className="fixed inset-0 pointer-events-none">
-        <motion.div 
+        <motion.div
           className="absolute inset-0"
           animate={{
             background: `linear-gradient(to bottom, ${ambient.primaryGlow}05, transparent, ${ambient.secondaryGlow}05)`,
           }}
           transition={{ duration: 0.5 }}
         />
-        
+
         {/* Subtle grid pattern - reduced in focus modes */}
-        <div 
+        <div
           className="absolute inset-0 transition-opacity duration-500"
           style={{
             backgroundImage: `linear-gradient(${ambient.primaryGlow} 1px, transparent 1px),
@@ -151,29 +152,29 @@ export const ImmersiveAppShell = ({ children }: ImmersiveAppShellProps) => {
         />
 
         {/* Corner glow effects - energy-aware colors and intensity */}
-        <motion.div 
+        <motion.div
           className="absolute -top-20 -left-20 w-96 h-96 rounded-full blur-3xl"
-          animate={{ 
+          animate={{
             opacity: [ambient.glowIntensity * 0.5, ambient.glowIntensity, ambient.glowIntensity * 0.5],
             scale: isFocusMode ? [1, 1.02, 1] : [1, 1.1, 1],
             backgroundColor: ambient.primaryGlow,
           }}
-          transition={{ 
-            duration: ambient.animationDuration, 
+          transition={{
+            duration: ambient.animationDuration,
             repeat: Infinity,
             ease: 'easeInOut',
           }}
         />
-        <motion.div 
+        <motion.div
           className="absolute -bottom-20 -right-20 w-96 h-96 rounded-full blur-3xl"
-          animate={{ 
+          animate={{
             opacity: [ambient.glowIntensity * 0.5, ambient.glowIntensity * 0.75, ambient.glowIntensity * 0.5],
             scale: isFocusMode ? [1, 1.01, 1] : [1, 1.05, 1],
             backgroundColor: ambient.secondaryGlow,
           }}
-          transition={{ 
-            duration: ambient.animationDuration * 1.25, 
-            repeat: Infinity, 
+          transition={{
+            duration: ambient.animationDuration * 1.25,
+            repeat: Infinity,
             delay: 2,
             ease: 'easeInOut',
           }}

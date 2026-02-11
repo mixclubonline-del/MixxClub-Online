@@ -268,6 +268,57 @@ export class ALSEngine {
         return Math.min(1, anchors.balance + soulBonus);
     }
 
+    // ─── Spectral Data Access ─────────────────────────────────
+
+    /**
+     * Get raw frequency data for canvas-based spectral rendering.
+     * Returns the byte frequency data array (0–255 per bin).
+     * Caller should NOT retain a reference — data is overwritten each frame.
+     */
+    getSpectralData(): Uint8Array {
+        this.analyser.getByteFrequencyData(this.frequencyData);
+        return this.frequencyData;
+    }
+
+    /** Get the FFT bin count (half of fftSize) */
+    getFrequencyBinCount(): number {
+        return this.analyser.frequencyBinCount;
+    }
+
+    /**
+     * Get the Velvet Score (0–100) — a composite serenity metric.
+     * Weighted: Soul and Silk matter most for "comfort."
+     * Penalizes imbalance (harsh extremes break comfort).
+     */
+    getVelvetScore(): number {
+        if (!this.fourAnchors) return 0;
+
+        const anchors = this.fourAnchors.analyze();
+        const body = anchors.body * 100;
+        const soul = anchors.soul * 100;
+        const silk = anchors.silk * 100;
+        const air = anchors.air * 100;
+
+        // Weighted formula: Soul and Silk matter most for "comfort"
+        const weighted = (body * 0.2) + (soul * 0.3) + (air * 0.2) + (silk * 0.3);
+
+        // Penalize imbalance
+        const values = [body, soul, air, silk];
+        const mean = values.reduce((a, b) => a + b) / values.length;
+        const variance = values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / values.length;
+        const balancePenalty = Math.min(variance / 50, 15);
+
+        return Math.round(Math.max(0, Math.min(100, weighted - balancePenalty)));
+    }
+
+    /**
+     * Get FourAnchors visual data (0–100 per band) for UI display.
+     */
+    getFourAnchorsVisual(): { body: number; soul: number; silk: number; air: number } | null {
+        if (!this.fourAnchors) return null;
+        return this.fourAnchors.getVisualData();
+    }
+
     // ─── MoodFrame Production ────────────────────────────────
 
     private produceMoodFrame(): MoodFrame {

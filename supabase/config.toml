@@ -150,6 +150,9 @@ verify_jwt = false
 [functions.export-audio]
 verify_jwt = false
 
+[functions.export-training-data]
+verify_jwt = false
+
 [functions.export-user-data]
 verify_jwt = false
 

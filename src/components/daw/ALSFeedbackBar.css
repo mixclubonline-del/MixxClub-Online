@@ -1,0 +1,315 @@
+/**
+ * ALSFeedbackBar.css — Horizontal Spectral Analyzer
+ * 
+ * Design: Blue→Violet→Amber→Red spectral gradient with
+ * glassmorphism end-caps and dB threshold markers.
+ */
+
+/* ─── Container ─────────────────────────────────────── */
+
+.als-bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 44px;
+    padding: 0 4px;
+    gap: 0;
+    user-select: none;
+    overflow: hidden;
+}
+
+/* ─── Glassmorphism End-Caps ───────────────────────── */
+
+.als-bar__cap {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 4px 14px;
+    height: 38px;
+    min-width: 110px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.05),
+        0 0 20px rgba(0, 0, 0, 0.3);
+    flex-shrink: 0;
+    transition: border-color 0.4s ease;
+}
+
+.als-bar__cap:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.als-bar__cap--left {
+    border-right: none;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.als-bar__cap--right {
+    border-left: none;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    text-align: right;
+    align-items: flex-end;
+}
+
+.als-bar__cap-title {
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    line-height: 1;
+    margin-bottom: 2px;
+}
+
+.als-bar__cap-title--left {
+    background: linear-gradient(90deg, #60a5fa, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.als-bar__cap-title--right {
+    background: linear-gradient(90deg, #f97316, #ef4444);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.als-bar__cap-subtitle {
+    font-size: 7px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.35);
+    line-height: 1;
+}
+
+/* ─── Spectral Core ────────────────────────────────── */
+
+.als-bar__core {
+    position: relative;
+    flex: 1;
+    height: 38px;
+    overflow: hidden;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.als-bar__canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* Glow overlay on the spectral core */
+.als-bar__core::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background: linear-gradient(to right,
+            rgba(96, 165, 250, 0.08) 0%,
+            rgba(167, 139, 250, 0.04) 20%,
+            transparent 40%,
+            transparent 60%,
+            rgba(249, 115, 22, 0.04) 80%,
+            rgba(239, 68, 68, 0.08) 100%);
+}
+
+/* Subtle inner shadow for depth */
+.als-bar__core::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    box-shadow:
+        inset 4px 0 12px rgba(0, 0, 0, 0.4),
+        inset -4px 0 12px rgba(0, 0, 0, 0.4),
+        inset 0 2px 4px rgba(0, 0, 0, 0.3),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* ─── dB Markers ───────────────────────────────────── */
+
+.als-bar__db-markers {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 3;
+}
+
+.als-bar__db-marker {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transform: translateX(-50%);
+}
+
+.als-bar__db-marker--top {
+    top: -1px;
+}
+
+.als-bar__db-marker--bottom {
+    bottom: -1px;
+}
+
+.als-bar__db-arrow {
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+}
+
+.als-bar__db-arrow--down {
+    border-top: 5px solid;
+}
+
+.als-bar__db-arrow--up {
+    border-bottom: 5px solid;
+}
+
+.als-bar__db-label {
+    font-size: 7px;
+    font-weight: 600;
+    font-family: 'SF Mono', 'JetBrains Mono', monospace;
+    letter-spacing: 0.5px;
+    line-height: 1;
+    padding: 1px 2px;
+}
+
+/* ─── Velvet Score Badge ───────────────────────────── */
+
+.als-bar__velvet {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.als-bar__velvet-label {
+    font-size: 7px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.4);
+    line-height: 1;
+}
+
+.als-bar__velvet-score {
+    font-size: 16px;
+    font-weight: 800;
+    font-family: 'SF Mono', 'JetBrains Mono', monospace;
+    line-height: 1;
+    letter-spacing: -0.5px;
+}
+
+.als-bar__velvet-tier {
+    font-size: 7px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    line-height: 1;
+}
+
+/* Velvet Score color tiers */
+.als-bar__velvet--perfect .als-bar__velvet-score {
+    background: linear-gradient(135deg, #34d399, #14b8a6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.als-bar__velvet--perfect .als-bar__velvet-tier {
+    color: #34d399;
+}
+
+.als-bar__velvet--smooth .als-bar__velvet-score {
+    background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.als-bar__velvet--smooth .als-bar__velvet-tier {
+    color: #a78bfa;
+}
+
+.als-bar__velvet--warmth .als-bar__velvet-score {
+    background: linear-gradient(135deg, #fbbf24, #f97316);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.als-bar__velvet--warmth .als-bar__velvet-tier {
+    color: #fbbf24;
+}
+
+.als-bar__velvet--work .als-bar__velvet-score {
+    background: linear-gradient(135deg, #f87171, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.als-bar__velvet--work .als-bar__velvet-tier {
+    color: #f87171;
+}
+
+/* ─── Four Anchors Mini Display ────────────────────── */
+
+.als-bar__anchors {
+    display: flex;
+    gap: 6px;
+    margin-top: 2px;
+}
+
+.als-bar__anchor {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.als-bar__anchor-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+}
+
+.als-bar__anchor-value {
+    font-size: 8px;
+    font-weight: 600;
+    font-family: 'SF Mono', 'JetBrains Mono', monospace;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* ─── Entrance Animation ───────────────────────────── */
+
+@keyframes als-bar-enter {
+    0% {
+        opacity: 0;
+        transform: scaleX(0.85);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scaleX(1);
+    }
+}
+
+.als-bar {
+    animation: als-bar-enter 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

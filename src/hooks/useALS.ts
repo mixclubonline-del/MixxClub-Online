@@ -72,6 +72,8 @@ export interface UseALSReturn {
     };
     /** Is the ALS engine running? */
     active: boolean;
+    /** Direct engine reference for advanced access (spectral data, velvet score) */
+    engine: ALSEngine | null;
 }
 
 const EMPTY_COLORS = {
@@ -142,6 +144,7 @@ export function useALS(options: UseALSOptions = {}): UseALSReturn {
         energy,
         colors,
         active,
+        engine: engineRef.current,
     };
 }
 
