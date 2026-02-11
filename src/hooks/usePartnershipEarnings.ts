@@ -61,12 +61,12 @@ export const usePartnershipEarnings = (): UsePartnershipEarningsResult => {
 
   const fetchPartnerships = useCallback(async () => {
     if (!user?.id) return;
-    
+
     try {
       const { data, error: fetchError } = await supabase
         .from('partnerships')
         .select('*')
-        .or(`artist_id.eq.${user.id},engineer_id.eq.${user.id}`)
+        .or(`artist_id.eq.${user.id},engineer_id.eq.${user.id},producer_id.eq.${user.id}`)
         .order('created_at', { ascending: false });
 
       if (fetchError) throw fetchError;
@@ -193,6 +193,8 @@ export const usePartnershipEarnings = (): UsePartnershipEarningsResult => {
 
     const totalEarnings = partnerships.reduce((sum, p) => {
       const userIsArtist = p.artist_id === user?.id;
+      const userIsProducer = p.producer_id === user?.id;
+      if (userIsProducer) return sum + (p.producer_earnings || 0);
       return sum + (userIsArtist ? (p.artist_earnings || 0) : (p.engineer_earnings || 0));
     }, 0);
 
@@ -203,12 +205,33 @@ export const usePartnershipEarnings = (): UsePartnershipEarningsResult => {
     const activePartnerships = partnerships.filter(p => p.status === 'active').length;
 
     const topPartners = partnerships
-      .map(p => ({
-        partnerId: p.artist_id === user?.id ? p.engineer_id : p.artist_id,
-        partnerName: p.artist_id === user?.id ? 'Engineer' : 'Artist',
-        totalEarnings: p.artist_id === user?.id ? (p.artist_earnings || 0) : (p.engineer_earnings || 0),
-        projectCount: projects.filter(proj => proj.partnership_id === p.id).length,
-      }))
+      .map(p => {
+        const userIsArtist = p.artist_id === user?.id;
+        const userIsProducer = p.producer_id === user?.id;
+        const userIsEngineer = p.engineer_id === user?.id;
+        let partnerId = '';
+        let partnerName = '';
+        let myEarnings = 0;
+        if (userIsProducer) {
+          partnerId = p.artist_id || p.engineer_id || '';
+          partnerName = p.artist_id ? 'Artist' : 'Engineer';
+          myEarnings = p.producer_earnings || 0;
+        } else if (userIsArtist) {
+          partnerId = p.engineer_id || p.producer_id || '';
+          partnerName = p.engineer_id ? 'Engineer' : 'Producer';
+          myEarnings = p.artist_earnings || 0;
+        } else {
+          partnerId = p.artist_id || p.producer_id || '';
+          partnerName = p.artist_id ? 'Artist' : 'Producer';
+          myEarnings = p.engineer_earnings || 0;
+        }
+        return {
+          partnerId,
+          partnerName,
+          totalEarnings: myEarnings,
+          projectCount: projects.filter(proj => proj.partnership_id === p.id).length,
+        };
+      })
       .sort((a, b) => b.totalEarnings - a.totalEarnings)
       .slice(0, 5);
 
@@ -222,7 +245,7 @@ export const usePartnershipEarnings = (): UsePartnershipEarningsResult => {
 
   const fetchAllData = useCallback(async () => {
     if (!user?.id) return;
-    
+
     setLoading(true);
     setError(null);
 
@@ -249,19 +272,19 @@ export const usePartnershipEarnings = (): UsePartnershipEarningsResult => {
     try {
       const insertData = data.userType === 'artist'
         ? {
-            artist_id: user.id,
-            engineer_id: data.partnerId,
-            artist_percentage: data.userSplit,
-            engineer_percentage: 100 - data.userSplit,
-            status: 'pending',
-          }
+          artist_id: user.id,
+          engineer_id: data.partnerId,
+          artist_percentage: data.userSplit,
+          engineer_percentage: 100 - data.userSplit,
+          status: 'pending',
+        }
         : {
-            artist_id: data.partnerId,
-            engineer_id: user.id,
-            artist_percentage: 100 - data.userSplit,
-            engineer_percentage: data.userSplit,
-            status: 'pending',
-          };
+          artist_id: data.partnerId,
+          engineer_id: user.id,
+          artist_percentage: 100 - data.userSplit,
+          engineer_percentage: data.userSplit,
+          status: 'pending',
+        };
 
       const { data: newPartnership, error: createError } = await supabase
         .from('partnerships')

@@ -2,6 +2,16 @@ import { useEffect, useState } from 'react';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/integrations/supabase/types';
+
+type DbProfile = Database['public']['Tables']['profiles']['Row'];
+type DbProject = Database['public']['Tables']['projects']['Row'];
+type DbAchievement = Database['public']['Tables']['achievements']['Row'];
+
+interface ArtistProject extends DbProject {
+  audio_files: { count: number }[];
+  engineer: { full_name: string | null; avatar_url: string | null } | null;
+}
 import { useAuth } from '@/hooks/useAuth';
 import { useAdminPreview } from '@/stores/useAdminPreview';
 import { useServiceAccess } from '@/hooks/useServiceAccess';
@@ -23,6 +33,7 @@ import { RecommendedEngineers } from '@/components/crm/RecommendedEngineers';
 import { AIMatchingEngine } from '@/components/ai/AIMatchingEngine';
 import { MusicalProfile } from '@/components/crm/MusicalProfile';
 import { BrandHub } from '@/components/crm/BrandHub';
+import { TriPartnershipView } from '@/components/crm/partnerships/TriPartnershipView';
 import ProfileInsights from '@/components/crm/ProfileInsights';
 import SessionManager from '@/components/collaboration/SessionManager';
 import CollaborationWorkspace from '@/components/collaboration/CollaborationWorkspace';
@@ -42,7 +53,7 @@ import { CommunityHub } from '@/components/crm/community';
 import { GrowthHub } from '@/components/crm/growth';
 import { MessagingHub } from '@/components/crm/messaging';
 import { CollaborativeEarnings } from '@/components/crm/CollaborativeEarnings';
-import { SessionsHub } from '@/components/crm/sessions/SessionsHub';
+import { SessionCommandCenter } from '@/components/crm/sessions/SessionCommandCenter';
 import { ClientsHub } from '@/components/crm/clients';
 import { MusicHub } from '@/components/crm/MusicHub';
 import { StoreHub } from '@/components/crm/StoreHub';
@@ -53,14 +64,14 @@ const ArtistCRM = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const currentTab = searchParams.get('tab') || 'dashboard';
-  
+
   const handleTabChange = (tab: string) => {
     setSearchParams({ tab });
   };
 
-  const [profile, setProfile] = useState<any>(null);
-  const [projects, setProjects] = useState<any[]>([]);
-  const [achievements, setAchievements] = useState<any[]>([]);
+  const [profile, setProfile] = useState<DbProfile | null>(null);
+  const [projects, setProjects] = useState<ArtistProject[]>([]);
+  const [achievements, setAchievements] = useState<DbAchievement[]>([]);
   const [pendingApplications, setPendingApplications] = useState(0);
   const [loading, setLoading] = useState(true);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
@@ -198,7 +209,7 @@ const ArtistCRM = () => {
 
         setPendingApplications(applicationsData?.length || 0);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching data:', error);
       toast.error('Failed to load dashboard');
     } finally {
@@ -293,7 +304,7 @@ const ArtistCRM = () => {
         return <MatchesHub userType="artist" />;
 
       case 'sessions':
-        return <SessionsHub />;
+        return <SessionCommandCenter userType="artist" />;
       case 'active-work':
         return <ActiveWorkHub />;
 
@@ -355,6 +366,9 @@ const ArtistCRM = () => {
 
       case 'earnings':
         return <CollaborativeEarnings userType="artist" />;
+
+      case 'tri-collabs':
+        return <TriPartnershipView userType="artist" />;
 
       default:
         return (

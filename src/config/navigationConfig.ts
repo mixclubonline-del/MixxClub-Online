@@ -1,9 +1,9 @@
-import { 
-  Home, 
-  Briefcase, 
-  Music, 
-  Sparkles, 
-  Share2, 
+import {
+  Home,
+  Briefcase,
+  Music,
+  Sparkles,
+  Share2,
   ShoppingBag,
   Rocket,
   HelpCircle,
@@ -15,14 +15,17 @@ import {
   Award,
   UserCircle,
   Coins,
-   LucideIcon,
-   Disc3,
-   Heart,
-   Compass,
-   Star
+  LucideIcon,
+  Disc3,
+  Heart,
+  Compass,
+  Star,
+  Radio,
+  UsersRound,
+  Video
 } from 'lucide-react';
 
- export type UserRole = 'artist' | 'engineer' | 'producer' | 'fan' | 'admin' | null;
+export type UserRole = 'artist' | 'engineer' | 'producer' | 'fan' | 'admin' | null;
 
 export interface NavItem {
   label: string;
@@ -62,20 +65,20 @@ const navigationItems: NavItem[] = [
     roles: ['admin'],
     category: 'Main',
   },
-   {
-     label: 'Dashboard',
-     path: '/producer-crm',
-     icon: Disc3,
-     roles: ['producer'],
-     category: 'Main',
-   },
-   {
-     label: 'My Feed',
-     path: '/fan-hub',
-     icon: Compass,
-     roles: ['fan'],
-     category: 'Main',
-   },
+  {
+    label: 'Dashboard',
+    path: '/producer-crm',
+    icon: Disc3,
+    roles: ['producer'],
+    category: 'Main',
+  },
+  {
+    label: 'My Feed',
+    path: '/fan-hub',
+    icon: Compass,
+    roles: ['fan'],
+    category: 'Main',
+  },
 
   // CRM
   {
@@ -92,20 +95,20 @@ const navigationItems: NavItem[] = [
     roles: ['engineer'],
     category: 'CRM',
   },
-   {
-     label: 'Catalog',
-     path: '/producer-crm?tab=catalog',
-     icon: Music,
-     roles: ['producer'],
-     category: 'CRM',
-   },
-   {
-     label: 'Day 1s',
-     path: '/fan-hub?tab=day1s',
-     icon: Star,
-     roles: ['fan'],
-     category: 'Discovery',
-   },
+  {
+    label: 'Catalog',
+    path: '/producer-crm?tab=catalog',
+    icon: Music,
+    roles: ['producer'],
+    category: 'CRM',
+  },
+  {
+    label: 'Day 1s',
+    path: '/fan-hub?tab=day1s',
+    icon: Star,
+    roles: ['fan'],
+    category: 'Discovery',
+  },
 
   // Services
   {
@@ -113,13 +116,13 @@ const navigationItems: NavItem[] = [
     path: '/services/mixing',
     icon: Headphones,
     roles: ['artist', 'engineer', null],
-     category: 'Services',
-   },
-   {
-     label: 'Beat Store',
-     path: '/marketplace',
-     icon: Disc3,
-     roles: ['producer', 'artist', null],
+    category: 'Services',
+  },
+  {
+    label: 'Beat Store',
+    path: '/marketplace',
+    icon: Disc3,
+    roles: ['producer', 'artist', null],
     category: 'Services',
   },
   {
@@ -176,36 +179,59 @@ const navigationItems: NavItem[] = [
     path: '/economy',
     icon: Coins,
     roles: ['artist', 'engineer'],
-     category: 'Economy',
-     badge: 'NEW',
-   },
-   {
-     label: 'MixxCoinz',
-     path: '/economy',
-     icon: Coins,
-     roles: ['producer', 'fan'],
+    category: 'Economy',
+    badge: 'NEW',
+  },
+  {
+    label: 'MixxCoinz',
+    path: '/economy',
+    icon: Coins,
+    roles: ['producer', 'fan'],
     category: 'Economy',
     badge: 'NEW',
   },
 
   // Discover
   {
-    label: 'Coming Soon',
-    path: '/coming-soon',
-    icon: Rocket,
-     roles: ['artist', 'engineer', 'producer', 'fan', null],
+    label: 'Sessions',
+    path: '/sessions',
+    icon: Radio,
+    roles: ['artist', 'engineer', 'producer', 'fan'],
     category: 'Discover',
+  },
+  {
+    label: 'Community',
+    path: '/community',
+    icon: UsersRound,
+    roles: ['artist', 'engineer', 'producer', 'fan'],
+    category: 'Discover',
+  },
+  {
+    label: 'Live',
+    path: '/live',
+    icon: Video,
+    roles: ['artist', 'engineer', 'producer', 'fan'],
+    category: 'Discover',
+  },
+
+  // Settings
+  {
+    label: 'Settings',
+    path: '/settings',
+    icon: Settings,
+    roles: ['artist', 'engineer', 'producer', 'fan', 'admin'],
+    category: 'Account',
   },
 ];
 
 export const getNavigationForRole = (role: UserRole): NavCategory[] => {
-  const filteredItems = navigationItems.filter(item => 
+  const filteredItems = navigationItems.filter(item =>
     item.roles.includes(role)
   );
 
   // Group by category
   const categories = [...new Set(filteredItems.map(item => item.category))];
-  
+
   return categories.map(category => ({
     label: category || 'Other',
     items: filteredItems.filter(item => item.category === category),

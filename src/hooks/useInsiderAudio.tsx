@@ -11,11 +11,14 @@ interface AudioAnalysis {
   duration: number;
 }
 
-// Dynamic audio URL from environment - gracefully handles missing files
+// Primary: local journey intro track synced to the demo phases
+// Fallback: Supabase-hosted version
+const LOCAL_AUDIO_URL = '/assets/audio/journey-intro.mp3';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
-const AUDIO_URL = SUPABASE_URL 
+const FALLBACK_AUDIO_URL = SUPABASE_URL
   ? `${SUPABASE_URL}/storage/v1/object/public/audio-files/insider-track.mp3`
   : '';
+const AUDIO_URL = LOCAL_AUDIO_URL;
 
 export const useInsiderAudio = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -41,13 +44,13 @@ export const useInsiderAudio = () => {
 
   const initAudio = useCallback(async () => {
     if (audioContextRef.current) return;
-    
+
     setIsLoading(true);
-    
+
     try {
       // Create audio context
       audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-      
+
       // Create audio element
       const audio = new Audio();
       audio.crossOrigin = 'anonymous';
@@ -55,12 +58,19 @@ export const useInsiderAudio = () => {
       audio.loop = true;
       audioElementRef.current = audio;
 
-      // Wait for audio to load - handle missing files gracefully
+      // Wait for audio to load - try fallback if primary fails
       await new Promise<void>((resolve, reject) => {
         audio.oncanplaythrough = () => resolve();
         audio.onerror = () => {
-          console.warn('Insider audio not available - feature disabled');
-          reject(new Error('Audio file not found'));
+          // Try fallback URL
+          if (FALLBACK_AUDIO_URL && audio.src !== FALLBACK_AUDIO_URL) {
+            console.warn('Local audio not found, trying Supabase fallback...');
+            audio.src = FALLBACK_AUDIO_URL;
+            audio.load();
+          } else {
+            console.warn('Insider audio not available - feature disabled');
+            reject(new Error('Audio file not found'));
+          }
         };
         audio.load();
       });
@@ -97,11 +107,11 @@ export const useInsiderAudio = () => {
     // Calculate frequency bands
     const bassEnd = 8;
     const midEnd = 32;
-    
+
     let bassSum = 0;
     let midSum = 0;
     let highSum = 0;
-    
+
     for (let i = 0; i < bassEnd; i++) {
       bassSum += data[i];
     }

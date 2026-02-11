@@ -3,13 +3,14 @@ import { ReactNode } from 'react';
 interface ConsoleOverlayProps {
   children: ReactNode;
   isPlaying?: boolean;
+  onContextMenu?: (e: React.MouseEvent) => void;
 }
 
-export const ConsoleOverlay = ({ children, isPlaying = false }: ConsoleOverlayProps) => {
+export const ConsoleOverlay = ({ children, isPlaying = false, onContextMenu }: ConsoleOverlayProps) => {
   return (
-    <div className="flex-1 flex flex-col overflow-hidden px-4 pb-4">
+    <div className="flex-1 flex flex-col overflow-hidden px-4 pb-4" onContextMenu={onContextMenu}>
       {/* Glass console surface */}
-      <div 
+      <div
         className={`
           flex-1 flex flex-col overflow-hidden
           bg-background/60 backdrop-blur-xl
@@ -27,9 +28,9 @@ export const ConsoleOverlay = ({ children, isPlaying = false }: ConsoleOverlayPr
         <div className="flex-1 flex flex-col overflow-hidden">
           {children}
         </div>
-        
+
         {/* Bottom reflection edge */}
-        <div 
+        <div
           className="h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent"
           style={{ marginTop: 'auto' }}
         />

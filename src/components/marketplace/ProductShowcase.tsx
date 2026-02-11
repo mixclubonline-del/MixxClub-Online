@@ -1,7 +1,9 @@
 import { motion } from 'framer-motion';
-import { Music, FileAudio, Wand2, Package, ShoppingCart, Zap } from 'lucide-react';
+import { Music, FileAudio, Wand2, Package, ShoppingCart, Zap, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { WishlistButton } from './WishlistButton';
+import { useProductRating } from '@/hooks/useProductReviews';
 
 interface ProductShowcaseProps {
   item: {
@@ -18,17 +20,20 @@ interface ProductShowcaseProps {
   };
   onAddToCart: () => void;
   onBuyNow: () => void;
+  onViewDetails?: () => void;
   isPurchasing?: boolean;
   index?: number;
 }
 
-export function ProductShowcase({ 
-  item, 
-  onAddToCart, 
-  onBuyNow, 
+export function ProductShowcase({
+  item,
+  onAddToCart,
+  onBuyNow,
+  onViewDetails,
   isPurchasing,
-  index = 0 
+  index = 0
 }: ProductShowcaseProps) {
+  const { data: ratingStats } = useProductRating(item.id);
   const getItemIcon = (type: string) => {
     switch (type) {
       case "beat": return <Music className="h-5 w-5" />;
@@ -59,7 +64,8 @@ export function ProductShowcase({
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-50px' }}
       transition={{ duration: 0.5, delay: index * 0.05 }}
       whileHover={{ y: -5, scale: 1.02 }}
       className={`group relative backdrop-blur-lg bg-gradient-to-br ${getTypeGradient(item.item_type)} 
@@ -88,14 +94,18 @@ export function ProductShowcase({
               {item.sales_count} sold
             </Badge>
           )}
+          <WishlistButton productId={item.id} variant="icon" />
         </div>
 
         {/* Preview Image */}
-        <div className="aspect-video bg-black/30 rounded-xl overflow-hidden mb-4 border border-white/5">
+        <div
+          className="aspect-video bg-black/30 rounded-xl overflow-hidden mb-4 border border-white/5 cursor-pointer"
+          onClick={onViewDetails}>
           {item.preview_urls?.[0] ? (
-            <img 
-              src={item.preview_urls[0]} 
+            <img
+              src={item.preview_urls[0]}
               alt={item.item_name}
+              loading="lazy"
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
             />
           ) : (
@@ -106,12 +116,24 @@ export function ProductShowcase({
         </div>
 
         {/* Title & Description */}
-        <h3 className="text-lg font-semibold text-white mb-1 line-clamp-1 group-hover:text-orange-300 transition-colors">
+        <h3
+          className="text-lg font-semibold text-white mb-1 line-clamp-1 group-hover:text-orange-300 transition-colors cursor-pointer"
+          onClick={onViewDetails}
+        >
           {item.item_name}
         </h3>
-        <p className="text-sm text-white/50 line-clamp-2 mb-4 min-h-[2.5rem]">
+        <p className="text-sm text-white/50 line-clamp-2 mb-3 min-h-[2.5rem]">
           {item.item_description || "No description available"}
         </p>
+
+        {/* Rating */}
+        {ratingStats && ratingStats.total > 0 && (
+          <div className="flex items-center gap-1.5 mb-3">
+            <Star className="h-3.5 w-3.5 text-yellow-400 fill-yellow-400" />
+            <span className="text-sm font-medium text-white">{ratingStats.average}</span>
+            <span className="text-xs text-white/40">({ratingStats.total})</span>
+          </div>
+        )}
 
         {/* Price & Category */}
         <div className="flex items-center justify-between mb-4">
@@ -127,15 +149,15 @@ export function ProductShowcase({
 
         {/* Actions */}
         <div className="flex gap-2">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             className="flex-1 bg-white/5 border-white/20 text-white hover:bg-white/10 hover:border-white/30"
             onClick={onAddToCart}
           >
             <ShoppingCart className="h-4 w-4 mr-2" />
             Cart
           </Button>
-          <Button 
+          <Button
             className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white border-0"
             onClick={onBuyNow}
             disabled={isPurchasing}

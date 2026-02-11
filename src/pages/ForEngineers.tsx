@@ -1,8 +1,8 @@
-import { 
-  Video, 
-  Zap, 
-  DollarSign, 
-  Users, 
+import {
+  Video,
+  Zap,
+  DollarSign,
+  Users,
   Award,
   TrendingUp,
   Globe,
@@ -21,6 +21,7 @@ import { ScrollRevealSection } from "@/components/landing/ScrollRevealSection";
 import { RevenuePreview } from "@/components/home/RevenuePreview";
 import { StudioPreview } from "@/components/home/StudioPreview";
 import portalEngineerImage from "@/assets/portal-engineer.jpg";
+import { BackButton } from "@/components/navigation/BackButton";
 
 // Engineer Images
 import engineerRevenueStreams from "@/assets/promo/engineer-revenue-streams.jpg";
@@ -121,6 +122,7 @@ export default function ForEngineers() {
 
   return (
     <LandingPortal backgroundImage={portalEngineerImage} variant="engineer">
+      <BackButton />
       {/* Founding Engineer Banner */}
       <FoundingBanner
         icon={<Award className="w-6 h-6 text-purple-400" />}
@@ -163,8 +165,8 @@ export default function ForEngineers() {
       <section className="py-24 px-6 relative">
         <div className="container mx-auto max-w-6xl">
           <ScrollRevealSection className="text-center mb-16">
-            <Badge 
-              variant="outline" 
+            <Badge
+              variant="outline"
               className="mb-4 bg-background/30 backdrop-blur-md border-white/20"
             >
               <Briefcase className="w-4 h-4" />
@@ -175,7 +177,7 @@ export default function ForEngineers() {
               Everything you need to run and grow your audio business.
             </p>
           </ScrollRevealSection>
-          
+
           <div className="space-y-24">
             {businessFeatures.map((feature, index) => (
               <ShowcaseFeature

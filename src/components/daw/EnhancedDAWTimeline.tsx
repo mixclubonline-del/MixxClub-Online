@@ -3,14 +3,14 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Play, 
-  Pause, 
-  Square, 
-  Mic, 
-  Volume2, 
-  VolumeX, 
-  Eye, 
+import {
+  Play,
+  Pause,
+  Square,
+  Mic,
+  Volume2,
+  VolumeX,
+  Eye,
   EyeOff,
   MoreHorizontal,
   Trash2,
@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { Track, AudioRegion } from "@/stores/aiStudioStore";
 import { WebGLWaveformTrack } from "./WebGLWaveformTrack";
+import { BreathingPlayhead } from "./BreathingPlayhead";
 
 interface EnhancedDAWTimelineProps {
   tracks: Track[];
@@ -56,11 +57,11 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
   const [trackHeight, setTrackHeight] = useState(80);
   const [showWaveforms, setShowWaveforms] = useState(true);
   const [newlyImportedTrack, setNewlyImportedTrack] = useState<string | null>(null);
-  
+
   // Studio One / BandLab inspired styling
   const pixelsPerSecond = 60 * zoom;
   const timeMarkers = Array.from({ length: Math.ceil(300 / zoom) }, (_, i) => i);
-  
+
   // Handle new track animations
   useEffect(() => {
     if (tracks.length > 0) {
@@ -77,16 +78,16 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
   // Audio plays → store.currentTime updates → this effect scrolls timeline → user sees playhead
   useEffect(() => {
     if (!timelineRef.current || !isPlaying) return;
-    
+
     const container = timelineRef.current;
     const headX = currentTime * pixelsPerSecond;
     const viewportWidth = container.clientWidth;
     const scrollLeft = container.scrollLeft;
-    
+
     // Keep playhead in the 25-75% range (center tracking)
     const leftBound = scrollLeft + viewportWidth * 0.25;
     const rightBound = scrollLeft + viewportWidth * 0.75;
-    
+
     if (headX < leftBound || headX > rightBound) {
       // Smooth scroll to keep playhead centered
       container.scrollTo({
@@ -109,8 +110,8 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
 
   const toggleMute = (trackId: string) => {
     onTracksChange(
-      tracks.map(track => 
-        track.id === trackId 
+      tracks.map(track =>
+        track.id === trackId
           ? { ...track, mute: !track.mute }
           : track
       )
@@ -119,8 +120,8 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
 
   const updateTrackVolume = (trackId: string, volume: number) => {
     onTracksChange(
-      tracks.map(track => 
-        track.id === trackId 
+      tracks.map(track =>
+        track.id === trackId
           ? { ...track, volume: volume / 100 }
           : track
       )
@@ -131,7 +132,7 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
     setSelectedRegion(regionId);
     onRegionSelect?.(regionId);
   };
-  
+
   // Persist zoom to localStorage
   useEffect(() => {
     localStorage.setItem('daw-zoom', zoom.toString());
@@ -164,7 +165,7 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
                 Professional
               </Badge>
             </div>
-            
+
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <span className="text-xs text-muted-foreground">Zoom:</span>
@@ -178,7 +179,7 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
                 />
                 <span className="text-xs text-muted-foreground w-8">{zoom.toFixed(1)}x</span>
               </div>
-              
+
               <div className="flex items-center gap-2">
                 <span className="text-xs text-muted-foreground">Height:</span>
                 <Slider
@@ -190,7 +191,7 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
                   className="w-20"
                 />
               </div>
-              
+
               <Button
                 variant="ghost"
                 size="sm"
@@ -202,7 +203,7 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
               </Button>
             </div>
           </div>
-          
+
           <div className="text-sm font-mono bg-primary/10 text-primary px-4 py-2 rounded-lg border border-primary/20">
             {Math.floor(currentTime / 60).toString().padStart(2, '0')}:
             {Math.floor(currentTime % 60).toString().padStart(2, '0')}.
@@ -221,18 +222,17 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
               Track Control
             </span>
           </div>
-          
+
           {tracks.map((track) => (
-            <div 
+            <div
               key={track.id}
-              className={`border-b border-border/30 flex flex-col p-3 transition-all duration-300 ${
-                newlyImportedTrack === track.id 
-                  ? 'animate-scale-in bg-primary/5 border-primary/30' 
+              className={`border-b border-border/30 flex flex-col p-3 transition-all duration-300 ${newlyImportedTrack === track.id
+                  ? 'animate-scale-in bg-primary/5 border-primary/30'
                   : 'hover:bg-muted/20'
-              }`}
-              style={{ 
+                }`}
+              style={{
                 height: `${trackHeight}px`,
-                borderLeftColor: track.color, 
+                borderLeftColor: track.color,
                 borderLeftWidth: '4px',
                 borderLeftStyle: 'solid'
               }}
@@ -253,7 +253,7 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
                   <Trash2 className="w-3 h-3" />
                 </Button>
               </div>
-              
+
               <div className="flex items-center gap-1 mb-2">
                 <Button
                   variant={track.solo ? "default" : "ghost"}
@@ -271,25 +271,24 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
                 >
                   MUTE
                 </Button>
-                
+
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={
-                    track.armed 
-                      ? onStopRecording 
+                    track.armed
+                      ? onStopRecording
                       : () => onStartRecording(track.id)
                   }
-                  className={`h-7 w-8 text-xs p-0 transition-all ${
-                    track.armed 
-                      ? 'bg-destructive text-destructive-foreground animate-pulse-glow' 
+                  className={`h-7 w-8 text-xs p-0 transition-all ${track.armed
+                      ? 'bg-destructive text-destructive-foreground animate-pulse-glow'
                       : 'hover:bg-destructive/20'
-                  }`}
+                    }`}
                 >
                   <Mic className="w-3 h-3" />
                 </Button>
               </div>
-              
+
               <div className="flex items-center gap-2">
                 <Volume2 className="w-3 h-3 text-muted-foreground" />
                 <Slider
@@ -311,7 +310,7 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
         {/* Enhanced Timeline Content */}
         <div className="flex-1 relative overflow-auto bg-gradient-to-b from-background to-muted/10" ref={timelineRef}>
           {/* Enhanced Time Ruler */}
-          <div 
+          <div
             className="h-16 border-b border-border/30 bg-gradient-to-b from-muted/40 to-muted/20 flex items-end pb-3 sticky top-0 z-10 backdrop-blur-sm"
             onClick={handleTimelineClick}
           >
@@ -319,7 +318,7 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
               <div
                 key={marker}
                 className="flex flex-col items-start relative"
-                style={{ 
+                style={{
                   width: `${pixelsPerSecond}px`,
                   minWidth: `${pixelsPerSecond}px`
                 }}
@@ -341,29 +340,21 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
             ))}
           </div>
 
-          {/* Enhanced Playhead - driven by store.currentTime (audio → store → playhead) */}
+          {/* ALS Breathing Playhead - driven by store.currentTime (audio → store → playhead) */}
           {/* SYNC FLOW: Audio plays → audioEngine.currentTime → store.currentTime → this visual */}
-          <div
-            className="absolute top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary to-primary/60 z-20 pointer-events-none shadow-lg"
-            style={{ 
-              left: `${currentTime * pixelsPerSecond}px`,
-              transform: 'translateX(-1px)',
-              filter: 'drop-shadow(0 0 8px hsl(var(--primary) / 0.5))'
-            }}
-          >
-            <div className="w-4 h-4 bg-primary transform -translate-x-1.5 rounded-full shadow-lg border-2 border-background">
-              <div className="w-2 h-2 bg-background rounded-full m-0.5"></div>
-            </div>
-          </div>
+          <BreathingPlayhead
+            positionPx={currentTime * pixelsPerSecond}
+            height="100%"
+            isPlaying={isPlaying}
+          />
 
           {/* Enhanced Track Lanes */}
           <div className="relative">
             {tracks.map((track, trackIndex) => (
-              <div 
+              <div
                 key={track.id}
-                className={`border-b border-border/20 relative transition-all duration-300 hover:bg-muted/5 ${
-                  newlyImportedTrack === track.id ? 'animate-fade-in' : ''
-                }`}
+                className={`border-b border-border/20 relative transition-all duration-300 hover:bg-muted/5 ${newlyImportedTrack === track.id ? 'animate-fade-in' : ''
+                  }`}
                 style={{ height: `${trackHeight}px` }}
                 onClick={handleTimelineClick}
               >
@@ -380,15 +371,14 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
                 {track.regions?.map((region) => {
                   const regionWidth = region.duration * pixelsPerSecond;
                   const regionHeight = trackHeight - 16;
-                  
+
                   return (
                     <div
                       key={region.id}
-                      className={`absolute top-2 bottom-2 rounded-lg cursor-pointer transition-all duration-300 hover:scale-105 group ${
-                        selectedRegion === region.id 
-                          ? 'ring-2 ring-primary shadow-lg shadow-primary/20' 
+                      className={`absolute top-2 bottom-2 rounded-lg cursor-pointer transition-all duration-300 hover:scale-105 group ${selectedRegion === region.id
+                          ? 'ring-2 ring-primary shadow-lg shadow-primary/20'
                           : 'hover:shadow-md'
-                      } ${newlyImportedTrack === track.id ? 'animate-scale-in' : ''}`}
+                        } ${newlyImportedTrack === track.id ? 'animate-scale-in' : ''}`}
                       style={{
                         left: `${region.startTime * pixelsPerSecond}px`,
                         width: `${regionWidth}px`,
@@ -420,7 +410,7 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
                             </span>
                           </div>
                         )}
-                        
+
                         {/* Region fade indicators */}
                         <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-r from-transparent to-white/20"></div>
                         <div className="absolute top-0 right-0 w-2 h-full bg-gradient-to-l from-transparent to-white/20"></div>
@@ -431,7 +421,7 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
 
                 {/* Enhanced Recording Indicator with pulsing animation */}
                 {track.armed && isRecording && (
-                  <div 
+                  <div
                     className="absolute top-2 bottom-2 bg-gradient-to-r from-destructive to-destructive/80 rounded-lg border border-destructive/50"
                     style={{
                       left: `${currentTime * pixelsPerSecond}px`,
@@ -461,17 +451,17 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
           <div className="flex items-center gap-6">
             <div className="text-sm text-muted-foreground flex items-center gap-2">
               <div className="w-2 h-2 bg-primary rounded-full"></div>
-              {tracks.length} track{tracks.length !== 1 ? 's' : ''} • 
+              {tracks.length} track{tracks.length !== 1 ? 's' : ''} •
               {tracks.reduce((total, track) => total + track.regions.length, 0)} region{tracks.reduce((total, track) => total + track.regions.length, 0) !== 1 ? 's' : ''}
             </div>
-            
+
             {selectedRegion && (
               <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30">
                 Region Selected
               </Badge>
             )}
           </div>
-          
+
           <div className="flex items-center gap-4">
             {isRecording && (
               <div className="flex items-center gap-2 text-destructive animate-pulse">
@@ -479,11 +469,11 @@ const EnhancedDAWTimeline: React.FC<EnhancedDAWTimelineProps> = ({
                 <span className="text-sm font-semibold">Recording...</span>
               </div>
             )}
-            
+
             <div className="text-sm font-mono text-muted-foreground bg-muted/30 px-3 py-1 rounded">
               {bpm} BPM
             </div>
-            
+
             <div className="text-sm text-muted-foreground">
               Sample Rate: 48kHz
             </div>

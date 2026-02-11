@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 
 interface AIMatchRecommendationsProps {
-  userType: 'artist' | 'engineer';
+  userType: 'artist' | 'engineer' | 'producer';
   searchQuery: string;
 }
 
@@ -108,7 +108,7 @@ export const AIMatchRecommendations: React.FC<AIMatchRecommendationsProps> = ({ 
                       </AvatarFallback>
                     </Avatar>
                   </div>
-                  
+
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <h3 className="font-semibold text-foreground">{match.engineerName}</h3>
@@ -116,11 +116,11 @@ export const AIMatchRecommendations: React.FC<AIMatchRecommendationsProps> = ({ 
                         <Badge variant="secondary" className="text-xs">Verified</Badge>
                       )}
                     </div>
-                    
+
                     <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
                       {match.experience}+ years experience • {match.completedProjects} projects completed
                     </p>
-                    
+
                     <div className="flex flex-wrap gap-1 mt-2">
                       {match.genres.slice(0, 3).map((genre) => (
                         <Badge key={genre} variant="outline" className="text-xs">
@@ -129,7 +129,7 @@ export const AIMatchRecommendations: React.FC<AIMatchRecommendationsProps> = ({ 
                         </Badge>
                       ))}
                     </div>
-                    
+
                     <div className="flex flex-wrap gap-1 mt-2">
                       {match.specialties.slice(0, 3).map((skill) => (
                         <Badge key={skill} variant="secondary" className="text-xs">
@@ -149,9 +149,9 @@ export const AIMatchRecommendations: React.FC<AIMatchRecommendationsProps> = ({ 
                     </div>
                     <span className="text-xs text-muted-foreground">Match Score</span>
                   </div>
-                  
+
                   <Progress value={match.matchScore} className="w-full h-2" />
-                  
+
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <span className="flex items-center gap-1">
                       <Star className="h-4 w-4 text-yellow-500" />
@@ -160,10 +160,10 @@ export const AIMatchRecommendations: React.FC<AIMatchRecommendationsProps> = ({ 
                     <span>{match.completedProjects} projects</span>
                     {match.hourlyRate > 0 && <span>${match.hourlyRate}/hr</span>}
                   </div>
-                  
+
                   <div className="flex gap-2">
-                    <Button 
-                      variant={isSaved(match.engineerId) ? "secondary" : "outline"} 
+                    <Button
+                      variant={isSaved(match.engineerId) ? "secondary" : "outline"}
                       size="sm"
                       onClick={() => handleSave(match.engineerId, match.matchScore)}
                       disabled={isSaved(match.engineerId)}
@@ -171,7 +171,7 @@ export const AIMatchRecommendations: React.FC<AIMatchRecommendationsProps> = ({ 
                       <Heart className={`h-4 w-4 mr-1 ${isSaved(match.engineerId) ? 'fill-primary' : ''}`} />
                       {isSaved(match.engineerId) ? 'Saved' : 'Save'}
                     </Button>
-                    
+
                     <Dialog open={connectingId === match.engineerId} onOpenChange={(open) => !open && setConnectingId(null)}>
                       <DialogTrigger asChild>
                         <Button size="sm" onClick={() => setConnectingId(match.engineerId)}>
@@ -207,8 +207,8 @@ export const AIMatchRecommendations: React.FC<AIMatchRecommendationsProps> = ({ 
                               rows={4}
                             />
                           </div>
-                          <Button 
-                            className="w-full" 
+                          <Button
+                            className="w-full"
                             onClick={() => handleConnect(match.engineerId)}
                           >
                             Send Request

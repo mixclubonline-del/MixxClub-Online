@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
-import { 
+import {
   Star, Heart, MessageCircle, Sparkles, ChevronRight,
   Clock, Award, Music, Zap
 } from 'lucide-react';
@@ -13,20 +13,20 @@ import { formatDistanceToNow } from 'date-fns';
 
 interface MatchCardProps {
   match: MatchProfile;
-  userType: 'artist' | 'engineer';
+  userType: 'artist' | 'engineer' | 'producer';
   onSave: () => void;
   onContact: () => void;
   onSelect: () => void;
   isSelected?: boolean;
 }
 
-export const MatchCard = ({ 
-  match, 
-  userType, 
-  onSave, 
-  onContact, 
+export const MatchCard = ({
+  match,
+  userType,
+  onSave,
+  onContact,
   onSelect,
-  isSelected 
+  isSelected
 }: MatchCardProps) => {
   const getScoreColor = (score: number) => {
     if (score >= 90) return 'text-green-500 bg-green-500/10 border-green-500/30';
@@ -48,7 +48,7 @@ export const MatchCard = ({
   };
 
   return (
-    <Card 
+    <Card
       className={cn(
         "p-6 hover:border-primary/50 transition-all cursor-pointer group",
         isSelected && "border-primary ring-2 ring-primary/20"
@@ -72,7 +72,7 @@ export const MatchCard = ({
             {match.matchScore}%
           </div>
         </div>
-        
+
         {/* Content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-4 mb-3 flex-wrap">
@@ -105,7 +105,7 @@ export const MatchCard = ({
                 )}
               </div>
             </div>
-            
+
             {match.hourlyRate && (
               <div className="text-right flex-shrink-0">
                 <p className="text-2xl md:text-3xl font-bold">${match.hourlyRate}</p>
@@ -180,14 +180,14 @@ export const MatchCard = ({
 
           {/* Actions */}
           <div className="flex gap-3 flex-wrap">
-            <Button 
+            <Button
               onClick={(e) => { e.stopPropagation(); onContact(); }}
               className="flex-1 min-w-[140px] bg-gradient-to-r from-primary to-purple-600 hover:opacity-90"
             >
               <MessageCircle className="w-4 h-4 mr-2" />
               {match.status === 'contacted' ? 'Continue Chat' : 'Start Conversation'}
             </Button>
-            <Button 
+            <Button
               variant="outline"
               onClick={(e) => { e.stopPropagation(); onSave(); }}
               className={cn(
@@ -195,14 +195,14 @@ export const MatchCard = ({
                 match.saved && "border-pink-500 bg-pink-500/10"
               )}
             >
-              <Heart 
+              <Heart
                 className={cn(
                   "w-4 h-4",
                   match.saved && "fill-pink-500 text-pink-500"
-                )} 
+                )}
               />
             </Button>
-            <Button 
+            <Button
               variant="ghost"
               onClick={(e) => { e.stopPropagation(); onSelect(); }}
               className="hidden md:flex"

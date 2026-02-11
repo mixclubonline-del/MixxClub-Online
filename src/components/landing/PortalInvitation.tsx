@@ -13,17 +13,17 @@ interface PortalInvitationProps {
     text: string;
     href: string;
   };
-  variant: 'artist' | 'engineer';
+  variant: 'artist' | 'engineer' | 'producer' | 'fan';
   disclaimer?: string;
 }
 
-export const PortalInvitation = ({ 
-  icon, 
-  title, 
-  subtitle, 
-  cta, 
+export const PortalInvitation = ({
+  icon,
+  title,
+  subtitle,
+  cta,
   variant,
-  disclaimer 
+  disclaimer
 }: PortalInvitationProps) => {
   const navigate = useNavigate();
   const [isEntering, setIsEntering] = useState(false);
@@ -46,7 +46,7 @@ export const PortalInvitation = ({
         >
           {/* Glass Background */}
           <div className="absolute inset-0 bg-background/50 backdrop-blur-xl" />
-          
+
           {/* Glowing Border Effect */}
           <motion.div
             className={`absolute inset-0 rounded-3xl border-2 border-${accentColor}/50`}
@@ -79,9 +79,8 @@ export const PortalInvitation = ({
               size="lg"
               onClick={handleEnter}
               disabled={isEntering}
-              className={`gap-2 text-lg px-12 py-6 ${
-                variant === 'engineer' ? 'bg-secondary hover:bg-secondary/90' : ''
-              }`}
+              className={`gap-2 text-lg px-12 py-6 ${variant === 'engineer' ? 'bg-secondary hover:bg-secondary/90' : ''
+                }`}
             >
               {cta.text}
               <motion.div

@@ -1,7 +1,4 @@
-import { useRef, Suspense } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { Float, Environment, MeshDistortMaterial } from '@react-three/drei';
-import * as THREE from 'three';
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 interface MixxCoin3DProps {
@@ -10,165 +7,143 @@ interface MixxCoin3DProps {
   className?: string;
 }
 
-// Coin mesh component
-function CoinMesh({
-  type,
-  position = [0, 0, 0],
-  autoRotate = true,
-}: {
-  type: 'earned' | 'purchased';
-  position?: [number, number, number];
-  autoRotate?: boolean;
-}) {
-  const meshRef = useRef<THREE.Mesh>(null);
+const COIN_CONFIG = {
+  earned: {
+    src: '/assets/economy/coin-earned.png',
+    alt: 'Earned MixxCoin — Soundwave Emblem',
+    glowColor: 'rgba(6,182,212,0.4)',
+    ringColor: 'rgba(139,92,246,0.3)',
+    pulseColor: 'rgba(6,182,212,0.15)',
+  },
+  purchased: {
+    src: '/assets/economy/coin-purchased.png',
+    alt: 'Purchased MixxCoin — Crown Emblem',
+    glowColor: 'rgba(251,191,36,0.4)',
+    ringColor: 'rgba(217,119,6,0.3)',
+    pulseColor: 'rgba(251,191,36,0.15)',
+  },
+};
 
-  const colors = type === 'earned'
-    ? { primary: '#8b5cf6', secondary: '#06b6d4', emissive: '#a855f7' }
-    : { primary: '#f59e0b', secondary: '#fbbf24', emissive: '#d97706' };
-
-  useFrame((state) => {
-    if (meshRef.current && autoRotate) {
-      meshRef.current.rotation.y += 0.005;
-      meshRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.5) * 0.1;
-    }
-  });
-
-  return (
-    <Float
-      speed={2}
-      rotationIntensity={0.5}
-      floatIntensity={0.5}
-    >
-      <mesh ref={meshRef} position={position}>
-        {/* Main coin body */}
-        <cylinderGeometry args={[1, 1, 0.15, 64]} />
-        <MeshDistortMaterial
-          color={colors.primary}
-          emissive={colors.emissive}
-          emissiveIntensity={0.2}
-          metalness={0.9}
-          roughness={0.1}
-          distort={0.05}
-          speed={2}
-        />
-      </mesh>
-
-      {/* Inner ring detail */}
-      <mesh position={[position[0], position[1] + 0.08, position[2]]}>
-        <ringGeometry args={[0.5, 0.7, 64]} />
-        <meshStandardMaterial
-          color={colors.secondary}
-          emissive={colors.secondary}
-          emissiveIntensity={0.3}
-          metalness={1}
-          roughness={0}
-          transparent
-          opacity={0.7}
-          side={THREE.DoubleSide}
-        />
-      </mesh>
-
-      {/* Center emblem glow */}
-      <mesh position={[position[0], position[1] + 0.085, position[2]]}>
-        <circleGeometry args={[0.4, 32]} />
-        <meshStandardMaterial
-          color={colors.secondary}
-          emissive={colors.secondary}
-          emissiveIntensity={0.5}
-          transparent
-          opacity={0.8}
-        />
-      </mesh>
-
-      {/* Edge glow ring */}
-      <mesh position={[position[0], position[1], position[2]]} rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[1.02, 0.02, 16, 64]} />
-        <meshStandardMaterial
-          color={colors.secondary}
-          emissive={colors.secondary}
-          emissiveIntensity={0.8}
-          transparent
-          opacity={0.6}
-        />
-      </mesh>
-    </Float>
-  );
-}
-
-// Energy bridge between coins
-function EnergyBridge() {
-  const particlesRef = useRef<THREE.Points>(null);
-
-  useFrame((state) => {
-    if (particlesRef.current) {
-      particlesRef.current.rotation.z = state.clock.elapsedTime * 0.2;
-    }
-  });
-
-  const particleCount = 50;
-  const positions = new Float32Array(particleCount * 3);
-
-  for (let i = 0; i < particleCount; i++) {
-    const t = i / particleCount;
-    positions[i * 3] = (t - 0.5) * 3;
-    positions[i * 3 + 1] = Math.sin(t * Math.PI) * 0.3;
-    positions[i * 3 + 2] = 0;
-  }
-
-  return (
-    <points ref={particlesRef}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={particleCount}
-          array={positions}
-          itemSize={3}
-        />
-      </bufferGeometry>
-      <pointsMaterial
-        size={0.05}
-        color="#a855f7"
-        transparent
-        opacity={0.6}
-        sizeAttenuation
-      />
-    </points>
-  );
-}
-
-// Scene component
-function CoinScene({
+function CoinVisual({
   type,
   autoRotate,
+  style,
 }: {
-  type: 'earned' | 'purchased' | 'both';
-  autoRotate: boolean;
+  type: 'earned' | 'purchased';
+  autoRotate?: boolean;
+  style?: React.CSSProperties;
 }) {
+  const config = COIN_CONFIG[type];
+
   return (
-    <>
-      <ambientLight intensity={0.4} />
-      <pointLight position={[5, 5, 5]} intensity={1} color="#ffffff" />
-      <pointLight position={[-5, -5, -5]} intensity={0.5} color="#8b5cf6" />
-      <spotLight
-        position={[0, 10, 0]}
-        angle={0.3}
-        penumbra={1}
-        intensity={1}
-        castShadow
+    <motion.div
+      className="relative flex-shrink-0"
+      style={{ ...style }}
+      animate={autoRotate ? {
+        y: [0, -8, 0],
+        rotateY: [0, 12, 0, -12, 0],
+      } : undefined}
+      transition={autoRotate ? {
+        y: { duration: 3, repeat: Infinity, ease: 'easeInOut' },
+        rotateY: { duration: 6, repeat: Infinity, ease: 'easeInOut' },
+      } : undefined}
+    >
+      {/* Outer glow pulse */}
+      <motion.div
+        className="absolute inset-[-20%] rounded-full pointer-events-none"
+        style={{
+          background: `radial-gradient(circle, ${config.pulseColor} 0%, transparent 70%)`,
+        }}
+        animate={{
+          scale: [1, 1.15, 1],
+          opacity: [0.5, 0.8, 0.5],
+        }}
+        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
       />
 
-      {type === 'both' ? (
-        <>
-          <CoinMesh type="earned" position={[-1.5, 0, 0]} autoRotate={autoRotate} />
-          <CoinMesh type="purchased" position={[1.5, 0, 0]} autoRotate={autoRotate} />
-          <EnergyBridge />
-        </>
-      ) : (
-        <CoinMesh type={type} position={[0, 0, 0]} autoRotate={autoRotate} />
-      )}
+      {/* Ring glow */}
+      <motion.div
+        className="absolute inset-[-5%] rounded-full pointer-events-none"
+        style={{
+          boxShadow: `0 0 30px ${config.glowColor}, 0 0 60px ${config.ringColor}`,
+        }}
+        animate={{
+          opacity: [0.6, 1, 0.6],
+        }}
+        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+      />
 
-      <Environment preset="city" />
-    </>
+      {/* The coin image */}
+      <img
+        src={config.src}
+        alt={config.alt}
+        className="relative z-10 w-full h-full object-contain drop-shadow-2xl"
+        style={{ filter: 'drop-shadow(0 0 20px ' + config.glowColor + ')' }}
+      />
+    </motion.div>
+  );
+}
+
+function EnergyBridge() {
+  return (
+    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+      {/* Central flash */}
+      <motion.div
+        className="absolute w-24 h-24 rounded-full"
+        style={{
+          background: 'radial-gradient(circle, rgba(255,255,255,0.25) 0%, rgba(6,182,212,0.15) 40%, transparent 70%)',
+        }}
+        animate={{
+          scale: [0.8, 1.2, 0.8],
+          opacity: [0.6, 1, 0.6],
+        }}
+        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+      />
+
+      {/* Lightning streaks */}
+      {[0, 1, 2].map((i) => (
+        <motion.div
+          key={i}
+          className="absolute h-[2px] bg-gradient-to-r from-cyan-400/0 via-white/80 to-amber-400/0"
+          style={{
+            width: '40%',
+            transform: `rotate(${(i - 1) * 15}deg)`,
+          }}
+          animate={{
+            opacity: [0.3, 1, 0.3],
+            scaleX: [0.7, 1.1, 0.7],
+          }}
+          transition={{
+            duration: 1.5,
+            repeat: Infinity,
+            ease: 'easeInOut',
+            delay: i * 0.3,
+          }}
+        />
+      ))}
+
+      {/* Particle sparkles between coins */}
+      {Array.from({ length: 8 }).map((_, i) => (
+        <motion.div
+          key={`spark-${i}`}
+          className="absolute w-1 h-1 rounded-full bg-white"
+          style={{
+            left: `${30 + Math.random() * 40}%`,
+            top: `${30 + Math.random() * 40}%`,
+          }}
+          animate={{
+            opacity: [0, 1, 0],
+            scale: [0, 1.5, 0],
+            y: [0, (Math.random() - 0.5) * 20],
+          }}
+          transition={{
+            duration: 1 + Math.random(),
+            repeat: Infinity,
+            delay: Math.random() * 2,
+          }}
+        />
+      ))}
+    </div>
   );
 }
 
@@ -177,23 +152,73 @@ export function MixxCoin3D({
   autoRotate = true,
   className,
 }: MixxCoin3DProps) {
+  if (type === 'both') {
+    return (
+      <div className={cn('relative w-full h-full', className)}>
+        {/* Cosmic background */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background: 'radial-gradient(ellipse at 30% 50%, rgba(6,182,212,0.08) 0%, transparent 50%), radial-gradient(ellipse at 70% 50%, rgba(251,191,36,0.08) 0%, transparent 50%), radial-gradient(ellipse at center, rgba(139,92,246,0.05) 0%, transparent 70%)',
+          }}
+        />
+
+        {/* Star particles */}
+        {Array.from({ length: 20 }).map((_, i) => (
+          <motion.div
+            key={`star-${i}`}
+            className="absolute w-[1px] h-[1px] rounded-full bg-white/60"
+            style={{
+              left: `${5 + Math.random() * 90}%`,
+              top: `${5 + Math.random() * 90}%`,
+            }}
+            animate={{
+              opacity: [0.2, 0.8, 0.2],
+            }}
+            transition={{
+              duration: 2 + Math.random() * 3,
+              repeat: Infinity,
+              delay: Math.random() * 3,
+            }}
+          />
+        ))}
+
+        {/* Dual coin layout */}
+        <div className="absolute inset-0 flex items-center justify-center gap-4 md:gap-8 px-8">
+          <CoinVisual
+            type="earned"
+            autoRotate={autoRotate}
+            style={{ width: '35%', maxWidth: 220 }}
+          />
+          <CoinVisual
+            type="purchased"
+            autoRotate={autoRotate}
+            style={{ width: '35%', maxWidth: 220 }}
+          />
+        </div>
+
+        {/* Energy bridge */}
+        <EnergyBridge />
+      </div>
+    );
+  }
+
+  // Single coin mode
   return (
-    <div className={cn('w-full h-full min-h-[200px]', className)}>
-      <Suspense
-        fallback={
-          <div className="w-full h-full flex items-center justify-center">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-cyan-400 animate-pulse" />
-          </div>
-        }
-      >
-        <Canvas
-          camera={{ position: [0, 2, 5], fov: 50 }}
-          dpr={[1, 2]}
-          gl={{ antialias: true }}
-        >
-          <CoinScene type={type} autoRotate={autoRotate} />
-        </Canvas>
-      </Suspense>
+    <div className={cn('relative w-full h-full flex items-center justify-center', className)}>
+      <div
+        className="absolute inset-0"
+        style={{
+          background: type === 'earned'
+            ? 'radial-gradient(circle, rgba(6,182,212,0.1) 0%, transparent 60%)'
+            : 'radial-gradient(circle, rgba(251,191,36,0.1) 0%, transparent 60%)',
+        }}
+      />
+      <CoinVisual
+        type={type}
+        autoRotate={autoRotate}
+        style={{ width: '60%', maxWidth: 280 }}
+      />
     </div>
   );
 }

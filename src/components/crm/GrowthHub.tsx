@@ -10,7 +10,7 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 
 interface GrowthHubProps {
-    userType?: 'artist' | 'engineer';
+    userType?: 'artist' | 'engineer' | 'producer';
 }
 
 export const GrowthHub: React.FC<GrowthHubProps> = ({ userType = 'artist' }) => {
@@ -118,10 +118,10 @@ export const GrowthHub: React.FC<GrowthHubProps> = ({ userType = 'artist' }) => 
                     <Card
                         key={opp.id}
                         className={`border cursor-pointer transition ${selectedPath === opp.id
-                                ? 'border-blue-500 bg-gradient-to-br from-blue-900 to-slate-800'
-                                : opp.status === 'unlock-ready'
-                                    ? 'border-yellow-600 bg-gradient-to-br from-yellow-900 to-slate-800'
-                                    : 'border-slate-700 bg-slate-800'
+                            ? 'border-blue-500 bg-gradient-to-br from-blue-900 to-slate-800'
+                            : opp.status === 'unlock-ready'
+                                ? 'border-yellow-600 bg-gradient-to-br from-yellow-900 to-slate-800'
+                                : 'border-slate-700 bg-slate-800'
                             }`}
                         onClick={() => setSelectedPath(selectedPath === opp.id ? null : opp.id)}
                     >
@@ -298,8 +298,8 @@ export const GrowthHub: React.FC<GrowthHubProps> = ({ userType = 'artist' }) => 
                             <div
                                 key={milestone.level}
                                 className={`p-4 rounded-lg border flex items-center justify-between ${isUnlocked
-                                        ? 'bg-slate-900 border-slate-700'
-                                        : 'bg-slate-900 border-slate-700 opacity-50'
+                                    ? 'bg-slate-900 border-slate-700'
+                                    : 'bg-slate-900 border-slate-700 opacity-50'
                                     }`}
                             >
                                 <div className="flex items-center gap-4">

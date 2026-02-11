@@ -11,7 +11,7 @@ import { StreamBreakdown } from './revenue/StreamBreakdown';
 import { LayoutDashboard, Wallet, Target, BarChart3 } from 'lucide-react';
 
 interface RevenueHubProps {
-  userType: 'artist' | 'engineer';
+  userType: 'artist' | 'engineer' | 'producer';
   userId?: string;
 }
 
@@ -50,18 +50,18 @@ export const RevenueHub: React.FC<RevenueHubProps> = ({ userType }) => {
 
         <TabsContent value="overview" className="space-y-6">
           <RevenueOverview analytics={analytics} loading={loading} />
-          <RevenueStreamCards 
-            streams={analytics?.streams || []} 
-            loading={loading} 
+          <RevenueStreamCards
+            streams={analytics?.streams || []}
+            loading={loading}
             totalRevenue={analytics?.totalRevenue || 0}
           />
           <EarningsTimeline analytics={analytics} loading={loading} />
         </TabsContent>
 
         <TabsContent value="payouts" className="space-y-6">
-          <PaymentIntegration 
-            analytics={analytics} 
-            loading={loading} 
+          <PaymentIntegration
+            analytics={analytics}
+            loading={loading}
             onPayoutRequest={refetch}
           />
         </TabsContent>
@@ -72,12 +72,12 @@ export const RevenueHub: React.FC<RevenueHubProps> = ({ userType }) => {
 
         <TabsContent value="analytics" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <RevenueChart 
-              forecasts={analytics?.forecasts || []} 
-              loading={loading} 
+            <RevenueChart
+              forecasts={analytics?.forecasts || []}
+              loading={loading}
             />
-            <StreamBreakdown 
-              streams={analytics?.streams || []} 
+            <StreamBreakdown
+              streams={analytics?.streams || []}
               loading={loading}
               totalRevenue={analytics?.totalRevenue || 0}
             />

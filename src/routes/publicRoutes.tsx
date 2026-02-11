@@ -18,6 +18,9 @@ import Waitlist from "@/pages/Waitlist";
 import Press from "@/pages/Press";
 import ForArtists from "@/pages/ForArtists";
 import ForEngineers from "@/pages/ForEngineers";
+import ForProducers from "@/pages/ForProducers";
+import ForFans from "@/pages/ForFans";
+import ChoosePath from "@/pages/ChoosePath";
 import Showcase from "@/pages/Showcase";
 import Artist from "@/pages/Artist";
 import Engineer from "@/pages/Engineer";
@@ -33,14 +36,14 @@ export const publicRoutes = (
     <Route path="/" element={<MixClubHome />} />
     <Route path="/home" element={<Navigate to="/" replace />} />
     <Route path="/mixclub" element={<Navigate to="/" replace />} />
-    
+
     {/* Demo/Showcase - parked for demos */}
     <Route path="/demo" element={<InsiderDemo />} />
     <Route path="/insider-demo" element={<InsiderDemo />} />
-    
+
     {/* Waitlist - keep for existing signups */}
     <Route path="/waitlist" element={<Waitlist />} />
-    
+
     {/* Standard public pages */}
     <Route path="/install" element={<Install />} />
     <Route path="/network" element={<Navigate to="/" replace />} />
@@ -50,13 +53,16 @@ export const publicRoutes = (
     <Route path="/showcase" element={<Showcase />} />
     <Route path="/for-artists" element={<ForArtists />} />
     <Route path="/for-engineers" element={<ForEngineers />} />
+    <Route path="/for-producers" element={<ForProducers />} />
+    <Route path="/for-fans" element={<ForFans />} />
+    <Route path="/choose-path" element={<ChoosePath />} />
     <Route path="/faq" element={<FAQ />} />
     <Route path="/pricing" element={<Pricing />} />
     <Route path="/contact" element={<Contact />} />
     <Route path="/about" element={<About />} />
     <Route path="/press" element={<Press />} />
     <Route path="/enterprise" element={<Enterprise />} />
-    
+
     {/* Auth & Legal */}
     <Route path="/auth" element={<Auth />} />
     <Route path="/auth/callback" element={<AuthCallback />} />

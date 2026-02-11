@@ -38,7 +38,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 interface CollaborativeEarningsProps {
-    userType: 'artist' | 'engineer';
+    userType: 'artist' | 'engineer' | 'producer';
 }
 
 export const CollaborativeEarnings: React.FC<CollaborativeEarningsProps> = ({ userType }) => {
@@ -84,7 +84,7 @@ export const CollaborativeEarnings: React.FC<CollaborativeEarningsProps> = ({ us
                         <Users className="w-12 h-12 mx-auto text-slate-400 mb-4" />
                         <h3 className="font-semibold mb-2">No Partnerships Yet</h3>
                         <p className="text-slate-400 mb-4">
-                            Start collaborating with other {userType === 'artist' ? 'engineers' : 'artists'} to earn shared revenue.
+                            Start collaborating with other {userType === 'artist' ? 'engineers' : userType === 'engineer' ? 'artists' : 'artists & engineers'} to earn shared revenue.
                         </p>
                         <Button onClick={() => setShowCreatePartner(true)}>
                             Create Partnership
@@ -111,7 +111,7 @@ export const CollaborativeEarnings: React.FC<CollaborativeEarningsProps> = ({ us
                 <div>
                     <h2 className="text-3xl font-bold">Collaborative Earnings</h2>
                     <p className="text-slate-400 mt-1">
-                        Track revenue from partnerships with {userType === 'artist' ? 'engineers' : 'artists'}
+                        Track revenue from partnerships with {userType === 'artist' ? 'engineers' : userType === 'engineer' ? 'artists' : 'artists & engineers'}
                     </p>
                 </div>
                 <Button

@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 
 interface SavedMatchesProps {
-  userType: 'artist' | 'engineer';
+  userType: 'artist' | 'engineer' | 'producer';
   searchQuery: string;
 }
 
@@ -70,9 +70,9 @@ export const SavedMatches: React.FC<SavedMatchesProps> = ({ userType, searchQuer
                   <p className="text-xs text-muted-foreground">{match.specialty}</p>
                 </div>
               </div>
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              <Button
+                variant="ghost"
+                size="icon"
                 className="h-8 w-8 text-muted-foreground hover:text-destructive"
                 onClick={() => unsaveMatch(match.id)}
               >
@@ -120,9 +120,9 @@ export const SavedMatches: React.FC<SavedMatchesProps> = ({ userType, searchQuer
                 <MessageSquare className="h-4 w-4 mr-1" />
                 Message
               </Button>
-              <Button 
-                variant="outline" 
-                size="icon" 
+              <Button
+                variant="outline"
+                size="icon"
                 className="h-8 w-8"
                 onClick={() => handleViewProfile(match.matchedUserId)}
               >

@@ -9,17 +9,17 @@ import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 
 interface MatchRequestsProps {
-  userType: 'artist' | 'engineer';
+  userType: 'artist' | 'engineer' | 'producer';
 }
 
 export const MatchRequests: React.FC<MatchRequestsProps> = ({ userType }) => {
   const navigate = useNavigate();
-  const { 
-    incomingRequests, 
-    outgoingRequests, 
-    acceptRequest, 
-    declineRequest, 
-    loading 
+  const {
+    incomingRequests,
+    outgoingRequests,
+    acceptRequest,
+    declineRequest,
+    loading
   } = useMatchesAPI(userType);
 
   const handleReply = (senderId: string) => {
@@ -46,7 +46,7 @@ export const MatchRequests: React.FC<MatchRequestsProps> = ({ userType }) => {
           <MessageSquare className="h-5 w-5 text-primary" />
           Incoming Requests ({pendingIncoming.length})
         </h3>
-        
+
         {pendingIncoming.length === 0 ? (
           <Card className="bg-card/50 backdrop-blur-sm border-border/50">
             <CardContent className="p-8 text-center">
@@ -66,7 +66,7 @@ export const MatchRequests: React.FC<MatchRequestsProps> = ({ userType }) => {
                         {request.senderName.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
-                    
+
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <h4 className="font-medium text-foreground">{request.senderName}</h4>
@@ -75,11 +75,11 @@ export const MatchRequests: React.FC<MatchRequestsProps> = ({ userType }) => {
                           {formatDistanceToNow(request.createdAt, { addSuffix: true })}
                         </span>
                       </div>
-                      
+
                       {request.message && (
                         <p className="text-sm text-muted-foreground mt-1">{request.message}</p>
                       )}
-                      
+
                       <div className="flex flex-wrap gap-2 mt-2">
                         {request.genres.map((genre) => (
                           <Badge key={genre} variant="outline" className="text-xs">
@@ -94,15 +94,15 @@ export const MatchRequests: React.FC<MatchRequestsProps> = ({ userType }) => {
                           </Badge>
                         )}
                       </div>
-                      
+
                       <div className="flex gap-2 mt-4">
                         <Button size="sm" className="flex-1 md:flex-none" onClick={() => acceptRequest(request.id)}>
                           <Check className="h-4 w-4 mr-1" />
                           Accept
                         </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
+                        <Button
+                          variant="outline"
+                          size="sm"
                           className="flex-1 md:flex-none"
                           onClick={() => handleReply(request.senderId)}
                         >
@@ -128,7 +128,7 @@ export const MatchRequests: React.FC<MatchRequestsProps> = ({ userType }) => {
           <Clock className="h-5 w-5 text-muted-foreground" />
           Sent Requests ({pendingOutgoing.length})
         </h3>
-        
+
         {pendingOutgoing.length === 0 ? (
           <Card className="bg-card/50 backdrop-blur-sm border-border/50">
             <CardContent className="p-8 text-center">
@@ -154,15 +154,15 @@ export const MatchRequests: React.FC<MatchRequestsProps> = ({ userType }) => {
                         <p className="text-xs text-muted-foreground">{request.projectType}</p>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center gap-3">
-                      <Badge 
+                      <Badge
                         variant={request.status === 'accepted' ? 'default' : 'outline'}
                         className="text-xs"
                       >
-                        {request.status === 'pending' ? 'Pending' : 
-                         request.status === 'accepted' ? 'Accepted' : 
-                         request.status === 'declined' ? 'Declined' : 'Expired'}
+                        {request.status === 'pending' ? 'Pending' :
+                          request.status === 'accepted' ? 'Accepted' :
+                            request.status === 'declined' ? 'Declined' : 'Expired'}
                       </Badge>
                       <span className="text-xs text-muted-foreground">
                         {formatDistanceToNow(request.createdAt, { addSuffix: true })}
@@ -177,58 +177,57 @@ export const MatchRequests: React.FC<MatchRequestsProps> = ({ userType }) => {
       </div>
 
       {/* Past Requests (non-pending) */}
-      {(incomingRequests.filter(r => r.status !== 'pending').length > 0 || 
+      {(incomingRequests.filter(r => r.status !== 'pending').length > 0 ||
         outgoingRequests.filter(r => r.status !== 'pending').length > 0) && (
-        <div>
-          <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-            <Check className="h-5 w-5 text-green-500" />
-            Past Requests
-          </h3>
-          
-          <div className="space-y-3">
-            {[...incomingRequests, ...outgoingRequests]
-              .filter(r => r.status !== 'pending')
-              .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-              .slice(0, 5)
-              .map((request) => {
-                const isIncoming = incomingRequests.some(r => r.id === request.id);
-                const otherPerson = isIncoming ? request.senderName : request.recipientName;
-                
-                return (
-                  <Card key={request.id} className="bg-card/30 backdrop-blur-sm border-border/30">
-                    <CardContent className="p-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <Avatar className="h-8 w-8">
-                            <AvatarFallback className="bg-muted text-muted-foreground text-xs">
-                              {otherPerson.charAt(0)}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <p className="text-sm font-medium">
-                              {isIncoming ? 'From' : 'To'} {otherPerson}
-                            </p>
-                            <p className="text-xs text-muted-foreground">{request.projectType}</p>
+          <div>
+            <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+              <Check className="h-5 w-5 text-green-500" />
+              Past Requests
+            </h3>
+
+            <div className="space-y-3">
+              {[...incomingRequests, ...outgoingRequests]
+                .filter(r => r.status !== 'pending')
+                .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+                .slice(0, 5)
+                .map((request) => {
+                  const isIncoming = incomingRequests.some(r => r.id === request.id);
+                  const otherPerson = isIncoming ? request.senderName : request.recipientName;
+
+                  return (
+                    <Card key={request.id} className="bg-card/30 backdrop-blur-sm border-border/30">
+                      <CardContent className="p-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <Avatar className="h-8 w-8">
+                              <AvatarFallback className="bg-muted text-muted-foreground text-xs">
+                                {otherPerson.charAt(0)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <p className="text-sm font-medium">
+                                {isIncoming ? 'From' : 'To'} {otherPerson}
+                              </p>
+                              <p className="text-xs text-muted-foreground">{request.projectType}</p>
+                            </div>
                           </div>
+                          <Badge
+                            variant={request.status === 'accepted' ? 'default' : 'secondary'}
+                            className={`text-xs ${request.status === 'accepted' ? 'bg-primary/20 text-primary' :
+                                request.status === 'declined' ? 'bg-destructive/20 text-destructive' :
+                                  ''
+                              }`}
+                          >
+                            {request.status}
+                          </Badge>
                         </div>
-                        <Badge 
-                          variant={request.status === 'accepted' ? 'default' : 'secondary'}
-                          className={`text-xs ${
-                            request.status === 'accepted' ? 'bg-primary/20 text-primary' :
-                            request.status === 'declined' ? 'bg-destructive/20 text-destructive' :
-                            ''
-                          }`}
-                        >
-                          {request.status}
-                        </Badge>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+            </div>
           </div>
-        </div>
-      )}
+        )}
     </div>
   );
 };

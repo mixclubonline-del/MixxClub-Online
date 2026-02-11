@@ -5,11 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { 
-  TrendingUp, 
-  DollarSign, 
-  Music, 
-  Users, 
+import {
+  TrendingUp,
+  DollarSign,
+  Music,
+  Users,
   Zap,
   Target,
   Clock,
@@ -37,6 +37,9 @@ import { WelcomeExperience, RecommendedEngineers, OpenSessionsForEngineers } fro
 import { CommunityUnlocksWidget } from '@/components/unlock/CommunityUnlocksWidget';
 import { PersonalUnlocksWidget } from '@/components/unlock/PersonalUnlocksWidget';
 import { useArtistUnlockables, useEngineerUnlockables } from '@/hooks/useUnlockables';
+import PerformanceBadges from '@/components/crm/badges/PerformanceBadges';
+import CollectiveAnalytics from '@/components/crm/analytics/CollectiveAnalytics';
+import GrowthHub from '@/components/crm/growth/GrowthHub';
 
 // Role-specific visual accent system
 const ROLE_ACCENTS = {
@@ -103,7 +106,7 @@ export const EnhancedDashboardHub = ({ userType }: EnhancedDashboardHubProps) =>
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
-  
+
   const { data: artistUnlockables } = useArtistUnlockables();
   const { data: engineerUnlockables } = useEngineerUnlockables();
   const personalUnlockables = userType === 'artist' ? artistUnlockables : engineerUnlockables;
@@ -119,7 +122,7 @@ export const EnhancedDashboardHub = ({ userType }: EnhancedDashboardHubProps) =>
     try {
       setLoading(true);
 
-      const projectQuery = userType === 'artist' 
+      const projectQuery = userType === 'artist'
         ? supabase.from('projects').select('*').eq('client_id', user?.id)
         : supabase.from('projects').select('*').eq('engineer_id', user?.id);
 
@@ -244,7 +247,7 @@ export const EnhancedDashboardHub = ({ userType }: EnhancedDashboardHubProps) =>
   return (
     <div className="space-y-8">
       {/* Ambient role glow */}
-      <div 
+      <div
         className="pointer-events-none fixed inset-0 z-0"
         style={{
           background: `radial-gradient(ellipse 60% 40% at 50% 0%, ${accent.glow}, transparent 70%)`,
@@ -257,7 +260,7 @@ export const EnhancedDashboardHub = ({ userType }: EnhancedDashboardHubProps) =>
       )}
 
       {/* Header */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         className="relative flex items-center justify-between"
@@ -268,9 +271,9 @@ export const EnhancedDashboardHub = ({ userType }: EnhancedDashboardHubProps) =>
           </h1>
           <p className="text-muted-foreground mt-1">Track your momentum, revenue, and growth</p>
         </div>
-        <Button 
-          onClick={fetchDashboardData} 
-          variant="outline" 
+        <Button
+          onClick={fetchDashboardData}
+          variant="outline"
           size="sm"
           className="backdrop-blur-sm border-white/10 bg-white/[0.04] hover:bg-white/[0.08]"
         >
@@ -379,10 +382,19 @@ export const EnhancedDashboardHub = ({ userType }: EnhancedDashboardHubProps) =>
       {/* Revenue Analytics Dashboard */}
       <RevenueAnalyticsDashboard />
 
+      {/* 🏆 Performance Badges — Real achievements from projects & referrals */}
+      <PerformanceBadges />
+
+      {/* 📊 Collective Analytics — Solo vs Partnership revenue comparison */}
+      <CollectiveAnalytics />
+
+      {/* 🚀 Growth Hub — Shared goals & smart recommendations */}
+      <GrowthHub />
+
       {/* Unlock Progress Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <CommunityUnlocksWidget />
-        <PersonalUnlocksWidget 
+        <PersonalUnlocksWidget
           unlockables={personalUnlockables || []}
           title={userType === 'artist' ? 'Session Journey' : 'Project Progress'}
           description={userType === 'artist' ? 'Your path to session mastery' : 'Your engineering milestones'}
@@ -487,7 +499,7 @@ export const EnhancedDashboardHub = ({ userType }: EnhancedDashboardHubProps) =>
                 <p className="text-sm font-medium text-foreground">New Opportunities</p>
                 <p className="text-2xl font-bold text-foreground">{metrics.aiInsights.opportunities}</p>
               </div>
-              <Button 
+              <Button
                 onClick={() => navigate('?tab=opportunities')}
                 className="backdrop-blur-sm"
               >

@@ -1,8 +1,8 @@
-import { 
-  Upload, 
-  Sparkles, 
-  Users, 
-  Download, 
+import {
+  Upload,
+  Sparkles,
+  Users,
+  Download,
   Headphones,
   Award,
   TrendingUp,
@@ -23,6 +23,7 @@ import { SessionPreview } from "@/components/home/SessionPreview";
 import { TransformationDemo } from "@/components/home/TransformationDemo";
 import { ScrollRevealSection } from "@/components/landing/ScrollRevealSection";
 import { Badge } from "@/components/ui/badge";
+import { BackButton } from "@/components/navigation/BackButton";
 import portalArtistImage from "@/assets/portal-artist.jpg";
 
 // Journey Images
@@ -185,6 +186,7 @@ const ForArtists = () => {
 
   return (
     <LandingPortal backgroundImage={portalArtistImage} variant="artist">
+      <BackButton />
       {/* Founding Member Banner */}
       <FoundingBanner
         icon={<Crown className="w-6 h-6 text-amber-400" />}
@@ -236,8 +238,8 @@ const ForArtists = () => {
       <section className="py-24 px-6 relative">
         <div className="container mx-auto max-w-6xl">
           <ScrollRevealSection className="text-center mb-16">
-            <Badge 
-              variant="outline" 
+            <Badge
+              variant="outline"
               className="mb-4 bg-background/30 backdrop-blur-md border-white/20"
             >
               <Star className="w-4 h-4" />
@@ -248,7 +250,7 @@ const ForArtists = () => {
               Everything you need to manage your music career in one place.
             </p>
           </ScrollRevealSection>
-          
+
           <div className="space-y-24">
             {crmFeatures.map((feature, index) => (
               <ShowcaseFeature

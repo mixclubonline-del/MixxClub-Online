@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
- type AppRole = 'artist' | 'engineer' | 'producer' | 'fan' | 'admin';
+type AppRole = 'artist' | 'engineer' | 'producer' | 'fan' | 'admin';
 
 interface AuthContextType {
   user: User | null;
@@ -18,7 +18,51 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// ─── Dev Auth Bypass ───────────────────────────────────────────────────
+// Set VITE_DEV_AUTH_BYPASS=true in .env to skip Supabase login during dev.
+// Provides a mock user so all protected routes are accessible.
+const DEV_AUTH_BYPASS = import.meta.env.VITE_DEV_AUTH_BYPASS === 'true';
+
+const DEV_MOCK_USER = {
+  id: 'dev-user-00000000-0000-0000-0000-000000000000',
+  email: 'dev@mixxclub.local',
+  app_metadata: {},
+  user_metadata: { full_name: 'Dev User' },
+  aud: 'authenticated',
+  created_at: new Date().toISOString(),
+} as unknown as User;
+
+const DEV_MOCK_SESSION = {
+  access_token: 'dev-bypass-token',
+  refresh_token: 'dev-bypass-refresh',
+  expires_in: 999999,
+  token_type: 'bearer',
+  user: DEV_MOCK_USER,
+} as unknown as Session;
+// ────────────────────────────────────────────────────────────────────────
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  // ── If dev bypass is active, skip Supabase entirely ──
+  if (DEV_AUTH_BYPASS) {
+    return (
+      <AuthContext.Provider
+        value={{
+          user: DEV_MOCK_USER,
+          session: DEV_MOCK_SESSION,
+          loading: false,
+          userRole: 'producer',
+          userRoles: ['producer', 'engineer', 'artist'],
+          activeRole: 'producer',
+          setActiveRole: () => { },
+          isHybridUser: true,
+          signOut: async () => { console.log('[Dev Bypass] signOut ignored'); },
+        }}
+      >
+        {children}
+      </AuthContext.Provider>
+    );
+  }
+
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
@@ -53,37 +97,37 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Defer the role fetching to avoid deadlock
       setTimeout(async () => {
         const roles = await fetchUserRoles(user.id);
-        
+
         if (roles.length > 0) {
           setUserRoles(roles);
           setIsHybridUser(roles.length > 1);
-          
+
           // Set primary role (admin > engineer > artist)
           if (roles.includes('admin')) {
             setUserRole('admin');
             setActiveRoleState('admin');
-           } else if (roles.includes('producer')) {
-             setUserRole('producer');
-             setActiveRoleState('producer');
+          } else if (roles.includes('producer')) {
+            setUserRole('producer');
+            setActiveRoleState('producer');
           } else if (roles.includes('engineer')) {
             setUserRole('engineer');
             setActiveRoleState('engineer');
           } else if (roles.includes('artist')) {
             setUserRole('artist');
             setActiveRoleState('artist');
-           } else if (roles.includes('fan')) {
-             setUserRole('fan');
-             setActiveRoleState('fan');
+          } else if (roles.includes('fan')) {
+            setUserRole('fan');
+            setActiveRoleState('fan');
           } else {
-             // Default to fan if no recognized role
-             setUserRole('fan');
-             setActiveRoleState('fan');
+            // Default to fan if no recognized role
+            setUserRole('fan');
+            setActiveRoleState('fan');
           }
         } else {
-           // No roles in table, default to fan
-           setUserRole('fan');
-           setUserRoles(['fan']);
-           setActiveRoleState('fan');
+          // No roles in table, default to fan
+          setUserRole('fan');
+          setUserRoles(['fan']);
+          setActiveRoleState('fan');
         }
       }, 0);
     } else {

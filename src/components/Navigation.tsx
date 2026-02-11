@@ -35,6 +35,8 @@ const Navigation = () => {
     if (!user) return "/";
     if (userRole === 'admin') return "/admin";
     if (userRole === 'engineer') return "/engineer-crm";
+    if (userRole === 'producer') return "/producer-crm";
+    if (userRole === 'fan') return "/fan-hub";
     return "/artist-crm";
   };
 
@@ -95,7 +97,58 @@ const Navigation = () => {
       ];
     }
 
-    // Artists
+    if (userRole === 'producer') {
+      return [
+        { to: "/producer-crm", label: "Dashboard" },
+        { to: "/beats", label: "Beat Store" },
+        {
+          label: "The Studio",
+          isDropdown: true,
+          items: [
+            { to: "/prime-beat-forge", label: "Beat Forge" },
+            { to: "/services/mixing", label: "Mixing" },
+            { to: "/services/mastering", label: "Mastering" },
+            { to: "/services/distribution", label: "Distribution" },
+          ]
+        },
+        {
+          label: "Community",
+          isDropdown: true,
+          items: [
+            { to: "/community", label: "The Network" },
+            { to: "/community?tab=arena", label: "Mix Battles" },
+            { to: "/sessions", label: "Sessions" },
+          ]
+        },
+      ];
+    }
+
+    if (userRole === 'fan') {
+      return [
+        { to: "/fan-hub", label: "My Feed" },
+        {
+          label: "Discover",
+          isDropdown: true,
+          items: [
+            { to: "/community", label: "The Network" },
+            { to: "/sessions", label: "Live Sessions" },
+            { to: "/marketplace", label: "Marketplace" },
+            { to: "/beats", label: "Beats" },
+          ]
+        },
+        {
+          label: "Community",
+          isDropdown: true,
+          items: [
+            { to: "/community?tab=arena", label: "Mix Battles" },
+            { to: "/community?tab=leaderboard", label: "Leaderboard" },
+            { to: "/crowd", label: "Crowd" },
+          ]
+        },
+      ];
+    }
+
+    // Artists (default)
     return [
       { to: "/artist-crm", label: "Dashboard" },
       {
@@ -127,8 +180,8 @@ const Navigation = () => {
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${scrolled
-        ? 'glass-ultra border-b border-[hsl(var(--glass-border-strong))] shadow-glass-lg animate-glass-breathe'
-        : 'glass-mid border-b border-[hsl(var(--glass-border))]'
+      ? 'glass-ultra border-b border-[hsl(var(--glass-border-strong))] shadow-glass-lg animate-glass-breathe'
+      : 'glass-mid border-b border-[hsl(var(--glass-border))]'
       }`}>
       <div className="container px-6 py-4">
         <div className="flex items-center justify-between">
@@ -303,11 +356,11 @@ const Navigation = () => {
 
             <div className={`pt-2 space-y-2 transform transition-all duration-300 ${isOpen ? 'translate-x-0 opacity-100' : 'translate-x-4 opacity-0'
               }`} style={{ transitionDelay: `${navLinks.length * 50}ms` }}>
-            {user && (
-              <div className="px-4 mb-2 flex justify-center">
-                <NotificationCenter />
-              </div>
-            )}
+              {user && (
+                <div className="px-4 mb-2 flex justify-center">
+                  <NotificationCenter />
+                </div>
+              )}
               {user ? (
                 <Button
                   onClick={signOut}

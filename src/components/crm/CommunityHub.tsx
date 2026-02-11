@@ -10,7 +10,7 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 
 interface CommunityHubProps {
-    userType: 'artist' | 'engineer';
+    userType: 'artist' | 'engineer' | 'producer';
 }
 
 export const CommunityHub: React.FC<CommunityHubProps> = ({ userType }) => {
@@ -269,8 +269,8 @@ export const CommunityHub: React.FC<CommunityHubProps> = ({ userType }) => {
                         <div
                             key={entry.rank}
                             className={`flex items-center justify-between p-4 rounded-lg ${entry.isYou
-                                    ? 'bg-gradient-to-r from-blue-900 to-slate-900 border-2 border-blue-600'
-                                    : 'bg-slate-900 border border-slate-700'
+                                ? 'bg-gradient-to-r from-blue-900 to-slate-900 border-2 border-blue-600'
+                                : 'bg-slate-900 border border-slate-700'
                                 }`}
                         >
                             <div className="flex items-center gap-4">

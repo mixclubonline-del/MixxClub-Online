@@ -13,14 +13,14 @@ import { useCRMClients } from '@/hooks/useCRMClients';
 import { useCRMDeals } from '@/hooks/useCRMDeals';
 
 interface ClientsHubProps {
-  userType?: 'artist' | 'engineer';
+  userType?: 'artist' | 'engineer' | 'producer';
 }
 
 export const ClientsHub: React.FC<ClientsHubProps> = ({ userType = 'artist' }) => {
   const [activeTab, setActiveTab] = useState('clients');
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddClient, setShowAddClient] = useState(false);
-  
+
   const { clients, loading: clientsLoading } = useCRMClients();
   const { deals, loading: dealsLoading } = useCRMDeals();
 
@@ -41,7 +41,7 @@ export const ClientsHub: React.FC<ClientsHubProps> = ({ userType = 'artist' }) =
             Manage relationships with your {userType === 'artist' ? 'engineers and collaborators' : 'artists and clients'}
           </p>
         </div>
-        <Button 
+        <Button
           onClick={() => setShowAddClient(true)}
           className="gap-2"
         >
@@ -96,8 +96,8 @@ export const ClientsHub: React.FC<ClientsHubProps> = ({ userType = 'artist' }) =
             transition={{ duration: 0.2 }}
           >
             <TabsContent value="clients" className="mt-0">
-              <ClientList 
-                searchQuery={searchQuery} 
+              <ClientList
+                searchQuery={searchQuery}
                 userType={userType}
               />
             </TabsContent>
@@ -118,8 +118,8 @@ export const ClientsHub: React.FC<ClientsHubProps> = ({ userType = 'artist' }) =
       </Tabs>
 
       {/* Add Client Dialog */}
-      <AddClientDialog 
-        open={showAddClient} 
+      <AddClientDialog
+        open={showAddClient}
         onOpenChange={setShowAddClient}
         userType={userType}
       />

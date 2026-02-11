@@ -7,8 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { 
-  Star, Loader2, Heart, MessageCircle, Sparkles, RefreshCw, 
+import {
+  Star, Loader2, Heart, MessageCircle, Sparkles, RefreshCw,
   Search, Filter, Users, Zap, Target, TrendingUp, Music,
   CheckCircle, Clock, Award, ChevronRight
 } from 'lucide-react';
@@ -27,7 +27,7 @@ export interface MatchProfile {
   matchedUserId: string;
   name: string;
   avatarUrl?: string;
-  userType: 'artist' | 'engineer';
+  userType: 'artist' | 'engineer' | 'producer';
   specialties: string[];
   genres: string[];
   experience: number;
@@ -50,7 +50,7 @@ export interface MatchProfile {
 }
 
 interface AIMatchesHubProps {
-  userType: 'artist' | 'engineer';
+  userType: 'artist' | 'engineer' | 'producer';
 }
 
 export const AIMatchesHub = ({ userType }: AIMatchesHubProps) => {
@@ -89,7 +89,7 @@ export const AIMatchesHub = ({ userType }: AIMatchesHubProps) => {
 
       if (matchData && matchData.length > 0) {
         const matchedUserIds = matchData.map(m => m.matched_user_id);
-        
+
         // Fetch profile data for matched users
         const { data: profiles } = await supabase
           .from('profiles')
@@ -108,23 +108,23 @@ export const AIMatchesHub = ({ userType }: AIMatchesHubProps) => {
         const formattedMatches: MatchProfile[] = matchData.map(match => {
           const profile = profileMap.get(match.matched_user_id);
           const engineerProfile = engineerMap.get(match.matched_user_id);
-          
+
           // Parse match criteria for compatibility scores
-          const criteria = (match.match_criteria && typeof match.match_criteria === 'object' && !Array.isArray(match.match_criteria)) 
+          const criteria = (match.match_criteria && typeof match.match_criteria === 'object' && !Array.isArray(match.match_criteria))
             ? match.match_criteria as Record<string, number>
             : {};
-          
+
           const baseScore = match.match_score || 0;
-          const status = (['pending', 'contacted', 'working', 'completed'].includes(match.status || '') 
-            ? match.status 
+          const status = (['pending', 'contacted', 'working', 'completed'].includes(match.status || '')
+            ? match.status
             : 'pending') as 'pending' | 'contacted' | 'working' | 'completed';
-          
+
           return {
             id: match.id,
             matchedUserId: match.matched_user_id,
             name: profile?.full_name || 'Unknown User',
             avatarUrl: profile?.avatar_url,
-            userType: userType === 'artist' ? 'engineer' : 'artist',
+            userType: userType === 'artist' ? 'engineer' : userType === 'engineer' ? 'artist' : 'artist',
             specialties: Array.isArray(engineerProfile?.specialties) ? engineerProfile.specialties : [],
             genres: Array.isArray(engineerProfile?.genres) ? engineerProfile.genres : [],
             experience: engineerProfile?.years_experience || 0,
@@ -173,7 +173,7 @@ export const AIMatchesHub = ({ userType }: AIMatchesHubProps) => {
     try {
       // Call edge function to refresh matches
       const { data: session } = await supabase.auth.getSession();
-      
+
       await supabase.functions.invoke('match-engineers', {
         body: { refresh: true },
         headers: session?.session ? { Authorization: `Bearer ${session.session.access_token}` } : {},
@@ -198,7 +198,7 @@ export const AIMatchesHub = ({ userType }: AIMatchesHubProps) => {
 
       if (error) throw error;
 
-      setMatches(prev => prev.map(m => 
+      setMatches(prev => prev.map(m =>
         m.id === matchId ? { ...m, saved: !currentSaved } : m
       ));
 
@@ -206,7 +206,7 @@ export const AIMatchesHub = ({ userType }: AIMatchesHubProps) => {
     } catch (error) {
       console.error('Error saving match:', error);
       // Update locally anyway for demo
-      setMatches(prev => prev.map(m => 
+      setMatches(prev => prev.map(m =>
         m.id === matchId ? { ...m, saved: !currentSaved } : m
       ));
     }
@@ -219,7 +219,7 @@ export const AIMatchesHub = ({ userType }: AIMatchesHubProps) => {
         .update({ status: 'contacted', contacted_at: new Date().toISOString() })
         .eq('id', match.id);
 
-      setMatches(prev => prev.map(m => 
+      setMatches(prev => prev.map(m =>
         m.id === match.id ? { ...m, status: 'contacted' } : m
       ));
 
@@ -234,8 +234,8 @@ export const AIMatchesHub = ({ userType }: AIMatchesHubProps) => {
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       if (!match.name.toLowerCase().includes(query) &&
-          !match.specialties.some(s => s.toLowerCase().includes(query)) &&
-          !match.genres.some(g => g.toLowerCase().includes(query))) {
+        !match.specialties.some(s => s.toLowerCase().includes(query)) &&
+        !match.genres.some(g => g.toLowerCase().includes(query))) {
         return false;
       }
     }
@@ -248,18 +248,18 @@ export const AIMatchesHub = ({ userType }: AIMatchesHubProps) => {
   });
 
   // Tab-based filtering
-  const displayMatches = activeTab === 'saved' 
+  const displayMatches = activeTab === 'saved'
     ? filteredMatches.filter(m => m.saved)
     : activeTab === 'contacted'
-    ? filteredMatches.filter(m => m.status === 'contacted' || m.status === 'working')
-    : filteredMatches;
+      ? filteredMatches.filter(m => m.status === 'contacted' || m.status === 'working')
+      : filteredMatches;
 
   const stats = {
     total: matches.length,
     saved: matches.filter(m => m.saved).length,
     contacted: matches.filter(m => m.status === 'contacted').length,
-    avgScore: matches.length > 0 
-      ? Math.round(matches.reduce((sum, m) => sum + m.matchScore, 0) / matches.length) 
+    avgScore: matches.length > 0
+      ? Math.round(matches.reduce((sum, m) => sum + m.matchScore, 0) / matches.length)
       : 0,
   };
 
@@ -285,19 +285,19 @@ export const AIMatchesHub = ({ userType }: AIMatchesHubProps) => {
             AI Matches Hub
           </h2>
           <p className="text-muted-foreground mt-1">
-            {userType === 'artist' ? 'Engineers matched to your sound' : 'Artists looking for your expertise'}
+            {userType === 'artist' ? 'Engineers matched to your sound' : userType === 'engineer' ? 'Artists looking for your expertise' : 'Artists matched to your beats'}
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={handleRefresh}
             disabled={refreshing}
           >
             <RefreshCw className={cn("w-4 h-4 mr-2", refreshing && "animate-spin")} />
             Refresh Matches
           </Button>
-          <Button 
+          <Button
             variant="outline"
             onClick={() => setShowFilters(!showFilters)}
             className={cn(showFilters && "border-primary")}
@@ -375,8 +375,8 @@ export const AIMatchesHub = ({ userType }: AIMatchesHubProps) => {
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
             >
-              <MatchFilters 
-                filters={filters} 
+              <MatchFilters
+                filters={filters}
                 onChange={setFilters}
                 userType={userType}
               />
@@ -417,11 +417,11 @@ export const AIMatchesHub = ({ userType }: AIMatchesHubProps) => {
                 </div>
                 <h3 className="text-xl font-semibold mb-2">No matches found</h3>
                 <p className="text-muted-foreground mb-4">
-                  {activeTab === 'saved' 
+                  {activeTab === 'saved'
                     ? "You haven't saved any matches yet"
                     : activeTab === 'contacted'
-                    ? "No active conversations"
-                    : "Try adjusting your filters or refresh matches"}
+                      ? "No active conversations"
+                      : "Try adjusting your filters or refresh matches"}
                 </p>
                 <Button onClick={handleRefresh}>
                   <RefreshCw className="w-4 h-4 mr-2" />

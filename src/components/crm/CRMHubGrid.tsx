@@ -1,12 +1,12 @@
 import React, { ReactNode, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  Home, 
-  Users, 
-  Briefcase, 
-  Headphones, 
-  TrendingUp, 
-  Target, 
+import {
+  Home,
+  Users,
+  Briefcase,
+  Headphones,
+  TrendingUp,
+  Target,
   MessageSquare,
   Handshake,
   User,
@@ -19,6 +19,7 @@ import {
   Star,
   Coins,
   Heart,
+  Triangle,
   type LucideIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -61,6 +62,7 @@ const ROLE_HUB_DEFINITIONS: Record<string, HubDefinition[]> = {
     { id: 'music', label: 'Music', icon: Music, description: 'Your catalog' },
     { id: 'store', label: 'Store', icon: ShoppingBag, description: 'Merch & products' },
     { id: 'profile', label: 'Brand Hub', icon: User, description: 'Your identity' },
+    { id: 'tri-collabs', label: '3-Way Collabs', icon: Triangle, description: 'Tri partnerships' },
   ],
   engineer: [
     { id: 'dashboard', label: 'Dashboard', icon: Home, description: 'Business control center' },
@@ -75,15 +77,24 @@ const ROLE_HUB_DEFINITIONS: Record<string, HubDefinition[]> = {
     { id: 'messages', label: 'Messages', icon: MessageSquare, description: 'Communications' },
     { id: 'earnings', label: 'Earnings', icon: Handshake, description: 'Collaborative pay' },
     { id: 'profile', label: 'Brand Hub', icon: User, description: 'Your identity' },
+    { id: 'tri-collabs', label: '3-Way Collabs', icon: Triangle, description: 'Tri partnerships' },
   ],
   producer: [
     { id: 'dashboard', label: 'Dashboard', icon: Home, description: 'Your beat empire' },
     { id: 'catalog', label: 'Catalog', icon: Disc3, description: 'Your beat library' },
+    { id: 'clients', label: 'Clients', icon: Users, description: 'Artist connections' },
+    { id: 'matches', label: 'AI Matches', icon: Sparkles, description: 'Smart connections' },
+    { id: 'sessions', label: 'Sessions', icon: Headphones, description: 'Studio sessions' },
+    { id: 'active-work', label: 'Active Work', icon: Briefcase, description: 'Current projects' },
     { id: 'sales', label: 'Sales', icon: ShoppingBag, description: 'Transaction history' },
-    { id: 'collabs', label: 'Collabs', icon: Users, description: 'Artist connections' },
+    { id: 'collabs', label: 'Collabs', icon: Users, description: 'Collaborations' },
     { id: 'revenue', label: 'Revenue', icon: TrendingUp, description: 'Earnings analytics' },
     { id: 'community', label: 'Community', icon: Users, description: 'Producer network' },
+    { id: 'growth', label: 'Growth', icon: Target, description: 'Career coaching' },
+    { id: 'messages', label: 'Messages', icon: MessageSquare, description: 'Communications' },
+    { id: 'earnings', label: 'Earnings', icon: Handshake, description: 'Collaborative pay' },
     { id: 'profile', label: 'Brand Hub', icon: User, description: 'Your identity' },
+    { id: 'tri-collabs', label: '3-Way Collabs', icon: Triangle, description: 'Tri partnerships' },
   ],
   fan: [
     { id: 'feed', label: 'Feed', icon: Compass, description: 'Discover new music' },
@@ -121,7 +132,7 @@ export const CRMHubGrid: React.FC<CRMHubGridProps> = ({
 }) => {
   const isMobile = useIsMobile();
   const accentClasses = QUICK_ACTION_ACCENTS[userType] || QUICK_ACTION_ACCENTS.artist;
-  
+
   // Get role-specific hubs
   const hubs = useMemo(() => {
     return ROLE_HUB_DEFINITIONS[userType] || ROLE_HUB_DEFINITIONS.artist;

@@ -3,10 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Volume2, 
-  VolumeX, 
-  Eye, 
+import {
+  Volume2,
+  VolumeX,
+  Eye,
   EyeOff,
   Settings,
   Mic,
@@ -16,6 +16,7 @@ import {
   RotateCcw
 } from "lucide-react";
 import type { Track } from "@/stores/aiStudioStore";
+import { ALSMasterStrip, ALSEnergyOrb } from './ALSMeter';
 
 interface DAWMixerPanelProps {
   tracks: Track[];
@@ -35,8 +36,8 @@ const DAWMixerPanel: React.FC<DAWMixerPanelProps> = ({
   // Update track property
   const updateTrack = (trackId: string, updates: Partial<Track>) => {
     onTracksChange(
-      tracks.map(track => 
-        track.id === trackId 
+      tracks.map(track =>
+        track.id === trackId
           ? { ...track, ...updates }
           : track
       )
@@ -66,8 +67,8 @@ const DAWMixerPanel: React.FC<DAWMixerPanelProps> = ({
       parameters: { intensity: 0.5 }
     };
 
-    updateTrack(trackId, { 
-      effects: [...(track.effects || []), newEffect] 
+    updateTrack(trackId, {
+      effects: [...(track.effects || []), newEffect]
     });
   };
 
@@ -88,16 +89,15 @@ const DAWMixerPanel: React.FC<DAWMixerPanelProps> = ({
           {tracks.map((track) => (
             <div
               key={track.id}
-              className={`w-24 flex flex-col bg-card border rounded-lg p-2 transition-all duration-200 ${
-                selectedTrack === track.id 
-                  ? 'ring-2 ring-primary bg-primary/5' 
+              className={`w-24 flex flex-col bg-card border rounded-lg p-2 transition-all duration-200 ${selectedTrack === track.id
+                  ? 'ring-2 ring-primary bg-primary/5'
                   : 'hover:bg-muted/30'
-              }`}
+                }`}
               onClick={() => setSelectedTrack(track.id)}
             >
               {/* Track Name & Color */}
               <div className="text-center mb-2">
-                <div 
+                <div
                   className="w-full h-1 rounded-full mb-1"
                   style={{ backgroundColor: track.color }}
                 />
@@ -142,9 +142,8 @@ const DAWMixerPanel: React.FC<DAWMixerPanelProps> = ({
                   return (
                     <div
                       key={i}
-                      className={`h-2 rounded-sm transition-colors ${
-                        isActive ? color : 'bg-muted'
-                      }`}
+                      className={`h-2 rounded-sm transition-colors ${isActive ? color : 'bg-muted'
+                        }`}
                     />
                   );
                 })}
@@ -244,12 +243,12 @@ const DAWMixerPanel: React.FC<DAWMixerPanelProps> = ({
                           const newEffects = (track.effects || []).map(e =>
                             e.id === effect.id
                               ? {
-                                  ...e,
-                                  parameters: {
-                                    ...e.parameters,
-                                    intensity: value[0] / 100
-                                  }
+                                ...e,
+                                parameters: {
+                                  ...e.parameters,
+                                  intensity: value[0] / 100
                                 }
+                              }
                               : e
                           );
                           updateTrack(track.id, { effects: newEffects });
@@ -268,26 +267,14 @@ const DAWMixerPanel: React.FC<DAWMixerPanelProps> = ({
 
           {/* Master Channel */}
           <div className="w-28 flex flex-col bg-primary/10 border-2 border-primary rounded-lg p-3">
-            <div className="text-sm font-bold text-center mb-2">MASTER</div>
+            <div className="text-sm font-bold text-center mb-2 flex items-center justify-center gap-2">
+              <ALSEnergyOrb size={12} />
+              MASTER
+            </div>
 
-            {/* Master Level Meter */}
-            <div className="flex-1 bg-background rounded p-1 flex flex-col-reverse gap-0.5 mb-2 min-h-[120px]">
-              {Array.from({ length: 12 }, (_, i) => {
-                const level = masterVolume * 12;
-                const isActive = i < level;
-                let color = 'bg-green-500';
-                if (i > 9) color = 'bg-red-500';
-                else if (i > 7) color = 'bg-yellow-500';
-
-                return (
-                  <div
-                    key={i}
-                    className={`h-2 rounded-sm transition-colors ${
-                      isActive ? color : 'bg-muted'
-                    }`}
-                  />
-                );
-              })}
+            {/* ALS Thermal Meter — replaces VU bars */}
+            <div className="flex-1 flex items-center justify-center py-1 min-h-[120px]">
+              <ALSMasterStrip meterHeight={100} showLabels={true} showValues={false} />
             </div>
 
             {/* Master Vertical Fader */}

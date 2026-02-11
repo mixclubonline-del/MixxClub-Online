@@ -16,7 +16,7 @@ import { Plus, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface NewPartnershipDialogProps {
-  userType: 'artist' | 'engineer';
+  userType: 'artist' | 'engineer' | 'producer';
   onCreatePartnership: (partnerId: string, userSplit: number) => Promise<unknown>;
 }
 
@@ -43,7 +43,7 @@ export const NewPartnershipDialog = ({
     setLoading(true);
     try {
       const result = await onCreatePartnership(partnerId, splitPercentage);
-      
+
       if (result) {
         toast({
           title: 'Partnership Created',
@@ -79,7 +79,7 @@ export const NewPartnershipDialog = ({
             Create Partnership
           </DialogTitle>
           <DialogDescription>
-            Set up a revenue sharing partnership with {userType === 'artist' ? 'an engineer' : 'an artist'}.
+            Set up a revenue sharing partnership with {userType === 'artist' ? 'an engineer' : userType === 'engineer' ? 'an artist' : 'an artist or engineer'}.
           </DialogDescription>
         </DialogHeader>
 
@@ -88,7 +88,7 @@ export const NewPartnershipDialog = ({
             <Label htmlFor="partner-id">Partner ID</Label>
             <Input
               id="partner-id"
-              placeholder={`Enter ${userType === 'artist' ? 'engineer' : 'artist'}'s user ID`}
+              placeholder={`Enter ${userType === 'artist' ? "engineer" : userType === 'engineer' ? "artist" : "partner"}'s user ID`}
               value={partnerId}
               onChange={(e) => setPartnerId(e.target.value)}
             />
@@ -122,7 +122,7 @@ export const NewPartnershipDialog = ({
                 <span className="font-medium">{splitPercentage}%</span>
               </div>
               <div className="flex justify-between mt-1">
-                <span>Partner ({userType === 'artist' ? 'engineer' : 'artist'})</span>
+                <span>Partner ({userType === 'artist' ? 'engineer' : userType === 'engineer' ? 'artist' : 'collaborator'})</span>
                 <span className="font-medium">{100 - splitPercentage}%</span>
               </div>
             </div>

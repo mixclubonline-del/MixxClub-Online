@@ -9,8 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { motion } from 'framer-motion';
-import { 
-  Plus, Search, Radio, History, Clock, Users, 
+import {
+  Plus, Search, Radio, History, Clock, Users,
   Headphones, Star, Calendar, Zap, Mic2, Play,
   Filter, ArrowUpRight, Loader2
 } from 'lucide-react';
@@ -80,7 +80,7 @@ export function SessionsHub() {
       if (activeRole === 'artist') {
         query = query.eq('host_user_id', user?.id);
       } else {
-        // For engineers, show sessions they're part of (simplified - shows all for now)
+        // For engineers and producers, show sessions they host or public ones
         query = query.or(`host_user_id.eq.${user?.id},visibility.eq.public`);
       }
 
@@ -96,13 +96,13 @@ export function SessionsHub() {
           .from('session_participants')
           .select('id', { count: 'exact', head: true })
           .eq('session_id', session.id);
-        
+
         const count = countResult.count;
 
         sessionsWithCounts.push({
           ...session,
-          host_profile: Array.isArray(session.host_profile) 
-            ? session.host_profile[0] 
+          host_profile: Array.isArray(session.host_profile)
+            ? session.host_profile[0]
             : session.host_profile,
           participant_count: count || 0
         });
@@ -116,7 +116,7 @@ export function SessionsHub() {
     }
   };
 
-  const filteredSessions = sessions.filter(session => 
+  const filteredSessions = sessions.filter(session =>
     session.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     session.description?.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -139,9 +139,11 @@ export function SessionsHub() {
             Sessions Hub
           </h2>
           <p className="text-muted-foreground">
-            {activeRole === 'artist' 
+            {activeRole === 'artist'
               ? 'Manage your collaboration sessions with engineers'
-              : 'Join sessions and collaborate with artists'
+              : activeRole === 'producer'
+                ? 'Manage sessions with artists and engineers'
+                : 'Join sessions and collaborate with artists'
             }
           </p>
         </div>

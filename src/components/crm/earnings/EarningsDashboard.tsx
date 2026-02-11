@@ -13,12 +13,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DollarSign, Kanban, Bell } from 'lucide-react';
 
 interface EarningsDashboardProps {
-  userType: 'artist' | 'engineer';
+  userType: 'artist' | 'engineer' | 'producer';
 }
 
 export const EarningsDashboard = ({ userType }: EarningsDashboardProps) => {
   const [createProjectOpen, setCreateProjectOpen] = useState(false);
-  
+
   const {
     summary,
     partnerships,
@@ -110,9 +110,9 @@ export const EarningsDashboard = ({ userType }: EarningsDashboardProps) => {
 
         <TabsContent value="projects">
           <ProjectBoard onCreateProject={() => setCreateProjectOpen(true)} />
-          <CreateProjectModal 
-            open={createProjectOpen} 
-            onOpenChange={setCreateProjectOpen} 
+          <CreateProjectModal
+            open={createProjectOpen}
+            onOpenChange={setCreateProjectOpen}
           />
         </TabsContent>
 

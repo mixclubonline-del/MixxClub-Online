@@ -35,12 +35,14 @@ export default function Contact() {
       // Validate form data
       const validatedData = contactSchema.parse(formData);
 
-      // Store contact submission in database
-      const { error } = await supabase.from('contact_submissions').insert({
-        name: validatedData.name,
-        email: validatedData.email,
-        subject: validatedData.subject,
-        message: validatedData.message,
+      // Submit via edge function (handles validation, rate limiting, email notification)
+      const { data, error } = await supabase.functions.invoke('handle-contact-form', {
+        body: {
+          name: validatedData.name,
+          email: validatedData.email,
+          subject: validatedData.subject,
+          message: validatedData.message,
+        },
       });
 
       if (error) throw error;
@@ -79,142 +81,142 @@ export default function Contact() {
         description="Have questions about our audio mixing and mastering services? Contact MixClub's support team. We respond within 24 hours. Email, phone, and live chat available Mon-Fri 9am-6pm PST."
         keywords="contact mixclub, audio engineering support, mixing help, customer service"
       />
-      
+
       <div className="min-h-screen bg-gradient-to-b from-background to-accent/5 py-16">
-      <div className="container max-w-6xl mx-auto px-4">
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold mb-4">Get In Touch</h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Have a question? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
-          </p>
-        </div>
-
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Contact Info */}
-          <div className="space-y-6">
-            <Card className="p-6">
-              <div className="flex items-start gap-4">
-                <div className="bg-primary/10 p-3 rounded-lg">
-                  <Mail className="w-6 h-6 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-1">Email</h3>
-                  <p className="text-sm text-muted-foreground">support@mixclub.com</p>
-                </div>
-              </div>
-            </Card>
-
-            <Card className="p-6">
-              <div className="flex items-start gap-4">
-                <div className="bg-primary/10 p-3 rounded-lg">
-                  <Phone className="w-6 h-6 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-1">Phone</h3>
-                  <p className="text-sm text-muted-foreground">+1 (555) 123-4567</p>
-                </div>
-              </div>
-            </Card>
-
-            <Card className="p-6">
-              <div className="flex items-start gap-4">
-                <div className="bg-primary/10 p-3 rounded-lg">
-                  <MapPin className="w-6 h-6 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-1">Office</h3>
-                  <p className="text-sm text-muted-foreground">
-                    1234 Audio Avenue, Suite 500<br />
-                    Los Angeles, CA 90028<br />
-                    United States
-                  </p>
-                </div>
-              </div>
-            </Card>
-
-            <Card className="p-6">
-              <div className="flex items-start gap-4">
-                <div className="bg-primary/10 p-3 rounded-lg">
-                  <MessageSquare className="w-6 h-6 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-1">Live Chat</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Available Mon-Fri, 9am-6pm PST
-                  </p>
-                </div>
-              </div>
-            </Card>
+        <div className="container max-w-6xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <h1 className="text-5xl font-bold mb-4">Get In Touch</h1>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Have a question? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+            </p>
           </div>
 
-          {/* Contact Form */}
-          <div className="lg:col-span-2">
-            <Card className="p-8">
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* Contact Info */}
+            <div className="space-y-6">
+              <Card className="p-6">
+                <div className="flex items-start gap-4">
+                  <div className="bg-primary/10 p-3 rounded-lg">
+                    <Mail className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-1">Email</h3>
+                    <p className="text-sm text-muted-foreground">support@mixclub.com</p>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-6">
+                <div className="flex items-start gap-4">
+                  <div className="bg-primary/10 p-3 rounded-lg">
+                    <Phone className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-1">Phone</h3>
+                    <p className="text-sm text-muted-foreground">+1 (555) 123-4567</p>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-6">
+                <div className="flex items-start gap-4">
+                  <div className="bg-primary/10 p-3 rounded-lg">
+                    <MapPin className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-1">Office</h3>
+                    <p className="text-sm text-muted-foreground">
+                      1234 Audio Avenue, Suite 500<br />
+                      Los Angeles, CA 90028<br />
+                      United States
+                    </p>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-6">
+                <div className="flex items-start gap-4">
+                  <div className="bg-primary/10 p-3 rounded-lg">
+                    <MessageSquare className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-1">Live Chat</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Available Mon-Fri, 9am-6pm PST
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            </div>
+
+            {/* Contact Form */}
+            <div className="lg:col-span-2">
+              <Card className="p-8">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Your Name *</Label>
+                      <Input
+                        id="name"
+                        required
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        placeholder="John Doe"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email Address *</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        required
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        placeholder="john@example.com"
+                      />
+                    </div>
+                  </div>
+
                   <div className="space-y-2">
-                    <Label htmlFor="name">Your Name *</Label>
+                    <Label htmlFor="subject">Subject *</Label>
                     <Input
-                      id="name"
+                      id="subject"
                       required
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      placeholder="John Doe"
+                      value={formData.subject}
+                      onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                      placeholder="How can we help you?"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email Address *</Label>
-                    <Input
-                      id="email"
-                      type="email"
+                    <Label htmlFor="message">Message *</Label>
+                    <Textarea
+                      id="message"
                       required
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      placeholder="john@example.com"
+                      value={formData.message}
+                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                      placeholder="Tell us more about your project or question..."
+                      rows={6}
                     />
                   </div>
-                </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="subject">Subject *</Label>
-                  <Input
-                    id="subject"
-                    required
-                    value={formData.subject}
-                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                    placeholder="How can we help you?"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="message">Message *</Label>
-                  <Textarea
-                    id="message"
-                    required
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    placeholder="Tell us more about your project or question..."
-                    rows={6}
-                  />
-                </div>
-
-                <Button type="submit" disabled={loading} className="w-full">
-                  {loading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Sending...
-                    </>
-                  ) : (
-                    'Send Message'
-                  )}
-                </Button>
-              </form>
-            </Card>
+                  <Button type="submit" disabled={loading} className="w-full">
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      'Send Message'
+                    )}
+                  </Button>
+                </form>
+              </Card>
+            </div>
           </div>
         </div>
       </div>
-    </div>
     </>
   );
 }

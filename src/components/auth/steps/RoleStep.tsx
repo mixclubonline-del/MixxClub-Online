@@ -42,6 +42,13 @@ const colorClasses: Record<string, { selected: string; icon: string; glow: strin
 };
 
 export function RoleStep({ selectedRole, onSelectRole, onNext, onSwitchToLogin, error }: RoleStepProps) {
+  // Auto-advance after role selection for smoother UX
+  const handleRoleSelect = (role: AppRole) => {
+    onSelectRole(role);
+    // Brief delay so user sees the selection highlight before advancing
+    setTimeout(() => onNext(), 400);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -67,21 +74,19 @@ export function RoleStep({ selectedRole, onSelectRole, onNext, onSwitchToLogin, 
             <button
               key={id}
               type="button"
-              onClick={() => onSelectRole(id)}
+              onClick={() => handleRoleSelect(id)}
               onKeyDownCapture={(e) => e.stopPropagation()}
-              className={`relative flex flex-col items-center justify-center gap-2 rounded-xl p-4 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
-                isSelected
-                  ? colors.selected
-                  : 'bg-white/5 border border-white/10 hover:bg-white/10'
-              }`}
+              className={`relative flex flex-col items-center justify-center gap-2 rounded-xl p-4 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${isSelected
+                ? colors.selected
+                : 'bg-white/5 border border-white/10 hover:bg-white/10'
+                }`}
             >
               {isSelected && (
                 <div className={`absolute inset-0 rounded-xl ${colors.glow} animate-fade-in`} />
               )}
               <div
-                className={`relative z-10 w-12 h-12 rounded-full flex items-center justify-center ${
-                  isSelected ? colors.icon : 'bg-white/10'
-                }`}
+                className={`relative z-10 w-12 h-12 rounded-full flex items-center justify-center ${isSelected ? colors.icon : 'bg-white/10'
+                  }`}
               >
                 <Icon className={`w-6 h-6 ${isSelected ? '' : 'text-white/60'}`} />
               </div>

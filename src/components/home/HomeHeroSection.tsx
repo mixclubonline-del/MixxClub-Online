@@ -15,25 +15,25 @@ import { useDynamicLandingAssets } from '@/hooks/useDynamicLandingAssets';
 export function HomeHeroSection() {
   const { data: stats } = useCommunityStats();
   const { getImageUrl } = useDynamicLandingAssets();
-  
+
   // Get cinematic background from brand assets
   const heroBackground = getImageUrl('hero_background');
-  
+
   const statItems = [
-    { 
-      label: 'Members', 
+    {
+      label: 'Members',
       value: stats?.totalUsers?.toLocaleString() || '10,000+',
-      icon: Users 
+      icon: Users
     },
-    { 
-      label: 'Active Now', 
+    {
+      label: 'Active Now',
       value: stats?.activeNow?.toLocaleString() || '50+',
-      icon: Radio 
+      icon: Radio
     },
-    { 
-      label: 'Projects', 
+    {
+      label: 'Projects',
       value: stats?.projectsCompleted?.toLocaleString() || '5,000+',
-      icon: Music 
+      icon: Music
     },
   ];
 
@@ -55,12 +55,12 @@ export function HomeHeroSection() {
             />
           </motion.div>
         )}
-        
+
         {/* Gradient mesh overlay */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.15),transparent_50%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,hsl(var(--secondary)/0.1),transparent_50%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,hsl(var(--accent)/0.08),transparent_40%)]" />
-        
+
         {/* Animated particles - CSS only for performance */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {[...Array(6)].map((_, i) => (
@@ -76,9 +76,9 @@ export function HomeHeroSection() {
             />
           ))}
         </div>
-        
+
         {/* Subtle grid pattern */}
-        <div 
+        <div
           className="absolute inset-0 opacity-[0.03]"
           style={{
             backgroundImage: `linear-gradient(hsl(var(--primary)) 1px, transparent 1px),
@@ -87,7 +87,7 @@ export function HomeHeroSection() {
           }}
         />
       </div>
-      
+
       {/* Content */}
       <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
         {/* Badge */}
@@ -106,7 +106,7 @@ export function HomeHeroSection() {
             The Hip-Hop Network
           </span>
         </motion.div>
-        
+
         {/* Headline */}
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
@@ -119,7 +119,7 @@ export function HomeHeroSection() {
             to Billboard
           </span>
         </motion.h1>
-        
+
         {/* Subtitle */}
         <motion.p
           initial={{ opacity: 0, y: 20 }}
@@ -127,10 +127,10 @@ export function HomeHeroSection() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10"
         >
-          Connect with professional engineers. Transform your rough recordings 
+          Connect with professional engineers. Transform your rough recordings
           into radio-ready tracks. Join the community building the future of hip-hop.
         </motion.p>
-        
+
         {/* CTAs */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -138,9 +138,9 @@ export function HomeHeroSection() {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
         >
-          <Link to="/auth?mode=signup">
-            <Button 
-              size="lg" 
+          <Link to="/choose-path">
+            <Button
+              size="lg"
               className="group relative px-8 py-6 text-lg font-semibold
                          bg-primary hover:bg-primary/90 text-primary-foreground
                          shadow-[0_0_30px_hsl(var(--primary)/0.4)]
@@ -151,10 +151,10 @@ export function HomeHeroSection() {
               Start Your Journey
             </Button>
           </Link>
-          
+
           <Link to="/how-it-works">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="lg"
               className="px-8 py-6 text-lg font-medium border-border/50
                          hover:bg-muted/50 hover:border-primary/30
@@ -165,7 +165,7 @@ export function HomeHeroSection() {
             </Button>
           </Link>
         </motion.div>
-        
+
         {/* Stats */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -192,7 +192,7 @@ export function HomeHeroSection() {
           ))}
         </motion.div>
       </div>
-      
+
       {/* Scroll indicator */}
       <motion.div
         initial={{ opacity: 0 }}

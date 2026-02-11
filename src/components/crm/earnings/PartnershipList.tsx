@@ -14,7 +14,7 @@ interface PartnershipListProps {
   partnerships: DbPartnership[];
   projects: DbCollaborativeProject[];
   healthScores: DbPartnershipHealth[];
-  userType: 'artist' | 'engineer';
+  userType: 'artist' | 'engineer' | 'producer';
   onAcceptPartnership: (partnershipId: string) => Promise<boolean>;
 }
 
@@ -104,9 +104,11 @@ export const PartnershipList = ({
                     <div>
                       <p className="text-muted-foreground">Your Split</p>
                       <p className="font-medium text-foreground">
-                        {userType === 'artist' 
+                        {userType === 'artist'
                           ? `${partnership.artist_percentage || 50}%`
-                          : `${partnership.engineer_percentage || 50}%`
+                          : userType === 'engineer'
+                            ? `${partnership.engineer_percentage || 50}%`
+                            : `${partnership.producer_percentage || 50}%`
                         }
                       </p>
                     </div>
@@ -119,9 +121,11 @@ export const PartnershipList = ({
                     <div>
                       <p className="text-muted-foreground">Your Earnings</p>
                       <p className="font-medium text-green-500">
-                        ${userType === 'artist' 
+                        ${userType === 'artist'
                           ? (partnership.artist_earnings || 0).toLocaleString()
-                          : (partnership.engineer_earnings || 0).toLocaleString()
+                          : userType === 'engineer'
+                            ? (partnership.engineer_earnings || 0).toLocaleString()
+                            : (partnership.producer_earnings || 0).toLocaleString()
                         }
                       </p>
                     </div>

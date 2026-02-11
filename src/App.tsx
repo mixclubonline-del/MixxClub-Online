@@ -63,7 +63,7 @@ const DesktopOnlyComponents = () => {
 // App content wrapper for analytics tracking
 const AppContent = () => {
   usePageTracking();
-  
+
   return (
     <ImmersiveAppShell>
       <PageTransition>

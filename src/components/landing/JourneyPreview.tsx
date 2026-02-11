@@ -15,19 +15,19 @@ interface JourneyPreviewProps {
   subtitle: string;
   badge: { icon: ReactNode; text: string };
   steps: JourneyStep[];
-  variant: 'artist' | 'engineer';
+  variant: 'artist' | 'engineer' | 'producer' | 'fan';
 }
 
 export const JourneyPreview = ({ title, subtitle, badge, steps, variant }: JourneyPreviewProps) => {
   const accentColor = variant === 'artist' ? 'primary' : 'secondary';
-  
+
   return (
     <section className="py-24 px-6 relative">
       <div className="container mx-auto max-w-6xl">
         {/* Section Header */}
         <ScrollRevealSection className="text-center mb-16">
-          <Badge 
-            variant="outline" 
+          <Badge
+            variant="outline"
             className="mb-4 bg-background/30 backdrop-blur-md border-white/20"
           >
             {badge.icon}
@@ -40,8 +40,8 @@ export const JourneyPreview = ({ title, subtitle, badge, steps, variant }: Journ
         {/* Journey Path - Glass Cards Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {steps.map((step, index) => (
-            <ScrollRevealSection 
-              key={step.number} 
+            <ScrollRevealSection
+              key={step.number}
               delay={index * 0.1}
               direction={index % 2 === 0 ? 'left' : 'right'}
             >

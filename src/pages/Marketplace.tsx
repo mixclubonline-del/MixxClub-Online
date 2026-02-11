@@ -6,6 +6,7 @@ import { MarketplaceBazaar } from "@/components/marketplace/MarketplaceBazaar";
 import { BazaarHeader } from "@/components/marketplace/BazaarHeader";
 import { BazaarSearch } from "@/components/marketplace/BazaarSearch";
 import { ProductShowcase } from "@/components/marketplace/ProductShowcase";
+import { ProductDetailDrawer } from "@/components/marketplace/ProductDetailDrawer";
 import { FloatingCart } from "@/components/marketplace/FloatingCart";
 import { EmptyBazaar } from "@/components/marketplace/EmptyBazaar";
 import { BazaarSkeleton } from "@/components/marketplace/BazaarSkeleton";
@@ -17,16 +18,17 @@ export default function Marketplace() {
   const { data: items, isLoading } = useMarketplaceItems();
   const { data: categories } = useMarketplaceCategories();
   const purchaseItem = usePurchaseItem();
-  
+
   const [cart, setCart] = useState<any[]>([]);
+  const [selectedItem, setSelectedItem] = useState<any | null>(null);
   const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   const handleAddToCart = (product: any) => {
     setCart(prev => {
       const existing = prev.find(item => item.id === product.id);
       if (existing) {
-        return prev.map(item => 
-          item.id === product.id 
+        return prev.map(item =>
+          item.id === product.id
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
@@ -43,7 +45,7 @@ export default function Marketplace() {
     if (quantity <= 0) {
       handleRemoveFromCart(productId);
     } else {
-      setCart(prev => prev.map(item => 
+      setCart(prev => prev.map(item =>
         item.id === productId ? { ...item, quantity } : item
       ));
     }
@@ -55,7 +57,7 @@ export default function Marketplace() {
 
   const filteredItems = items?.filter((item: any) => {
     const matchesSearch = item.item_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         item.item_description?.toLowerCase().includes(searchQuery.toLowerCase());
+      item.item_description?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === "all" || item.category_id === selectedCategory;
     return matchesSearch && matchesCategory;
   }).sort((a: any, b: any) => {
@@ -131,6 +133,7 @@ export default function Marketplace() {
                 index={index}
                 onAddToCart={() => handleAddToCartClick(item)}
                 onBuyNow={() => handlePurchase(item)}
+                onViewDetails={() => setSelectedItem(item)}
                 isPurchasing={purchaseItem.isPending}
               />
             ))}
@@ -146,6 +149,20 @@ export default function Marketplace() {
         total={cartTotal}
         onRemove={handleRemoveFromCart}
         onUpdateQuantity={handleUpdateQuantity}
+      />
+
+      {/* Product Detail Drawer */}
+      <ProductDetailDrawer
+        item={selectedItem}
+        open={!!selectedItem}
+        onClose={() => setSelectedItem(null)}
+        onAddToCart={() => {
+          if (selectedItem) handleAddToCartClick(selectedItem);
+        }}
+        onBuyNow={() => {
+          if (selectedItem) handlePurchase(selectedItem);
+        }}
+        isPurchasing={purchaseItem.isPending}
       />
     </MarketplaceBazaar>
   );

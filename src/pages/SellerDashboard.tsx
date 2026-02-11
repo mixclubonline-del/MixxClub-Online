@@ -3,6 +3,7 @@ import { TrendingUp, DollarSign, ShoppingCart, Star, Upload, BarChart3, Settings
 import { Button } from '@/components/ui/button';
 import { useMarketplace } from '@/hooks/useMarketplace';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import SellerAnalytics from '@/components/marketplace/SellerAnalytics';
 
 export const SellerDashboard = () => {
     const { sellerStats, sellerEarnings, sellerProducts, handleUploadProduct } = useMarketplace();
@@ -266,6 +267,12 @@ export const SellerDashboard = () => {
                             </Button>
                         </div>
                     )}
+                </div>
+
+                {/* Advanced Seller Analytics — DB-driven */}
+                <div className="mt-8">
+                    <h2 className="text-xl font-bold text-white mb-6">Advanced Analytics</h2>
+                    <SellerAnalytics />
                 </div>
             </div>
         </div>

@@ -31,7 +31,7 @@ import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface MessagingHubProps {
-  userType: 'artist' | 'engineer';
+  userType: 'artist' | 'engineer' | 'producer';
 }
 
 const QUICK_REPLIES = [
@@ -47,7 +47,7 @@ export const MessagingHub = ({ userType }: MessagingHubProps) => {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const recipientParam = searchParams.get('recipient');
-  
+
   const {
     conversations,
     loading,
@@ -226,11 +226,11 @@ export const MessagingHub = ({ userType }: MessagingHubProps) => {
 
   const filteredConversations = conversations.filter((conv) => {
     if (!searchQuery && filter === 'all') return true;
-    
-    const matchesSearch = !searchQuery || 
+
+    const matchesSearch = !searchQuery ||
       (conv.other_user?.display_name?.toLowerCase().includes(searchQuery.toLowerCase()));
-    
-    const matchesFilter = filter === 'all' || 
+
+    const matchesFilter = filter === 'all' ||
       (filter === 'unread' && conv.unread_count > 0);
 
     return matchesSearch && matchesFilter;
@@ -255,7 +255,7 @@ export const MessagingHub = ({ userType }: MessagingHubProps) => {
             )}
           </h2>
           <p className="text-muted-foreground">
-            Connect with {userType === 'artist' ? 'engineers' : 'artists'}
+            Connect with {userType === 'artist' ? 'engineers' : userType === 'engineer' ? 'artists' : 'artists & engineers'}
           </p>
         </div>
       </div>

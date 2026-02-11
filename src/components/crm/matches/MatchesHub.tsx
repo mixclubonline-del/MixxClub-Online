@@ -10,7 +10,7 @@ import { SavedMatches } from './SavedMatches';
 import { MatchFilters } from './MatchFilters';
 
 interface MatchesHubProps {
-  userType: 'artist' | 'engineer';
+  userType: 'artist' | 'engineer' | 'producer';
 }
 
 export const MatchesHub: React.FC<MatchesHubProps> = ({ userType }) => {
@@ -34,23 +34,25 @@ export const MatchesHub: React.FC<MatchesHubProps> = ({ userType }) => {
             AI Match Discovery
           </h2>
           <p className="text-muted-foreground">
-            {userType === 'artist' 
+            {userType === 'artist'
               ? 'Find the perfect engineer for your sound'
-              : 'Discover artists looking for your skills'}
+              : userType === 'engineer'
+                ? 'Discover artists looking for your skills'
+                : 'Find artists matched to your beats'}
           </p>
         </div>
         <div className="flex gap-2">
           <div className="relative flex-1 md:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder={userType === 'artist' ? 'Search engineers...' : 'Search artists...'}
+              placeholder={userType === 'artist' ? 'Search engineers...' : userType === 'engineer' ? 'Search artists...' : 'Search artists...'}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
             />
           </div>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             size="icon"
             onClick={() => setShowFilters(!showFilters)}
           >

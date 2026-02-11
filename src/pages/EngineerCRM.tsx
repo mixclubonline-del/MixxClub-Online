@@ -2,6 +2,22 @@ import { useEffect, useState } from 'react';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/integrations/supabase/types';
+
+type DbProfile = Database['public']['Tables']['profiles']['Row'];
+type DbProject = Database['public']['Tables']['projects']['Row'];
+type DbAchievement = Database['public']['Tables']['achievements']['Row'];
+
+interface EngineerTask {
+  id: string;
+  status: string;
+  completed_at?: string;
+}
+
+interface EngineerProject extends DbProject {
+  client: { full_name: string | null; avatar_url: string | null } | null;
+  audio_files: { count: number }[];
+}
 import { useAuth } from '@/hooks/useAuth';
 import { useAdminPreview } from '@/stores/useAdminPreview';
 import { Card } from '@/components/ui/card';
@@ -47,15 +63,15 @@ const EngineerCRM = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const currentTab = searchParams.get('tab') || 'dashboard';
-  
+
   const handleTabChange = (tab: string) => {
     setSearchParams({ tab });
   };
 
-  const [profile, setProfile] = useState<any>(null);
-  const [tasks, setTasks] = useState<any[]>([]);
-  const [projects, setProjects] = useState<any[]>([]);
-  const [achievements, setAchievements] = useState<any[]>([]);
+  const [profile, setProfile] = useState<DbProfile | null>(null);
+  const [tasks, setTasks] = useState<EngineerTask[]>([]);
+  const [projects, setProjects] = useState<EngineerProject[]>([]);
+  const [achievements, setAchievements] = useState<DbAchievement[]>([]);
   const [earnings, setEarnings] = useState({
     total: 0,
     pending: 0,
@@ -152,7 +168,7 @@ const EngineerCRM = () => {
         bonuses: bonuses,
         available: pendingEarnings
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching data:', error);
       toast.error('Failed to load dashboard');
     } finally {
@@ -162,7 +178,7 @@ const EngineerCRM = () => {
 
   const updateTaskStatus = async (taskId: string, newStatus: string) => {
     try {
-      const updates: any = { status: newStatus };
+      const updates: Record<string, string> = { status: newStatus };
       if (newStatus === 'completed') {
         updates.completed_at = new Date().toISOString();
       }
@@ -175,7 +191,7 @@ const EngineerCRM = () => {
       if (error) throw error;
       toast.success('Task updated successfully');
       fetchData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error updating task:', error);
       toast.error('Failed to update task');
     }

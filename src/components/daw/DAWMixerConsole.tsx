@@ -4,6 +4,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { X, Volume2, VolumeX, Headphones } from 'lucide-react';
 import { useAIStudioStore } from '@/stores/aiStudioStore';
 import { cn } from '@/lib/utils';
+import { ALSMasterStrip, ALSEnergyOrb } from './ALSMeter';
 
 interface DAWMixerConsoleProps {
   onClose: () => void;
@@ -20,9 +21,9 @@ export const DAWMixerConsole = ({ onClose }: DAWMixerConsoleProps) => {
       {/* Header */}
       <div className="h-10 border-b border-[hsl(var(--primary)/0.2)] flex items-center justify-between px-3 bg-gradient-to-r from-[hsl(230,40%,12%)] to-[hsl(230,35%,10%)]">
         <span className="text-sm font-display font-semibold tracking-wide text-primary">MIXER</span>
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={onClose}
           className="hover:bg-[hsl(var(--primary)/0.1)] hover:text-primary"
         >
@@ -130,27 +131,14 @@ export const DAWMixerConsole = ({ onClose }: DAWMixerConsoleProps) => {
 
           {/* Master Channel */}
           <div className="w-32 bg-gradient-to-b from-[hsl(var(--primary)/0.15)] to-[hsl(var(--primary)/0.08)] border-2 border-[hsl(var(--primary)/0.4)] rounded-lg p-3 flex flex-col gap-2 shadow-[0_0_30px_hsl(var(--primary)/0.3)]">
-            <div className="text-sm font-display font-bold text-center tracking-wide">MASTER</div>
+            <div className="text-sm font-display font-bold text-center tracking-wide flex items-center justify-center gap-2">
+              <ALSEnergyOrb size={14} />
+              MASTER
+            </div>
 
-            {/* Master Level Meter */}
-            <div className="flex-1 bg-background rounded-md p-1 flex flex-col-reverse gap-0.5">
-              {Array.from({ length: 12 }).map((_, i) => {
-                const level = masterVolume * 12;
-                const isActive = i < level;
-                let color = 'bg-green-500';
-                if (i > 9) color = 'bg-red-500';
-                else if (i > 7) color = 'bg-yellow-500';
-
-                return (
-                  <div
-                    key={i}
-                    className={cn(
-                      'h-3 rounded-sm transition-colors',
-                      isActive ? color : 'bg-muted'
-                    )}
-                  />
-                );
-              })}
+            {/* ALS Thermal Meter — replaces VU bars */}
+            <div className="flex-1 flex items-center justify-center py-2">
+              <ALSMasterStrip meterHeight={100} showLabels={true} showValues={false} />
             </div>
 
             {/* Master Fader */}

@@ -4,7 +4,7 @@
  * All data sourced from real database tables - no random values
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 
@@ -52,7 +52,7 @@ const getDateRanges = () => {
   const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
   const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
-  
+
   return {
     thisMonthStart: thisMonthStart.toISOString(),
     lastMonthStart: lastMonthStart.toISOString(),
@@ -74,24 +74,24 @@ const generateForecasts = (
 ): RevenueForecast[] => {
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
   const currentMonth = new Date().getMonth();
-  
+
   // Calculate growth rate from historical data
   const growthRate = monthlyData.previous > 0
     ? (monthlyData.current - monthlyData.previous) / monthlyData.previous
     : 0.05; // Default 5% growth if no previous data
-  
+
   const safeGrowthRate = Math.max(-0.3, Math.min(0.3, growthRate)); // Cap between -30% and +30%
   const baseMonthly = monthlyData.current > 0 ? monthlyData.current : totalRevenue / 6;
-  
+
   return months.map((month, i) => {
     const monthIndex = (currentMonth + i) % 12;
     const monthsFromNow = i;
     const projectedGrowth = 1 + (safeGrowthRate * (monthsFromNow + 1) * 0.5);
     const projected = Math.round(baseMonthly * projectedGrowth);
-    
+
     // Only include actual data for past months
     const isPast = monthsFromNow <= 0;
-    
+
     return {
       month: months[monthIndex % 6],
       projected,
@@ -106,11 +106,24 @@ export function useRevenueStreams() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Cache to avoid redundant 16-query fetches on remounts
+  const STALE_TIME_MS = 5 * 60 * 1000; // 5 minutes
+  const lastFetchRef = useRef<number>(0);
+  const cachedDataRef = useRef<RevenueAnalytics | null>(null);
+
   const fetchRevenueData = useCallback(async () => {
     if (!user?.id) return;
 
     setLoading(true);
     setError(null);
+
+    // Return cached data if still fresh
+    const cacheCheckTime = Date.now();
+    if (cachedDataRef.current && (cacheCheckTime - lastFetchRef.current) < STALE_TIME_MS) {
+      setAnalytics(cachedDataRef.current);
+      setLoading(false);
+      return;
+    }
 
     try {
       const { thisMonthStart, lastMonthStart, lastMonthEnd, now } = getDateRanges();
@@ -180,7 +193,7 @@ export function useRevenueStreams() {
       const prevLicensing = prevLicensingRes.data || [];
 
       // === Calculate Current Period Totals ===
-      
+
       // Mixing + Mastering (from engineer_earnings)
       const mixingMasteringTotal = engineerEarnings
         .filter(e => e.status === 'paid')
@@ -354,7 +367,7 @@ export function useRevenueStreams() {
       // Find top performing stream
       const topStream = streams.reduce((max, s) => s.amount > max.amount ? s : max, streams[0]);
 
-      setAnalytics({
+      const result: RevenueAnalytics = {
         totalRevenue,
         thisMonth,
         lastMonth,
@@ -366,7 +379,11 @@ export function useRevenueStreams() {
         streams: streams.sort((a, b) => b.amount - a.amount),
         forecasts,
         recentPayouts,
-      });
+      };
+
+      setAnalytics(result);
+      cachedDataRef.current = result;
+      lastFetchRef.current = Date.now();
     } catch (err) {
       console.error('Error fetching revenue data:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch revenue data');
@@ -379,10 +396,16 @@ export function useRevenueStreams() {
     fetchRevenueData();
   }, [fetchRevenueData]);
 
+  const forceRefetch = useCallback(() => {
+    lastFetchRef.current = 0; // Invalidate cache
+    cachedDataRef.current = null;
+    fetchRevenueData();
+  }, [fetchRevenueData]);
+
   return {
     analytics,
     loading,
     error,
-    refetch: fetchRevenueData,
+    refetch: forceRefetch,
   };
 }

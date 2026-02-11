@@ -15,25 +15,25 @@ interface FeatureGlassCardsProps {
   title: string;
   subtitle: string;
   features: Feature[];
-  variant: 'artist' | 'engineer';
+  variant: 'artist' | 'engineer' | 'producer' | 'fan';
 }
 
-export const FeatureGlassCards = ({ 
-  badge, 
-  title, 
-  subtitle, 
-  features, 
-  variant 
+export const FeatureGlassCards = ({
+  badge,
+  title,
+  subtitle,
+  features,
+  variant
 }: FeatureGlassCardsProps) => {
   const accentColor = variant === 'artist' ? 'primary' : 'secondary';
-  
+
   return (
     <section className="py-24 px-6 relative">
       <div className="container mx-auto max-w-6xl">
         {/* Section Header */}
         <ScrollRevealSection className="text-center mb-12">
-          <Badge 
-            variant="outline" 
+          <Badge
+            variant="outline"
             className="mb-4 bg-background/30 backdrop-blur-md border-white/20"
           >
             {badge.icon}

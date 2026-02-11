@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Sparkles, UserCheck, MessageSquare, Star } from 'lucide-react';
 
 interface MatchStatsProps {
-  userType: 'artist' | 'engineer';
+  userType: 'artist' | 'engineer' | 'producer';
 }
 
 export const MatchStats: React.FC<MatchStatsProps> = ({ userType }) => {

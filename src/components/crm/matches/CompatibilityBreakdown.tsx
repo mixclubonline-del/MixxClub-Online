@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
-import { 
+import {
   X, Star, MessageCircle, Sparkles, Music, Award,
   Target, Zap, Clock, CheckCircle, TrendingUp, Users
 } from 'lucide-react';
@@ -12,16 +12,16 @@ import { MatchProfile } from './AIMatchesHub';
 
 interface CompatibilityBreakdownProps {
   match: MatchProfile;
-  userType: 'artist' | 'engineer';
+  userType: 'artist' | 'engineer' | 'producer';
   onClose: () => void;
   onContact: () => void;
 }
 
-export const CompatibilityBreakdown = ({ 
-  match, 
-  userType, 
-  onClose, 
-  onContact 
+export const CompatibilityBreakdown = ({
+  match,
+  userType,
+  onClose,
+  onContact
 }: CompatibilityBreakdownProps) => {
   const compatibilityDetails = [
     {
@@ -192,7 +192,7 @@ export const CompatibilityBreakdown = ({
 
           {/* Actions */}
           <div className="flex gap-3">
-            <Button 
+            <Button
               onClick={onContact}
               className="flex-1 bg-gradient-to-r from-primary to-purple-600"
             >

@@ -9,12 +9,12 @@ import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { 
-  X, 
-  Edit2, 
-  Save, 
-  Clock, 
-  DollarSign, 
+import {
+  X,
+  Edit2,
+  Save,
+  Clock,
+  DollarSign,
   Calendar,
   CheckCircle2,
   FileText,
@@ -24,7 +24,18 @@ import {
   User
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/integrations/supabase/types';
 import { toast } from 'sonner';
+
+type DbCollaborativeProject = Database['public']['Tables']['collaborative_projects']['Row'];
+
+interface CollaborativeProjectDetail extends DbCollaborativeProject {
+  partnership?: {
+    artist: { full_name: string | null; avatar_url: string | null } | null;
+    engineer: { full_name: string | null; avatar_url: string | null } | null;
+  } | null;
+  client?: { name: string; email: string | null } | null;
+}
 import { format } from 'date-fns';
 import { MilestoneTracker } from './MilestoneTracker';
 import { ProjectFiles } from './ProjectFiles';
@@ -37,13 +48,13 @@ interface ProjectDetailPanelProps {
   onUpdate: () => void;
 }
 
-export const ProjectDetailPanel = ({ 
-  projectId, 
-  open, 
-  onClose, 
-  onUpdate 
+export const ProjectDetailPanel = ({
+  projectId,
+  open,
+  onClose,
+  onUpdate
 }: ProjectDetailPanelProps) => {
-  const [project, setProject] = useState<any>(null);
+  const [project, setProject] = useState<CollaborativeProjectDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [editData, setEditData] = useState({
@@ -61,7 +72,7 @@ export const ProjectDetailPanel = ({
 
   const fetchProject = async () => {
     if (!projectId) return;
-    
+
     setLoading(true);
     try {
       const { data, error } = await supabase
@@ -109,7 +120,7 @@ export const ProjectDetailPanel = ({
         .eq('id', projectId);
 
       if (error) throw error;
-      
+
       toast.success('Project updated');
       setEditing(false);
       fetchProject();
@@ -244,7 +255,7 @@ export const ProjectDetailPanel = ({
                           <div>
                             <p className="text-xs text-muted-foreground">Deadline</p>
                             <p className="text-sm font-medium">
-                              {project?.deadline 
+                              {project?.deadline
                                 ? format(new Date(project.deadline), 'MMM d, yyyy')
                                 : 'Not set'
                               }

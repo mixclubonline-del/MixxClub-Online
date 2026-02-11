@@ -23,7 +23,7 @@ interface PortalHeroProps {
     icon: ReactNode;
     href: string;
   };
-  variant: 'artist' | 'engineer';
+  variant: 'artist' | 'engineer' | 'producer' | 'fan';
 }
 
 export const PortalHero = ({
@@ -36,7 +36,7 @@ export const PortalHero = ({
   variant
 }: PortalHeroProps) => {
   const accentColor = variant === 'artist' ? 'primary' : 'secondary';
-  
+
   return (
     <section className="min-h-screen flex flex-col justify-center items-center px-6 relative pt-24 pb-16">
       <motion.div
@@ -51,8 +51,8 @@ export const PortalHero = ({
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2 }}
         >
-          <Badge 
-            variant="outline" 
+          <Badge
+            variant="outline"
             className="mb-6 text-base px-6 py-3 bg-background/30 backdrop-blur-md border-white/20"
           >
             {badge.icon}
@@ -108,11 +108,10 @@ export const PortalHero = ({
           transition={{ delay: 0.6 }}
         >
           <Link to={primaryAction.href}>
-            <Button 
-              size="lg" 
-              className={`gap-2 text-lg px-8 py-6 ${
-                variant === 'engineer' ? 'bg-secondary hover:bg-secondary/90' : ''
-              }`}
+            <Button
+              size="lg"
+              className={`gap-2 text-lg px-8 py-6 ${variant === 'engineer' ? 'bg-secondary hover:bg-secondary/90' : ''
+                }`}
             >
               {primaryAction.icon}
               {primaryAction.text}
@@ -120,9 +119,9 @@ export const PortalHero = ({
           </Link>
           {secondaryAction && (
             <Link to={secondaryAction.href}>
-              <Button 
-                variant="outline" 
-                size="lg" 
+              <Button
+                variant="outline"
+                size="lg"
                 className="gap-2 text-lg px-8 py-6 bg-background/30 backdrop-blur-sm border-white/20 hover:bg-background/50"
               >
                 {secondaryAction.icon}

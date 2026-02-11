@@ -1,7 +1,7 @@
 import React from "react";
 import { Route, Navigate } from "react-router-dom";
-import { AppLayout } from "@/components/layouts/AppLayout";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { ProtectedAppLayout } from "@/components/layouts/ProtectedAppLayout";
 import { AdminRoute } from "@/components/auth/AdminRoute";
 
 // Core app pages - static imports for frequently used routes
@@ -30,10 +30,12 @@ import MyCertifications from "@/pages/MyCertifications";
 import Tutorials from "@/pages/Tutorials";
 import MessagingTest from "@/pages/MessagingTest";
 import ProjectDetail from "@/pages/ProjectDetail";
- 
- // Marketplace
- import BeatMarketplace from "@/pages/BeatMarketplace";
- const MyPurchases = React.lazy(() => import("@/pages/MyPurchases"));
+
+// Marketplace
+import BeatMarketplace from "@/pages/BeatMarketplace";
+const MyPurchases = React.lazy(() => import("@/pages/MyPurchases"));
+const WishlistPage = React.lazy(() => import("@/components/marketplace/WishlistPage").then(m => ({ default: m.WishlistPage })));
+const SellerDashboardPage = React.lazy(() => import("@/pages/SellerDashboard"));
 
 // Onboarding pages
 import ArtistOnboarding from "@/pages/ArtistOnboarding";
@@ -76,8 +78,8 @@ const MatchingDashboard = React.lazy(() => import("@/pages/MatchingDashboard"));
 const Sitemap = React.lazy(() => import("@/pages/Sitemap"));
 const PartnerProgram = React.lazy(() => import("@/pages/PartnerProgram"));
 const Economy = React.lazy(() => import("@/pages/Economy"));
- const ProducerCRM = React.lazy(() => import("@/pages/ProducerCRM"));
- const FanHub = React.lazy(() => import("@/pages/FanHub"));
+const ProducerCRM = React.lazy(() => import("@/pages/ProducerCRM"));
+const FanHub = React.lazy(() => import("@/pages/FanHub"));
 const AdminCRM = React.lazy(() => import("@/pages/AdminCRM"));
 
 // Live Streaming pages
@@ -93,125 +95,140 @@ import { JobBoard } from "@/pages/JobBoard";
 
 export const appRoutes = (
   <>
-    {/* Dashboard & CRM */}
-    <Route path="/dashboard" element={<Dashboard />} />
-    <Route path="/artist-dashboard" element={<Navigate to="/artist-crm" replace />} />
-    <Route path="/engineer-dashboard" element={<Navigate to="/engineer-crm" replace />} />
-    <Route path="/artist-crm" element={<AppLayout><ArtistCRM /></AppLayout>} />
-    <Route path="/engineer-crm" element={<AppLayout><EngineerCRM /></AppLayout>} />
-     <Route path="/producer-crm" element={<AppLayout><ProducerCRM /></AppLayout>} />
-      <Route path="/fan-hub" element={<AppLayout><FanHub /></AppLayout>} />
-    <Route path="/admin" element={<AdminRoute><AppLayout><AdminCRM /></AppLayout></AdminRoute>} />
+    {/* ──────────────────────────────────────────────────────────
+        PROTECTED + APP LAYOUT (sidebar, header, wallet, notifications)
+        Every route inside this parent gets ProtectedRoute + AppLayout
+        automatically via ProtectedAppLayout component.
+       ────────────────────────────────────────────────────────── */}
+    <Route element={<ProtectedAppLayout />}>
+      {/* Dashboard → redirects to role-specific CRM */}
+      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/artist-dashboard" element={<Navigate to="/artist-crm" replace />} />
+      <Route path="/engineer-dashboard" element={<Navigate to="/engineer-crm" replace />} />
 
-    {/* Sessions & Collaboration */}
-    <Route path="/sessions" element={<SessionsBrowser />} />
-    <Route path="/create-session" element={<CreateSession />} />
-    <Route path="/session/:sessionId" element={<SessionDetail />} />
-    <Route path="/collaborate/:sessionId" element={<CollaborativeWorkspace />} />
-    <Route path="/hybrid-daw" element={<HybridDAW />} />
+      {/* Role CRMs */}
+      <Route path="/artist-crm" element={<ArtistCRM />} />
+      <Route path="/engineer-crm" element={<EngineerCRM />} />
+      <Route path="/producer-crm" element={<ProducerCRM />} />
+      <Route path="/fan-hub" element={<FanHub />} />
+      <Route path="/admin" element={<AdminRoute><AdminCRM /></AdminRoute>} />
 
-    {/* Community */}
-    <Route path="/community" element={<Community />} />
-    <Route path="/crowd" element={<Crowd />} />
-    <Route path="/premieres" element={<Premieres />} />
-    <Route path="/leaderboard" element={<CommunityLeaderboard />} />
-    <Route path="/achievements" element={<Achievements />} />
-    <Route path="/unlockables" element={<UnlockablesHub />} />
-    <Route path="/economy" element={<Economy />} />
-    
-    {/* Live Streaming */}
-    <Route path="/live" element={<AppLayout><LivePage /></AppLayout>} />
-    <Route path="/watch/:streamId" element={<AppLayout><WatchStreamPage /></AppLayout>} />
-    <Route path="/broadcast/:streamId" element={<BroadcastPage />} />
-    
-    {/* Legacy redirects */}
-    <Route path="/pulse" element={<Navigate to="/community?tab=feed" replace />} />
-    <Route path="/arena" element={<Navigate to="/community?tab=arena" replace />} />
-    <Route path="/feed" element={<Navigate to="/community?tab=feed" replace />} />
-    <Route path="/mix-battles" element={<Navigate to="/community?tab=arena" replace />} />
+      {/* Sessions & Collaboration */}
+      <Route path="/sessions" element={<SessionsBrowser />} />
+      <Route path="/create-session" element={<CreateSession />} />
+      <Route path="/session/:sessionId" element={<SessionDetail />} />
+      <Route path="/collaborate/:sessionId" element={<CollaborativeWorkspace />} />
+      <Route path="/hybrid-daw" element={<HybridDAW />} />
 
-    {/* Services */}
-    <Route path="/services" element={<Services />} />
-    <Route path="/services/mixing" element={<MixingShowcase />} />
-    <Route path="/services/mastering" element={<MasteringShowcase />} />
-    <Route path="/services/ai-mastering" element={<AIMastering />} />
-    <Route path="/services/distribution" element={<DistributionHub />} />
-    
-    {/* Legacy service redirects */}
-    <Route path="/mixing" element={<Navigate to="/services/mixing" replace />} />
-    <Route path="/mastering" element={<Navigate to="/services/mastering" replace />} />
-    <Route path="/ai-mastering" element={<Navigate to="/services/ai-mastering" replace />} />
-    <Route path="/distribution" element={<Navigate to="/services/distribution" replace />} />
+      {/* Community */}
+      <Route path="/community" element={<Community />} />
+      <Route path="/crowd" element={<Crowd />} />
+      <Route path="/premieres" element={<Premieres />} />
+      <Route path="/leaderboard" element={<CommunityLeaderboard />} />
+      <Route path="/achievements" element={<Achievements />} />
+      <Route path="/unlockables" element={<UnlockablesHub />} />
+      <Route path="/economy" element={<Economy />} />
 
-    {/* Engineers */}
-    <Route path="/engineers" element={<EngineerDirectory />} />
-    <Route path="/engineer/:userId" element={<EngineerProfile />} />
+      {/* Live Streaming */}
+      <Route path="/live" element={<LivePage />} />
+      <Route path="/watch/:streamId" element={<WatchStreamPage />} />
 
-    {/* Tools & Features */}
-    <Route path="/upload" element={<AudioUpload />} />
-    <Route path="/audio-lab" element={<AudioLab />} />
-    <Route path="/suno-test" element={<SunoTest />} />
-    <Route path="/brand-forge" element={<BrandForge />} />
-    <Route path="/prime-beat-forge" element={<PrimeBeatForge />} />
-    <Route path="/prime-marketing" element={<PrimeMarketingCopy />} />
-    <Route path="/marketing-command-center" element={<AppLayout><MarketingCommandCenter /></AppLayout>} />
-    <Route path="/jobs" element={<AppLayout><JobBoard /></AppLayout>} />
-    <Route path="/messaging-test" element={<MessagingTest />} />
+      {/* Legacy redirects */}
+      <Route path="/pulse" element={<Navigate to="/community?tab=feed" replace />} />
+      <Route path="/arena" element={<Navigate to="/community?tab=arena" replace />} />
+      <Route path="/feed" element={<Navigate to="/community?tab=feed" replace />} />
+      <Route path="/mix-battles" element={<Navigate to="/community?tab=arena" replace />} />
 
-    {/* Role Selection & Onboarding */}
+      {/* Services */}
+      <Route path="/services" element={<Services />} />
+      <Route path="/services/mixing" element={<MixingShowcase />} />
+      <Route path="/services/mastering" element={<MasteringShowcase />} />
+      <Route path="/services/ai-mastering" element={<AIMastering />} />
+      <Route path="/services/distribution" element={<DistributionHub />} />
+
+      {/* Legacy service redirects */}
+      <Route path="/mixing" element={<Navigate to="/services/mixing" replace />} />
+      <Route path="/mastering" element={<Navigate to="/services/mastering" replace />} />
+      <Route path="/ai-mastering" element={<Navigate to="/services/ai-mastering" replace />} />
+      <Route path="/distribution" element={<Navigate to="/services/distribution" replace />} />
+
+      {/* Engineers */}
+      <Route path="/engineers" element={<EngineerDirectory />} />
+      <Route path="/engineer/:userId" element={<EngineerProfile />} />
+
+      {/* Tools & Features */}
+      <Route path="/upload" element={<AudioUpload />} />
+      <Route path="/audio-lab" element={<AudioLab />} />
+      <Route path="/brand-forge" element={<BrandForge />} />
+      <Route path="/prime-beat-forge" element={<PrimeBeatForge />} />
+      <Route path="/prime-marketing" element={<PrimeMarketingCopy />} />
+      <Route path="/marketing-command-center" element={<MarketingCommandCenter />} />
+      <Route path="/jobs" element={<JobBoard />} />
+
+      {/* Projects & Orders */}
+      <Route path="/project/:projectId" element={<ProjectDetail />} />
+      <Route path="/order-success/:paymentId" element={<OrderSuccess />} />
+
+      {/* Settings */}
+      <Route path="/settings" element={<Settings />} />
+      <Route path="/notification-preferences" element={<NotificationPreferences />} />
+      <Route path="/search" element={<Search />} />
+      <Route path="/notifications" element={<Notifications />} />
+
+      {/* Features */}
+      <Route path="/battle-tournaments" element={<ComingSoon />} />
+      <Route path="/my-certifications" element={<MyCertifications />} />
+      <Route path="/tutorials" element={<Tutorials />} />
+      <Route path="/marketplace" element={<Marketplace />} />
+      <Route path="/beats" element={<BeatMarketplace />} />
+      <Route path="/my-purchases" element={<MyPurchases />} />
+      <Route path="/wishlist" element={<WishlistPage />} />
+      <Route path="/seller-dashboard" element={<SellerDashboardPage />} />
+      <Route path="/label-services" element={<LabelServices />} />
+      <Route path="/integrations" element={<Integrations />} />
+      <Route path="/ai-audio-intelligence" element={<AIAudioIntelligence />} />
+      <Route path="/coming-soon" element={<ComingSoon />} />
+
+      {/* Merch Store */}
+      <Route path="/merch" element={<MerchStore />} />
+      <Route path="/merch/:username" element={<ArtistStorefront />} />
+      <Route path="/store/:username" element={<ArtistStorefront />} />
+      <Route path="/artist/merch-manager" element={<ArtistMerchManager />} />
+
+      {/* Dream Engine (Vision Control) */}
+      <Route path="/dream-engine" element={<DreamEngine />} />
+      <Route path="/landing-forge" element={<Navigate to="/dream-engine" replace />} />
+
+      {/* Utility Pages */}
+      <Route path="/freemium" element={<FreemiumOverview />} />
+      <Route path="/matching" element={<MatchingDashboard />} />
+      <Route path="/partner-program" element={<PartnerProgram />} />
+      <Route path="/sitemap" element={<Sitemap />} />
+
+      {/* Public Profiles */}
+      <Route path="/u/:username" element={<PublicProfile />} />
+
+      {/* Admin-only test routes */}
+      <Route path="/suno-test" element={<SunoTest />} />
+      <Route path="/messaging-test" element={<MessagingTest />} />
+    </Route>
+
+    {/* ──────────────────────────────────────────────────────────
+        PROTECTED but NO APP LAYOUT (full-screen experiences)
+        Auth-gated but no sidebar — for onboarding, checkout, broadcast
+       ────────────────────────────────────────────────────────── */}
     <Route path="/select-role" element={<ProtectedRoute><RoleSelection /></ProtectedRoute>} />
     <Route path="/onboarding/artist" element={<ProtectedRoute><ArtistOnboarding /></ProtectedRoute>} />
     <Route path="/onboarding/engineer" element={<ProtectedRoute><EngineerOnboarding /></ProtectedRoute>} />
     <Route path="/onboarding/hybrid" element={<ProtectedRoute><HybridOnboarding /></ProtectedRoute>} />
     <Route path="/onboarding/producer" element={<ProtectedRoute><ProducerOnboarding /></ProtectedRoute>} />
     <Route path="/onboarding/fan" element={<ProtectedRoute><FanOnboarding /></ProtectedRoute>} />
+    <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+    <Route path="/payment-success" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />
+    <Route path="/payment-canceled" element={<ProtectedRoute><PaymentCanceled /></ProtectedRoute>} />
+    <Route path="/broadcast/:streamId" element={<ProtectedRoute><BroadcastPage /></ProtectedRoute>} />
 
-    {/* Projects & Orders */}
-    <Route path="/project/:projectId" element={<AppLayout><ProjectDetail /></AppLayout>} />
-    <Route path="/checkout" element={<Checkout />} />
-    <Route path="/payment-success" element={<PaymentSuccess />} />
-    <Route path="/order-success/:paymentId" element={<OrderSuccess />} />
-    <Route path="/payment-canceled" element={<PaymentCanceled />} />
-
-    {/* Settings */}
-    <Route path="/settings" element={<AppLayout><Settings /></AppLayout>} />
-    <Route path="/notification-preferences" element={<NotificationPreferences />} />
-    <Route path="/search" element={<Search />} />
-    <Route path="/notifications" element={<Notifications />} />
-
-    {/* Features by tier */}
-    <Route path="/battle-tournaments" element={<ComingSoon />} />
-    <Route path="/my-certifications" element={<MyCertifications />} />
-    <Route path="/tutorials" element={<Tutorials />} />
-    <Route path="/marketplace" element={<Marketplace />} />
-     <Route path="/beats" element={<BeatMarketplace />} />
-     <Route path="/my-purchases" element={<ProtectedRoute><MyPurchases /></ProtectedRoute>} />
-    <Route path="/label-services" element={<LabelServices />} />
-    <Route path="/integrations" element={<Integrations />} />
-    <Route path="/ai-audio-intelligence" element={<AIAudioIntelligence />} />
-    <Route path="/distribution" element={<DistributionHub />} />
-    <Route path="/coming-soon" element={<ComingSoon />} />
-
-    {/* Merch Store */}
-    <Route path="/merch" element={<AppLayout><MerchStore /></AppLayout>} />
-    <Route path="/merch/:username" element={<AppLayout><ArtistStorefront /></AppLayout>} />
-    <Route path="/store/:username" element={<AppLayout><ArtistStorefront /></AppLayout>} />
-    <Route path="/artist/merch-manager" element={<AppLayout><ArtistMerchManager /></AppLayout>} />
-
-    {/* Enterprise */}
+    {/* Enterprise demo (public) */}
     <Route path="/enterprise-demo" element={<EnterpriseDemo />} />
-
-    {/* Dream Engine (Vision Control) */}
-    <Route path="/dream-engine" element={<DreamEngine />} />
-    <Route path="/landing-forge" element={<Navigate to="/dream-engine" replace />} />
-
-    {/* Utility Pages */}
-    <Route path="/freemium" element={<FreemiumOverview />} />
-    <Route path="/matching" element={<MatchingDashboard />} />
-    <Route path="/partner-program" element={<AppLayout><PartnerProgram /></AppLayout>} />
-    <Route path="/sitemap" element={<Sitemap />} />
-
-    {/* Public Profiles */}
-    <Route path="/u/:username" element={<AppLayout><PublicProfile /></AppLayout>} />
   </>
 );

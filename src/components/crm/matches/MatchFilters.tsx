@@ -15,7 +15,7 @@ interface MatchFiltersProps {
     maxRate: number;
   };
   onChange: (filters: any) => void;
-  userType: 'artist' | 'engineer';
+  userType: 'artist' | 'engineer' | 'producer';
 }
 
 const GENRES = ['Hip-Hop', 'R&B', 'Pop', 'EDM', 'Trap', 'Soul', 'Rock', 'Jazz', 'Latin', 'Afrobeat'];
@@ -46,11 +46,11 @@ export const MatchFilters = ({ filters, onChange, userType }: MatchFiltersProps)
     });
   };
 
-  const hasActiveFilters = 
-    filters.minScore > 0 || 
-    filters.genres.length > 0 || 
-    filters.specialties.length > 0 || 
-    filters.minRating > 0 || 
+  const hasActiveFilters =
+    filters.minScore > 0 ||
+    filters.genres.length > 0 ||
+    filters.specialties.length > 0 ||
+    filters.minRating > 0 ||
     filters.maxRate < 1000;
 
   return (
