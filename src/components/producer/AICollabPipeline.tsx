@@ -137,13 +137,13 @@ export const AICollabPipeline = ({ userType }: AICollabPipelineProps) => {
                 partnershipInsert.artist_percentage = 100 - producerSplit;
             } else {
                 partnershipInsert.engineer_id = userType === 'engineer' ? user.id : selectedMatch.matchedUserId;
-                partnershipInsert.artist_split = userType === 'artist' ? producerSplit : 100 - producerSplit;
-                partnershipInsert.engineer_split = userType === 'engineer' ? producerSplit : 100 - producerSplit;
+                partnershipInsert.artist_percentage = userType === 'artist' ? producerSplit : 100 - producerSplit;
+                partnershipInsert.engineer_percentage = userType === 'engineer' ? producerSplit : 100 - producerSplit;
             }
 
             const { error: partnershipError } = await supabase
                 .from('partnerships')
-                .insert(partnershipInsert);
+                .insert(partnershipInsert as any);
 
             if (partnershipError) throw partnershipError;
 
@@ -162,8 +162,8 @@ export const AICollabPipeline = ({ userType }: AICollabPipelineProps) => {
                 sessionState.beat_key = selectedBeat.key_signature;
             }
 
-            const { data: sessionData, error: sessionError } = await supabase
-                .from('collaboration_sessions')
+            const { data: sessionData, error: sessionError } = await (supabase
+                .from('collaboration_sessions') as any)
                 .insert({
                     host_user_id: user.id,
                     title: sessionTitle,

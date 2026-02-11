@@ -94,7 +94,7 @@ export const SubscriptionService = {
     ): Promise<Subscription> {
         const defaults = TIER_DEFAULTS[tier] || TIER_DEFAULTS.free;
 
-        const { data, error } = await supabase
+        const { data, error } = await (supabase as any)
             .from('user_subscriptions')
             .upsert({
                 user_id: userId,
@@ -127,7 +127,7 @@ export const SubscriptionService = {
 
         const newUsage = sub.usage_current + count;
 
-        await supabase
+        await (supabase as any)
             .from('user_subscriptions')
             .update({ usage_current: newUsage })
             .eq('user_id', userId)
@@ -149,7 +149,7 @@ export const SubscriptionService = {
      * Cancel subscription (soft cancel — sets cancel_at_period_end)
      */
     async cancelSubscription(userId: string): Promise<boolean> {
-        const { error } = await supabase
+        const { error } = await (supabase as any)
             .from('user_subscriptions')
             .update({
                 cancel_at_period_end: true,
@@ -170,7 +170,7 @@ export const SubscriptionService = {
         churn_rate: number;
     }> {
         try {
-            const { data, error } = await supabase
+            const { data, error } = await (supabase as any)
                 .from('user_subscriptions')
                 .select('tier, status, price_monthly');
 
@@ -178,12 +178,12 @@ export const SubscriptionService = {
                 return { total_subscribers: 0, by_tier: {}, monthly_revenue: 0, churn_rate: 0 };
             }
 
-            const active = data.filter(s => s.status === 'active');
-            const cancelled = data.filter(s => s.status === 'cancelled');
+            const active = (data as any[]).filter((s: any) => s.status === 'active');
+            const cancelled = (data as any[]).filter((s: any) => s.status === 'cancelled');
             const byTier: Record<string, number> = { free: 0, starter: 0, pro: 0, studio: 0 };
             let revenue = 0;
 
-            active.forEach(sub => {
+            active.forEach((sub: any) => {
                 const tier = (sub.tier as string) || 'free';
                 byTier[tier] = (byTier[tier] || 0) + 1;
                 revenue += (sub.price_monthly as number) || 0;

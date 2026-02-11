@@ -158,13 +158,13 @@ export const usePerformanceBadges = (partnerId?: string) => {
 async function fetchPartnershipMetrics(userId: string, partnerId?: string): Promise<PartnershipMetrics> {
     try {
         // Get completed projects/sessions
-        const projectQuery = supabase
+        const projectQuery = (supabase as any)
             .from('projects')
-            .select('id, status, rating, created_at, amount')
-            .or(`artist_id.eq.${userId},engineer_id.eq.${userId}`);
+            .select('id, status, created_at')
+            .or(`user_id.eq.${userId},engineer_id.eq.${userId}`);
 
         if (partnerId) {
-            projectQuery.or(`artist_id.eq.${partnerId},engineer_id.eq.${partnerId}`);
+            projectQuery.or(`user_id.eq.${partnerId},engineer_id.eq.${partnerId}`);
         }
 
         const { data: projects } = await projectQuery.eq('status', 'completed');
@@ -175,7 +175,7 @@ async function fetchPartnershipMetrics(userId: string, partnerId?: string): Prom
             .select('*', { count: 'exact', head: true })
             .eq('referrer_id', userId);
 
-        const sessions = projects || [];
+        const sessions = (projects || []) as Array<Record<string, unknown>>;
         const totalSessions = sessions.length;
         const totalRevenue = sessions.reduce((sum, p) => sum + ((p.amount as number) || 0), 0);
         const ratings = sessions.filter((p) => p.rating != null).map((p) => p.rating as number);
@@ -190,7 +190,7 @@ async function fetchPartnershipMetrics(userId: string, partnerId?: string): Prom
         // Count unique repeat clients (appeared 2+ times)
         const clientCounts = new Map<string, number>();
         sessions.forEach((p) => {
-            const clientId = (p as Record<string, unknown>).artist_id as string;
+            const clientId = p.artist_id as string;
             if (clientId && clientId !== userId) {
                 clientCounts.set(clientId, (clientCounts.get(clientId) || 0) + 1);
             }

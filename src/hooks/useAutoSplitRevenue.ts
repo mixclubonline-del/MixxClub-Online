@@ -77,8 +77,7 @@ export const useAutoSplitRevenue = () => {
 
             // Artist
             if (partnership.artist_id) {
-                const artistPct = partnership.artist_split
-                    ?? partnership.artist_percentage
+                const artistPct = partnership.artist_percentage
                     ?? (partnership.engineer_id ? 50 : 100);
                 parties.push({
                     userId: partnership.artist_id,
@@ -90,8 +89,7 @@ export const useAutoSplitRevenue = () => {
 
             // Engineer
             if (partnership.engineer_id) {
-                const engineerPct = partnership.engineer_split
-                    ?? partnership.engineer_percentage
+                const engineerPct = partnership.engineer_percentage
                     ?? 50;
                 parties.push({
                     userId: partnership.engineer_id,
@@ -136,7 +134,7 @@ export const useAutoSplitRevenue = () => {
                     .single();
 
                 if (current) {
-                    const currentEarnings = (current as Record<string, number>)[earningsCol] || 0;
+                    const currentEarnings = (current as unknown as Record<string, number>)[earningsCol] || 0;
                     await supabase
                         .from('partnerships')
                         .update({ [earningsCol]: currentEarnings + party.amount })
@@ -208,7 +206,7 @@ export const useAutoSplitRevenue = () => {
             const totalRevenue = totalCoins * COIN_TO_DOLLAR_RATE;
 
             // Find session attached to stream
-            const { data: streamData } = await supabase
+            const { data: streamData } = await (supabase as any)
                 .from('live_streams')
                 .select('session_id')
                 .eq('id', streamId)
@@ -216,11 +214,11 @@ export const useAutoSplitRevenue = () => {
 
             // Find partnership from session
             let partnershipId: string | null = null;
-            if (streamData?.session_id) {
+            if ((streamData as any)?.session_id) {
                 const { data: sessionData } = await supabase
                     .from('collaboration_sessions')
                     .select('session_state')
-                    .eq('id', streamData.session_id)
+                    .eq('id', (streamData as any).session_id)
                     .single();
 
                 const state = sessionData?.session_state as Record<string, unknown> | null;

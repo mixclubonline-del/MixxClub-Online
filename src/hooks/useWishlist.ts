@@ -34,7 +34,7 @@ export const useWishlist = () => {
         queryFn: async () => {
             if (!user) return [] as WishlistItem[];
 
-            const { data, error } = await supabase
+            const { data, error } = await (supabase as any)
                 .from('wishlists')
                 .select(`
           id, product_id, user_id, created_at,
@@ -50,7 +50,7 @@ export const useWishlist = () => {
                 return [] as WishlistItem[];
             }
 
-            return (data || []).map((row: Record<string, unknown>) => ({
+            return (data || []).map((row: any) => ({
                 id: row.id as string,
                 product_id: row.product_id as string,
                 user_id: row.user_id as string,
@@ -73,7 +73,7 @@ export const useIsWishlisted = (productId: string) => {
         queryFn: async () => {
             if (!user) return false;
 
-            const { data } = await supabase
+            const { data } = await (supabase as any)
                 .from('wishlists')
                 .select('id')
                 .eq('user_id', user.id)
@@ -99,7 +99,7 @@ export const useToggleWishlist = () => {
             if (!user) throw new Error('Must be signed in');
 
             // Check if already wishlisted
-            const { data: existing } = await supabase
+            const { data: existing } = await (supabase as any)
                 .from('wishlists')
                 .select('id')
                 .eq('user_id', user.id)
@@ -108,17 +108,17 @@ export const useToggleWishlist = () => {
 
             if (existing) {
                 // Remove from wishlist
-                const { error } = await supabase
+                const { error } = await (supabase as any)
                     .from('wishlists')
                     .delete()
-                    .eq('id', existing.id);
+                    .eq('id', (existing as any).id);
 
                 if (error) throw error;
                 return { action: 'removed' as const, productId };
             }
 
             // Add to wishlist
-            const { error } = await supabase
+            const { error } = await (supabase as any)
                 .from('wishlists')
                 .insert({ user_id: user.id, product_id: productId });
 
@@ -161,7 +161,7 @@ export const useWishlistCount = () => {
         queryFn: async () => {
             if (!user) return 0;
 
-            const { count } = await supabase
+            const { count } = await (supabase as any)
                 .from('wishlists')
                 .select('*', { count: 'exact', head: true })
                 .eq('user_id', user.id);

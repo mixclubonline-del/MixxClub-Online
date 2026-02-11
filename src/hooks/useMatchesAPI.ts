@@ -40,7 +40,8 @@ export interface MatchRequest {
   respondedAt?: Date;
 }
 
-export function useMatchesAPI(userType: 'artist' | 'engineer') {
+export function useMatchesAPI(userType: 'artist' | 'engineer' | 'producer') {
+  const narrowType: 'artist' | 'engineer' = userType === 'producer' ? 'artist' : userType;
   const { user } = useAuth();
   const engineerMatching = useEngineerMatchingAPI();
   

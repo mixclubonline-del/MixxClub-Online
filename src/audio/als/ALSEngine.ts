@@ -164,7 +164,7 @@ export class ALSEngine {
     // ─── Temperature (LUFS / Peak) ───────────────────────────
 
     private computeTemperature(): number {
-        this.analyser.getFloatTimeDomainData(this.timeDomainData);
+        this.analyser.getFloatTimeDomainData(this.timeDomainData as Float32Array<ArrayBuffer>);
 
         // RMS (approximation of short-term LUFS)
         let sumOfSquares = 0;
@@ -194,7 +194,7 @@ export class ALSEngine {
     // ─── Momentum (Rhythmic Energy) ──────────────────────────
 
     private computeMomentum(): number {
-        this.analyser.getByteFrequencyData(this.frequencyData);
+        this.analyser.getByteFrequencyData(this.frequencyData as Uint8Array<ArrayBuffer>);
 
         // Sub-bass energy (20–120Hz bins)
         const binWidth = this.ctx.sampleRate / this.config.fftSize;

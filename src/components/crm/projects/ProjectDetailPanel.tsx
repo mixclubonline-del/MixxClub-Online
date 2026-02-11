@@ -35,6 +35,8 @@ interface CollaborativeProjectDetail extends DbCollaborativeProject {
     engineer: { full_name: string | null; avatar_url: string | null } | null;
   } | null;
   client?: { name: string; email: string | null } | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
 }
 import { format } from 'date-fns';
 import { MilestoneTracker } from './MilestoneTracker';
@@ -89,7 +91,7 @@ export const ProjectDetailPanel = ({
         .single();
 
       if (error) throw error;
-      setProject(data);
+      setProject(data as unknown as CollaborativeProjectDetail);
       setEditData({
         title: data.title || '',
         description: data.description || '',

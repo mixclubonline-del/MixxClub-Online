@@ -31,11 +31,19 @@ function useCollectiveAnalytics() {
             // Get partnership projects (where user was involved with another party)
             const { data: partnerProjects } = await supabase
                 .from('projects')
-                .select('id, amount, created_at, status, artist_id, engineer_id')
-                .or(`artist_id.eq.${user.id},engineer_id.eq.${user.id}`)
+                .select('id, created_at, status, engineer_id, user_id')
+                .or(`user_id.eq.${user.id},engineer_id.eq.${user.id}`)
                 .eq('status', 'completed');
 
-            const projects = partnerProjects || [];
+            const projects = (partnerProjects || []) as Array<{
+                id: string;
+                created_at: string;
+                status: string | null;
+                engineer_id: string | null;
+                user_id: string;
+                amount?: number;
+                artist_id?: string;
+            }>;
 
             // Separate solo vs partnership revenue
             // Partnership = projects where both artist_id and engineer_id are set
