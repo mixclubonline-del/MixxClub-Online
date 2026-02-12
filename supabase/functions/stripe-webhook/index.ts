@@ -41,7 +41,7 @@ serve(async (req) => {
     }
 
     // Use service role to bypass RLS for database operations
-    const supabase = createClient(
+    const supabase: any = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
