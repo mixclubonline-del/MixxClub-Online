@@ -242,7 +242,7 @@ const AuraDAW = () => {
     };
 
     // ── Audio Import Handler ──
-    const handleImportedAudio = async (audioData: { audioBuffer: AudioBuffer; fileName: string; url: string }) => {
+    const handleImportedAudio = async (audioData: any) => {
         const { audioBuffer, fileName } = audioData;
         const waveformData = WaveformGenerator.generateFromBuffer(audioBuffer, { width: 800, normalize: true });
         const colorIndex = tracks.length % TRACK_COLORS.length;

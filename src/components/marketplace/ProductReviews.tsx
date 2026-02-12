@@ -73,7 +73,7 @@ function ReviewForm({ productId, onClose }: { productId: string; onClose: () => 
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        submitReview.mutate({ productId, rating, title, body }, {
+        (submitReview as any).mutate({ productId, rating, title, body }, {
             onSuccess: () => onClose(),
         });
     };

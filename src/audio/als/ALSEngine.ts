@@ -275,9 +275,9 @@ export class ALSEngine {
      * Returns the byte frequency data array (0–255 per bin).
      * Caller should NOT retain a reference — data is overwritten each frame.
      */
-    getSpectralData(): Uint8Array {
-        this.analyser.getByteFrequencyData(this.frequencyData);
-        return this.frequencyData;
+    getSpectralData(): Uint8Array<ArrayBuffer> {
+        this.analyser.getByteFrequencyData(this.frequencyData as Uint8Array<ArrayBuffer>);
+        return this.frequencyData as Uint8Array<ArrayBuffer>;
     }
 
     /** Get the FFT bin count (half of fftSize) */
