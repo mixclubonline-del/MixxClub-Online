@@ -16,10 +16,7 @@ interface ClientsHubProps {
   userType?: 'artist' | 'engineer' | 'producer';
 }
 
-type NarrowUserType = 'artist' | 'engineer';
-
 export const ClientsHub: React.FC<ClientsHubProps> = ({ userType = 'artist' }) => {
-  const narrowType: NarrowUserType = userType === 'producer' ? 'artist' : userType;
   const [activeTab, setActiveTab] = useState('clients');
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddClient, setShowAddClient] = useState(false);
@@ -101,12 +98,12 @@ export const ClientsHub: React.FC<ClientsHubProps> = ({ userType = 'artist' }) =
             <TabsContent value="clients" className="mt-0">
               <ClientList
                 searchQuery={searchQuery}
-                userType={narrowType}
+                userType={userType}
               />
             </TabsContent>
 
             <TabsContent value="pipeline" className="mt-0">
-              <DealPipeline userType={narrowType} />
+              <DealPipeline userType={userType} />
             </TabsContent>
 
             <TabsContent value="activity" className="mt-0">
@@ -114,7 +111,7 @@ export const ClientsHub: React.FC<ClientsHubProps> = ({ userType = 'artist' }) =
             </TabsContent>
 
             <TabsContent value="insights" className="mt-0">
-              <ClientInsights userType={narrowType} />
+              <ClientInsights userType={userType} />
             </TabsContent>
           </motion.div>
         </AnimatePresence>
@@ -124,7 +121,7 @@ export const ClientsHub: React.FC<ClientsHubProps> = ({ userType = 'artist' }) =
       <AddClientDialog
         open={showAddClient}
         onOpenChange={setShowAddClient}
-        userType={narrowType}
+        userType={userType}
       />
     </div>
   );

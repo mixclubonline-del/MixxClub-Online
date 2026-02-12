@@ -54,7 +54,7 @@ const ArtistCRM = React.lazy(() => import("@/pages/ArtistCRM"));
 const EngineerCRM = React.lazy(() => import("@/pages/EngineerCRM"));
 const AudioLab = React.lazy(() => import("@/pages/AudioLab"));
 const AIMastering = React.lazy(() => import("@/pages/AIMastering"));
-const AuraDAW = React.lazy(() => import("@/pages/AuraDAW"));
+const HybridDAW = React.lazy(() => import("@/pages/HybridDAW"));
 const CollaborativeWorkspace = React.lazy(() => import("@/pages/CollaborativeWorkspace"));
 const Premieres = React.lazy(() => import("@/pages/Premieres"));
 const Marketplace = React.lazy(() => import("@/pages/Marketplace"));
@@ -118,7 +118,7 @@ export const appRoutes = (
       <Route path="/create-session" element={<CreateSession />} />
       <Route path="/session/:sessionId" element={<SessionDetail />} />
       <Route path="/collaborate/:sessionId" element={<CollaborativeWorkspace />} />
-      <Route path="/hybrid-daw" element={<AuraDAW />} />
+      <Route path="/hybrid-daw" element={<HybridDAW />} />
 
       {/* Community */}
       <Route path="/community" element={<Community />} />

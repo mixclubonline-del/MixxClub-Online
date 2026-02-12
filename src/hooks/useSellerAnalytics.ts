@@ -1,7 +1,6 @@
 /**
  * Hook for seller analytics data.
  * Aggregates from purchases, product_reviews, and marketplace_products tables.
- * Uses `as any` casts because these tables may not yet exist in generated types.
  */
 
 import { useQuery } from '@tanstack/react-query';
@@ -28,7 +27,7 @@ export const useSellerAnalytics = () => {
             if (!user) throw new Error('Must be authenticated');
 
             // Fetch products owned by seller
-            const { data: products } = await (supabase as any)
+            const { data: products } = await supabase
                 .from('marketplace_products')
                 .select('id, title, price')
                 .eq('seller_id', user.id);
@@ -46,30 +45,27 @@ export const useSellerAnalytics = () => {
                 };
             }
 
-            const productIds = (products as any[]).map((p: any) => p.id);
+            const productIds = products.map((p) => p.id);
 
             // Fetch purchases for these products
-            const { data: purchases } = await (supabase as any)
+            const { data: purchases } = await supabase
                 .from('purchases')
                 .select('product_id, amount, created_at')
                 .in('product_id', productIds);
 
             // Fetch reviews for these products
-            const { data: reviews } = await (supabase as any)
+            const { data: reviews } = await supabase
                 .from('product_reviews')
                 .select('product_id, rating, created_at')
                 .in('product_id', productIds);
 
-            const purchaseList = (purchases || []) as Array<Record<string, unknown>>;
-            const reviewList = (reviews || []) as Array<Record<string, unknown>>;
-
             // Calculate totals
-            const totalRevenue = purchaseList.reduce((sum, p) => sum + ((p.amount as number) || 0), 0);
-            const totalSales = purchaseList.length;
+            const totalRevenue = purchases?.reduce((sum, p) => sum + ((p.amount as number) || 0), 0) || 0;
+            const totalSales = purchases?.length || 0;
             const totalProducts = products.length;
-            const totalReviews = reviewList.length;
+            const totalReviews = reviews?.length || 0;
             const averageRating = totalReviews > 0
-                ? Math.round((reviewList.reduce((sum, r) => sum + (r.rating as number), 0) / totalReviews) * 10) / 10
+                ? Math.round((reviews!.reduce((sum, r) => sum + (r.rating as number), 0) / totalReviews) * 10) / 10
                 : 0;
 
             // Revenue by month (last 12 months)
@@ -81,7 +77,7 @@ export const useSellerAnalytics = () => {
                 revenueByMonthMap.set(key, { revenue: 0, sales: 0 });
             }
 
-            purchaseList.forEach((p) => {
+            purchases?.forEach((p) => {
                 const d = new Date(p.created_at as string);
                 const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
                 const entry = revenueByMonthMap.get(key);
@@ -98,7 +94,7 @@ export const useSellerAnalytics = () => {
 
             // Top products by revenue
             const productRevMap = new Map<string, { sales: number; revenue: number }>();
-            purchaseList.forEach((p) => {
+            purchases?.forEach((p) => {
                 const id = p.product_id as string;
                 const entry = productRevMap.get(id) || { sales: 0, revenue: 0 };
                 entry.sales += 1;
@@ -106,13 +102,13 @@ export const useSellerAnalytics = () => {
                 productRevMap.set(id, entry);
             });
 
-            const topProducts = (products as any[])
-                .map((p: any) => ({
-                    id: p.id as string,
+            const topProducts = products
+                .map((p) => ({
+                    id: p.id,
                     title: p.title as string,
                     ...(productRevMap.get(p.id) || { sales: 0, revenue: 0 }),
                 }))
-                .sort((a: any, b: any) => b.revenue - a.revenue)
+                .sort((a, b) => b.revenue - a.revenue)
                 .slice(0, 10);
 
             // Rating trend by month (last 12 months)
@@ -123,7 +119,7 @@ export const useSellerAnalytics = () => {
                 ratingByMonthMap.set(key, { sum: 0, count: 0 });
             }
 
-            reviewList.forEach((r) => {
+            reviews?.forEach((r) => {
                 const d = new Date(r.created_at as string);
                 const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
                 const entry = ratingByMonthMap.get(key);

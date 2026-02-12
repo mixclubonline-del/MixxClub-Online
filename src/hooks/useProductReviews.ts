@@ -28,8 +28,6 @@ export interface ProductRatingStats {
     distribution: Record<number, number>; // { 5: 23, 4: 15, 3: 8, 2: 3, 1: 1 }
 }
 
-// Use `as any` for all product_reviews queries since the table may not exist in the generated types yet.
-
 /**
  * Fetch reviews for a specific product
  */
@@ -40,7 +38,7 @@ export const useProductReviews = (productId: string, page = 1, pageSize = 10) =>
             const from = (page - 1) * pageSize;
             const to = from + pageSize - 1;
 
-            const { data, error, count } = await (supabase as any)
+            const { data, error, count } = await supabase
                 .from('product_reviews')
                 .select('*, profiles:user_id(display_name, avatar_url)', { count: 'exact' })
                 .eq('product_id', productId)
@@ -86,7 +84,7 @@ export const useProductRating = (productId: string) => {
     return useQuery({
         queryKey: ['product-rating', productId],
         queryFn: async () => {
-            const { data, error } = await (supabase as any)
+            const { data, error } = await supabase
                 .from('product_reviews')
                 .select('rating')
                 .eq('product_id', productId);
@@ -98,7 +96,7 @@ export const useProductRating = (productId: string) => {
             const distribution: Record<number, number> = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
             let sum = 0;
 
-            data.forEach((review: Record<string, unknown>) => {
+            data.forEach((review) => {
                 const rating = review.rating as number;
                 sum += rating;
                 distribution[rating] = (distribution[rating] || 0) + 1;
@@ -136,7 +134,7 @@ export const useSubmitReview = () => {
             if (!review.body.trim()) throw new Error('Review body is required');
 
             // Check for existing review
-            const { data: existing } = await (supabase as any)
+            const { data: existing } = await supabase
                 .from('product_reviews')
                 .select('id')
                 .eq('product_id', review.productId)
@@ -145,7 +143,7 @@ export const useSubmitReview = () => {
 
             if (existing) {
                 // Update existing review
-                const { data, error } = await (supabase as any)
+                const { data, error } = await supabase
                     .from('product_reviews')
                     .update({
                         rating: review.rating,
@@ -162,7 +160,7 @@ export const useSubmitReview = () => {
             }
 
             // Insert new review
-            const { data, error } = await (supabase as any)
+            const { data, error } = await supabase
                 .from('product_reviews')
                 .insert({
                     product_id: review.productId,
@@ -177,7 +175,7 @@ export const useSubmitReview = () => {
             if (error) throw error;
             return data;
         },
-        onSuccess: (_data: unknown, variables: { productId: string }) => {
+        onSuccess: (_data, variables) => {
             toast({ title: 'Review submitted!', description: 'Thanks for your feedback.' });
             queryClient.invalidateQueries({ queryKey: ['product-reviews', variables.productId] });
             queryClient.invalidateQueries({ queryKey: ['product-rating', variables.productId] });
@@ -199,7 +197,7 @@ export const useHasReviewed = (productId: string) => {
         queryFn: async () => {
             if (!user) return false;
 
-            const { data } = await (supabase as any)
+            const { data } = await supabase
                 .from('product_reviews')
                 .select('id')
                 .eq('product_id', productId)

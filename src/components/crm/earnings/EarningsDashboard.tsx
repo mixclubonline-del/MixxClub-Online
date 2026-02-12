@@ -54,10 +54,8 @@ export const EarningsDashboard = ({ userType }: EarningsDashboardProps) => {
     );
   }
 
-  const narrowType: 'artist' | 'engineer' = userType === 'producer' ? 'artist' : userType;
-
   const handleCreatePartnership = async (partnerId: string, userSplit: number) => {
-    return await createPartnership({ partnerId, userSplit, userType: narrowType });
+    return await createPartnership({ partnerId, userSplit, userType });
   };
 
   return (

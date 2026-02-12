@@ -359,7 +359,7 @@ const ArtistCRM = () => {
         return <CommunityHub userType="artist" />;
 
       case 'growth':
-        return <GrowthHub />;
+        return <GrowthHub userType="artist" />;
 
       case 'messages':
         return <MessagingHub userType="artist" />;

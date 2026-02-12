@@ -278,7 +278,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             {embedded && onBack && (
-              <button onClick={onBack} className="p-2 hover:bg-muted/50 rounded-lg transition-colors" aria-label="Go back">
+              <button onClick={onBack} className="p-2 hover:bg-muted/50 rounded-lg transition-colors">
                 <ChevronLeft className="w-5 h-5" />
               </button>
             )}
@@ -306,7 +306,6 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
                 value={volume}
                 onChange={(e) => handleVolumeChange(parseFloat(e.target.value))}
                 className="w-20 accent-primary"
-                aria-label="Volume control"
               />
             </div>
 
