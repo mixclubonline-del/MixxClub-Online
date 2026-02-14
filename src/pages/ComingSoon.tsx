@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import Navigation from "@/components/Navigation";
+
 import { Lock, Users, Sparkles } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -39,9 +39,8 @@ const ComingSoon = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
       
-      <main className="container mx-auto px-4 py-24">
+      <main className="container mx-auto px-4 py-12">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

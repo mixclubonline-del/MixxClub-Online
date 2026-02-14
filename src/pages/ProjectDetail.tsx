@@ -4,7 +4,7 @@ import { ArrowLeft, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import Navigation from '@/components/Navigation';
+
 import { SharedProjectWorkspace } from '@/components/collaboration/SharedProjectWorkspace';
 import { ServiceRecommendations } from '@/components/crm/ServiceRecommendations';
 import { EngineerReferralSystem } from '@/components/crm/EngineerReferralSystem';
@@ -75,8 +75,7 @@ const ProjectDetail = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
-        <Navigation />
-        <div className="container px-4 md:px-6 pt-24 pb-8">
+        <div className="container px-4 md:px-6 py-6">
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
               <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
@@ -91,8 +90,7 @@ const ProjectDetail = () => {
   if (!project) {
     return (
       <div className="min-h-screen bg-background">
-        <Navigation />
-        <div className="container px-4 md:px-6 pt-24 pb-8">
+        <div className="container px-4 md:px-6 py-6">
           <div className="text-center py-12">
             <h2 className="text-2xl font-bold mb-2">Project Not Found</h2>
             <p className="text-muted-foreground mb-6">
@@ -113,9 +111,8 @@ const ProjectDetail = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
       
-      <div className="container px-4 md:px-6 pt-24 pb-8">
+      <div className="container px-4 md:px-6 py-6">
         <div className="flex items-center justify-between mb-6">
           <Button 
             variant="ghost" 

@@ -1,5 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import PrimeLanding from '@/components/prime/PrimeLanding';
+import { HomeOverlayNav } from '@/components/home/HomeOverlayNav';
 
 export default function MixClubHome() {
   return (
@@ -13,6 +14,7 @@ export default function MixClubHome() {
         <meta name="keywords" content="MIXXCLUB, music mixing, mastering, AI studio, music collaboration, professional engineers, music production" />
       </Helmet>
 
+      <HomeOverlayNav />
       <div className="min-h-screen">
         <PrimeLanding />
       </div>

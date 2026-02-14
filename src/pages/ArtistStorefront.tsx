@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import Navigation from '@/components/Navigation';
+
 import { useGlobalPlayer } from '@/contexts/GlobalPlayerContext';
 import { 
   Music, 
@@ -104,7 +104,7 @@ export default function ArtistStorefront() {
   if (storefrontLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <Navigation />
+        
         <div className="flex items-center justify-center pt-32">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
@@ -115,7 +115,7 @@ export default function ArtistStorefront() {
   if (!storefront) {
     return (
       <div className="min-h-screen bg-background">
-        <Navigation />
+        
         <div className="container px-6 pt-24 pb-12 text-center">
           <User className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
           <h2 className="text-2xl font-bold mb-2">Store Not Found</h2>
@@ -129,7 +129,7 @@ export default function ArtistStorefront() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
+      
       
       {/* Hero Banner */}
       <div 

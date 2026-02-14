@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import Navigation from "@/components/Navigation";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,8 +20,7 @@ const AIAudioIntelligence = () => {
   if (!isUnlocked) {
     return (
       <div className="min-h-screen bg-background">
-        <Navigation />
-        <div className="container mx-auto px-4 py-16">
+        <div className="container mx-auto px-4 py-8">
           <Card className="max-w-2xl mx-auto text-center">
             <CardHeader>
               <div className="mx-auto mb-4 p-4 bg-primary/10 rounded-full w-fit">
@@ -44,7 +43,7 @@ const AIAudioIntelligence = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
+      
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-4xl font-bold mb-2">AI Audio Intelligence</h1>
         <p className="text-muted-foreground mb-8">Leverage advanced AI to analyze and optimize</p>

@@ -22,7 +22,9 @@ import {
   Star,
   Radio,
   UsersRound,
-  Video
+  Video,
+  Building2,
+  Map
 } from 'lucide-react';
 
 export type UserRole = 'artist' | 'engineer' | 'producer' | 'fan' | 'admin' | null;
@@ -212,6 +214,15 @@ const navigationItems: NavItem[] = [
     icon: Video,
     roles: ['artist', 'engineer', 'producer', 'fan'],
     category: 'Discover',
+  },
+
+  // Explore
+  {
+    label: 'City',
+    path: '/city',
+    icon: Building2,
+    roles: ['artist', 'engineer', 'producer', 'fan'],
+    category: 'Explore',
   },
 
   // Settings

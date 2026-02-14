@@ -31,7 +31,7 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
       <SidebarHeader className="border-b border-sidebar-border p-4">
         <Link 
-          to={userRole === 'engineer' ? '/engineer-crm' : userRole === 'admin' ? '/admin' : '/artist-crm'} 
+          to="/" 
           className="flex items-center gap-3 group"
         >
           <div className="relative">

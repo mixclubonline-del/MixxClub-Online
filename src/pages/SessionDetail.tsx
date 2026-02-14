@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import Navigation from '@/components/Navigation';
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -190,9 +190,8 @@ export default function SessionDetail() {
       </Helmet>
 
       <div className="min-h-screen bg-background">
-        <Navigation />
 
-        <main className="max-w-6xl mx-auto px-4 sm:px-6 py-20">
+        <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
           {/* Back Button */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
