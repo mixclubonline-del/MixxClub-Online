@@ -38,19 +38,19 @@ function DoorLightSpill({
   const isRecording = room.state === 'recording';
   
   if (!isActive && intensity === 'faint') {
-    // Idle rooms get the faintest cool glow
+    // Idle rooms get a visible cool glow — enough to notice something's there
     return (
       <motion.div
         className="absolute left-1/2 -translate-x-1/2"
-        style={{ bottom: '-4px', width: '80px', height: '6px' }}
+        style={{ bottom: '-4px', width: '100px', height: '10px' }}
         initial={{ opacity: 0 }}
-        animate={{ opacity: [0.08, 0.15, 0.08] }}
+        animate={{ opacity: [0.2, 0.35, 0.2] }}
         transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
       >
         <div 
           className="w-full h-full rounded-full"
           style={{
-            background: 'radial-gradient(ellipse at center, hsl(220 15% 60% / 0.3), transparent 70%)',
+            background: 'radial-gradient(ellipse at center, hsl(220 15% 60% / 0.5), transparent 70%)',
           }}
         />
       </motion.div>
@@ -59,21 +59,25 @@ function DoorLightSpill({
 
   if (!isActive) return null;
 
-  const opacityScale = intensity === 'full' ? 1 : intensity === 'medium' ? 0.7 : 0.4;
-  const width = intensity === 'full' ? '140px' : intensity === 'medium' ? '120px' : '90px';
+  const opacityScale = intensity === 'full' ? 1 : intensity === 'medium' ? 0.85 : 0.55;
+  const width = intensity === 'full' ? '160px' : intensity === 'medium' ? '140px' : '110px';
+  const height = intensity === 'full' ? '14px' : intensity === 'medium' ? '12px' : '10px';
 
-  // Color: amber for active, red pulse for recording
+  // Color: amber for active, red pulse for recording — boosted alpha
   const lightColor = isRecording 
-    ? 'hsl(0 80% 55% / 0.6)' 
-    : 'hsl(35 90% 55% / 0.5)';
+    ? 'hsl(0 80% 55% / 0.8)' 
+    : 'hsl(35 90% 55% / 0.7)';
   const lightColorDim = isRecording
-    ? 'hsl(0 80% 55% / 0.2)'
+    ? 'hsl(0 80% 55% / 0.35)'
+    : 'hsl(35 90% 55% / 0.25)';
+  const bloomColor = isRecording
+    ? 'hsl(0 80% 50% / 0.2)'
     : 'hsl(35 90% 55% / 0.15)';
 
   return (
     <motion.div
       className="absolute left-1/2 -translate-x-1/2"
-      style={{ bottom: '-4px', width, height: '8px' }}
+      style={{ bottom: '-4px', width, height }}
       initial={{ opacity: 0, scaleX: 0.5 }}
       animate={{ 
         opacity: opacityScale,
@@ -81,6 +85,20 @@ function DoorLightSpill({
       }}
       transition={{ duration: 0.8, ease: 'easeOut' }}
     >
+      {/* Bloom glow — soft wide halo behind the spill */}
+      <motion.div
+        className="absolute left-1/2 -translate-x-1/2 pointer-events-none"
+        style={{
+          bottom: '-8px',
+          width: `calc(${width} + 80px)`,
+          height: '30px',
+          background: `radial-gradient(ellipse at center, ${bloomColor}, transparent 70%)`,
+          mixBlendMode: 'screen',
+        }}
+        animate={{ opacity: [0.5, 0.8, 0.5], scaleX: [0.95, 1.08, 0.95] }}
+        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+      />
+
       {/* Primary light spill */}
       <motion.div
         className="w-full h-full rounded-full"
@@ -88,9 +106,9 @@ function DoorLightSpill({
           background: `radial-gradient(ellipse at center, ${lightColor}, ${lightColorDim} 60%, transparent 90%)`,
         }}
         animate={isRecording ? {
-          opacity: [1, 0.5, 1],
+          opacity: [1, 0.6, 1],
         } : {
-          opacity: [0.8, 1, 0.8],
+          opacity: [0.85, 1, 0.85],
         }}
         transition={{ 
           duration: isRecording ? 1.5 : 3, 
@@ -98,15 +116,15 @@ function DoorLightSpill({
           ease: 'easeInOut' 
         }}
       />
-      {/* Secondary scatter — wider, dimmer */}
+      {/* Secondary scatter — wider, brighter */}
       <motion.div
-        className="absolute left-1/2 -translate-x-1/2 -bottom-1"
+        className="absolute left-1/2 -translate-x-1/2 -bottom-2"
         style={{
-          width: `calc(${width} + 40px)`,
-          height: '12px',
+          width: `calc(${width} + 50px)`,
+          height: '16px',
           background: `radial-gradient(ellipse at center, ${lightColorDim}, transparent 80%)`,
         }}
-        animate={{ opacity: [0.3, 0.5, 0.3] }}
+        animate={{ opacity: [0.4, 0.65, 0.4] }}
         transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
       />
     </motion.div>
@@ -123,22 +141,23 @@ function BassRipple({ participantCount }: { participantCount: number }) {
   const baseDuration = Math.max(2, 4 - participantCount * 0.4);
 
   return (
-    <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: '-6px' }}>
+    <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: '-8px' }}>
       {Array.from({ length: rippleCount }).map((_, i) => (
         <motion.div
           key={i}
           className="absolute left-1/2 -translate-x-1/2 rounded-full border"
           style={{
-            width: '20px',
-            height: '10px',
-            borderColor: 'hsl(35 90% 55% / 0.25)',
+            width: '24px',
+            height: '12px',
+            borderColor: 'hsl(35 90% 55% / 0.4)',
+            borderWidth: '1.5px',
             bottom: '0px',
           }}
-          initial={{ scaleX: 1, scaleY: 1, opacity: 0.4 }}
+          initial={{ scaleX: 1, scaleY: 1, opacity: 0.6 }}
           animate={{
-            scaleX: [1, 3 + i * 0.8],
-            scaleY: [1, 2 + i * 0.5],
-            opacity: [0.35, 0],
+            scaleX: [1, 3.5 + i * 0.8],
+            scaleY: [1, 2.5 + i * 0.5],
+            opacity: [0.55, 0],
           }}
           transition={{
             duration: baseDuration + i * 0.5,
