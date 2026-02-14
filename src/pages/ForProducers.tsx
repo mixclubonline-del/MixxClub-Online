@@ -1,3 +1,4 @@
+import { PublicFooter } from '@/components/layouts/PublicFooter';
 import {
     Disc3,
     Sparkles,
@@ -262,6 +263,7 @@ const ForProducers = () => {
                 variant="producer"
                 disclaimer="No credit card required • Keep 80%+ of earnings • Instant payouts"
             />
+      <PublicFooter />
         </LandingPortal>
     );
 };

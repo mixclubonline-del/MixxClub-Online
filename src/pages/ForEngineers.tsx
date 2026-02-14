@@ -1,3 +1,4 @@
+import { PublicFooter } from '@/components/layouts/PublicFooter';
 import {
   Video,
   Zap,
@@ -199,6 +200,7 @@ export default function ForEngineers() {
         variant="engineer"
         disclaimer="No setup fees • Keep 70-85% of earnings • Instant payouts"
       />
+      <PublicFooter />
     </LandingPortal>
   );
 }
