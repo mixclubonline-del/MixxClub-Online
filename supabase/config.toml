@@ -48,6 +48,9 @@ verify_jwt = false
 [functions.capture-paypal-order]
 verify_jwt = false
 
+[functions.capture-walkthrough-screenshot]
+verify_jwt = false
+
 [functions.chat-simple]
 verify_jwt = false
 
