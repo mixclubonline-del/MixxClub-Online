@@ -1,96 +1,76 @@
 
 
-## Hallway Session Presence: From UI Dots to Environmental Storytelling
+## Ambient Audio Cues for the Studio Hallway
 
-### The Problem
-The current `DepthAwareHotspot` renders floating circles and mini-avatar dots positioned over the hallway image at fixed percentage coordinates. It looks like a game HUD overlaid on a photograph — instantly breaking the cinematic, wordless immersion the hallway is designed to create.
+### Concept
 
-### The Concept: "Light Under the Door"
+Each active studio door emits a subtle, muffled bass hum — the kind you'd hear walking past a studio where someone's mixing at 2 AM. The hum gets louder and richer when you hover over a door, as if you're leaning in to listen. Recording rooms get a distinct low-frequency pulse. Idle rooms are silent.
 
-In a real studio hallway, you know a room is occupied because:
-- Warm light spills from under the door
-- You hear muffled bass or vocal bleed
-- The "Recording" light above the door is on
-- Maybe you see shadows moving through frosted glass
-
-We replace all floating UI dots with **environmental light effects** that feel like they belong in the hallway image itself.
+This uses the Web Audio API directly (no file assets needed) — synthesized low-frequency tones with heavy filtering to sound like bass bleeding through walls.
 
 ---
 
-### Design: Four Presence Signals (No Floating UI)
+### Architecture
 
-#### 1. Door Light Spill (replaces the glowing circle)
-A soft, horizontal gradient strip positioned at the bottom of each door position — simulating light leaking from under a studio door. Color communicates state:
-- **Warm amber/gold**: Active session (people creating)
-- **Red pulse**: Recording in progress (do not disturb energy)
-- **Cool dim**: Idle / empty room
-- **No light**: No session
+A new `HallwayAmbientAudio` hook creates a single shared AudioContext with one oscillator + filter per active room. Gain nodes control volume based on hover state and room activity. Everything cleans up on unmount.
 
-The light is a CSS gradient with subtle breathing animation, not a circle. It sits flush with the "floor" of the hallway perspective.
-
-#### 2. Bass Ripple (replaces participant count dots)
-Instead of showing avatar circles, active rooms emit subtle concentric ripple rings from the door base — like bass frequencies vibrating the hallway floor. More participants = more frequent/wider ripples. This communicates "energy level" without showing literal UI elements.
-
-#### 3. Recording Beacon (replaces the red dot)
-A small, fixed-position glow above the door position — mimicking a studio "Recording" light. Only visible when `room.state === 'recording'`. Just a tiny warm-red dot that pulses slowly, like a real indicator light mounted on the wall.
-
-#### 4. Hover: Frosted Glass Reveal (replaces the tooltip card)
-On hover, instead of a floating card, the door area gets a frosted-glass overlay effect that reveals session info as if you're peering through a studio door window. The info fades in with a depth-of-field blur transition, feeling like your eyes are adjusting to look through glass — not like a tooltip popped up.
+```text
+Per active room:
+  OscillatorNode (40-80Hz sine)
+    --> BiquadFilter (lowpass, cutoff ~120Hz = "wall muffling")
+      --> GainNode (volume: idle=0.02, hover=0.12)
+        --> MasterGain (global volume)
+          --> AudioContext.destination
+```
 
 ---
 
-### Progressive Revelation (Depth Layers) — Unchanged Logic, New Visuals
+### New File: `src/hooks/useHallwayAmbience.ts`
 
-| Depth Layer | What You See |
-|---|---|
-| **Posted Up** | Faint door light spill only (ambient awareness). No interaction. |
-| **In the Room** | Brighter light spill + bass ripples + session title fades in on hover (frosted glass). |
-| **On the Mic** | Full light + ripples + clickable doors (cursor changes, light brightens on hover). |
-| **On Stage** | Your door has a spotlight bloom effect — you ARE the energy source. Premium glow that bleeds into the hallway. |
+A hook that:
+- Takes an array of `StudioRoom` objects and the currently hovered room ID
+- Creates one oscillator per active room (frequency varies slightly per room for organic feel)
+- Recording rooms get a slower LFO modulation on the gain (pulsing bass)
+- On hover, smoothly ramps the hovered room's gain up (using `linearRampToValueAtTime` for smooth transitions)
+- All rooms get a very faint baseline hum (barely audible) when active
+- Returns a `startAmbience()` function (must be called from a user gesture to satisfy browser autoplay policy)
+- Cleans up all nodes on unmount
 
----
+Key parameters:
+- Base frequency per room: `40 + (roomIndex * 7)` Hz (each door has a slightly different pitch)
+- Muffling filter: lowpass at 100-150 Hz, Q of 1
+- Idle gain: 0.015 (barely perceptible)
+- Hover gain: 0.08 (noticeable but not intrusive)
+- Recording rooms: gain modulated with a secondary LFO oscillator at 0.5Hz
+- Ramp time: 300ms for smooth hover transitions
 
-### Technical Changes
+### Changes to: `src/components/scene/DepthAwareHotspot.tsx`
 
-#### File: `src/components/scene/DepthAwareHotspot.tsx` (full rewrite)
+- Accept a new `onHoverChange?: (roomId: string, hovered: boolean) => void` callback prop
+- Call it from the existing `onMouseEnter`/`onMouseLeave` handlers alongside the existing `setIsHovered` state
 
-Replace all four sub-components (`PostedUpView`, `InTheRoomView`, `OnTheMicView`, `OnStageView`) with new environmental versions:
+### Changes to: `src/components/scene/StudioHallway.tsx`
 
-- **`DoorLightSpill`**: A `div` with a horizontal radial gradient (`bg-gradient-radial`), width ~120px, height ~8px, positioned at the door's floor line. Opacity and color animated via framer-motion based on room state.
+- Import and use `useHallwayAmbience` hook, passing the studios array and tracked hover state
+- Track `hoveredRoomId` in local state, passed down to hotspots via `onHoverChange`
+- Auto-start ambience on first user interaction (click on "Enter the Club" or any hover, using a one-time `useRef` guard)
+- Pass `onHoverChange` to each `DepthAwareHotspot`
 
-- **`BassRipple`**: 2-3 concentric `div` rings that scale outward and fade, originating from the door base. Frequency tied to `participantCount`. Uses `motion.div` with staggered `repeat: Infinity` animations.
+### Browser Autoplay Compliance
 
-- **`RecordingBeacon`**: A 6x6px circle positioned above the door, red with slow opacity pulse. Only rendered when `room.state === 'recording'`.
-
-- **`FrostedGlassReveal`**: On hover, a `backdrop-blur` container fades in at the door position with session title and participant count. Styled as a frosted rectangle (not a floating card), with `bg-background/20 backdrop-blur-lg border border-white/10`.
-
-- **`SpotlightBloom`** (On Stage only): A large radial gradient div that extends beyond the door area, simulating a spotlight beam on the hallway floor. Uses `mix-blend-mode: screen` for a natural light-additive effect.
-
-#### File: `src/components/scene/StudioHallway.tsx` (minor adjustments)
-
-- Remove the separate "Active session count indicator" bottom bar (the floating pill that says "3 sessions active"). Instead, the hallway's overall ambient light level communicates this — more active rooms = more light in the hallway image (the base-to-active crossfade already handles this).
-- Keep the depth layer indicator (top-left) as is — it's meta-UI, not part of the scene.
-- Keep the "Enter the Club" CTA button as is — it's intentionally outside the illusion.
-
-#### File: `src/components/scene/StudioHotspot.tsx`
-
-- No changes needed (this is the legacy non-depth version, unused when `DepthAwareHotspot` is active).
-
----
-
-### What Gets Removed
-- Floating colored circles (the main hotspot dots)
-- Mini avatar row beneath hotspots
-- Floating tooltip cards with borders and shadows
-- "X sessions active" bottom pill indicator
-
-### What Gets Added
-- Horizontal light-under-door gradients
-- Bass ripple ring animations
-- Recording beacon (wall-mounted red light feel)
-- Frosted glass hover reveal
-- On Stage spotlight bloom
+The `AudioContext` is created in a `suspended` state. On the first user gesture (click/hover on any hallway element), we call `ctx.resume()`. This follows the graceful degradation pattern already established — if audio fails, the hallway works fine visually.
 
 ### No New Dependencies
-All effects use existing framer-motion + Tailwind + CSS gradients. No new packages needed.
+
+Pure Web Audio API synthesis. No audio files to load or store.
+
+---
+
+### What This Sounds Like
+
+- Walking into the hallway: silence, then faint low hums emerge from lit doors
+- Hovering over an active door: the hum swells — like pressing your ear to the wall
+- Recording room: the hum pulses slowly, a heartbeat-like throb
+- Moving away: the hum fades back to ambient
+- Idle/empty rooms: complete silence
 
