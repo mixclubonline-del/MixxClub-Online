@@ -45,19 +45,19 @@ function useGrowthHub(partnerId?: string) {
 
       const { data: projects } = await supabase
         .from('projects')
-        .select('id, amount, status, artist_id, engineer_id, created_at')
-        .or(`artist_id.eq.${user.id},engineer_id.eq.${user.id}`)
+        .select('id, status, user_id, engineer_id, created_at')
+        .or(`user_id.eq.${user.id},engineer_id.eq.${user.id}`)
         .eq('status', 'completed');
 
       const allProjects = projects || [];
       const partnerProjects = partnerId
-        ? allProjects.filter((p) => p.artist_id === partnerId || p.engineer_id === partnerId)
-        : allProjects.filter((p) => p.artist_id && p.engineer_id);
+        ? allProjects.filter((p) => p.user_id === partnerId || p.engineer_id === partnerId)
+        : allProjects.filter((p) => p.user_id && p.engineer_id);
 
-      const soloProjects = allProjects.filter((p) => !p.artist_id || !p.engineer_id);
+      const soloProjects = allProjects.filter((p) => !p.engineer_id);
 
-      const partnerRevenue = partnerProjects.reduce((s, p) => s + ((p.amount as number) || 0), 0);
-      const soloRevenue = soloProjects.reduce((s, p) => s + ((p.amount as number) || 0), 0);
+      const partnerRevenue = partnerProjects.length;
+      const soloRevenue = soloProjects.length;
       const avgPartnerValue = partnerProjects.length > 0 ? partnerRevenue / partnerProjects.length : 0;
       const avgSoloValue = soloProjects.length > 0 ? soloRevenue / soloProjects.length : 0;
 

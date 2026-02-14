@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 
 interface AIMatchRecommendationsProps {
-  userType: 'artist' | 'engineer' | 'producer';
+  userType: 'artist' | 'engineer';
   searchQuery: string;
 }
 

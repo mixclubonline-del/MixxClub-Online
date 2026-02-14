@@ -10,7 +10,7 @@ import { SavedMatches } from './SavedMatches';
 import { MatchFilters } from './MatchFilters';
 
 interface MatchesHubProps {
-  userType: 'artist' | 'engineer' | 'producer';
+  userType: 'artist' | 'engineer';
 }
 
 export const MatchesHub: React.FC<MatchesHubProps> = ({ userType }) => {

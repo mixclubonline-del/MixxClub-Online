@@ -13,7 +13,7 @@ import { useCRMClients } from '@/hooks/useCRMClients';
 import { useCRMDeals } from '@/hooks/useCRMDeals';
 
 interface ClientsHubProps {
-  userType?: 'artist' | 'engineer' | 'producer';
+  userType?: 'artist' | 'engineer';
 }
 
 export const ClientsHub: React.FC<ClientsHubProps> = ({ userType = 'artist' }) => {

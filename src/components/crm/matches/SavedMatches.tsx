@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 
 interface SavedMatchesProps {
-  userType: 'artist' | 'engineer' | 'producer';
+  userType: 'artist' | 'engineer';
   searchQuery: string;
 }
 

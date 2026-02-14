@@ -9,7 +9,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 
 interface MatchRequestsProps {
-  userType: 'artist' | 'engineer' | 'producer';
+  userType: 'artist' | 'engineer';
 }
 
 export const MatchRequests: React.FC<MatchRequestsProps> = ({ userType }) => {

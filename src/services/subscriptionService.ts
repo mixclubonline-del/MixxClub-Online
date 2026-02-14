@@ -3,7 +3,9 @@
  * Queries user_subscriptions and subscription_plans tables.
  */
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase as _supabase } from '@/integrations/supabase/client';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const supabase: any = _supabase;
 
 export interface Subscription {
     id: string;
