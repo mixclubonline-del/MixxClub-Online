@@ -55,7 +55,7 @@ const AdminCRM = () => {
         { data: revenueData },
         { count: eventCount },
       ] = await Promise.all([
-        supabase.from('profiles').select('*').eq('id', user?.id).single(),
+        supabase.from('profiles').select('*').eq('id', user?.id).maybeSingle(),
         supabase.from('profiles').select('*', { count: 'exact', head: true }),
         supabase.from('collaboration_sessions').select('*', { count: 'exact', head: true }).eq('status', 'active'),
         supabase.from('payments').select('amount').eq('status', 'completed'),

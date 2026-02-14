@@ -84,7 +84,7 @@ const ProducerCRM = () => {
         .from('profiles')
         .select('*')
         .eq('id', user?.id)
-        .single();
+        .maybeSingle();
 
       if (profileError) throw profileError;
       setProfile(profileData);
@@ -113,7 +113,6 @@ const ProducerCRM = () => {
       setSalesCount(completedProjects?.length || 0);
     } catch (error: unknown) {
       console.error('Error fetching producer data:', error);
-      toast.error('Failed to load dashboard');
     } finally {
       setLoading(false);
     }

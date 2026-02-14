@@ -49,7 +49,7 @@ export const StreakTracker = () => {
         .select('*')
         .eq('user_id', user?.id)
         .eq('streak_type', 'daily_login')
-        .single();
+        .maybeSingle();
 
       setStreak(streakData);
 
