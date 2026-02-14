@@ -39,7 +39,7 @@ export const useGamificationStats = () => {
           .from('profiles')
           .select('points, level')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
 
         if (profileError) {
           console.error('Error fetching profile:', profileError);

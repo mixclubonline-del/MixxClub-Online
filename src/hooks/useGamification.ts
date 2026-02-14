@@ -64,7 +64,7 @@ export const useGamification = () => {
         .from('profiles')
         .select('points, level')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       return data;

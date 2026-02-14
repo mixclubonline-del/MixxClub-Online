@@ -110,7 +110,7 @@ export const ProactivePrimeBot = ({ userType, onNavigate }: ProactivePrimeBotPro
         .select('*')
         .eq('user_id', user.id)
         .eq('streak_type', 'daily_login')
-        .single();
+        .maybeSingle();
 
       // Check recent achievements
       const { data: recentAchievements } = await supabase
