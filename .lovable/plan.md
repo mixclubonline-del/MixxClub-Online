@@ -1,159 +1,96 @@
 
 
-## MixxClub Site Navigation Flow Walkthrough + Missed Opportunities
+## Hallway Session Presence: From UI Dots to Environmental Storytelling
+
+### The Problem
+The current `DepthAwareHotspot` renders floating circles and mini-avatar dots positioned over the hallway image at fixed percentage coordinates. It looks like a game HUD overlaid on a photograph — instantly breaking the cinematic, wordless immersion the hallway is designed to create.
+
+### The Concept: "Light Under the Door"
+
+In a real studio hallway, you know a room is occupied because:
+- Warm light spills from under the door
+- You hear muffled bass or vocal bleed
+- The "Recording" light above the door is on
+- Maybe you see shadows moving through frosted glass
+
+We replace all floating UI dots with **environmental light effects** that feel like they belong in the hallway image itself.
 
 ---
 
-### The Full User Journey (as it exists today)
+### Design: Four Presence Signals (No Floating UI)
 
-```text
-VISITOR (unauthenticated)
-  |
-  / (Home) --> SceneFlow controller
-  |   |-- HALLWAY scene (atmospheric, wordless studio door visualization)
-  |   |-- DEMO scene (InsiderDemoExperience - product demo)
-  |   |-- INFO scene (ClubScene - room-by-room tour: Listening, Vault, Green, Control, VIP, Stage)
-  |
-  +-- /choose-path --> Cinematic role selector (Producer / Artist / Engineer / Fan)
-  |     |-- links to /for-producers, /for-artists, /for-engineers, /for-fans
-  |
-  +-- /how-it-works --> Journey showcase (Artist path + Engineer path)
-  +-- /for-artists, /for-engineers, /for-producers, /for-fans --> Role landing pages
-  +-- /showcase, /pricing, /faq, /about, /press, /enterprise
-  +-- /waitlist
-  |
-  +-- /auth --> Magic Link signup/login
-        |
-        v
-AUTHENTICATED USER
-  |
-  +-- /select-role --> Role Selection Gateway (keyboard 1-4)
-  |     v
-  +-- /onboarding/{role} --> Role-specific onboarding wizard
-  |     v
-  +-- CRM Hub (role-dependent):
-  |     /artist-crm   (sidebar + header via ProtectedAppLayout)
-  |     /engineer-crm
-  |     /producer-crm
-  |     /fan-hub
-  |     /admin
-  |
-  +-- Sidebar navigation (desktop) --> role-filtered categories
-  |     Main | CRM | Services | Opportunities | Shop | Economy | Discover | Account
-  |
-  +-- MobileBottomNav (phone) --> 5 tabs, role-specific
-  +-- TabletSideNav (tablet)
-  +-- MobileEnhancedNav (phone, used by AppLayout for phone deviceType)
-  |
-  +-- /city/* --> MixClub City district system (9 districts)
-  +-- /live, /sessions, /community, /economy, /beats, /merch, etc.
-```
+#### 1. Door Light Spill (replaces the glowing circle)
+A soft, horizontal gradient strip positioned at the bottom of each door position — simulating light leaking from under a studio door. Color communicates state:
+- **Warm amber/gold**: Active session (people creating)
+- **Red pulse**: Recording in progress (do not disturb energy)
+- **Cool dim**: Idle / empty room
+- **No light**: No session
+
+The light is a CSS gradient with subtle breathing animation, not a circle. It sits flush with the "floor" of the hallway perspective.
+
+#### 2. Bass Ripple (replaces participant count dots)
+Instead of showing avatar circles, active rooms emit subtle concentric ripple rings from the door base — like bass frequencies vibrating the hallway floor. More participants = more frequent/wider ripples. This communicates "energy level" without showing literal UI elements.
+
+#### 3. Recording Beacon (replaces the red dot)
+A small, fixed-position glow above the door position — mimicking a studio "Recording" light. Only visible when `room.state === 'recording'`. Just a tiny warm-red dot that pulses slowly, like a real indicator light mounted on the wall.
+
+#### 4. Hover: Frosted Glass Reveal (replaces the tooltip card)
+On hover, instead of a floating card, the door area gets a frosted-glass overlay effect that reveals session info as if you're peering through a studio door window. The info fades in with a depth-of-field blur transition, feeling like your eyes are adjusting to look through glass — not like a tooltip popped up.
 
 ---
 
-### Missed Opportunities
+### Progressive Revelation (Depth Layers) — Unchanged Logic, New Visuals
 
-#### 1. HOME PAGE HAS NO VISIBLE NAVIGATION FOR VISITORS
-
-**The problem:** When a visitor lands on `/`, the SceneFlow takes over the entire viewport. The `Navigation` component is NOT rendered on the home page -- it was removed in the last fix (the redirect removal also removed the `<Navigation />` import). The `MixClubHome` component now only renders `<PrimeLanding />`, which is just `<SceneFlow />`.
-
-**Impact:** First-time visitors see an atmospheric hallway with no menu, no header, and no clear way to reach `/how-it-works`, `/pricing`, `/for-artists`, etc. They must discover keyboard shortcuts (Enter, I, Escape) or hope for on-screen affordances inside the scene.
-
-**Fix:** Add a floating or overlay Navigation bar to the home page, or ensure SceneFlow surfaces clear CTAs to critical pages (Pricing, For Artists, How It Works, Auth).
-
----
-
-#### 2. PUBLIC PAGES HAVE NAVIGATION, BUT NO CROSS-LINKING TO EACH OTHER
-
-Pages like `/how-it-works`, `/for-artists`, `/for-engineers`, `/pricing`, `/about` each render `<Navigation />` at the top. However, these pages do not consistently link to each other. For example:
-- `/how-it-works` does not link to `/pricing`
-- `/for-artists` does not link to `/for-engineers` or `/for-producers`
-- None of these pages link back to `/choose-path` as a "not sure which role?" escape hatch
-
-**Fix:** Add a consistent footer or secondary nav on all public pages with links to: How It Works, Pricing, Choose Path, and all four role pages.
+| Depth Layer | What You See |
+|---|---|
+| **Posted Up** | Faint door light spill only (ambient awareness). No interaction. |
+| **In the Room** | Brighter light spill + bass ripples + session title fades in on hover (frosted glass). |
+| **On the Mic** | Full light + ripples + clickable doors (cursor changes, light brightens on hover). |
+| **On Stage** | Your door has a spotlight bloom effect — you ARE the energy source. Premium glow that bleeds into the hallway. |
 
 ---
 
-#### 3. PRODUCER AND FAN ROLES MISSING FROM MobileBottomNav
+### Technical Changes
 
-`MobileBottomNav` only defines tab sets for `engineer`, `admin`, and a default (artist). Producers and fans get the artist tabs, which point to `/artist-crm` and `/engineers` -- wrong destinations for those roles.
+#### File: `src/components/scene/DepthAwareHotspot.tsx` (full rewrite)
 
-**Fix:** Add dedicated tab configurations for `producer` (Home -> /producer-crm, Beats -> /beats, Create -> /prime-beat-forge, Sessions, Alerts) and `fan` (Feed -> /fan-hub, Discover -> /community, Live -> /live, Beats -> /beats, Alerts).
+Replace all four sub-components (`PostedUpView`, `InTheRoomView`, `OnTheMicView`, `OnStageView`) with new environmental versions:
 
----
+- **`DoorLightSpill`**: A `div` with a horizontal radial gradient (`bg-gradient-radial`), width ~120px, height ~8px, positioned at the door's floor line. Opacity and color animated via framer-motion based on room state.
 
-#### 4. MobileEnhancedNav DETECTS ROLE BY URL, NOT BY AUTH STATE
+- **`BassRipple`**: 2-3 concentric `div` rings that scale outward and fade, originating from the door base. Frequency tied to `participantCount`. Uses `motion.div` with staggered `repeat: Infinity` animations.
 
-`MobileEnhancedNav` uses `location.pathname.includes('engineer')` to determine role instead of `useAuth().userRole`. A producer browsing `/community` gets artist tabs. An engineer on `/settings` gets artist tabs.
+- **`RecordingBeacon`**: A 6x6px circle positioned above the door, red with slow opacity pulse. Only rendered when `room.state === 'recording'`.
 
-**Fix:** Use `userRole` from auth context instead of URL sniffing.
+- **`FrostedGlassReveal`**: On hover, a `backdrop-blur` container fades in at the door position with session title and participant count. Styled as a frosted rectangle (not a floating card), with `bg-background/20 backdrop-blur-lg border border-white/10`.
 
----
+- **`SpotlightBloom`** (On Stage only): A large radial gradient div that extends beyond the door area, simulating a spotlight beam on the hallway floor. Uses `mix-blend-mode: screen` for a natural light-additive effect.
 
-#### 5. DUPLICATE NAVIGATION SYSTEMS (MobileBottomNav vs MobileEnhancedNav)
+#### File: `src/components/scene/StudioHallway.tsx` (minor adjustments)
 
-Two separate mobile nav components exist:
-- `MobileBottomNav` (rendered by `GlobalNavigation` in App.tsx for `isPhone`)
-- `MobileEnhancedNav` (rendered by `AppLayout` when `deviceType === 'phone'`)
+- Remove the separate "Active session count indicator" bottom bar (the floating pill that says "3 sessions active"). Instead, the hallway's overall ambient light level communicates this — more active rooms = more light in the hallway image (the base-to-active crossfade already handles this).
+- Keep the depth layer indicator (top-left) as is — it's meta-UI, not part of the scene.
+- Keep the "Enter the Club" CTA button as is — it's intentionally outside the illusion.
 
-Both render on phone simultaneously for protected routes, creating potential double-nav or conflicting navigation.
+#### File: `src/components/scene/StudioHotspot.tsx`
 
-**Fix:** Consolidate into one system. `MobileEnhancedNav` (header + bottom nav) should be the single phone nav, with `MobileBottomNav` removed or guarded to not render when AppLayout is active.
-
----
-
-#### 6. CITY DISTRICTS ARE UNREACHABLE FROM MAIN NAVIGATION
-
-The `/city/*` routes (9 districts: Tower, Studio, Creator, Prime, Analytics, Commerce, Broadcast, Arena) exist but are not linked from the sidebar, bottom nav, or any CRM page. The only entry point is `/city` (CityGates), which itself is not in any nav menu.
-
-**Fix:** Add a "City" or "Explore" link in the sidebar and mobile nav that leads to `/city`. Alternatively, integrate district links into the relevant CRM sections (e.g., Commerce District link in Economy section).
+- No changes needed (this is the legacy non-depth version, unused when `DepthAwareHotspot` is active).
 
 ---
 
-#### 7. NO GLOBAL "BACK TO HOME" OR "EXPLORE" ESCAPE FOR AUTHENTICATED USERS
+### What Gets Removed
+- Floating colored circles (the main hotspot dots)
+- Mini avatar row beneath hotspots
+- Floating tooltip cards with borders and shadows
+- "X sessions active" bottom pill indicator
 
-After the redirect removal fix, authenticated users CAN now see the home page at `/`. But the sidebar logo links directly to the CRM (role-dependent), and there is no "Home" or "Explore" link that takes users to the public-facing site or the City. Authenticated users are effectively locked into CRM + sidebar routes.
+### What Gets Added
+- Horizontal light-under-door gradients
+- Bass ripple ring animations
+- Recording beacon (wall-mounted red light feel)
+- Frosted glass hover reveal
+- On Stage spotlight bloom
 
-**Fix:** Add an "Explore" or "City" entry to the sidebar navigation config, or make the logo link configurable (long-press for home, click for CRM).
-
----
-
-#### 8. /how-it-works AND /showcase HAVE NO AUTH CTA
-
-These pages show the product value proposition but lack a clear "Sign Up" or "Get Started" button that links to `/auth?mode=signup` or `/choose-path`. The journey ends at information with no conversion funnel.
-
-**Fix:** Add a sticky CTA bar or prominent signup button at the bottom of these pages.
-
----
-
-#### 9. SEVERAL PROTECTED PAGES RENDER THEIR OWN `<Navigation />` INSIDE `ProtectedAppLayout`
-
-At least 15 pages (Dashboard, JobBoard, SessionDetail, ProjectDetail, etc.) import and render `<Navigation />` themselves, even though they are already inside `ProtectedAppLayout` which provides `AppSidebar` + header. This creates a double navigation bar on desktop.
-
-**Fix:** Remove the `<Navigation />` import from all pages wrapped by `ProtectedAppLayout`. The layout already provides the sidebar and header.
-
----
-
-#### 10. NO SITEMAP OR FOOTER ON PUBLIC PAGES
-
-A `/sitemap` page exists but is behind auth (inside ProtectedAppLayout). Public visitors have no footer with links to Terms, Privacy, About, Contact, Press. These pages exist but are only discoverable via direct URL.
-
-**Fix:** Create a shared `PublicFooter` component with links to legal pages, social media, and key public routes. Add it to all public page layouts.
-
----
-
-### Priority Ranking
-
-| Priority | Issue | Impact |
-|----------|-------|--------|
-| P0 | Home page has no navigation for visitors | First impression / conversion killer |
-| P0 | Producer/Fan missing from MobileBottomNav | Broken mobile UX for 50% of roles |
-| P1 | MobileEnhancedNav uses URL sniffing vs auth role | Wrong nav tabs when browsing |
-| P1 | Duplicate mobile nav systems | Visual bugs, wasted renders |
-| P1 | Double Navigation on protected pages | UI clutter on desktop |
-| P2 | City districts unreachable from nav | Major feature invisible |
-| P2 | No auth CTA on showcase/how-it-works pages | Lost conversions |
-| P2 | No cross-linking between public pages | Dead-end browsing |
-| P3 | Sitemap behind auth | SEO and discoverability |
-| P3 | No public footer | Standard web UX missing |
+### No New Dependencies
+All effects use existing framer-motion + Tailwind + CSS gradients. No new packages needed.
 
