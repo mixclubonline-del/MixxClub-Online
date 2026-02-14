@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { PublicFooter } from '@/components/layouts/PublicFooter';
 import { Check, X, Zap, Crown, Loader2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -350,6 +351,7 @@ export default function Pricing() {
           </div>
         </div>
       </div>
+      <PublicFooter />
     </>
   );
 }

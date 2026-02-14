@@ -1,3 +1,4 @@
+import { PublicFooter } from '@/components/layouts/PublicFooter';
 import {
   Upload,
   Sparkles,
@@ -272,6 +273,7 @@ const ForArtists = () => {
         variant="artist"
         disclaimer="No credit card required • Cancel anytime • 30-day money-back guarantee"
       />
+      <PublicFooter />
     </LandingPortal>
   );
 };

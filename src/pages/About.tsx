@@ -1,4 +1,5 @@
 import { Card } from '@/components/ui/card';
+import { PublicFooter } from '@/components/layouts/PublicFooter';
 import { Award, Users, Headphones, Zap } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
 import { organizationSchema } from '@/lib/seo-schema';
@@ -133,6 +134,7 @@ export default function About() {
         </div>
       </div>
     </div>
+    <PublicFooter />
     </>
   );
 }

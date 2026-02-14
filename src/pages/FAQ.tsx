@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { PublicFooter } from '@/components/layouts/PublicFooter';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Search, MessageCircle, Mail, Phone } from 'lucide-react';
@@ -209,6 +210,7 @@ export default function FAQ() {
           </CardContent>
         </Card>
       </div>
+      <PublicFooter />
     </div>
   );
 }

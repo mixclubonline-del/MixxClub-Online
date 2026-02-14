@@ -1,3 +1,4 @@
+import { PublicFooter } from '@/components/layouts/PublicFooter';
 import {
     Heart,
     Sparkles,
@@ -263,6 +264,7 @@ const ForFans = () => {
                 variant="fan"
                 disclaimer="Always free • Blockchain-verified OG status • Exclusive rewards"
             />
+      <PublicFooter />
         </LandingPortal>
     );
 };

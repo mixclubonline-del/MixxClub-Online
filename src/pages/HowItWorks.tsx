@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { PublicFooter } from "@/components/layouts/PublicFooter";
 import { Upload, Sparkles, Users, Headphones, Download, UserPlus, Briefcase, Zap, DollarSign, Star } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import JourneyPortal from "@/components/journey/JourneyPortal";
@@ -179,12 +180,7 @@ const HowItWorks = () => {
         <JourneyDestination role={activeRole} />
       </main>
 
-      {/* Footer */}
-      <footer className="relative z-10 border-t border-border/30 py-8 bg-background/50 backdrop-blur-sm">
-        <div className="container px-6 text-center text-sm text-muted-foreground">
-          <p>© 2026 MixClub. Make your music sound as good as the pros.</p>
-        </div>
-      </footer>
+      <PublicFooter />
     </JourneyPortal>
   );
 };
