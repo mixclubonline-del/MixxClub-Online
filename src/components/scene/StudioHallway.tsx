@@ -223,34 +223,7 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
         </motion.div>
       )}
       
-      {/* Active session count indicator - visible to all but styled by depth */}
-      {hasActiveSessions && (
-        <motion.div
-          className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-        >
-          <div className={`
-            flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-md border
-            ${currentLayer === 'posted-up' 
-              ? 'bg-background/60 border-border/30' 
-              : 'bg-background/80 border-primary/30'
-            }
-          `}>
-            <motion.div
-              className="w-2 h-2 rounded-full bg-primary"
-              animate={{ scale: [1, 1.3, 1] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-            />
-            <span className={`text-sm font-medium ${
-              currentLayer === 'posted-up' ? 'text-muted-foreground' : 'text-primary'
-            }`}>
-              {activeCount} {activeCount === 1 ? 'session' : 'sessions'} active
-            </span>
-          </div>
-        </motion.div>
-      )}
+      {/* Active session count removed — hallway ambient light level communicates this */}
       
       {/* Entry CTA - fullscreen mode only */}
       {fullscreen && onEnter && (
