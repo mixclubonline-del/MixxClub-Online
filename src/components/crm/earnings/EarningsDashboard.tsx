@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DollarSign, Kanban, Bell } from 'lucide-react';
 
 interface EarningsDashboardProps {
-  userType: 'artist' | 'engineer' | 'producer';
+  userType: 'artist' | 'engineer';
 }
 
 export const EarningsDashboard = ({ userType }: EarningsDashboardProps) => {

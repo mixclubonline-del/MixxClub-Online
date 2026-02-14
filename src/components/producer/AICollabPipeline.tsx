@@ -143,7 +143,7 @@ export const AICollabPipeline = ({ userType }: AICollabPipelineProps) => {
 
             const { error: partnershipError } = await supabase
                 .from('partnerships')
-                .insert(partnershipInsert);
+                .insert(partnershipInsert as any);
 
             if (partnershipError) throw partnershipError;
 
@@ -162,7 +162,7 @@ export const AICollabPipeline = ({ userType }: AICollabPipelineProps) => {
                 sessionState.beat_key = selectedBeat.key_signature;
             }
 
-            const { data: sessionData, error: sessionError } = await supabase
+            const { data: sessionData, error: sessionError } = await (supabase as any)
                 .from('collaboration_sessions')
                 .insert({
                     host_user_id: user.id,

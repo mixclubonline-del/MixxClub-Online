@@ -160,11 +160,11 @@ async function fetchPartnershipMetrics(userId: string, partnerId?: string): Prom
         // Get completed projects/sessions
         const projectQuery = supabase
             .from('projects')
-            .select('id, status, rating, created_at, amount')
-            .or(`artist_id.eq.${userId},engineer_id.eq.${userId}`);
+            .select('id, status, created_at, user_id, engineer_id')
+            .or(`user_id.eq.${userId},engineer_id.eq.${userId}`);
 
         if (partnerId) {
-            projectQuery.or(`artist_id.eq.${partnerId},engineer_id.eq.${partnerId}`);
+            projectQuery.or(`user_id.eq.${partnerId},engineer_id.eq.${partnerId}`);
         }
 
         const { data: projects } = await projectQuery.eq('status', 'completed');
@@ -175,22 +175,21 @@ async function fetchPartnershipMetrics(userId: string, partnerId?: string): Prom
             .select('*', { count: 'exact', head: true })
             .eq('referrer_id', userId);
 
-        const sessions = projects || [];
+        const sessions = (projects || []) as any[];
         const totalSessions = sessions.length;
-        const totalRevenue = sessions.reduce((sum, p) => sum + ((p.amount as number) || 0), 0);
-        const ratings = sessions.filter((p) => p.rating != null).map((p) => p.rating as number);
-        const avgRating = ratings.length > 0 ? ratings.reduce((a, b) => a + b, 0) / ratings.length : 0;
-        const perfectScores = ratings.filter((r) => r === 5).length;
+        const totalRevenue = 0; // projects table has no amount column
+        const avgRating = 0; // projects table has no rating column
+        const perfectScores = 0;
 
         // Calculate months active
-        const dates = sessions.map((p) => new Date(p.created_at as string));
-        const earliestDate = dates.length > 0 ? Math.min(...dates.map((d) => d.getTime())) : Date.now();
+        const dates = sessions.map((p: any) => new Date(p.created_at));
+        const earliestDate = dates.length > 0 ? Math.min(...dates.map((d: Date) => d.getTime())) : Date.now();
         const monthsActive = Math.floor((Date.now() - earliestDate) / (30 * 24 * 60 * 60 * 1000));
 
-        // Count unique repeat clients (appeared 2+ times)
+        // Count unique repeat clients
         const clientCounts = new Map<string, number>();
-        sessions.forEach((p) => {
-            const clientId = (p as Record<string, unknown>).artist_id as string;
+        sessions.forEach((p: any) => {
+            const clientId = p.user_id as string;
             if (clientId && clientId !== userId) {
                 clientCounts.set(clientId, (clientCounts.get(clientId) || 0) + 1);
             }

@@ -172,12 +172,12 @@ const ProducerCRM = () => {
       case 'collabs':
         return <ProducerCollabsHub />;
       case 'clients':
-        return <ClientsHub userType="producer" />;
+        return <ClientsHub userType="artist" />;
       case 'matches':
         return (
           <div className="space-y-6">
             <AICollabPipeline userType="producer" />
-            <MatchesHub userType="producer" />
+            <MatchesHub userType="artist" />
           </div>
         );
       case 'sessions':

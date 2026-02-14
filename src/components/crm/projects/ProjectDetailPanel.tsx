@@ -89,7 +89,7 @@ export const ProjectDetailPanel = ({
         .single();
 
       if (error) throw error;
-      setProject(data);
+      setProject(data as unknown as CollaborativeProjectDetail);
       setEditData({
         title: data.title || '',
         description: data.description || '',

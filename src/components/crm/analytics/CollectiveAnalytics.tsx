@@ -28,30 +28,26 @@ function useCollectiveAnalytics() {
         queryFn: async (): Promise<CollectiveData> => {
             if (!user) throw new Error('Not authenticated');
 
-            // Get partnership projects (where user was involved with another party)
+            // Get completed projects (projects has user_id + engineer_id, no amount/artist_id)
             const { data: partnerProjects } = await supabase
                 .from('projects')
-                .select('id, amount, created_at, status, artist_id, engineer_id')
-                .or(`artist_id.eq.${user.id},engineer_id.eq.${user.id}`)
+                .select('id, created_at, status, user_id, engineer_id')
+                .or(`user_id.eq.${user.id},engineer_id.eq.${user.id}`)
                 .eq('status', 'completed');
 
             const projects = partnerProjects || [];
 
-            // Separate solo vs partnership revenue
-            // Partnership = projects where both artist_id and engineer_id are set
+            // Partnership = projects where both user_id (artist) and engineer_id are set
             const partnershipProjects = projects.filter(
-                (p) => p.artist_id && p.engineer_id
+                (p) => p.user_id && p.engineer_id
             );
             const soloProjects = projects.filter(
-                (p) => !p.artist_id || !p.engineer_id
+                (p) => !p.engineer_id
             );
 
-            const totalPartnershipRevenue = partnershipProjects.reduce(
-                (sum, p) => sum + ((p.amount as number) || 0), 0
-            );
-            const totalSoloRevenue = soloProjects.reduce(
-                (sum, p) => sum + ((p.amount as number) || 0), 0
-            );
+            // No amount column exists; use project count as proxy
+            const totalPartnershipRevenue = partnershipProjects.length;
+            const totalSoloRevenue = soloProjects.length;
 
             // Revenue by month (last 12 months)
             const now = new Date();
@@ -63,33 +59,33 @@ function useCollectiveAnalytics() {
             }
 
             projects.forEach((p) => {
-                const d = new Date(p.created_at as string);
+                const d = new Date(p.created_at);
                 const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
                 const entry = monthMap.get(key);
                 if (!entry) return;
 
-                const isPartnership = !!(p.artist_id && p.engineer_id);
+                const isPartnership = !!(p.user_id && p.engineer_id);
                 if (isPartnership) {
-                    entry.partnership += (p.amount as number) || 0;
+                    entry.partnership += 1;
                 } else {
-                    entry.solo += (p.amount as number) || 0;
+                    entry.solo += 1;
                 }
             });
 
             // Unique partners
             const partnerIds = new Set<string>();
             partnershipProjects.forEach((p) => {
-                const partnerId = p.artist_id === user.id ? p.engineer_id : p.artist_id;
-                if (partnerId) partnerIds.add(partnerId as string);
+                const partnerId = p.user_id === user.id ? p.engineer_id : p.user_id;
+                if (partnerId) partnerIds.add(partnerId);
             });
 
-            // Top partners by revenue
+            // Top partners by project count
             const partnerRevMap = new Map<string, { revenue: number; sessions: number }>();
             partnershipProjects.forEach((p) => {
-                const partnerId = (p.artist_id === user.id ? p.engineer_id : p.artist_id) as string;
+                const partnerId = (p.user_id === user.id ? p.engineer_id : p.user_id) as string;
                 if (!partnerId) return;
                 const entry = partnerRevMap.get(partnerId) || { revenue: 0, sessions: 0 };
-                entry.revenue += (p.amount as number) || 0;
+                entry.revenue += 1;
                 entry.sessions += 1;
                 partnerRevMap.set(partnerId, entry);
             });
