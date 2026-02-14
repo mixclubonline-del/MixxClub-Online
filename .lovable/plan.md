@@ -1,76 +1,100 @@
 
 
-## Ambient Audio Cues for the Studio Hallway
+## Walkthrough Screenshot Capture Edge Function
 
-### Concept
+### What It Does
 
-Each active studio door emits a subtle, muffled bass hum — the kind you'd hear walking past a studio where someone's mixing at 2 AM. The hum gets louder and richer when you hover over a door, as if you're leaning in to listen. Recording rooms get a distinct low-frequency pulse. Idle rooms are silent.
+A backend function that accepts a URL path (e.g. `/`, `/pricing`, `/how-it-works`), captures a full-page screenshot via a free external screenshot API, and stores the result in the `brand-assets` bucket with a timestamped filename. The asset is also recorded in the `brand_assets` database table for the dynamic asset system to pick up.
 
-This uses the Web Audio API directly (no file assets needed) — synthesized low-frequency tones with heavy filtering to sound like bass bleeding through walls.
+### Screenshot Approach
 
----
+Edge functions can't run headless browsers (no Puppeteer/Playwright in Deno). Instead, we'll use **thum.io** -- a free, no-API-key-required screenshot service that returns a PNG from any public URL. No new secrets needed.
 
-### Architecture
+If thum.io quality isn't sufficient later, it can be swapped for a paid service (ScreenshotOne, Urlbox, etc.) with a single URL change.
 
-A new `HallwayAmbientAudio` hook creates a single shared AudioContext with one oscillator + filter per active room. Gain nodes control volume based on hover state and room activity. Everything cleans up on unmount.
+### How It Works
 
 ```text
-Per active room:
-  OscillatorNode (40-80Hz sine)
-    --> BiquadFilter (lowpass, cutoff ~120Hz = "wall muffling")
-      --> GainNode (volume: idle=0.02, hover=0.12)
-        --> MasterGain (global volume)
-          --> AudioContext.destination
+Client Request
+  POST /capture-walkthrough-screenshot
+  Body: { path: "/pricing", viewport: "desktop" }
+        |
+        v
+Edge Function
+  1. Validate auth (admin-only)
+  2. Build full URL: https://mixxclub.lovable.app{path}
+  3. Fetch screenshot from thum.io:
+     https://image.thum.io/get/width/1920/crop/1080/noanimate/https://mixxclub.lovable.app/pricing
+  4. Upload PNG bytes to brand-assets bucket:
+     walkthrough/pricing_desktop_2026-02-14T120000.png
+  5. Insert record into brand_assets table
+  6. Return { ok: true, asset }
 ```
 
----
+### New File: `supabase/functions/capture-walkthrough-screenshot/index.ts`
 
-### New File: `src/hooks/useHallwayAmbience.ts`
+- Accepts `path` (required), `viewport` (optional: `desktop` | `mobile`, defaults to `desktop`), and `name` (optional label)
+- Desktop viewport: 1920x1080; Mobile: 390x844
+- Constructs the thum.io URL with width/crop parameters
+- Downloads the PNG bytes server-side
+- Uploads to `brand-assets` bucket under `walkthrough/` prefix
+- Filename format: `walkthrough/{sanitized-path}_{viewport}_{ISO-timestamp}.png`
+- Inserts into `brand_assets` table with `asset_context: 'walkthrough'`, linking to the public URL
+- Admin-only: checks `user_roles` for `admin` role before proceeding
 
-A hook that:
-- Takes an array of `StudioRoom` objects and the currently hovered room ID
-- Creates one oscillator per active room (frequency varies slightly per room for organic feel)
-- Recording rooms get a slower LFO modulation on the gain (pulsing bass)
-- On hover, smoothly ramps the hovered room's gain up (using `linearRampToValueAtTime` for smooth transitions)
-- All rooms get a very faint baseline hum (barely audible) when active
-- Returns a `startAmbience()` function (must be called from a user gesture to satisfy browser autoplay policy)
-- Cleans up all nodes on unmount
+### Config Update: `supabase/config.toml`
 
-Key parameters:
-- Base frequency per room: `40 + (roomIndex * 7)` Hz (each door has a slightly different pitch)
-- Muffling filter: lowpass at 100-150 Hz, Q of 1
-- Idle gain: 0.015 (barely perceptible)
-- Hover gain: 0.08 (noticeable but not intrusive)
-- Recording rooms: gain modulated with a secondary LFO oscillator at 0.5Hz
-- Ramp time: 300ms for smooth hover transitions
+Add the new function entry:
+```
+[functions.capture-walkthrough-screenshot]
+verify_jwt = false
+```
 
-### Changes to: `src/components/scene/DepthAwareHotspot.tsx`
+### No New Dependencies or Secrets
 
-- Accept a new `onHoverChange?: (roomId: string, hovered: boolean) => void` callback prop
-- Call it from the existing `onMouseEnter`/`onMouseLeave` handlers alongside the existing `setIsHovered` state
+- thum.io is free and keyless
+- Uses existing `brand-assets` bucket (public, already exists)
+- Uses existing `brand_assets` table schema
+- Follows the same pattern as `save-brand-asset` for storage upload and DB insert
 
-### Changes to: `src/components/scene/StudioHallway.tsx`
+### Viewport Options
 
-- Import and use `useHallwayAmbience` hook, passing the studios array and tracked hover state
-- Track `hoveredRoomId` in local state, passed down to hotspots via `onHoverChange`
-- Auto-start ambience on first user interaction (click on "Enter the Club" or any hover, using a one-time `useRef` guard)
-- Pass `onHoverChange` to each `DepthAwareHotspot`
+| Viewport | Width | Crop Height | thum.io params |
+|----------|-------|-------------|----------------|
+| desktop  | 1920  | 1080        | `width/1920/crop/1080` |
+| mobile   | 390   | 844         | `width/390/crop/844` |
 
-### Browser Autoplay Compliance
+### Usage Example
 
-The `AudioContext` is created in a `suspended` state. On the first user gesture (click/hover on any hallway element), we call `ctx.resume()`. This follows the graceful degradation pattern already established — if audio fails, the hallway works fine visually.
+```typescript
+// From admin panel or script
+const { data } = await supabase.functions.invoke('capture-walkthrough-screenshot', {
+  body: { 
+    path: '/pricing', 
+    viewport: 'desktop',
+    name: 'Pricing Page - Desktop' 
+  }
+});
+// Returns: { ok: true, asset: { id, public_url, ... } }
+```
 
-### No New Dependencies
+### Batch Walkthrough Support
 
-Pure Web Audio API synthesis. No audio files to load or store.
+The function handles one screenshot per call. For a full walkthrough (multiple pages), the client calls it in sequence:
 
----
+```typescript
+const routes = ['/', '/pricing', '/how-it-works', '/for-artists'];
+for (const path of routes) {
+  await supabase.functions.invoke('capture-walkthrough-screenshot', {
+    body: { path, viewport: 'desktop', name: `Walkthrough - ${path}` }
+  });
+}
+```
 
-### What This Sounds Like
+### What This Enables
 
-- Walking into the hallway: silence, then faint low hums emerge from lit doors
-- Hovering over an active door: the hum swells — like pressing your ear to the wall
-- Recording room: the hum pulses slowly, a heartbeat-like throb
-- Moving away: the hum fades back to ambient
-- Idle/empty rooms: complete silence
+- Prime can trigger walkthrough captures from any admin UI or directly via function call
+- All screenshots land in the `brand-assets` bucket, queryable by `asset_context = 'walkthrough'`
+- The existing `useDynamicAssets` hook can surface these in any admin review panel
+- Timestamps on filenames create a visual changelog of the site over time
 
