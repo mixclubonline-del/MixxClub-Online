@@ -1,43 +1,46 @@
 
 
-## Fix Sitemap: Correct Domain, Add Missing Routes, Remove Internal Pages
+## Wire Press Kit Download Buttons
 
-### Problems
+### Current State
+- Press page (`src/pages/Press.tsx`) has 4 download buttons (Full Press Kit, Logo Pack, Screenshots, Fact Sheet) with no `onClick` handlers
+- The `brand-assets` storage bucket exists and is public, but contains no `press/` files yet
+- No existing press-kit download utility in the codebase
 
-1. **Wrong domain** -- Both `Sitemap.tsx` and `public/sitemap.xml` use `https://mixclub.com` instead of `https://mixxclub.lovable.app`
-2. **Missing public routes** -- `/for-artists`, `/for-engineers`, `/for-producers`, `/for-fans`, `/how-it-works`, `/press`, `/faq`, `/choose-path`, `/install` are not listed
-3. **Internal/auth routes included** -- `/dashboard`, `/artist-crm`, `/engineer-crm`, `/marketplace`, `/collaboration`, `/education`, `/battles` are behind auth and should not be in a public sitemap
+### Implementation
 
-### Changes
+#### 1. Create a `usePressBrandAssets` hook (`src/hooks/usePressBrandAssets.ts`)
 
-#### 1. `src/pages/Sitemap.tsx`
+A small hook that:
+- Accepts a subfolder name (e.g. `press/logos`, `press/screenshots`, `press/fact-sheet`, or `press/full-kit`)
+- Lists files in `brand-assets` bucket under that path using `supabase.storage.from('brand-assets').list(path)`
+- If files exist, generates a public URL and triggers a download (single file) or bundles them via JSZip (multiple files)
+- If no files exist, shows a toast: **"Press kit coming soon -- check back shortly."**
 
-- Update `baseUrl` to `https://mixxclub.lovable.app`
-- Replace the routes array with the correct public-only set:
+#### 2. Update `src/pages/Press.tsx`
 
-| Route | Priority | Changefreq |
-|-------|----------|------------|
-| `/` | 1.0 | daily |
-| `/pricing` | 0.9 | weekly |
-| `/how-it-works` | 0.8 | weekly |
-| `/showcase` | 0.8 | daily |
-| `/for-artists` | 0.8 | monthly |
-| `/for-engineers` | 0.8 | monthly |
-| `/for-producers` | 0.8 | monthly |
-| `/for-fans` | 0.8 | monthly |
-| `/choose-path` | 0.7 | monthly |
-| `/about` | 0.7 | monthly |
-| `/contact` | 0.7 | monthly |
-| `/press` | 0.7 | monthly |
-| `/faq` | 0.6 | monthly |
-| `/install` | 0.5 | monthly |
-| `/privacy` | 0.4 | yearly |
-| `/terms` | 0.4 | yearly |
+Wire each of the 4 buttons:
 
-Removed: `/dashboard`, `/artist-crm`, `/engineer-crm`, `/marketplace`, `/collaboration`, `/education`, `/battles`
+| Button | Storage Path | Behavior |
+|--------|-------------|----------|
+| Download Full Press Kit | `press/full-kit` | Download all files as zip, or toast if empty |
+| Download Logos | `press/logos` | Download all logo files as zip, or toast if empty |
+| Download Screenshots | `press/screenshots` | Download all screenshots as zip, or toast if empty |
+| Download PDF | `press/fact-sheet` | Download single PDF, or toast if empty |
 
-#### 2. `public/sitemap.xml`
+Each button gets:
+- An `onClick` handler calling the hook's download function
+- A loading/disabled state while fetching
 
-Same changes -- update domain and route list to match `Sitemap.tsx` so crawlers hitting the static file get the correct data. Set `lastmod` to `2026-02-14`.
+#### 3. Toast style
 
-### No new dependencies or backend changes required.
+Uses the existing `sonner` toast (already imported pattern on the page's sibling files) for the "coming soon" message -- keeps it consistent with the rest of the app.
+
+### Technical Details
+
+- **New file**: `src/hooks/usePressBrandAssets.ts`
+- **Modified file**: `src/pages/Press.tsx`
+- **No new dependencies** -- uses existing `jszip` (already installed) and `sonner` toast
+- **No database or schema changes**
+- **Storage convention**: assets go under `brand-assets/press/{logos,screenshots,fact-sheet,full-kit}/` -- when files are uploaded there later, the buttons will work automatically
+
