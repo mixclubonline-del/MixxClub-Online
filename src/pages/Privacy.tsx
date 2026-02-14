@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import Navigation from '@/components/Navigation';
 import { PublicFooter } from '@/components/layouts/PublicFooter';
+import { SEOHead } from '@/components/SEOHead';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -13,7 +14,13 @@ export default function Privacy() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background">
+    <>
+      <SEOHead
+        title="Privacy Policy"
+        description="Learn how MixxClub collects, uses, and protects your personal data. Your privacy matters — read our full privacy policy."
+        keywords="mixclub privacy policy, data protection, user privacy, audio platform privacy"
+      />
+      <div className="min-h-screen bg-background">
       <Navigation />
       
       <div className="container max-w-4xl py-12 px-6">
@@ -210,5 +217,6 @@ export default function Privacy() {
 
       <PublicFooter />
     </div>
+    </>
   );
 }

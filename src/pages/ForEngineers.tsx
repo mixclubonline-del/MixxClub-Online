@@ -1,3 +1,4 @@
+import { SEOHead } from '@/components/SEOHead';
 import { PublicFooter } from '@/components/layouts/PublicFooter';
 import {
   Video,
@@ -122,7 +123,13 @@ export default function ForEngineers() {
   ];
 
   return (
-    <LandingPortal backgroundImage={portalEngineerImage} variant="engineer">
+    <>
+      <SEOHead
+        title="For Engineers"
+        description="Turn your audio skills into a thriving business. 10 revenue streams, 70-85% splits, automatic client matching, and a business dashboard built for engineers."
+        keywords="audio engineers, mixing engineer income, mastering career, music engineer platform, earn mixing"
+      />
+      <LandingPortal backgroundImage={portalEngineerImage} variant="engineer">
       <BackButton />
       {/* Founding Engineer Banner */}
       <FoundingBanner
@@ -202,5 +209,6 @@ export default function ForEngineers() {
       />
       <PublicFooter />
     </LandingPortal>
+    </>
   );
 }

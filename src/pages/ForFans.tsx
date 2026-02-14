@@ -1,3 +1,4 @@
+import { SEOHead } from '@/components/SEOHead';
 import { PublicFooter } from '@/components/layouts/PublicFooter';
 import {
     Heart,
@@ -187,7 +188,13 @@ const ForFans = () => {
     ];
 
     return (
-        <LandingPortal backgroundImage={portalFanImage} variant="fan">
+        <>
+            <SEOHead
+                title="For Fans"
+                description="Discover underground artists before the world catches on. Support early, earn Day 1 OG status, collect rewards, and shape the music you love."
+                keywords="music fans, discover artists, support musicians, fan rewards, music discovery platform"
+            />
+            <LandingPortal backgroundImage={portalFanImage} variant="fan">
             <BackButton />
             {/* Founding Fan Banner */}
             <FoundingBanner
@@ -266,6 +273,7 @@ const ForFans = () => {
             />
       <PublicFooter />
         </LandingPortal>
+        </>
     );
 };
 

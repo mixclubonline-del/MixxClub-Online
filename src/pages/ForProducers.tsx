@@ -1,3 +1,4 @@
+import { SEOHead } from '@/components/SEOHead';
 import { PublicFooter } from '@/components/layouts/PublicFooter';
 import {
     Disc3,
@@ -186,7 +187,13 @@ const ForProducers = () => {
     ];
 
     return (
-        <LandingPortal backgroundImage={portalProducerImage} variant="producer">
+        <>
+            <SEOHead
+                title="For Producers"
+                description="Sell beats, license instrumentals, and collaborate with artists worldwide. AI-powered catalog, 80%+ revenue splits, and a built-in beat marketplace."
+                keywords="beat producers, sell beats online, beat marketplace, producer platform, instrumental licensing"
+            />
+            <LandingPortal backgroundImage={portalProducerImage} variant="producer">
             <BackButton />
             {/* Founding Producer Banner */}
             <FoundingBanner
@@ -265,6 +272,7 @@ const ForProducers = () => {
             />
       <PublicFooter />
         </LandingPortal>
+        </>
     );
 };
 
