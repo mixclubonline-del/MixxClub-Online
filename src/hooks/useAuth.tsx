@@ -24,7 +24,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const DEV_AUTH_BYPASS = import.meta.env.VITE_DEV_AUTH_BYPASS === 'true';
 
 const DEV_MOCK_USER = {
-  id: 'dev-user-00000000-0000-0000-0000-000000000000',
+  id: '00000000-0000-4000-8000-000000000000',
   email: 'dev@mixxclub.local',
   app_metadata: {},
   user_metadata: { full_name: 'Dev User' },

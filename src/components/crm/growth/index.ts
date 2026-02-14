@@ -1,4 +1,4 @@
-export { GrowthHub } from './GrowthHub';
+export { default as GrowthHub } from './GrowthHub';
 export { GrowthStats } from './GrowthStats';
 export { GoalTracker } from './GoalTracker';
 export { SkillDevelopment } from './SkillDevelopment';
