@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Helmet } from 'react-helmet-async';
 import { Award, GraduationCap, Trophy, CheckCircle, Bell, Sparkles, ArrowLeft } from 'lucide-react';
-import Navigation from '@/components/Navigation';
+
 
 export default function MyCertifications() {
   return (
@@ -15,9 +15,8 @@ export default function MyCertifications() {
       </Helmet>
 
       <div className="min-h-screen bg-background">
-        <Navigation />
         
-        <main className="container max-w-4xl mx-auto px-4 pt-24 pb-16">
+        <main className="container max-w-4xl mx-auto px-4 py-6">
           {/* Back Link */}
           <Link 
             to="/dashboard" 

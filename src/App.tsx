@@ -9,7 +9,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { PWAInstallPrompt } from "@/components/mobile/PWAInstallPrompt";
 import { MobileRouteGuard } from "@/components/mobile/MobileRouteGuard";
 import { OfflineIndicator } from "@/components/mobile/OfflineIndicator";
-import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
+
 import { TabletSideNav } from "@/components/mobile/TabletSideNav";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { usePageTracking } from "@/hooks/useAnalytics";
@@ -87,12 +87,13 @@ const AppContent = () => {
 };
 
 // Global navigation wrapper component
+// Note: MobileBottomNav removed — MobileEnhancedNav in AppLayout handles phone nav
+// to prevent duplicate bottom bars on protected routes.
 const GlobalNavigation = () => {
-  const { isPhone, isTablet } = useBreakpoint();
+  const { isTablet } = useBreakpoint();
 
   return (
     <>
-      {isPhone && <MobileBottomNav />}
       {isTablet && <TabletSideNav />}
     </>
   );

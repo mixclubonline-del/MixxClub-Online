@@ -1,4 +1,4 @@
-import { Home, Briefcase, Users, Plus, Search, Bell, Mic2 } from 'lucide-react';
+import { Home, Briefcase, Users, Plus, Search, Bell, Mic2, Disc3, Compass, Heart, Radio, Video } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useNotifications } from '@/hooks/useNotifications';
@@ -67,6 +67,26 @@ export const MobileBottomNav = () => {
         { icon: Users, label: 'Users', path: '/admin/users' },
         { icon: Plus, label: 'New', path: '/create-session', isCenter: true },
         { icon: Briefcase, label: 'Sessions', path: '/admin/sessions' },
+        notificationTab,
+      ];
+    }
+
+    if (userRole === 'producer') {
+      return [
+        { icon: Home, label: 'Home', path: '/producer-crm' },
+        { icon: Disc3, label: 'Beats', path: '/beats' },
+        { icon: Plus, label: 'Create', path: '/prime-beat-forge', isCenter: true },
+        { icon: Radio, label: 'Sessions', path: '/sessions' },
+        notificationTab,
+      ];
+    }
+
+    if (userRole === 'fan') {
+      return [
+        { icon: Home, label: 'Feed', path: '/fan-hub' },
+        { icon: Compass, label: 'Discover', path: '/community' },
+        { icon: Video, label: 'Live', path: '/live', isCenter: true },
+        { icon: Disc3, label: 'Beats', path: '/beats' },
         notificationTab,
       ];
     }

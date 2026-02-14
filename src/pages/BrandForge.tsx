@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { Loader2, Sparkles, Video, Image, Wand2, Download, Check, Crown, Save, Trash2, Star } from 'lucide-react';
 import LogoShowcase from '@/components/brand/LogoShowcase';
-import Navigation from '@/components/Navigation';
+
 import { useBrandAssets } from '@/hooks/useBrandAssets';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -166,9 +166,8 @@ export default function BrandForge() {
         <div className="fixed inset-0 bg-gradient-to-b from-background via-background to-background/90 -z-10" />
         <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.15),transparent_50%)] -z-10" />
         
-        <Navigation />
         
-        <div className="container mx-auto px-4 pt-24 pb-12">
+        <div className="container mx-auto px-4 py-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

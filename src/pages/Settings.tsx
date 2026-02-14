@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import Navigation from '@/components/Navigation';
+
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -11,7 +11,7 @@ export default function Settings() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
+      
       
       <div className="container max-w-4xl py-12 px-6">
         <Button

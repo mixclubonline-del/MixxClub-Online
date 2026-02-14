@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Trophy, Star, TrendingUp, Award, Users, Zap, Crown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import Navigation from '@/components/Navigation';
+
 
 interface LeaderboardEntry {
   rank: number;
@@ -119,7 +119,7 @@ const CommunityLeaderboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
+      
 
       {/* Hero Section */}
       <section className="relative py-24 overflow-hidden">

@@ -19,7 +19,7 @@ interface NavTab {
 export const MobileEnhancedNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
   const { triggerHaptic } = useMobileOptimization({ enableHaptics: true });
   const [notificationCount] = useState(3);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -29,35 +29,52 @@ export const MobileEnhancedNav = () => {
     setSheetOpen(false);
   }, [location.pathname]);
 
-  // Determine user role from current path
-  const isEngineer = location.pathname.includes('engineer');
-  const isArtist = location.pathname.includes('artist');
-  const isAdmin = location.pathname.includes('mobile-admin');
+  // Use auth-based role detection instead of URL sniffing
+  const getTabsForRole = (): NavTab[] => {
+    switch (userRole) {
+      case 'engineer':
+        return [
+          { icon: Home, label: 'Home', path: '/engineer-crm' },
+          { icon: Briefcase, label: 'Jobs', path: '/jobs', badge: 5 },
+          { icon: ShoppingBag, label: 'Shop', path: '/merch' },
+          { icon: Bot, label: 'AI', path: '/mobile-mixxbot' },
+          { icon: User, label: 'Profile', path: '/settings' },
+        ];
+      case 'producer':
+        return [
+          { icon: Home, label: 'Home', path: '/producer-crm' },
+          { icon: Briefcase, label: 'Beats', path: '/beats' },
+          { icon: ShoppingBag, label: 'Shop', path: '/merch' },
+          { icon: Bot, label: 'AI', path: '/mobile-mixxbot' },
+          { icon: User, label: 'Profile', path: '/settings' },
+        ];
+      case 'fan':
+        return [
+          { icon: Home, label: 'Feed', path: '/fan-hub' },
+          { icon: Briefcase, label: 'Discover', path: '/community' },
+          { icon: ShoppingBag, label: 'Shop', path: '/merch' },
+          { icon: Bot, label: 'AI', path: '/mobile-mixxbot' },
+          { icon: User, label: 'Profile', path: '/settings' },
+        ];
+      case 'admin':
+        return [
+          { icon: Home, label: 'Dashboard', path: '/admin' },
+          { icon: Bot, label: 'Mixx Bot', path: '/mobile-mixxbot' },
+          { icon: ShoppingBag, label: 'Shop', path: '/merch' },
+          { icon: User, label: 'Users', path: '/admin/users' },
+        ];
+      default: // artist
+        return [
+          { icon: Home, label: 'Home', path: '/artist-crm' },
+          { icon: Briefcase, label: 'Projects', path: '/artist-crm' },
+          { icon: ShoppingBag, label: 'Shop', path: '/merch' },
+          { icon: Bot, label: 'AI', path: '/mobile-mixxbot' },
+          { icon: User, label: 'Profile', path: '/settings' },
+        ];
+    }
+  };
 
-  const engineerTabs: NavTab[] = [
-    { icon: Home, label: 'Home', path: '/mobile-home' },
-    { icon: Briefcase, label: 'Jobs', path: '/jobs', badge: 5 },
-    { icon: ShoppingBag, label: 'Shop', path: '/merch' },
-    { icon: Bot, label: 'AI', path: '/mobile-mixxbot' },
-    { icon: User, label: 'Profile', path: '/settings' },
-  ];
-
-  const artistTabs: NavTab[] = [
-    { icon: Home, label: 'Home', path: '/mobile-home' },
-    { icon: Briefcase, label: 'Projects', path: '/artist-crm' },
-    { icon: ShoppingBag, label: 'Shop', path: '/merch' },
-    { icon: Bot, label: 'AI', path: '/mobile-mixxbot' },
-    { icon: User, label: 'Profile', path: '/settings' },
-  ];
-
-  const adminTabs: NavTab[] = [
-    { icon: Home, label: 'Dashboard', path: '/mobile-admin' },
-    { icon: Bot, label: 'Mixx Bot', path: '/mobile-mixxbot' },
-    { icon: ShoppingBag, label: 'Shop', path: '/merch' },
-    { icon: User, label: 'Users', path: '/mobile-admin/users' },
-  ];
-
-  const tabs = isAdmin ? adminTabs : isEngineer ? engineerTabs : artistTabs;
+  const tabs = getTabsForRole();
 
   const handleNavigation = (path: string) => {
     triggerHaptic('light');
