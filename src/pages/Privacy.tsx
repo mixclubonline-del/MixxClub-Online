@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import Navigation from '@/components/Navigation';
+import { PublicFooter } from '@/components/layouts/PublicFooter';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -207,11 +208,7 @@ export default function Privacy() {
         </div>
       </div>
 
-      <footer className="border-t border-border py-8 bg-card mt-12">
-        <div className="container text-center text-sm text-muted-foreground">
-          <p>&copy; 2025 MixClub. All rights reserved.</p>
-        </div>
-      </footer>
+      <PublicFooter />
     </div>
   );
 }

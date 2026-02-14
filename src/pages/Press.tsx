@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { SEOHead } from "@/components/SEOHead";
 import Navigation from "@/components/Navigation";
+import { PublicFooter } from "@/components/layouts/PublicFooter";
 import { usePlatformStats } from "@/hooks/usePlatformStats";
 import { 
   Download, 
@@ -227,6 +228,8 @@ const Press = () => {
             </div>
           </section>
         </div>
+
+        <PublicFooter />
       </div>
     </>
   );
