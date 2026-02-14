@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import Navigation from '@/components/Navigation';
 import { PublicFooter } from '@/components/layouts/PublicFooter';
+import { SEOHead } from '@/components/SEOHead';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Scale } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -13,7 +14,13 @@ export default function Terms() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background">
+    <>
+      <SEOHead
+        title="Terms of Service"
+        description="Read MixxClub's terms of service. Understand your rights, responsibilities, payment terms, and intellectual property protections."
+        keywords="mixclub terms, terms of service, user agreement, audio platform terms"
+      />
+      <div className="min-h-screen bg-background">
       <Navigation />
       
       <div className="container max-w-4xl py-12 px-6">
@@ -166,5 +173,6 @@ export default function Terms() {
 
       <PublicFooter />
     </div>
+    </>
   );
 }

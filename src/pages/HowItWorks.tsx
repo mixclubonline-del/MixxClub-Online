@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { PublicFooter } from "@/components/layouts/PublicFooter";
+import { SEOHead } from "@/components/SEOHead";
 import { Upload, Sparkles, Users, Headphones, Download, UserPlus, Briefcase, Zap, DollarSign, Star } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import JourneyPortal from "@/components/journey/JourneyPortal";
@@ -149,7 +150,13 @@ const HowItWorks = () => {
   const [activeRole, setActiveRole] = useState<"artist" | "engineer">("artist");
 
   return (
-    <JourneyPortal backgroundAsset={journeyPathImage}>
+    <>
+      <SEOHead
+        title="How It Works"
+        description="See how MixxClub connects artists with professional engineers in 5 simple steps. Upload, match, collaborate, and release — powered by AI."
+        keywords="how mixclub works, music production process, ai mixing workflow, professional mastering steps"
+      />
+      <JourneyPortal backgroundAsset={journeyPathImage}>
       <Navigation />
       <PathAmbience />
       
@@ -182,6 +189,7 @@ const HowItWorks = () => {
 
       <PublicFooter />
     </JourneyPortal>
+    </>
   );
 };
 

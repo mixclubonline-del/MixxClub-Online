@@ -1,3 +1,4 @@
+import { SEOHead } from '@/components/SEOHead';
 import { PublicFooter } from '@/components/layouts/PublicFooter';
 import {
   Upload,
@@ -186,7 +187,13 @@ const ForArtists = () => {
   ];
 
   return (
-    <LandingPortal backgroundImage={portalArtistImage} variant="artist">
+    <>
+      <SEOHead
+        title="For Artists"
+        description="Upload your track, get AI-matched with professional engineers, and collaborate in real-time. From bedroom to billboard — starting at $29."
+        keywords="music artists, professional mixing, mastering for artists, ai engineer matching, music production"
+      />
+      <LandingPortal backgroundImage={portalArtistImage} variant="artist">
       <BackButton />
       {/* Founding Member Banner */}
       <FoundingBanner
@@ -275,6 +282,7 @@ const ForArtists = () => {
       />
       <PublicFooter />
     </LandingPortal>
+    </>
   );
 };
 

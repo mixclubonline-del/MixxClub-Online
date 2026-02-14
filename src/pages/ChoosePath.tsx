@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Mic2, Headphones, Disc3, Heart, ArrowRight, Sparkles, Zap, Crown, Star } from 'lucide-react';
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Helmet } from 'react-helmet-async';
+import { SEOHead } from '@/components/SEOHead';
 import { BackButton } from '@/components/navigation/BackButton';
 
 type PathRole = 'producer' | 'artist' | 'engineer' | 'fan';
@@ -134,10 +134,11 @@ const ChoosePath = () => {
 
     return (
         <>
-            <Helmet>
-                <title>Choose Your Path — MIXXCLUB</title>
-                <meta name="description" content="Pick your role in MixxClub: Producer, Artist, Engineer, or Fan. Start your journey today." />
-            </Helmet>
+            <SEOHead
+                title="Choose Your Path"
+                description="Pick your role in MixxClub: Producer, Artist, Engineer, or Fan. Start your music journey today."
+                keywords="choose role, music career path, artist signup, engineer signup, producer signup, fan signup"
+            />
 
             <div className="min-h-[100svh] relative overflow-hidden bg-[#050510] flex flex-col items-center justify-center px-4 py-12">
                 <BackButton />

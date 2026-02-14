@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { PublicFooter } from '@/components/layouts/PublicFooter';
+import { SEOHead } from '@/components/SEOHead';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Search, MessageCircle, Mail, Phone } from 'lucide-react';
@@ -132,7 +133,13 @@ export default function FAQ() {
   })).filter(category => category.questions.length > 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
+    <>
+      <SEOHead
+        title="FAQ"
+        description="Get answers to common questions about MixxClub — file formats, pricing, turnaround times, security, and more."
+        keywords="mixclub faq, music production questions, mixing mastering help, audio engineering faq"
+      />
+      <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
       <div className="container px-6 py-12 max-w-4xl">
         {/* Header */}
         <div className="text-center mb-12">
@@ -212,5 +219,6 @@ export default function FAQ() {
       </div>
       <PublicFooter />
     </div>
+    </>
   );
 }
