@@ -55,7 +55,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           activeRole: 'producer',
           setActiveRole: () => { },
           isHybridUser: true,
-          signOut: async () => { console.log('[Dev Bypass] signOut ignored'); },
+          signOut: async () => {
+            // Even in dev bypass, allow sign-out to redirect to auth page
+            window.location.href = '/auth';
+          },
         }}
       >
         {children}
