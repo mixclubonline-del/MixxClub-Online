@@ -6,22 +6,24 @@ export default function Sitemap() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const baseUrl = 'https://mixclub.com';
+    const baseUrl = 'https://mixxclub.lovable.app';
     const currentDate = new Date().toISOString().split('T')[0];
 
     const routes = [
       { url: '/', priority: '1.0', changefreq: 'daily' },
       { url: '/pricing', priority: '0.9', changefreq: 'weekly' },
+      { url: '/how-it-works', priority: '0.8', changefreq: 'weekly' },
       { url: '/showcase', priority: '0.8', changefreq: 'daily' },
+      { url: '/for-artists', priority: '0.8', changefreq: 'monthly' },
+      { url: '/for-engineers', priority: '0.8', changefreq: 'monthly' },
+      { url: '/for-producers', priority: '0.8', changefreq: 'monthly' },
+      { url: '/for-fans', priority: '0.8', changefreq: 'monthly' },
+      { url: '/choose-path', priority: '0.7', changefreq: 'monthly' },
       { url: '/about', priority: '0.7', changefreq: 'monthly' },
       { url: '/contact', priority: '0.7', changefreq: 'monthly' },
-      { url: '/marketplace', priority: '0.8', changefreq: 'daily' },
-      { url: '/dashboard', priority: '0.8', changefreq: 'daily' },
-      { url: '/artist-crm', priority: '0.8', changefreq: 'daily' },
-      { url: '/engineer-crm', priority: '0.8', changefreq: 'daily' },
-      { url: '/collaboration', priority: '0.7', changefreq: 'weekly' },
-      { url: '/education', priority: '0.7', changefreq: 'weekly' },
-      { url: '/battles', priority: '0.6', changefreq: 'weekly' },
+      { url: '/press', priority: '0.7', changefreq: 'monthly' },
+      { url: '/faq', priority: '0.6', changefreq: 'monthly' },
+      { url: '/install', priority: '0.5', changefreq: 'monthly' },
       { url: '/privacy', priority: '0.4', changefreq: 'yearly' },
       { url: '/terms', priority: '0.4', changefreq: 'yearly' },
     ];
