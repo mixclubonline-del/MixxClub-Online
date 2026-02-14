@@ -5,6 +5,7 @@ import { SEOHead } from "@/components/SEOHead";
 import Navigation from "@/components/Navigation";
 import { PublicFooter } from "@/components/layouts/PublicFooter";
 import { usePlatformStats } from "@/hooks/usePlatformStats";
+import { usePressBrandAssets } from "@/hooks/usePressBrandAssets";
 import { 
   Download, 
   Image as ImageIcon, 
@@ -15,11 +16,13 @@ import {
   Headphones,
   Star,
   DollarSign,
-  Palette
+  Palette,
+  Loader2
 } from "lucide-react";
 
 const Press = () => {
   const { displayStats } = usePlatformStats();
+  const { download, loadingPath } = usePressBrandAssets();
 
   const brandColors = [
     { name: "Primary", hex: "#8B5CF6", cssVar: "hsl(262, 83%, 58%)" },
@@ -64,8 +67,13 @@ const Press = () => {
                 get key statistics, and contact our press team.
               </p>
 
-              <Button size="lg" className="gap-2">
-                <Download className="w-5 h-5" />
+              <Button
+                size="lg"
+                className="gap-2"
+                disabled={loadingPath === 'press/full-kit'}
+                onClick={() => download('press/full-kit', 'mixxclub-full-press-kit')}
+              >
+                {loadingPath === 'press/full-kit' ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
                 Download Full Press Kit
               </Button>
             </div>
@@ -172,8 +180,13 @@ const Press = () => {
                     <p className="text-sm text-muted-foreground mb-4">
                       SVG, PNG, and EPS formats in light and dark variants
                     </p>
-                    <Button variant="outline" className="gap-2 w-full">
-                      <Download className="w-4 h-4" />
+                    <Button
+                      variant="outline"
+                      className="gap-2 w-full"
+                      disabled={loadingPath === 'press/logos'}
+                      onClick={() => download('press/logos', 'mixxclub-logos')}
+                    >
+                      {loadingPath === 'press/logos' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
                       Download Logos
                     </Button>
                   </CardContent>
@@ -188,8 +201,13 @@ const Press = () => {
                     <p className="text-sm text-muted-foreground mb-4">
                       High-resolution product screenshots and mockups
                     </p>
-                    <Button variant="outline" className="gap-2 w-full">
-                      <Download className="w-4 h-4" />
+                    <Button
+                      variant="outline"
+                      className="gap-2 w-full"
+                      disabled={loadingPath === 'press/screenshots'}
+                      onClick={() => download('press/screenshots', 'mixxclub-screenshots')}
+                    >
+                      {loadingPath === 'press/screenshots' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
                       Download Screenshots
                     </Button>
                   </CardContent>
@@ -204,8 +222,13 @@ const Press = () => {
                     <p className="text-sm text-muted-foreground mb-4">
                       Company overview, statistics, and key information
                     </p>
-                    <Button variant="outline" className="gap-2 w-full">
-                      <Download className="w-4 h-4" />
+                    <Button
+                      variant="outline"
+                      className="gap-2 w-full"
+                      disabled={loadingPath === 'press/fact-sheet'}
+                      onClick={() => download('press/fact-sheet', 'mixxclub-fact-sheet')}
+                    >
+                      {loadingPath === 'press/fact-sheet' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
                       Download PDF
                     </Button>
                   </CardContent>
