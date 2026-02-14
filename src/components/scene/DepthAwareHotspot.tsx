@@ -22,6 +22,7 @@ interface DepthAwareHotspotProps {
   depthLayer: DepthLayer;
   isUserFeatured?: boolean;
   onClick: () => void;
+  onHoverChange?: (roomId: string, hovered: boolean) => void;
 }
 
 // ─── Presence Signal: Door Light Spill ────────────────────────────────
@@ -274,7 +275,8 @@ export function DepthAwareHotspot({
   position, 
   depthLayer,
   isUserFeatured = false,
-  onClick 
+  onClick,
+  onHoverChange,
 }: DepthAwareHotspotProps) {
   const [isHovered, setIsHovered] = useState(false);
   
@@ -307,8 +309,14 @@ export function DepthAwareHotspot({
         top: `${position.y}%`,
         transform: 'translate(-50%, -50%)',
       }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={() => {
+        setIsHovered(true);
+        onHoverChange?.(room.id, true);
+      }}
+      onMouseLeave={() => {
+        setIsHovered(false);
+        onHoverChange?.(room.id, false);
+      }}
       onClick={canEnter ? onClick : undefined}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}

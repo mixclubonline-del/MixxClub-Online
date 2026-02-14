@@ -11,13 +11,14 @@
  * - On Stage: Featured glow (you ARE the energy)
  */
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useStudios, useFeaturedSession, useSceneSystemInit } from '@/hooks/useSceneSystem';
 import { useDepthLayer } from '@/hooks/useDepthLayer';
 import { useAuth } from '@/hooks/useAuth';
 import { DepthAwareHotspot } from './DepthAwareHotspot';
+import { useHallwayAmbience } from '@/hooks/useHallwayAmbience';
 import type { StudioRoom } from '@/types/scene';
 
 // Static imports for hallway backgrounds
@@ -46,12 +47,29 @@ interface StudioHallwayProps {
 export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: StudioHallwayProps) {
   const navigate = useNavigate();
   const [showSkipHint, setShowSkipHint] = useState(false);
+  const [hoveredRoomId, setHoveredRoomId] = useState<string | null>(null);
   const { user } = useAuth();
   const { isConnected } = useSceneSystemInit();
   const { studios, activeCount } = useStudios();
   const { featuredSession } = useFeaturedSession();
   const { currentLayer, isOnStage } = useDepthLayer();
   const [imageError, setImageError] = useState(false);
+  const ambienceStartedRef = useRef(false);
+
+  const { startAmbience } = useHallwayAmbience(studios, hoveredRoomId);
+
+  // Auto-start ambience on first user interaction
+  const ensureAmbience = useCallback(() => {
+    if (!ambienceStartedRef.current) {
+      ambienceStartedRef.current = true;
+      startAmbience();
+    }
+  }, [startAmbience]);
+
+  const handleHoverChange = useCallback((roomId: string, hovered: boolean) => {
+    ensureAmbience();
+    setHoveredRoomId(hovered ? roomId : null);
+  }, [ensureAmbience]);
   
   const hasActiveSessions = activeCount > 0;
   
@@ -185,6 +203,7 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
               depthLayer={currentLayer}
               isUserFeatured={room.id === userFeaturedRoomId}
               onClick={() => handleRoomClick(room)}
+              onHoverChange={handleHoverChange}
             />
           ))}
         </AnimatePresence>
@@ -234,7 +253,7 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
           transition={{ delay: 1.5 }}
         >
           <motion.button
-            onClick={onEnter}
+            onClick={() => { ensureAmbience(); onEnter(); }}
             className="group flex flex-col items-center gap-3 px-8 py-4 rounded-2xl bg-background/60 backdrop-blur-md border border-primary/30 hover:border-primary/60 transition-all"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.98 }}
