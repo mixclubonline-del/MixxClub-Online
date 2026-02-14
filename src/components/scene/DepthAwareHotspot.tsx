@@ -1,15 +1,18 @@
 /**
- * Depth-Aware Studio Hotspot
+ * Depth-Aware Studio Hotspot — "Light Under the Door"
  * 
- * Progressive revelation based on user depth:
- * - Posted Up (Layer 0): Glowing door indicator only
- * - In the Room (Layer 1): See avatars behind doors
- * - On the Mic (Layer 2): Can click to enter sessions
- * - On Stage (Layer 3): Featured with enhanced glow
+ * Environmental presence signals that feel part of the hallway scene:
+ * - DoorLightSpill: Horizontal gradient at door base (replaces glowing circle)
+ * - BassRipple: Concentric floor ripples (replaces avatar dots)
+ * - RecordingBeacon: Wall-mounted red light (replaces floating red dot)
+ * - FrostedGlassReveal: Peering through door glass on hover (replaces tooltip)
+ * - SpotlightBloom: Additive light bloom for On Stage users
+ * 
+ * Progressive revelation via depth layers — same logic, environmental visuals.
  */
 
-import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useMemo } from 'react';
 import type { StudioRoom } from '@/types/scene';
 import type { DepthLayer } from '@/types/depth';
 
@@ -21,435 +24,339 @@ interface DepthAwareHotspotProps {
   onClick: () => void;
 }
 
-// Avatar placeholder - shows participant presence
-function ParticipantAvatars({ count, isVisible }: { count: number; isVisible: boolean }) {
-  if (!isVisible || count === 0) return null;
+// ─── Presence Signal: Door Light Spill ────────────────────────────────
+// Horizontal gradient at the door's floor line simulating light leaking out.
+function DoorLightSpill({ 
+  room, 
+  intensity 
+}: { 
+  room: StudioRoom; 
+  intensity: 'faint' | 'medium' | 'full';
+}) {
+  const isActive = room.state !== 'idle' && room.state !== 'waiting';
+  const isRecording = room.state === 'recording';
   
-  const displayCount = Math.min(count, 3);
-  const overflow = count - displayCount;
-  
+  if (!isActive && intensity === 'faint') {
+    // Idle rooms get the faintest cool glow
+    return (
+      <motion.div
+        className="absolute left-1/2 -translate-x-1/2"
+        style={{ bottom: '-4px', width: '80px', height: '6px' }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: [0.08, 0.15, 0.08] }}
+        transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+      >
+        <div 
+          className="w-full h-full rounded-full"
+          style={{
+            background: 'radial-gradient(ellipse at center, hsl(220 15% 60% / 0.3), transparent 70%)',
+          }}
+        />
+      </motion.div>
+    );
+  }
+
+  if (!isActive) return null;
+
+  const opacityScale = intensity === 'full' ? 1 : intensity === 'medium' ? 0.7 : 0.4;
+  const width = intensity === 'full' ? '140px' : intensity === 'medium' ? '120px' : '90px';
+
+  // Color: amber for active, red pulse for recording
+  const lightColor = isRecording 
+    ? 'hsl(0 80% 55% / 0.6)' 
+    : 'hsl(35 90% 55% / 0.5)';
+  const lightColorDim = isRecording
+    ? 'hsl(0 80% 55% / 0.2)'
+    : 'hsl(35 90% 55% / 0.15)';
+
   return (
     <motion.div
-      className="absolute -bottom-6 left-1/2 -translate-x-1/2 flex -space-x-2"
-      initial={{ opacity: 0, y: -5 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.2 }}
+      className="absolute left-1/2 -translate-x-1/2"
+      style={{ bottom: '-4px', width, height: '8px' }}
+      initial={{ opacity: 0, scaleX: 0.5 }}
+      animate={{ 
+        opacity: opacityScale,
+        scaleX: 1,
+      }}
+      transition={{ duration: 0.8, ease: 'easeOut' }}
     >
-      {Array.from({ length: displayCount }).map((_, i) => (
-        <div
+      {/* Primary light spill */}
+      <motion.div
+        className="w-full h-full rounded-full"
+        style={{
+          background: `radial-gradient(ellipse at center, ${lightColor}, ${lightColorDim} 60%, transparent 90%)`,
+        }}
+        animate={isRecording ? {
+          opacity: [1, 0.5, 1],
+        } : {
+          opacity: [0.8, 1, 0.8],
+        }}
+        transition={{ 
+          duration: isRecording ? 1.5 : 3, 
+          repeat: Infinity, 
+          ease: 'easeInOut' 
+        }}
+      />
+      {/* Secondary scatter — wider, dimmer */}
+      <motion.div
+        className="absolute left-1/2 -translate-x-1/2 -bottom-1"
+        style={{
+          width: `calc(${width} + 40px)`,
+          height: '12px',
+          background: `radial-gradient(ellipse at center, ${lightColorDim}, transparent 80%)`,
+        }}
+        animate={{ opacity: [0.3, 0.5, 0.3] }}
+        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+      />
+    </motion.div>
+  );
+}
+
+// ─── Presence Signal: Bass Ripple ─────────────────────────────────────
+// Concentric rings from door base — more participants = more energy.
+function BassRipple({ participantCount }: { participantCount: number }) {
+  if (participantCount === 0) return null;
+
+  const rippleCount = Math.min(participantCount, 3);
+  // More participants = faster ripples
+  const baseDuration = Math.max(2, 4 - participantCount * 0.4);
+
+  return (
+    <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: '-6px' }}>
+      {Array.from({ length: rippleCount }).map((_, i) => (
+        <motion.div
           key={i}
-          className="w-5 h-5 rounded-full bg-gradient-to-br from-primary/60 to-primary/30 border border-primary/40 backdrop-blur-sm"
-          style={{ zIndex: displayCount - i }}
+          className="absolute left-1/2 -translate-x-1/2 rounded-full border"
+          style={{
+            width: '20px',
+            height: '10px',
+            borderColor: 'hsl(35 90% 55% / 0.25)',
+            bottom: '0px',
+          }}
+          initial={{ scaleX: 1, scaleY: 1, opacity: 0.4 }}
+          animate={{
+            scaleX: [1, 3 + i * 0.8],
+            scaleY: [1, 2 + i * 0.5],
+            opacity: [0.35, 0],
+          }}
+          transition={{
+            duration: baseDuration + i * 0.5,
+            repeat: Infinity,
+            delay: i * (baseDuration / rippleCount),
+            ease: 'easeOut',
+          }}
         />
       ))}
-      {overflow > 0 && (
-        <div className="w-5 h-5 rounded-full bg-muted/80 border border-border text-[10px] flex items-center justify-center text-muted-foreground font-medium">
-          +{overflow}
-        </div>
-      )}
-    </motion.div>
+    </div>
   );
 }
 
-// Posted Up view - ambient glow only, no interaction
-function PostedUpView({ room, position }: { room: StudioRoom; position: { x: number; y: number } }) {
-  const isActive = room.state !== 'idle' && room.state !== 'waiting';
-  
+// ─── Presence Signal: Recording Beacon ────────────────────────────────
+// Wall-mounted red indicator light above the door.
+function RecordingBeacon() {
   return (
     <motion.div
-      className="absolute pointer-events-none"
-      style={{ 
-        left: `${position.x}%`, 
-        top: `${position.y}%`,
-        transform: 'translate(-50%, -50%)'
-      }}
+      className="absolute left-1/2 -translate-x-1/2"
+      style={{ top: '-20px' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
     >
-      {/* Ambient glow - visible but not interactive */}
+      {/* Beacon glow halo */}
       <motion.div
-        className={`w-8 h-8 rounded-full ${isActive ? 'bg-primary/40' : 'bg-muted/20'}`}
-        animate={isActive ? {
-          scale: [1, 1.3, 1],
-          opacity: [0.4, 0.7, 0.4]
-        } : {
-          opacity: [0.2, 0.4, 0.2]
+        className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 rounded-full"
+        style={{
+          background: 'radial-gradient(circle, hsl(0 80% 50% / 0.4), transparent 70%)',
+          top: '50%',
         }}
-        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+        animate={{ opacity: [0.4, 0.8, 0.4], scale: [1, 1.3, 1] }}
+        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
       />
-      
-      {/* Subtle outer ring for active sessions */}
-      {isActive && (
-        <motion.div
-          className="absolute inset-0 rounded-full border border-primary/20"
-          style={{ width: '48px', height: '48px', left: '-8px', top: '-8px' }}
-          animate={{ scale: [1, 1.5], opacity: [0.3, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        />
-      )}
-    </motion.div>
-  );
-}
-
-// In the Room view - can see who's inside
-function InTheRoomView({ room, position }: { room: StudioRoom; position: { x: number; y: number } }) {
-  const [isHovered, setIsHovered] = useState(false);
-  const isActive = room.state !== 'idle' && room.state !== 'waiting';
-  
-  return (
-    <motion.div
-      className="absolute"
-      style={{ 
-        left: `${position.x}%`, 
-        top: `${position.y}%`,
-        transform: 'translate(-50%, -50%)'
-      }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.8 }}
-    >
-      {/* Door indicator with presence awareness */}
+      {/* Beacon dot */}
       <motion.div
-        className={`
-          w-10 h-10 rounded-full border-2 backdrop-blur-sm
-          transition-colors duration-300
-          ${isActive 
-            ? 'bg-primary/30 border-primary/60' 
-            : 'bg-muted/20 border-muted-foreground/20'
-          }
-        `}
-        animate={isActive ? {
-          boxShadow: ['0 0 15px 3px hsl(var(--primary) / 0.3)', '0 0 25px 5px hsl(var(--primary) / 0.2)', '0 0 15px 3px hsl(var(--primary) / 0.3)']
-        } : {}}
-        transition={{ duration: 2, repeat: Infinity }}
-      >
-        {isActive && (
-          <div className="absolute inset-2 rounded-full bg-primary/40" />
-        )}
-      </motion.div>
-      
-      {/* Participant avatars - visible at this depth */}
-      <ParticipantAvatars count={room.participantCount} isVisible={isActive} />
-      
-      {/* Hover info */}
-      {isHovered && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="absolute left-1/2 -translate-x-1/2 -top-14 z-20 pointer-events-none"
-        >
-          <div className="bg-background/95 backdrop-blur-md border border-border/50 rounded-lg px-3 py-2 shadow-xl whitespace-nowrap">
-            <p className="text-sm font-medium text-foreground truncate max-w-[180px]">
-              {room.title}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {isActive ? `${room.participantCount} creating` : 'Waiting for session'}
-            </p>
-          </div>
-        </motion.div>
-      )}
+        className="relative w-1.5 h-1.5 rounded-full"
+        style={{ backgroundColor: 'hsl(0 80% 55%)' }}
+        animate={{ opacity: [1, 0.4, 1] }}
+        transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+      />
     </motion.div>
   );
 }
 
-// On the Mic view - full interaction enabled
-function OnTheMicView({ 
+// ─── Hover Reveal: Frosted Glass ──────────────────────────────────────
+// Simulates peering through studio door window.
+function FrostedGlassReveal({ 
   room, 
-  position, 
-  onClick 
+  isVisible, 
+  canEnter 
 }: { 
   room: StudioRoom; 
-  position: { x: number; y: number };
-  onClick: () => void;
+  isVisible: boolean; 
+  canEnter: boolean;
 }) {
-  const [isHovered, setIsHovered] = useState(false);
   const isActive = room.state !== 'idle' && room.state !== 'waiting';
-  const isRecording = room.state === 'recording';
-  const canEnter = room.visibility === 'public' && room.sessionId;
-  
+
   return (
-    <motion.div
-      className={`absolute group ${canEnter ? 'cursor-pointer' : 'cursor-default'}`}
-      style={{ 
-        left: `${position.x}%`, 
-        top: `${position.y}%`,
-        transform: 'translate(-50%, -50%)'
-      }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onClick={canEnter ? onClick : undefined}
-      initial={{ opacity: 0, scale: 0 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0 }}
-      whileHover={canEnter ? { scale: 1.15 } : {}}
-      whileTap={canEnter ? { scale: 0.95 } : {}}
-    >
-      {/* Outer interactive ring */}
-      {isActive && (
+    <AnimatePresence>
+      {isVisible && (
         <motion.div
-          className="absolute rounded-full bg-primary/20"
-          style={{ 
-            width: '72px', 
-            height: '72px',
-            left: '-16px',
-            top: '-16px'
-          }}
-          animate={{ 
-            scale: [1, 1.4, 1],
-            opacity: [0.4, 0.15, 0.4]
-          }}
-          transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-        />
-      )}
-      
-      {/* Main hotspot - fully interactive */}
-      <motion.div
-        className={`
-          relative w-10 h-10 rounded-full border-2 backdrop-blur-sm
-          transition-all duration-300
-          ${isActive 
-            ? 'bg-primary/40 border-primary shadow-lg shadow-primary/40' 
-            : 'bg-muted/20 border-muted-foreground/30 hover:border-primary/50 hover:bg-primary/10'
-          }
-        `}
-        animate={isRecording ? {
-          boxShadow: [
-            '0 0 20px 5px hsl(var(--destructive) / 0.5)',
-            '0 0 35px 10px hsl(var(--destructive) / 0.3)',
-            '0 0 20px 5px hsl(var(--destructive) / 0.5)'
-          ]
-        } : {}}
-        transition={isRecording ? { duration: 1.2, repeat: Infinity } : {}}
-      >
-        {/* Recording indicator */}
-        {isRecording && (
-          <motion.div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-destructive"
-            animate={{ opacity: [1, 0.3, 1] }}
-            transition={{ duration: 0.6, repeat: Infinity }}
-          />
-        )}
-        
-        {/* Active glow */}
-        {isActive && !isRecording && (
-          <div className="absolute inset-2 rounded-full bg-primary/60" />
-        )}
-        
-        {/* Enter indicator for clickable sessions */}
-        {canEnter && isHovered && (
-          <motion.div
-            className="absolute inset-0 rounded-full border-2 border-primary"
-            initial={{ scale: 1, opacity: 0 }}
-            animate={{ scale: 1.3, opacity: [0, 1, 0] }}
-            transition={{ duration: 1, repeat: Infinity }}
-          />
-        )}
-      </motion.div>
-      
-      {/* Participant avatars */}
-      <ParticipantAvatars count={room.participantCount} isVisible={isActive} />
-      
-      {/* Interactive tooltip */}
-      {isHovered && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 8 }}
-          className="absolute left-1/2 -translate-x-1/2 -top-16 z-20 pointer-events-none"
+          className="absolute left-1/2 -translate-x-1/2 z-20 pointer-events-none"
+          style={{ top: '-60px' }}
+          initial={{ opacity: 0, filter: 'blur(8px)' }}
+          animate={{ opacity: 1, filter: 'blur(0px)' }}
+          exit={{ opacity: 0, filter: 'blur(8px)' }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
         >
-          <div className="bg-background/95 backdrop-blur-md border border-border/50 rounded-lg px-3 py-2 shadow-xl whitespace-nowrap">
-            <p className="text-sm font-medium text-foreground truncate max-w-[200px]">
+          <div 
+            className="px-4 py-3 rounded-lg whitespace-nowrap"
+            style={{
+              background: 'hsl(var(--background) / 0.15)',
+              backdropFilter: 'blur(16px)',
+              border: '1px solid hsl(0 0% 100% / 0.08)',
+              boxShadow: '0 8px 32px hsl(0 0% 0% / 0.3)',
+            }}
+          >
+            <p className="text-sm font-medium text-foreground/90 truncate max-w-[200px]">
               {room.title}
             </p>
             {isActive && (
-              <p className="text-xs text-primary flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                {room.participantCount} in session
+              <p className="text-xs text-foreground/50 mt-0.5">
+                {room.participantCount} creating
               </p>
             )}
             {canEnter && (
-              <p className="text-xs text-accent-foreground mt-1">Click to enter</p>
+              <p className="text-[10px] text-primary/70 mt-1 font-medium tracking-wide uppercase">
+                Enter session
+              </p>
             )}
           </div>
         </motion.div>
       )}
-    </motion.div>
+    </AnimatePresence>
   );
 }
 
-// On Stage view - featured with maximum presence
-function OnStageView({ 
-  room, 
-  position, 
-  isUserFeatured,
-  onClick 
-}: { 
-  room: StudioRoom; 
-  position: { x: number; y: number };
-  isUserFeatured?: boolean;
-  onClick: () => void;
-}) {
-  const [isHovered, setIsHovered] = useState(false);
-  const isActive = room.state !== 'idle' && room.state !== 'waiting';
-  const isRecording = room.state === 'recording';
-  const canEnter = room.visibility === 'public' && room.sessionId;
-  
+// ─── On Stage: Spotlight Bloom ────────────────────────────────────────
+// Large additive-blend light that bleeds into the hallway floor.
+function SpotlightBloom({ isUserFeatured }: { isUserFeatured: boolean }) {
   return (
     <motion.div
-      className={`absolute group ${canEnter ? 'cursor-pointer' : 'cursor-default'}`}
-      style={{ 
-        left: `${position.x}%`, 
-        top: `${position.y}%`,
-        transform: 'translate(-50%, -50%)'
+      className="absolute left-1/2 -translate-x-1/2 pointer-events-none"
+      style={{
+        bottom: '-30px',
+        width: '200px',
+        height: '120px',
+        mixBlendMode: 'screen',
       }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onClick={canEnter ? onClick : undefined}
-      initial={{ opacity: 0, scale: 0 }}
+      initial={{ opacity: 0, scale: 0.6 }}
       animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0 }}
-      whileHover={canEnter ? { scale: 1.2 } : {}}
-      whileTap={canEnter ? { scale: 0.95 } : {}}
+      transition={{ duration: 1, ease: 'easeOut' }}
     >
-      {/* Featured glow aura - extra prominent for On Stage users */}
-      {(isActive || isUserFeatured) && (
-        <>
-          <motion.div
-            className="absolute rounded-full bg-primary/25"
-            style={{ 
-              width: '100px', 
-              height: '100px',
-              left: '-30px',
-              top: '-30px'
-            }}
-            animate={{ 
-              scale: [1, 1.3, 1],
-              opacity: [0.3, 0.1, 0.3]
-            }}
-            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-          />
-          <motion.div
-            className="absolute rounded-full bg-primary/15"
-            style={{ 
-              width: '140px', 
-              height: '140px',
-              left: '-50px',
-              top: '-50px'
-            }}
-            animate={{ 
-              scale: [1, 1.2, 1],
-              opacity: [0.2, 0.05, 0.2]
-            }}
-            transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
-          />
-        </>
-      )}
-      
-      {/* User's featured indicator */}
-      {isUserFeatured && (
-        <motion.div
-          className="absolute -top-3 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full bg-primary/90 text-primary-foreground text-[10px] font-semibold"
-          initial={{ opacity: 0, y: 5 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          YOU
-        </motion.div>
-      )}
-      
-      {/* Main hotspot - premium styling */}
       <motion.div
-        className={`
-          relative w-12 h-12 rounded-full border-2 backdrop-blur-sm
-          transition-all duration-300
-          ${isActive || isUserFeatured
-            ? 'bg-primary/50 border-primary shadow-xl shadow-primary/50' 
-            : 'bg-muted/30 border-muted-foreground/40 hover:border-primary/60 hover:bg-primary/20'
-          }
-        `}
-        animate={isRecording ? {
-          boxShadow: [
-            '0 0 25px 8px hsl(var(--destructive) / 0.5)',
-            '0 0 45px 15px hsl(var(--destructive) / 0.3)',
-            '0 0 25px 8px hsl(var(--destructive) / 0.5)'
-          ]
-        } : {}}
-        transition={isRecording ? { duration: 1, repeat: Infinity } : {}}
-      >
-        {/* Recording indicator */}
-        {isRecording && (
-          <motion.div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-destructive"
-            animate={{ opacity: [1, 0.3, 1], scale: [1, 1.1, 1] }}
-            transition={{ duration: 0.5, repeat: Infinity }}
-          />
-        )}
-        
-        {/* Active premium glow */}
-        {(isActive || isUserFeatured) && !isRecording && (
-          <motion.div 
-            className="absolute inset-2 rounded-full bg-primary/70"
-            animate={{ opacity: [0.7, 1, 0.7] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          />
-        )}
-      </motion.div>
-      
-      {/* Participant avatars - larger at this depth */}
-      <ParticipantAvatars count={room.participantCount} isVisible={isActive} />
-      
-      {/* Premium tooltip */}
-      {isHovered && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 8 }}
-          className="absolute left-1/2 -translate-x-1/2 -top-20 z-20 pointer-events-none"
-        >
-          <div className="bg-background/95 backdrop-blur-md border border-primary/30 rounded-lg px-4 py-2 shadow-2xl whitespace-nowrap">
-            <p className="text-sm font-semibold text-foreground truncate max-w-[220px]">
-              {room.title}
-            </p>
-            {isActive && (
-              <p className="text-xs text-primary flex items-center gap-1.5">
-                <motion.span 
-                  className="w-2 h-2 rounded-full bg-primary"
-                  animate={{ scale: [1, 1.3, 1] }}
-                  transition={{ duration: 1, repeat: Infinity }}
-                />
-                {room.participantCount} creating now
-              </p>
-            )}
-            {canEnter && (
-              <p className="text-xs text-accent-foreground mt-1 font-medium">Click to join</p>
-            )}
-          </div>
-        </motion.div>
-      )}
+        className="w-full h-full"
+        style={{
+          background: isUserFeatured
+            ? 'radial-gradient(ellipse at center top, hsl(35 100% 60% / 0.35), hsl(35 90% 50% / 0.1) 50%, transparent 80%)'
+            : 'radial-gradient(ellipse at center top, hsl(var(--primary) / 0.3), hsl(var(--primary) / 0.08) 50%, transparent 80%)',
+        }}
+        animate={{
+          opacity: [0.6, 1, 0.6],
+          scaleX: [0.95, 1.05, 0.95],
+        }}
+        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+      />
     </motion.div>
   );
 }
 
-// Main export - routes to correct view based on depth
+// ─── Main Export ──────────────────────────────────────────────────────
 export function DepthAwareHotspot({ 
   room, 
   position, 
   depthLayer,
-  isUserFeatured,
+  isUserFeatured = false,
   onClick 
 }: DepthAwareHotspotProps) {
-  switch (depthLayer) {
-    case 'posted-up':
-      return <PostedUpView room={room} position={position} />;
-    case 'in-the-room':
-      return <InTheRoomView room={room} position={position} />;
-    case 'on-the-mic':
-      return <OnTheMicView room={room} position={position} onClick={onClick} />;
-    case 'on-stage':
-      return <OnStageView room={room} position={position} isUserFeatured={isUserFeatured} onClick={onClick} />;
-    default:
-      return <PostedUpView room={room} position={position} />;
-  }
+  const [isHovered, setIsHovered] = useState(false);
+  
+  const isActive = room.state !== 'idle' && room.state !== 'waiting';
+  const isRecording = room.state === 'recording';
+  const canEnter = (depthLayer === 'on-the-mic' || depthLayer === 'on-stage') 
+    && room.visibility === 'public' 
+    && !!room.sessionId;
+  const isOnStage = depthLayer === 'on-stage';
+
+  // Determine light intensity by depth
+  const lightIntensity = useMemo((): 'faint' | 'medium' | 'full' => {
+    switch (depthLayer) {
+      case 'posted-up': return 'faint';
+      case 'in-the-room': return 'medium';
+      default: return 'full';
+    }
+  }, [depthLayer]);
+
+  // Show bass ripples from "in-the-room" and above
+  const showRipples = depthLayer !== 'posted-up' && isActive;
+  // Show frosted glass on hover from "in-the-room" and above
+  const showHoverInfo = depthLayer !== 'posted-up' && isHovered;
+
+  return (
+    <motion.div
+      className={`absolute ${canEnter ? 'cursor-pointer' : 'cursor-default'}`}
+      style={{ 
+        left: `${position.x}%`, 
+        top: `${position.y}%`,
+        transform: 'translate(-50%, -50%)',
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onClick={canEnter ? onClick : undefined}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.6 }}
+    >
+      {/* Invisible hover target area */}
+      <div className="relative" style={{ width: '60px', height: '40px' }}>
+        
+        {/* On Stage: Spotlight bloom behind everything */}
+        {isOnStage && (isActive || isUserFeatured) && (
+          <SpotlightBloom isUserFeatured={isUserFeatured} />
+        )}
+
+        {/* Recording Beacon — wall-mounted red light */}
+        {isRecording && <RecordingBeacon />}
+
+        {/* Door Light Spill — the core environmental signal */}
+        <DoorLightSpill room={room} intensity={lightIntensity} />
+
+        {/* Bass Ripple — energy level indicator */}
+        {showRipples && <BassRipple participantCount={room.participantCount} />}
+
+        {/* Interactive hover brightening for clickable doors */}
+        {canEnter && isHovered && (
+          <motion.div
+            className="absolute left-1/2 -translate-x-1/2"
+            style={{ bottom: '-4px', width: '160px', height: '14px' }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div 
+              className="w-full h-full rounded-full"
+              style={{
+                background: 'radial-gradient(ellipse at center, hsl(35 90% 60% / 0.3), transparent 70%)',
+              }}
+            />
+          </motion.div>
+        )}
+
+        {/* Frosted Glass Reveal — hover info */}
+        <FrostedGlassReveal 
+          room={room} 
+          isVisible={showHoverInfo} 
+          canEnter={canEnter}
+        />
+      </div>
+    </motion.div>
+  );
 }
