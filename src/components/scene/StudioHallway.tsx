@@ -290,12 +290,12 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
       {fullscreen && showSkipHint && onSkipToInfo && (
         <motion.button
           onClick={onSkipToInfo}
-          className="absolute top-6 right-6 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/40 backdrop-blur-sm text-muted-foreground/60 hover:text-muted-foreground hover:bg-background/60 transition-all text-xs"
+          className="absolute top-6 right-6 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/40 backdrop-blur-sm text-muted-foreground/60 hover:text-muted-foreground hover:bg-background/60 transition-all text-xs max-w-[calc(100%-3rem)] sm:max-w-none"
           initial={{ opacity: 0, x: 10 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <span>Already know what you need?</span>
+          <span className="truncate">Already know what you need?</span>
           <span className="text-primary">→</span>
           <span className="hidden sm:inline ml-1 px-1.5 py-0.5 rounded bg-muted/50 text-[10px] font-mono">I</span>
         </motion.button>

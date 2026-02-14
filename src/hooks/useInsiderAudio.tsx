@@ -13,6 +13,9 @@ interface AudioAnalysis {
 
 // Primary: local journey intro track synced to the demo phases
 // Fallback: Supabase-hosted version
+// Audio is optional — the demo runs in silent mode if no file is available.
+// To enable audio, place a file at /assets/audio/journey-intro.mp3 in public/
+// or upload insider-track.mp3 to the audio-files storage bucket.
 const LOCAL_AUDIO_URL = '/assets/audio/journey-intro.mp3';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
 const FALLBACK_AUDIO_URL = SUPABASE_URL
@@ -54,26 +57,38 @@ export const useInsiderAudio = () => {
       // Create audio element
       const audio = new Audio();
       audio.crossOrigin = 'anonymous';
-      audio.src = AUDIO_URL;
-      audio.loop = true;
+      audio.preload = 'auto';
       audioElementRef.current = audio;
 
-      // Wait for audio to load - try fallback if primary fails
-      await new Promise<void>((resolve, reject) => {
-        audio.oncanplaythrough = () => resolve();
-        audio.onerror = () => {
-          // Try fallback URL
-          if (FALLBACK_AUDIO_URL && audio.src !== FALLBACK_AUDIO_URL) {
-            console.warn('Local audio not found, trying Supabase fallback...');
-            audio.src = FALLBACK_AUDIO_URL;
-            audio.load();
+      // Try loading audio — fail silently if unavailable
+      const loadAudio = (url: string): Promise<void> =>
+        new Promise((resolve, reject) => {
+          if (!url) return reject(new Error('No URL'));
+          audio.oncanplaythrough = () => resolve();
+          audio.onerror = () => reject(new Error('Load failed'));
+          audio.src = url;
+          audio.load();
+        });
+
+      try {
+        await loadAudio(AUDIO_URL);
+      } catch {
+        // Primary failed — try fallback quietly
+        try {
+          if (FALLBACK_AUDIO_URL) {
+            await loadAudio(FALLBACK_AUDIO_URL);
           } else {
-            console.warn('Insider audio not available - feature disabled');
-            reject(new Error('Audio file not found'));
+            throw new Error('No fallback');
           }
-        };
-        audio.load();
-      });
+        } catch {
+          // Both failed — demo runs in silent mode
+          console.info('Audio not available — demo will run in silent mode');
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      audio.loop = true;
 
       // Create analyser
       const analyser = audioContextRef.current.createAnalyser();
