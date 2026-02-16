@@ -65,18 +65,12 @@ const AuthCallback = () => {
           }
         }
 
-        // Get user profile to determine routing
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role, onboarding_completed')
-          .eq('id', user.id)
-          .single();
+        // Determine role from user_roles (authoritative), then fallback
+        const roles: string[] = existingRoles?.map(r => r.role as string) || [];
+        const priority = ['admin', 'producer', 'engineer', 'artist', 'fan'];
+        let userRole: string | undefined = priority.find(r => roles.includes(r));
 
-        // Determine role for routing (from profile, user_roles, or metadata)
-        let userRole = profile?.role;
-        if (!userRole && existingRoles?.[0]?.role) {
-          userRole = existingRoles[0].role;
-        }
+        // Fallback to metadata if user_roles is empty
         if (!userRole && user.user_metadata?.role) {
           userRole = user.user_metadata.role;
         }
@@ -88,18 +82,26 @@ const AuthCallback = () => {
           return;
         }
 
-        // Check if onboarding is complete
-        const onboardingComplete = profile?.onboarding_completed;
-
-        // Route based on role
         toast.success('Welcome to MixClub!');
-        
-        if (!onboardingComplete) {
-          // Route to role-specific onboarding (canonical paths)
-          navigate(`/onboarding/${userRole || 'artist'}`);
+
+        // Admins skip onboarding entirely
+        if (userRole === 'admin') {
+          navigate('/admin');
+          return;
+        }
+
+        // Check onboarding for non-admin roles
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('onboarding_completed')
+          .eq('id', user.id)
+          .maybeSingle();
+
+        if (!profile?.onboarding_completed) {
+          navigate(`/onboarding/${userRole}`);
         } else {
-          // Route to role-specific CRM/hub
           const crmMap: Record<string, string> = {
+            admin: '/admin',
             producer: '/producer-crm',
             engineer: '/engineer-crm',
             fan: '/fan-hub',
