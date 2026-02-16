@@ -1,46 +1,44 @@
 
 
-## Wire Press Kit Download Buttons
+## Fix Dashboard Trapping and Admin Navigation
 
-### Current State
-- Press page (`src/pages/Press.tsx`) has 4 download buttons (Full Press Kit, Logo Pack, Screenshots, Fact Sheet) with no `onClick` handlers
-- The `brand-assets` storage bucket exists and is public, but contains no `press/` files yet
-- No existing press-kit download utility in the codebase
+### Problem
+Three compounding issues are preventing proper navigation:
+1. The generic Dashboard page does not redirect admin users to `/admin` -- it only handles `engineer` and `client` roles
+2. Auth roles load asynchronously *after* the loading state is set to false, causing a race condition where routing decisions happen before the admin role is determined
+3. The ImmersiveAppShell wraps the dashboard in immersive UI, making it feel inescapable
 
-### Implementation
+### Solution
 
-#### 1. Create a `usePressBrandAssets` hook (`src/hooks/usePressBrandAssets.ts`)
+#### 1. Fix the auth loading race condition (`src/hooks/useAuth.tsx`)
+- Do NOT set `loading = false` until both the session AND user roles are fully resolved
+- Move role fetching out of the `setTimeout` and into the initial auth flow
+- On auth state changes, fetch roles before clearing the loading flag
+- This ensures `ProtectedRoute` and downstream components always have accurate role data before rendering
 
-A small hook that:
-- Accepts a subfolder name (e.g. `press/logos`, `press/screenshots`, `press/fact-sheet`, or `press/full-kit`)
-- Lists files in `brand-assets` bucket under that path using `supabase.storage.from('brand-assets').list(path)`
-- If files exist, generates a public URL and triggers a download (single file) or bundles them via JSZip (multiple files)
-- If no files exist, shows a toast: **"Press kit coming soon -- check back shortly."**
+#### 2. Fix Dashboard role routing (`src/pages/Dashboard.tsx`)
+- Replace the incomplete role redirect (only handles `engineer`/`client`) with a proper redirect that uses `useAuth().activeRole`
+- Route map:
+  - `admin` -> `/admin`
+  - `producer` -> `/producer-crm`
+  - `engineer` -> `/engineer-crm`
+  - `artist` -> `/artist-crm`
+  - `fan` -> `/fan-hub`
+- Remove the redundant manual auth check (the page is already inside `ProtectedAppLayout`)
+- Show a loading spinner while the role is still resolving, then redirect immediately once known
 
-#### 2. Update `src/pages/Press.tsx`
-
-Wire each of the 4 buttons:
-
-| Button | Storage Path | Behavior |
-|--------|-------------|----------|
-| Download Full Press Kit | `press/full-kit` | Download all files as zip, or toast if empty |
-| Download Logos | `press/logos` | Download all logo files as zip, or toast if empty |
-| Download Screenshots | `press/screenshots` | Download all screenshots as zip, or toast if empty |
-| Download PDF | `press/fact-sheet` | Download single PDF, or toast if empty |
-
-Each button gets:
-- An `onClick` handler calling the hook's download function
-- A loading/disabled state while fetching
-
-#### 3. Toast style
-
-Uses the existing `sonner` toast (already imported pattern on the page's sibling files) for the "coming soon" message -- keeps it consistent with the rest of the app.
+#### 3. Clean up ImmersiveAppShell route list (`src/components/immersive/ImmersiveAppShell.tsx`)
+- Remove `/dashboard` from the `immersiveRoutes` array since the Dashboard is now just a redirect pass-through, not a destination page
+- This prevents the immersive overlay (map button, radial nav, ambient glow) from rendering on a page that should immediately redirect
 
 ### Technical Details
 
-- **New file**: `src/hooks/usePressBrandAssets.ts`
-- **Modified file**: `src/pages/Press.tsx`
-- **No new dependencies** -- uses existing `jszip` (already installed) and `sonner` toast
-- **No database or schema changes**
-- **Storage convention**: assets go under `brand-assets/press/{logos,screenshots,fact-sheet,full-kit}/` -- when files are uploaded there later, the buttons will work automatically
+**Files modified:**
+- `src/hooks/useAuth.tsx` -- fix loading state to wait for roles
+- `src/pages/Dashboard.tsx` -- complete role-based redirect using `activeRole` from auth context
+- `src/components/immersive/ImmersiveAppShell.tsx` -- remove `/dashboard` from immersive routes
+
+**No database or schema changes required.**
+
+The admin role for `mixclubonline@gmail.com` is confirmed present in the database. This fix ensures the auth system surfaces that role before any routing decisions are made.
 
