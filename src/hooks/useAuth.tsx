@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, useRef, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -19,8 +19,6 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // ─── Dev Auth Bypass ───────────────────────────────────────────────────
-// Set VITE_DEV_AUTH_BYPASS=true in .env to skip Supabase login during dev.
-// Provides a mock user so all protected routes are accessible.
 const DEV_AUTH_BYPASS = import.meta.env.VITE_DEV_AUTH_BYPASS === 'true';
 
 const DEV_MOCK_USER = {
@@ -41,8 +39,40 @@ const DEV_MOCK_SESSION = {
 } as unknown as Session;
 // ────────────────────────────────────────────────────────────────────────
 
+/** Resolve roles from user_roles table and return derived state */
+async function resolveRoles(userId: string): Promise<{
+  roles: AppRole[];
+  primaryRole: AppRole;
+  isHybrid: boolean;
+}> {
+  try {
+    const { data, error } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', userId);
+
+    if (error) {
+      console.error('Error fetching user roles:', error);
+      return { roles: ['fan'], primaryRole: 'fan', isHybrid: false };
+    }
+
+    const roles = (data?.map(r => r.role) || []) as AppRole[];
+    if (roles.length === 0) {
+      return { roles: ['fan'], primaryRole: 'fan', isHybrid: false };
+    }
+
+    // Priority: admin > producer > engineer > artist > fan
+    const priority: AppRole[] = ['admin', 'producer', 'engineer', 'artist', 'fan'];
+    const primaryRole = priority.find(r => roles.includes(r)) ?? 'fan';
+
+    return { roles, primaryRole, isHybrid: roles.length > 1 };
+  } catch {
+    return { roles: ['fan'], primaryRole: 'fan', isHybrid: false };
+  }
+}
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  // ── If dev bypass is active, skip Supabase entirely ──
+  // ── Dev bypass ──
   if (DEV_AUTH_BYPASS) {
     return (
       <AuthContext.Provider
@@ -53,12 +83,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           userRole: 'producer',
           userRoles: ['producer', 'engineer', 'artist'],
           activeRole: 'producer',
-          setActiveRole: () => { },
+          setActiveRole: () => {},
           isHybridUser: true,
-          signOut: async () => {
-            // Even in dev bypass, allow sign-out to redirect to auth page
-            window.location.href = '/auth';
-          },
+          signOut: async () => { window.location.href = '/auth'; },
         }}
       >
         {children}
@@ -73,90 +100,73 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [userRoles, setUserRoles] = useState<AppRole[]>([]);
   const [activeRole, setActiveRoleState] = useState<AppRole | null>(null);
   const [isHybridUser, setIsHybridUser] = useState(false);
+  const isMounted = useRef(true);
 
-  // Fetch roles from user_roles table
-  const fetchUserRoles = async (userId: string) => {
-    try {
-      const { data: roles, error } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', userId);
-
-      if (error) {
-        console.error('Error fetching user roles:', error);
-        return [];
-      }
-
-      return (roles?.map(r => r.role) || []) as AppRole[];
-    } catch (err) {
-      console.error('Failed to fetch user roles:', err);
-      return [];
-    }
+  /** Apply resolved role state */
+  const applyRoles = (result: Awaited<ReturnType<typeof resolveRoles>>) => {
+    if (!isMounted.current) return;
+    setUserRoles(result.roles);
+    setUserRole(result.primaryRole);
+    setActiveRoleState(result.primaryRole);
+    setIsHybridUser(result.isHybrid);
   };
 
-  // Load roles when user changes
+  const clearRoles = () => {
+    setUserRole(null);
+    setUserRoles([]);
+    setActiveRoleState(null);
+    setIsHybridUser(false);
+  };
+
   useEffect(() => {
-    if (user) {
-      // Defer the role fetching to avoid deadlock
-      setTimeout(async () => {
-        const roles = await fetchUserRoles(user.id);
+    isMounted.current = true;
 
-        if (roles.length > 0) {
-          setUserRoles(roles);
-          setIsHybridUser(roles.length > 1);
+    // 1. Listener for ONGOING auth changes (after initial load)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, newSession) => {
+        if (!isMounted.current) return;
+        setSession(newSession);
+        setUser(newSession?.user ?? null);
 
-          // Set primary role (admin > engineer > artist)
-          if (roles.includes('admin')) {
-            setUserRole('admin');
-            setActiveRoleState('admin');
-          } else if (roles.includes('producer')) {
-            setUserRole('producer');
-            setActiveRoleState('producer');
-          } else if (roles.includes('engineer')) {
-            setUserRole('engineer');
-            setActiveRoleState('engineer');
-          } else if (roles.includes('artist')) {
-            setUserRole('artist');
-            setActiveRoleState('artist');
-          } else if (roles.includes('fan')) {
-            setUserRole('fan');
-            setActiveRoleState('fan');
-          } else {
-            // Default to fan if no recognized role
-            setUserRole('fan');
-            setActiveRoleState('fan');
-          }
+        if (newSession?.user) {
+          // Defer to avoid Supabase deadlock, but do NOT touch loading here
+          setTimeout(() => {
+            resolveRoles(newSession.user.id).then(result => {
+              if (isMounted.current) applyRoles(result);
+            });
+          }, 0);
         } else {
-          // No roles in table, default to fan
-          setUserRole('fan');
-          setUserRoles(['fan']);
-          setActiveRoleState('fan');
+          clearRoles();
         }
-      }, 0);
-    } else {
-      setUserRole(null);
-      setUserRoles([]);
-      setActiveRoleState(null);
-      setIsHybridUser(false);
-    }
-  }, [user]);
+      }
+    );
 
-  useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    // 2. INITIAL load — fetch session + roles BEFORE setting loading=false
+    const initializeAuth = async () => {
+      try {
+        const { data: { session: initialSession } } = await supabase.auth.getSession();
+        if (!isMounted.current) return;
 
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+        setSession(initialSession);
+        setUser(initialSession?.user ?? null);
 
-    return () => subscription.unsubscribe();
+        if (initialSession?.user) {
+          const result = await resolveRoles(initialSession.user.id);
+          if (isMounted.current) applyRoles(result);
+        }
+      } catch (err) {
+        console.error('Auth init error:', err);
+      } finally {
+        if (isMounted.current) setLoading(false);
+      }
+    };
+
+    initializeAuth();
+
+    return () => {
+      isMounted.current = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const handleSetActiveRole = (role: AppRole) => {
@@ -170,10 +180,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
-    setUserRole(null);
-    setUserRoles([]);
-    setActiveRoleState(null);
-    setIsHybridUser(false);
+    clearRoles();
   };
 
   return (
