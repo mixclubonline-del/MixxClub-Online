@@ -15,8 +15,10 @@ import { FanDay1sHub } from '@/components/crm/fan/FanDay1sHub';
 import { FanMissionsHub } from '@/components/crm/fan/FanMissionsHub';
 import { FanWalletHub } from '@/components/crm/fan/FanWalletHub';
 import { FanCuratorHub } from '@/components/crm/fan/FanCuratorHub';
+import { isStarterHub } from '@/config/starterFeatures';
+import { FeatureGated } from '@/components/backend/FeatureGated';
  
- const FanHub = () => {
+const FanHub = () => {
    const { user } = useAuth();
    const [searchParams, setSearchParams] = useSearchParams();
    const activeTab = searchParams.get('tab') || 'feed';
@@ -57,6 +59,15 @@ import { FanCuratorHub } from '@/components/crm/fan/FanCuratorHub';
      },
    ];
  
+  const gated = (tabId: string, content: React.ReactNode) => {
+    if (isStarterHub('fan', tabId)) return content;
+    return (
+      <FeatureGated feature={tabId} userId={user?.id || ''} communityGated communityMilestoneKey={tabId}>
+        {content}
+      </FeatureGated>
+    );
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case 'day1s':
@@ -64,9 +75,9 @@ import { FanCuratorHub } from '@/components/crm/fan/FanCuratorHub';
       case 'missions':
         return <FanMissionsHub />;
       case 'wallet':
-        return <FanWalletHub />;
+        return gated('wallet', <FanWalletHub />);
       case 'curator':
-        return <FanCuratorHub />;
+        return gated('curator', <FanCuratorHub />);
       case 'feed':
       default:
         return <FanFeedHub />;
