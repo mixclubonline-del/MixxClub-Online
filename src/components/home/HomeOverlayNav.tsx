@@ -31,7 +31,7 @@ export function HomeOverlayNav() {
     <>
       {/* Top bar — always visible, glassmorphism */}
       <motion.header
-        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 sm:px-6 h-14"
+        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 sm:px-6 h-14 bg-gradient-to-b from-background/60 to-transparent"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, duration: 0.5 }}

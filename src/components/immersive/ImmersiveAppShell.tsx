@@ -33,13 +33,7 @@ const immersiveRoutes = [
 ];
 
 // Routes that should not show any navigation (full immersive)
-const fullImmersiveRoutes = [
-  '/',
-  '/intro',
-  '/auth',
-  '/onboarding',
-  '/city/gates',
-];
+import { FULL_IMMERSIVE_ROUTES } from '@/config/immersiveRoutes';
 
 // Energy-aware ambient configuration
 interface EnergyAmbient {
@@ -114,7 +108,7 @@ export const ImmersiveAppShell = ({ children }: ImmersiveAppShellProps) => {
   );
 
   // Check if we should hide all navigation
-  const isFullImmersive = fullImmersiveRoutes.some(route => 
+  const isFullImmersive = FULL_IMMERSIVE_ROUTES.some(route => 
     location.pathname === route || location.pathname.startsWith(route)
   );
 

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useGlobalPlayer } from '@/contexts/GlobalPlayerContext';
+import { isFullImmersiveRoute } from '@/config/immersiveRoutes';
 import { 
   Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, 
   Shuffle, Repeat, Repeat1, ListMusic, ChevronUp, ChevronDown,
@@ -18,6 +20,7 @@ const formatTime = (seconds: number) => {
 };
 
 export const GlobalMusicPlayer: React.FC = () => {
+  const location = useLocation();
   const {
     currentTrack,
     isPlaying,
@@ -51,7 +54,7 @@ export const GlobalMusicPlayer: React.FC = () => {
     setRepeatMode(modes[(currentIndex + 1) % modes.length]);
   };
 
-  if (!currentTrack) return null;
+  if (!currentTrack || isFullImmersiveRoute(location.pathname)) return null;
 
   return (
     <>
