@@ -26,6 +26,8 @@ const immersiveRoutes = [
   '/community',
   '/artist-crm',
   '/engineer-crm',
+  '/producer-crm',
+  '/fan-hub',
   '/settings',
   '/sessions',
 ];

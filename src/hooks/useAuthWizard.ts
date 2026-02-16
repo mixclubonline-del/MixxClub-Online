@@ -51,21 +51,37 @@ export function useAuthWizard() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user || !isMountedRef.current) return;
 
-      // Look up user's role to route them correctly
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role, onboarding_completed')
-        .eq('id', session.user.id)
-        .single();
+      // Use user_roles table (authoritative source) instead of profiles.role
+      const { data: userRoles } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', session.user.id);
 
-      const role = profile?.role;
-      if (!role) {
+      const roles: string[] = userRoles?.map(r => r.role as string) || [];
+      if (roles.length === 0) {
         navigate('/select-role');
         return;
       }
 
+      // Priority: admin > producer > engineer > artist > fan
+      const priority = ['admin', 'producer', 'engineer', 'artist', 'fan'];
+      const primaryRole = priority.find(r => roles.includes(r)) || 'fan';
+
+      // Admins skip onboarding entirely
+      if (primaryRole === 'admin') {
+        navigate('/admin');
+        return;
+      }
+
+      // Check onboarding status for non-admin roles
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('onboarding_completed')
+        .eq('id', session.user.id)
+        .maybeSingle();
+
       if (!profile?.onboarding_completed) {
-        navigate(`/onboarding/${role}`);
+        navigate(`/onboarding/${primaryRole}`);
         return;
       }
 
@@ -75,7 +91,7 @@ export function useAuthWizard() {
         fan: '/fan-hub',
         artist: '/artist-crm',
       };
-      navigate(crmMap[role] || '/artist-crm');
+      navigate(crmMap[primaryRole] || '/artist-crm');
     };
     checkSession();
   }, [navigate]);
