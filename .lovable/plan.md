@@ -1,53 +1,84 @@
 
 
-## Fix Admin Profile Data + Unify Role Routing
+## Role-Specific Starter Features + Auth Guard Cleanup
 
-### Problem Summary
+### What We're Doing
 
-Your admin account (`mixclubonline@gmail.com`) has stale data in the `profiles` table:
-- `profiles.role = 'artist'` (should be `admin`)
-- `onboarding_completed = false` (should be `true`)
+Every CRM page currently shows all hubs unlocked with no gating. This plan defines **3 role-specific starter features** that are immediately available to new users, gates everything else behind the existing `FeatureGated` component, and removes redundant auth guards that cause race conditions.
 
-Three code paths all read `profiles.role` first, which sends you into an artist onboarding loop instead of the Admin CRM:
-1. `useAuthWizard.ts` (session redirect on auth page load)
-2. `AuthCallback.tsx` (post-magic-link redirect)
-3. `Dashboard.tsx` (already fixed to use `activeRole` from `useAuth`)
+### Starter Features by Role
 
-### Plan
+| Role | Starter 1 | Starter 2 | Starter 3 |
+|------|-----------|-----------|-----------|
+| **Producer** | AI Mastering | Beat Catalog (upload) | Dashboard |
+| **Artist** | AI Mastering | Music Hub (catalog) | Dashboard |
+| **Engineer** | AI Mastering | Sessions (portfolio) | Dashboard |
+| **Fan** | Feed (discover) | Missions (earn coinz) | Day 1s (support artists) |
 
-#### 1. Fix admin profile data (database update)
+Producers, Artists, and Engineers all share **AI Mastering** as their flagship starter. The other two starters are the most role-relevant features for immediate value. Dashboard is always unlocked as the home base.
 
-Set `role = 'admin'` and `onboarding_completed = true` for the admin account. This is a data update, not a schema change.
+Everything else (Clients, Matches, Active Work, Revenue, Community, Growth, Messages, Earnings, Sales, Collabs, Store, Brand Hub, Tri-Collabs, Opportunities, etc.) becomes gated -- showing either a community milestone progress bar or a subscription upgrade prompt via the existing `FeatureGated` component.
 
-#### 2. Fix `useAuthWizard.ts` -- use `user_roles` table
+### Technical Implementation
 
-Replace the `profiles.role` query (lines 55-59) with a `user_roles` lookup:
-- Query `user_roles` for the authenticated user
-- Use role priority (admin > producer > engineer > artist > fan) to pick the primary role
-- Add `admin` to the `crmMap` routing table
-- Skip onboarding check entirely for admin users
+#### 1. New config file: `src/config/starterFeatures.ts`
 
-#### 3. Fix `AuthCallback.tsx` -- prioritize `user_roles` for routing
+A single source of truth mapping each role to its 3 unlocked hub IDs. Everything not in the starter list is considered gated.
 
-The callback currently checks `profiles.role` first (line 76), then falls back to `user_roles`. Flip the priority:
-- Use the role from `user_roles` (already fetched on line 52-54) as the primary source
-- Only fall back to `profiles.role` or metadata if `user_roles` is empty
-- Add `admin` to the CRM routing map
-- Skip onboarding for admin users
+```text
+STARTER_HUBS = {
+  producer: ['dashboard', 'catalog', 'mastering'],
+  artist:   ['dashboard', 'music', 'mastering'],
+  engineer: ['dashboard', 'sessions', 'mastering'],
+  fan:      ['feed', 'missions', 'day1s'],
+}
+```
 
-#### 4. Add missing routes to `ImmersiveAppShell.tsx`
+Also exports a helper: `isStarterHub(role, hubId) -> boolean`
 
-Add `/producer-crm` and `/fan-hub` to the `immersiveRoutes` array so all four role CRMs get consistent ambient shell treatment.
+#### 2. Update `CRMHubGrid.tsx` -- visual gating on hub tiles
 
-### Technical Details
+- Import the starter config
+- For non-starter hubs, render a lock overlay on the tile (dimmed icon, lock badge, "Unlock" label)
+- Clicking a locked hub shows a toast or navigates to unlockables page instead of opening the tab
+- Starter hubs render normally with full interactivity
 
-**Database update (not a migration):**
-- `UPDATE profiles SET role = 'admin', onboarding_completed = true WHERE email = 'mixclubonline@gmail.com'`
+#### 3. Update CRM pages -- gate tab content with `FeatureGated`
 
-**Files modified:**
-- `src/hooks/useAuthWizard.ts` -- query `user_roles` instead of `profiles.role`; add admin to crmMap
-- `src/pages/AuthCallback.tsx` -- flip role priority to `user_roles` first; add admin routing
-- `src/components/immersive/ImmersiveAppShell.tsx` -- add `/producer-crm` and `/fan-hub` to immersive routes
+In `ProducerCRM.tsx`, `ArtistCRM.tsx`, `EngineerCRM.tsx`, and `FanHub.tsx`:
+- Wrap non-starter tab content in `<FeatureGated>` inside the `renderContent()` switch
+- Starter tabs render their content directly (no gate)
+- Add a "mastering" tab case to Producer/Artist/Engineer CRMs that renders the `AIMasteringService` component
 
-**No schema changes. No new dependencies.**
+#### 4. Remove redundant auth guards from CRM pages
+
+All four CRM pages have `if (!user) navigate('/auth')` checks that race with `ProtectedAppLayout`. These will be removed:
+- `ProducerCRM.tsx` lines 72-76
+- `ArtistCRM.tsx` lines 95-98
+- `EngineerCRM.tsx` lines 91-94
+- `FanHub.tsx` has no redundant guard (already clean)
+
+#### 5. Add "AI Mastering" hub to `CRMHubGrid` definitions
+
+Add a mastering hub entry to the artist, engineer, and producer hub arrays so it appears in their grid:
+```text
+{ id: 'mastering', label: 'AI Mastering', icon: Sparkles, description: 'Master your tracks' }
+```
+
+### Files Modified
+
+- `src/config/starterFeatures.ts` -- **new** -- starter hub definitions per role
+- `src/components/crm/CRMHubGrid.tsx` -- visual lock overlay on non-starter hubs
+- `src/pages/ProducerCRM.tsx` -- remove auth guard, add mastering tab, wrap gated tabs
+- `src/pages/ArtistCRM.tsx` -- remove auth guard, add mastering tab, wrap gated tabs
+- `src/pages/EngineerCRM.tsx` -- remove auth guard, add mastering tab, wrap gated tabs
+- `src/pages/FanHub.tsx` -- wrap gated tabs (wallet, curator, favorites)
+
+### What This Does NOT Change
+
+- The routes themselves (no URL changes)
+- The existing `FeatureGated` component (already supports both community and subscription gating)
+- The auth flow (useAuth, useAuthWizard, AuthCallback -- already fixed)
+- The database schema (no changes needed)
+- Admin CRM (admins have full access, no gating)
 
