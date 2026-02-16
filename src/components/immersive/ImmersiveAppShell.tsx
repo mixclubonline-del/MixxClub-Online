@@ -24,7 +24,6 @@ const immersiveRoutes = [
   '/brand-forge',
   '/marketplace',
   '/community',
-  '/dashboard',
   '/artist-crm',
   '/engineer-crm',
   '/settings',
