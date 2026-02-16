@@ -1,14 +1,17 @@
 import { motion } from "framer-motion";
+import { useLocation } from "react-router-dom";
 import { usePrime } from "@/contexts/PrimeContext";
 import { Brain, Users, Activity, Waves } from "lucide-react";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
+import { isFullImmersiveRoute } from "@/config/immersiveRoutes";
 
 export default function PrimeStatusBar() {
+  const location = useLocation();
   const { systemMode, networkAwareness, audioState, accentColor } = usePrime();
   const { isDesktop } = useBreakpoint();
 
-  // Only show on desktop - mobile/tablet have their own nav indicators
-  if (!isDesktop) return null;
+  // Hide on immersive routes and non-desktop
+  if (!isDesktop || isFullImmersiveRoute(location.pathname)) return null;
 
   const statusItems = [
     {

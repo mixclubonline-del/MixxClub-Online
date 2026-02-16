@@ -1,12 +1,16 @@
 import { motion, AnimatePresence } from "framer-motion";
+import { useLocation } from "react-router-dom";
 import { usePrime } from "@/contexts/PrimeContext";
+import { isFullImmersiveRoute } from "@/config/immersiveRoutes";
 import { useEffect, useState } from "react";
 
 export default function PrimeConsole() {
+  const location = useLocation();
   const { systemMode, recentActivity, networkAwareness, audioState, accentColor } = usePrime();
   const [consoleLog, setConsoleLog] = useState<string>("");
 
   useEffect(() => {
+    if (isFullImmersiveRoute(location.pathname)) return;
     // Generate contextual console messages
     const messages = [
       `PRIME: System ${systemMode.toUpperCase()}`,
@@ -17,7 +21,9 @@ export default function PrimeConsole() {
 
     const randomMessage = messages[Math.floor(Math.random() * messages.length)];
     setConsoleLog(randomMessage);
-  }, [systemMode, recentActivity, networkAwareness, audioState]);
+  }, [systemMode, recentActivity, networkAwareness, audioState, location.pathname]);
+
+  if (isFullImmersiveRoute(location.pathname)) return null;
 
   return (
     <div className="fixed bottom-6 left-6 z-50 font-mono text-xs">

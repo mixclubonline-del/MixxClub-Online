@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Play, Pause, Volume2, VolumeX, Music, ChevronUp, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
 import { useGlobalAudio } from '@/hooks/useGlobalAudio';
+import { isFullImmersiveRoute } from '@/config/immersiveRoutes';
 
 export function GlobalAudioPlayer() {
+  const location = useLocation();
   const {
     isPlaying,
     volume,
@@ -21,6 +24,8 @@ export function GlobalAudioPlayer() {
 
   const [isExpanded, setIsExpanded] = useState(false);
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
+
+  if (isFullImmersiveRoute(location.pathname)) return null;
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
