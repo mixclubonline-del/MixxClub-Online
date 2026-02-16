@@ -58,6 +58,8 @@ import { ClientsHub } from '@/components/crm/clients';
 import { MusicHub } from '@/components/crm/MusicHub';
 import { StoreHub } from '@/components/crm/StoreHub';
 import { OnboardingReminder } from '@/components/crm/OnboardingReminder';
+import { isStarterHub } from '@/config/starterFeatures';
+import { FeatureGated } from '@/components/backend/FeatureGated';
 
 const ArtistCRM = () => {
   const { user } = useAuth();
@@ -92,10 +94,7 @@ const ArtistCRM = () => {
 
   useEffect(() => {
     const checkAccess = async () => {
-      if (!user) {
-        navigate('/auth');
-        return;
-      }
+      if (!user) return;
 
       // Check if user is admin - admins should use admin panel (unless previewing)
       if (!isPreviewMode) {
@@ -295,30 +294,42 @@ const ArtistCRM = () => {
     },
   ];
 
+  const gated = (tabId: string, content: React.ReactNode) => {
+    if (isStarterHub('artist', tabId)) return content;
+    return (
+      <FeatureGated feature={tabId} userId={user?.id || ''} communityGated communityMilestoneKey={tabId}>
+        {content}
+      </FeatureGated>
+    );
+  };
+
   const renderContent = () => {
     switch (currentTab) {
-      case 'clients':
-        return <ClientsHub userType="artist" />;
-
-      case 'matches':
-        return <MatchesHub userType="artist" />;
-
-      case 'sessions':
-        return <SessionCommandCenter userType="artist" />;
-      case 'active-work':
-        return <ActiveWorkHub />;
+      case 'mastering':
+        return <AIMasteringService subscription={masteringSubscription || null} />;
 
       case 'music':
         return <MusicHub />;
 
+      case 'clients':
+        return gated('clients', <ClientsHub userType="artist" />);
+
+      case 'matches':
+        return gated('matches', <MatchesHub userType="artist" />);
+
+      case 'sessions':
+        return gated('sessions', <SessionCommandCenter userType="artist" />);
+      case 'active-work':
+        return gated('active-work', <ActiveWorkHub />);
+
       case 'store':
-        return <StoreHub />;
+        return gated('store', <StoreHub />);
 
       case 'opportunities':
-        return <OpportunitiesHub userRole="client" />;
+        return gated('opportunities', <OpportunitiesHub userRole="client" />);
 
       case 'business':
-        return (
+        return gated('business', (
           <div className="space-y-6">
             <div className="mb-6">
               <h2 className="text-2xl font-bold mb-2">Packages & Services</h2>
@@ -347,28 +358,28 @@ const ArtistCRM = () => {
               </div>
             )}
           </div>
-        );
+        ));
 
       case 'profile':
-        return <BrandHub />;
+        return gated('profile', <BrandHub />);
 
       case 'revenue':
-        return <RevenueHub userType="artist" userId={user?.id} />;
+        return gated('revenue', <RevenueHub userType="artist" userId={user?.id} />);
 
       case 'community':
-        return <CommunityHub userType="artist" />;
+        return gated('community', <CommunityHub userType="artist" />);
 
       case 'growth':
-        return <GrowthHub />;
+        return gated('growth', <GrowthHub />);
 
       case 'messages':
-        return <MessagingHub userType="artist" />;
+        return gated('messages', <MessagingHub userType="artist" />);
 
       case 'earnings':
-        return <CollaborativeEarnings userType="artist" />;
+        return gated('earnings', <CollaborativeEarnings userType="artist" />);
 
       case 'tri-collabs':
-        return <TriPartnershipView userType="artist" />;
+        return gated('tri-collabs', <TriPartnershipView userType="artist" />);
 
       default:
         return (

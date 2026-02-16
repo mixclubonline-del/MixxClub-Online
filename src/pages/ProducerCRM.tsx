@@ -15,6 +15,9 @@ import {
   Radio,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { isStarterHub } from '@/config/starterFeatures';
+import { FeatureGated } from '@/components/backend/FeatureGated';
+import { AIMasteringService } from '@/components/mastering/AIMasteringService';
 
 // Producer-specific hubs
 import { ProducerDashboardHub } from '@/components/crm/producer/ProducerDashboardHub';
@@ -70,12 +73,10 @@ const ProducerCRM = () => {
   };
 
   useEffect(() => {
-    if (!user) {
-      navigate('/auth');
-      return;
+    if (user) {
+      fetchData();
     }
-    fetchData();
-  }, [user, navigate]);
+  }, [user]);
 
   const fetchData = async () => {
     try {
@@ -157,8 +158,19 @@ const ProducerCRM = () => {
     },
   ];
 
+  const gated = (tabId: string, content: React.ReactNode) => {
+    if (isStarterHub('producer', tabId)) return content;
+    return (
+      <FeatureGated feature={tabId} userId={user?.id || ''} communityGated communityMilestoneKey={tabId}>
+        {content}
+      </FeatureGated>
+    );
+  };
+
   const renderContent = () => {
     switch (activeTab) {
+      case 'mastering':
+        return <AIMasteringService subscription={null} />;
       case 'catalog':
         return (
           <div className="space-y-6">
@@ -167,41 +179,41 @@ const ProducerCRM = () => {
           </div>
         );
       case 'sales':
-        return <ProducerSalesHub />;
+        return gated('sales', <ProducerSalesHub />);
       case 'collabs':
-        return <ProducerCollabsHub />;
+        return gated('collabs', <ProducerCollabsHub />);
       case 'clients':
-        return <ClientsHub userType="artist" />;
+        return gated('clients', <ClientsHub userType="artist" />);
       case 'matches':
-        return (
+        return gated('matches', (
           <div className="space-y-6">
             <AICollabPipeline userType="producer" />
             <MatchesHub userType="artist" />
           </div>
-        );
+        ));
       case 'sessions':
-        return <SessionCommandCenter userType="producer" />;
+        return gated('sessions', <SessionCommandCenter userType="producer" />);
       case 'active-work':
-        return <ActiveWorkHub />;
+        return gated('active-work', <ActiveWorkHub />);
       case 'messages':
-        return <MessagingHub userType="producer" />;
+        return gated('messages', <MessagingHub userType="producer" />);
       case 'earnings':
-        return (
+        return gated('earnings', (
           <div className="space-y-6">
             <AutoSplitDashboard userType="producer" />
             <CollaborativeEarnings userType="producer" />
           </div>
-        );
+        ));
       case 'revenue':
-        return <RevenueHub userType="producer" userId={user?.id} />;
+        return gated('revenue', <RevenueHub userType="producer" userId={user?.id} />);
       case 'community':
-        return <CommunityHub userType="producer" />;
+        return gated('community', <CommunityHub userType="producer" />);
       case 'growth':
-        return <GrowthHub userType="producer" />;
+        return gated('growth', <GrowthHub userType="producer" />);
       case 'profile':
-        return <BrandHub />;
+        return gated('profile', <BrandHub />);
       case 'tri-collabs':
-        return <TriPartnershipView userType="producer" />;
+        return gated('tri-collabs', <TriPartnershipView userType="producer" />);
       case 'dashboard':
       default:
         return <ProducerDashboardHub />;

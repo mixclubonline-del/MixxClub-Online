@@ -57,6 +57,9 @@ import { ClientsHub } from '@/components/crm/clients';
 import { MusicHub } from '@/components/crm/MusicHub';
 import { StoreHub } from '@/components/crm/StoreHub';
 import { OnboardingReminder } from '@/components/crm/OnboardingReminder';
+import { isStarterHub } from '@/config/starterFeatures';
+import { FeatureGated } from '@/components/backend/FeatureGated';
+import { AIMasteringService } from '@/components/mastering/AIMasteringService';
 
 const EngineerCRM = () => {
   const { user } = useAuth();
@@ -88,10 +91,7 @@ const EngineerCRM = () => {
 
   useEffect(() => {
     const checkAccess = async () => {
-      if (!user) {
-        navigate('/auth');
-        return;
-      }
+      if (!user) return;
 
       // Check if user is admin - admins should use admin panel (unless previewing)
       if (!isPreviewMode) {
@@ -336,30 +336,43 @@ const EngineerCRM = () => {
     },
   ];
 
+  const gated = (tabId: string, content: React.ReactNode) => {
+    if (isStarterHub('engineer', tabId)) return content;
+    return (
+      <FeatureGated feature={tabId} userId={user?.id || ''} communityGated communityMilestoneKey={tabId}>
+        {content}
+      </FeatureGated>
+    );
+  };
+
   const renderContent = () => {
     switch (currentTab) {
-      case 'clients':
-        return <ClientsHub userType="engineer" />;
-
-      case 'matches':
-        return <AIMatchesHub userType="engineer" />;
+      case 'mastering':
+        return <AIMasteringService subscription={null} />;
 
       case 'sessions':
         return <SessionsHub />;
+
+      case 'clients':
+        return gated('clients', <ClientsHub userType="engineer" />);
+
+      case 'matches':
+        return gated('matches', <AIMatchesHub userType="engineer" />);
+
       case 'active-work':
-        return <ActiveWorkHub />;
+        return gated('active-work', <ActiveWorkHub />);
 
       case 'music':
-        return <MusicHub />;
+        return gated('music', <MusicHub />);
 
       case 'store':
-        return <StoreHub />;
+        return gated('store', <StoreHub />);
 
       case 'opportunities':
-        return <OpportunitiesHub userRole="engineer" />;
+        return gated('opportunities', <OpportunitiesHub userRole="engineer" />);
 
       case 'business':
-        return (
+        return gated('business', (
           <div className="space-y-6">
             <div className="mb-6">
               <h2 className="text-2xl font-bold mb-2">Earnings & Payments</h2>
@@ -376,10 +389,10 @@ const EngineerCRM = () => {
               availableBalance={earnings.available}
             />
           </div>
-        );
+        ));
 
       case 'profile':
-        return (
+        return gated('profile', (
           <div className="space-y-6">
             <BrandHub />
             <Card className="p-6">
@@ -387,22 +400,22 @@ const EngineerCRM = () => {
               <EngineerReviews engineerId={user?.id || ''} />
             </Card>
           </div>
-        );
+        ));
 
       case 'revenue':
-        return <RevenueHub userType="engineer" userId={user?.id} />;
+        return gated('revenue', <RevenueHub userType="engineer" userId={user?.id} />);
 
       case 'community':
-        return <CommunityHub userType="engineer" />;
+        return gated('community', <CommunityHub userType="engineer" />);
 
       case 'growth':
-        return <GrowthHub />;
+        return gated('growth', <GrowthHub />);
 
       case 'messages':
-        return <MessagingHub userType="engineer" />;
+        return gated('messages', <MessagingHub userType="engineer" />);
 
       case 'earnings':
-        return <CollaborativeEarnings userType="engineer" />;
+        return gated('earnings', <CollaborativeEarnings userType="engineer" />);
 
       default:
         return (

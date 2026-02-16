@@ -20,12 +20,15 @@ import {
   Coins,
   Heart,
   Triangle,
+  Lock,
   type LucideIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CRMHubModule } from './CRMHubModule';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { isStarterHub } from '@/config/starterFeatures';
+import { toast } from 'sonner';
 
 interface HubDefinition {
   id: string;
@@ -49,6 +52,8 @@ interface CRMHubGridProps {
 const ROLE_HUB_DEFINITIONS: Record<string, HubDefinition[]> = {
   artist: [
     { id: 'dashboard', label: 'Dashboard', icon: Home, description: 'Overview & momentum' },
+    { id: 'music', label: 'Music', icon: Music, description: 'Your catalog' },
+    { id: 'mastering', label: 'AI Mastering', icon: Sparkles, description: 'Master your tracks' },
     { id: 'clients', label: 'Clients', icon: Users, description: 'Contact management' },
     { id: 'matches', label: 'AI Matches', icon: Sparkles, description: 'Smart connections' },
     { id: 'sessions', label: 'Sessions', icon: Headphones, description: 'Portfolio & history' },
@@ -59,16 +64,16 @@ const ROLE_HUB_DEFINITIONS: Record<string, HubDefinition[]> = {
     { id: 'growth', label: 'Growth', icon: Target, description: 'Career coaching' },
     { id: 'messages', label: 'Messages', icon: MessageSquare, description: 'Communications' },
     { id: 'earnings', label: 'Earnings', icon: Handshake, description: 'Collaborative pay' },
-    { id: 'music', label: 'Music', icon: Music, description: 'Your catalog' },
     { id: 'store', label: 'Store', icon: ShoppingBag, description: 'Merch & products' },
     { id: 'profile', label: 'Brand Hub', icon: User, description: 'Your identity' },
     { id: 'tri-collabs', label: '3-Way Collabs', icon: Triangle, description: 'Tri partnerships' },
   ],
   engineer: [
     { id: 'dashboard', label: 'Dashboard', icon: Home, description: 'Business control center' },
+    { id: 'sessions', label: 'Sessions', icon: Headphones, description: 'Portfolio & history' },
+    { id: 'mastering', label: 'AI Mastering', icon: Sparkles, description: 'Master your tracks' },
     { id: 'clients', label: 'Clients', icon: Users, description: 'Contact management' },
     { id: 'matches', label: 'AI Matches', icon: Sparkles, description: 'Smart connections' },
-    { id: 'sessions', label: 'Sessions', icon: Headphones, description: 'Portfolio & history' },
     { id: 'opportunities', label: 'Opportunities', icon: Search, description: 'Gig marketplace' },
     { id: 'active-work', label: 'Active Work', icon: Briefcase, description: 'Current projects' },
     { id: 'revenue', label: 'Revenue', icon: TrendingUp, description: 'Earnings analytics' },
@@ -82,6 +87,7 @@ const ROLE_HUB_DEFINITIONS: Record<string, HubDefinition[]> = {
   producer: [
     { id: 'dashboard', label: 'Dashboard', icon: Home, description: 'Your beat empire' },
     { id: 'catalog', label: 'Catalog', icon: Disc3, description: 'Your beat library' },
+    { id: 'mastering', label: 'AI Mastering', icon: Sparkles, description: 'Master your tracks' },
     { id: 'clients', label: 'Clients', icon: Users, description: 'Artist connections' },
     { id: 'matches', label: 'AI Matches', icon: Sparkles, description: 'Smart connections' },
     { id: 'sessions', label: 'Sessions', icon: Headphones, description: 'Studio sessions' },
@@ -98,8 +104,8 @@ const ROLE_HUB_DEFINITIONS: Record<string, HubDefinition[]> = {
   ],
   fan: [
     { id: 'feed', label: 'Feed', icon: Compass, description: 'Discover new music' },
-    { id: 'day1s', label: 'Day 1s', icon: Star, description: 'Your early supports' },
     { id: 'missions', label: 'Missions', icon: Target, description: 'Earn MixxCoinz' },
+    { id: 'day1s', label: 'Day 1s', icon: Star, description: 'Your early supports' },
     { id: 'wallet', label: 'Wallet', icon: Coins, description: 'Your rewards' },
     { id: 'curator', label: 'Curator', icon: Sparkles, description: 'Playlist power' },
     { id: 'favorites', label: 'Favorites', icon: Heart, description: 'Saved music' },
@@ -137,6 +143,20 @@ export const CRMHubGrid: React.FC<CRMHubGridProps> = ({
   const hubs = useMemo(() => {
     return ROLE_HUB_DEFINITIONS[userType] || ROLE_HUB_DEFINITIONS.artist;
   }, [userType]);
+
+  const handleHubClick = (hubId: string) => {
+    if (isStarterHub(userType, hubId)) {
+      onHubSelect(hubId);
+    } else {
+      toast('🔒 This feature is locked', {
+        description: 'Help grow the community or upgrade your plan to unlock it.',
+        action: {
+          label: 'View Unlockables',
+          onClick: () => onHubSelect('dashboard'),
+        },
+      });
+    }
+  };
 
   return (
     <div className="space-y-8">
@@ -190,18 +210,31 @@ export const CRMHubGrid: React.FC<CRMHubGridProps> = ({
         "grid gap-4",
         isMobile ? "grid-cols-2" : "grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
       )}>
-        {hubs.map((hub, index) => (
-          <CRMHubModule
-            key={hub.id}
-            hubId={hub.id}
-            label={hub.label}
-            description={hub.description}
-            icon={<hub.icon className="h-5 w-5" />}
-            onClick={() => onHubSelect(hub.id)}
-            delay={index * 0.04}
-            userType={userType}
-          />
-        ))}
+        {hubs.map((hub, index) => {
+          const unlocked = isStarterHub(userType, hub.id);
+          return (
+            <div key={hub.id} className="relative">
+              <CRMHubModule
+                hubId={hub.id}
+                label={hub.label}
+                description={unlocked ? hub.description : 'Locked'}
+                icon={unlocked ? <hub.icon className="h-5 w-5" /> : <Lock className="h-5 w-5" />}
+                onClick={() => handleHubClick(hub.id)}
+                delay={index * 0.04}
+                userType={userType}
+              />
+              {/* Lock overlay for gated hubs */}
+              {!unlocked && (
+                <div className="absolute inset-0 rounded-2xl bg-black/40 backdrop-blur-[2px] flex items-center justify-center pointer-events-none z-10">
+                  <div className="flex flex-col items-center gap-1">
+                    <Lock className="h-5 w-5 text-muted-foreground/70" />
+                    <span className="text-[10px] font-medium text-muted-foreground/70 uppercase tracking-wider">Unlock</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
