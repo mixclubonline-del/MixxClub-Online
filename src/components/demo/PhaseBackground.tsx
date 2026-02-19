@@ -115,14 +115,14 @@ export function PhaseBackground({
                 loop
                 playsInline
                 className="w-full h-full object-cover"
-                style={{ opacity: 0.55 }}
+                style={{ opacity: 0.35 }}
               />
             ) : (
               <img
                 src={resolvedUrl}
                 alt=""
                 className="w-full h-full object-cover"
-                style={{ opacity: 0.55 }}
+                style={{ opacity: 0.35 }}
                 loading="lazy"
               />
             )}
@@ -146,10 +146,10 @@ export function PhaseBackground({
         style={{
           background: `
             linear-gradient(to bottom, 
-              hsl(var(--background) / 0.7) 0%, 
-              hsl(var(--background) / 0.4) 30%,
-              hsl(var(--background) / 0.5) 70%,
-              hsl(var(--background) / 0.85) 100%
+              hsl(var(--background) / 0.75) 0%, 
+              hsl(var(--background) / 0.65) 30%,
+              hsl(var(--background) / 0.6) 70%,
+              hsl(var(--background) / 0.9) 100%
             )
           `
         }}

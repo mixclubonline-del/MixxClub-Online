@@ -2,6 +2,10 @@
  * HomeOverlayNav — Floating navigation overlay for the SceneFlow home page.
  * Provides visitors access to key public pages (Pricing, How It Works, roles, Auth)
  * without breaking the immersive atmosphere.
+ * 
+ * - Logo removed: brand lives on the hallway floor (MixxclubLogo floor decal)
+ * - Scene-aware: hidden entirely when scene is DEMO or INFO
+ * - Full role set: includes For Fans
  */
 
 import { useState } from 'react';
@@ -10,7 +14,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import mixclub3DLogo from '@/assets/mixclub-3d-logo.png';
+import { useSceneFlowStore } from '@/stores/sceneFlowStore';
 
 const PUBLIC_LINKS = [
   { label: 'How It Works', path: '/how-it-works' },
@@ -26,27 +30,23 @@ const PUBLIC_LINKS = [
 export function HomeOverlayNav() {
   const { user } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const scene = useSceneFlowStore((s) => s.scene);
+
+  // Hide entirely during Demo and Club Scene — they have their own internal nav
+  if (scene !== 'HALLWAY') return null;
 
   return (
     <>
-      {/* Top bar — always visible, glassmorphism */}
+      {/* Top bar — always visible during HALLWAY, glassmorphism, no logo */}
       <motion.header
         className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 sm:px-6 h-14 bg-gradient-to-b from-background/60 to-transparent"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, duration: 0.5 }}
       >
-        {/* Left: Logo */}
-        <Link to="/" className="flex items-center gap-2 group">
-          <img src={mixclub3DLogo} alt="MixxClub" className="w-8 h-6 object-contain" />
-          <span className="font-black text-sm tracking-wider text-foreground/80 group-hover:text-foreground transition-colors">
-            MIXXCLUB
-          </span>
-        </Link>
-
-        {/* Center: Desktop links */}
+        {/* Center: Desktop links — all 6 roles, no duplication */}
         <nav className="hidden md:flex items-center gap-1">
-          {PUBLIC_LINKS.slice(0, 4).map((link) => (
+          {PUBLIC_LINKS.slice(0, 6).map((link) => (
             <Link
               key={link.path}
               to={link.path}
@@ -55,16 +55,10 @@ export function HomeOverlayNav() {
               {link.label}
             </Link>
           ))}
-          <Link
-            to="/pricing"
-            className="px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground rounded-lg hover:bg-foreground/5 transition-all"
-          >
-            Pricing
-          </Link>
         </nav>
 
-        {/* Right: Auth + Menu */}
-        <div className="flex items-center gap-2">
+        {/* Right: Auth + Mobile Menu */}
+        <div className="flex items-center gap-2 ml-auto">
           {user ? (
             <Button asChild size="sm" variant="outline" className="h-8 text-xs border-border/40 bg-background/30 backdrop-blur-sm">
               <Link to="/dashboard">Dashboard →</Link>

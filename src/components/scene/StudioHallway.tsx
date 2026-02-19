@@ -19,6 +19,7 @@ import { useDepthLayer } from '@/hooks/useDepthLayer';
 import { useAuth } from '@/hooks/useAuth';
 import { DepthAwareHotspot } from './DepthAwareHotspot';
 import { useHallwayAmbience } from '@/hooks/useHallwayAmbience';
+import { MixxclubLogo } from '@/components/brand/MixxclubLogo';
 import type { StudioRoom } from '@/types/scene';
 
 // Static imports for hallway backgrounds
@@ -158,9 +159,9 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
         />
       )}
       
-      {/* Depth layer indicator - shows current access level */}
+      {/* Depth layer indicator — moved to bottom-left, ground-level ambient info */}
       <motion.div
-        className="absolute top-4 left-4 z-20"
+        className="absolute bottom-28 left-4 z-20"
         initial={{ opacity: 0, x: -10 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.5 }}
@@ -244,14 +245,37 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
       
       {/* Active session count removed — hallway ambient light level communicates this */}
       
-      {/* Entry CTA - fullscreen mode only */}
+      {/* Floor Logo — Mixxclub infinity inlay perspective-foreshortened on the studio floor */}
+      {fullscreen && (
+        <div
+          className="absolute bottom-44 left-1/2 -translate-x-1/2 z-10 pointer-events-none"
+          style={{
+            transform: 'translateX(-50%) perspective(500px) rotateX(60deg) scaleX(0.9)',
+            opacity: 0.13,
+          }}
+        >
+          {/* Soft vertical mask — logo fades into floor depth at top edge */}
+          <div
+            className="relative"
+            style={{
+              maskImage: 'linear-gradient(to bottom, transparent 0%, black 35%, black 100%)',
+              WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 35%, black 100%)',
+            }}
+          >
+            <MixxclubLogo variant="symbol-only" size="lg" animated={false} />
+          </div>
+        </div>
+      )}
+
+      {/* Entry CTA — fullscreen mode only */}
       {fullscreen && onEnter && (
         <motion.div
-          className="absolute bottom-12 left-1/2 -translate-x-1/2 z-20"
+          className="absolute bottom-16 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-4"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.5 }}
         >
+          {/* Main CTA button */}
           <motion.button
             onClick={() => { ensureAmbience(); onEnter(); }}
             className="group flex flex-col items-center gap-3 px-8 py-4 rounded-2xl bg-background/60 backdrop-blur-md border border-primary/30 hover:border-primary/60 transition-all"
@@ -269,10 +293,37 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
               Enter the Club
             </span>
           </motion.button>
+
+          {/* Social proof whisper */}
+          <motion.div
+            className="flex items-center gap-2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 2 }}
+          >
+            <motion.div
+              className="w-1.5 h-1.5 rounded-full bg-emerald-500"
+              animate={{ scale: [1, 1.5, 1], opacity: [1, 0.6, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
+            <span className="text-xs text-muted-foreground/60">
+              10,000+ Artists, Engineers, Producers and Fans collaborating right now
+            </span>
+          </motion.div>
+
+          {/* Desktop keyboard hint */}
+          <motion.span
+            className="hidden md:block text-[10px] font-mono text-muted-foreground/30"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 2.5 }}
+          >
+            press ENTER to step inside
+          </motion.span>
         </motion.div>
       )}
 
-      {/* Posted Up prompt - gentle nudge to sign in (non-fullscreen) */}
+      {/* Posted Up prompt — gentle nudge to sign in (non-fullscreen) */}
       {!fullscreen && currentLayer === 'posted-up' && (
         <motion.div
           className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10"
@@ -286,18 +337,17 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
         </motion.div>
       )}
 
-      {/* Skip to Info hint - appears after 3s in fullscreen */}
+      {/* "Been here before?" — bottom center ghost pill, appears after 3s */}
       {fullscreen && showSkipHint && onSkipToInfo && (
         <motion.button
           onClick={onSkipToInfo}
-          className="absolute top-6 right-6 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/40 backdrop-blur-sm text-muted-foreground/60 hover:text-muted-foreground hover:bg-background/60 transition-all text-xs max-w-[calc(100%-3rem)] sm:max-w-none"
-          initial={{ opacity: 0, x: 10 }}
-          animate={{ opacity: 1, x: 0 }}
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 px-4 py-2 rounded-full bg-background/30 backdrop-blur-sm text-muted-foreground/50 hover:text-muted-foreground hover:bg-background/50 transition-all text-xs border border-border/20 hover:border-border/40"
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <span className="truncate">Already know what you need?</span>
-          <span className="text-primary">→</span>
-          <span className="hidden sm:inline ml-1 px-1.5 py-0.5 rounded bg-muted/50 text-[10px] font-mono">I</span>
+          <span>Been here before?</span>
+          <span className="px-1.5 py-0.5 rounded bg-muted/40 text-[10px] font-mono text-muted-foreground/40">I</span>
         </motion.button>
       )}
     </section>
