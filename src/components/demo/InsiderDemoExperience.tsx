@@ -251,7 +251,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
   }
 
   return (
-    <div className="h-[100svh] w-full bg-background relative overflow-hidden">
+    <div className="h-[100svh] w-full bg-background relative overflow-hidden isolate">
       {/* Cinematic Phase Background with Audio-Reactive Glow */}
       <PhaseBackground
         phaseId={phase.id as 'problem' | 'discovery' | 'connection' | 'transformation' | 'tribe' | 'invitation'}
@@ -264,7 +264,8 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
 
       <ParticleStorm amplitude={amplitude} bass={bass} isPlaying={isPlaying} particleCount={40} />
 
-      <div className="fixed bottom-0 left-0 right-0 h-32 z-20 pointer-events-none">
+      {/* Bottom AudioVisualizer — solid bg prevents sub-layer bleed-through */}
+      <div className="fixed bottom-0 left-0 right-0 h-32 z-20 pointer-events-none bg-gradient-to-t from-background via-background/80 to-transparent">
         <AudioVisualizer beats={beats} amplitude={amplitude} bass={bass} variant="bars" className="h-full opacity-70" />
       </div>
 
