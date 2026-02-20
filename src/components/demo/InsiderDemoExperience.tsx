@@ -1,13 +1,17 @@
 /**
  * Insider Demo Experience - "Find Your People"
  * 
- * A cinematic 6-phase welcome experience focused on human connection.
+ * A cinematic 10-phase welcome experience showcasing the full Mixx Club ecosystem.
  * Phase 1: The Problem (87% stat, frustration)
  * Phase 2: The Discovery (MixClub as solution)
  * Phase 3: The Connection (real human stories)
  * Phase 4: The Transformation (before/after waveform)
- * Phase 5: The Tribe (scale + belonging)
- * Phase 6: The Invitation (single CTA)
+ * Phase 5: The Studio (Dream Engine / F.L.O.W. DAW)
+ * Phase 6: The Marketplace (beats, stems, licensing)
+ * Phase 7: The Stage (live broadcasts, premieres)
+ * Phase 8: The Bag (monetization, distribution)
+ * Phase 9: The Network (scale stats, global community)
+ * Phase 10: The Invitation (single CTA)
  */
 
 import { useState, useEffect, useCallback } from 'react';
@@ -28,16 +32,25 @@ import { PhaseBackground } from '@/components/demo/PhaseBackground';
 import { CommunityShowcase } from '@/components/demo/CommunityShowcase';
 import { ProblemReveal } from '@/components/demo/ProblemReveal';
 import { TransformationVisual } from '@/components/demo/TransformationVisual';
+import { StudioReveal } from '@/components/demo/StudioReveal';
+import { MarketplaceReveal } from '@/components/demo/MarketplaceReveal';
+import { StageReveal } from '@/components/demo/StageReveal';
+import { MoneyReveal } from '@/components/demo/MoneyReveal';
+import { DemoPhaseId } from '@/hooks/useDemoPhaseAssets';
 import mixclubLogo from '@/assets/mixclub-3d-logo.png';
 
-// Phase markers synced to audio timeline (seconds)
+// Phase markers synced to audio timeline (seconds) — compressed for ~65s audio
 const PHASE_MARKERS: PhaseMarker[] = [
-  { id: 'problem', startTime: 0, endTime: 8 },
-  { id: 'discovery', startTime: 8, endTime: 18 },
-  { id: 'connection', startTime: 18, endTime: 32 },
-  { id: 'transformation', startTime: 32, endTime: 48 },
-  { id: 'tribe', startTime: 48, endTime: 60 },
-  { id: 'invitation', startTime: 60, endTime: 999 },
+  { id: 'problem', startTime: 0, endTime: 6 },
+  { id: 'discovery', startTime: 6, endTime: 13 },
+  { id: 'connection', startTime: 13, endTime: 22 },
+  { id: 'transformation', startTime: 22, endTime: 30 },
+  { id: 'studio', startTime: 30, endTime: 38 },
+  { id: 'marketplace', startTime: 38, endTime: 45 },
+  { id: 'stage', startTime: 45, endTime: 52 },
+  { id: 'bag', startTime: 52, endTime: 58 },
+  { id: 'network', startTime: 58, endTime: 63 },
+  { id: 'invitation', startTime: 63, endTime: 999 },
 ];
 
 interface InsiderDemoExperienceProps {
@@ -47,36 +60,60 @@ interface InsiderDemoExperienceProps {
   onJoinNow?: () => void;
 }
 
-// New 6-phase narrative structure focused on human connection
+// 10-phase narrative structure — full ecosystem reveal
 const DEMO_PHASES = [
   {
     id: 'problem',
     title: 'THE PROBLEM',
-    duration: 8000,
-    message: "" // No typewriter, just impact text
+    duration: 6000,
+    message: "",
   },
   {
     id: 'discovery',
     title: 'THE DISCOVERY',
-    duration: 10000,
+    duration: 7000,
     message: "There's a global network of professional engineers who want to work with artists like you. Not for $1,500. For collaboration."
   },
   {
     id: 'connection',
     title: 'THE CONNECTION',
-    duration: 12000,
+    duration: 9000,
     message: "Marcus in Brooklyn needed a master for his EP. Amara in Lagos had 10 years of experience and an empty calendar. MixClub connected them in 3 minutes."
   },
   {
     id: 'transformation',
     title: 'THE TRANSFORMATION',
-    duration: 14000,
+    duration: 8000,
     message: "Real engineers. Real transformation. From bedroom demo to streaming-ready in 24 hours."
   },
   {
-    id: 'tribe',
-    title: 'THE TRIBE',
-    duration: 10000,
+    id: 'studio',
+    title: 'THE STUDIO',
+    duration: 8000,
+    message: "A studio that lives in your browser. AI mastering. Stem separation. Real-time collaboration. No downloads. No plugins. Just create."
+  },
+  {
+    id: 'marketplace',
+    title: 'THE MARKETPLACE',
+    duration: 7000,
+    message: "Buy beats. Sell beats. License stems. The marketplace where sound is currency — and every creator gets paid."
+  },
+  {
+    id: 'stage',
+    title: 'THE STAGE',
+    duration: 7000,
+    message: "Stream your session. Premiere your track. Let fans react in real-time. The stage is always open."
+  },
+  {
+    id: 'bag',
+    title: 'THE BAG',
+    duration: 6000,
+    message: "Distribution. Merch. Licensing. Session fees. Every revenue stream, one dashboard. Your money, your way."
+  },
+  {
+    id: 'network',
+    title: 'THE NETWORK',
+    duration: 5000,
     message: "Whether you're crafting beats in your bedroom or running sessions for labels — there's a seat saved for you."
   },
   {
@@ -254,7 +291,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
     <div className="h-[100svh] w-full bg-background relative overflow-hidden isolate">
       {/* Cinematic Phase Background with Audio-Reactive Glow */}
       <PhaseBackground
-        phaseId={phase.id as 'problem' | 'discovery' | 'connection' | 'transformation' | 'tribe' | 'invitation'}
+        phaseId={phase.id as DemoPhaseId}
         amplitude={amplitude}
         bass={bass}
         mid={mid}
@@ -481,10 +518,50 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
             </motion.div>
           )}
 
-          {/* Phase 5: THE TRIBE */}
-          {phase.id === 'tribe' && (
+          {/* Phase 5: THE STUDIO */}
+          {phase.id === 'studio' && (
+            <StudioReveal
+              key="studio"
+              amplitude={amplitude}
+              bass={bass}
+              isPlaying={isPlaying}
+            />
+          )}
+
+          {/* Phase 6: THE MARKETPLACE */}
+          {phase.id === 'marketplace' && (
+            <MarketplaceReveal
+              key="marketplace"
+              amplitude={amplitude}
+              bass={bass}
+              isPlaying={isPlaying}
+            />
+          )}
+
+          {/* Phase 7: THE STAGE */}
+          {phase.id === 'stage' && (
+            <StageReveal
+              key="stage"
+              amplitude={amplitude}
+              bass={bass}
+              isPlaying={isPlaying}
+            />
+          )}
+
+          {/* Phase 8: THE BAG */}
+          {phase.id === 'bag' && (
+            <MoneyReveal
+              key="bag"
+              amplitude={amplitude}
+              bass={bass}
+              isPlaying={isPlaying}
+            />
+          )}
+
+          {/* Phase 9: THE NETWORK */}
+          {phase.id === 'network' && (
             <motion.div
-              key="tribe"
+              key="network"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -519,7 +596,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
               </motion.p>
 
               <motion.div
-                className="grid grid-cols-3 gap-8"
+                className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
@@ -527,18 +604,19 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
                 {[
                   { label: 'Artists', value: '10,000+', color: 'from-primary to-purple-500' },
                   { label: 'Engineers', value: '500+', color: 'from-purple-500 to-cyan-500' },
-                  { label: 'Tracks Enhanced', value: '50,000+', color: 'from-cyan-500 to-primary' }
+                  { label: 'Producers', value: '2,000+', color: 'from-cyan-500 to-blue-500' },
+                  { label: 'Fans', value: '25,000+', color: 'from-blue-500 to-primary' },
                 ].map((stat, i) => (
                   <motion.div
                     key={stat.label}
-                    className="p-6 rounded-2xl bg-muted/30 border border-muted-foreground/20"
+                    className="p-5 rounded-2xl bg-muted/30 border border-muted-foreground/20"
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.7 + i * 0.2 }}
+                    transition={{ delay: 0.7 + i * 0.15 }}
                     whileHover={{ scale: 1.02 }}
                   >
                     <motion.div
-                      className={`text-4xl font-black bg-gradient-to-r ${stat.color} bg-clip-text text-transparent`}
+                      className={`text-3xl md:text-4xl font-black bg-gradient-to-r ${stat.color} bg-clip-text text-transparent`}
                       animate={{
                         scale: isPlaying ? [1, 1.05, 1] : 1
                       }}
@@ -546,7 +624,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
                     >
                       {stat.value}
                     </motion.div>
-                    <p className="text-muted-foreground mt-2">{stat.label}</p>
+                    <p className="text-muted-foreground mt-2 text-sm">{stat.label}</p>
                   </motion.div>
                 ))}
               </motion.div>

@@ -32,7 +32,11 @@ const STATIC_FALLBACKS: Record<DemoPhaseId, string> = {
   discovery: fallbackDiscovery,
   connection: fallbackConnection,
   transformation: fallbackTransformation,
-  tribe: fallbackTribe,
+  studio: fallbackProblem, // No dedicated static fallback; gradient is primary
+  marketplace: fallbackDiscovery,
+  stage: fallbackConnection,
+  bag: fallbackTransformation,
+  network: fallbackTribe,
   invitation: fallbackInvitation,
 };
 
@@ -57,7 +61,27 @@ const PHASE_GRADIENTS: Record<DemoPhaseId, string> = {
     linear-gradient(90deg, hsl(280 60% 20% / 0.6) 0%, hsl(45 80% 40% / 0.2) 100%),
     radial-gradient(ellipse at 50% 50%, hsl(280 50% 12%) 0%, hsl(260 50% 5%) 100%)
   `,
-  tribe: `
+  studio: `
+    radial-gradient(ellipse at 40% 30%, hsl(230 70% 30% / 0.6) 0%, transparent 50%),
+    radial-gradient(ellipse at 60% 70%, hsl(250 60% 25% / 0.5) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, hsl(235 50% 8%) 0%, hsl(240 50% 3%) 100%)
+  `,
+  marketplace: `
+    radial-gradient(ellipse at 40% 30%, hsl(38 80% 45% / 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse at 60% 70%, hsl(28 70% 35% / 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, hsl(30 40% 10%) 0%, hsl(25 40% 4%) 100%)
+  `,
+  stage: `
+    radial-gradient(ellipse at 50% 30%, hsl(330 80% 45% / 0.35) 0%, transparent 50%),
+    radial-gradient(ellipse at 30% 70%, hsl(300 60% 30% / 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 60%, hsl(340 70% 25% / 0.3) 0%, transparent 50%)
+  `,
+  bag: `
+    radial-gradient(ellipse at 40% 30%, hsl(160 70% 30% / 0.4) 0%, transparent 50%),
+    radial-gradient(ellipse at 60% 70%, hsl(140 60% 25% / 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, hsl(155 40% 8%) 0%, hsl(150 40% 3%) 100%)
+  `,
+  network: `
     radial-gradient(ellipse at 20% 20%, hsl(280 70% 40% / 0.3) 0%, transparent 30%),
     radial-gradient(ellipse at 80% 30%, hsl(190 80% 50% / 0.2) 0%, transparent 25%),
     radial-gradient(ellipse at 50% 80%, hsl(45 90% 50% / 0.15) 0%, transparent 35%),
