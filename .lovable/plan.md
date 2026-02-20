@@ -1,140 +1,202 @@
 
-# Mixx Club Hallway Revival — Combined Master Plan
 
-## Build Errors (Platform Timeouts — Not Code Errors)
+# Expand the Demo — 10-Phase Cinematic Journey
 
-The two build errors reported are Lovable Cloud infrastructure timeouts during the integration and edge function deployment steps. These are not caused by any code change — they are platform-level retries that resolve on the next deploy attempt. No code fix is required. The plan below will trigger a fresh build that will clear them.
+## The Vision
+
+The current demo tells a 60-second story in 6 phases: Problem, Discovery, Connection, Transformation, Tribe, Invitation. It was built when Mixx Club was primarily a "connect artists with engineers" platform. The platform has grown far beyond that — Dream Engine, Beat Marketplace, F.L.O.W. Capture, AI Mastering, Monetization, Fan Hub, Live Broadcasts, Distribution. The demo no longer represents what Mixx Club actually is.
+
+We expand from 6 to 10 phases, redistributing the audio timeline to give each phase room to breathe. The music still drives the pacing — every transition lands on a beat. The new phases introduce the ecosystem pillars that make Mixx Club a movement, not just a marketplace.
 
 ---
 
-## What We Are Fixing — The Full Combined Plan
-
-### Section A: Immersive Route Expansion
-`src/config/immersiveRoutes.ts`
-
-Add `/choose-path` and `/select-role` to `FULL_IMMERSIVE_ROUTES`. These are gateway/cinematic pages that currently allow `PrimeStatusBar`, `GlobalAudioPlayer`, and `GlobalMusicPlayer` to render on top of them, destroying the atmosphere before a user even picks their role.
+## The New 10-Phase Arc
 
 ```text
-BEFORE: ['/', '/intro', '/auth', '/onboarding', '/city/gates']
-AFTER:  ['/', '/intro', '/auth', '/onboarding', '/city/gates', '/choose-path', '/select-role']
+CURRENT (60s, 6 phases):
+  Problem (0-8s) -> Discovery (8-18s) -> Connection (18-32s) ->
+  Transformation (32-48s) -> Tribe (48-60s) -> Invitation (60s+)
+
+PROPOSED (120s / 2 loops, 10 phases):
+  1. The Problem        (0-10s)    — 87% stat, the pain
+  2. The Discovery      (10-20s)   — MixClub as the answer
+  3. The Connection     (20-32s)   — Real humans finding each other
+  4. The Transformation (32-44s)   — Before/After waveform, pro sound
+  5. The Studio         (44-56s)   — Dream Engine + F.L.O.W. DAW reveal
+  6. The Marketplace    (56-68s)   — Beats, stems, services economy
+  7. The Stage          (68-80s)   — Live broadcasts, premieres, fan interaction
+  8. The Bag            (80-92s)   — Monetization: merch, distribution, royalties
+  9. The Network        (92-104s)  — Scale stats, global community
+  10. The Invitation    (104s+)    — "Your seat is waiting" final CTA
 ```
 
 ---
 
-### Section B: HomeOverlayNav — Strip Logo, Add Fans, Hide During Demo
-`src/components/home/HomeOverlayNav.tsx`
+## What Each New Phase Shows
 
-Three changes in one surgical edit:
+### Phase 5: THE STUDIO (new)
+**Headline**: "Create Without Limits"
+**Visual**: A cinematic mock of the Dream Engine / F.L.O.W. DAW interface — not a screenshot, but a stylized animated representation. Think: floating mixer channel strips that react to the bass, a waveform timeline that draws itself in, the AI brain icon pulsing. This is where we show people that Mixx Club is not just about finding engineers — it is a creation environment.
 
-**1. Remove the logo entirely from the top bar.**
-The 3D M icon and "MIXXCLUB" wordmark are removed from the nav header. The Mixxclub brand presence will live on the hallway floor (Section D). The top bar becomes a pure navigation strip — no logo collisions, no overlap with hallway content.
+**Key stats shown**:
+- "AI-Powered Mastering" pill
+- "Real-Time Collaboration" pill
+- "Browser-Native DAW" pill
 
-**2. Fix the desktop nav links — include "For Fans", remove duplication.**
-Currently the nav does `PUBLIC_LINKS.slice(0, 4)` plus a hardcoded extra Pricing link, which duplicates Pricing and skips "For Fans". Replace with a clean render of the first 6 links from `PUBLIC_LINKS`:
-`How It Works | For Artists | For Engineers | For Producers | For Fans | Pricing`
-
-**3. Hide the nav when scene is DEMO or INFO.**
-Import `useSceneFlowStore`. When `scene !== 'HALLWAY'`, return `null` for the entire nav. The demo and Club Scene both have their own internal navigation (back button, phase dots, phase progress bar). Two nav bars on screen at once is confusing and breaks immersion.
+**Typewriter**: "A studio that lives in your browser. AI mastering. Stem separation. Real-time collaboration. No downloads. No plugins. Just create."
 
 ---
 
-### Section C: StudioHallway — Three CTA/UX Upgrades
-`src/components/scene/StudioHallway.tsx`
+### Phase 6: THE MARKETPLACE (new)
+**Headline**: "Trade Your Sound"
+**Visual**: A floating grid of beat cards (glassmorphic, showing BPM/key/genre tags) that drift and rotate gently, with price tags and "Licensed" badges appearing. Audio-reactive: cards pulse on the beat. One card zooms in to show a mini waveform preview playing.
 
-**1. Move the depth layer indicator off the top-left.**
-The "posted up / in the room / on the mic" pill currently renders at `top-4 left-4 z-20` — the exact same area the nav logo used to occupy. Move it to `bottom-28 left-4` so it reads as ground-level environmental info, not a top-bar element. This is also semantically correct — it is ambient status, not a navigation element.
+**Key stats shown**:
+- "1,000+ Beats Listed"
+- "Instant Licensing"
+- "Stem Packs Available"
 
-**2. Upgrade the "Enter the Club" CTA with social proof.**
-Below the pulsing "Enter the Club" button, add a one-liner with a live green pulse dot:
-
-```
-● 10,000+ Artists, Engineers, Producers and Fans are collaborating right now
-```
-
-Rendered as: pulsing `bg-emerald-500` dot + `text-xs text-muted-foreground/60` — ambient, not a button. On desktop only, add a very faint mono hint below: `press ENTER to step inside`.
-
-The full CTA block from top to bottom:
-
-```
-[ ○ pulsing ring ]
-  Enter the Club
-
-● 10,000+ Artists, Engineers, Producers and Fans are collaborating right now
-
-press ENTER to step inside   ← desktop only, opacity-30
-```
-
-**3. Replace "Already know what you need?" with "Been here before?" — move to bottom center.**
-The skip hint currently appears at `top-6 right-6` after 3 seconds, competing with the nav. Move it to `bottom-6 left-1/2 -translate-x-1/2` as a centered ghost pill. Change the copy to "Been here before?" with the keyboard hint `I`. Same 3-second delay, same `onSkipToInfo` handler — just relocated and reworded.
+**Typewriter**: "Buy beats. Sell beats. License stems. The marketplace where sound is currency — and every creator gets paid."
 
 ---
 
-### Section D: Mixxclub Logo on the Hallway Floor
-`src/components/scene/StudioHallway.tsx`
+### Phase 7: THE STAGE (new)
+**Headline**: "Go Live. Get Heard."
+**Visual**: A simulated live broadcast frame — camera feed placeholder with animated viewer count ticking up, heart/fire reaction emojis floating upward, a chat ticker scrolling. Audio-reactive: the broadcast frame border pulses with the bass. This shows fans, premieres, and live sessions.
 
-This is the signature visual upgrade. Using the existing `MixxclubLogo` component (SVG infinity symbol), render a perspective-foreshortened floor decal in the lower center of the hallway — between the door vanishing point and the Enter CTA.
+**Key stats shown**:
+- "Live Sessions" pill
+- "Fan Reactions" pill
+- "Premiere Drops" pill
 
-**Technique:**
-```css
-transform: perspective(500px) rotateX(60deg) scaleX(0.9)
-opacity: 0.12  /* feels painted on, not floating */
-pointer-events: none
-```
-
-**Placement:** Absolute positioned at `bottom-36 left-1/2 -translate-x-1/2` — above the Enter CTA group, below the studio door line.
-
-**Variant:** `symbol-only` at size `lg` — the pure SVG infinity inlay. The pink→lavender→cyan gradient on the symbol reads like neon floor lighting spilling across studio tile. No text, no wordmark on the floor — just the symbol.
-
-**Masking:** Wrap with a `bg-gradient-to-t from-transparent via-transparent to-background/50` mask container so the top edge of the logo softly fades into the hallway depth, reinforcing perspective.
-
-The result: a glowing infinity inlay on the studio floor, visible when you first walk into the hallway — grounding the brand in the physical space without floating UI.
+**Typewriter**: "Stream your session. Premiere your track. Let fans react in real-time. The stage is always open."
 
 ---
 
-### Section E: Demo Background — Fix DAW Bleed-Through
-`src/components/demo/PhaseBackground.tsx`
+### Phase 8: THE BAG (new)
+**Headline**: "Get Paid. Period."
+**Visual**: An animated revenue flow diagram — money flowing from multiple sources (streaming, merch, licensing, sessions) into a central wallet icon. Numbers tick up. Glassmorphic stat cards for each revenue stream. Audio-reactive: the money flow particles speed up on beat hits.
 
-The transformation phase (`mastering-before-after.jpg`) renders a DAW screenshot at 55% opacity with only a 40% center darkening overlay. The result: track names, timeline rulers, and channel strips are fully visible behind the demo content. Immersion shattered.
+**Key stats shown**:
+- "Distribution to 150+ Platforms"
+- "Merch Storefronts"
+- "Session Payments"
+- "Royalty Tracking"
 
-Two fixes:
-
-**1. Reduce the static image opacity from `0.55` to `0.35`** for all phases. The cinematic gradient overlays are the real atmosphere — the images are accents, not backgrounds.
-
-**2. Increase the center darkening in Layer 2** from `0.4` at 30% to `0.65` at 30%, giving the content area much better contrast:
-
-```text
-BEFORE:  0.7 / 0.4 / 0.5 / 0.85
-AFTER:   0.75 / 0.65 / 0.6 / 0.9
-```
-
-This is the single change that stops the DAW bleeding through and stops community feed elements from appearing at the bottom of the connection phase.
+**Typewriter**: "Distribution. Merch. Licensing. Session fees. Every revenue stream, one dashboard. Your money, your way."
 
 ---
 
-### Section F: Demo Container — Fix Bottom Ghost UI Bleed
+### Phase 9: THE NETWORK (replaces old "Tribe")
+Same concept as before but with updated, larger stats reflecting the full ecosystem. The 3-column stat grid expands to show Artists, Engineers, Producers, AND Fans — reflecting the full community.
+
+---
+
+## Technical Implementation
+
+### 1. Update `PHASE_MARKERS` and `DEMO_PHASES` arrays
 `src/components/demo/InsiderDemoExperience.tsx`
 
-The `fixed bottom-0` AudioVisualizer strip has sub-layers visible beneath it during certain phases. Two-line fix:
+Expand from 6 to 10 entries. The audio is set to `loop: true`, so a 120-second timeline means the track plays through approximately twice before looping. The `usePhaseSync` hook already handles this — the loop detection resets to phase 0 when it detects a backward time jump.
 
-1. Add `isolate` to the root `div` of the main experience container (creates a CSS stacking context, preventing sub-layer bleed).
-2. Add `bg-background` to the fixed bottom visualizer wrapper so it has a solid backdrop rather than being fully transparent.
+If the audio file is shorter than 120s, the loop will reset phases to 0 at the loop point — which is the correct behavior. Users who sit through the full loop see the story again. Users who skip forward (via phase dots or skip button) can jump to any phase.
+
+### 2. Update `DemoPhaseId` type
+`src/hooks/useDemoPhaseAssets.ts`
+
+Expand the union type to include the 4 new phase IDs: `'studio' | 'marketplace' | 'stage' | 'bag'`.
+
+### 3. Add 4 new phase gradient palettes
+`src/components/demo/PhaseBackground.tsx`
+
+Add entries to `PHASE_GRADIENTS` for the 4 new phases. Each gets a distinct color identity:
+- Studio: Deep blue/indigo (creation, focus)
+- Marketplace: Amber/gold (commerce, value)
+- Stage: Hot pink/magenta (performance, energy)
+- Bag: Green/emerald (money, growth)
+
+### 4. Create 4 new phase visual components
+New files in `src/components/demo/`:
+
+- **`StudioReveal.tsx`** — Animated DAW-style interface with floating channel strips, AI brain pulse, waveform drawing itself in. Audio-reactive channel meters.
+- **`MarketplaceReveal.tsx`** — Floating beat cards grid with price tags, BPM/key badges, and a mini waveform preview. Cards pulse on bass hits.
+- **`StageReveal.tsx`** — Simulated live broadcast frame with viewer counter, floating emoji reactions, chat ticker. Border pulses with audio.
+- **`MoneyReveal.tsx`** — Revenue flow animation with particles streaming from source icons into a central wallet. Stat cards for each revenue stream.
+
+Each component follows the same interface pattern as `ProblemReveal` and `TransformationVisual`:
+```text
+interface Props {
+  amplitude: number;
+  bass: number;
+  isPlaying: boolean;
+}
+```
+
+### 5. Update the phase navigation dots
+`src/components/demo/InsiderDemoExperience.tsx`
+
+The left-rail phase dots expand from 6 to 10. No logic change needed — the existing `.map()` over `DEMO_PHASES` handles this automatically.
+
+### 6. Update the phase progress bar
+Already driven by `phaseProgress` from `usePhaseSync` — no change needed. The progress bar reflects progress within the current phase regardless of how many phases exist.
 
 ---
 
-## Files Modified
+## Files to Create
+
+| File | Purpose |
+|---|---|
+| `src/components/demo/StudioReveal.tsx` | Phase 5 visual — animated DAW/Dream Engine showcase |
+| `src/components/demo/MarketplaceReveal.tsx` | Phase 6 visual — floating beat cards marketplace |
+| `src/components/demo/StageReveal.tsx` | Phase 7 visual — live broadcast simulation |
+| `src/components/demo/MoneyReveal.tsx` | Phase 8 visual — revenue flow animation |
+
+## Files to Modify
 
 | File | Change |
 |---|---|
-| `src/config/immersiveRoutes.ts` | Add `/choose-path`, `/select-role` |
-| `src/components/home/HomeOverlayNav.tsx` | Remove logo, fix nav links (add Fans, remove dupe Pricing), hide when scene is DEMO/INFO |
-| `src/components/scene/StudioHallway.tsx` | Move depth indicator to bottom-left, upgrade CTA with social proof, rename/relocate skip hint to "Been here before?", add floor logo |
-| `src/components/demo/PhaseBackground.tsx` | Reduce image opacity to 0.35, increase darkening overlay center stop |
-| `src/components/demo/InsiderDemoExperience.tsx` | Add `isolate` to root container, add `bg-background` to visualizer wrapper |
+| `src/components/demo/InsiderDemoExperience.tsx` | Expand PHASE_MARKERS to 10 entries, add 4 new phase render blocks, import new components |
+| `src/hooks/useDemoPhaseAssets.ts` | Expand DemoPhaseId type with 4 new IDs, expand default state |
+| `src/components/demo/PhaseBackground.tsx` | Add 4 new gradient palettes and static fallback entries |
 
-**No new files. No database changes. No new dependencies.**
+**No database changes. No new dependencies. All animations use framer-motion (already installed).**
 
 ---
 
-## The Spirit We're Restoring
+## Audio Timeline Strategy
 
-You walk into a hallway. The floor has the infinity mark — the studio's signature, inlaid in light. One button, one invitation. Social proof whispers beneath it: thousands creating right now. The nav floats quietly above — all roles represented, no logo competing with the scene. When you step through the door into the demo, the nav disappears entirely. The story takes over. That is Mixx Club.
+The current audio file loops at its natural end. Two scenarios:
+
+**If audio is 60-70s**: The first 5 phases (Problem through Studio) play on the first pass. When the audio loops, phases 6-10 play on the second pass. The `usePhaseSync` hook resets to phase 0 on loop — so we need a small enhancement: track which "lap" we are on and offset the phase index accordingly. This means adding a `lapCount` ref to `usePhaseSync`.
+
+**If audio is 120s+**: All 10 phases fit in one pass. No loop tracking needed.
+
+**Recommendation**: For now, design the phase markers to fit within whatever the audio duration is. If the audio is ~65 seconds, compress the 10 phases into that window (6.5s average per phase). The demo is already skippable via the phase dots — users who want depth will click through. The music sync creates the atmosphere; the phase timing creates the rhythm.
+
+### Compressed 10-phase timeline (for ~65s audio):
+
+```text
+1. Problem        0-6s
+2. Discovery      6-13s
+3. Connection     13-22s
+4. Transformation 22-30s
+5. Studio         30-38s
+6. Marketplace    38-45s
+7. Stage          45-52s
+8. Bag            52-58s
+9. Network        58-63s
+10. Invitation    63s+
+```
+
+This gives each phase 6-9 seconds — enough for the typewriter to complete and the visual to land. The existing skip button and phase dots let users move at their own pace.
+
+---
+
+## The Spirit
+
+The old demo said: "Music is expensive. We connect you with engineers. Join us."
+
+The new demo says: "Music is expensive. We connect you with engineers. But that is just the door. Inside there is a studio. A marketplace. A stage. A bag. A whole network. An entire ecosystem built for people who make music. Your seat is waiting."
+
+That is the difference between a feature pitch and a movement pitch. The 4 new phases turn a service demo into a world reveal.
+
