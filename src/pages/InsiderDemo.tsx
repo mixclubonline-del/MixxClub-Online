@@ -28,8 +28,8 @@ const PHASE_VISUAL_MAP: Record<string, DemoPhaseId> = {
   spark: 'discovery',
   community: 'connection',
   collaboration: 'transformation',
-  network: 'tribe',
-  place: 'tribe',
+  network: 'network',
+  place: 'network',
   invitation: 'invitation',
 };
 
