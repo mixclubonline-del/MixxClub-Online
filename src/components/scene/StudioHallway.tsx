@@ -247,22 +247,22 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
       
       {/* Floor Logo — Mixxclub infinity inlay perspective-foreshortened on the studio floor */}
       {fullscreen && (
-        <div
-          className="absolute bottom-44 left-1/2 -translate-x-1/2 z-10 pointer-events-none"
-          style={{
-            transform: 'translateX(-50%) perspective(500px) rotateX(60deg) scaleX(0.9)',
-            opacity: 0.13,
-          }}
-        >
-          {/* Soft vertical mask — logo fades into floor depth at top edge */}
+        <div className="absolute bottom-44 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
           <div
-            className="relative"
             style={{
-              maskImage: 'linear-gradient(to bottom, transparent 0%, black 35%, black 100%)',
-              WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 35%, black 100%)',
+              transform: 'perspective(500px) rotateX(60deg) scaleX(0.9)',
+              opacity: 0.13,
             }}
           >
-            <MixxclubLogo variant="symbol-only" size="lg" animated={false} />
+            <div
+              className="relative"
+              style={{
+                maskImage: 'linear-gradient(to bottom, transparent 0%, black 35%, black 100%)',
+                WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 35%, black 100%)',
+              }}
+            >
+              <MixxclubLogo variant="symbol-only" size="lg" animated={false} />
+            </div>
           </div>
         </div>
       )}
