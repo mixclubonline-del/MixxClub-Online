@@ -270,7 +270,8 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
       {/* Entry CTA — fullscreen mode only */}
       {fullscreen && onEnter && (
         <motion.div
-          className="absolute bottom-16 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-4"
+          className="absolute bottom-16 z-20 flex flex-col items-center gap-4"
+          style={{ left: '46%', transform: 'translateX(-50%)' }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.5 }}
