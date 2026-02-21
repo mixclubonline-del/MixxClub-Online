@@ -110,7 +110,7 @@ export function PhaseBackground({
   const fallbackGradient = PHASE_GRADIENTS[phaseId];
 
   // Priority: DB asset (image or video) > static fallback image > gradient
-  const resolvedUrl = dbAssetUrl || staticFallback;
+  const resolvedUrl = dbAssetUrl || null;
   const isVideo = dbAssetUrl && dbAssetType === 'video';
 
   // Audio-reactive glow intensity
