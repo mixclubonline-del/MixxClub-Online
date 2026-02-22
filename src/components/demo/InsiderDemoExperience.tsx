@@ -16,7 +16,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { usePhaseSync, PhaseMarker } from '@/hooks/usePhaseSync';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -131,8 +131,10 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
   const [typedText, setTypedText] = useState('');
   const [showTitle, setShowTitle] = useState(false);
   const [volume, setVolumeState] = useState(0.7);
+  const [liteMode, setLiteMode] = useState(false);
 
   const navigate = useNavigate();
+  const prefersReducedMotion = useReducedMotion();
 
   const { isLoading, isPlaying, analysis, play, pause, toggle, setVolume, seek } = useInsiderAudio();
   const { amplitude, bass, mid, high, beats } = analysis;
@@ -190,6 +192,15 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
     setVolumeState(value);
     setVolume(value);
   };
+
+  useEffect(() => {
+    if (prefersReducedMotion) {
+      setLiteMode(true);
+    }
+  }, [prefersReducedMotion]);
+
+  const particleCount = liteMode ? 10 : 40;
+  const motionEnabled = !liteMode;
 
 
   useEffect(() => {
@@ -304,10 +315,10 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
         bass={bass}
         mid={mid}
         high={high}
-        isPlaying={isPlaying}
+        isPlaying={motionEnabled && isPlaying}
       />
 
-      <ParticleStorm amplitude={amplitude} bass={bass} isPlaying={isPlaying} particleCount={40} />
+      <ParticleStorm amplitude={amplitude} bass={bass} isPlaying={motionEnabled && isPlaying} particleCount={particleCount} />
 
       {/* Bottom AudioVisualizer — solid bg prevents sub-layer bleed-through */}
       <div className="fixed bottom-0 left-0 right-0 h-32 z-20 pointer-events-none bg-gradient-to-t from-background via-background/80 to-transparent">
@@ -341,10 +352,11 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
 
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" onClick={toggle}>
+              <Button variant="ghost" size="icon" onClick={toggle} aria-label={isPlaying ? 'Pause demo audio' : 'Play demo audio'}>
                 {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
               </Button>
               <input
+                aria-label="Demo volume"
                 type="range"
                 min="0"
                 max="1"
@@ -363,8 +375,12 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
               {isAutoPlay ? 'Synced' : 'Auto'}
             </Button>
 
-            <Button variant="outline" size="icon" onClick={() => skipToPhase(Math.min(currentPhase + 1, DEMO_PHASES.length - 1))}>
+            <Button variant="outline" size="icon" onClick={() => skipToPhase(Math.min(currentPhase + 1, DEMO_PHASES.length - 1))} aria-label="Skip to next phase">
               <SkipForward className="w-4 h-4" />
+            </Button>
+
+            <Button variant="outline" size="sm" onClick={() => setLiteMode((prev) => !prev)} className="text-xs" aria-label="Toggle lite performance mode">
+              {liteMode ? 'Lite Mode On' : 'Lite Mode'}
             </Button>
           </div>
         </div>
@@ -379,12 +395,13 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
             className={`block w-2 h-6 rounded-full transition-all ${i === currentPhase ? 'bg-primary w-3' : i < currentPhase ? 'bg-primary/50' : 'bg-muted-foreground/30'
               }`}
             title={p.title}
+            aria-label={`Go to ${p.title} phase`}
           />
         ))}
       </div>
 
       {/* Main Content */}
-      <main className="relative z-10 h-[100svh] w-full flex flex-col items-center justify-center px-6 pt-24 pb-40 overflow-hidden">
+      <main className="relative z-10 h-[100svh] w-full flex flex-col items-center justify-center px-6 pt-24 pb-40 overflow-hidden" aria-label="Insider demo experience">
         <AnimatePresence mode="wait">
           {/* Phase 1: THE PROBLEM */}
           {phase.id === 'problem' && (
@@ -764,7 +781,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
                 >
                   <Users className="w-4 h-4 text-primary" />
                   <span className="text-sm text-muted-foreground">
-                    Join 10,000+ artists and engineers
+                    Join a growing global community of artists and engineers
                   </span>
                 </motion.div>
               </motion.div>
