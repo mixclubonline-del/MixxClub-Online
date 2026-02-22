@@ -9,6 +9,7 @@
 
 import { useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useSceneFlowStore } from '@/stores/sceneFlowStore';
 import { SceneStage } from '@/components/scene/SceneStage';
 import { StudioHallway } from '@/components/scene/StudioHallway';
@@ -134,6 +135,26 @@ export function SceneFlow() {
         {scene === 'INFO' && 'Club information scene active'}
       </div>
 
+      {scene !== 'HALLWAY' && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-2 rounded-full border border-border/40 bg-background/75 px-3 py-1.5 backdrop-blur-md">
+          <button
+            type="button"
+            onClick={handleBackToHallway}
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Back to hallway"
+          >
+            Hallway
+          </button>
+          <span className="text-muted-foreground/40">•</span>
+          <Link
+            to="/choose-path"
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Skip immersive flow and go to sign up"
+          >
+            Skip to signup
+          </Link>
+        </div>
+      )}
 
       {scene === 'HALLWAY' && (
         <StudioHallway fullscreen onEnter={handleEnterDemo} onSkipToInfo={handleSkipToInfo} />

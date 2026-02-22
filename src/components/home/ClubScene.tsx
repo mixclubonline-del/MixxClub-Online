@@ -7,7 +7,7 @@
 
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Home } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ClubAmbience } from './ClubAmbience';
 import { ClubProgress } from './ClubProgress';
@@ -115,6 +115,17 @@ export function ClubScene({ onBack }: ClubSceneProps) {
       <ClubAmbience />
 
       {/* Back button */}
+      <div className="fixed top-6 right-6 z-50">
+        <button
+          type="button"
+          onClick={() => navigate('/')}
+          className="flex items-center gap-2 px-4 py-2 rounded-full bg-background/60 backdrop-blur-md border border-border/50 text-muted-foreground hover:text-foreground transition-colors"
+          aria-label="Go to main site"
+        >
+          <Home className="w-4 h-4" />
+          <span className="text-sm">Main Site</span>
+        </button>
+      </div>
 
       {onBack && (
         <motion.button

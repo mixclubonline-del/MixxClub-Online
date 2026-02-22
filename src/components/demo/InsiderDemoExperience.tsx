@@ -379,8 +379,8 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
               <SkipForward className="w-4 h-4" />
             </Button>
 
-            <Button variant="ghost" size="sm" onClick={() => setLiteMode((prev) => !prev)} className="text-xs text-muted-foreground hover:text-foreground" aria-label="Toggle calm motion mode">
-              {liteMode ? 'Calm Motion On' : 'Calm Motion'}
+            <Button variant="outline" size="sm" onClick={() => setLiteMode((prev) => !prev)} className="text-xs" aria-label="Toggle lite performance mode">
+              {liteMode ? 'Lite Mode On' : 'Lite Mode'}
             </Button>
           </div>
         </div>
