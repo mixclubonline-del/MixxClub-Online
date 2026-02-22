@@ -409,7 +409,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
               key="problem"
               amplitude={amplitude}
               bass={bass}
-              isPlaying={isPlaying}
+              isPlaying={motionEnabled && isPlaying}
             />
           )}
 
@@ -529,7 +529,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
               <TransformationVisual
                 amplitude={amplitude}
                 bass={bass}
-                isPlaying={isPlaying}
+                isPlaying={motionEnabled && isPlaying}
               />
 
               <motion.p
@@ -549,7 +549,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
               key="studio"
               amplitude={amplitude}
               bass={bass}
-              isPlaying={isPlaying}
+              isPlaying={motionEnabled && isPlaying}
             />
           )}
 
@@ -559,7 +559,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
               key="marketplace"
               amplitude={amplitude}
               bass={bass}
-              isPlaying={isPlaying}
+              isPlaying={motionEnabled && isPlaying}
             />
           )}
 
@@ -569,7 +569,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
               key="stage"
               amplitude={amplitude}
               bass={bass}
-              isPlaying={isPlaying}
+              isPlaying={motionEnabled && isPlaying}
             />
           )}
 
@@ -579,7 +579,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
               key="bag"
               amplitude={amplitude}
               bass={bass}
-              isPlaying={isPlaying}
+              isPlaying={motionEnabled && isPlaying}
             />
           )}
 
