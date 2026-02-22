@@ -7,7 +7,7 @@
 
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Home } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ClubAmbience } from './ClubAmbience';
 import { ClubProgress } from './ClubProgress';
@@ -17,6 +17,7 @@ import { ControlRoom } from './rooms/ControlRoom';
 import { VaultRoom } from './rooms/VaultRoom';
 import { VIPBooth } from './rooms/VIPBooth';
 import { StageDoor } from './rooms/StageDoor';
+import { trackEvent } from '@/lib/analytics';
 
 interface ClubSceneProps {
   onBack?: () => void;
@@ -73,7 +74,9 @@ export function ClubScene({ onBack }: ClubSceneProps) {
 
   // Handle join action
   const handleJoin = useCallback(() => {
-    navigate('/auth?mode=signup');
+    trackEvent('funnel_cta_click', 'funnel', 'info_join_now');
+    trackEvent('funnel_conversion_complete', 'funnel', 'choose_path');
+    navigate('/choose-path');
   }, [navigate]);
 
   // Keyboard navigation
@@ -107,14 +110,27 @@ export function ClubScene({ onBack }: ClubSceneProps) {
   }, [currentRoom, goToRoom, onBack, handleJoin]);
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-background">
+    <section className="relative w-full h-screen overflow-hidden bg-background" aria-label="Club information scene">
       {/* Atmospheric background */}
       <ClubAmbience />
 
       {/* Back button */}
+      <div className="fixed top-6 right-6 z-50">
+        <button
+          type="button"
+          onClick={() => navigate('/')}
+          className="flex items-center gap-2 px-4 py-2 rounded-full bg-background/60 backdrop-blur-md border border-border/50 text-muted-foreground hover:text-foreground transition-colors"
+          aria-label="Go to main site"
+        >
+          <Home className="w-4 h-4" />
+          <span className="text-sm">Main Site</span>
+        </button>
+      </div>
+
       {onBack && (
         <motion.button
           onClick={onBack}
+          aria-label="Back to demo"
           className="fixed top-6 left-6 z-50 flex items-center gap-2 px-4 py-2 rounded-full bg-background/60 backdrop-blur-md border border-border/50 text-muted-foreground hover:text-foreground transition-colors"
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
@@ -129,8 +145,9 @@ export function ClubScene({ onBack }: ClubSceneProps) {
       <ClubProgress currentRoom={currentRoom} onRoomClick={goToRoom} />
 
       {/* Scrollable room container */}
-      <div
+      <main
         ref={containerRef}
+        aria-label="Scrollable club tour rooms"
         className="h-screen overflow-y-auto snap-y snap-mandatory scroll-smooth"
         style={{ scrollbarWidth: 'none' }}
       >
@@ -140,7 +157,7 @@ export function ClubScene({ onBack }: ClubSceneProps) {
         <ControlRoom />
         <VIPBooth />
         <StageDoor onJoin={handleJoin} />
-      </div>
-    </div>
+      </main>
+    </section>
   );
 }

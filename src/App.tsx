@@ -126,7 +126,6 @@ const App = () => {
                     <TutorialProvider>
                       <PulseProvider>
                         <UnlockCelebrationProvider>
-                          <PWAInstallPrompt />
                           <EnergyTransition />
                           <AppContent />
                           <GlobalNavigation />
