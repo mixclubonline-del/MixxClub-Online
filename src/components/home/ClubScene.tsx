@@ -17,6 +17,7 @@ import { ControlRoom } from './rooms/ControlRoom';
 import { VaultRoom } from './rooms/VaultRoom';
 import { VIPBooth } from './rooms/VIPBooth';
 import { StageDoor } from './rooms/StageDoor';
+import { trackEvent } from '@/lib/analytics';
 
 interface ClubSceneProps {
   onBack?: () => void;
@@ -73,7 +74,9 @@ export function ClubScene({ onBack }: ClubSceneProps) {
 
   // Handle join action
   const handleJoin = useCallback(() => {
-    navigate('/auth?mode=signup');
+    trackEvent('funnel_cta_click', 'funnel', 'info_join_now');
+    trackEvent('funnel_conversion_complete', 'funnel', 'choose_path');
+    navigate('/choose-path');
   }, [navigate]);
 
   // Keyboard navigation

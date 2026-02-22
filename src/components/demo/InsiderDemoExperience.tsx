@@ -38,6 +38,7 @@ import { StageReveal } from '@/components/demo/StageReveal';
 import { MoneyReveal } from '@/components/demo/MoneyReveal';
 import { DemoPhaseId } from '@/hooks/useDemoPhaseAssets';
 import mixclubLogo from '@/assets/mixclub-3d-logo.png';
+import { trackEvent } from '@/lib/analytics';
 
 // Phase markers synced to audio timeline (seconds) — compressed for ~65s audio
 const PHASE_MARKERS: PhaseMarker[] = [
@@ -189,6 +190,13 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
     setVolumeState(value);
     setVolume(value);
   };
+
+
+  useEffect(() => {
+    const phaseId = DEMO_PHASES[currentPhase]?.id;
+    if (!phaseId) return;
+    trackEvent('funnel_demo_phase_progress', 'funnel', String(phaseId), currentPhase + 1);
+  }, [currentPhase]);
 
   const phase = DEMO_PHASES[currentPhase];
 
