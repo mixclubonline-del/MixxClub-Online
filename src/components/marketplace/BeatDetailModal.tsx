@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -17,6 +17,8 @@ import { useBeatPurchase } from '@/hooks/useBeatPurchase';
 import { Loader2, ShoppingCart, User, Music, Clock, Hash } from 'lucide-react';
 import type { MarketplaceBeat } from '@/hooks/useBeatMarketplace';
 import { Link } from 'react-router-dom';
+import { CoinzPaymentToggle } from './CoinzPaymentToggle';
+import { useCoinzCheckout } from '@/hooks/useCoinzCheckout';
 
 interface BeatDetailModalProps {
   beat: MarketplaceBeat | null;
@@ -26,7 +28,9 @@ interface BeatDetailModalProps {
 
 export function BeatDetailModal({ beat, open, onOpenChange }: BeatDetailModalProps) {
   const [selectedLicense, setSelectedLicense] = useState<'lease' | 'exclusive'>('lease');
+  const [coinzToApply, setCoinzToApply] = useState(0);
   const { createBeatCheckout, loading, isAuthenticated } = useBeatPurchase();
+  const { totalBalance, currentTier, tierDiscountPercent, calculateCheckout, maxCoinzForPrice, applyCoinzPayment } = useCoinzCheckout();
 
   if (!beat) return null;
 
@@ -161,6 +165,21 @@ export function BeatDetailModal({ beat, open, onOpenChange }: BeatDetailModalPro
               }}
             />
           </div>
+
+          <Separator />
+
+          {/* MixxCoinz Payment */}
+          {isAuthenticated && (
+            <CoinzPaymentToggle
+              priceCents={selectedPrice}
+              totalBalance={totalBalance}
+              maxCoinz={maxCoinzForPrice(selectedPrice)}
+              tier={currentTier}
+              tierDiscountPercent={tierDiscountPercent}
+              onCalculate={calculateCheckout}
+              onCoinzChange={setCoinzToApply}
+            />
+          )}
 
           <Separator />
 
