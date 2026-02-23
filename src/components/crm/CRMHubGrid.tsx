@@ -25,6 +25,7 @@ import {
   MessageCircle,
   Trophy,
   Calendar,
+  Brain,
   type LucideIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -131,6 +132,7 @@ const ROLE_HUB_DEFINITIONS: Record<string, HubDefinition[]> = {
     { id: 'community', label: 'Community', icon: Users, description: 'Activity & battles' },
     { id: 'assets', label: 'Assets', icon: Star, description: 'Dream Engine assets' },
     { id: 'system', label: 'System', icon: Target, description: 'Seeding & security' },
+    { id: 'prime', label: 'Prime Brain', icon: Brain, description: 'AI command center' },
   ],
 };
 

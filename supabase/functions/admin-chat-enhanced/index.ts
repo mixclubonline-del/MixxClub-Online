@@ -30,16 +30,16 @@ const SENSITIVE_PATTERNS = [
 function sanitizeInput(input: string): { sanitized: string; injectionAttempts: number; patterns: string[] } {
   let injectionAttempts = 0;
   const foundPatterns: string[] = [];
-  
+
   for (const pattern of DANGEROUS_PATTERNS) {
     if (pattern.test(input)) {
       injectionAttempts++;
       foundPatterns.push(pattern.toString());
     }
   }
-  
+
   const sanitized = input.replace(/[;'"]/g, '').substring(0, 2000);
-  
+
   return { sanitized, injectionAttempts, patterns: foundPatterns };
 }
 
@@ -131,16 +131,16 @@ You are a multi-faceted expert combining:
 - Hardware: Apollo interfaces, SSL consoles, analog compressors
 - Monitoring: Genelec, Yamaha NS-10, Auratone mix cubes
 
-# INDUSTRY TRENDS & INSIGHTS (2025)
+# INDUSTRY TRENDS & INSIGHTS (2026)
 
 **Current Trends**:
-- AI-assisted mixing/mastering tools becoming standard
-- Spatial audio (Dolby Atmos, 360 Reality Audio) growing demand
-- Remote collaboration normalized post-pandemic
-- Subscription-based audio services increasing
-- TikTok/social media driving music production volume
-- Lo-fi and bedroom production aesthetic popularity
-- Vinyl resurgence affecting mastering approaches
+- AI-native mixing/mastering tools are the standard
+- Spatial audio (Dolby Atmos, Sony 360 Reality Audio, Apple Spatial) in high demand
+- Remote and hybrid collaboration is the norm
+- Subscription + per-project hybrid revenue models dominating
+- Short-form content driving record music production volumes
+- AI-assisted stem separation enabling new remix/collaboration workflows
+- Decentralized music rights management emerging
 
 **Pricing Intelligence**:
 - Industry average mixing: $200-$500 per song (pro level)
@@ -185,25 +185,38 @@ When helping admins, you can:
 5. Streamline operations and reduce friction
 6. Stay ahead of industry trends and technology
 
-Remember: You're not just answering questions - you're actively helping build and optimize a successful online mixing and mastering business. Be proactive, insightful, and strategic in your assistance.`;
+Remember: You're not just answering questions - you're actively helping build and optimize a successful online mixing and mastering business. Be proactive, insightful, and strategic in your assistance.
+
+# PRE-LAUNCH & WAITLIST SYSTEM
+
+MixClub has a pre-launch waitlist system. Key tables:
+- platform_config: launch_mode ('pre_launch' or 'live')
+- waitlist_signups: email, name, role, social handle, position, status
+- invite_codes: MIXX-XXXX-XXXX format codes for early access
+
+You can help admins:
+- Analyze waitlist growth and conversion rates
+- Suggest strategies for invite code distribution
+- Plan launch rollout phases
+- Recommend outreach based on role distribution in signups`;
 
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
-  
+
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   const startTime = Date.now();
   const sessionId = crypto.randomUUID();
-  
+
   try {
     const { message, conversationHistory = [], context = {}, messages: directMessages } = await req.json();
-    
+
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
-    
+
     const authHeader = req.headers.get('authorization');
     if (!authHeader) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
@@ -214,7 +227,7 @@ serve(async (req) => {
 
     const token = authHeader.replace('Bearer ', '');
     const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
-    
+
     if (authError || !user) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
@@ -222,8 +235,8 @@ serve(async (req) => {
       });
     }
 
-    const { data: isAdmin, error: adminError } = await supabaseAdmin.rpc('is_admin', { 
-      user_uuid: user.id 
+    const { data: isAdmin, error: adminError } = await supabaseAdmin.rpc('is_admin', {
+      user_uuid: user.id
     });
 
     if (adminError || !isAdmin) {
@@ -235,7 +248,7 @@ serve(async (req) => {
         p_description: 'Non-admin user attempted to access admin chatbot',
         p_details: { error: adminError?.message }
       });
-      
+
       return new Response(JSON.stringify({ error: 'Admin access required' }), {
         status: 403,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -258,7 +271,7 @@ serve(async (req) => {
     // Sanitize input
     const userInput = message || directMessages?.[directMessages.length - 1]?.content || '';
     const { sanitized, injectionAttempts, patterns } = sanitizeInput(userInput);
-    
+
     // Log injection attempts
     if (injectionAttempts > 0) {
       await supabaseAdmin.rpc('log_security_event', {
@@ -317,7 +330,7 @@ serve(async (req) => {
         calendarInfo += `- [${event.priority?.toUpperCase()}] ${event.title} - ${eventDate}\n`;
       });
     }
-    
+
     if (overdueEvents && overdueEvents.length > 0) {
       calendarInfo += `\n\n**⚠️ OVERDUE ITEMS:**\n`;
       overdueEvents.forEach((event: any) => {
@@ -329,11 +342,11 @@ serve(async (req) => {
     // Add navigation context
     const currentPage = context.page || 'unknown';
     const isMobile = context.isMobile || false;
-    
+
     let navigationInfo = '\n\n# NAVIGATION CONTEXT & ASSISTANCE\n';
     navigationInfo += `**Current Location:** ${currentPage}\n`;
     navigationInfo += `**Device:** ${isMobile ? 'Mobile' : 'Desktop'}\n\n`;
-    
+
     navigationInfo += `**ADMIN PANEL NAVIGATION MAP:**\n`;
     navigationInfo += `- /admin (Main dashboard)\n`;
     navigationInfo += `- /admin-analytics (Platform analytics)\n`;
@@ -344,7 +357,7 @@ serve(async (req) => {
     navigationInfo += `- /admin-content (Content moderation)\n`;
     navigationInfo += `- /admin-notifications (Notification center)\n`;
     navigationInfo += `- /mobile-admin (Mobile admin dashboard)\n\n`;
-    
+
     navigationInfo += `**SMART NAVIGATION:**\n`;
     navigationInfo += `When users ask about features, provide direct navigation:\n`;
     navigationInfo += `- "Check analytics" → "View [Platform Analytics](/admin-analytics)"\n`;
@@ -402,7 +415,7 @@ Use this data to provide context-aware insights and recommendations.`;
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-3.1',
         messages: [
           { role: 'system', content: contextEnhancedPrompt },
           ...aiMessages
@@ -413,21 +426,21 @@ Use this data to provide context-aware insights and recommendations.`;
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Lovable AI API error:', response.status, errorText);
-      
+
       if (response.status === 429) {
         return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again in a moment.' }), {
           status: 429,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
-      
+
       if (response.status === 402) {
         return new Response(JSON.stringify({ error: 'AI credits depleted. Please add funds to continue.' }), {
           status: 402,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
-      
+
       throw new Error(`Lovable AI API error: ${response.status}`);
     }
 
@@ -448,7 +461,7 @@ Use this data to provide context-aware insights and recommendations.`;
       injection_attempts_detected: injectionAttempts,
       dangerous_patterns_found: patterns,
       response_time_ms: responseTime,
-      ai_model_used: 'google/gemini-2.5-flash',
+      ai_model_used: 'google/gemini-3.1',
       token_count: data.usage?.total_tokens || 0,
       ip_address: req.headers.get('cf-connecting-ip') || req.headers.get('x-forwarded-for'),
       user_agent: req.headers.get('user-agent'),
