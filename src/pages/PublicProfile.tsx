@@ -11,14 +11,17 @@ import { ProfileMusicSection } from "@/components/profile/ProfileMusicSection";
 import { ProfileNetworkSection } from "@/components/profile/ProfileNetworkSection";
 import { HireModal } from "@/components/profile/HireModal";
 import { SimilarUsersSection } from "@/components/social/SimilarUsersSection";
+import { MediaShowcase } from "@/components/profile/showcase";
+import type { FeaturedMediaItem, PortfolioItem } from "@/components/profile/showcase";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Music, 
-  BarChart3, 
-  Users, 
+import {
+  Music,
+  BarChart3,
+  Users,
   ArrowLeft,
-  Loader2 
+  Loader2,
+  Sparkles
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -28,14 +31,14 @@ export default function PublicProfile() {
   const { user } = useAuth();
   const { startConversation } = useStartConversation();
   const [showHireModal, setShowHireModal] = useState(false);
-  
-  const { 
-    profile, 
-    isLoadingProfile, 
-    activities, 
+
+  const {
+    profile,
+    isLoadingProfile,
+    activities,
     isLoadingActivities,
     logProfileView,
-    error 
+    error
   } = usePublicProfile(username);
 
   const isOwnProfile = user?.id === profile?.id;
@@ -53,9 +56,9 @@ export default function PublicProfile() {
       navigate("/auth");
       return;
     }
-    
+
     if (!profile?.id) return;
-    
+
     // Determine user role to navigate to correct CRM
     const userRole = user?.user_metadata?.role === 'engineer' ? 'engineer' : 'artist';
     await startConversation(profile.id, userRole);
@@ -97,9 +100,9 @@ export default function PublicProfile() {
     <>
       <Helmet>
         <title>{profile.full_name || profile.username || "Profile"} | MixClub</title>
-        <meta 
-          name="description" 
-          content={profile.tagline || profile.bio || `Check out ${profile.full_name || profile.username}'s profile on MixClub`} 
+        <meta
+          name="description"
+          content={profile.tagline || profile.bio || `Check out ${profile.full_name || profile.username}'s profile on MixClub`}
         />
         <meta property="og:title" content={`${profile.full_name || profile.username} | MixClub`} />
         <meta property="og:description" content={profile.tagline || profile.bio || ""} />
@@ -109,8 +112,8 @@ export default function PublicProfile() {
       <div className="min-h-screen bg-background pb-20">
         {/* Back button */}
         <div className="absolute top-4 left-4 z-20">
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             size="icon"
             className="bg-background/50 backdrop-blur-sm"
             onClick={() => navigate(-1)}
@@ -120,8 +123,8 @@ export default function PublicProfile() {
         </div>
 
         {/* Hero Section */}
-        <ProfileHero 
-          profile={profile} 
+        <ProfileHero
+          profile={profile}
           isOwnProfile={isOwnProfile}
           onMessage={handleMessage}
           onHire={handleHire}
@@ -130,10 +133,14 @@ export default function PublicProfile() {
         {/* Content */}
         <div className="max-w-4xl mx-auto px-4 mt-8">
           <Tabs defaultValue="activity" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-6">
+            <TabsList className="grid w-full grid-cols-4 mb-6">
               <TabsTrigger value="activity" className="gap-2">
                 <BarChart3 className="h-4 w-4" />
                 Activity
+              </TabsTrigger>
+              <TabsTrigger value="showcase" className="gap-2">
+                <Sparkles className="h-4 w-4" />
+                Showcase
               </TabsTrigger>
               <TabsTrigger value="music" className="gap-2">
                 <Music className="h-4 w-4" />
@@ -146,28 +153,35 @@ export default function PublicProfile() {
             </TabsList>
 
             <TabsContent value="activity" className="space-y-6">
-              <ProfileActivityFeed 
-                activities={activities || []} 
-                isLoading={isLoadingActivities} 
+              <ProfileActivityFeed
+                activities={activities || []}
+                isLoading={isLoadingActivities}
               />
               <ProfileBadges userId={profile.id} />
             </TabsContent>
 
+            <TabsContent value="showcase">
+              <MediaShowcase
+                featuredMedia={(((profile as Record<string, unknown>).featured_media as FeaturedMediaItem[]) || [])}
+                accent={((profile as Record<string, unknown>).profile_config as Record<string, unknown>)?.colors ? (((profile as Record<string, unknown>).profile_config as Record<string, Record<string, string>>)?.colors?.primary) : undefined}
+              />
+            </TabsContent>
+
             <TabsContent value="music">
-              <ProfileMusicSection 
-                userId={profile.id} 
+              <ProfileMusicSection
+                userId={profile.id}
                 pinnedTrackId={profile.pinned_track_id}
               />
             </TabsContent>
 
             <TabsContent value="network" className="space-y-6">
-              <ProfileNetworkSection 
+              <ProfileNetworkSection
                 userId={profile.id}
                 followerCount={profile.follower_count || 0}
                 followingCount={profile.following_count || 0}
               />
-              <SimilarUsersSection 
-                userId={profile.id} 
+              <SimilarUsersSection
+                userId={profile.id}
                 userRole={profile.role}
               />
             </TabsContent>

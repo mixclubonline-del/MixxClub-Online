@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +28,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { GlassPanel, HubHeader, HubSkeleton } from "./design";
+import {
+  ProfileCanvasEditor,
+  type ProfileConfig,
+  DEFAULT_PROFILE_CONFIG,
+} from "@/components/profile/identity";
 
 const PROFILE_THEMES = [
   { value: "default", label: "Default", color: "bg-primary" },
@@ -75,6 +80,9 @@ export function BrandHub() {
     is_available_for_collab: true,
   });
 
+  // Visual identity config
+  const [visualConfig, setVisualConfig] = useState<ProfileConfig>(DEFAULT_PROFILE_CONFIG);
+
   // Update form when profile loads
   React.useEffect(() => {
     if (profile) {
@@ -90,6 +98,11 @@ export function BrandHub() {
         status_text: profile.status_text || "",
         is_available_for_collab: profile.is_available_for_collab ?? true,
       });
+      // Load visual identity config
+      const savedConfig = (profile as Record<string, unknown>).profile_config;
+      if (savedConfig && typeof savedConfig === 'object') {
+        setVisualConfig({ ...DEFAULT_PROFILE_CONFIG, ...(savedConfig as Partial<ProfileConfig>) });
+      }
     }
   }, [profile]);
 
@@ -255,7 +268,7 @@ export function BrandHub() {
           />
           <div className="mt-4">
             <Tabs defaultValue="identity" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 mb-6">
+              <TabsList className="grid w-full grid-cols-4 mb-6">
                 <TabsTrigger value="identity" className="gap-2">
                   <User className="h-4 w-4" />
                   Identity
@@ -267,6 +280,10 @@ export function BrandHub() {
                 <TabsTrigger value="theme" className="gap-2">
                   <Palette className="h-4 w-4" />
                   Theme
+                </TabsTrigger>
+                <TabsTrigger value="visual" className="gap-2">
+                  <Sparkles className="h-4 w-4" />
+                  Visual ID
                 </TabsTrigger>
               </TabsList>
 
@@ -367,8 +384,8 @@ export function BrandHub() {
                           type="button"
                           onClick={() => setFormData({ ...formData, status_emoji: formData.status_emoji === emoji ? "" : emoji })}
                           className={`text-2xl p-2 rounded-lg transition-colors ${formData.status_emoji === emoji
-                              ? "bg-primary/20 ring-2 ring-primary"
-                              : "hover:bg-muted"
+                            ? "bg-primary/20 ring-2 ring-primary"
+                            : "hover:bg-muted"
                             }`}
                         >
                           {emoji}
@@ -401,8 +418,8 @@ export function BrandHub() {
                         type="button"
                         onClick={() => setFormData({ ...formData, profile_theme: theme.value })}
                         className={`h-16 rounded-lg ${theme.color} transition-all ${formData.profile_theme === theme.value
-                            ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-105"
-                            : "opacity-70 hover:opacity-100"
+                          ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-105"
+                          : "opacity-70 hover:opacity-100"
                           }`}
                         title={theme.label}
                       />
@@ -413,15 +430,27 @@ export function BrandHub() {
                   </p>
                 </div>
 
-                <div className="rounded-lg border border-dashed border-muted-foreground/30 p-6 text-center">
-                  <Palette className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">
-                    More customization options coming soon!
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Custom colors, cover images, and profile frames
+                <div className="rounded-lg border border-dashed border-muted-foreground/30 p-4 text-center">
+                  <p className="text-xs text-muted-foreground">
+                    💡 For advanced customization, check the <strong>Visual ID</strong> tab
                   </p>
                 </div>
+              </TabsContent>
+
+              <TabsContent value="visual" className="space-y-4">
+                <ProfileCanvasEditor
+                  config={visualConfig}
+                  onChange={setVisualConfig}
+                  onSave={handleSave}
+                  saving={isSaving}
+                  profile={{
+                    full_name: formData.full_name,
+                    username: formData.username,
+                    avatar_url: profile?.avatar_url,
+                    tagline: formData.tagline,
+                    bio: formData.bio,
+                  }}
+                />
               </TabsContent>
             </Tabs>
           </div>
