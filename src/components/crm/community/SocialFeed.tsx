@@ -62,7 +62,7 @@ export const SocialFeed: React.FC<SocialFeedProps> = ({ userType, searchQuery })
         `)
         .eq('status', 'completed')
         .order('completed_at', { ascending: false })
-        .limit(5);
+        .limit(5) as any;
 
       // 3. Recent achievements
       const { data: achievements } = await supabase
@@ -74,7 +74,7 @@ export const SocialFeed: React.FC<SocialFeedProps> = ({ userType, searchQuery })
           )
         `)
         .order('earned_at', { ascending: false })
-        .limit(5);
+        .limit(5) as any;
 
       // 4. Newest members
       const { data: newMembers } = await supabase

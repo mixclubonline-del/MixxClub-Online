@@ -59,7 +59,7 @@ export function SessionDeliverables({ sessionId, isHost }: SessionDeliverablesPr
         .order('created_at', { ascending: false });
 
       // If session has a linked project, filter by it
-      const projectId = session?.session_state?.project_id;
+      const projectId = (session?.session_state as any)?.project_id;
       if (projectId) {
         query = query.eq('project_id', projectId);
       }

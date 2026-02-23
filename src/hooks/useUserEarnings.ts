@@ -31,8 +31,8 @@ export function useUserEarnings(userId: string | undefined) {
             return {
                 earnings: earningsResult.data || [],
                 sales: salesResult.data || [],
-                totalEarnings: (earningsResult.data || []).reduce((sum, e) => sum + (e.amount || 0), 0),
-                totalSales: (salesResult.data || []).reduce((sum, s) => sum + (s.amount || 0), 0),
+                totalEarnings: (earningsResult.data || []).reduce((sum: number, e: any) => sum + (e.amount || 0), 0),
+                totalSales: (salesResult.data || []).reduce((sum: number, s: any) => sum + (s.purchase_amount || 0), 0),
             };
         },
         enabled: !!userId,

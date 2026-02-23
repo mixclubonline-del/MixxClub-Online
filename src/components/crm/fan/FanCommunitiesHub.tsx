@@ -98,9 +98,9 @@ export const FanCommunitiesHub = () => {
                 query = query.ilike('full_name', `%${searchQuery}%`);
             }
 
-            const { data, error } = await query;
+            const { data, error } = await query as any;
             if (error) return [];
-            return (data || []).map(a => ({
+            return (data || []).map((a: any) => ({
                 id: a.id,
                 artist_id: a.id,
                 full_name: a.full_name || 'Unknown',

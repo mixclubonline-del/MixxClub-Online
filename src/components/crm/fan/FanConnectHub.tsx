@@ -26,7 +26,7 @@ import { motion } from 'framer-motion';
 import {
     MessageCircle, Vote, Calendar, Users, Star,
     Send, Crown, Heart, Sparkles, Lock, ArrowRight,
-    Video, Mic, HelpCircle
+    Video, Mic, HelpCircle, Clock
 } from 'lucide-react';
 
 // Connection tier thresholds

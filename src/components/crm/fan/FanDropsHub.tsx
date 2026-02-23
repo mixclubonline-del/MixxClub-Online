@@ -54,9 +54,9 @@ export const FanDropsHub = () => {
             const { data: profiles } = await supabase
                 .from('profiles')
                 .select('id, full_name, avatar_url, genre')
-                .in('id', artistIds);
+                .in('id', artistIds) as any;
 
-            return (profiles || []).map(p => ({
+            return (profiles || []).map((p: any) => ({
                 id: p.id,
                 artistName: p.full_name || 'Unknown',
                 avatar: p.avatar_url,

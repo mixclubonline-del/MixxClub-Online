@@ -177,8 +177,8 @@ export const FanFeedHub = () => {
     queryFn: async () => {
       let query = supabase
         .from('profiles')
-        .select('id, full_name, username, avatar_url, bio, genre, follower_count, role, created_at')
-        .eq('role', 'artist')
+        .select('id, full_name, username, avatar_url, bio, genre, follower_count, role, created_at') as any;
+      query = query.eq('role', 'artist')
         .order('created_at', { ascending: false });
 
       // Filter by discovery tier
@@ -201,7 +201,7 @@ export const FanFeedHub = () => {
         console.error('Error fetching discover artists:', error);
         return [];
       }
-      return (data || []) as DiscoverArtist[];
+      return (data || []) as unknown as DiscoverArtist[];
     },
     enabled: !!user?.id,
     staleTime: 60000,

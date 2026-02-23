@@ -360,7 +360,7 @@ export const GrowthHub: React.FC<GrowthHubProps> = ({ userType = 'artist' }) => 
                                         <Star className="w-5 h-5 text-amber-400" />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <p className="text-sm font-medium truncate">{achievement.name}</p>
+                                        <p className="text-sm font-medium truncate">{achievement.badge_name || achievement.title}</p>
                                         <p className="text-xs text-muted-foreground">
                                             {new Date(achievement.earned_at).toLocaleDateString()}
                                         </p>
