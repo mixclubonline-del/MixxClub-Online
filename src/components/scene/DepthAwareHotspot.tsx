@@ -27,16 +27,16 @@ interface DepthAwareHotspotProps {
 
 // ─── Presence Signal: Door Light Spill ────────────────────────────────
 // Horizontal gradient at the door's floor line simulating light leaking out.
-function DoorLightSpill({ 
-  room, 
-  intensity 
-}: { 
-  room: StudioRoom; 
+function DoorLightSpill({
+  room,
+  intensity
+}: {
+  room: StudioRoom;
   intensity: 'faint' | 'medium' | 'full';
 }) {
   const isActive = room.state !== 'idle' && room.state !== 'waiting';
   const isRecording = room.state === 'recording';
-  
+
   if (!isActive && intensity === 'faint') {
     // Idle rooms get a visible cool glow — enough to notice something's there
     return (
@@ -47,7 +47,7 @@ function DoorLightSpill({
         animate={{ opacity: [0.2, 0.35, 0.2] }}
         transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
       >
-        <div 
+        <div
           className="w-full h-full rounded-full"
           style={{
             background: 'radial-gradient(ellipse at center, hsl(220 15% 60% / 0.5), transparent 70%)',
@@ -64,8 +64,8 @@ function DoorLightSpill({
   const height = intensity === 'full' ? '14px' : intensity === 'medium' ? '12px' : '10px';
 
   // Color: amber for active, red pulse for recording — boosted alpha
-  const lightColor = isRecording 
-    ? 'hsl(0 80% 55% / 0.8)' 
+  const lightColor = isRecording
+    ? 'hsl(0 80% 55% / 0.8)'
     : 'hsl(35 90% 55% / 0.7)';
   const lightColorDim = isRecording
     ? 'hsl(0 80% 55% / 0.35)'
@@ -79,7 +79,7 @@ function DoorLightSpill({
       className="absolute left-1/2 -translate-x-1/2"
       style={{ bottom: '-4px', width, height }}
       initial={{ opacity: 0, scaleX: 0.5 }}
-      animate={{ 
+      animate={{
         opacity: opacityScale,
         scaleX: 1,
       }}
@@ -110,10 +110,10 @@ function DoorLightSpill({
         } : {
           opacity: [0.85, 1, 0.85],
         }}
-        transition={{ 
-          duration: isRecording ? 1.5 : 3, 
-          repeat: Infinity, 
-          ease: 'easeInOut' 
+        transition={{
+          duration: isRecording ? 1.5 : 3,
+          repeat: Infinity,
+          ease: 'easeInOut'
         }}
       />
       {/* Secondary scatter — wider, brighter */}
@@ -204,13 +204,13 @@ function RecordingBeacon() {
 
 // ─── Hover Reveal: Frosted Glass ──────────────────────────────────────
 // Simulates peering through studio door window.
-function FrostedGlassReveal({ 
-  room, 
-  isVisible, 
-  canEnter 
-}: { 
-  room: StudioRoom; 
-  isVisible: boolean; 
+function FrostedGlassReveal({
+  room,
+  isVisible,
+  canEnter
+}: {
+  room: StudioRoom;
+  isVisible: boolean;
   canEnter: boolean;
 }) {
   const isActive = room.state !== 'idle' && room.state !== 'waiting';
@@ -226,7 +226,7 @@ function FrostedGlassReveal({
           exit={{ opacity: 0, filter: 'blur(8px)' }}
           transition={{ duration: 0.4, ease: 'easeOut' }}
         >
-          <div 
+          <div
             className="px-4 py-3 rounded-lg whitespace-nowrap"
             style={{
               background: 'hsl(var(--background) / 0.15)',
@@ -289,20 +289,20 @@ function SpotlightBloom({ isUserFeatured }: { isUserFeatured: boolean }) {
 }
 
 // ─── Main Export ──────────────────────────────────────────────────────
-export function DepthAwareHotspot({ 
-  room, 
-  position, 
+export function DepthAwareHotspot({
+  room,
+  position,
   depthLayer,
   isUserFeatured = false,
   onClick,
   onHoverChange,
 }: DepthAwareHotspotProps) {
   const [isHovered, setIsHovered] = useState(false);
-  
+
   const isActive = room.state !== 'idle' && room.state !== 'waiting';
   const isRecording = room.state === 'recording';
-  const canEnter = (depthLayer === 'on-the-mic' || depthLayer === 'on-stage') 
-    && room.visibility === 'public' 
+  const canEnter = (depthLayer === 'on-the-mic' || depthLayer === 'on-stage')
+    && room.visibility === 'public'
     && !!room.sessionId;
   const isOnStage = depthLayer === 'on-stage';
 
@@ -323,8 +323,8 @@ export function DepthAwareHotspot({
   return (
     <motion.div
       className={`absolute ${canEnter ? 'cursor-pointer' : 'cursor-default'}`}
-      style={{ 
-        left: `${position.x}%`, 
+      style={{
+        left: `${position.x}%`,
         top: `${position.y}%`,
         transform: 'translate(-50%, -50%)',
       }}
@@ -344,7 +344,7 @@ export function DepthAwareHotspot({
     >
       {/* Invisible hover target area */}
       <div className="relative" style={{ width: '60px', height: '40px' }}>
-        
+
         {/* On Stage: Spotlight bloom behind everything */}
         {isOnStage && (isActive || isUserFeatured) && (
           <SpotlightBloom isUserFeatured={isUserFeatured} />
@@ -368,7 +368,7 @@ export function DepthAwareHotspot({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <div 
+            <div
               className="w-full h-full rounded-full"
               style={{
                 background: 'radial-gradient(ellipse at center, hsl(35 90% 60% / 0.3), transparent 70%)',
@@ -377,10 +377,51 @@ export function DepthAwareHotspot({
           </motion.div>
         )}
 
-        {/* Frosted Glass Reveal — hover info */}
-        <FrostedGlassReveal 
-          room={room} 
-          isVisible={showHoverInfo} 
+        {/* Posted Up hover: subtle ambient glow response + teaser */}
+        {depthLayer === 'posted-up' && isHovered && (
+          <>
+            <motion.div
+              className="absolute left-1/2 -translate-x-1/2"
+              style={{ bottom: '-4px', width: '120px', height: '12px' }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.4 }}
+              exit={{ opacity: 0 }}
+            >
+              <div
+                className="w-full h-full rounded-full"
+                style={{
+                  background: 'radial-gradient(ellipse at center, hsl(220 15% 70% / 0.4), transparent 70%)',
+                }}
+              />
+            </motion.div>
+            {isActive && (
+              <motion.div
+                className="absolute left-1/2 -translate-x-1/2 z-20 pointer-events-none"
+                style={{ top: '-40px' }}
+                initial={{ opacity: 0, filter: 'blur(4px)' }}
+                animate={{ opacity: 1, filter: 'blur(0px)' }}
+                exit={{ opacity: 0, filter: 'blur(4px)' }}
+                transition={{ duration: 0.3 }}
+              >
+                <div
+                  className="px-3 py-1.5 rounded-lg whitespace-nowrap text-[10px] text-muted-foreground/60 italic"
+                  style={{
+                    background: 'hsl(var(--background) / 0.1)',
+                    backdropFilter: 'blur(12px)',
+                    border: '1px solid hsl(0 0% 100% / 0.05)',
+                  }}
+                >
+                  Something's happening...
+                </div>
+              </motion.div>
+            )}
+          </>
+        )}
+
+        {/* Frosted Glass Reveal — hover info (In the Room+) */}
+        <FrostedGlassReveal
+          room={room}
+          isVisible={showHoverInfo}
           canEnter={canEnter}
         />
       </div>

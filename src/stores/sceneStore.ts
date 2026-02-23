@@ -10,11 +10,11 @@ import { subscribeWithSelector } from 'zustand/middleware';
 import { supabase } from '@/integrations/supabase/client';
 import { hubEventBus } from '@/lib/hubEventBus';
 import { usePulseStore } from '@/stores/pulseStore';
-import type { 
-  WorldState, 
-  StudioRoom, 
+import type {
+  WorldState,
+  StudioRoom,
   StudioRoomState,
-  CommunityPulse, 
+  CommunityPulse,
   CommunityUnlockable,
   FeaturedSession,
   SceneEvent
@@ -32,22 +32,22 @@ interface SceneStore {
   isConnected: boolean;
   lastSyncAt: string | null;
   recentEvents: SceneEvent[];
-  
+
   // Actions
   initialize: () => Promise<void>;
   cleanup: () => void;
-  
+
   // Studio actions
   updateStudio: (studioId: string, updates: Partial<StudioRoom>) => void;
   setStudios: (studios: StudioRoom[]) => void;
-  
+
   // Community actions
   updateCommunityPulse: (pulse: Partial<CommunityPulse>) => void;
-  
+
   // Featured session actions
   setFeaturedSession: (session: FeaturedSession | null) => void;
   rotateFeaturedSession: () => void;
-  
+
   // Event handling
   publishEvent: (event: Omit<SceneEvent, 'id' | 'timestamp'>) => void;
 }
@@ -75,12 +75,70 @@ const initialState: Omit<WorldState, 'activeStudios' | 'emptyStudios' | 'publicS
 };
 
 // ============================================
+// PHANTOM STUDIOS — The club is always open
+// ============================================
+// When no real sessions exist, these ambient rooms emit faint door
+// glow so the hallway never feels dead. They have no sessionId,
+// so they're not interactive — just environmental presence.
+
+const PHANTOM_STUDIOS: StudioRoom[] = [
+  {
+    id: 'phantom-late-night',
+    sessionId: null as unknown as string,
+    title: 'Late Night Vibes',
+    state: 'idle',
+    hostId: null as unknown as string,
+    hostName: null,
+    hostAvatar: null,
+    participantCount: 0,
+    maxParticipants: 10,
+    visibility: 'public',
+    genre: null,
+    audioQuality: 'high',
+    createdAt: new Date().toISOString(),
+    activityLevel: 10,
+  },
+  {
+    id: 'phantom-open-booth',
+    sessionId: null as unknown as string,
+    title: 'Open Booth',
+    state: 'idle',
+    hostId: null as unknown as string,
+    hostName: null,
+    hostAvatar: null,
+    participantCount: 0,
+    maxParticipants: 10,
+    visibility: 'public',
+    genre: null,
+    audioQuality: 'high',
+    createdAt: new Date().toISOString(),
+    activityLevel: 10,
+  },
+  {
+    id: 'phantom-the-lab',
+    sessionId: null as unknown as string,
+    title: 'The Lab',
+    state: 'idle',
+    hostId: null as unknown as string,
+    hostName: null,
+    hostAvatar: null,
+    participantCount: 0,
+    maxParticipants: 10,
+    visibility: 'public',
+    genre: null,
+    audioQuality: 'high',
+    createdAt: new Date().toISOString(),
+    activityLevel: 10,
+  },
+];
+
+// ============================================
 // HELPER FUNCTIONS
 // ============================================
 
 function mapSessionToStudio(session: any): StudioRoom {
   const sessionState = session.session_state as Record<string, unknown> | null;
-  
+
   let state: StudioRoomState = 'idle';
   if (session.status === 'active') {
     if (sessionState?.recording) state = 'recording';
@@ -90,7 +148,7 @@ function mapSessionToStudio(session: any): StudioRoom {
   } else if (session.status === 'scheduled') {
     state = 'waiting';
   }
-  
+
   return {
     id: session.id,
     sessionId: session.id,
@@ -121,14 +179,14 @@ export const useSceneStore = create<SceneStore>()(
     // Initial state
     ...initialState,
     recentEvents: [],
-    
+
     // Note: Derived state is computed via selectors, not getters
     // Using getters in Zustand with subscribeWithSelector causes issues
-    
+
     // ========================================
     // INITIALIZATION
     // ========================================
-    
+
     initialize: async () => {
       try {
         // Fetch initial data in parallel
@@ -144,27 +202,31 @@ export const useSceneStore = create<SceneStore>()(
             .from('projects')
             .select('id', { count: 'exact', head: true }),
         ]);
-        
+
         const sessions = sessionsResult.data || [];
-        const studios = sessions.map(mapSessionToStudio);
-        
-        // Calculate active sessions
-        const activeSessionsCount = studios.filter(s => s.state !== 'idle' && s.state !== 'waiting').length;
-        
+        const realStudios = sessions.map(mapSessionToStudio);
+
+        // Inject phantom rooms if no real sessions — the club is always open
+        const studios = realStudios.length > 0 ? realStudios : PHANTOM_STUDIOS;
+
+        // Calculate active sessions (phantom rooms are idle, so they don't count as "active")
+        const activeSessionsCount = realStudios.filter(s => s.state !== 'idle' && s.state !== 'waiting').length;
+        const totalUsers = profilesCount.count || 0;
+
         set({
           studios,
           communityPulse: {
             ...get().communityPulse,
-            totalUsers: profilesCount.count || 0,
+            totalUsers,
             totalSessions: sessions.length,
             totalProjects: projectsCount.count || 0,
             activeSessionsCount,
-            activeUsersNow: Math.max(1, Math.floor(activeSessionsCount * 2.5)), // Estimate
+            activeUsersNow: Math.max(totalUsers > 0 ? 1 : 0, Math.floor(activeSessionsCount * 2.5)),
           },
           isConnected: true,
           lastSyncAt: new Date().toISOString(),
         });
-        
+
         // Set up realtime subscription
         sessionsChannel = supabase
           .channel('scene-sessions')
@@ -177,7 +239,7 @@ export const useSceneStore = create<SceneStore>()(
             },
             (payload) => {
               const { eventType, new: newRecord, old: oldRecord } = payload;
-              
+
               if (eventType === 'INSERT' && newRecord) {
                 const newStudio = mapSessionToStudio(newRecord);
                 set(state => ({
@@ -185,19 +247,19 @@ export const useSceneStore = create<SceneStore>()(
                   communityPulse: {
                     ...state.communityPulse,
                     totalSessions: state.communityPulse.totalSessions + 1,
-                    activeSessionsCount: state.communityPulse.activeSessionsCount + 
+                    activeSessionsCount: state.communityPulse.activeSessionsCount +
                       (newStudio.state !== 'idle' ? 1 : 0),
                   },
                 }));
                 get().publishEvent({ type: 'session_started', data: { studio: newStudio } });
-                
+
                 // Trigger COLLABORATE energy when session joined
                 const pulseStore = usePulseStore.getState();
                 if (pulseStore.currentEnergy !== 'CREATE') {
                   // Don't interrupt focused creation
                   pulseStore.setEnergy('COLLABORATE', 'action', 'session_joined');
                 }
-                
+
                 // Publish to hub event bus
                 hubEventBus.publish('session:created', {
                   sessionId: newStudio.id,
@@ -205,24 +267,24 @@ export const useSceneStore = create<SceneStore>()(
                   hostId: newStudio.hostId,
                 }, 'sceneStore');
               }
-              
+
               if (eventType === 'UPDATE' && newRecord) {
                 const updatedStudio = mapSessionToStudio(newRecord);
                 const previousStudio = get().studios.find(s => s.id === updatedStudio.id);
-                
+
                 set(state => ({
-                  studios: state.studios.map(s => 
+                  studios: state.studios.map(s =>
                     s.id === updatedStudio.id ? updatedStudio : s
                   ),
                 }));
-                
+
                 // Trigger CREATE energy when recording starts
                 if (previousStudio?.state !== 'recording' && updatedStudio.state === 'recording') {
                   const pulseStore = usePulseStore.getState();
                   pulseStore.setEnergy('CREATE', 'action', 'recording_started');
                 }
               }
-              
+
               if (eventType === 'DELETE' && oldRecord) {
                 set(state => ({
                   studios: state.studios.filter(s => s.id !== oldRecord.id),
@@ -232,12 +294,12 @@ export const useSceneStore = create<SceneStore>()(
                   },
                 }));
                 get().publishEvent({ type: 'session_ended', data: { sessionId: oldRecord.id } });
-                
+
                 // Brief CELEBRATE on session completion, then revert
                 const pulseStore = usePulseStore.getState();
                 const previousEnergy = pulseStore.currentEnergy;
                 pulseStore.setEnergy('CELEBRATE', 'action', 'session_completed');
-                
+
                 // Revert after celebration
                 setTimeout(() => {
                   const currentState = usePulseStore.getState();
@@ -245,7 +307,7 @@ export const useSceneStore = create<SceneStore>()(
                     currentState.setEnergy(previousEnergy, 'action', 'celebrate_revert');
                   }
                 }, 3000);
-                
+
                 // Publish to hub event bus
                 hubEventBus.publish('session:completed', {
                   sessionId: oldRecord.id,
@@ -254,19 +316,19 @@ export const useSceneStore = create<SceneStore>()(
             }
           )
           .subscribe();
-        
+
         // Start featured session rotation
         get().rotateFeaturedSession();
         featuredRotationInterval = setInterval(() => {
           get().rotateFeaturedSession();
         }, 45000); // Rotate every 45 seconds
-        
+
       } catch (error) {
         console.error('Failed to initialize scene store:', error);
         set({ isConnected: false });
       }
     },
-    
+
     cleanup: () => {
       if (sessionsChannel) {
         supabase.removeChannel(sessionsChannel);
@@ -278,11 +340,11 @@ export const useSceneStore = create<SceneStore>()(
       }
       set({ isConnected: false });
     },
-    
+
     // ========================================
     // STUDIO ACTIONS
     // ========================================
-    
+
     updateStudio: (studioId, updates) => {
       set(state => ({
         studios: state.studios.map(s =>
@@ -290,45 +352,45 @@ export const useSceneStore = create<SceneStore>()(
         ),
       }));
     },
-    
+
     setStudios: (studios) => {
       set({ studios });
     },
-    
+
     // ========================================
     // COMMUNITY ACTIONS
     // ========================================
-    
+
     updateCommunityPulse: (pulse) => {
       set(state => ({
         communityPulse: { ...state.communityPulse, ...pulse },
       }));
     },
-    
+
     // ========================================
     // FEATURED SESSION ACTIONS
     // ========================================
-    
+
     setFeaturedSession: (session) => {
       set({ featuredSession: session });
     },
-    
+
     rotateFeaturedSession: () => {
       const { studios, featuredSession } = get();
       const publicActive = studios.filter(
         s => s.visibility === 'public' && s.state !== 'idle'
       );
-      
+
       if (publicActive.length === 0) {
         set({ featuredSession: null });
         return;
       }
-      
+
       // Find next session in rotation
       const currentIndex = featuredSession?.rotationIndex ?? -1;
       const nextIndex = (currentIndex + 1) % publicActive.length;
       const nextRoom = publicActive[nextIndex];
-      
+
       set({
         featuredSession: {
           room: nextRoom,
@@ -337,18 +399,18 @@ export const useSceneStore = create<SceneStore>()(
         },
       });
     },
-    
+
     // ========================================
     // EVENT HANDLING
     // ========================================
-    
+
     publishEvent: (event) => {
       const fullEvent: SceneEvent = {
         ...event,
         id: crypto.randomUUID(),
         timestamp: new Date().toISOString(),
       };
-      
+
       set(state => ({
         recentEvents: [fullEvent, ...state.recentEvents.slice(0, 49)], // Keep last 50
       }));
@@ -394,18 +456,18 @@ let _communityProgressSource: CommunityUnlockable | null | undefined = undefined
 
 export const selectCommunityProgress = (state: SceneStore): CommunityProgressResult => {
   const nextUnlock = state.communityPulse.nextUnlock;
-  
+
   // Return cached result if nextUnlock reference unchanged
   if (nextUnlock === _communityProgressSource) {
     return _communityProgressCache;
   }
   _communityProgressSource = nextUnlock;
-  
+
   if (!nextUnlock) {
     _communityProgressCache = null;
     return null;
   }
-  
+
   _communityProgressCache = {
     name: nextUnlock.name,
     progress: nextUnlock.progress,

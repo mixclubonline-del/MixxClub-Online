@@ -14,7 +14,7 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { useStudios, useFeaturedSession, useSceneSystemInit } from '@/hooks/useSceneSystem';
+import { useStudios, useFeaturedSession, useSceneSystemInit, useCommunityPulse } from '@/hooks/useSceneSystem';
 import { useDepthLayer } from '@/hooks/useDepthLayer';
 import { useAuth } from '@/hooks/useAuth';
 import { DepthAwareHotspot } from './DepthAwareHotspot';
@@ -52,6 +52,7 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
   const { user } = useAuth();
   const { isConnected } = useSceneSystemInit();
   const { studios, activeCount } = useStudios();
+  const communityPulse = useCommunityPulse();
   const { featuredSession } = useFeaturedSession();
   const { currentLayer, isOnStage } = useDepthLayer();
   const [imageError, setImageError] = useState(false);
@@ -71,16 +72,16 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
     ensureAmbience();
     setHoveredRoomId(hovered ? roomId : null);
   }, [ensureAmbience]);
-  
+
   const hasActiveSessions = activeCount > 0;
-  
+
   // Show skip hint after 3 seconds idle in fullscreen mode
   useEffect(() => {
     if (!fullscreen || !onSkipToInfo) return;
     const timer = setTimeout(() => setShowSkipHint(true), 3000);
     return () => clearTimeout(timer);
   }, [fullscreen, onSkipToInfo]);
-  
+
   // Check if current user has a featured session (On Stage gets the glow)
   const userFeaturedRoomId = useMemo(() => {
     if (!user || !isOnStage) return null;
@@ -90,28 +91,27 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
     );
     return userRoom?.id || null;
   }, [user, isOnStage, studios]);
-  
+
   const handleRoomClick = (room: StudioRoom) => {
     // Only On the Mic and On Stage can enter sessions
     if (currentLayer === 'posted-up' || currentLayer === 'in-the-room') {
       return;
     }
-    
+
     if (room.visibility === 'public' && room.sessionId) {
       navigate(`/session/${room.sessionId}`);
     }
   };
-  
+
   // Map studios to door positions
   const studioPositions = studios.slice(0, DOOR_POSITIONS.length).map((studio, index) => ({
     room: studio,
     position: DOOR_POSITIONS[index]
   }));
-  
+
   return (
-    <section className={`relative w-full overflow-hidden ${
-      fullscreen ? 'h-screen' : 'h-[70vh] min-h-[500px] max-h-[800px]'
-    }`} aria-label="Studio hallway scene">
+    <section className={`relative w-full overflow-hidden ${fullscreen ? 'h-screen' : 'h-[70vh] min-h-[500px] max-h-[800px]'
+      }`} aria-label="Studio hallway scene">
       {/* Background image - crossfade between base and active, with fallback */}
       <div className="absolute inset-0">
         {imageError ? (
@@ -131,7 +131,7 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
               transition={{ duration: 1.5, ease: 'easeInOut' }}
               onError={() => setImageError(true)}
             />
-            
+
             {/* Active (lit) layer */}
             <motion.img
               src={hallwayActive}
@@ -144,12 +144,12 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
             />
           </>
         )}
-        
+
         {/* Gradient overlays for depth */}
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-transparent to-background" />
       </div>
-      
+
       {/* Ambient breathing animation for empty state */}
       {!hasActiveSessions && (
         <motion.div
@@ -158,7 +158,7 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
           transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
         />
       )}
-      
+
       {/* Depth layer indicator — moved to bottom-left, ground-level ambient info */}
       <motion.div
         className="absolute bottom-28 left-4 z-20"
@@ -167,18 +167,17 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
         transition={{ delay: 0.5 }}
       >
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/60 backdrop-blur-md border border-border/30">
-          <div className={`w-2 h-2 rounded-full ${
-            currentLayer === 'on-stage' ? 'bg-primary' :
-            currentLayer === 'on-the-mic' ? 'bg-primary/80' :
-            currentLayer === 'in-the-room' ? 'bg-primary/60' :
-            'bg-muted-foreground/40'
-          }`} />
+          <div className={`w-2 h-2 rounded-full ${currentLayer === 'on-stage' ? 'bg-primary' :
+              currentLayer === 'on-the-mic' ? 'bg-primary/80' :
+                currentLayer === 'in-the-room' ? 'bg-primary/60' :
+                  'bg-muted-foreground/40'
+            }`} />
           <span className="text-xs font-medium text-muted-foreground capitalize">
             {currentLayer.replace('-', ' ')}
           </span>
         </div>
       </motion.div>
-      
+
       {/* Connection indicator - subtle, positioned top-right */}
       <motion.div
         className="absolute top-4 right-4 z-20"
@@ -192,7 +191,7 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
           transition={{ duration: 2, repeat: Infinity }}
         />
       </motion.div>
-      
+
       {/* Studio hotspots - depth-aware rendering */}
       <div className="absolute inset-0">
         <AnimatePresence mode="sync">
@@ -209,7 +208,7 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
           ))}
         </AnimatePresence>
       </div>
-      
+
       {/* Featured session highlight - extra glow for On Stage users */}
       {featuredSession && isOnStage && (
         <motion.div
@@ -242,9 +241,9 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
           })}
         </motion.div>
       )}
-      
+
       {/* Active session count removed — hallway ambient light level communicates this */}
-      
+
       {/* Floor Logo — Mixxclub infinity inlay perspective-foreshortened on the studio floor */}
       {fullscreen && (
         <div className="absolute bottom-44 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
@@ -296,7 +295,7 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
             </span>
           </motion.button>
 
-          {/* Social proof whisper */}
+          {/* Social proof whisper — real community data */}
           <motion.div
             className="flex items-center gap-2"
             initial={{ opacity: 0 }}
@@ -309,7 +308,9 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
               transition={{ duration: 2, repeat: Infinity }}
             />
             <span className="text-xs text-muted-foreground/60">
-              Artists, engineers, producers, and fans are collaborating across the community
+              {communityPulse.totalUsers > 0
+                ? `${communityPulse.totalUsers.toLocaleString()} creators have walked this hallway`
+                : 'Artists, engineers, producers, and fans are collaborating across the community'}
             </span>
           </motion.div>
 
