@@ -235,8 +235,9 @@ serve(async (req) => {
       });
     }
 
-    const { data: isAdmin, error: adminError } = await supabaseAdmin.rpc('is_admin', {
-      user_uuid: user.id
+    const { data: isAdmin, error: adminError } = await supabaseAdmin.rpc('has_role', {
+      _user_id: user.id,
+      _role: 'admin'
     });
 
     if (adminError || !isAdmin) {
