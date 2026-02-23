@@ -105,7 +105,7 @@ export function usePuttinIn() {
             .or(`artist_id.eq.${user.id},engineer_id.eq.${user.id}`),
           // Support: achievements earned
           supabase
-            .from('user_achievements')
+            .from('achievements')
             .select('id', { count: 'exact', head: true })
             .eq('user_id', user.id),
           // Attention: matches accepted

@@ -125,7 +125,7 @@ export const PaymentLinkGenerator: React.FC<PaymentLinkGeneratorProps> = ({
                         token,
                         url: `${window.location.origin}/pay/${token}`,
                         expires_at: expiresAt,
-                    })
+                    } as any)
                     .select()
                     .single();
 
@@ -134,7 +134,7 @@ export const PaymentLinkGenerator: React.FC<PaymentLinkGeneratorProps> = ({
                 newLink = {
                     ...dbLink,
                     paid_at: null,
-                } as PaymentLink;
+                } as unknown as PaymentLink;
             }
 
             setPaymentLinks((prev) => [newLink, ...prev]);
