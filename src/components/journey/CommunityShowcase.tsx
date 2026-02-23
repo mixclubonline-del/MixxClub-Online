@@ -187,7 +187,7 @@ export default function CommunityShowcase() {
         { label: 'Goals', value: 'Community + Personal' },
       ],
       badges: ['Progression Matrix', 'Collective Goals', 'Role Rewards', 'Vault Room'],
-      visual: getImageUrl('community_arena' as any, cityFallback),
+      visual: getImageUrl('community_unlockables', cityFallback),
       accentColor: 'hsl(263 70% 63%)',
     },
     {
@@ -202,7 +202,7 @@ export default function CommunityShowcase() {
         { label: 'Prizes', value: 'MixxCoinz + Status' },
       ],
       badges: ['Live Battles', 'Remix Challenges', 'Leaderboards', 'Judge and Earn'],
-      visual: getImageUrl('community_stage' as any, battlesFallback),
+      visual: getImageUrl('community_battles', battlesFallback),
       accentColor: 'hsl(350 80% 55%)',
     },
     {
@@ -217,7 +217,7 @@ export default function CommunityShowcase() {
         { label: 'Commission', value: '0% Fee' },
       ],
       badges: ['Beat Store', 'Preset Packs', 'Physical Merch', 'Digital Goods'],
-      visual: getImageUrl('community_network' as any, merchFallback),
+      visual: getImageUrl('community_merch', merchFallback),
       accentColor: 'hsl(160 84% 40%)',
     },
     {
@@ -232,7 +232,7 @@ export default function CommunityShowcase() {
         { label: 'Earn', value: 'MixxCoinz/Course' },
       ],
       badges: ['Masterclasses', 'Certifications', 'Mixing Breakdowns', 'Community Teachers'],
-      visual: getImageUrl('services_mixing' as any, learningFallback),
+      visual: getImageUrl('community_learning', learningFallback),
       accentColor: 'hsl(180 100% 50%)',
     },
     {
@@ -247,7 +247,7 @@ export default function CommunityShowcase() {
         { label: 'Events', value: 'Daily' },
       ],
       badges: ['Real-Time Collab', 'Listening Parties', 'Album Premieres', 'AMA Events'],
-      visual: getImageUrl('services_ai' as any, sessionsFallback),
+      visual: getImageUrl('community_sessions', sessionsFallback),
       accentColor: 'hsl(330 80% 60%)',
     },
   ];
