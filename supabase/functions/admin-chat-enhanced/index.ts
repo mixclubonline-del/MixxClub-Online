@@ -257,16 +257,21 @@ serve(async (req) => {
     }
 
     // Check rate limits
-    const { data: rateLimitOk } = await supabaseAdmin.rpc('check_admin_chatbot_rate_limit', {
-      p_admin_id: user.id,
-      p_limit_per_minute: 10
-    });
-
-    if (!rateLimitOk) {
-      return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again in a moment.' }), {
-        status: 429,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    // Rate limit check — gracefully skip if the RPC doesn't exist yet
+    try {
+      const { data: rateLimitOk, error: rlError } = await supabaseAdmin.rpc('check_admin_chatbot_rate_limit', {
+        p_admin_id: user.id,
+        p_limit_per_minute: 10
       });
+
+      if (!rlError && rateLimitOk === false) {
+        return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again in a moment.' }), {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    } catch (_) {
+      // RPC not available — skip rate limiting
     }
 
     // Sanitize input
