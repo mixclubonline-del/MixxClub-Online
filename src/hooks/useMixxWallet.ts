@@ -41,7 +41,7 @@ export function useMixxWallet() {
     queryKey: ['mixx-wallet', user?.id],
     queryFn: async () => {
       if (!user?.id) return null;
-      
+
       const { data, error } = await supabase
         .rpc('get_or_create_wallet', { p_user_id: user.id });
 
@@ -56,7 +56,7 @@ export function useMixxWallet() {
     queryKey: ['mixx-transactions', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
-      
+
       const { data, error } = await supabase
         .from('mixx_transactions')
         .select('*')
@@ -71,49 +71,33 @@ export function useMixxWallet() {
   });
 
   const earnMutation = useMutation({
-    mutationFn: async ({ 
-      amount, 
-      source, 
+    mutationFn: async ({
+      amount,
+      source,
       description,
       referenceType,
-      referenceId 
-    }: { 
-      amount: number; 
-      source: string; 
+      referenceId
+    }: {
+      amount: number;
+      source: string;
       description?: string;
       referenceType?: string;
       referenceId?: string;
     }) => {
-      if (!user?.id || !walletQuery.data) throw new Error('No wallet');
+      if (!user?.id) throw new Error('Not authenticated');
 
-      // Update wallet
-      const { error: walletError } = await supabase
-        .from('mixx_wallets')
-        .update({
-          earned_balance: walletQuery.data.earned_balance + amount,
-          total_earned: walletQuery.data.total_earned + amount,
-        })
-        .eq('user_id', user.id);
+      // Atomic RPC — math + locking + transaction recording all in Postgres
+      const { data, error } = await supabase.rpc('earn_coinz', {
+        p_user_id: user.id,
+        p_amount: amount,
+        p_source: source,
+        p_description: description || null,
+        p_reference_type: referenceType || null,
+        p_reference_id: referenceId || null,
+      });
 
-      if (walletError) throw walletError;
-
-      // Record transaction
-      const { error: txError } = await supabase
-        .from('mixx_transactions')
-        .insert({
-          user_id: user.id,
-          transaction_type: 'EARN',
-          source,
-          amount,
-          balance_type: 'earned',
-          description,
-          reference_type: referenceType,
-          reference_id: referenceId,
-        });
-
-      if (txError) throw txError;
-
-      return { amount, source };
+      if (error) throw error;
+      return { amount, source, data };
     },
     onSuccess: ({ amount }) => {
       queryClient.invalidateQueries({ queryKey: ['mixx-wallet'] });
@@ -133,91 +117,36 @@ export function useMixxWallet() {
   });
 
   const spendMutation = useMutation({
-    mutationFn: async ({ 
-      amount, 
-      source, 
+    mutationFn: async ({
+      amount,
+      source,
       description,
       preferEarned = true,
       referenceType,
-      referenceId 
-    }: { 
-      amount: number; 
-      source: string; 
+      referenceId
+    }: {
+      amount: number;
+      source: string;
       description?: string;
       preferEarned?: boolean;
       referenceType?: string;
       referenceId?: string;
     }) => {
-      if (!user?.id || !walletQuery.data) throw new Error('No wallet');
-      
-      const wallet = walletQuery.data;
-      const totalBalance = wallet.earned_balance + wallet.purchased_balance;
-      
-      if (totalBalance < amount) {
-        throw new Error('Insufficient balance');
-      }
+      if (!user?.id) throw new Error('Not authenticated');
 
-      let earnedToSpend = 0;
-      let purchasedToSpend = 0;
+      // Atomic RPC — balance check + math + locking + transactions all in Postgres
+      const { data, error } = await supabase.rpc('spend_coinz', {
+        p_user_id: user.id,
+        p_amount: amount,
+        p_source: source,
+        p_description: description || null,
+        p_prefer_earned: preferEarned,
+        p_reference_type: referenceType || null,
+        p_reference_id: referenceId || null,
+      });
 
-      if (preferEarned) {
-        earnedToSpend = Math.min(wallet.earned_balance, amount);
-        purchasedToSpend = amount - earnedToSpend;
-      } else {
-        purchasedToSpend = Math.min(wallet.purchased_balance, amount);
-        earnedToSpend = amount - purchasedToSpend;
-      }
-
-      // Update wallet
-      const { error: walletError } = await supabase
-        .from('mixx_wallets')
-        .update({
-          earned_balance: wallet.earned_balance - earnedToSpend,
-          purchased_balance: wallet.purchased_balance - purchasedToSpend,
-          total_spent: wallet.total_spent + amount,
-        })
-        .eq('user_id', user.id);
-
-      if (walletError) throw walletError;
-
-      // Record transactions
-      const transactions = [];
-      
-      if (earnedToSpend > 0) {
-        transactions.push({
-          user_id: user.id,
-          transaction_type: 'SPEND' as const,
-          source,
-          amount: earnedToSpend,
-          balance_type: 'earned' as const,
-          description,
-          reference_type: referenceType,
-          reference_id: referenceId,
-        });
-      }
-      
-      if (purchasedToSpend > 0) {
-        transactions.push({
-          user_id: user.id,
-          transaction_type: 'SPEND' as const,
-          source,
-          amount: purchasedToSpend,
-          balance_type: 'purchased' as const,
-          description,
-          reference_type: referenceType,
-          reference_id: referenceId,
-        });
-      }
-
-      if (transactions.length > 0) {
-        const { error: txError } = await supabase
-          .from('mixx_transactions')
-          .insert(transactions);
-
-        if (txError) throw txError;
-      }
-
-      return { amount, source };
+      if (error) throw error;
+      return { amount, source, data };
     },
     onSuccess: ({ amount }) => {
       queryClient.invalidateQueries({ queryKey: ['mixx-wallet'] });
@@ -236,8 +165,8 @@ export function useMixxWallet() {
     },
   });
 
-  const totalBalance = walletQuery.data 
-    ? walletQuery.data.earned_balance + walletQuery.data.purchased_balance 
+  const totalBalance = walletQuery.data
+    ? walletQuery.data.earned_balance + walletQuery.data.purchased_balance
     : 0;
 
   const canAfford = (amount: number) => totalBalance >= amount;

@@ -25,72 +25,21 @@ export function useGiftCoinz() {
 
     const giftMutation = useMutation({
         mutationFn: async ({ recipientId, amount, message }: GiftOptions) => {
-            if (!user?.id || !wallet) throw new Error('Not authenticated');
-            if (!canAfford(amount)) throw new Error('Insufficient balance');
+            if (!user?.id) throw new Error('Not authenticated');
             if (amount <= 0) throw new Error('Amount must be positive');
             if (recipientId === user.id) throw new Error("Can't gift to yourself");
 
-            // 1. Deduct from sender — prefer purchased balance for gifts
-            const purchasedToSpend = Math.min(wallet.purchased_balance, amount);
-            const earnedToSpend = amount - purchasedToSpend;
+            // Atomic RPC — sender deduct + recipient credit + both transactions
+            // in a single Postgres transaction with row locks. If ANY step fails,
+            // the entire operation rolls back. No more lost coins.
+            const { data, error } = await supabase.rpc('gift_coinz', {
+                p_sender_id: user.id,
+                p_recipient_id: recipientId,
+                p_amount: amount,
+                p_message: message || null,
+            });
 
-            const { error: senderError } = await supabase
-                .from('mixx_wallets')
-                .update({
-                    purchased_balance: wallet.purchased_balance - purchasedToSpend,
-                    earned_balance: wallet.earned_balance - earnedToSpend,
-                    total_spent: wallet.total_spent + amount,
-                    total_gifted: wallet.total_gifted + amount,
-                })
-                .eq('user_id', user.id);
-
-            if (senderError) throw senderError;
-
-            // 2. Credit to recipient
-            const { data: recipientWallet, error: rpcError } = await supabase
-                .rpc('get_or_create_wallet', { p_user_id: recipientId });
-
-            if (rpcError) throw rpcError;
-
-            const rw = recipientWallet as { earned_balance: number; total_received: number; total_earned: number };
-
-            const { error: recipientError } = await supabase
-                .from('mixx_wallets')
-                .update({
-                    earned_balance: rw.earned_balance + amount,
-                    total_received: rw.total_received + amount,
-                    total_earned: rw.total_earned + amount,
-                })
-                .eq('user_id', recipientId);
-
-            if (recipientError) throw recipientError;
-
-            // 3. Record paired transactions
-            const { error: txError } = await supabase
-                .from('mixx_transactions')
-                .insert([
-                    {
-                        user_id: user.id,
-                        transaction_type: 'GIFT_SENT',
-                        source: 'gift',
-                        amount,
-                        balance_type: purchasedToSpend > 0 ? 'purchased' : 'earned',
-                        counterparty_id: recipientId,
-                        description: message || `Gift sent`,
-                    },
-                    {
-                        user_id: recipientId,
-                        transaction_type: 'GIFT_RECEIVED',
-                        source: 'gift',
-                        amount,
-                        balance_type: 'earned',
-                        counterparty_id: user.id,
-                        description: message || `Gift received`,
-                    },
-                ]);
-
-            if (txError) throw txError;
-
+            if (error) throw error;
             return { amount, recipientId };
         },
         onSuccess: ({ amount }) => {
