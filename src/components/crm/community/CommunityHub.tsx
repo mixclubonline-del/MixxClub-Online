@@ -3,6 +3,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, Plus, Users, MessageSquare, Trophy, Flame, Sparkles, Radio } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { CommunityStats } from './CommunityStats';
 import { SocialFeed } from './SocialFeed';
 import { NetworkingSection } from './NetworkingSection';
@@ -19,6 +27,15 @@ interface CommunityHubProps {
 export const CommunityHub: React.FC<CommunityHubProps> = ({ userType }) => {
   const [activeTab, setActiveTab] = useState('feed');
   const [searchQuery, setSearchQuery] = useState('');
+  const isMobile = useIsMobile();
+
+  const tabOptions = [
+    { id: 'feed', label: 'Feed', icon: MessageSquare },
+    { id: 'live', label: 'Live', icon: Radio },
+    { id: 'network', label: 'Network', icon: Users },
+    { id: 'challenges', label: 'Challenges', icon: Sparkles },
+    { id: 'leaderboard', label: 'Leaderboard', icon: Trophy },
+  ];
 
   return (
     <div className="space-y-6">
@@ -35,19 +52,21 @@ export const CommunityHub: React.FC<CommunityHubProps> = ({ userType }) => {
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="relative">
+          <div className="relative flex-1 sm:flex-none">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               placeholder="Search community..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 w-64 bg-background/50"
+              className={`pl-9 bg-background/50 ${isMobile ? 'w-full' : 'w-64'}`}
             />
           </div>
-          <Button className="gap-2">
-            <Plus className="w-4 h-4" />
-            New Post
-          </Button>
+          {!isMobile && (
+            <Button className="gap-2">
+              <Plus className="w-4 h-4" />
+              New Post
+            </Button>
+          )}
         </div>
       </div>
 
@@ -59,33 +78,51 @@ export const CommunityHub: React.FC<CommunityHubProps> = ({ userType }) => {
 
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="bg-background/50 border border-border/50 p-1">
-          <TabsTrigger value="feed" className="gap-2 data-[state=active]:bg-primary/20">
-            <MessageSquare className="w-4 h-4" />
-            Feed
-          </TabsTrigger>
-          <TabsTrigger value="live" className="gap-2 data-[state=active]:bg-destructive/20">
-            <Radio className="w-4 h-4" />
-            Live
-          </TabsTrigger>
-          <TabsTrigger value="network" className="gap-2 data-[state=active]:bg-primary/20">
-            <Users className="w-4 h-4" />
-            Network
-          </TabsTrigger>
-          <TabsTrigger value="challenges" className="gap-2 data-[state=active]:bg-primary/20">
-            <Sparkles className="w-4 h-4" />
-            Challenges
-          </TabsTrigger>
-          <TabsTrigger value="leaderboard" className="gap-2 data-[state=active]:bg-primary/20">
-            <Trophy className="w-4 h-4" />
-            Leaderboard
-          </TabsTrigger>
-        </TabsList>
+        {isMobile ? (
+          <Select value={activeTab} onValueChange={setActiveTab}>
+            <SelectTrigger className="w-full bg-background/50 border-border/50">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {tabOptions.map((tab) => (
+                <SelectItem key={tab.id} value={tab.id}>
+                  <span className="flex items-center gap-2">
+                    <tab.icon className="w-4 h-4" />
+                    {tab.label}
+                  </span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : (
+          <TabsList className="bg-background/50 border border-border/50 p-1">
+            <TabsTrigger value="feed" className="gap-2 data-[state=active]:bg-primary/20">
+              <MessageSquare className="w-4 h-4" />
+              Feed
+            </TabsTrigger>
+            <TabsTrigger value="live" className="gap-2 data-[state=active]:bg-destructive/20">
+              <Radio className="w-4 h-4" />
+              Live
+            </TabsTrigger>
+            <TabsTrigger value="network" className="gap-2 data-[state=active]:bg-primary/20">
+              <Users className="w-4 h-4" />
+              Network
+            </TabsTrigger>
+            <TabsTrigger value="challenges" className="gap-2 data-[state=active]:bg-primary/20">
+              <Sparkles className="w-4 h-4" />
+              Challenges
+            </TabsTrigger>
+            <TabsTrigger value="leaderboard" className="gap-2 data-[state=active]:bg-primary/20">
+              <Trophy className="w-4 h-4" />
+              Leaderboard
+            </TabsTrigger>
+          </TabsList>
+        )}
 
         <div className="mt-6">
           <TabsContent value="feed" className="mt-0 space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2">
+            <div className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-3'}`}>
+              <div className={isMobile ? '' : 'lg:col-span-2'}>
                 <SocialFeed userType={userType} searchQuery={searchQuery} />
               </div>
               <div className="space-y-6">

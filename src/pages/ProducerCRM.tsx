@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -21,23 +21,25 @@ import { AIMasteringService } from '@/components/mastering/AIMasteringService';
 
 // Producer-specific hubs
 import { ProducerDashboardHub } from '@/components/crm/producer/ProducerDashboardHub';
-import { ProducerCatalogHub } from '@/components/crm/producer/ProducerCatalogHub';
-import { ProducerSalesHub } from '@/components/crm/producer/ProducerSalesHub';
-import { ProducerCollabsHub } from '@/components/crm/producer/ProducerCollabsHub';
-import { ProducerRevenueHub } from '@/components/crm/producer/ProducerRevenueHub';
+import { HubSkeleton } from '@/components/crm/design';
 
-// Shared CRM hubs
-import { ClientsHub } from '@/components/crm/clients/ClientsHub';
-import { MatchesHub } from '@/components/crm/matches/MatchesHub';
-import { SessionCommandCenter } from '@/components/crm/sessions/SessionCommandCenter';
-import { ActiveWorkHub } from '@/components/crm/ActiveWorkHub';
-import { MessagingHub } from '@/components/crm/messaging/MessagingHub';
-import { CollaborativeEarnings } from '@/components/crm/CollaborativeEarnings';
-import { CommunityHub } from '@/components/crm/CommunityHub';
-import { GrowthHub } from '@/components/crm/GrowthHub';
-import { BrandHub } from '@/components/crm/BrandHub';
-import { RevenueHub } from '@/components/crm/RevenueHub';
-import { TriPartnershipView } from '@/components/crm/partnerships/TriPartnershipView';
+// Lazy-loaded hub components for code splitting
+const ProducerCatalogHub = lazy(() => import('@/components/crm/producer/ProducerCatalogHub').then(m => ({ default: m.ProducerCatalogHub })));
+const ProducerSalesHub = lazy(() => import('@/components/crm/producer/ProducerSalesHub').then(m => ({ default: m.ProducerSalesHub })));
+const ProducerCollabsHub = lazy(() => import('@/components/crm/producer/ProducerCollabsHub').then(m => ({ default: m.ProducerCollabsHub })));
+const ProducerRevenueHub = lazy(() => import('@/components/crm/producer/ProducerRevenueHub').then(m => ({ default: m.ProducerRevenueHub })));
+const ClientsHub = lazy(() => import('@/components/crm/clients/ClientsHub').then(m => ({ default: m.ClientsHub })));
+const MatchesHub = lazy(() => import('@/components/crm/matches/MatchesHub').then(m => ({ default: m.MatchesHub })));
+const SessionCommandCenter = lazy(() => import('@/components/crm/sessions/SessionCommandCenter').then(m => ({ default: m.SessionCommandCenter })));
+const ActiveWorkHub = lazy(() => import('@/components/crm/ActiveWorkHub').then(m => ({ default: m.ActiveWorkHub })));
+const MessagingHub = lazy(() => import('@/components/crm/messaging/MessagingHub').then(m => ({ default: m.MessagingHub })));
+const CollaborativeEarnings = lazy(() => import('@/components/crm/CollaborativeEarnings').then(m => ({ default: m.CollaborativeEarnings })));
+const CommunityHub = lazy(() => import('@/components/crm/CommunityHub').then(m => ({ default: m.CommunityHub })));
+const GrowthHub = lazy(() => import('@/components/crm/GrowthHub').then(m => ({ default: m.GrowthHub })));
+const BrandHub = lazy(() => import('@/components/crm/BrandHub').then(m => ({ default: m.BrandHub })));
+const RevenueHub = lazy(() => import('@/components/crm/RevenueHub').then(m => ({ default: m.RevenueHub })));
+const TriPartnershipView = lazy(() => import('@/components/crm/partnerships/TriPartnershipView').then(m => ({ default: m.TriPartnershipView })));
+const NotificationsHub = lazy(() => import('@/components/crm/notifications').then(m => ({ default: m.NotificationsHub })));
 
 // Go Live
 import { ProducerGoLiveModal } from '@/components/live/ProducerGoLiveModal';
@@ -214,6 +216,8 @@ const ProducerCRM = () => {
         return gated('profile', <BrandHub />);
       case 'tri-collabs':
         return gated('tri-collabs', <TriPartnershipView userType="producer" />);
+      case 'notifications':
+        return gated('notifications', <NotificationsHub />);
       case 'dashboard':
       default:
         return <ProducerDashboardHub />;

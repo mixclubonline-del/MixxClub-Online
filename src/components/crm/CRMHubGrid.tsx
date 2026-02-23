@@ -24,6 +24,7 @@ import {
   Bell,
   MessageCircle,
   Trophy,
+  Calendar,
   type LucideIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -70,6 +71,8 @@ const ROLE_HUB_DEFINITIONS: Record<string, HubDefinition[]> = {
     { id: 'store', label: 'Store', icon: ShoppingBag, description: 'Merch & products' },
     { id: 'profile', label: 'Brand Hub', icon: User, description: 'Your identity' },
     { id: 'tri-collabs', label: '3-Way Collabs', icon: Triangle, description: 'Tri partnerships' },
+    { id: 'notifications', label: 'Alerts', icon: Bell, description: 'Updates & notifications' },
+    { id: 'schedule', label: 'Schedule', icon: Calendar, description: 'Calendar & deadlines' },
   ],
   engineer: [
     { id: 'dashboard', label: 'Dashboard', icon: Home, description: 'Business control center' },
@@ -86,6 +89,8 @@ const ROLE_HUB_DEFINITIONS: Record<string, HubDefinition[]> = {
     { id: 'earnings', label: 'Earnings', icon: Handshake, description: 'Collaborative pay' },
     { id: 'profile', label: 'Brand Hub', icon: User, description: 'Your identity' },
     { id: 'tri-collabs', label: '3-Way Collabs', icon: Triangle, description: 'Tri partnerships' },
+    { id: 'notifications', label: 'Alerts', icon: Bell, description: 'Updates & notifications' },
+    { id: 'schedule', label: 'Schedule', icon: Calendar, description: 'Calendar & deadlines' },
   ],
   producer: [
     { id: 'dashboard', label: 'Dashboard', icon: Home, description: 'Your beat empire' },
@@ -104,6 +109,7 @@ const ROLE_HUB_DEFINITIONS: Record<string, HubDefinition[]> = {
     { id: 'earnings', label: 'Earnings', icon: Handshake, description: 'Collaborative pay' },
     { id: 'profile', label: 'Brand Hub', icon: User, description: 'Your identity' },
     { id: 'tri-collabs', label: '3-Way Collabs', icon: Triangle, description: 'Tri partnerships' },
+    { id: 'notifications', label: 'Alerts', icon: Bell, description: 'Updates & notifications' },
   ],
   fan: [
     { id: 'feed', label: 'Discover', icon: Compass, description: 'AI-curated artist feed' },

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -32,8 +32,8 @@ import { PackagesShop } from '@/components/crm/PackagesShop';
 import { RecommendedEngineers } from '@/components/crm/RecommendedEngineers';
 import { AIMatchingEngine } from '@/components/ai/AIMatchingEngine';
 import { MusicalProfile } from '@/components/crm/MusicalProfile';
-import { BrandHub } from '@/components/crm/BrandHub';
-import { TriPartnershipView } from '@/components/crm/partnerships/TriPartnershipView';
+
+
 import ProfileInsights from '@/components/crm/ProfileInsights';
 import SessionManager from '@/components/collaboration/SessionManager';
 import CollaborationWorkspace from '@/components/collaboration/CollaborationWorkspace';
@@ -43,23 +43,29 @@ import { ArtistCRMSlideshow } from '@/components/crm/ArtistCRMSlideshow';
 import { ArtistAssistantIntro } from '@/components/crm/ArtistAssistantIntro';
 import { DistributionWorkflow } from '@/components/crm/DistributionWorkflow';
 import { DynamicAppAccessHub } from '@/components/crm/DynamicAppAccessHub';
-import { ActiveWorkHub } from '@/components/crm/ActiveWorkHub';
 import { DashboardHub } from '@/components/crm/DashboardHub';
-import { OpportunitiesHub } from '@/components/crm/opportunities';
-import { YourMatches } from '@/components/crm/YourMatches';
-import { MatchesHub } from '@/components/crm/matches/MatchesHub';
-import { RevenueHub } from '@/components/crm/RevenueHub';
-import { CommunityHub } from '@/components/crm/community';
-import { GrowthHub } from '@/components/crm/growth';
-import { MessagingHub } from '@/components/crm/messaging';
-import { CollaborativeEarnings } from '@/components/crm/CollaborativeEarnings';
-import { SessionCommandCenter } from '@/components/crm/sessions/SessionCommandCenter';
-import { ClientsHub } from '@/components/crm/clients';
-import { MusicHub } from '@/components/crm/MusicHub';
-import { StoreHub } from '@/components/crm/StoreHub';
 import { OnboardingReminder } from '@/components/crm/OnboardingReminder';
 import { isStarterHub } from '@/config/starterFeatures';
 import { FeatureGated } from '@/components/backend/FeatureGated';
+import { HubSkeleton } from '@/components/crm/design';
+
+// Lazy-loaded hub components for code splitting
+const MusicHub = lazy(() => import('@/components/crm/MusicHub').then(m => ({ default: m.MusicHub })));
+const StoreHub = lazy(() => import('@/components/crm/StoreHub').then(m => ({ default: m.StoreHub })));
+const ActiveWorkHub = lazy(() => import('@/components/crm/ActiveWorkHub').then(m => ({ default: m.ActiveWorkHub })));
+const BrandHub = lazy(() => import('@/components/crm/BrandHub').then(m => ({ default: m.BrandHub })));
+const RevenueHub = lazy(() => import('@/components/crm/RevenueHub').then(m => ({ default: m.RevenueHub })));
+const GrowthHub = lazy(() => import('@/components/crm/growth').then(m => ({ default: m.GrowthHub })));
+const CommunityHub = lazy(() => import('@/components/crm/community').then(m => ({ default: m.CommunityHub })));
+const MessagingHub = lazy(() => import('@/components/crm/messaging').then(m => ({ default: m.MessagingHub })));
+const ClientsHub = lazy(() => import('@/components/crm/clients').then(m => ({ default: m.ClientsHub })));
+const MatchesHub = lazy(() => import('@/components/crm/matches/MatchesHub').then(m => ({ default: m.MatchesHub })));
+const OpportunitiesHub = lazy(() => import('@/components/crm/opportunities').then(m => ({ default: m.OpportunitiesHub })));
+const CollaborativeEarnings = lazy(() => import('@/components/crm/CollaborativeEarnings').then(m => ({ default: m.CollaborativeEarnings })));
+const SessionCommandCenter = lazy(() => import('@/components/crm/sessions/SessionCommandCenter').then(m => ({ default: m.SessionCommandCenter })));
+const NotificationsHub = lazy(() => import('@/components/crm/notifications').then(m => ({ default: m.NotificationsHub })));
+const ScheduleHub = lazy(() => import('@/components/crm/schedule').then(m => ({ default: m.ScheduleHub })));
+const TriPartnershipView = lazy(() => import('@/components/crm/partnerships/TriPartnershipView').then(m => ({ default: m.TriPartnershipView })));
 
 const ArtistCRM = () => {
   const { user } = useAuth();
@@ -380,6 +386,12 @@ const ArtistCRM = () => {
 
       case 'tri-collabs':
         return gated('tri-collabs', <TriPartnershipView userType="artist" />);
+
+      case 'notifications':
+        return gated('notifications', <NotificationsHub />);
+
+      case 'schedule':
+        return gated('schedule', <ScheduleHub />);
 
       default:
         return (
