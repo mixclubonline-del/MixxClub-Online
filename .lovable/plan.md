@@ -1,147 +1,87 @@
 
-# Phase 5: The MixxClub Community -- Beyond Framer Motion
 
-## The Directive
+# Dream the Community Pillar Images
 
-Framer Motion has served its purpose, but it's becoming a crutch. For the Community Showcase section, we elevate to a hybrid approach:
+## What We're Building
 
-1. **Dream-Generated Images** -- AI-generated hero imagery for each community pillar, persisted via the existing Dream Engine pipeline
-2. **Native CSS Animations + Intersection Observer** -- Replace `motion.div` / `whileInView` with performant CSS `@keyframes` and a lightweight `useInView` hook using the native `IntersectionObserver` API
-3. **Canvas-Based Particle Systems** -- For the section background, use a raw `<canvas>` particle system (like `AudioVisualizer.tsx` already does) instead of Framer Motion's animated divs
-4. **React Three Fiber for the MixxCoinz Hero** -- The MixxCoinz economy pillar gets a 3D rotating coin scene using the existing R3F infrastructure (`@react-three/fiber` + `drei`)
+A one-shot batch image generator that creates AI artwork for the five community pillars (Unlockables, Battles, Merch, Learning, Live Sessions) using the existing Dream Engine pipeline. Each image gets saved to `brand_assets` with the correct `asset_context` key and set as active -- so the CommunityShowcase component picks them up automatically via `useDynamicAssets`.
 
-No Framer Motion imports anywhere in the new component.
+The MixxCoinz pillar already has the R3F 3D coin scene, so it does not need an image.
 
 ---
 
-## New Files
+## Step 1: Register the Five New Asset Contexts
 
-### 1. `src/hooks/useInView.ts` -- Lightweight Intersection Observer Hook
+The `asset_contexts` table needs entries for the community showcase pillars so the validation trigger (`validate_asset_context`) allows saving. We insert five new rows:
 
-A zero-dependency hook that replaces `motion.div whileInView`:
-- Uses native `IntersectionObserver` API
-- Returns a ref and `isInView` boolean
-- Supports `once`, `threshold`, and `rootMargin` options
-- Components apply CSS classes conditionally: `className={isInView ? 'animate-reveal' : 'opacity-0'}`
+| context_prefix | name | description | icon |
+|---|---|---|---|
+| `community_unlockables` | Community - Unlockables | Progression matrix and tier system visuals | unlock |
+| `community_battles` | Community - Battles | Battle arena and competition visuals | swords |
+| `community_merch` | Community - Merch | Storefront and merchandise visuals | shopping-bag |
+| `community_learning` | Community - Learning | Masterclass and education visuals | graduation-cap |
+| `community_sessions` | Community - Sessions | Live session and real-time collaboration visuals | radio |
 
-### 2. `src/components/journey/CommunityShowcase.tsx` -- The Main Section
+This is a database migration (INSERT into `asset_contexts`).
 
-Six community pillars rendered as alternating showcase cards (matching `ShowcaseJourney` visual rhythm but without Framer Motion):
+## Step 2: Build the Batch Dreamer Component
 
-| # | Pillar | Title | Key Visual |
-|---|--------|-------|------------|
-| 1 | MixxCoinz Economy | "The Currency of the Culture" | R3F 3D coin scene (earned + purchased) |
-| 2 | Unlockable System | "Unlock Your Level" | Dream-generated image (progression matrix) |
-| 3 | Battles and Competitions | "Prove Your Sound" | Dream-generated image (battle arena) |
-| 4 | Merch and Storefront | "Sell What You Create" | Dream-generated image (storefront) |
-| 5 | Learning and Growth | "Level Up Your Craft" | Dream-generated image (masterclass) |
-| 6 | Live Sessions | "Watch It Happen Live" | Dream-generated image (live session) |
+Create `src/components/journey/CommunityPillarDreamer.tsx` -- an admin-facing batch generation tool (similar to the existing `DemoPhaseGenerator`).
 
-**Animation Strategy (no Framer Motion):**
-- Each card uses `useInView` + CSS transitions (`transform`, `opacity`) with staggered `transition-delay`
-- Image hover zoom uses pure CSS `group-hover:scale-105` (already used in ShowcaseJourney)
-- Stats overlay slide-up on hover uses pure CSS `translate-y` transitions (already established pattern)
+**How it works:**
+1. Renders a card for each of the five pillars with a curated prompt
+2. A "Dream All" button fires all five generations sequentially via `useDreamEngine.generate()` with `save: true` and `makeActive: true`
+3. Each pillar card shows status: pending / generating / success / error
+4. On success, the `useDynamicAssets` hook automatically picks up the new active assets via its real-time subscription
+5. The CommunityShowcase component renders the new images immediately -- no code changes needed there
 
-**MixxCoinz Pillar Special Treatment:**
-- Instead of a static image, renders a `<Canvas>` scene with two rotating MixxCoins using `useFrame` from R3F
-- Earned coin orbits left, Purchased coin orbits right, with particle dust between them
-- This replaces the MixxCoin3D component's Framer Motion approach with actual GPU-accelerated 3D
+**Curated Prompts (the creative DNA):**
 
-### 3. `src/components/journey/CommunityCanvasBackground.tsx` -- Section Background
+| Pillar | Context Key | Prompt |
+|---|---|---|
+| Unlockables | `community_unlockables` | "A futuristic progression matrix floating in a dark space, five glowing pathways radiating from a central hub, each path a different color (purple, cyan, amber, pink, green), tiered milestone markers along each path like checkpoints in a video game, holographic achievement badges orbiting the structure, dark background with subtle grid lines, music industry aesthetic meets sci-fi RPG progression system" |
+| Battles | `community_battles` | "Two music producers facing off in a neon-lit arena, turntables and mixing consoles as weapons, crowd of spectators visible in silhouette behind glowing barriers, scoreboard floating above showing versus scores, purple and red lighting clash in the center, hip-hop battle culture meets esports arena, dramatic spotlight, smoke effects, urban energy" |
+| Merch | `community_merch` | "A sleek digital storefront floating in space, holographic product displays showing vinyl records, beat packs, branded streetwear, preset bundles, and sample pack cubes, neon price tags in MixxCoinz currency, shopping cart with glowing items, modern e-commerce meets music culture aesthetic, clean dark UI with accent lighting" |
+| Learning | `community_learning` | "A masterclass in session inside a futuristic studio classroom, a veteran engineer at a massive mixing console teaching a small group, holographic waveforms and EQ curves floating in the air as visual aids, certification badges displayed on the wall, warm amber and cyan lighting, knowledge transfer moment, mentorship atmosphere, professional music education" |
+| Sessions | `community_sessions` | "A live collaborative music session viewed through a floating holographic screen, multiple participants visible in small video panels around a central waveform visualization, real-time chat messages scrolling, listening party atmosphere with glowing audio meters, purple and pink neon accents, community gathering around music being created, intimate yet connected feeling" |
 
-A full-width `<canvas>` element behind the community section:
-- Renders floating particles in all four role colors (purple, cyan, amber, pink)
-- Particles drift slowly and connect with faint lines when near each other (constellation effect)
-- Uses `requestAnimationFrame` -- zero library dependencies
-- Follows the exact pattern established in `AudioVisualizer.tsx`
+## Step 3: Wire Into the Dream Chamber Page
 
-### 4. `src/components/journey/CoinScene3D.tsx` -- R3F MixxCoinz Hero
+Add the `CommunityPillarDreamer` as an optional section in the existing Dream Engine page (`src/pages/DreamEngine.tsx`), gated behind admin check. This keeps it accessible from the Dream Chamber where Prime already guides generation.
 
-A small React Three Fiber scene specifically for the MixxCoinz pillar:
-- Two textured planes (coin images) that slowly rotate on Y-axis using `useFrame`
-- Additive blending particle dust between them
-- Ambient glow via point lights in purple (earned) and gold (purchased)
-- Falls back to the static `MixxCoin` component if WebGL is unavailable
+Alternatively, it can be a standalone route `/admin/dream-community` for one-time use.
 
----
+## Step 4: No Changes to CommunityShowcase
 
-## Image Generation Strategy
+The existing `CommunityShowcase.tsx` already calls `useDynamicAssets().getImageUrl()` with keys like `community_arena`, `community_stage`, etc. We update it to use the correct keys matching the new contexts:
 
-For the five image-based pillars, we generate via the existing Dream Engine pipeline (`supabase.functions.invoke('dream-engine')`). The component will:
+- `community_unlockables` (currently using `community_arena` as fallback)
+- `community_battles` (currently using `community_stage` as fallback)
+- `community_merch` (currently using `community_network` as fallback)
+- `community_learning` (currently using `services_mixing` as fallback)
+- `community_sessions` (currently using `services_ai` as fallback)
 
-1. First check for existing `brand_assets` with matching `asset_context` keys (e.g., `community_unlockables`, `community_battles`, etc.)
-2. If no asset exists, display a fallback from `src/assets/promo/` (mapped below)
-3. New asset contexts will be registered so Prime can dream them from the Dream Chamber
-
-**Asset Context Mapping:**
-
-| Pillar | asset_context Key | Fallback Image |
-|--------|------------------|----------------|
-| Unlockables | `community_unlockables` | `mixxtech-city.png` |
-| Battles | `community_battles` | `mixing-collaboration.jpg` |
-| Merch | `community_merch` | `enterprise-whitelabel.jpg` |
-| Learning | `community_learning` | `engineer-growth-coaching.jpg` |
-| Live Sessions | `community_sessions` | `webrtc-collaboration.jpg` |
-
-### 5. `src/hooks/useCommunityShowcaseAssets.ts` -- Asset Hook
-
-Convenience hook wrapping `useDynamicAssets` for the community section:
-- Provides typed access to each pillar's image URL
-- Handles fallback chain: Dream asset -> promo fallback
-- Extends the existing `SectionKey` type in `useDynamicAssets.ts` with the new community keys
+This is a minor fix to ensure the correct `SectionKey` values are used so dreamed images map directly.
 
 ---
 
-## Modified Files
+## Technical Summary
 
-### `src/hooks/useDynamicAssets.ts`
-- Add 5 new `SectionKey` entries: `community_unlockables`, `community_battles`, `community_merch`, `community_learning`, `community_sessions`
-- Add corresponding entries to `SECTION_ASSET_MAP` and `STATIC_FALLBACKS`
+| File | Action |
+|---|---|
+| Database migration | INSERT 5 rows into `asset_contexts` |
+| `src/components/journey/CommunityPillarDreamer.tsx` | **New** -- batch image generation UI |
+| `src/pages/DreamEngine.tsx` | Add CommunityPillarDreamer section |
+| `src/components/journey/CommunityShowcase.tsx` | Fix `SectionKey` references to match new contexts |
 
-### `src/pages/HowItWorks.tsx`
-- Import and place `<CommunityShowcase />` between `<EcosystemFlow />` and `<JourneyDestination />`
-- Single line addition
+**No new dependencies.** Uses existing `useDreamEngine` hook, existing `dream-engine` edge function, existing `brand_assets` table, existing `useDynamicAssets` real-time subscription.
 
----
+**Flow:**
+1. Prime opens Dream Chamber (or admin route)
+2. Clicks "Dream Community Pillars"
+3. Five images generate sequentially via Lovable AI (Gemini 3 Pro Image)
+4. Each saves to `brand-assets` storage bucket and `brand_assets` table with correct `asset_context`
+5. Real-time subscription fires in `useDynamicAssets`
+6. CommunityShowcase renders dreamed images automatically
+7. Fallback promo images still work if generation fails
 
-## What We Are NOT Using
-
-- Framer Motion (`motion.div`, `whileInView`, `AnimatePresence`) -- replaced entirely
-- Any animation library -- pure CSS + IntersectionObserver + Canvas + R3F
-
-## What We ARE Using
-
-- **CSS `@keyframes` + `transition`** -- for reveal animations, hover effects, stagger
-- **IntersectionObserver API** -- for scroll-triggered reveals (native browser API)
-- **Canvas 2D API** -- for particle background (existing pattern from AudioVisualizer)
-- **React Three Fiber** -- for the MixxCoinz 3D scene (existing dependency, GPU-accelerated)
-- **Dream Engine** -- for AI-generated imagery (existing pipeline)
-
----
-
-## Content for Each Pillar
-
-### 1. MixxCoinz Economy
-- **Stats**: Earn Rate: "Every Action" | Cash Out: "200:1 USD" | Types: "Earned + Purchased"
-- **Badges**: Dual Currency, Instant Payouts, Ownership Model, Escrow System
-- **Visual**: 3D R3F coin scene
-
-### 2. Unlockable System
-- **Stats**: Paths: "5 Roles" | Tiers: "5 Per Path" | Goals: "Community + Personal"
-- **Badges**: Progression Matrix, Collective Goals, Role Rewards, Vault Room
-
-### 3. Battles and Competitions
-- **Stats**: Formats: "1v1 + Open" | Voting: "Community" | Prizes: "MixxCoinz + Status"
-- **Badges**: Live Battles, Remix Challenges, Leaderboards, Judge and Earn
-
-### 4. Merch and Storefront
-- **Stats**: Products: "Unlimited" | Payment: "USD + MixxCoinz" | Commission: "0% Fee"
-- **Badges**: Beat Store, Preset Packs, Physical Merch, Digital Goods
-
-### 5. Learning and Growth
-- **Stats**: Courses: "Growing" | Instructors: "Verified Pros" | Earn: "MixxCoinz/Course"
-- **Badges**: Masterclasses, Certifications, Mixing Breakdowns, Community Teachers
-
-### 6. Live Sessions and Events
-- **Stats**: Latency: "<50ms" | Capacity: "Unlimited" | Events: "Daily"
-- **Badges**: Real-Time Collab, Listening Parties, Album Premieres, AMA Events
