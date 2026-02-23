@@ -83,7 +83,7 @@ function PillarCard({ pillar, index }: { pillar: CommunityPillar; index: number 
           )}
 
           {/* Stats overlay on hover */}
-          <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-gradient-to-t from-background via-background/90 to-transparent">
+          <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 sm:translate-y-full sm:group-hover:translate-y-0 transition-transform duration-300 bg-gradient-to-t from-background via-background/90 to-transparent">
             <div className="flex gap-3 md:gap-4 flex-wrap">
               {pillar.stats.map((stat) => (
                 <div key={stat.label} className="px-3 py-2 md:px-4 md:py-2 bg-background/95 backdrop-blur rounded-lg border border-border">
@@ -98,7 +98,7 @@ function PillarCard({ pillar, index }: { pillar: CommunityPillar; index: number 
         </div>
 
         {/* Floating tech badges */}
-        <div className="absolute -bottom-3 -right-3 md:-bottom-4 md:-right-4 flex flex-wrap gap-2 max-w-xs">
+        <div className="mt-2 sm:mt-0 sm:absolute sm:-bottom-4 sm:-right-4 flex flex-wrap gap-2 max-w-xs">
           {pillar.badges.slice(0, 2).map((badge) => (
             <Badge
               key={badge}
@@ -131,10 +131,10 @@ function PillarCard({ pillar, index }: { pillar: CommunityPillar; index: number 
         <p className="text-base md:text-lg text-muted-foreground leading-relaxed">{pillar.description}</p>
 
         {/* Stats grid */}
-        <div className="grid grid-cols-3 gap-3 md:gap-4 py-2 md:py-4">
-          {pillar.stats.map((stat) => (
-            <div key={stat.label} className="text-center p-3 md:p-4 rounded-xl bg-muted/30 border border-border/50">
-              <div className="text-lg md:text-2xl font-bold" style={{ color: pillar.accentColor }}>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4 py-2 md:py-4">
+          {pillar.stats.map((stat, statIdx) => (
+            <div key={stat.label} className={`text-center p-3 md:p-4 rounded-xl bg-muted/30 border border-border/50 ${pillar.stats.length === 3 && statIdx === 2 ? 'col-span-2 sm:col-span-1' : ''}`}>
+              <div className="text-base md:text-2xl font-bold" style={{ color: pillar.accentColor }}>
                 {stat.value}
               </div>
               <div className="text-xs text-muted-foreground">{stat.label}</div>
