@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import { PaymentLink } from '@/types/partnership';
 
 interface PaymentLinkGeneratorProps {
@@ -82,35 +83,61 @@ export const PaymentLinkGenerator: React.FC<PaymentLinkGeneratorProps> = ({
         setIsLoading(true);
 
         try {
-            // TODO: Call API to create payment link
-            // const response = await createPaymentLink({
-            //   recipientId,
-            //   amount: parseFloat(formData.amount),
-            //   description: formData.description,
-            //   paymentMethod: formData.paymentMethod,
-            //   expiresIn: parseInt(formData.expirationDays) * 24 * 60 * 60,
-            //   partnershipId,
-            //   projectId,
-            // });
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error('Not authenticated');
 
-            // For now, simulate link creation
-            const newLink: PaymentLink = {
-                id: `link_${Date.now()}`,
-                token: `token_${Math.random().toString(36).substr(2, 9)}`,
-                url: `https://pay.ravenmix.ai/${Math.random().toString(36).substr(2, 9)}`,
-                creator_id: 'current_user',
-                recipient_id: recipientId,
-                partnership_id: partnershipId,
-                project_id: projectId,
-                amount: parseFloat(formData.amount),
-                currency: 'USD',
-                description: formData.description,
-                payment_method: formData.paymentMethod,
-                status: 'pending' as const,
-                expires_at: new Date(Date.now() + parseInt(formData.expirationDays) * 24 * 60 * 60 * 1000).toISOString(),
-                paid_at: null,
-                created_at: new Date().toISOString(),
-            }; setPaymentLinks((prev) => [newLink, ...prev]);
+            const expiresAt = new Date(Date.now() + parseInt(formData.expirationDays) * 24 * 60 * 60 * 1000).toISOString();
+            const amount = parseFloat(formData.amount);
+
+            // Attempt to create via Stripe edge function
+            let newLink: PaymentLink;
+            try {
+                const { data, error } = await supabase.functions.invoke('create-payment-link', {
+                    body: {
+                        recipientId,
+                        amount,
+                        currency: 'USD',
+                        description: formData.description,
+                        paymentMethod: formData.paymentMethod,
+                        expiresAt,
+                        partnershipId,
+                        projectId,
+                    },
+                });
+
+                if (error) throw error;
+                newLink = data as PaymentLink;
+            } catch {
+                // Fallback: persist locally via payment_links table
+                const token = Math.random().toString(36).substr(2, 12);
+                const { data: dbLink, error: dbError } = await supabase
+                    .from('payment_links')
+                    .insert({
+                        creator_id: user.id,
+                        recipient_id: recipientId,
+                        partnership_id: partnershipId || null,
+                        project_id: projectId || null,
+                        amount,
+                        currency: 'USD',
+                        description: formData.description || null,
+                        payment_method: formData.paymentMethod,
+                        status: 'pending',
+                        token,
+                        url: `${window.location.origin}/pay/${token}`,
+                        expires_at: expiresAt,
+                    })
+                    .select()
+                    .single();
+
+                if (dbError) throw dbError;
+
+                newLink = {
+                    ...dbLink,
+                    paid_at: null,
+                } as PaymentLink;
+            }
+
+            setPaymentLinks((prev) => [newLink, ...prev]);
             onLinkCreated?.(newLink);
 
             toast({

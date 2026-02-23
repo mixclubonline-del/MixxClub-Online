@@ -7,10 +7,10 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { 
-  X, 
-  Bell, 
-  TrendingUp, 
+import {
+  X,
+  Bell,
+  TrendingUp,
   Trophy,
   MessageCircle,
   ArrowRight,
@@ -48,13 +48,13 @@ export const ProactivePrimeBot = ({ userType, onNavigate }: ProactivePrimeBotPro
   const [isDismissed, setIsDismissed] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [hasShownBriefing, setHasShownBriefing] = useState(false);
-  
+
   // Get role-specific AI guide
   const guide = useMemo(() => {
     const characterId = ENTRY_POINT_CHARACTERS[userType as keyof typeof ENTRY_POINT_CHARACTERS] || 'jax';
     return getCharacter(characterId);
   }, [userType]);
-  
+
   // Get a personalized quote from the guide
   const guideQuote = useMemo(() => {
     const characterId = ENTRY_POINT_CHARACTERS[userType as keyof typeof ENTRY_POINT_CHARACTERS] || 'jax';
@@ -101,7 +101,7 @@ export const ProactivePrimeBot = ({ userType, onNavigate }: ProactivePrimeBotPro
         // Fan - no active projects, just skip
         projectQuery = null;
       }
-      
+
       const { data: activeProjects } = projectQuery ? await projectQuery : { data: [] };
 
       // Check streak data
@@ -123,7 +123,7 @@ export const ProactivePrimeBot = ({ userType, onNavigate }: ProactivePrimeBotPro
       // Generate Morning Briefing
       const hour = new Date().getHours();
       const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
-      
+
       newInsights.push({
         id: 'daily-briefing',
         type: 'briefing',
@@ -142,12 +142,11 @@ export const ProactivePrimeBot = ({ userType, onNavigate }: ProactivePrimeBotPro
           id: 'new-opportunities',
           type: 'opportunity',
           title: 'Hot Opportunities! 🔥',
-          message: `${jobs.length} new ${
-            userType === 'engineer' ? 'gigs' : 
-            userType === 'producer' ? 'beat requests' : 
-            userType === 'fan' ? 'discoveries' : 
-            'collaboration requests'
-          } just dropped. "${jobs[0].title}" looks perfect for you.`,
+          message: `${jobs.length} new ${userType === 'engineer' ? 'gigs' :
+              userType === 'producer' ? 'beat requests' :
+                userType === 'fan' ? 'discoveries' :
+                  'collaboration requests'
+            } just dropped. "${jobs[0].title}" looks perfect for you.`,
           action: {
             label: 'Check Them Out',
             href: '?tab=opportunities'
@@ -172,7 +171,7 @@ export const ProactivePrimeBot = ({ userType, onNavigate }: ProactivePrimeBotPro
         const achievement = recentAchievements[0];
         const earnedDate = new Date(achievement.earned_at);
         const hoursSinceEarned = (Date.now() - earnedDate.getTime()) / (1000 * 60 * 60);
-        
+
         if (hoursSinceEarned < 24) {
           newInsights.push({
             id: 'achievement-celebration',
@@ -195,7 +194,7 @@ export const ProactivePrimeBot = ({ userType, onNavigate }: ProactivePrimeBotPro
       if (lastActivity && lastActivity.length > 0) {
         const lastActiveDate = new Date(lastActivity[0].created_at);
         const daysSinceActive = (Date.now() - lastActiveDate.getTime()) / (1000 * 60 * 60 * 24);
-        
+
         if (daysSinceActive > 3) {
           newInsights.push({
             id: 'inactivity-nudge',
@@ -226,8 +225,107 @@ export const ProactivePrimeBot = ({ userType, onNavigate }: ProactivePrimeBotPro
         });
       }
 
+      // --- CORE LOOP INSIGHTS (Phase 4: Prime Brain Intelligence) ---
+
+      // New Matches Waiting for Contact
+      const { data: pendingMatches } = await supabase
+        .from('user_matches')
+        .select('id, matched_user_id')
+        .eq('user_id', user.id)
+        .eq('status', 'pending')
+        .limit(5);
+
+      if (pendingMatches && pendingMatches.length > 0) {
+        newInsights.push({
+          id: 'pending-matches',
+          type: 'opportunity',
+          title: `${pendingMatches.length} New Match${pendingMatches.length > 1 ? 'es' : ''}! 🎯`,
+          message: `${pendingMatches.length} ${userType === 'artist' ? 'engineers match your style' :
+              userType === 'engineer' ? 'artists need your skills' :
+                'creators are waiting to connect'
+            }. Don't let these connections slip away.`,
+          action: {
+            label: 'View Matches',
+            href: '?tab=matches'
+          },
+          priority: 'high'
+        });
+      }
+
+      // Session Invitations Waiting
+      const { data: sessionInvites } = await supabase
+        .from('session_participants')
+        .select('session_id')
+        .eq('user_id', user.id)
+        .eq('status', 'invited');
+
+      if (sessionInvites && sessionInvites.length > 0) {
+        newInsights.push({
+          id: 'session-invitations',
+          type: 'opportunity',
+          title: `${sessionInvites.length} Session Invite${sessionInvites.length > 1 ? 's' : ''}! 🎙️`,
+          message: `You've been invited to ${sessionInvites.length} collaboration ${sessionInvites.length === 1 ? 'session' : 'sessions'}. Someone chose you — show them why.`,
+          action: {
+            label: 'View Sessions',
+            href: '?tab=sessions'
+          },
+          priority: 'high'
+        });
+      }
+
+      // Deliverables Awaiting Review (for artists/producers)
+      if (userType === 'artist' || userType === 'producer') {
+        const { data: pendingDeliverables } = await supabase
+          .from('engineer_deliverables')
+          .select('id, file_name, delivery_type')
+          .eq('status', 'submitted')
+          .limit(5);
+
+        if (pendingDeliverables && pendingDeliverables.length > 0) {
+          newInsights.push({
+            id: 'pending-deliverables',
+            type: 'nudge',
+            title: `${pendingDeliverables.length} Mix${pendingDeliverables.length > 1 ? 'es' : ''} Ready for Review! 🎧`,
+            message: `Your engineer submitted ${pendingDeliverables.length === 1 ? `"${pendingDeliverables[0].file_name}"` : `${pendingDeliverables.length} files`}. Review and approve to keep the project moving.`,
+            action: {
+              label: 'Review Now',
+              href: '?tab=sessions'
+            },
+            priority: 'high'
+          });
+        }
+      }
+
+      // Community Unlock Progress Nudge
+      const { data: nextUnlock } = await supabase
+        .from('unlockables')
+        .select('name, current_value, target_value')
+        .eq('is_unlocked', false)
+        .eq('unlock_type', 'community')
+        .order('tier', { ascending: true })
+        .limit(1)
+        .maybeSingle();
+
+      if (nextUnlock) {
+        const remaining = nextUnlock.target_value - nextUnlock.current_value;
+        const progress = Math.round((nextUnlock.current_value / nextUnlock.target_value) * 100);
+        if (progress >= 70) {
+          newInsights.push({
+            id: 'unlock-progress',
+            type: 'nudge',
+            title: `${progress}% to ${nextUnlock.name}! 🔓`,
+            message: `The community is ${remaining} ${remaining === 1 ? 'action' : 'actions'} away from unlocking ${nextUnlock.name}. Every session counts.`,
+            action: {
+              label: 'View Progress',
+              href: '/unlockables'
+            },
+            priority: progress >= 90 ? 'high' : 'medium'
+          });
+        }
+      }
+
       setInsights(newInsights);
-      
+
       // Show first high-priority insight after a short delay
       if (newInsights.length > 0) {
         const highPriority = newInsights.find(i => i.priority === 'high') || newInsights[0];
@@ -308,7 +406,7 @@ export const ProactivePrimeBot = ({ userType, onNavigate }: ProactivePrimeBotPro
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
           className="fixed bottom-24 right-6 z-50 max-w-sm"
         >
-          <Card 
+          <Card
             className="backdrop-blur-xl border shadow-2xl overflow-hidden"
             style={{
               background: `linear-gradient(135deg, ${guide.accentColor}20, ${guide.accentColor}10)`,
@@ -319,13 +417,13 @@ export const ProactivePrimeBot = ({ userType, onNavigate }: ProactivePrimeBotPro
             <div className="flex items-center justify-between p-4 border-b border-border/30">
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <div 
+                  <div
                     className="w-10 h-10 rounded-full overflow-hidden"
                     style={{ boxShadow: `0 0 12px ${guide.accentColor}` }}
                   >
-                    <img 
-                      src={guide.avatarPath} 
-                      alt={guide.name} 
+                    <img
+                      src={guide.avatarPath}
+                      alt={guide.name}
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -400,9 +498,8 @@ export const ProactivePrimeBot = ({ userType, onNavigate }: ProactivePrimeBotPro
                   {insights.map((_, idx) => (
                     <div
                       key={idx}
-                      className={`w-2 h-2 rounded-full transition-colors ${
-                        insights.indexOf(currentInsight) === idx ? 'bg-primary' : 'bg-muted'
-                      }`}
+                      className={`w-2 h-2 rounded-full transition-colors ${insights.indexOf(currentInsight) === idx ? 'bg-primary' : 'bg-muted'
+                        }`}
                     />
                   ))}
                 </div>

@@ -113,6 +113,14 @@ export const appRoutes = (
       <Route path="/fan-hub" element={<FanHub />} />
       <Route path="/admin" element={<AdminRoute><AdminCRM /></AdminRoute>} />
 
+      {/* Onboarding Wizards — post-auth, pre-CRM */}
+      <Route path="/artist-onboarding" element={<ArtistOnboarding />} />
+      <Route path="/engineer-onboarding" element={<EngineerOnboarding />} />
+      <Route path="/producer-onboarding" element={<ProducerOnboarding />} />
+      <Route path="/fan-onboarding" element={<FanOnboarding />} />
+      <Route path="/hybrid-onboarding" element={<HybridOnboarding />} />
+      <Route path="/role-selection" element={<RoleSelection />} />
+
       {/* Sessions & Collaboration */}
       <Route path="/sessions" element={<SessionsBrowser />} />
       <Route path="/create-session" element={<CreateSession />} />

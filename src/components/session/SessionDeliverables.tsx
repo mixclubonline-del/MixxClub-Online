@@ -3,12 +3,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  FileAudio, Upload, CheckCircle, Clock, AlertCircle, 
+import {
+  FileAudio, Upload, CheckCircle, Clock, AlertCircle,
   Download, Play, Loader2, FolderOpen
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
+import { useUnlockContribution } from '@/hooks/useUnlockContribution';
+import { attributionToasts } from '@/components/unlock/UnlockAttributionToast';
 
 interface Deliverable {
   id: string;
@@ -35,6 +37,7 @@ export function SessionDeliverables({ sessionId, isHost }: SessionDeliverablesPr
   const [deliverables, setDeliverables] = useState<Deliverable[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const { getContributionMessage } = useUnlockContribution();
 
   useEffect(() => {
     fetchDeliverables();
@@ -42,12 +45,26 @@ export function SessionDeliverables({ sessionId, isHost }: SessionDeliverablesPr
 
   const fetchDeliverables = async () => {
     try {
-      // Note: We're querying engineer_deliverables and filtering by project
-      // In a real app, you'd have a session_deliverables table or link sessions to projects
-      const { data, error } = await supabase
+      // Fetch deliverables scoped to this session's project
+      // First get the session to find the linked project
+      const { data: session } = await supabase
+        .from('collaboration_sessions')
+        .select('id, session_state')
+        .eq('id', sessionId)
+        .single();
+
+      let query = supabase
         .from('engineer_deliverables')
         .select('*')
         .order('created_at', { ascending: false });
+
+      // If session has a linked project, filter by it
+      const projectId = session?.session_state?.project_id;
+      if (projectId) {
+        query = query.eq('project_id', projectId);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
 
@@ -60,8 +77,8 @@ export function SessionDeliverables({ sessionId, isHost }: SessionDeliverablesPr
           .in('id', engineerIds);
 
         const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
-        
-        setDeliverables(data.slice(0, 5).map(d => ({
+
+        setDeliverables(data.slice(0, 10).map(d => ({
           ...d,
           engineer: profileMap.get(d.engineer_id)
         })));
@@ -83,12 +100,16 @@ export function SessionDeliverables({ sessionId, isHost }: SessionDeliverablesPr
         .eq('id', deliverableId);
 
       if (error) throw error;
-      
+
       toast({
         title: 'Deliverable approved!',
         description: 'The engineer has been notified.',
       });
-      
+
+      // Trigger unlock attribution toast
+      const contribution = getContributionMessage('projects_delivered', 'Delivery');
+      attributionToasts.projectDelivered(contribution);
+
       fetchDeliverables();
     } catch (err) {
       console.error('Error approving deliverable:', err);
@@ -108,12 +129,12 @@ export function SessionDeliverables({ sessionId, isHost }: SessionDeliverablesPr
         .eq('id', deliverableId);
 
       if (error) throw error;
-      
+
       toast({
         title: 'Revision requested',
         description: 'The engineer has been notified.',
       });
-      
+
       fetchDeliverables();
     } catch (err) {
       console.error('Error requesting revision:', err);
@@ -185,7 +206,7 @@ export function SessionDeliverables({ sessionId, isHost }: SessionDeliverablesPr
                 <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
                   <FileAudio className="w-6 h-6 text-primary" />
                 </div>
-                
+
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <h4 className="font-medium truncate">{deliverable.file_name}</h4>
@@ -218,14 +239,14 @@ export function SessionDeliverables({ sessionId, isHost }: SessionDeliverablesPr
                   </Button>
                   {isHost && deliverable.status === 'pending' && (
                     <>
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         size="sm"
                         onClick={() => handleRequestRevision(deliverable.id)}
                       >
                         Request Revision
                       </Button>
-                      <Button 
+                      <Button
                         size="sm"
                         className="bg-green-500 hover:bg-green-600"
                         onClick={() => handleApprove(deliverable.id)}
