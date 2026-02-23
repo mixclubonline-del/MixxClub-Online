@@ -27,7 +27,7 @@ const PILLARS: PillarDef[] = [
     icon: Lock,
     label: 'Unlockables',
     prompt:
-      'A futuristic progression matrix floating in a dark space, five glowing pathways radiating from a central hub, each path a different color (purple, cyan, amber, pink, green), tiered milestone markers along each path like checkpoints in a video game, holographic achievement badges orbiting the structure, dark background with subtle grid lines, music industry aesthetic meets sci-fi RPG progression system, ultra high resolution',
+      'Close-up of a young Black music producer\'s hands holding a glowing holographic trophy in a dimly lit home studio, shelves behind them filled with achievement plaques and gold records, LED strip lighting casting purple and amber gradients across the walls, vintage drum machine and modern laptop visible on the desk, streetwear hoodie sleeves visible, cinematic shallow depth of field, moody atmosphere, ultra high resolution',
     accentColor: 'hsl(263 70% 63%)',
   },
   {
@@ -36,7 +36,7 @@ const PILLARS: PillarDef[] = [
     icon: Swords,
     label: 'Battles',
     prompt:
-      'Two music producers facing off in a neon-lit arena, turntables and mixing consoles as weapons, crowd of spectators visible in silhouette behind glowing barriers, scoreboard floating above showing versus scores, purple and red lighting clash in the center, hip-hop battle culture meets esports arena, dramatic spotlight, smoke effects, urban energy, ultra high resolution',
+      'Wide-angle shot of two hip-hop producers going head-to-head on stage at an underground beat battle event, crowd of Black and Latino fans packed tight behind chain-link barriers, red and blue spotlights slicing through haze, one producer on MPC the other on SP-404, large LED screen behind showing waveform visualizations, raw urban venue with exposed brick and graffiti, photojournalistic style, ultra high resolution',
     accentColor: 'hsl(350 80% 55%)',
   },
   {
@@ -45,7 +45,7 @@ const PILLARS: PillarDef[] = [
     icon: ShoppingBag,
     label: 'Merch',
     prompt:
-      'A sleek digital storefront floating in space, holographic product displays showing vinyl records, beat packs, branded streetwear, preset bundles, and sample pack cubes, neon price tags in MixxCoinz currency, shopping cart with glowing items, modern e-commerce meets music culture aesthetic, clean dark UI with accent lighting, ultra high resolution',
+      'Flat-lay product photography of a curated streetwear merch collection on a matte black surface, items include a premium embroidered hoodie with a glowing logo, vinyl record in holographic sleeve, USB drive shaped like a mixing fader, enamel pin set on branded backing card, sticker pack fanning out, soft dramatic top-lighting with purple and cyan rim accents, editorial product photography style, ultra high resolution',
     accentColor: 'hsl(160 84% 40%)',
   },
   {
@@ -54,7 +54,7 @@ const PILLARS: PillarDef[] = [
     icon: GraduationCap,
     label: 'Learning',
     prompt:
-      'A masterclass in session inside a futuristic studio classroom, a veteran engineer at a massive mixing console teaching a small group, holographic waveforms and EQ curves floating in the air as visual aids, certification badges displayed on the wall, warm amber and cyan lighting, knowledge transfer moment, mentorship atmosphere, professional music education, ultra high resolution',
+      'African American veteran audio engineer mentoring a young Latino producer at a professional mixing console in a world-class recording studio, acoustic panels and outboard gear racks visible, large studio monitors glowing softly, holographic EQ overlay floating above the console, warm amber key light with cool cyan fill, both wearing streetwear, intimate knowledge-transfer moment captured in cinematic style, ultra high resolution',
     accentColor: 'hsl(180 100% 50%)',
   },
   {
@@ -63,7 +63,7 @@ const PILLARS: PillarDef[] = [
     icon: Radio,
     label: 'Sessions',
     prompt:
-      'A live collaborative music session viewed through a floating holographic screen, multiple participants visible in small video panels around a central waveform visualization, real-time chat messages scrolling, listening party atmosphere with glowing audio meters, purple and pink neon accents, community gathering around music being created, intimate yet connected feeling, ultra high resolution',
+      'Overhead birds-eye shot of a late-night collaborative music session, four producers gathered around a central desk covered in controllers, laptops, and microphones, takeout containers and energy drinks scattered naturally, faces lit by multiple screens showing DAW sessions, string lights and LED panels providing warm purple and pink ambient glow, authentic creative chaos, documentary photography style, ultra high resolution',
     accentColor: 'hsl(330 80% 60%)',
   },
 ];
