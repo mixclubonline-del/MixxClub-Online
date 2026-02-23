@@ -16,7 +16,7 @@ import { useAuth } from '@/hooks/useAuth';
 
 export const FeaturedRotation: React.FC = () => {
     const { user } = useAuth();
-    const { beats, isLoading } = useProducerBeats(user?.id);
+    const { beats, isLoading } = useProducerBeats();
 
     if (isLoading) {
         return <HubSkeleton variant="list" count={5} />;
@@ -68,14 +68,14 @@ export const FeaturedRotation: React.FC = () => {
                                     <h4 className="text-sm font-medium text-foreground truncate">{beat.title}</h4>
                                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                         <span>{beat.bpm || '—'} BPM</span>
-                                        {beat.key && <span>• {beat.key}</span>}
+                                        {beat.key_signature && <span>• {beat.key_signature}</span>}
                                         {beat.genre && <span>• {beat.genre}</span>}
                                     </div>
                                 </div>
 
                                 <div className="flex items-center gap-3 flex-shrink-0">
-                                    {beat.price && (
-                                        <span className="text-sm font-medium text-emerald-400">${beat.price}</span>
+                                    {beat.price_cents && (
+                                        <span className="text-sm font-medium text-emerald-400">${(beat.price_cents / 100).toFixed(2)}</span>
                                     )}
                                     {index < 5 && (
                                         <Badge className="bg-amber-500/10 text-amber-400 border-amber-500/20 text-xs">

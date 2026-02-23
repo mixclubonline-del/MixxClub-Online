@@ -253,7 +253,7 @@ export const ProactivePrimeBot = ({ userType, onNavigate }: ProactivePrimeBotPro
       }
 
       // Session Invitations Waiting
-      const { data: sessionInvites } = await supabase
+      const { data: sessionInvites } = await (supabase as any)
         .from('session_participants')
         .select('session_id')
         .eq('user_id', user.id)
@@ -279,7 +279,7 @@ export const ProactivePrimeBot = ({ userType, onNavigate }: ProactivePrimeBotPro
           .from('engineer_deliverables')
           .select('id, file_name, delivery_type')
           .eq('status', 'submitted')
-          .limit(5);
+          .limit(5) as any;
 
         if (pendingDeliverables && pendingDeliverables.length > 0) {
           newInsights.push({
@@ -304,7 +304,7 @@ export const ProactivePrimeBot = ({ userType, onNavigate }: ProactivePrimeBotPro
         .eq('unlock_type', 'community')
         .order('tier', { ascending: true })
         .limit(1)
-        .maybeSingle();
+        .maybeSingle() as any;
 
       if (nextUnlock) {
         const remaining = nextUnlock.target_value - nextUnlock.current_value;

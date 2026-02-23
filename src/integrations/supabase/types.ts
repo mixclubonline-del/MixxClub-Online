@@ -73,6 +73,7 @@ export type Database = {
           icon: string | null
           id: string
           metadata: Json | null
+          name: string | null
           title: string
           user_id: string
         }
@@ -86,6 +87,7 @@ export type Database = {
           icon?: string | null
           id?: string
           metadata?: Json | null
+          name?: string | null
           title: string
           user_id: string
         }
@@ -99,6 +101,7 @@ export type Database = {
           icon?: string | null
           id?: string
           metadata?: Json | null
+          name?: string | null
           title?: string
           user_id?: string
         }
@@ -6070,6 +6073,7 @@ export type Database = {
           follower_count: number | null
           following_count: number | null
           full_name: string | null
+          genre: string | null
           genre_specialties: Json | null
           id: string
           is_available_for_collab: boolean | null
@@ -6105,6 +6109,7 @@ export type Database = {
           follower_count?: number | null
           following_count?: number | null
           full_name?: string | null
+          genre?: string | null
           genre_specialties?: Json | null
           id: string
           is_available_for_collab?: boolean | null
@@ -6140,6 +6145,7 @@ export type Database = {
           follower_count?: number | null
           following_count?: number | null
           full_name?: string | null
+          genre?: string | null
           genre_specialties?: Json | null
           id?: string
           is_available_for_collab?: boolean | null
@@ -6458,6 +6464,7 @@ export type Database = {
         Row: {
           bpm: number | null
           client_id: string | null
+          completed_at: string | null
           created_at: string
           deadline: string | null
           description: string | null
@@ -6478,6 +6485,7 @@ export type Database = {
         Insert: {
           bpm?: number | null
           client_id?: string | null
+          completed_at?: string | null
           created_at?: string
           deadline?: string | null
           description?: string | null
@@ -6498,6 +6506,7 @@ export type Database = {
         Update: {
           bpm?: number | null
           client_id?: string | null
+          completed_at?: string | null
           created_at?: string
           deadline?: string | null
           description?: string | null

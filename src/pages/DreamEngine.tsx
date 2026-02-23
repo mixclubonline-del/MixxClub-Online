@@ -15,6 +15,7 @@ import { PromptCard } from '@/components/dream/PromptCard';
 import { FreeformDream } from '@/components/dream/FreeformDream';
 import { HistoryPanel } from '@/components/dream/HistoryPanel';
 import { DemoPhaseGenerator } from '@/components/dream/DemoPhaseGenerator';
+import { CommunityPillarDreamer } from '@/components/journey/CommunityPillarDreamer';
 
 // ============================================
 // PROMPT PRESETS (Organized by context)
@@ -337,6 +338,9 @@ export default function DreamEngine() {
       <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">
         {/* Demo Phase Generator */}
         <DemoPhaseGenerator />
+
+        {/* Community Pillar Dreamer */}
+        <CommunityPillarDreamer />
 
         {/* Generation Preview (when pending) */}
         <AnimatePresence>

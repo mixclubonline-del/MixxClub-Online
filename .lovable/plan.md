@@ -1,104 +1,30 @@
 
 
-## Phase 3: Build Error Cleanup
+# Update Community Pillar Dreamer Prompts -- New Visual Styles
 
-Five surgical fixes across frontend and edge functions to clear all TypeScript build errors. None of these errors were introduced by the demo expansion — they are pre-existing issues surfaced by the type checker.
+## What Changes
 
----
+Replace all five prompts in `src/components/journey/CommunityPillarDreamer.tsx` with new visual directions that lean harder into authentic hip-hop culture, real-world studio environments, and cinematic photography -- aligned with the 2026 Visual Doctrine and culture-first representation mandate.
 
-### Fix 1: Duplicate Import in SceneFlow.tsx
+## New Visual Direction
 
-**File**: `src/components/home/SceneFlow.tsx`
+The current prompts skew "floating in space / holographic." The new style pivots to **cinematic street-studio realism** -- real people in real environments with dramatic lighting, grounded in hip-hop culture while keeping the futuristic tech edge.
 
-**Problem**: Lines 11-12 have two conflicting imports from `react-router-dom`:
-```
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-```
-`useNavigate` and `useSearchParams` are imported twice, causing a compile error.
+## Updated Prompts
 
-**Fix**: Merge into a single import:
-```typescript
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-```
+| Pillar | New Style | New Prompt |
+|---|---|---|
+| **Unlockables** | Street RPG Trophy Wall | "Close-up of a young Black music producer's hands holding a glowing holographic trophy in a dimly lit home studio, shelves behind them filled with achievement plaques and gold records, LED strip lighting casting purple and amber gradients across the walls, vintage drum machine and modern laptop visible on the desk, streetwear hoodie sleeves visible, cinematic shallow depth of field, moody atmosphere, ultra high resolution" |
+| **Battles** | Live Cypher Energy | "Wide-angle shot of two hip-hop producers going head-to-head on stage at an underground beat battle event, crowd of Black and Latino fans packed tight behind chain-link barriers, red and blue spotlights slicing through haze, one producer on MPC the other on SP-404, large LED screen behind showing waveform visualizations, raw urban venue with exposed brick and graffiti, photojournalistic style, ultra high resolution" |
+| **Merch** | Streetwear Drop Layout | "Flat-lay product photography of a curated streetwear merch collection on a matte black surface, items include a premium embroidered hoodie with a glowing logo, vinyl record in holographic sleeve, USB drive shaped like a mixing fader, enamel pin set on branded backing card, sticker pack fanning out, soft dramatic top-lighting with purple and cyan rim accents, editorial product photography style, ultra high resolution" |
+| **Learning** | Mentorship Moment | "African American veteran audio engineer mentoring a young Latino producer at a professional mixing console in a world-class recording studio, acoustic panels and outboard gear racks visible, large studio monitors glowing softly, holographic EQ overlay floating above the console, warm amber key light with cool cyan fill, both wearing streetwear, intimate knowledge-transfer moment captured in cinematic style, ultra high resolution" |
+| **Sessions** | Late Night Collab | "Overhead birds-eye shot of a late-night collaborative music session, four producers gathered around a central desk covered in controllers, laptops, and microphones, takeout containers and energy drinks scattered naturally, faces lit by multiple screens showing DAW sessions, string lights and LED panels providing warm purple and pink ambient glow, authentic creative chaos, documentary photography style, ultra high resolution" |
 
----
-
-### Fix 2: Beat Producer Join Returns Array
-
-**File**: `supabase/functions/create-beat-checkout/index.ts`
-
-**Problem**: Line 148 accesses `beat.producer?.full_name` but the Supabase `.select()` join `producer:producer_id(id, username, full_name)` returns an array type, not a single object. TypeScript correctly flags that `.full_name` does not exist on an array.
-
-**Fix**: Normalize the join result before accessing properties:
-```typescript
-// Line 148 — replace:
-const producerName = beat.producer?.full_name || beat.producer?.username || 'Producer';
-
-// With:
-const producer = Array.isArray(beat.producer) ? beat.producer[0] : beat.producer;
-const producerName = producer?.full_name || producer?.username || 'Producer';
-```
-
----
-
-### Fix 3: Unknown Error Type in request-payout
-
-**File**: `supabase/functions/request-payout/index.ts`
-
-**Problem**: Line 64 accesses `error.message` but the `catch` block types `error` as `unknown` in strict mode.
-
-**Fix**: Replace `error.message` with `error instanceof Error ? error.message : 'Unknown error'`.
-
----
-
-### Fix 4: Unknown Error Type in send-push-notification
-
-**File**: `supabase/functions/send-push-notification/index.ts`
-
-**Problem**: Same issue as Fix 3 — line 377 accesses `error.message` on an `unknown` type.
-
-**Fix**: Replace `error.message` with `error instanceof Error ? error.message : 'Unknown error'`.
-
----
-
-### Fix 5: Supabase Client Type Mismatch in stripe-webhook
-
-**File**: `supabase/functions/stripe-webhook/index.ts`
-
-**Problem**: All helper functions use `supabase: ReturnType<typeof createClient>` as their parameter type. The `createClient` call on line 44 returns `SupabaseClient<any, "public", ...>` but `ReturnType<typeof createClient>` resolves to a different generic signature, causing 6+ type errors on every function call.
-
-**Fix**: Replace `ReturnType<typeof createClient>` with a simple `any` type alias across all helper functions. This is a webhook handler — the Supabase client is created internally with a service role key, so strict typing on the client parameter adds no safety value.
-
-Change all ~13 helper function signatures from:
-```typescript
-async function handleCheckoutCompleted(
-  supabase: ReturnType<typeof createClient>,
-  ...
-```
-to:
-```typescript
-// deno-lint-ignore no-explicit-any
-type SupabaseAdmin = any;
-
-async function handleCheckoutCompleted(
-  supabase: SupabaseAdmin,
-  ...
-```
-
-Define `type SupabaseAdmin = any;` once near the top of the file (after imports), then use it in all 13 function signatures.
-
----
-
-### Files Modified
+## File Changes
 
 | File | Change |
 |---|---|
-| `src/components/home/SceneFlow.tsx` | Merge duplicate react-router-dom imports into one line |
-| `supabase/functions/create-beat-checkout/index.ts` | Normalize array join result before accessing producer name |
-| `supabase/functions/request-payout/index.ts` | Type-narrow error in catch block |
-| `supabase/functions/send-push-notification/index.ts` | Type-narrow error in catch block |
-| `supabase/functions/stripe-webhook/index.ts` | Replace `ReturnType<typeof createClient>` with `SupabaseAdmin` type alias in all 13 helper functions |
+| `src/components/journey/CommunityPillarDreamer.tsx` | Replace 5 prompt strings in the PILLARS array (lines 29-67) |
 
-No new files. No database changes. No new dependencies. Pure type-safety cleanup.
+No other files change. After updating, hit "Dream All Pillars" in the Dream Chamber to generate the new imagery.
 

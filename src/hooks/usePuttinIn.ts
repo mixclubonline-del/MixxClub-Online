@@ -102,17 +102,17 @@ export function usePuttinIn() {
           supabase
             .from('projects')
             .select('id', { count: 'exact', head: true })
-            .or(`artist_id.eq.${user.id},engineer_id.eq.${user.id}`),
+            .or(`user_id.eq.${user.id},engineer_id.eq.${user.id}`),
           // Support: achievements earned
           supabase
-            .from('user_achievements')
+            .from('achievements')
             .select('id', { count: 'exact', head: true })
             .eq('user_id', user.id),
           // Attention: matches accepted
           supabase
             .from('user_matches')
             .select('id', { count: 'exact', head: true })
-            .or(`artist_id.eq.${user.id},engineer_id.eq.${user.id}`)
+            .or(`user_id.eq.${user.id},matched_user_id.eq.${user.id}`)
             .eq('status', 'accepted'),
         ]);
 

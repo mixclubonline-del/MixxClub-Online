@@ -121,7 +121,7 @@ export const SessionCommandCenter = ({ userType }: SessionCommandCenterProps) =>
             const { data: participantEntries } = await supabase
                 .from('session_participants')
                 .select('session_id, status, role')
-                .eq('user_id', user.id);
+                .eq('user_id', user.id) as any;
 
             if (participantEntries && participantEntries.length > 0) {
                 const sessionIds = participantEntries.map(p => p.session_id);
