@@ -9,6 +9,7 @@ import JourneyGateway from "@/components/journey/JourneyGateway";
 import type { JourneyRole } from "@/components/journey/JourneyGateway";
 import JourneyDestination from "@/components/journey/JourneyDestination";
 import EcosystemFlow from "@/components/journey/EcosystemFlow";
+import CommunityShowcase from "@/components/journey/CommunityShowcase";
 import { ShowcaseJourney, ShowcaseStep } from "@/components/services/ShowcaseJourney";
 import journeyPathImage from "@/assets/journey-path.jpg";
 
@@ -238,6 +239,9 @@ const HowItWorks = () => {
 
           {/* Ecosystem interconnection diagram */}
           <EcosystemFlow />
+
+          {/* Community showcase — shared ecosystem layer */}
+          <CommunityShowcase />
 
           {/* Destination CTA */}
           <JourneyDestination role={activeRole} />
