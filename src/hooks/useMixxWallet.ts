@@ -87,7 +87,7 @@ export function useMixxWallet() {
       if (!user?.id) throw new Error('Not authenticated');
 
       // Atomic RPC — math + locking + transaction recording all in Postgres
-      const { data, error } = await supabase.rpc('earn_coinz', {
+      const { data, error } = await (supabase.rpc as any)('earn_coinz', {
         p_user_id: user.id,
         p_amount: amount,
         p_source: source,
@@ -135,7 +135,7 @@ export function useMixxWallet() {
       if (!user?.id) throw new Error('Not authenticated');
 
       // Atomic RPC — balance check + math + locking + transactions all in Postgres
-      const { data, error } = await supabase.rpc('spend_coinz', {
+      const { data, error } = await (supabase.rpc as any)('spend_coinz', {
         p_user_id: user.id,
         p_amount: amount,
         p_source: source,

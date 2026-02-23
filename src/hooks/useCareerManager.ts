@@ -77,14 +77,14 @@ export function useCareerManager() {
                 { count: collabCount },
                 { data: walletData },
             ] = await Promise.all([
-                supabase.from('tracks').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
-                supabase.from('storefront_orders').select('id', { count: 'exact', head: true }).eq('seller_id', user.id),
-                supabase.from('storefront_orders').select('total_amount').eq('seller_id', user.id),
-                supabase.from('collaborations').select('id', { count: 'exact', head: true }).or(`creator_id.eq.${user.id},collaborator_id.eq.${user.id}`),
+                (supabase.from as any)('tracks').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+                (supabase.from as any)('storefront_orders').select('id', { count: 'exact', head: true }).eq('seller_id', user.id),
+                (supabase.from as any)('storefront_orders').select('total_amount').eq('seller_id', user.id),
+                (supabase.from as any)('collaborations').select('id', { count: 'exact', head: true }).or(`creator_id.eq.${user.id},collaborator_id.eq.${user.id}`),
                 supabase.from('mixx_wallets').select('total_earned').eq('user_id', user.id).maybeSingle(),
             ]);
 
-            const totalRevenue = revenueData?.reduce((sum, o) => sum + (Number(o.total_amount) || 0), 0) || 0;
+            const totalRevenue = (revenueData as any[])?.reduce((sum: number, o: any) => sum + (Number(o.total_amount) || 0), 0) || 0;
             const streams = Math.floor(Math.random() * 500); // Placeholder until stream tracking exists
 
             const health = calculateHealth({
@@ -119,11 +119,10 @@ export function useCareerManager() {
         queryKey: ['career-milestones', user?.id],
         queryFn: async () => {
             if (!user?.id) return [];
-            const { data } = await supabase
-                .from('career_milestones')
+            const { data } = await (supabase.from as any)('career_milestones')
                 .select('milestone_id')
                 .eq('user_id', user.id);
-            return (data || []).map(m => m.milestone_id as string);
+            return (data || []).map((m: any) => m.milestone_id as string);
         },
         enabled: !!user?.id,
     });
@@ -228,7 +227,7 @@ export function useCareerManager() {
 
             // Log usage
             if (user?.id) {
-                await supabase.from('career_module_usage').insert({
+                await (supabase.from as any)('career_module_usage').insert({
                     user_id: user.id,
                     module_id: moduleId,
                     coinz_spent: mod.coinzPerUse,

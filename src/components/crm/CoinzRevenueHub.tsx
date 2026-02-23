@@ -27,7 +27,7 @@ export function CoinzRevenueHub() {
     const { revenue, isLoading } = useCoinzRevenue();
     const { totalBalance } = useMixxWallet();
 
-    if (isLoading) return <HubSkeleton />;
+    if (isLoading) return <HubSkeleton variant="stats" />;
 
     const maxDaily = Math.max(...(revenue?.dailyRevenue?.map(d => d.amount) || [1]), 1);
 

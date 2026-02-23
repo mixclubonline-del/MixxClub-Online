@@ -22,45 +22,28 @@ export interface MixxEvent {
     id: string;
     storefront_id: string;
     creator_id: string;
-    /** Event title */
     title: string;
     description?: string;
-    /** Flyer / poster image */
     flyer_url?: string;
-    /** Gallery images */
     gallery: string[];
     event_type: EventType;
-    /** Event date & time */
     event_date: string;
-    /** End time (optional) */
     end_date?: string;
-    /** Doors open time */
     doors_open?: string;
-    /** Venue info */
     venue_name: string;
     venue_type: VenueType;
     venue_address?: string;
     venue_city?: string;
     venue_state?: string;
-    /** Virtual event link */
     stream_url?: string;
-    /** Total capacity */
     capacity: number;
-    /** Tickets sold across all tiers */
     tickets_sold: number;
-    /** Check-ins */
     checked_in: number;
-    /** Revenue */
     total_revenue: number;
-    /** Status */
     status: EventStatus;
-    /** Accept coinz */
     accept_coinz: boolean;
-    /** Minimum age (0 = all ages) */
     age_minimum: number;
-    /** Performing artists (for multi-artist events) */
     lineup: LineupEntry[];
-    /** Tags */
     tags: string[];
     created_at: string;
     updated_at: string;
@@ -77,23 +60,15 @@ export interface EventTicketTier {
     id: string;
     event_id: string;
     tier: TicketTier;
-    /** Custom name override */
     custom_name?: string;
     price: number;
     coinz_price?: number;
-    /** Quantity available for this tier */
     quantity: number;
-    /** Sold for this tier */
     sold: number;
-    /** Max per customer */
     limit_per_person: number;
-    /** Is this tier still available */
     is_active: boolean;
-    /** Sale start (for early bird / phased releases) */
     sale_start?: string;
-    /** Sale end */
     sale_end?: string;
-    /** Custom perks for this tier */
     perks: string[];
     sort_order: number;
 }
@@ -103,18 +78,13 @@ export interface Ticket {
     event_id: string;
     tier_id: string;
     buyer_id: string;
-    /** Unique ticket code for QR */
     ticket_code: string;
     tier: TicketTier;
-    /** Buyer name for the ticket */
     attendee_name: string;
-    /** Price paid */
     amount_paid: number;
     coinz_used: number;
     status: TicketStatus;
-    /** Check-in timestamp */
     checked_in_at?: string;
-    /** Transferred to user ID */
     transferred_to?: string;
     created_at: string;
 }
@@ -159,6 +129,9 @@ interface PurchaseTicketInput {
     coinzUsed?: number;
 }
 
+// Helper to access tables not yet in generated types
+const fromAny = (table: string) => (supabase.from as any)(table);
+
 // ═══════════════════════════════════════════
 // HOOK
 // ═══════════════════════════════════════════
@@ -173,8 +146,7 @@ export function useEventTickets(storefrontId?: string) {
     const eventsQuery = useQuery({
         queryKey: ['events', storefrontId],
         queryFn: async () => {
-            let query = supabase
-                .from('mixx_events')
+            let query = fromAny('mixx_events')
                 .select('*')
                 .order('event_date', { ascending: true });
 
@@ -195,8 +167,7 @@ export function useEventTickets(storefrontId?: string) {
         queryKey: ['event-tiers', eventId],
         queryFn: async () => {
             if (!eventId) return [];
-            const { data, error } = await supabase
-                .from('event_ticket_tiers')
+            const { data, error } = await fromAny('event_ticket_tiers')
                 .select('*')
                 .eq('event_id', eventId)
                 .order('sort_order', { ascending: true });
@@ -213,8 +184,7 @@ export function useEventTickets(storefrontId?: string) {
         queryKey: ['my-tickets', user?.id],
         queryFn: async () => {
             if (!user?.id) return [];
-            const { data, error } = await supabase
-                .from('event_tickets')
+            const { data, error } = await fromAny('event_tickets')
                 .select('*')
                 .eq('buyer_id', user.id)
                 .order('created_at', { ascending: false });
@@ -231,8 +201,7 @@ export function useEventTickets(storefrontId?: string) {
         mutationFn: async (input: CreateEventInput) => {
             if (!user?.id || !storefrontId) throw new Error('Not authenticated');
 
-            const { data, error } = await supabase
-                .from('mixx_events')
+            const { data, error } = await fromAny('mixx_events')
                 .insert({
                     storefront_id: storefrontId,
                     creator_id: user.id,
@@ -279,13 +248,11 @@ export function useEventTickets(storefrontId?: string) {
 
     const addTierMutation = useMutation({
         mutationFn: async ({ eventId, input }: { eventId: string; input: CreateTierInput }) => {
-            const { count } = await supabase
-                .from('event_ticket_tiers')
+            const { count } = await fromAny('event_ticket_tiers')
                 .select('id', { count: 'exact', head: true })
                 .eq('event_id', eventId);
 
-            const { data, error } = await supabase
-                .from('event_ticket_tiers')
+            const { data, error } = await fromAny('event_ticket_tiers')
                 .insert({
                     event_id: eventId,
                     tier: input.tier,
@@ -320,20 +287,19 @@ export function useEventTickets(storefrontId?: string) {
             if (!user?.id) throw new Error('Not authenticated');
 
             // Fetch tier
-            const { data: tier, error: tierErr } = await supabase
-                .from('event_ticket_tiers')
+            const { data: tierData, error: tierErr } = await fromAny('event_ticket_tiers')
                 .select('*')
                 .eq('id', input.tierId)
                 .single();
 
-            if (tierErr || !tier) throw new Error('Ticket tier not found');
+            if (tierErr || !tierData) throw new Error('Ticket tier not found');
+            const tier = tierData as any;
             if (tier.sold >= tier.quantity) throw new Error('This tier is sold out');
 
             // Generate unique ticket code
             const ticketCode = `MX-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
 
-            const { data: ticket, error: ticketErr } = await supabase
-                .from('event_tickets')
+            const { data: ticket, error: ticketErr } = await fromAny('event_tickets')
                 .insert({
                     event_id: input.eventId,
                     tier_id: input.tierId,
@@ -351,8 +317,7 @@ export function useEventTickets(storefrontId?: string) {
             if (ticketErr) throw ticketErr;
 
             // Update tier sold count
-            await supabase
-                .from('event_ticket_tiers')
+            await fromAny('event_ticket_tiers')
                 .update({ sold: tier.sold + 1, is_active: tier.sold + 1 < tier.quantity })
                 .eq('id', input.tierId);
 
@@ -360,8 +325,7 @@ export function useEventTickets(storefrontId?: string) {
             const event = eventsQuery.data?.find(e => e.id === input.eventId);
             if (event) {
                 const newSold = event.tickets_sold + 1;
-                await supabase
-                    .from('mixx_events')
+                await fromAny('mixx_events')
                     .update({
                         tickets_sold: newSold,
                         total_revenue: event.total_revenue + tier.price,
@@ -390,25 +354,23 @@ export function useEventTickets(storefrontId?: string) {
 
     const checkInMutation = useMutation({
         mutationFn: async (ticketCode: string) => {
-            const { data: ticket, error: findErr } = await supabase
-                .from('event_tickets')
+            const { data: ticketData, error: findErr } = await fromAny('event_tickets')
                 .select('*')
                 .eq('ticket_code', ticketCode)
                 .single();
 
-            if (findErr || !ticket) throw new Error('Ticket not found');
+            if (findErr || !ticketData) throw new Error('Ticket not found');
+            const ticket = ticketData as any;
             if (ticket.status !== 'valid') throw new Error(`Ticket is ${ticket.status}`);
 
-            await supabase
-                .from('event_tickets')
+            await fromAny('event_tickets')
                 .update({ status: 'used', checked_in_at: new Date().toISOString() })
                 .eq('id', ticket.id);
 
             // Update event check-in count
             const event = eventsQuery.data?.find(e => e.id === ticket.event_id);
             if (event) {
-                await supabase
-                    .from('mixx_events')
+                await fromAny('mixx_events')
                     .update({ checked_in: event.checked_in + 1 })
                     .eq('id', ticket.event_id);
             }
@@ -428,8 +390,7 @@ export function useEventTickets(storefrontId?: string) {
 
     const transferTicketMutation = useMutation({
         mutationFn: async ({ ticketId, toUserId }: { ticketId: string; toUserId: string }) => {
-            const { error } = await supabase
-                .from('event_tickets')
+            const { error } = await fromAny('event_tickets')
                 .update({
                     status: 'transferred',
                     transferred_to: toUserId,
@@ -439,22 +400,21 @@ export function useEventTickets(storefrontId?: string) {
             if (error) throw error;
 
             // Create new ticket for recipient
-            const { data: original } = await supabase
-                .from('event_tickets')
+            const { data: original } = await fromAny('event_tickets')
                 .select('*')
                 .eq('id', ticketId)
                 .single();
 
             if (original) {
+                const o = original as any;
                 const newCode = `MX-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
-                await supabase
-                    .from('event_tickets')
+                await fromAny('event_tickets')
                     .insert({
-                        event_id: original.event_id,
-                        tier_id: original.tier_id,
+                        event_id: o.event_id,
+                        tier_id: o.tier_id,
                         buyer_id: toUserId,
                         ticket_code: newCode,
-                        tier: original.tier,
+                        tier: o.tier,
                         attendee_name: 'Transferred Ticket',
                         amount_paid: 0,
                         coinz_used: 0,
@@ -472,8 +432,7 @@ export function useEventTickets(storefrontId?: string) {
 
     const updateEventStatusMutation = useMutation({
         mutationFn: async ({ eventId, status }: { eventId: string; status: EventStatus }) => {
-            const { error } = await supabase
-                .from('mixx_events')
+            const { error } = await fromAny('mixx_events')
                 .update({ status, updated_at: new Date().toISOString() })
                 .eq('id', eventId);
             if (error) throw error;
