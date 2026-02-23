@@ -18,9 +18,7 @@ export interface GatedItem {
     description: string;
     content_type: 'stems' | 'tutorial' | 'behind_scenes' | 'early_access' | 'sample_pack' | 'preset' | 'custom';
     coinz_price: number;
-    /** URL revealed after unlock */
     content_url: string;
-    /** Preview image/text shown before unlock */
     preview_url?: string;
     preview_text?: string;
     total_unlocks: number;
@@ -52,18 +50,19 @@ const CONTENT_TYPE_LABELS: Record<string, { label: string; emoji: string }> = {
     custom: { label: 'Exclusive', emoji: '✨' },
 };
 
+// Helper for tables not yet in generated types
+const fromAny = (table: string) => (supabase.from as any)(table);
+
 export function useGatedContent(creatorId?: string) {
     const { user } = useAuth();
     const { toast } = useToast();
     const queryClient = useQueryClient();
     const { spendCoinz, canAfford } = useMixxWallet();
 
-    // Fetch gated items (all for a creator, or all active)
     const itemsQuery = useQuery({
         queryKey: ['gated-content', creatorId],
         queryFn: async () => {
-            let query = supabase
-                .from('gated_content')
+            let query = fromAny('gated_content')
                 .select('*')
                 .eq('is_active', true)
                 .order('created_at', { ascending: false });
@@ -79,13 +78,11 @@ export function useGatedContent(creatorId?: string) {
         staleTime: 30000,
     });
 
-    // Fetch user's unlocks
     const unlocksQuery = useQuery({
         queryKey: ['gated-unlocks', user?.id],
         queryFn: async () => {
             if (!user?.id) return [];
-            const { data, error } = await supabase
-                .from('gated_content_unlocks')
+            const { data, error } = await fromAny('gated_content_unlocks')
                 .select('*')
                 .eq('user_id', user.id);
 
@@ -95,7 +92,6 @@ export function useGatedContent(creatorId?: string) {
         enabled: !!user?.id,
     });
 
-    // Combine items with unlock status
     const itemsWithUnlocks: GatedItemWithUnlock[] = (itemsQuery.data || []).map(item => {
         const unlock = unlocksQuery.data?.find(u => u.item_id === item.id);
         return {
@@ -105,7 +101,6 @@ export function useGatedContent(creatorId?: string) {
         };
     });
 
-    // Create gated item (artist-facing)
     const createItemMutation = useMutation({
         mutationFn: async (input: {
             title: string;
@@ -118,8 +113,7 @@ export function useGatedContent(creatorId?: string) {
         }) => {
             if (!user?.id) throw new Error('Not authenticated');
 
-            const { data, error } = await supabase
-                .from('gated_content')
+            const { data, error } = await fromAny('gated_content')
                 .insert({
                     creator_id: user.id,
                     ...input,
@@ -149,7 +143,6 @@ export function useGatedContent(creatorId?: string) {
         },
     });
 
-    // Unlock gated item (fan-facing)
     const unlockItemMutation = useMutation({
         mutationFn: async (itemId: string) => {
             if (!user?.id) throw new Error('Not authenticated');
@@ -158,11 +151,9 @@ export function useGatedContent(creatorId?: string) {
             if (!item) throw new Error('Item not found');
             if (!canAfford(item.coinz_price)) throw new Error('Insufficient MixxCoinz');
 
-            // Already unlocked?
             const alreadyUnlocked = unlocksQuery.data?.some(u => u.item_id === itemId);
             if (alreadyUnlocked) throw new Error('Already unlocked');
 
-            // Spend coinz
             await spendCoinz({
                 amount: item.coinz_price,
                 source: 'gated_content',
@@ -171,9 +162,7 @@ export function useGatedContent(creatorId?: string) {
                 referenceId: itemId,
             });
 
-            // Record unlock
-            const { error: unlockError } = await supabase
-                .from('gated_content_unlocks')
+            const { error: unlockError } = await fromAny('gated_content_unlocks')
                 .insert({
                     user_id: user.id,
                     item_id: itemId,
@@ -182,9 +171,7 @@ export function useGatedContent(creatorId?: string) {
 
             if (unlockError) throw unlockError;
 
-            // Update item stats
-            await supabase
-                .from('gated_content')
+            await fromAny('gated_content')
                 .update({
                     total_unlocks: item.total_unlocks + 1,
                     total_revenue: item.total_revenue + item.coinz_price,
@@ -192,7 +179,7 @@ export function useGatedContent(creatorId?: string) {
                 .eq('id', itemId);
 
             // Credit creator atomically
-            await supabase.rpc('earn_coinz', {
+            await (supabase.rpc as any)('earn_coinz', {
                 p_user_id: item.creator_id,
                 p_amount: item.coinz_price,
                 p_source: 'gated_content_sale',

@@ -10,6 +10,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 
+// Helper for tables not yet in generated types
+const fromAny = (table: string) => (supabase.from as any)(table);
+
 export interface InviteCode {
     id: string;
     code: string;
@@ -27,17 +30,15 @@ export interface GenerateCodeOptions {
     label?: string;
     maxUses?: number;
     roleGrant?: 'artist' | 'engineer' | 'producer' | 'fan';
-    expiresAt?: string; // ISO date
+    expiresAt?: string;
 }
 
-// ── Generate a unique MIXX-XXXX-XXXX code ──
 function generateCode(): string {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // No I/O/0/1 for readability
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     const segment = () => Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
     return `MIXX-${segment()}-${segment()}`;
 }
 
-// ── Admin: generate a new invite code ──
 export function useGenerateInviteCode() {
     const queryClient = useQueryClient();
     const { user } = useAuth();
@@ -46,8 +47,7 @@ export function useGenerateInviteCode() {
         mutationFn: async (options: GenerateCodeOptions = {}): Promise<InviteCode> => {
             const code = generateCode();
 
-            const { data, error } = await supabase
-                .from('invite_codes')
+            const { data, error } = await fromAny('invite_codes')
                 .insert({
                     code,
                     label: options.label || null,
@@ -56,7 +56,7 @@ export function useGenerateInviteCode() {
                     expires_at: options.expiresAt || null,
                     created_by: user?.id || null,
                     is_active: true,
-                } as Record<string, unknown>)
+                })
                 .select()
                 .single();
 
@@ -73,12 +73,10 @@ export function useGenerateInviteCode() {
     });
 }
 
-// ── Validate an invite code (public) ──
 export function useValidateInviteCode() {
     return useMutation({
         mutationFn: async (code: string): Promise<{ valid: boolean; message: string; roleGrant?: string }> => {
-            const { data, error } = await supabase
-                .from('invite_codes')
+            const { data, error } = await fromAny('invite_codes')
                 .select('*')
                 .eq('code', code.toUpperCase().trim())
                 .maybeSingle();
@@ -86,30 +84,29 @@ export function useValidateInviteCode() {
             if (error) throw error;
 
             if (!data) return { valid: false, message: 'Invalid invite code' };
-            if (!data.is_active) return { valid: false, message: 'This invite code has been deactivated' };
-            if (data.expires_at && new Date(data.expires_at) < new Date()) {
+            const d = data as any;
+            if (!d.is_active) return { valid: false, message: 'This invite code has been deactivated' };
+            if (d.expires_at && new Date(d.expires_at) < new Date()) {
                 return { valid: false, message: 'This invite code has expired' };
             }
-            if (data.times_used >= data.max_uses) {
+            if (d.times_used >= d.max_uses) {
                 return { valid: false, message: 'This invite code has reached its limit' };
             }
 
             return {
                 valid: true,
                 message: 'Valid invite code',
-                roleGrant: data.role_grant || undefined,
+                roleGrant: d.role_grant || undefined,
             };
         },
     });
 }
 
-// ── Admin: list all invite codes ──
 export function useInviteCodeList() {
     return useQuery({
         queryKey: ['invite-codes'],
         queryFn: async () => {
-            const { data, error } = await supabase
-                .from('invite_codes')
+            const { data, error } = await fromAny('invite_codes')
                 .select('*')
                 .order('created_at', { ascending: false });
 
@@ -119,15 +116,13 @@ export function useInviteCodeList() {
     });
 }
 
-// ── Admin: deactivate/activate a code ──
 export function useToggleInviteCode() {
     const queryClient = useQueryClient();
 
     return useMutation({
         mutationFn: async ({ id, isActive }: { id: string; isActive: boolean }) => {
-            const { error } = await supabase
-                .from('invite_codes')
-                .update({ is_active: isActive } as Record<string, unknown>)
+            const { error } = await fromAny('invite_codes')
+                .update({ is_active: isActive })
                 .eq('id', id);
 
             if (error) throw error;

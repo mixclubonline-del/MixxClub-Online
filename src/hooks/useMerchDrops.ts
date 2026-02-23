@@ -1,13 +1,5 @@
 /**
  * useMerchDrops — Drop lifecycle engine for limited edition merch.
- * 
- * A "drop" is a time-limited collection with:
- * - Scheduled launch date with countdown
- * - Limited quantities per item (scarcity)
- * - Hype metrics (waitlist count, views)
- * - Status transitions: draft → scheduled → live → sold_out/ended
- * 
- * This is what separates MixxClub merch from Shopify.
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -15,6 +7,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import type { DropStatus, GarmentType } from './MerchConfig';
+
+// Helper for tables not yet in generated types
+const fromAny = (table: string) => (supabase.from as any)(table);
 
 // ═══════════════════════════════════════════
 // TYPES
@@ -24,33 +19,20 @@ export interface MerchDrop {
     id: string;
     storefront_id: string;
     creator_id: string;
-    /** Collection name, e.g. "Midnight Sessions Vol. 1" */
     name: string;
     description?: string;
-    /** Hero banner for the drop page */
     banner_url?: string;
-    /** Lookbook images — styled photos of merch */
     lookbook_images: string[];
-    /** When the drop goes live */
     launch_date: string;
-    /** When the drop ends (null = until sold out) */
     end_date?: string;
     status: DropStatus;
-    /** Number of unique items in this drop */
     item_count: number;
-    /** Total quantity across all items */
     total_quantity: number;
-    /** How many have been sold */
     total_sold: number;
-    /** Waitlist signups */
     waitlist_count: number;
-    /** Page views */
     view_count: number;
-    /** Total revenue from this drop in USD */
     total_revenue: number;
-    /** Coinz accepted for this drop */
     accept_coinz: boolean;
-    /** Tags/vibes for discoverability */
     tags: string[];
     created_at: string;
     updated_at: string;
@@ -59,28 +41,18 @@ export interface MerchDrop {
 export interface DropItem {
     id: string;
     drop_id: string;
-    /** Link to merch_products if product already exists */
     product_id?: string;
     name: string;
     description?: string;
     garment_type: GarmentType;
-    /** Primary image */
     image_url?: string;
-    /** Additional images */
     gallery: string[];
-    /** Base price in USD */
     price: number;
-    /** Price in coinz (null = no coinz option) */
     coinz_price?: number;
-    /** Available sizes */
     sizes: string[];
-    /** Available colors */
     colors: string[];
-    /** Total quantity available */
     quantity_total: number;
-    /** Remaining quantity */
     quantity_remaining: number;
-    /** Max per customer */
     limit_per_customer: number;
     sort_order: number;
     created_at: string;
@@ -135,13 +107,10 @@ export function useMerchDrops(storefrontId?: string) {
     const { toast } = useToast();
     const queryClient = useQueryClient();
 
-    // ── Fetch drops ──────────────────────
-
     const dropsQuery = useQuery({
         queryKey: ['merch-drops', storefrontId],
         queryFn: async () => {
-            let query = supabase
-                .from('merch_drops')
+            let query = fromAny('merch_drops')
                 .select('*')
                 .order('launch_date', { ascending: false });
 
@@ -156,14 +125,11 @@ export function useMerchDrops(storefrontId?: string) {
         staleTime: 30000,
     });
 
-    // ── Fetch items for a specific drop ──
-
     const useDropItems = (dropId?: string) => useQuery({
         queryKey: ['merch-drop-items', dropId],
         queryFn: async () => {
             if (!dropId) return [];
-            const { data, error } = await supabase
-                .from('merch_drop_items')
+            const { data, error } = await fromAny('merch_drop_items')
                 .select('*')
                 .eq('drop_id', dropId)
                 .order('sort_order', { ascending: true });
@@ -174,14 +140,11 @@ export function useMerchDrops(storefrontId?: string) {
         enabled: !!dropId,
     });
 
-    // ── Create drop ──────────────────────
-
     const createDropMutation = useMutation({
         mutationFn: async (input: CreateDropInput) => {
             if (!user?.id || !storefrontId) throw new Error('Not authenticated');
 
-            const { data, error } = await supabase
-                .from('merch_drops')
+            const { data, error } = await fromAny('merch_drops')
                 .insert({
                     storefront_id: storefrontId,
                     creator_id: user.id,
@@ -219,20 +182,15 @@ export function useMerchDrops(storefrontId?: string) {
         },
     });
 
-    // ── Add item to drop ──────────────────
-
     const addItemMutation = useMutation({
         mutationFn: async ({ dropId, input }: { dropId: string; input: CreateDropItemInput }) => {
             if (!user?.id) throw new Error('Not authenticated');
 
-            // Get current item count for sort order
-            const { count } = await supabase
-                .from('merch_drop_items')
+            const { count } = await fromAny('merch_drop_items')
                 .select('id', { count: 'exact', head: true })
                 .eq('drop_id', dropId);
 
-            const { data, error } = await supabase
-                .from('merch_drop_items')
+            const { data, error } = await fromAny('merch_drop_items')
                 .insert({
                     drop_id: dropId,
                     name: input.name,
@@ -255,11 +213,9 @@ export function useMerchDrops(storefrontId?: string) {
             if (error) throw error;
 
             // Update drop totals
-            await supabase
-                .from('merch_drops')
+            await fromAny('merch_drops')
                 .update({
                     item_count: (count || 0) + 1,
-                    total_quantity: supabase.rpc ? input.quantity_total : input.quantity_total, // simplified
                 })
                 .eq('id', dropId);
 
@@ -278,12 +234,9 @@ export function useMerchDrops(storefrontId?: string) {
         },
     });
 
-    // ── Schedule / Launch drop ──────────────
-
     const updateDropStatusMutation = useMutation({
         mutationFn: async ({ dropId, status }: { dropId: string; status: DropStatus }) => {
-            const { error } = await supabase
-                .from('merch_drops')
+            const { error } = await fromAny('merch_drops')
                 .update({
                     status,
                     updated_at: new Date().toISOString(),
@@ -305,24 +258,18 @@ export function useMerchDrops(storefrontId?: string) {
         },
     });
 
-    // ── Join waitlist ──────────────────────
-
     const joinWaitlistMutation = useMutation({
         mutationFn: async (dropId: string) => {
             if (!user?.id) throw new Error('Not authenticated');
 
-            // Increment waitlist count
             const drop = dropsQuery.data?.find(d => d.id === dropId);
             if (!drop) throw new Error('Drop not found');
 
-            await supabase
-                .from('merch_drops')
+            await fromAny('merch_drops')
                 .update({ waitlist_count: drop.waitlist_count + 1 })
                 .eq('id', dropId);
 
-            // Record waitlist entry
-            await supabase
-                .from('merch_drop_waitlist')
+            await fromAny('merch_drop_waitlist')
                 .insert({
                     drop_id: dropId,
                     user_id: user.id,
@@ -339,8 +286,6 @@ export function useMerchDrops(storefrontId?: string) {
         },
     });
 
-    // ── Purchase item from drop ──────────────
-
     const purchaseItemMutation = useMutation({
         mutationFn: async ({
             dropId, itemId, size, color, quantity, coinzUsed,
@@ -350,21 +295,18 @@ export function useMerchDrops(storefrontId?: string) {
         }) => {
             if (!user?.id) throw new Error('Not authenticated');
 
-            // Check availability
-            const { data: item, error: itemErr } = await supabase
-                .from('merch_drop_items')
+            const { data: itemData, error: itemErr } = await fromAny('merch_drop_items')
                 .select('*')
                 .eq('id', itemId)
                 .single();
 
-            if (itemErr || !item) throw new Error('Item not found');
+            if (itemErr || !itemData) throw new Error('Item not found');
+            const item = itemData as any;
             if (item.quantity_remaining < quantity) throw new Error('Not enough stock');
 
             const totalUsd = item.price * quantity;
 
-            // Record order
-            const { data: order, error: orderErr } = await supabase
-                .from('merch_drop_orders')
+            const { data: order, error: orderErr } = await fromAny('merch_drop_orders')
                 .insert({
                     drop_id: dropId,
                     item_id: itemId,
@@ -381,21 +323,17 @@ export function useMerchDrops(storefrontId?: string) {
 
             if (orderErr) throw orderErr;
 
-            // Decrement stock
-            await supabase
-                .from('merch_drop_items')
+            await fromAny('merch_drop_items')
                 .update({ quantity_remaining: item.quantity_remaining - quantity })
                 .eq('id', itemId);
 
-            // Update drop totals
             const drop = dropsQuery.data?.find(d => d.id === dropId);
             if (drop) {
                 const newSold = drop.total_sold + quantity;
                 const newRevenue = drop.total_revenue + totalUsd;
                 const allSoldOut = newSold >= drop.total_quantity;
 
-                await supabase
-                    .from('merch_drops')
+                await fromAny('merch_drops')
                     .update({
                         total_sold: newSold,
                         total_revenue: newRevenue,
@@ -419,19 +357,14 @@ export function useMerchDrops(storefrontId?: string) {
         },
     });
 
-    // ── Track view ──────────────────────
-
     const trackView = async (dropId: string) => {
         const drop = dropsQuery.data?.find(d => d.id === dropId);
         if (drop) {
-            await supabase
-                .from('merch_drops')
+            await fromAny('merch_drops')
                 .update({ view_count: drop.view_count + 1 })
                 .eq('id', dropId);
         }
     };
-
-    // ── Computed helpers ──────────────────
 
     const liveDrops = dropsQuery.data?.filter(d => d.status === 'live') || [];
     const scheduledDrops = dropsQuery.data?.filter(d => d.status === 'scheduled') || [];
@@ -443,11 +376,7 @@ export function useMerchDrops(storefrontId?: string) {
         liveDrops,
         scheduledDrops,
         pastDrops,
-
-        // Sub-queries
         useDropItems,
-
-        // Mutations
         createDrop: createDropMutation.mutateAsync,
         isCreating: createDropMutation.isPending,
         addItem: addItemMutation.mutateAsync,

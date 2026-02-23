@@ -29,10 +29,7 @@ export function useGiftCoinz() {
             if (amount <= 0) throw new Error('Amount must be positive');
             if (recipientId === user.id) throw new Error("Can't gift to yourself");
 
-            // Atomic RPC — sender deduct + recipient credit + both transactions
-            // in a single Postgres transaction with row locks. If ANY step fails,
-            // the entire operation rolls back. No more lost coins.
-            const { data, error } = await supabase.rpc('gift_coinz', {
+            const { data, error } = await (supabase.rpc as any)('gift_coinz', {
                 p_sender_id: user.id,
                 p_recipient_id: recipientId,
                 p_amount: amount,

@@ -48,7 +48,7 @@ function getDailyCaps(): Record<string, number> {
 function incrementDailyCap(action: string): number {
     const today = new Date().toISOString().slice(0, 10);
     const caps = getDailyCaps();
-    caps._date = today;
+    (caps as any)._date = today;
     const current = (caps[action] || 0) + 1;
     caps[action] = current;
     localStorage.setItem(DAILY_CAP_KEY, JSON.stringify(caps));
@@ -118,7 +118,7 @@ export function useAutoEarn() {
                 const creatorReward = action.creatorCoinz;
                 if (creatorReward > 0) {
                     // Atomic RPC — no more stale-read-then-write on creator wallet
-                    await supabase.rpc('earn_coinz', {
+                    await (supabase.rpc as any)('earn_coinz', {
                         p_user_id: options.creatorId,
                         p_amount: creatorReward,
                         p_source: 'creator_payout',
