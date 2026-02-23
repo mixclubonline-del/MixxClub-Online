@@ -162,8 +162,8 @@ export default function PublicProfile() {
 
             <TabsContent value="showcase">
               <MediaShowcase
-                featuredMedia={(((profile as Record<string, unknown>).featured_media as FeaturedMediaItem[]) || [])}
-                accent={((profile as Record<string, unknown>).profile_config as Record<string, unknown>)?.colors ? (((profile as Record<string, unknown>).profile_config as Record<string, Record<string, string>>)?.colors?.primary) : undefined}
+                featuredMedia={(((profile as unknown as Record<string, unknown>).featured_media as FeaturedMediaItem[]) || [])}
+                accent={((profile as unknown as Record<string, unknown>).profile_config as Record<string, unknown>)?.colors ? (((profile as unknown as Record<string, unknown>).profile_config as Record<string, Record<string, string>>)?.colors?.primary) : undefined}
               />
             </TabsContent>
 
