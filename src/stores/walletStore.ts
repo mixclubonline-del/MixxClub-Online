@@ -87,7 +87,7 @@ export const useWalletStore = create<WalletState>((set, get) => ({
   earnCoinz: async (userId, amount, source, description, referenceType, referenceId) => {
     try {
       // Atomic RPC — all math + locking in Postgres
-      const { data, error } = await supabase.rpc('earn_coinz', {
+      const { data, error } = await (supabase.rpc as any)('earn_coinz', {
         p_user_id: userId,
         p_amount: amount,
         p_source: source,
@@ -113,7 +113,7 @@ export const useWalletStore = create<WalletState>((set, get) => ({
 
     try {
       // Atomic RPC — balance check + math + locking + transactions all in Postgres
-      const { data, error } = await supabase.rpc('spend_coinz', {
+      const { data, error } = await (supabase.rpc as any)('spend_coinz', {
         p_user_id: userId,
         p_amount: amount,
         p_source: source,
