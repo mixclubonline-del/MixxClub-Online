@@ -21,6 +21,9 @@ import {
   Heart,
   Triangle,
   Lock,
+  Bell,
+  MessageCircle,
+  Trophy,
   type LucideIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -103,12 +106,15 @@ const ROLE_HUB_DEFINITIONS: Record<string, HubDefinition[]> = {
     { id: 'tri-collabs', label: '3-Way Collabs', icon: Triangle, description: 'Tri partnerships' },
   ],
   fan: [
-    { id: 'feed', label: 'Feed', icon: Compass, description: 'Discover new music' },
-    { id: 'missions', label: 'Missions', icon: Target, description: 'Earn MixxCoinz' },
+    { id: 'feed', label: 'Discover', icon: Compass, description: 'AI-curated artist feed' },
     { id: 'day1s', label: 'Day 1s', icon: Star, description: 'Your early supports' },
+    { id: 'communities', label: 'Communities', icon: Users, description: 'Circles & events' },
+    { id: 'drops', label: 'Drops', icon: Bell, description: 'Releases & alerts' },
+    { id: 'connect', label: 'Connect', icon: MessageCircle, description: 'DM & vote' },
+    { id: 'missions', label: 'Missions', icon: Target, description: 'Earn MixxCoinz' },
     { id: 'wallet', label: 'Wallet', icon: Coins, description: 'Your rewards' },
+    { id: 'trophies', label: 'Trophies', icon: Trophy, description: 'Achievements' },
     { id: 'curator', label: 'Curator', icon: Sparkles, description: 'Playlist power' },
-    { id: 'favorites', label: 'Favorites', icon: Heart, description: 'Saved music' },
   ],
   admin: [
     { id: 'dashboard', label: 'Dashboard', icon: Home, description: 'Platform overview' },

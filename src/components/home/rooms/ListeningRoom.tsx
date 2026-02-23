@@ -8,7 +8,7 @@
 import { motion } from 'framer-motion';
 import { Volume2, Play, ChevronDown } from 'lucide-react';
 import { ClubRoom } from '../ClubRoom';
-import mixingConsoleImg from '@/assets/promo/mixing-console-close.jpg';
+import listeningRoomVideo from '@/assets/videos/listening_room.webp';
 
 const FEATURED_TRACKS = [
   { title: 'Neon Dreams', artist: 'Marcus', result: 'Pro Master', genre: 'Hip-Hop' },
@@ -51,14 +51,14 @@ export function ListeningRoom({ onScrollHint }: ListeningRoomProps) {
               The Listening Room
             </span>
           </div>
-          
+
           <h2 className="text-4xl md:text-6xl font-black mb-4">
             Real sound.{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
               Real results.
             </span>
           </h2>
-          
+
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             87% of bedroom tracks never get finished.{' '}
             <span className="text-foreground">These ones did.</span>
@@ -73,12 +73,12 @@ export function ListeningRoom({ onScrollHint }: ListeningRoomProps) {
           viewport={{ once: true }}
         >
           <img
-            src={mixingConsoleImg}
-            alt="Professional mixing console"
+            src={listeningRoomVideo}
+            alt="Professional mixing console with bouncing meters"
             className="w-full h-[280px] md:h-[340px] object-cover group-hover:scale-[1.02] transition-transform duration-700"
             loading="lazy"
           />
-          <div 
+          <div
             className="absolute inset-0"
             style={{
               background: 'linear-gradient(to bottom, transparent 30%, hsl(var(--background)) 100%)'
@@ -134,7 +134,7 @@ export function ListeningRoom({ onScrollHint }: ListeningRoomProps) {
                     {track.artist} → {track.result}
                   </p>
                 </div>
-                
+
                 {/* Play button */}
                 <motion.button
                   className="w-10 h-10 rounded-full flex items-center justify-center text-primary opacity-0 group-hover:opacity-100 transition-opacity border border-primary/20"

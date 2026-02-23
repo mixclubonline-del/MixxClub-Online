@@ -11,12 +11,12 @@ import { Link } from 'react-router-dom';
 import { ClubRoom } from '../ClubRoom';
 import { useOnlineUsers } from '@/hooks/useOnlineUsers';
 import { getCharacter } from '@/config/characters';
-import portalArtistImg from '@/assets/portal-artist.jpg';
-import portalEngineerImg from '@/assets/portal-engineer.jpg';
+import portalArtistImg from '@/assets/videos/portal_artist.webp';
+import portalEngineerImg from '@/assets/videos/portal_engineer.webp';
 
 export function GreenRoom() {
   const { totalOnline, onlineEngineers, onlineArtists, isLoading } = useOnlineUsers();
-  
+
   const jax = getCharacter('jax');
   const rell = getCharacter('rell');
 
@@ -33,7 +33,7 @@ export function GreenRoom() {
     },
     {
       character: rell,
-      title: 'Engineer', 
+      title: 'Engineer',
       subtitle: 'Mixer, Producer',
       onlineCount: onlineEngineers,
       href: '/for-engineers',
@@ -131,13 +131,13 @@ export function GreenRoom() {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     loading="lazy"
                   />
-                  <div 
+                  <div
                     className="absolute inset-0"
                     style={{
                       background: 'linear-gradient(to bottom, transparent 20%, hsl(var(--background)) 100%)'
                     }}
                   />
-                  
+
                   {/* Character avatar */}
                   <motion.div
                     className="absolute -bottom-6 left-6 w-16 h-16 rounded-xl overflow-hidden border-4 border-background"
@@ -174,7 +174,7 @@ export function GreenRoom() {
                 </div>
 
                 {/* Hover glow */}
-                <div 
+                <div
                   className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
                   style={{ background: `radial-gradient(circle at center 70%, ${role.glowColor} 0%, transparent 70%)` }}
                 />

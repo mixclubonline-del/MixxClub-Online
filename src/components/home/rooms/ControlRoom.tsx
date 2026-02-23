@@ -9,9 +9,11 @@ import { motion } from 'framer-motion';
 import { Sliders, Upload, Wand2, Users2, Rocket } from 'lucide-react';
 import { ClubRoom } from '../ClubRoom';
 import artistUploadImg from '@/assets/promo/artist-upload-cloud.jpg';
-import aiNeuralImg from '@/assets/promo/ai-neural-network.jpg';
-import mixingFeedbackImg from '@/assets/promo/mixing-realtime-feedback.jpg';
-import artistDeliveryImg from '@/assets/promo/artist-delivery.jpg';
+import mixxtechCityImg from '@/assets/promo/mixxtech_city_hub.png';
+import mixxtechCityVideo from '@/assets/videos/mixxtech_city_video.mp4';
+import primeImg from '@/assets/characters/prime_original.png';
+import primeVideo from '@/assets/videos/prime_hero_video.mp4';
+import novaReleaseUiImg from '@/assets/promo/nova-ui.png';
 
 const STEP_ACCENTS = [
   'hsl(var(--primary))',
@@ -35,7 +37,7 @@ const STEPS = [
     description: 'AI analyzes your genre, vibe, and goals — then finds the perfect engineer for your sound.',
     stat: '98%',
     statLabel: 'Match Success',
-    image: aiNeuralImg,
+    image: mixxtechCityVideo, // Upgraded to video
   },
   {
     icon: Users2,
@@ -43,7 +45,7 @@ const STEPS = [
     description: 'Work together in real-time with studio-quality streaming. Give feedback, iterate, perfect.',
     stat: '24h',
     statLabel: 'Avg Delivery',
-    image: mixingFeedbackImg,
+    image: primeVideo, // Upgraded to video
   },
   {
     icon: Rocket,
@@ -51,7 +53,7 @@ const STEPS = [
     description: 'One click to distribute across 30+ streaming platforms. Your music, everywhere.',
     stat: '30+',
     statLabel: 'Platforms',
-    image: artistDeliveryImg,
+    image: novaReleaseUiImg,
   },
 ];
 
@@ -100,9 +102,8 @@ export function ControlRoom() {
             return (
               <motion.div
                 key={step.title}
-                className={`flex flex-col gap-6 md:gap-10 items-center ${
-                  isReversed ? 'md:flex-row-reverse' : 'md:flex-row'
-                }`}
+                className={`flex flex-col gap-6 md:gap-10 items-center ${isReversed ? 'md:flex-row-reverse' : 'md:flex-row'
+                  }`}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -114,14 +115,25 @@ export function ControlRoom() {
                     className="relative aspect-[4/3] rounded-2xl overflow-hidden group border border-white/[0.06]"
                     whileHover={{ scale: 1.02 }}
                   >
-                    <img
-                      src={step.image}
-                      alt={step.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                      loading="lazy"
-                    />
+                    {step.image.endsWith('.mp4') ? (
+                      <video
+                        src={step.image}
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                      />
+                    ) : (
+                      <img
+                        src={step.image}
+                        alt={step.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                        loading="lazy"
+                      />
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-t from-background/70 to-transparent" />
-                    
+
                     {/* Step number */}
                     <div
                       className="absolute top-4 left-4 w-9 h-9 rounded-full text-sm font-bold flex items-center justify-center border"

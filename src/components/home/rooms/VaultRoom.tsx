@@ -11,7 +11,7 @@ import { ClubRoom } from '../ClubRoom';
 import { useCommunityMilestones } from '@/hooks/useCommunityMilestones';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-import studioConsoleImg from '@/assets/promo/studio-console-hero.jpg';
+import vaultRoomVideo from '@/assets/videos/vault_room.webp';
 
 const TIER_GLOWS: Record<string, { bg: string; border: string; glow: string }> = {
   unlocked: {
@@ -47,8 +47,8 @@ export function VaultRoom() {
     });
 
     const isUnlocked = tierMilestones.every((m) => m.is_unlocked);
-    const isCurrent = tierMilestones.some((m) => !m.is_unlocked) && 
-                      tierMilestones.some((m) => m.is_unlocked || m.progress_percentage > 0);
+    const isCurrent = tierMilestones.some((m) => !m.is_unlocked) &&
+      tierMilestones.some((m) => m.is_unlocked || m.progress_percentage > 0);
 
     return { tier: tierNum, milestones: tierMilestones, isUnlocked, isCurrent };
   });
@@ -57,10 +57,10 @@ export function VaultRoom() {
     <ClubRoom id="vault" className="bg-background relative overflow-hidden">
       {/* Atmospheric background */}
       <div className="absolute inset-0">
-        <img src={studioConsoleImg} alt="" className="w-full h-full object-cover" style={{ opacity: 0.12 }} loading="lazy" />
+        <img src={vaultRoomVideo} alt="Massive subtly glowing lock mechanism" className="w-full h-full object-cover" style={{ opacity: 0.12 }} loading="lazy" />
         <div className="absolute inset-0 bg-background/85" />
       </div>
-      
+
       {/* Vault ambient glow */}
       <motion.div
         className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full pointer-events-none"
@@ -97,7 +97,7 @@ export function VaultRoom() {
             </span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-md mx-auto">
-            Every signup brings us closer. Every session counts. 
+            Every signup brings us closer. Every session counts.
             This isn't our platform—it's <span className="text-primary font-semibold">ours</span>.
           </p>
         </motion.div>

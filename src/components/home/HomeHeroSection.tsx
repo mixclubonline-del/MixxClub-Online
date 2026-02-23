@@ -10,14 +10,10 @@ import { Link } from 'react-router-dom';
 import { Sparkles, Play, Users, Radio, Music } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCommunityStats } from '@/hooks/useCommunityStats';
-import { useDynamicLandingAssets } from '@/hooks/useDynamicLandingAssets';
+import loreVideo from '@/assets/videos/mixxclub-lore.mp4';
 
 export function HomeHeroSection() {
   const { data: stats } = useCommunityStats();
-  const { getImageUrl } = useDynamicLandingAssets();
-
-  // Get cinematic background from brand assets
-  const heroBackground = getImageUrl('hero_background');
 
   const statItems = [
     {
@@ -41,20 +37,17 @@ export function HomeHeroSection() {
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16 pb-8">
       {/* Ambient Background */}
       <div className="absolute inset-0 bg-background">
-        {/* Cinematic background image with Ken Burns effect */}
-        {heroBackground && (
-          <motion.div
-            className="absolute inset-0"
-            animate={{ scale: [1, 1.05, 1] }}
-            transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
-          >
-            <img
-              src={heroBackground}
-              alt=""
-              className="w-full h-full object-cover opacity-30"
-            />
-          </motion.div>
-        )}
+        {/* Cinematic background video */}
+        <div className="absolute inset-0">
+          <video
+            src={loreVideo}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="w-full h-full object-cover opacity-30"
+          />
+        </div>
 
         {/* Gradient mesh overlay */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.15),transparent_50%)]" />

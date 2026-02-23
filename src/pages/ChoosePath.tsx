@@ -12,6 +12,13 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { SEOHead } from '@/components/SEOHead';
 import { BackButton } from '@/components/navigation/BackButton';
 
+import jaxImage from '@/assets/characters/jax_original.png';
+import jaxVideo from '@/assets/videos/jax_video.mp4';
+import rellImage from '@/assets/characters/rell_original.png';
+import rellVideo from '@/assets/videos/rell_video.mp4';
+import novaImage from '@/assets/characters/nova_original.png';
+// Nova doesn't have a generated video sequence yet, she sits in the crowd!
+
 type PathRole = 'producer' | 'artist' | 'engineer' | 'fan';
 
 interface PathOption {
@@ -27,6 +34,8 @@ interface PathOption {
     keyHint: string;
     stat: { value: string; label: string };
     particles: string;
+    image?: string;
+    video?: string;
 }
 
 const pathOptions: PathOption[] = [
@@ -57,6 +66,8 @@ const pathOptions: PathOption[] = [
         keyHint: '2',
         stat: { value: '10K+', label: 'releases' },
         particles: 'bg-purple-400',
+        image: jaxImage,
+        video: jaxVideo,
     },
     {
         id: 'engineer',
@@ -71,6 +82,8 @@ const pathOptions: PathOption[] = [
         keyHint: '3',
         stat: { value: '85%', label: 'rev split' },
         particles: 'bg-cyan-400',
+        image: rellImage,
+        video: rellVideo,
     },
     {
         id: 'fan',
@@ -85,6 +98,7 @@ const pathOptions: PathOption[] = [
         keyHint: '4',
         stat: { value: 'Free', label: 'forever' },
         particles: 'bg-rose-400',
+        image: novaImage,
     },
 ];
 
@@ -345,9 +359,8 @@ const ChoosePath = () => {
                                         </span>
                                     </div>
 
-                                    {/* Icon */}
                                     <div
-                                        className="w-14 h-14 rounded-xl flex items-center justify-center mb-4 transition-all duration-500 relative overflow-hidden"
+                                        className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 transition-all duration-500 relative overflow-hidden"
                                         style={{
                                             background: hoveredRole === role.id
                                                 ? `linear-gradient(135deg, hsl(${role.accentHsl} / 0.25), hsl(${role.accentHsl} / 0.1))`
@@ -355,28 +368,55 @@ const ChoosePath = () => {
                                             boxShadow: hoveredRole === role.id
                                                 ? `0 0 30px hsl(${role.accentHsl} / 0.2)`
                                                 : 'none',
+                                            padding: role.image ? '2px' : '0' // Thin border padding for images
                                         }}
                                     >
-                                        {/* Icon glow ring */}
+                                        {/* Icon/Image flow ring */}
                                         {hoveredRole === role.id && (
                                             <motion.div
-                                                className="absolute inset-0 rounded-xl"
+                                                className="absolute inset-0 rounded-2xl"
                                                 style={{ border: `1px solid hsl(${role.accentHsl} / 0.4)` }}
                                                 initial={{ scale: 0.8, opacity: 0 }}
                                                 animate={{ scale: 1, opacity: 1 }}
                                                 transition={{ duration: 0.3 }}
                                             />
                                         )}
-                                        <span
-                                            className="relative z-10 transition-colors duration-300"
-                                            style={{
-                                                color: hoveredRole === role.id
-                                                    ? `hsl(${role.accentHsl})`
-                                                    : 'rgba(255,255,255,0.5)',
-                                            }}
-                                        >
-                                            {role.icon}
-                                        </span>
+
+                                        {role.image ? (
+                                            <div className="w-full h-full relative z-10 rounded-[14px] overflow-hidden">
+                                                {role.video && hoveredRole === role.id && (
+                                                    <video
+                                                        src={role.video}
+                                                        autoPlay
+                                                        loop
+                                                        muted
+                                                        playsInline
+                                                        className="absolute inset-0 w-full h-full object-cover z-20"
+                                                        style={{ transform: 'scale(1.1)' }}
+                                                    />
+                                                )}
+                                                <img
+                                                    src={role.image}
+                                                    alt={role.title}
+                                                    className="w-full h-full object-cover shrink-0 transition-transform duration-500 ease-out"
+                                                    style={{
+                                                        transform: hoveredRole === role.id ? 'scale(1.1)' : 'scale(1)',
+                                                        opacity: role.video && hoveredRole === role.id ? 0 : 1
+                                                    }}
+                                                />
+                                            </div>
+                                        ) : (
+                                            <span
+                                                className="relative z-10 transition-colors duration-300"
+                                                style={{
+                                                    color: hoveredRole === role.id
+                                                        ? `hsl(${role.accentHsl})`
+                                                        : 'rgba(255,255,255,0.5)',
+                                                }}
+                                            >
+                                                {role.icon}
+                                            </span>
+                                        )}
                                     </div>
 
                                     {/* Title & subtitle */}
