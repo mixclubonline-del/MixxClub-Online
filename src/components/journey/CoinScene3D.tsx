@@ -3,6 +3,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { Float, Environment } from '@react-three/drei';
 import * as THREE from 'three';
 import MixxCoin from '@/components/economy/MixxCoin';
+import { useMobileDetect } from '@/hooks/useMobileDetect';
 
 /* ─── spinning coin plane ─── */
 function CoinDisc({
@@ -103,6 +104,7 @@ function Scene() {
 /* ─── exported component with WebGL fallback ─── */
 export default function CoinScene3D({ className = '' }: { className?: string }) {
   const [webglSupported, setWebglSupported] = useState(true);
+  const { isMobile } = useMobileDetect();
 
   useEffect(() => {
     try {
@@ -134,8 +136,14 @@ export default function CoinScene3D({ className = '' }: { className?: string }) 
           </div>
         }
       >
-        <Canvas camera={{ position: [0, 0, 4], fov: 50 }} dpr={[1, 2]}>
-          <Scene />
+        <Canvas camera={{ position: [0, 0, 4], fov: 50 }} dpr={isMobile ? [1, 1.5] : [1, 2]}>
+          <ambientLight intensity={0.3} />
+          <pointLight position={[-2, 1, 2]} intensity={1.2} color="#a855f7" />
+          <pointLight position={[2, 1, 2]} intensity={1.2} color="#fbbf24" />
+          <CoinDisc position={[-1.2, 0, 0]} color="#71717a" emissive="#7c3aed" />
+          <CoinDisc position={[1.2, 0, 0]} color="#d4a017" emissive="#f59e0b" />
+          <ParticleDust count={isMobile ? 40 : 80} />
+          <hemisphereLight args={['#7c3aed', '#1a1a2e', 0.4]} />
         </Canvas>
       </Suspense>
     </div>
