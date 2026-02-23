@@ -1,122 +1,147 @@
 
+# Phase 5: The MixxClub Community -- Beyond Framer Motion
 
-# How It Works: The Full Ecosystem Journey
+## The Directive
 
-## The Vision
+Framer Motion has served its purpose, but it's becoming a crutch. For the Community Showcase section, we elevate to a hybrid approach:
 
-The current page only tells two stories (Artist and Engineer) in isolation. The real MixxClub difference is the **interconnected ecosystem** -- how all four roles (Artist, Engineer, Producer, Fan) feed into and amplify each other. We're going to transform this from a "pick your path" toggle into a **living ecosystem map** that shows the full lifecycle of music on MixxClub.
+1. **Dream-Generated Images** -- AI-generated hero imagery for each community pillar, persisted via the existing Dream Engine pipeline
+2. **Native CSS Animations + Intersection Observer** -- Replace `motion.div` / `whileInView` with performant CSS `@keyframes` and a lightweight `useInView` hook using the native `IntersectionObserver` API
+3. **Canvas-Based Particle Systems** -- For the section background, use a raw `<canvas>` particle system (like `AudioVisualizer.tsx` already does) instead of Framer Motion's animated divs
+4. **React Three Fiber for the MixxCoinz Hero** -- The MixxCoinz economy pillar gets a 3D rotating coin scene using the existing R3F infrastructure (`@react-three/fiber` + `drei`)
 
----
-
-## Current State
-
-- 2-role toggle (Artist / Engineer) using `JourneyGateway`
-- Artist: 5 showcase steps (Upload -> AI Analysis -> Match -> Collaborate -> Download)
-- Engineer: 4 showcase steps (Profile -> Match -> Work -> Earn)
-- No Producer or Fan journey
-- No visualization of how the roles connect
+No Framer Motion imports anywhere in the new component.
 
 ---
 
-## Phase 1: Expand the Gateway to Four Roles
+## New Files
 
-Replace the 2-button `JourneyGateway` with a **four-portal gateway** that uses the existing role color language:
+### 1. `src/hooks/useInView.ts` -- Lightweight Intersection Observer Hook
 
-| Role | Color | Tagline |
-|------|-------|---------|
-| Artist | Primary (purple) | "Create and Release" |
-| Engineer | Cyan | "Build and Earn" |
-| Producer | Amber | "Supply the Sound" |
-| Fan | Pink | "Discover and Invest" |
+A zero-dependency hook that replaces `motion.div whileInView`:
+- Uses native `IntersectionObserver` API
+- Returns a ref and `isInView` boolean
+- Supports `once`, `threshold`, and `rootMargin` options
+- Components apply CSS classes conditionally: `className={isInView ? 'animate-reveal' : 'opacity-0'}`
 
-The gateway becomes a 2x2 grid on mobile, horizontal row on desktop, with animated connection lines between the portals showing how the roles relate.
+### 2. `src/components/journey/CommunityShowcase.tsx` -- The Main Section
 
-## Phase 2: Producer Journey Steps (New Content)
+Six community pillars rendered as alternating showcase cards (matching `ShowcaseJourney` visual rhythm but without Framer Motion):
 
-Five new showcase steps for the Producer path:
+| # | Pillar | Title | Key Visual |
+|---|--------|-------|------------|
+| 1 | MixxCoinz Economy | "The Currency of the Culture" | R3F 3D coin scene (earned + purchased) |
+| 2 | Unlockable System | "Unlock Your Level" | Dream-generated image (progression matrix) |
+| 3 | Battles and Competitions | "Prove Your Sound" | Dream-generated image (battle arena) |
+| 4 | Merch and Storefront | "Sell What You Create" | Dream-generated image (storefront) |
+| 5 | Learning and Growth | "Level Up Your Craft" | Dream-generated image (masterclass) |
+| 6 | Live Sessions | "Watch It Happen Live" | Dream-generated image (live session) |
 
-1. **Upload Your Beats** -- Drop instrumentals, loops, and stems into your beat vault. Tag genre, mood, BPM, key automatically via AI.
-2. **AI Catalogs Your Sound** -- Our AI profiles your production style, creates a sonic fingerprint, and optimizes discoverability across the marketplace.
-3. **Artists Find Your Beats** -- Matched artists browse, preview, and license your beats. You set terms: exclusive, non-exclusive, lease, custom.
-4. **Track the Session** -- Watch your beat come to life. See who's mixing it, follow the project, and get credited automatically.
-5. **Earn Royalties Forever** -- Every stream, every sync, every placement -- your royalties flow automatically. Build passive income from your catalog.
+**Animation Strategy (no Framer Motion):**
+- Each card uses `useInView` + CSS transitions (`transform`, `opacity`) with staggered `transition-delay`
+- Image hover zoom uses pure CSS `group-hover:scale-105` (already used in ShowcaseJourney)
+- Stats overlay slide-up on hover uses pure CSS `translate-y` transitions (already established pattern)
 
-## Phase 3: Fan Journey Steps (New Content)
+**MixxCoinz Pillar Special Treatment:**
+- Instead of a static image, renders a `<Canvas>` scene with two rotating MixxCoins using `useFrame` from R3F
+- Earned coin orbits left, Purchased coin orbits right, with particle dust between them
+- This replaces the MixxCoin3D component's Framer Motion approach with actual GPU-accelerated 3D
 
-Five new showcase steps for the Fan path:
+### 3. `src/components/journey/CommunityCanvasBackground.tsx` -- Section Background
 
-1. **Create Your Listener Profile** -- Tell us your taste. Our AI builds a sonic fingerprint from your listening habits and favorite genres.
-2. **Discover Unreleased Heat** -- Get early access to tracks still in the studio. Preview works-in-progress before anyone else hears them.
-3. **Back Projects You Believe In** -- Invest your attention and MixxCoinz into artists and projects. Your engagement drives their visibility.
-4. **Watch Music Get Made** -- Follow sessions in real-time. See the mixing process, vote on versions, and influence the final sound.
-5. **Earn as a Tastemaker** -- Your early picks that blow up earn you MixxCoinz, exclusive drops, and Tastemaker status in the community.
+A full-width `<canvas>` element behind the community section:
+- Renders floating particles in all four role colors (purple, cyan, amber, pink)
+- Particles drift slowly and connect with faint lines when near each other (constellation effect)
+- Uses `requestAnimationFrame` -- zero library dependencies
+- Follows the exact pattern established in `AudioVisualizer.tsx`
 
-## Phase 4: The Ecosystem Flow (New Section)
+### 4. `src/components/journey/CoinScene3D.tsx` -- R3F MixxCoinz Hero
 
-After the individual journey showcase, add an **Ecosystem Interconnection** section that visualizes how all four roles connect in a cycle:
-
-```text
-  Producer ──(beats)──> Artist
-     ^                    |
-     |                 (project)
-  (royalties)             |
-     |                    v
-   Fan <──(discovery)── Engineer
-     |                    ^
-     |                    |
-     +──(engagement)──────+
-```
-
-This will be rendered as an animated, interactive diagram using Framer Motion:
-- A central "MixxClub" hub with four nodes radiating outward
-- Animated particle lines showing value flow between roles
-- Each connection is labeled with what flows (beats, projects, revenue, engagement)
-- Clicking a connection highlights the relevant steps from both journeys
-
-## Phase 5: Update ShowcaseJourney Variant Support
-
-The `services/ShowcaseJourney` component currently only accepts `'artist' | 'engineer'` as variants. Update it to accept `'producer' | 'fan'` as well, with proper accent colors:
-
-- Producer: `hsl(45, 90%, 50%)` (amber)
-- Fan: `hsl(330, 80%, 60%)` (pink)
-
-## Phase 6: Update JourneyDestination for All Roles
-
-Expand the destination CTA to support all four roles with tailored messaging:
-
-- **Producer**: "Ready to Monetize Your Catalog?" / "List Your First Beat"
-- **Fan**: "Ready to Shape the Sound?" / "Start Discovering"
+A small React Three Fiber scene specifically for the MixxCoinz pillar:
+- Two textured planes (coin images) that slowly rotate on Y-axis using `useFrame`
+- Additive blending particle dust between them
+- Ambient glow via point lights in purple (earned) and gold (purchased)
+- Falls back to the static `MixxCoin` component if WebGL is unavailable
 
 ---
 
-## Asset Strategy
+## Image Generation Strategy
 
-Reuse existing promo images where they fit (there are 60+ images in `src/assets/promo/`). For Producer and Fan steps, map from existing assets:
+For the five image-based pillars, we generate via the existing Dream Engine pipeline (`supabase.functions.invoke('dream-engine')`). The component will:
 
-- Producer steps can reuse: `artist-upload-cloud.jpg`, `ai-track-analysis.jpg`, `artist-engineer-match.jpg`, `mixing-console-close.jpg`, `engineer-revenue-streams.jpg`
-- Fan steps can reuse: `ai-instant-analysis.jpg`, `mixing-realtime-feedback.jpg`, `artist-release-growth.jpg`, `webrtc-collaboration.jpg`, `artist-crm-community.jpg`
+1. First check for existing `brand_assets` with matching `asset_context` keys (e.g., `community_unlockables`, `community_battles`, etc.)
+2. If no asset exists, display a fallback from `src/assets/promo/` (mapped below)
+3. New asset contexts will be registered so Prime can dream them from the Dream Chamber
+
+**Asset Context Mapping:**
+
+| Pillar | asset_context Key | Fallback Image |
+|--------|------------------|----------------|
+| Unlockables | `community_unlockables` | `mixxtech-city.png` |
+| Battles | `community_battles` | `mixing-collaboration.jpg` |
+| Merch | `community_merch` | `enterprise-whitelabel.jpg` |
+| Learning | `community_learning` | `engineer-growth-coaching.jpg` |
+| Live Sessions | `community_sessions` | `webrtc-collaboration.jpg` |
+
+### 5. `src/hooks/useCommunityShowcaseAssets.ts` -- Asset Hook
+
+Convenience hook wrapping `useDynamicAssets` for the community section:
+- Provides typed access to each pillar's image URL
+- Handles fallback chain: Dream asset -> promo fallback
+- Extends the existing `SectionKey` type in `useDynamicAssets.ts` with the new community keys
 
 ---
 
-## Technical Summary
+## Modified Files
 
-| File | Change |
-|------|--------|
-| `src/pages/HowItWorks.tsx` | Add Producer and Fan step data, expand role state to 4 roles |
-| `src/components/journey/JourneyGateway.tsx` | Expand from 2-portal to 4-portal layout with connection lines |
-| `src/components/journey/JourneyDestination.tsx` | Add Producer and Fan CTA content |
-| `src/components/services/ShowcaseJourney.tsx` | Add `'producer' \| 'fan'` to variant type with proper colors |
-| `src/components/journey/EcosystemFlow.tsx` | **New** -- animated interconnection diagram showing the four-role value cycle |
+### `src/hooks/useDynamicAssets.ts`
+- Add 5 new `SectionKey` entries: `community_unlockables`, `community_battles`, `community_merch`, `community_learning`, `community_sessions`
+- Add corresponding entries to `SECTION_ASSET_MAP` and `STATIC_FALLBACKS`
 
-No database changes. No new dependencies. Pure frontend using existing Framer Motion, Lucide icons, and ShowcaseJourney patterns.
+### `src/pages/HowItWorks.tsx`
+- Import and place `<CommunityShowcase />` between `<EcosystemFlow />` and `<JourneyDestination />`
+- Single line addition
 
 ---
 
-## Dream Mode Addendum (Beyond v1)
+## What We Are NOT Using
 
-Future iterations could include:
-- **Live data** in the ecosystem flow (real project counts, active sessions, MixxCoinz flowing)
-- **Interactive timeline** where visitors drag through a simulated project lifecycle touching all four roles
-- **Video snippets** embedded in each showcase step showing real platform footage
-- **Role quiz** ("Not sure which path? Let us match you") that replaces the manual gateway selection
+- Framer Motion (`motion.div`, `whileInView`, `AnimatePresence`) -- replaced entirely
+- Any animation library -- pure CSS + IntersectionObserver + Canvas + R3F
 
+## What We ARE Using
+
+- **CSS `@keyframes` + `transition`** -- for reveal animations, hover effects, stagger
+- **IntersectionObserver API** -- for scroll-triggered reveals (native browser API)
+- **Canvas 2D API** -- for particle background (existing pattern from AudioVisualizer)
+- **React Three Fiber** -- for the MixxCoinz 3D scene (existing dependency, GPU-accelerated)
+- **Dream Engine** -- for AI-generated imagery (existing pipeline)
+
+---
+
+## Content for Each Pillar
+
+### 1. MixxCoinz Economy
+- **Stats**: Earn Rate: "Every Action" | Cash Out: "200:1 USD" | Types: "Earned + Purchased"
+- **Badges**: Dual Currency, Instant Payouts, Ownership Model, Escrow System
+- **Visual**: 3D R3F coin scene
+
+### 2. Unlockable System
+- **Stats**: Paths: "5 Roles" | Tiers: "5 Per Path" | Goals: "Community + Personal"
+- **Badges**: Progression Matrix, Collective Goals, Role Rewards, Vault Room
+
+### 3. Battles and Competitions
+- **Stats**: Formats: "1v1 + Open" | Voting: "Community" | Prizes: "MixxCoinz + Status"
+- **Badges**: Live Battles, Remix Challenges, Leaderboards, Judge and Earn
+
+### 4. Merch and Storefront
+- **Stats**: Products: "Unlimited" | Payment: "USD + MixxCoinz" | Commission: "0% Fee"
+- **Badges**: Beat Store, Preset Packs, Physical Merch, Digital Goods
+
+### 5. Learning and Growth
+- **Stats**: Courses: "Growing" | Instructors: "Verified Pros" | Earn: "MixxCoinz/Course"
+- **Badges**: Masterclasses, Certifications, Mixing Breakdowns, Community Teachers
+
+### 6. Live Sessions and Events
+- **Stats**: Latency: "<50ms" | Capacity: "Unlimited" | Events: "Daily"
+- **Badges**: Real-Time Collab, Listening Parties, Album Premieres, AMA Events
