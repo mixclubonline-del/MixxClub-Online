@@ -1,106 +1,30 @@
 
 
-# Mobile Refinements for Community Showcase
+# Update Community Pillar Dreamer Prompts -- New Visual Styles
 
-Fixes four issues found during the 390px mobile audit. All changes stay within the zero-Framer-Motion constraint.
+## What Changes
 
----
+Replace all five prompts in `src/components/journey/CommunityPillarDreamer.tsx` with new visual directions that lean harder into authentic hip-hop culture, real-world studio environments, and cinematic photography -- aligned with the 2026 Visual Doctrine and culture-first representation mandate.
 
-## Fix 1: Stats Grid Overflow
+## New Visual Direction
 
-**Problem**: The 3-column stats grid truncates long values like "MixxCoinz/Course" and "Earned + Purchased" at 390px.
+The current prompts skew "floating in space / holographic." The new style pivots to **cinematic street-studio realism** -- real people in real environments with dramatic lighting, grounded in hip-hop culture while keeping the futuristic tech edge.
 
-**Solution**: Switch to `grid-cols-2` on phone, `grid-cols-3` on tablet+. For stats with only 3 items (all pillars), the third item spans full width on phone, creating a clean 2+1 layout.
+## Updated Prompts
 
-**File**: `src/components/journey/CommunityShowcase.tsx` (line 134)
+| Pillar | New Style | New Prompt |
+|---|---|---|
+| **Unlockables** | Street RPG Trophy Wall | "Close-up of a young Black music producer's hands holding a glowing holographic trophy in a dimly lit home studio, shelves behind them filled with achievement plaques and gold records, LED strip lighting casting purple and amber gradients across the walls, vintage drum machine and modern laptop visible on the desk, streetwear hoodie sleeves visible, cinematic shallow depth of field, moody atmosphere, ultra high resolution" |
+| **Battles** | Live Cypher Energy | "Wide-angle shot of two hip-hop producers going head-to-head on stage at an underground beat battle event, crowd of Black and Latino fans packed tight behind chain-link barriers, red and blue spotlights slicing through haze, one producer on MPC the other on SP-404, large LED screen behind showing waveform visualizations, raw urban venue with exposed brick and graffiti, photojournalistic style, ultra high resolution" |
+| **Merch** | Streetwear Drop Layout | "Flat-lay product photography of a curated streetwear merch collection on a matte black surface, items include a premium embroidered hoodie with a glowing logo, vinyl record in holographic sleeve, USB drive shaped like a mixing fader, enamel pin set on branded backing card, sticker pack fanning out, soft dramatic top-lighting with purple and cyan rim accents, editorial product photography style, ultra high resolution" |
+| **Learning** | Mentorship Moment | "African American veteran audio engineer mentoring a young Latino producer at a professional mixing console in a world-class recording studio, acoustic panels and outboard gear racks visible, large studio monitors glowing softly, holographic EQ overlay floating above the console, warm amber key light with cool cyan fill, both wearing streetwear, intimate knowledge-transfer moment captured in cinematic style, ultra high resolution" |
+| **Sessions** | Late Night Collab | "Overhead birds-eye shot of a late-night collaborative music session, four producers gathered around a central desk covered in controllers, laptops, and microphones, takeout containers and energy drinks scattered naturally, faces lit by multiple screens showing DAW sessions, string lights and LED panels providing warm purple and pink ambient glow, authentic creative chaos, documentary photography style, ultra high resolution" |
 
-Change:
-```
-grid grid-cols-3 gap-3 md:gap-4
-```
-To:
-```
-grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4
-```
-
-Also add `text-sm` to stat values on mobile to prevent overflow:
-```
-text-base md:text-2xl font-bold  (was text-lg md:text-2xl)
-```
-
----
-
-## Fix 2: Touch-Accessible Stats Overlay
-
-**Problem**: The image stats overlay uses `group-hover:translate-y-0` which is unreachable on touch devices.
-
-**Solution**: On mobile, always show the stats overlay in a collapsed/visible state instead of hiding it behind hover. Use a CSS approach:
-- Add `max-sm:translate-y-0` so on phone screens the overlay is always visible
-- Reduce opacity on mobile so it doesn't obscure the full image: `max-sm:opacity-90`
-- Keep the hover behavior on desktop/tablet
-
-**File**: `src/components/journey/CommunityShowcase.tsx` (line 86)
-
-Change the overlay div classes from:
-```
-translate-y-full group-hover:translate-y-0
-```
-To:
-```
-sm:translate-y-full sm:group-hover:translate-y-0
-```
-
-This makes the overlay always visible on phone screens (below `sm` breakpoint), while preserving the hover reveal on larger screens.
-
----
-
-## Fix 3: R3F Performance Guard
-
-**Problem**: WebGL may fall back to software rendering on low-end phones, causing jank.
-
-**Solution**: Add a `devicePixelRatio` cap and reduce particle count on mobile in `CoinScene3D.tsx`:
-- Set `dpr={[1, 1.5]}` instead of `[1, 2]` to cap pixel density
-- Reduce particle count from 80 to 40 on mobile via the existing `useMobileDetect` hook
-- Add `frameloop="demand"` consideration (but keep "always" since the coins need to spin)
-
-**File**: `src/components/journey/CoinScene3D.tsx`
-
-Import `useMobileDetect` and pass reduced particle count:
-```typescript
-const { isMobile } = useMobileDetect();
-// In Canvas: dpr={isMobile ? [1, 1.5] : [1, 2]}
-// In Scene: <ParticleDust count={isMobile ? 40 : 80} />
-```
-
----
-
-## Fix 4: Badge Positioning on Mobile
-
-**Problem**: Floating badges at `absolute -bottom-3 -right-3` can overlap content below on narrow screens.
-
-**Solution**: Remove absolute positioning on phone, use inline flow instead:
-- On mobile (`max-sm`): badges render inline below the image with margin-top
-- On tablet+ (`sm:`): keep the current absolute floating position
-
-**File**: `src/components/journey/CommunityShowcase.tsx` (line 101)
-
-Change:
-```
-absolute -bottom-3 -right-3 md:-bottom-4 md:-right-4
-```
-To:
-```
-mt-2 sm:mt-0 sm:absolute sm:-bottom-4 sm:-right-4
-```
-
----
-
-## Summary of Changes
+## File Changes
 
 | File | Change |
 |---|---|
-| `src/components/journey/CommunityShowcase.tsx` | Stats grid responsive cols, overlay touch fix, badge positioning |
-| `src/components/journey/CoinScene3D.tsx` | Mobile DPR cap + reduced particles |
+| `src/components/journey/CommunityPillarDreamer.tsx` | Replace 5 prompt strings in the PILLARS array (lines 29-67) |
 
-No new files. No new dependencies. Four surgical CSS + performance fixes.
+No other files change. After updating, hit "Dream All Pillars" in the Dream Chamber to generate the new imagery.
 
