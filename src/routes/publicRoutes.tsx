@@ -25,6 +25,7 @@ import Showcase from "@/pages/Showcase";
 import Artist from "@/pages/Artist";
 import Engineer from "@/pages/Engineer";
 import NotFound from "@/pages/NotFound";
+import { WaitlistGate } from "@/components/waitlist/WaitlistGate";
 
 // Lazy loaded public pages
 const MixClubHome = React.lazy(() => import("@/pages/MixClubHome"));
@@ -55,7 +56,8 @@ export const publicRoutes = (
     <Route path="/for-engineers" element={<ForEngineers />} />
     <Route path="/for-producers" element={<ForProducers />} />
     <Route path="/for-fans" element={<ForFans />} />
-    <Route path="/choose-path" element={<ChoosePath />} />
+    <Route path="/choose-path" element={<WaitlistGate><ChoosePath /></WaitlistGate>} />
+    <Route path="/request-access" element={<WaitlistGate forceCapture><div /></WaitlistGate>} />
     <Route path="/faq" element={<FAQ />} />
     <Route path="/pricing" element={<Pricing />} />
     <Route path="/contact" element={<Contact />} />
