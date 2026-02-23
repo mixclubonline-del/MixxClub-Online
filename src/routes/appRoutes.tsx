@@ -99,6 +99,7 @@ const ForArtists = React.lazy(() => import("@/pages/ForArtists"));
 const ForEngineers = React.lazy(() => import("@/pages/ForEngineers"));
 const ForProducers = React.lazy(() => import("@/pages/ForProducers"));
 const ForFans = React.lazy(() => import("@/pages/ForFans"));
+import { PublicPageLayout } from "@/components/layout/PublicPageLayout";
 
 // Job Board
 import { JobBoard } from "@/pages/JobBoard";
@@ -249,14 +250,14 @@ export const appRoutes = (
     {/* Enterprise demo (public) */}
     <Route path="/enterprise-demo" element={<EnterpriseDemo />} />
 
-    {/* Public pages — linked from HomeOverlayNav, no auth required */}
-    <Route path="/about" element={<About />} />
-    <Route path="/faq" element={<FAQ />} />
-    <Route path="/pricing" element={<Pricing />} />
-    <Route path="/how-it-works" element={<HowItWorks />} />
-    <Route path="/for-artists" element={<ForArtists />} />
-    <Route path="/for-engineers" element={<ForEngineers />} />
-    <Route path="/for-producers" element={<ForProducers />} />
-    <Route path="/for-fans" element={<ForFans />} />
+    {/* Public pages — wrapped in PublicPageLayout for consistent navigation */}
+    <Route path="/about" element={<PublicPageLayout />}><Route index element={<About />} /></Route>
+    <Route path="/faq" element={<PublicPageLayout />}><Route index element={<FAQ />} /></Route>
+    <Route path="/pricing" element={<PublicPageLayout />}><Route index element={<Pricing />} /></Route>
+    <Route path="/how-it-works" element={<PublicPageLayout />}><Route index element={<HowItWorks />} /></Route>
+    <Route path="/for-artists" element={<PublicPageLayout />}><Route index element={<ForArtists />} /></Route>
+    <Route path="/for-engineers" element={<PublicPageLayout />}><Route index element={<ForEngineers />} /></Route>
+    <Route path="/for-producers" element={<PublicPageLayout />}><Route index element={<ForProducers />} /></Route>
+    <Route path="/for-fans" element={<PublicPageLayout />}><Route index element={<ForFans />} /></Route>
   </>
 );
