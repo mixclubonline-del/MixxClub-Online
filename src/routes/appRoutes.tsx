@@ -90,6 +90,16 @@ const BroadcastPage = React.lazy(() => import("@/pages/BroadcastPage"));
 // Public Profile
 const PublicProfile = React.lazy(() => import("@/pages/PublicProfile"));
 
+// Public pages (nav-linked, no auth required)
+const About = React.lazy(() => import("@/pages/About"));
+const FAQ = React.lazy(() => import("@/pages/FAQ"));
+const Pricing = React.lazy(() => import("@/pages/Pricing"));
+const HowItWorks = React.lazy(() => import("@/pages/HowItWorks"));
+const ForArtists = React.lazy(() => import("@/pages/ForArtists"));
+const ForEngineers = React.lazy(() => import("@/pages/ForEngineers"));
+const ForProducers = React.lazy(() => import("@/pages/ForProducers"));
+const ForFans = React.lazy(() => import("@/pages/ForFans"));
+
 // Job Board
 import { JobBoard } from "@/pages/JobBoard";
 
@@ -238,5 +248,15 @@ export const appRoutes = (
 
     {/* Enterprise demo (public) */}
     <Route path="/enterprise-demo" element={<EnterpriseDemo />} />
+
+    {/* Public pages — linked from HomeOverlayNav, no auth required */}
+    <Route path="/about" element={<About />} />
+    <Route path="/faq" element={<FAQ />} />
+    <Route path="/pricing" element={<Pricing />} />
+    <Route path="/how-it-works" element={<HowItWorks />} />
+    <Route path="/for-artists" element={<ForArtists />} />
+    <Route path="/for-engineers" element={<ForEngineers />} />
+    <Route path="/for-producers" element={<ForProducers />} />
+    <Route path="/for-fans" element={<ForFans />} />
   </>
 );
