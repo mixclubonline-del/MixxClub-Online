@@ -18,6 +18,7 @@ import { SessionCard } from './SessionCard';
 import { SessionStats } from './SessionStats';
 import { UpcomingSessions } from './UpcomingSessions';
 import { SessionHistory } from './SessionHistory';
+import { EngineerSessionFeed } from '@/components/engineer/EngineerSessionFeed';
 
 interface Session {
   id: string;
@@ -42,7 +43,7 @@ interface Session {
 export function SessionsHub() {
   const { user, activeRole } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('active');
+  const [activeTab, setActiveTab] = useState(activeRole === 'engineer' ? 'marketplace' : 'active');
   const [searchQuery, setSearchQuery] = useState('');
   const [sessions, setSessions] = useState<Session[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -168,9 +169,15 @@ export function SessionsHub() {
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <Tabs value={activeTab} onValueChange={setActiveTab}>
                   <TabsList className="bg-muted/50">
+                    {(activeRole === 'engineer' || activeRole === 'producer') && (
+                      <TabsTrigger value="marketplace" className="data-[state=active]:bg-green-500/20 data-[state=active]:text-green-500">
+                        <Radio className="w-4 h-4 mr-1" />
+                        Marketplace
+                      </TabsTrigger>
+                    )}
                     <TabsTrigger value="active" className="data-[state=active]:bg-accent-cyan/20">
                       <Zap className="w-4 h-4 mr-1" />
-                      Active
+                      My Sessions
                     </TabsTrigger>
                     <TabsTrigger value="scheduled" className="data-[state=active]:bg-accent-cyan/20">
                       <Calendar className="w-4 h-4 mr-1" />
@@ -195,7 +202,9 @@ export function SessionsHub() {
               </div>
             </CardHeader>
             <CardContent>
-              {isLoading ? (
+              {activeTab === 'marketplace' ? (
+                <EngineerSessionFeed />
+              ) : isLoading ? (
                 <div className="flex items-center justify-center py-12">
                   <Loader2 className="w-6 h-6 animate-spin text-accent-cyan" />
                 </div>
