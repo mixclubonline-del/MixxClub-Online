@@ -95,7 +95,7 @@ function Scene() {
       <CoinDisc position={[1.2, 0, 0]} color="#d4a017" emissive="#f59e0b" />
 
       <ParticleDust />
-      <Environment preset="night" />
+      <hemisphereLight args={['#7c3aed', '#1a1a2e', 0.4]} />
     </>
   );
 }
