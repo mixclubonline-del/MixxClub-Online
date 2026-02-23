@@ -42,10 +42,9 @@ const DOOR_POSITIONS = [
 interface StudioHallwayProps {
   fullscreen?: boolean;
   onEnter?: () => void;
-  onSkipToInfo?: () => void;
 }
 
-export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: StudioHallwayProps) {
+export function StudioHallway({ fullscreen = false, onEnter }: StudioHallwayProps) {
   const navigate = useNavigate();
   const [showSkipHint, setShowSkipHint] = useState(false);
   const [hoveredRoomId, setHoveredRoomId] = useState<string | null>(null);
@@ -75,12 +74,12 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
 
   const hasActiveSessions = activeCount > 0;
 
-  // Show skip hint after 3 seconds idle in fullscreen mode
+  // Show sign-in hint after 3 seconds idle in fullscreen mode
   useEffect(() => {
-    if (!fullscreen || !onSkipToInfo) return;
+    if (!fullscreen) return;
     const timer = setTimeout(() => setShowSkipHint(true), 3000);
     return () => clearTimeout(timer);
-  }, [fullscreen, onSkipToInfo]);
+  }, [fullscreen]);
 
   // Check if current user has a featured session (On Stage gets the glow)
   const userFeaturedRoomId = useMemo(() => {
@@ -168,9 +167,9 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
       >
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/60 backdrop-blur-md border border-border/30">
           <div className={`w-2 h-2 rounded-full ${currentLayer === 'on-stage' ? 'bg-primary' :
-              currentLayer === 'on-the-mic' ? 'bg-primary/80' :
-                currentLayer === 'in-the-room' ? 'bg-primary/60' :
-                  'bg-muted-foreground/40'
+            currentLayer === 'on-the-mic' ? 'bg-primary/80' :
+              currentLayer === 'in-the-room' ? 'bg-primary/60' :
+                'bg-muted-foreground/40'
             }`} />
           <span className="text-xs font-medium text-muted-foreground capitalize">
             {currentLayer.replace('-', ' ')}
@@ -340,18 +339,17 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
         </motion.div>
       )}
 
-      {/* "Been here before?" — bottom center ghost pill, appears after 3s */}
-      {fullscreen && showSkipHint && onSkipToInfo && (
+      {/* "Been here before?" — bottom center ghost pill, sign-in shortcut */}
+      {fullscreen && showSkipHint && (
         <motion.button
-          onClick={onSkipToInfo}
-          aria-label="Skip hallway and go to info scene"
+          onClick={() => navigate('/login')}
+          aria-label="Sign in to your account"
           className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 px-4 py-2 rounded-full bg-background/30 backdrop-blur-sm text-muted-foreground/50 hover:text-muted-foreground hover:bg-background/50 transition-all text-xs border border-border/20 hover:border-border/40"
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
           <span>Been here before?</span>
-          <span className="px-1.5 py-0.5 rounded bg-muted/40 text-[10px] font-mono text-muted-foreground/40">I</span>
         </motion.button>
       )}
     </section>

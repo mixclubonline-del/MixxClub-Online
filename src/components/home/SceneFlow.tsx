@@ -84,12 +84,6 @@ export function SceneFlow() {
         go('DEMO');
       }
 
-      // Press 'I' to skip to info (from Hallway)
-      if ((e.key === 'i' || e.key === 'I') && scene === 'HALLWAY') {
-        e.preventDefault();
-        go('INFO');
-      }
-
       if (e.key === 'Escape') {
         e.preventDefault();
         back();
@@ -105,10 +99,6 @@ export function SceneFlow() {
     go('DEMO');
   }, [go]);
 
-  const handleSkipToInfo = useCallback(() => {
-    trackEvent('funnel_cta_click', 'funnel', 'hallway_skip_to_info');
-    go('INFO');
-  }, [go]);
 
   const handleLearnMore = useCallback(() => {
     trackEvent('funnel_cta_click', 'funnel', 'demo_learn_more');
@@ -140,23 +130,23 @@ export function SceneFlow() {
             type="button"
             onClick={handleBackToHallway}
             className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-            aria-label="Back to hallway"
+            aria-label="Back to home"
           >
-            Hallway
+            Home
           </button>
           <span className="text-muted-foreground/40">•</span>
           <Link
             to="/choose-path"
             className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-            aria-label="Skip immersive flow and go to sign up"
+            aria-label="Go to sign up"
           >
-            Skip to signup
+            Sign Up Free
           </Link>
         </div>
       )}
 
       {scene === 'HALLWAY' && (
-        <StudioHallway fullscreen onEnter={handleEnterDemo} onSkipToInfo={handleSkipToInfo} />
+        <StudioHallway fullscreen onEnter={handleEnterDemo} />
       )}
 
       {scene === 'DEMO' && (
