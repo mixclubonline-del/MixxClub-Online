@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import GlobalHeader from '@/components/GlobalHeader';
@@ -18,6 +19,8 @@ import { useOpenSessions, useApplyToSession, useSessionMarketplaceStats } from '
 import type { SessionFilters, SessionListing } from '@/hooks/useSessionMarketplace';
 import { motion } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
+import { MobileBottomNav } from '@/components/mobile/MobileBottomNav';
+import { MobileSessionCard } from '@/components/mobile/MobileSessionCard';
 
 const GENRE_OPTIONS = [
   'Hip-Hop', 'R&B', 'Trap', 'Pop', 'Rock', 'Electronic',
@@ -33,6 +36,7 @@ const SERVICE_LABELS: Record<string, string> = {
 
 export default function SessionsBrowser() {
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   const [filters, setFilters] = useState<SessionFilters>({});
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -66,44 +70,61 @@ export default function SessionsBrowser() {
         />
       </Helmet>
 
-      <div className="min-h-screen bg-background">
-        <GlobalHeader />
+      <div className={`min-h-screen bg-background ${isMobile ? 'pb-24' : ''}`}>
+        {!isMobile && <GlobalHeader />}
 
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 py-20">
-          {/* Hero */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-12"
-          >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/10 border border-green-500/20 mb-6">
-              <Radio className="w-4 h-4 text-green-500 animate-pulse" />
-              <span className="text-sm text-green-500 font-medium">
-                {stats?.openSessions
-                  ? `${stats.openSessions} Open Session${stats.openSessions !== 1 ? 's' : ''}`
-                  : 'Live Sessions'}
-              </span>
-            </div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Session
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-500 to-accent-cyan"> Marketplace</span>
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-6">
-              Artists post sessions. Engineers apply. Music gets made.
-            </p>
-
-            {/* Create Session CTA — front and center */}
-            <Button
-              asChild
-              size="lg"
-              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:opacity-90 gap-2"
+        <main className={`max-w-7xl mx-auto px-4 sm:px-6 ${isMobile ? 'py-4' : 'py-20'}`}>
+          {/* Hero — desktop only */}
+          {!isMobile && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center mb-12"
             >
-              <Link to="/create-session">
-                <Plus className="w-5 h-5" />
-                Post a Session
-              </Link>
-            </Button>
-          </motion.div>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/10 border border-green-500/20 mb-6">
+                <Radio className="w-4 h-4 text-green-500 animate-pulse" />
+                <span className="text-sm text-green-500 font-medium">
+                  {stats?.openSessions
+                    ? `${stats.openSessions} Open Session${stats.openSessions !== 1 ? 's' : ''}`
+                    : 'Live Sessions'}
+                </span>
+              </div>
+              <h1 className="text-4xl md:text-5xl font-bold mb-4">
+                Session
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-500 to-accent-cyan"> Marketplace</span>
+              </h1>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-6">
+                Artists post sessions. Engineers apply. Music gets made.
+              </p>
+              <Button
+                asChild
+                size="lg"
+                className="bg-gradient-to-r from-green-500 to-emerald-600 hover:opacity-90 gap-2"
+              >
+                <Link to="/create-session">
+                  <Plus className="w-5 h-5" />
+                  Post a Session
+                </Link>
+              </Button>
+            </motion.div>
+          )}
+
+          {/* Mobile header */}
+          {isMobile && (
+            <div className="flex items-center justify-between mb-4">
+              <h1 className="text-xl font-bold">Sessions</h1>
+              <Button
+                asChild
+                size="sm"
+                className="bg-gradient-to-r from-green-500 to-emerald-600 h-9 gap-1.5"
+              >
+                <Link to="/create-session">
+                  <Plus className="w-4 h-4" />
+                  Post
+                </Link>
+              </Button>
+            </div>
+          )}
 
           {/* Filters */}
           <motion.div
@@ -115,7 +136,7 @@ export default function SessionsBrowser() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder="Search sessions by title or description..."
+                placeholder="Search sessions..."
                 className="pl-10 bg-card border-border/50"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -126,23 +147,23 @@ export default function SessionsBrowser() {
                 value={filters.serviceType || 'all'}
                 onValueChange={(v) => setFilters(f => ({ ...f, serviceType: v }))}
               >
-                <SelectTrigger className="w-40 bg-card border-border/50">
+                <SelectTrigger className={`${isMobile ? 'w-28' : 'w-40'} bg-card border-border/50`}>
                   <Headphones className="w-4 h-4 mr-2" />
                   <SelectValue placeholder="Service" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Services</SelectItem>
+                  <SelectItem value="all">All</SelectItem>
                   <SelectItem value="mixing">Mixing</SelectItem>
                   <SelectItem value="mastering">Mastering</SelectItem>
-                  <SelectItem value="vocal_mixing">Vocal Mixing</SelectItem>
-                  <SelectItem value="full_production">Full Production</SelectItem>
+                  <SelectItem value="vocal_mixing">Vocals</SelectItem>
+                  <SelectItem value="full_production">Full Prod</SelectItem>
                 </SelectContent>
               </Select>
               <Select
                 value={filters.genre || 'all'}
                 onValueChange={(v) => setFilters(f => ({ ...f, genre: v }))}
               >
-                <SelectTrigger className="w-36 bg-card border-border/50">
+                <SelectTrigger className={`${isMobile ? 'w-28' : 'w-36'} bg-card border-border/50`}>
                   <Filter className="w-4 h-4 mr-2" />
                   <SelectValue placeholder="Genre" />
                 </SelectTrigger>
@@ -169,10 +190,10 @@ export default function SessionsBrowser() {
             )}
           </div>
 
-          {/* Sessions Grid */}
+          {/* Sessions — Mobile vs Desktop */}
           {isLoading ? (
-            <div className="grid md:grid-cols-2 gap-6">
-              {[...Array(4)].map((_, i) => (
+            <div className={`grid ${isMobile ? 'grid-cols-1' : 'md:grid-cols-2'} gap-${isMobile ? '3' : '6'}`}>
+              {[...Array(isMobile ? 3 : 4)].map((_, i) => (
                 <Card key={i} className="bg-card/50 border-border/30 animate-pulse">
                   <CardContent className="p-6">
                     <div className="h-6 w-3/4 bg-muted rounded mb-4" />
@@ -198,7 +219,15 @@ export default function SessionsBrowser() {
                 </Link>
               </Button>
             </Card>
+          ) : isMobile ? (
+            /* ── Mobile: single-column MobileSessionCards ── */
+            <div className="space-y-3">
+              {sessions.map((session) => (
+                <MobileSessionCard key={session.id} session={session} />
+              ))}
+            </div>
           ) : (
+            /* ── Desktop: 2-column detailed cards ── */
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -254,8 +283,6 @@ export default function SessionsBrowser() {
                             {session.description}
                           </p>
                         )}
-
-                        {/* Session Meta */}
                         <div className="flex flex-wrap gap-3 mb-4 text-sm text-muted-foreground">
                           {budget && budget > 0 && (
                             <div className="flex items-center gap-1 text-green-500">
@@ -270,8 +297,6 @@ export default function SessionsBrowser() {
                             </div>
                           )}
                         </div>
-
-                        {/* Host & Actions */}
                         <div className="flex items-center justify-between pt-4 border-t border-border/30 mt-auto">
                           <div className="flex items-center gap-3">
                             <Avatar className="w-8 h-8">
@@ -288,9 +313,7 @@ export default function SessionsBrowser() {
                               </p>
                             </div>
                           </div>
-
                           <div className="flex items-center gap-2">
-                            {/* Apply button for engineers */}
                             {session.has_applied ? (
                               <Badge variant="outline" className="gap-1 text-green-500 border-green-500/30">
                                 <CheckCircle2 className="w-3 h-3" />
@@ -327,27 +350,32 @@ export default function SessionsBrowser() {
             </motion.div>
           )}
 
-          {/* CTA */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            className="mt-16 text-center"
-          >
-            <Card className="bg-gradient-to-br from-green-500/10 to-accent-cyan/10 border-green-500/20 p-8">
-              <h2 className="text-2xl font-bold mb-3">Need your track mixed?</h2>
-              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                Post a session and let engineers come to you. Describe your track, set your budget, and find the perfect match.
-              </p>
-              <Button asChild className="bg-gradient-to-r from-green-500 to-accent-cyan hover:opacity-90">
-                <Link to="/create-session">
-                  Post a Session
-                  <ChevronRight className="w-4 h-4 ml-1" />
-                </Link>
-              </Button>
-            </Card>
-          </motion.div>
+          {/* CTA — desktop only */}
+          {!isMobile && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="mt-16 text-center"
+            >
+              <Card className="bg-gradient-to-br from-green-500/10 to-accent-cyan/10 border-green-500/20 p-8">
+                <h2 className="text-2xl font-bold mb-3">Need your track mixed?</h2>
+                <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                  Post a session and let engineers come to you. Describe your track, set your budget, and find the perfect match.
+                </p>
+                <Button asChild className="bg-gradient-to-r from-green-500 to-accent-cyan hover:opacity-90">
+                  <Link to="/create-session">
+                    Post a Session
+                    <ChevronRight className="w-4 h-4 ml-1" />
+                  </Link>
+                </Button>
+              </Card>
+            </motion.div>
+          )}
         </main>
+
+        {/* Mobile Bottom Nav */}
+        {isMobile && <MobileBottomNav />}
       </div>
     </>
   );
