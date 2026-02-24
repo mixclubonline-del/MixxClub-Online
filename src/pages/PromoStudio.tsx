@@ -124,8 +124,7 @@ export default function PromoStudio() {
     const { data: campaigns = [], isLoading: loadingCampaigns } = useQuery({
         queryKey: ['promo-campaigns'],
         queryFn: async () => {
-            const { data, error } = await supabase
-                .from('promo_campaigns')
+            const { data, error } = await (supabase.from as any)('promo_campaigns')
                 .select('*')
                 .order('created_at', { ascending: false });
             if (error) throw error;
@@ -138,8 +137,7 @@ export default function PromoStudio() {
         queryKey: ['promo-assets', expandedCampaign],
         queryFn: async () => {
             if (!expandedCampaign) return [];
-            const { data, error } = await supabase
-                .from('promo_assets')
+            const { data, error } = await (supabase.from as any)('promo_assets')
                 .select('*')
                 .eq('campaign_id', expandedCampaign)
                 .order('created_at', { ascending: true });
