@@ -176,18 +176,10 @@ export const CRMHubGrid: React.FC<CRMHubGridProps> = ({
   };
 
   return (
-    <div className="space-y-8">
-      {/* Quick Actions Row — Glassmorphic */}
+    <div className="space-y-8" data-mg-role={userType}>
+      {/* Quick Actions Row — MixxGlass */}
       <motion.div
-        className={cn(
-          "backdrop-blur-2xl rounded-2xl p-5",
-          "shadow-xl"
-        )}
-        style={{
-          background: 'rgba(var(--background-rgb, 0, 0, 0), 0.3)',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
-          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 32px -8px rgba(0,0,0,0.4)',
-        }}
+        className="mg-panel p-5"
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
@@ -222,9 +214,9 @@ export const CRMHubGrid: React.FC<CRMHubGridProps> = ({
         </div>
       </motion.div>
 
-      {/* Hub Modules Grid — Responsive with whileInView */}
+      {/* Hub Modules Grid — MixxGlass */}
       <div className={cn(
-        "grid gap-4",
+        "mg-grid-bg grid gap-4",
         isMobile ? "grid-cols-2" : "grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
       )}>
         {hubs.map((hub, index) => {

@@ -63,29 +63,6 @@ const ROLE_LABELS: Record<string, string> = {
   admin: 'Platform',
 };
 
-const GLOW_MAP: Record<string, { color: string; shadow: string }> = {
-  artist: {
-    color: 'rgba(168, 85, 247, 0.08)',
-    shadow: '0 25px 60px -12px rgba(168, 85, 247, 0.15), 0 0 100px -30px rgba(168, 85, 247, 0.1)',
-  },
-  engineer: {
-    color: 'rgba(249, 115, 22, 0.08)',
-    shadow: '0 25px 60px -12px rgba(249, 115, 22, 0.15), 0 0 100px -30px rgba(249, 115, 22, 0.1)',
-  },
-  producer: {
-    color: 'rgba(234, 179, 8, 0.08)',
-    shadow: '0 25px 60px -12px rgba(234, 179, 8, 0.15), 0 0 100px -30px rgba(234, 179, 8, 0.1)',
-  },
-  fan: {
-    color: 'rgba(236, 72, 153, 0.08)',
-    shadow: '0 25px 60px -12px rgba(236, 72, 153, 0.15), 0 0 100px -30px rgba(236, 72, 153, 0.1)',
-  },
-  admin: {
-    color: 'rgba(56, 189, 248, 0.08)',
-    shadow: '0 25px 60px -12px rgba(56, 189, 248, 0.15), 0 0 100px -30px rgba(56, 189, 248, 0.1)',
-  },
-};
-
 export const CRMActivePanel: React.FC<CRMActivePanelProps> = ({
   hubId,
   userType,
@@ -95,32 +72,22 @@ export const CRMActivePanel: React.FC<CRMActivePanelProps> = ({
   const isMobile = useIsMobile();
   const title = HUB_TITLES[hubId] || 'Hub';
   const roleLabel = ROLE_LABELS[userType] || 'Creator';
-  const glow = GLOW_MAP[userType] || GLOW_MAP.artist;
 
   return (
     <motion.div
       className={cn(
-        "backdrop-blur-2xl rounded-2xl overflow-hidden",
+        "mg-panel overflow-hidden",
         isMobile ? "min-h-[60vh]" : "min-h-[70vh]"
       )}
-      style={{
-        background: `linear-gradient(180deg, rgba(var(--background-rgb, 0, 0, 0), 0.55) 0%, rgba(var(--background-rgb, 0, 0, 0), 0.7) 100%)`,
-        border: '1px solid rgba(255, 255, 255, 0.08)',
-        boxShadow: `${glow.shadow}, inset 0 1px 0 rgba(255,255,255,0.06)`,
-      }}
+      data-mg-role={userType}
       layoutId="active-panel"
     >
-      {/* Panel Header — Frosted glass */}
+      {/* Panel Header — MixxGlass frosted glass */}
       <div className={cn(
-        "sticky top-0 z-20 backdrop-blur-2xl",
+        "mg-header sticky top-0 z-20",
         "px-6 py-4 flex items-center justify-between"
-      )}
-        style={{
-          background: 'rgba(var(--background-rgb, 0, 0, 0), 0.6)',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
-        }}
-      >
-        <div className="flex items-center gap-3">
+      )}>
+        <div className="relative z-10 flex items-center gap-3">
           <Button
             variant="ghost"
             size="icon"
@@ -131,7 +98,7 @@ export const CRMActivePanel: React.FC<CRMActivePanelProps> = ({
           </Button>
           <div>
             <h2 className="text-xl font-bold text-foreground">{title}</h2>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm" style={{ color: 'var(--mg-accent-dim)' }}>
               {roleLabel} Command Center
             </p>
           </div>
@@ -142,7 +109,7 @@ export const CRMActivePanel: React.FC<CRMActivePanelProps> = ({
             variant="ghost"
             size="icon"
             onClick={onClose}
-            className="hover:bg-destructive/10 hover:text-destructive"
+            className="relative z-10 hover:bg-destructive/10 hover:text-destructive"
           >
             <X className="h-5 w-5" />
           </Button>
@@ -151,7 +118,7 @@ export const CRMActivePanel: React.FC<CRMActivePanelProps> = ({
 
       {/* Panel Content */}
       <div className={cn(
-        "p-6",
+        "p-6 relative z-10",
         isMobile ? "pb-24" : "pb-8"
       )}>
         {children}
