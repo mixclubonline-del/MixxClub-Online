@@ -10,8 +10,8 @@ import { subscribeWithSelector } from 'zustand/middleware';
 import { supabase } from '@/integrations/supabase/client';
 import { hubEventBus } from '@/lib/hubEventBus';
 import { usePulseStore } from '@/stores/pulseStore';
-import type {
 import { uuid } from '@/lib/uuid';
+import type {
   WorldState,
   StudioRoom,
   StudioRoomState,
