@@ -52,7 +52,7 @@ export const QuickActionLauncher = ({
       label: 'Find Engineer',
       shortcut: 'E',
       color: 'from-orange-500 to-red-500',
-      link: '/engineer-directory'
+      link: '/engineers'
     },
     {
       icon: <Sparkles className="w-5 h-5" />,

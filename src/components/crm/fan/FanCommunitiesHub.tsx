@@ -384,7 +384,7 @@ export const FanCommunitiesHub = () => {
                                             </div>
                                             <Button
                                                 size="sm"
-                                                onClick={() => navigate(`/profile/${community.artist_id}`)}
+                                                onClick={() => navigate(`/u/${community.artist_id}`)}
                                             >
                                                 View
                                             </Button>

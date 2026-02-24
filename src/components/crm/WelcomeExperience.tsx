@@ -42,7 +42,7 @@ export const WelcomeExperience = ({ userType, userName, onDismiss }: WelcomeExpe
       icon: <Mic2 className="w-5 h-5" />,
       title: "Start Your First Session",
       description: "Create a collaboration session and invite engineers",
-      action: () => navigate('/sessions/create'),
+      action: () => navigate('/create-session'),
       primary: true,
     },
     {
@@ -174,7 +174,7 @@ export const EmptyStatePrompt = ({ type, userType }: EmptyStatePromptProps) => {
 
   const actions = {
     sessions: {
-      artist: { action: "Create Session", onClick: () => navigate('/sessions/create') },
+      artist: { action: "Create Session", onClick: () => navigate('/create-session') },
       engineer: { action: "Browse Sessions", onClick: () => navigate('/sessions-browser') },
     },
     projects: {
