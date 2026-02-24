@@ -77,7 +77,7 @@ const districts = [
   { 
     id: 'apartments', 
     name: 'Your Apartment', 
-    path: '/city/profile', 
+    path: '/settings', 
     icon: Home, 
     color: 'from-teal-500 to-cyan-500', 
     description: 'Profile, portfolio, achievements',

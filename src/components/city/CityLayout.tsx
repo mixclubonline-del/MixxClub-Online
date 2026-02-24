@@ -26,7 +26,7 @@ const districts: District[] = [
   { id: 'commerce', name: 'Commerce District', path: '/city/commerce', icon: Store, color: 'from-yellow-500 to-orange-500', description: 'Revenue Streams' },
   { id: 'broadcast', name: 'Broadcast Tower', path: '/city/broadcast', icon: Radio, color: 'from-indigo-500 to-purple-500', description: 'Distribution' },
   { id: 'arena', name: 'The Arena', path: '/city/arena', icon: Users, color: 'from-red-500 to-pink-500', description: 'Community' },
-  { id: 'apartments', name: 'Apartments', path: '/city/profile', icon: Home, color: 'from-teal-500 to-cyan-500', description: 'Your Space' },
+  { id: 'apartments', name: 'Apartments', path: '/settings', icon: Home, color: 'from-teal-500 to-cyan-500', description: 'Your Space' },
 ];
 
 interface CityLayoutProps {
