@@ -185,7 +185,7 @@ export const FanDay1sHub = () => {
                 <Card
                   variant="glass"
                   className="group hover:border-primary/30 transition-all cursor-pointer overflow-hidden"
-                  onClick={() => artist && navigate(`/profile/${artist.id}`)}
+                  onClick={() => artist && navigate(`/u/${artist.id}`)}
                 >
                   <CardContent className="p-5">
                     <div className="flex items-start gap-4">

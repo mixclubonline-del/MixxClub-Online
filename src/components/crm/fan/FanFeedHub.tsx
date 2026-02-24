@@ -120,7 +120,7 @@ function ArtistDiscoveryCard({ artist, index }: { artist: DiscoverArtist; index:
                   size="sm"
                   className="text-xs bg-amber-500/20 text-amber-400 border-amber-500/30 hover:bg-amber-500/30"
                   variant="outline"
-                  onClick={() => navigate(`/profile/${artist.id}`)}
+                  onClick={() => navigate(`/u/${artist.id}`)}
                 >
                   <Star className="w-3 h-3 mr-1" />
                   Day 1
@@ -130,7 +130,7 @@ function ArtistDiscoveryCard({ artist, index }: { artist: DiscoverArtist; index:
                   size="sm"
                   variant="outline"
                   className="text-xs"
-                  onClick={() => navigate(`/profile/${artist.id}`)}
+                  onClick={() => navigate(`/u/${artist.id}`)}
                 >
                   <Heart className="w-3 h-3 mr-1" />
                   Follow
