@@ -132,6 +132,7 @@ export const appRoutes = (
 
       {/* Sessions & Collaboration */}
       <Route path="/sessions" element={<SessionsBrowser />} />
+      <Route path="/sessions-browser" element={<SessionsBrowser />} />
       <Route path="/create-session" element={<CreateSession />} />
       <Route path="/session/:sessionId" element={<SessionDetail />} />
       <Route path="/collaborate/:sessionId" element={<CollaborativeWorkspace />} />
