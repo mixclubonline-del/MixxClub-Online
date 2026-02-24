@@ -6541,6 +6541,122 @@ export type Database = {
           },
         ]
       }
+      promo_assets: {
+        Row: {
+          asset_type: string
+          campaign_id: string
+          content_text: string | null
+          content_url: string | null
+          created_at: string | null
+          generator_function: string
+          id: string
+          metadata: Json | null
+          status: string | null
+        }
+        Insert: {
+          asset_type: string
+          campaign_id: string
+          content_text?: string | null
+          content_url?: string | null
+          created_at?: string | null
+          generator_function: string
+          id?: string
+          metadata?: Json | null
+          status?: string | null
+        }
+        Update: {
+          asset_type?: string
+          campaign_id?: string
+          content_text?: string | null
+          content_url?: string | null
+          created_at?: string | null
+          generator_function?: string
+          id?: string
+          metadata?: Json | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promo_assets_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "promo_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      promo_campaigns: {
+        Row: {
+          asset_count: number | null
+          character_id: string | null
+          config: Json
+          created_at: string | null
+          created_by: string | null
+          genre: string | null
+          id: string
+          name: string
+          phase: string
+          published_at: string | null
+          status: string
+        }
+        Insert: {
+          asset_count?: number | null
+          character_id?: string | null
+          config?: Json
+          created_at?: string | null
+          created_by?: string | null
+          genre?: string | null
+          id?: string
+          name: string
+          phase: string
+          published_at?: string | null
+          status?: string
+        }
+        Update: {
+          asset_count?: number | null
+          character_id?: string | null
+          config?: Json
+          created_at?: string | null
+          created_by?: string | null
+          genre?: string | null
+          id?: string
+          name?: string
+          phase?: string
+          published_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      promo_phase_configs: {
+        Row: {
+          asset_pipeline: Json
+          created_at: string | null
+          default_config: Json
+          description: string | null
+          display_name: string
+          id: string
+          phase: string
+        }
+        Insert: {
+          asset_pipeline?: Json
+          created_at?: string | null
+          default_config?: Json
+          description?: string | null
+          display_name: string
+          id?: string
+          phase: string
+        }
+        Update: {
+          asset_pipeline?: Json
+          created_at?: string | null
+          default_config?: Json
+          description?: string | null
+          display_name?: string
+          id?: string
+          phase?: string
+        }
+        Relationships: []
+      }
       push_tokens: {
         Row: {
           created_at: string
