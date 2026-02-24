@@ -65,6 +65,7 @@ const MusicHub = lazy(() => import('@/components/crm/MusicHub').then(m => ({ def
 const StoreHub = lazy(() => import('@/components/crm/StoreHub').then(m => ({ default: m.StoreHub })));
 const NotificationsHub = lazy(() => import('@/components/crm/notifications').then(m => ({ default: m.NotificationsHub })));
 const ScheduleHub = lazy(() => import('@/components/crm/schedule').then(m => ({ default: m.ScheduleHub })));
+const TriPartnershipView = lazy(() => import('@/components/crm/partnerships/TriPartnershipView').then(m => ({ default: m.TriPartnershipView })));
 
 const EngineerCRM = () => {
   const { user } = useAuth();
@@ -427,6 +428,9 @@ const EngineerCRM = () => {
 
       case 'schedule':
         return gated('schedule', <ScheduleHub />);
+
+      case 'tri-collabs':
+        return gated('tri-collabs', <TriPartnershipView userType="engineer" />);
 
       default:
         return (

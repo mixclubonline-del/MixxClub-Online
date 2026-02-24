@@ -40,6 +40,7 @@ const BrandHub = lazy(() => import('@/components/crm/BrandHub').then(m => ({ def
 const RevenueHub = lazy(() => import('@/components/crm/RevenueHub').then(m => ({ default: m.RevenueHub })));
 const TriPartnershipView = lazy(() => import('@/components/crm/partnerships/TriPartnershipView').then(m => ({ default: m.TriPartnershipView })));
 const NotificationsHub = lazy(() => import('@/components/crm/notifications').then(m => ({ default: m.NotificationsHub })));
+const ScheduleHub = lazy(() => import('@/components/crm/schedule').then(m => ({ default: m.ScheduleHub })));
 
 // Go Live
 import { ProducerGoLiveModal } from '@/components/live/ProducerGoLiveModal';
@@ -218,6 +219,8 @@ const ProducerCRM = () => {
         return gated('tri-collabs', <TriPartnershipView userType="producer" />);
       case 'notifications':
         return gated('notifications', <NotificationsHub />);
+      case 'schedule':
+        return gated('schedule', <ScheduleHub />);
       case 'dashboard':
       default:
         return <ProducerDashboardHub />;

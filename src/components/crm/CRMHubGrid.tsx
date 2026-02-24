@@ -111,6 +111,7 @@ const ROLE_HUB_DEFINITIONS: Record<string, HubDefinition[]> = {
     { id: 'profile', label: 'Brand Hub', icon: User, description: 'Your identity' },
     { id: 'tri-collabs', label: '3-Way Collabs', icon: Triangle, description: 'Tri partnerships' },
     { id: 'notifications', label: 'Alerts', icon: Bell, description: 'Updates & notifications' },
+    { id: 'schedule', label: 'Schedule', icon: Calendar, description: 'Calendar & deadlines' },
   ],
   fan: [
     { id: 'feed', label: 'Discover', icon: Compass, description: 'AI-curated artist feed' },
