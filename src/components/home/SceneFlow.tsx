@@ -124,26 +124,34 @@ export function SceneFlow() {
         {scene === 'INFO' && 'Club information scene active'}
       </div>
 
-      {scene !== 'HALLWAY' && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-2 rounded-full border border-border/40 bg-background/75 px-3 py-1.5 backdrop-blur-md">
-          <button
-            type="button"
-            onClick={handleBackToHallway}
-            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-            aria-label="Back to home"
-          >
-            Home
-          </button>
-          <span className="text-muted-foreground/40">•</span>
-          <Link
-            to="/choose-path"
-            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-            aria-label="Go to sign up"
-          >
-            Sign Up Free
-          </Link>
-        </div>
-      )}
+      {/* Floating nav pill — always visible across all scenes */}
+      <motion.div
+        className="mg-panel fixed top-4 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-2 px-3 py-1.5"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: scene === 'HALLWAY' ? 2 : 0.3 }}
+      >
+        {scene !== 'HALLWAY' && (
+          <>
+            <button
+              type="button"
+              onClick={handleBackToHallway}
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Back to home"
+            >
+              Home
+            </button>
+            <span className="text-muted-foreground/40">•</span>
+          </>
+        )}
+        <Link
+          to="/choose-path"
+          className="mg-pill text-xs font-semibold text-primary hover:text-primary/80 transition-colors"
+          aria-label="Go to sign up"
+        >
+          Join Free
+        </Link>
+      </motion.div>
 
       {scene === 'HALLWAY' && (
         <StudioHallway fullscreen onEnter={handleEnterDemo} />

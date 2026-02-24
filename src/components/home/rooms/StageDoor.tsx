@@ -90,12 +90,8 @@ export function StageDoor({ onJoin }: StageDoorProps) {
       {/* Main CTA — Enhanced Glassmorphic Container */}
       <div className="relative flex-1 flex flex-col items-center justify-center px-6 py-20">
         <motion.div
-          className="rounded-3xl p-8 md:p-12 border flex flex-col items-center max-w-2xl w-full"
+          className="mg-panel mg-shimmer rounded-3xl p-8 md:p-12 flex flex-col items-center max-w-2xl w-full"
           style={{
-            background: 'rgba(255, 255, 255, 0.04)',
-            borderColor: 'rgba(255, 255, 255, 0.08)',
-            backdropFilter: 'blur(32px)',
-            WebkitBackdropFilter: 'blur(32px)',
             boxShadow: '0 0 100px -30px hsl(var(--primary) / 0.15)',
           }}
           initial={{ opacity: 0, scale: 0.95 }}

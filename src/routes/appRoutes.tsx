@@ -37,13 +37,7 @@ const MyPurchases = React.lazy(() => import("@/pages/MyPurchases"));
 const WishlistPage = React.lazy(() => import("@/components/marketplace/WishlistPage").then(m => ({ default: m.WishlistPage })));
 const SellerDashboardPage = React.lazy(() => import("@/pages/SellerDashboard"));
 
-// Onboarding pages
-import ArtistOnboarding from "@/pages/ArtistOnboarding";
-import EngineerOnboarding from "@/pages/EngineerOnboarding";
-import HybridOnboarding from "@/pages/HybridOnboarding";
-import ProducerOnboarding from "@/pages/ProducerOnboarding";
-import FanOnboarding from "@/pages/FanOnboarding";
-import RoleSelection from "@/pages/RoleSelection";
+
 
 // Service showcase pages
 import MixingShowcase from "@/pages/MixingShowcase";
@@ -90,16 +84,8 @@ const BroadcastPage = React.lazy(() => import("@/pages/BroadcastPage"));
 // Public Profile
 const PublicProfile = React.lazy(() => import("@/pages/PublicProfile"));
 
-// Public pages (nav-linked, no auth required)
-const About = React.lazy(() => import("@/pages/About"));
-const FAQ = React.lazy(() => import("@/pages/FAQ"));
-const Pricing = React.lazy(() => import("@/pages/Pricing"));
-const HowItWorks = React.lazy(() => import("@/pages/HowItWorks"));
-const ForArtists = React.lazy(() => import("@/pages/ForArtists"));
-const ForEngineers = React.lazy(() => import("@/pages/ForEngineers"));
-const ForProducers = React.lazy(() => import("@/pages/ForProducers"));
-const ForFans = React.lazy(() => import("@/pages/ForFans"));
-import { PublicPageLayout } from "@/components/layout/PublicPageLayout";
+
+
 
 // Job Board
 import { JobBoard } from "@/pages/JobBoard";
@@ -124,13 +110,13 @@ export const appRoutes = (
       <Route path="/fan-hub" element={<FanHub />} />
       <Route path="/admin" element={<AdminRoute><AdminCRM /></AdminRoute>} />
 
-      {/* Onboarding Wizards — post-auth, pre-CRM */}
-      <Route path="/artist-onboarding" element={<ArtistOnboarding />} />
-      <Route path="/engineer-onboarding" element={<EngineerOnboarding />} />
-      <Route path="/producer-onboarding" element={<ProducerOnboarding />} />
-      <Route path="/fan-onboarding" element={<FanOnboarding />} />
-      <Route path="/hybrid-onboarding" element={<HybridOnboarding />} />
-      <Route path="/role-selection" element={<RoleSelection />} />
+      {/* Legacy onboarding redirects → canonical standalone routes */}
+      <Route path="/artist-onboarding" element={<Navigate to="/onboarding/artist" replace />} />
+      <Route path="/engineer-onboarding" element={<Navigate to="/onboarding/engineer" replace />} />
+      <Route path="/producer-onboarding" element={<Navigate to="/onboarding/producer" replace />} />
+      <Route path="/fan-onboarding" element={<Navigate to="/onboarding/fan" replace />} />
+      <Route path="/hybrid-onboarding" element={<Navigate to="/onboarding/hybrid" replace />} />
+      <Route path="/role-selection" element={<Navigate to="/select-role" replace />} />
 
       {/* Sessions & Collaboration */}
       <Route path="/sessions" element={<SessionsBrowser />} />
@@ -250,14 +236,6 @@ export const appRoutes = (
     {/* Enterprise demo (public) */}
     <Route path="/enterprise-demo" element={<EnterpriseDemo />} />
 
-    {/* Public pages — wrapped in PublicPageLayout for consistent navigation */}
-    <Route path="/about" element={<PublicPageLayout />}><Route index element={<About />} /></Route>
-    <Route path="/faq" element={<PublicPageLayout />}><Route index element={<FAQ />} /></Route>
-    <Route path="/pricing" element={<PublicPageLayout />}><Route index element={<Pricing />} /></Route>
-    <Route path="/how-it-works" element={<PublicPageLayout />}><Route index element={<HowItWorks />} /></Route>
-    <Route path="/for-artists" element={<PublicPageLayout />}><Route index element={<ForArtists />} /></Route>
-    <Route path="/for-engineers" element={<PublicPageLayout />}><Route index element={<ForEngineers />} /></Route>
-    <Route path="/for-producers" element={<PublicPageLayout />}><Route index element={<ForProducers />} /></Route>
-    <Route path="/for-fans" element={<PublicPageLayout />}><Route index element={<ForFans />} /></Route>
+    {/* Public pages route to publicRoutes.tsx — no duplicates needed here */}
   </>
 );
