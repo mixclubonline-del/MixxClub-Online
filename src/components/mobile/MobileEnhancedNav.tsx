@@ -61,7 +61,7 @@ export const MobileEnhancedNav = () => {
           { icon: Home, label: 'Dashboard', path: '/admin' },
           { icon: Bot, label: 'Mixx Bot', path: '/mobile-mixxbot' },
           { icon: ShoppingBag, label: 'Shop', path: '/merch' },
-          { icon: User, label: 'Users', path: '/admin/users' },
+          { icon: User, label: 'Users', path: '/admin' },
         ];
       default: // artist
         return [
@@ -133,7 +133,7 @@ export const MobileEnhancedNav = () => {
                   <Button 
                     variant="ghost" 
                     className="justify-start"
-                    onClick={() => handleNavigation('/help')}
+                    onClick={() => handleNavigation('/faq')}
                   >
                     Help & Support
                   </Button>
