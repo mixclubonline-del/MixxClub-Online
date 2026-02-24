@@ -37,13 +37,13 @@ export function StreakTracker({ currentStreak, longestStreak, todayComplete }: S
       >
         {/* Ambient glow */}
         <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-orange-500/10 blur-3xl pointer-events-none" />
-        
+
         <div className="relative z-10">
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
               <div
                 className="p-2.5 rounded-xl"
-                style={{ background: 'rgba(249,115,22,0.15)', backdropFilter: 'blur(8px)' }}
+                style={{ background: 'rgba(249,115,22,0.15)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
               >
                 <Flame className="h-5 w-5 text-orange-400" />
               </div>
@@ -57,7 +57,7 @@ export function StreakTracker({ currentStreak, longestStreak, todayComplete }: S
             {currentStreak >= 7 && (
               <Badge
                 className="border-orange-500/30 text-orange-400"
-                style={{ background: 'rgba(249,115,22,0.12)', backdropFilter: 'blur(8px)' }}
+                style={{ background: 'rgba(249,115,22,0.12)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
               >
                 <Zap className="h-3 w-3 mr-1" />
                 {getMultiplier()} Bonus
@@ -82,19 +82,18 @@ export function StreakTracker({ currentStreak, longestStreak, todayComplete }: S
                   className="flex-1 flex flex-col items-center gap-1"
                 >
                   <div
-                    className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold transition-all ${
-                      isComplete
+                    className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold transition-all ${isComplete
                         ? 'bg-gradient-to-br from-orange-400 to-orange-600 text-white shadow-lg shadow-orange-500/25'
                         : isToday
-                        ? 'text-orange-400 ring-2 ring-orange-500'
-                        : 'text-muted-foreground'
-                    }`}
+                          ? 'text-orange-400 ring-2 ring-orange-500'
+                          : 'text-muted-foreground'
+                      }`}
                     style={
                       !isComplete && isToday
                         ? { background: 'rgba(249,115,22,0.12)' }
                         : !isComplete
-                        ? { background: 'rgba(255,255,255,0.04)' }
-                        : undefined
+                          ? { background: 'rgba(255,255,255,0.04)' }
+                          : undefined
                     }
                   >
                     {isComplete ? <Check className="h-4 w-4" /> : day}

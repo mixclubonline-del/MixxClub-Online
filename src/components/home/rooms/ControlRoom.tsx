@@ -142,6 +142,7 @@ export function ControlRoom() {
                         borderColor: accent,
                         color: accent,
                         backdropFilter: 'blur(8px)',
+                        WebkitBackdropFilter: 'blur(8px)',
                       }}
                     >
                       {index + 1}
@@ -155,6 +156,7 @@ export function ControlRoom() {
                           background: 'rgba(0, 0, 0, 0.6)',
                           borderColor: 'rgba(255, 255, 255, 0.08)',
                           backdropFilter: 'blur(16px)',
+                          WebkitBackdropFilter: 'blur(16px)',
                         }}
                       >
                         <div className="text-2xl font-black" style={{ color: accent }}>{step.stat}</div>
@@ -173,6 +175,7 @@ export function ControlRoom() {
                         background: 'rgba(255, 255, 255, 0.04)',
                         borderColor: 'rgba(255, 255, 255, 0.08)',
                         backdropFilter: 'blur(12px)',
+                        WebkitBackdropFilter: 'blur(12px)',
                       }}
                       whileHover={{ scale: 1.1, rotate: 5 }}
                     >

@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Tag, Plus, Copy, Trash2, CalendarDays, Percent } from 'lucide-react';
 import { toast } from 'sonner';
+import { uuid } from '@/lib/uuid';
 
 interface PromoCode {
     id: string;
@@ -40,7 +41,7 @@ export const PromoCodeManager: React.FC = () => {
             return;
         }
         const promo: PromoCode = {
-            id: crypto.randomUUID(),
+            id: uuid(),
             code: newCode.code.toUpperCase(),
             discount: newCode.discount,
             expiresAt: newCode.expiresAt,

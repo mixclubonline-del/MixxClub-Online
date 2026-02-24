@@ -5,6 +5,7 @@
  */
 
 import type { Partner, Commission, Payout, AffiliateLink, PartnerMetrics } from '@/stores/partnerStore';
+import { uuid } from '@/lib/uuid';
 
 // In-memory mock data (resets on page refresh)
 const mockPartners: Partner[] = [];
@@ -52,7 +53,7 @@ export class PartnerService {
         console.warn('PartnerService: Using mock data - partners table not configured');
         const newPartner: Partner = {
             ...partner,
-            id: crypto.randomUUID(),
+            id: uuid(),
             joinedAt: new Date(),
         };
         mockPartners.push(newPartner);
@@ -86,7 +87,7 @@ export class PartnerService {
     ): Promise<Commission> {
         console.warn('PartnerService: Using mock data - commissions table not configured');
         const commission: Commission = {
-            id: crypto.randomUUID(),
+            id: uuid(),
             partnerId,
             referralId: '',
             saleId,
@@ -125,7 +126,7 @@ export class PartnerService {
     ): Promise<Payout> {
         console.warn('PartnerService: Using mock data - payouts table not configured');
         const payout: Payout = {
-            id: crypto.randomUUID(),
+            id: uuid(),
             partnerId,
             amount,
             status: 'pending',
@@ -156,7 +157,7 @@ export class PartnerService {
         console.warn('PartnerService: Using mock data - affiliate_links table not configured');
         const code = `AFF${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
         const link: AffiliateLink = {
-            id: crypto.randomUUID(),
+            id: uuid(),
             partnerId,
             code,
             url: `https://mixclub.com?ref=${code}`,

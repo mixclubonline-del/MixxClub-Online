@@ -59,7 +59,7 @@ export function TierProgressCard({ totalEarned }: TierProgressCardProps) {
           <div className="flex items-center gap-4 mb-5">
             <div
               className="p-3 rounded-xl"
-              style={{ background: currentTier.glow, backdropFilter: 'blur(8px)' }}
+              style={{ background: currentTier.glow, backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
             >
               <CurrentIcon className={`h-8 w-8 ${currentTier.color}`} />
             </div>

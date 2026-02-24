@@ -230,28 +230,29 @@ function FrostedGlassReveal({
             className="px-4 py-3 rounded-lg whitespace-nowrap"
             style={{
               background: 'hsl(var(--background) / 0.15)',
-              backdropFilter: 'blur(16px)',
-              border: '1px solid hsl(0 0% 100% / 0.08)',
-              boxShadow: '0 8px 32px hsl(0 0% 0% / 0.3)',
+              backdropFilter: 'blur(16px)',\n              WebkitBackdropFilter: 'blur(16px)',
+          border: '1px solid hsl(0 0% 100% / 0.08)',
+          boxShadow: '0 8px 32px hsl(0 0% 0% / 0.3)',
             }}
           >
-            <p className="text-sm font-medium text-foreground/90 truncate max-w-[200px]">
-              {room.title}
+          <p className="text-sm font-medium text-foreground/90 truncate max-w-[200px]">
+            {room.title}
+          </p>
+          {isActive && (
+            <p className="text-xs text-foreground/50 mt-0.5">
+              {room.participantCount} creating
             </p>
-            {isActive && (
-              <p className="text-xs text-foreground/50 mt-0.5">
-                {room.participantCount} creating
-              </p>
-            )}
-            {canEnter && (
-              <p className="text-[10px] text-primary/70 mt-1 font-medium tracking-wide uppercase">
-                Enter session
-              </p>
-            )}
-          </div>
+          )}
+          {canEnter && (
+            <p className="text-[10px] text-primary/70 mt-1 font-medium tracking-wide uppercase">
+              Enter session
+            </p>
+          )}
+        </div>
         </motion.div>
-      )}
-    </AnimatePresence>
+  )
+}
+    </AnimatePresence >
   );
 }
 
@@ -408,6 +409,7 @@ export function DepthAwareHotspot({
                   style={{
                     background: 'hsl(var(--background) / 0.1)',
                     backdropFilter: 'blur(12px)',
+                    WebkitBackdropFilter: 'blur(12px)',
                     border: '1px solid hsl(0 0% 100% / 0.05)',
                   }}
                 >

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { VelvetCurveProcessor } from '@/audio/effects/VelvetCurveProcessor';
 import { GenrePreset, GENRE_PRESETS } from '@/audio/context/GenreContext';
+import { uuid } from '@/lib/uuid';
 
 type UUID = string;
 
@@ -218,7 +219,7 @@ class AudioEngine {
 
   /** Create a new track and connect it to master (and sends) */
   createTrack(opts: { id?: UUID; name?: string; buffer?: AudioBuffer | null; groupId?: string }): TrackGraph {
-    const id: UUID = opts.id ?? crypto.randomUUID();
+    const id: UUID = opts.id ?? uuid();
     const name = opts.name ?? "Track";
 
     // Input node: default to a dummy Gain as placeholder
@@ -361,7 +362,7 @@ class AudioEngine {
     const t = this.tracks.get(trackId);
     if (!t) return;
     const plugin: PluginSlot = {
-      id: slot.id ?? crypto.randomUUID(),
+      id: slot.id ?? uuid(),
       type: slot.type,
       bypass: !!slot.bypass,
       node: slot.node ?? this.ctx.createGain(), // replace with AudioWorkletNode for real DSP

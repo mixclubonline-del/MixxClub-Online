@@ -10,6 +10,7 @@ import { useState, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import { uuid } from '@/lib/uuid';
 
 export interface ChatMessage {
     id: string;
@@ -45,14 +46,14 @@ export function useAdminChat(options: AdminChatOptions = {}) {
 
         // Add user message
         const userMessage: ChatMessage = {
-            id: crypto.randomUUID(),
+            id: uuid(),
             role: 'user',
             content: content.trim(),
             timestamp: Date.now(),
         };
 
         // Add pending assistant message
-        const pendingId = crypto.randomUUID();
+        const pendingId = uuid();
         const pendingMessage: ChatMessage = {
             id: pendingId,
             role: 'assistant',

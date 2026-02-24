@@ -34,7 +34,7 @@ export function StageDoor({ onJoin }: StageDoorProps) {
         .eq('is_active', true)
         .limit(1)
         .maybeSingle();
-      
+
       if (data?.asset_type === 'video' && data.public_url) {
         setVideoBgUrl(data.public_url);
       }
@@ -44,8 +44,8 @@ export function StageDoor({ onJoin }: StageDoorProps) {
 
   const nextMilestone = milestones.find((m) => !m.is_unlocked);
   const isNearUnlock = nextMilestone && nextMilestone.progress_percentage >= 80;
-  const membersNeeded = nextMilestone 
-    ? nextMilestone.target_value - nextMilestone.current_value 
+  const membersNeeded = nextMilestone
+    ? nextMilestone.target_value - nextMilestone.current_value
     : 0;
 
   return (
@@ -71,7 +71,7 @@ export function StageDoor({ onJoin }: StageDoorProps) {
             loading="lazy"
           />
         )}
-        <div 
+        <div
           className="absolute inset-0"
           style={{
             background: `linear-gradient(to bottom, hsl(var(--background) / 0.5) 0%, hsl(var(--background) / 0.35) 40%, hsl(var(--background) / 0.35) 60%, hsl(var(--background) / 0.65) 100%)`
@@ -143,66 +143,66 @@ export function StageDoor({ onJoin }: StageDoorProps) {
                 style={{
                   background: 'hsl(var(--primary) / 0.04)',
                   borderColor: 'hsl(var(--primary) / 0.15)',
-                  backdropFilter: 'blur(16px)',
+                  backdropFilter: 'blur(16px)',\n                  WebkitBackdropFilter: 'blur(16px)',
                 }}
               >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Users className="w-4 h-4" />
-                    <span>Unlocking: {nextMilestone.milestone_name}</span>
-                  </div>
-                  <span className="text-sm font-bold text-primary">
-                    {nextMilestone.progress_percentage}%
-                  </span>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Users className="w-4 h-4" />
+                  <span>Unlocking: {nextMilestone.milestone_name}</span>
                 </div>
-                <Progress value={nextMilestone.progress_percentage} className="h-2" />
-                <p className="mt-2 text-xs text-center text-muted-foreground">
-                  {membersNeeded} more {membersNeeded === 1 ? 'member' : 'members'} to unlock
-                </p>
+                <span className="text-sm font-bold text-primary">
+                  {nextMilestone.progress_percentage}%
+                </span>
               </div>
+              <Progress value={nextMilestone.progress_percentage} className="h-2" />
+              <p className="mt-2 text-xs text-center text-muted-foreground">
+                {membersNeeded} more {membersNeeded === 1 ? 'member' : 'members'} to unlock
+              </p>
+            </div>
             </motion.div>
           )}
 
-          {/* Primary CTA */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.4 }}
+        {/* Primary CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.4 }}
+        >
+          <Button
+            onClick={onJoin}
+            size="lg"
+            className={`group text-lg px-10 py-6 h-auto ${isNearUnlock ? 'animate-pulse' : ''}`}
           >
-            <Button
-              onClick={onJoin}
-              size="lg"
-              className={`group text-lg px-10 py-6 h-auto ${isNearUnlock ? 'animate-pulse' : ''}`}
-            >
-              {isNearUnlock ? 'Help Us Unlock!' : 'Join the Club'}
-              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-            </Button>
-          </motion.div>
-
-          {/* Sign in link */}
-          <motion.p
-            className="mt-6 text-sm text-muted-foreground"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.6 }}
-          >
-            Already a member?{' '}
-            <Link 
-              to="/auth?mode=login" 
-              className="text-primary hover:underline"
-            >
-              Sign in
-            </Link>
-          </motion.p>
+            {isNearUnlock ? 'Help Us Unlock!' : 'Join the Club'}
+            <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+          </Button>
         </motion.div>
-      </div>
 
-      {/* Footer */}
-      <div className="relative">
-        <HomeFooter />
-      </div>
-    </ClubRoom>
+        {/* Sign in link */}
+        <motion.p
+          className="mt-6 text-sm text-muted-foreground"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.6 }}
+        >
+          Already a member?{' '}
+          <Link
+            to="/auth?mode=login"
+            className="text-primary hover:underline"
+          >
+            Sign in
+          </Link>
+        </motion.p>
+      </motion.div>
+    </div>
+
+      {/* Footer */ }
+  <div className="relative">
+    <HomeFooter />
+  </div>
+    </ClubRoom >
   );
 }

@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { hubEventBus } from '@/lib/hubEventBus';
 import { usePulseStore } from '@/stores/pulseStore';
 import type {
+import { uuid } from '@/lib/uuid';
   WorldState,
   StudioRoom,
   StudioRoomState,
@@ -407,7 +408,7 @@ export const useSceneStore = create<SceneStore>()(
     publishEvent: (event) => {
       const fullEvent: SceneEvent = {
         ...event,
-        id: crypto.randomUUID(),
+        id: uuid(),
         timestamp: new Date().toISOString(),
       };
 
