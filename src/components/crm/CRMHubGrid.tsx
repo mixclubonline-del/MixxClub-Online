@@ -26,6 +26,7 @@ import {
   Trophy,
   Calendar,
   Brain,
+  Rocket,
   type LucideIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -136,6 +137,7 @@ const ROLE_HUB_DEFINITIONS: Record<string, HubDefinition[]> = {
     { id: 'assets', label: 'Assets', icon: Star, description: 'Dream Engine assets' },
     { id: 'system', label: 'System', icon: Target, description: 'Seeding & security' },
     { id: 'prime', label: 'Prime Brain', icon: Brain, description: 'AI command center' },
+    { id: 'promo', label: 'Promo Studio', icon: Rocket, description: 'Campaign engine' },
   ],
 };
 

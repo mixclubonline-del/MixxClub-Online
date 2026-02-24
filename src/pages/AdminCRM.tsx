@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { CRMPortal } from '@/components/crm/CRMPortal';
-import { Users, Headphones, DollarSign, Shield, Activity, Eye, Brain } from 'lucide-react';
+import { Users, Headphones, DollarSign, Shield, Activity, Eye, Brain, Rocket } from 'lucide-react';
 import { useAdminPreview } from '@/stores/useAdminPreview';
 import { toast } from 'sonner';
 
@@ -18,6 +18,8 @@ import { AdminCommunityHub } from '@/components/admin/AdminCommunityHub';
 import { AdminAssetsHub } from '@/components/admin/AdminAssetsHub';
 import { AdminSystemHub } from '@/components/admin/AdminSystemHub';
 import { AdminPrimeBrainHub } from '@/components/admin/AdminPrimeBrainHub';
+import { lazy, Suspense } from 'react';
+const PromoStudio = lazy(() => import('@/pages/PromoStudio'));
 
 const AdminCRM = () => {
   const { user } = useAuth();
@@ -144,6 +146,11 @@ const AdminCRM = () => {
       onClick: () => handleTabChange('system'),
     },
     {
+      label: 'Promo Studio',
+      icon: <Rocket className="w-4 h-4" />,
+      onClick: () => handleTabChange('promo'),
+    },
+    {
       label: 'Prime Brain',
       icon: <Brain className="w-4 h-4" />,
       onClick: () => handleTabChange('prime'),
@@ -169,6 +176,8 @@ const AdminCRM = () => {
         return <AdminSystemHub />;
       case 'prime':
         return <AdminPrimeBrainHub />;
+      case 'promo':
+        return <Suspense fallback={null}><PromoStudio /></Suspense>;
       default:
         return <AdminDashboardHub />;
     }
