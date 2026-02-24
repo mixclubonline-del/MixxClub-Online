@@ -1,5 +1,8 @@
 project_id = "wmhwiwjxzpnnzckxezcu"
 
+[functions.orchestrate-promo-campaign]
+verify_jwt = false
+
 [functions.admin-chat-enhanced]
 verify_jwt = false
 
