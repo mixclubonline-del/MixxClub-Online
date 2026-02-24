@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { ROUTES } from '@/config/routes';
 
 interface District {
   id: string;
@@ -18,15 +19,15 @@ interface District {
 }
 
 const districts: District[] = [
-  { id: 'tower', name: 'MixxTech Tower', path: '/city', icon: Building2, color: 'from-primary to-accent-blue', description: 'Central Hub' },
-  { id: 'creator', name: 'Creator Hub', path: '/city/creator', icon: Music, color: 'from-purple-500 to-pink-500', description: 'Upload & Create' },
-  { id: 'rsd', name: 'RSD Chamber', path: '/city/studio', icon: Sparkles, color: 'from-orange-500 to-red-500', description: 'AI Studio' },
-  { id: 'neural', name: 'Neural Engine', path: '/city/prime', icon: Brain, color: 'from-cyan-500 to-blue-500', description: "Prime's HQ" },
-  { id: 'data', name: 'Data Realm', path: '/city/analytics', icon: BarChart3, color: 'from-green-500 to-emerald-500', description: 'Analytics' },
-  { id: 'commerce', name: 'Commerce District', path: '/city/commerce', icon: Store, color: 'from-yellow-500 to-orange-500', description: 'Revenue Streams' },
-  { id: 'broadcast', name: 'Broadcast Tower', path: '/city/broadcast', icon: Radio, color: 'from-indigo-500 to-purple-500', description: 'Distribution' },
-  { id: 'arena', name: 'The Arena', path: '/city/arena', icon: Users, color: 'from-red-500 to-pink-500', description: 'Community' },
-  { id: 'apartments', name: 'Apartments', path: '/settings', icon: Home, color: 'from-teal-500 to-cyan-500', description: 'Your Space' },
+  { id: 'tower', name: 'MixxTech Tower', path: ROUTES.CITY, icon: Building2, color: 'from-primary to-accent-blue', description: 'Central Hub' },
+  { id: 'creator', name: 'Creator Hub', path: ROUTES.CITY_CREATOR, icon: Music, color: 'from-purple-500 to-pink-500', description: 'Upload & Create' },
+  { id: 'rsd', name: 'RSD Chamber', path: ROUTES.CITY_STUDIO, icon: Sparkles, color: 'from-orange-500 to-red-500', description: 'AI Studio' },
+  { id: 'neural', name: 'Neural Engine', path: ROUTES.CITY_PRIME, icon: Brain, color: 'from-cyan-500 to-blue-500', description: "Prime's HQ" },
+  { id: 'data', name: 'Data Realm', path: ROUTES.CITY_ANALYTICS, icon: BarChart3, color: 'from-green-500 to-emerald-500', description: 'Analytics' },
+  { id: 'commerce', name: 'Commerce District', path: ROUTES.CITY_COMMERCE, icon: Store, color: 'from-yellow-500 to-orange-500', description: 'Revenue Streams' },
+  { id: 'broadcast', name: 'Broadcast Tower', path: ROUTES.CITY_BROADCAST, icon: Radio, color: 'from-indigo-500 to-purple-500', description: 'Distribution' },
+  { id: 'arena', name: 'The Arena', path: ROUTES.CITY_ARENA, icon: Users, color: 'from-red-500 to-pink-500', description: 'Community' },
+  { id: 'apartments', name: 'Apartments', path: ROUTES.SETTINGS, icon: Home, color: 'from-teal-500 to-cyan-500', description: 'Your Space' },
 ];
 
 interface CityLayoutProps {
@@ -82,7 +83,7 @@ export const CityLayout = ({ children, currentDistrict }: CityLayoutProps) => {
             <Button 
               variant="ghost" 
               size="icon"
-              onClick={() => navigate('/city')}
+              onClick={() => navigate(ROUTES.CITY)}
               className="hover:bg-primary/10"
             >
               <ChevronLeft className="w-5 h-5" />

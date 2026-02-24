@@ -8,6 +8,7 @@ import {
   Search, Command, ArrowRight, Clock, TrendingUp
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '@/config/routes';
 import { useState } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -52,7 +53,7 @@ export const QuickActionLauncher = ({
       label: 'Find Engineer',
       shortcut: 'E',
       color: 'from-orange-500 to-red-500',
-      link: '/engineers'
+      link: ROUTES.ENGINEERS
     },
     {
       icon: <Sparkles className="w-5 h-5" />,
