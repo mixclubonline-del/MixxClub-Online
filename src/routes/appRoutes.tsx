@@ -90,6 +90,14 @@ const PublicProfile = React.lazy(() => import("@/pages/PublicProfile"));
 // Promo Studio
 const PromoStudio = React.lazy(() => import("@/pages/PromoStudio"));
 
+// Onboarding pages
+const RoleSelection = React.lazy(() => import("@/pages/RoleSelection"));
+const ArtistOnboarding = React.lazy(() => import("@/pages/ArtistOnboarding"));
+const EngineerOnboarding = React.lazy(() => import("@/pages/EngineerOnboarding"));
+const HybridOnboarding = React.lazy(() => import("@/pages/HybridOnboarding"));
+const ProducerOnboarding = React.lazy(() => import("@/pages/ProducerOnboarding"));
+const FanOnboarding = React.lazy(() => import("@/pages/FanOnboarding"));
+
 // Job Board
 import { JobBoard } from "@/pages/JobBoard";
 
