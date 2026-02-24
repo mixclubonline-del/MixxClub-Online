@@ -8,6 +8,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { WalletIndicator } from '@/components/economy/WalletIndicator';
+import { ROUTES } from '@/config/routes';
 
 interface NavTab {
   icon: any;
@@ -34,42 +35,42 @@ export const MobileEnhancedNav = () => {
     switch (userRole) {
       case 'engineer':
         return [
-          { icon: Home, label: 'Home', path: '/engineer-crm' },
-          { icon: Briefcase, label: 'Jobs', path: '/jobs', badge: 5 },
-          { icon: ShoppingBag, label: 'Shop', path: '/merch' },
-          { icon: Bot, label: 'AI', path: '/mobile-mixxbot' },
-          { icon: User, label: 'Profile', path: '/settings' },
+          { icon: Home, label: 'Home', path: ROUTES.ENGINEER_CRM },
+          { icon: Briefcase, label: 'Jobs', path: ROUTES.JOBS, badge: 5 },
+          { icon: ShoppingBag, label: 'Shop', path: ROUTES.MERCH },
+          { icon: Bot, label: 'AI', path: ROUTES.MOBILE_MIXXBOT },
+          { icon: User, label: 'Profile', path: ROUTES.SETTINGS },
         ];
       case 'producer':
         return [
-          { icon: Home, label: 'Home', path: '/producer-crm' },
-          { icon: Briefcase, label: 'Beats', path: '/beats' },
-          { icon: ShoppingBag, label: 'Shop', path: '/merch' },
-          { icon: Bot, label: 'AI', path: '/mobile-mixxbot' },
-          { icon: User, label: 'Profile', path: '/settings' },
+          { icon: Home, label: 'Home', path: ROUTES.PRODUCER_CRM },
+          { icon: Briefcase, label: 'Beats', path: ROUTES.BEATS },
+          { icon: ShoppingBag, label: 'Shop', path: ROUTES.MERCH },
+          { icon: Bot, label: 'AI', path: ROUTES.MOBILE_MIXXBOT },
+          { icon: User, label: 'Profile', path: ROUTES.SETTINGS },
         ];
       case 'fan':
         return [
-          { icon: Home, label: 'Feed', path: '/fan-hub' },
-          { icon: Briefcase, label: 'Discover', path: '/community' },
-          { icon: ShoppingBag, label: 'Shop', path: '/merch' },
-          { icon: Bot, label: 'AI', path: '/mobile-mixxbot' },
-          { icon: User, label: 'Profile', path: '/settings' },
+          { icon: Home, label: 'Feed', path: ROUTES.FAN_HUB },
+          { icon: Briefcase, label: 'Discover', path: ROUTES.COMMUNITY },
+          { icon: ShoppingBag, label: 'Shop', path: ROUTES.MERCH },
+          { icon: Bot, label: 'AI', path: ROUTES.MOBILE_MIXXBOT },
+          { icon: User, label: 'Profile', path: ROUTES.SETTINGS },
         ];
       case 'admin':
         return [
-          { icon: Home, label: 'Dashboard', path: '/admin' },
-          { icon: Bot, label: 'Mixx Bot', path: '/mobile-mixxbot' },
-          { icon: ShoppingBag, label: 'Shop', path: '/merch' },
-          { icon: User, label: 'Users', path: '/admin' },
+          { icon: Home, label: 'Dashboard', path: ROUTES.ADMIN },
+          { icon: Bot, label: 'Mixx Bot', path: ROUTES.MOBILE_MIXXBOT },
+          { icon: ShoppingBag, label: 'Shop', path: ROUTES.MERCH },
+          { icon: User, label: 'Users', path: ROUTES.ADMIN },
         ];
       default: // artist
         return [
-          { icon: Home, label: 'Home', path: '/artist-crm' },
-          { icon: Briefcase, label: 'Projects', path: '/artist-crm' },
-          { icon: ShoppingBag, label: 'Shop', path: '/merch' },
-          { icon: Bot, label: 'AI', path: '/mobile-mixxbot' },
-          { icon: User, label: 'Profile', path: '/settings' },
+          { icon: Home, label: 'Home', path: ROUTES.ARTIST_CRM },
+          { icon: Briefcase, label: 'Projects', path: ROUTES.ARTIST_CRM },
+          { icon: ShoppingBag, label: 'Shop', path: ROUTES.MERCH },
+          { icon: Bot, label: 'AI', path: ROUTES.MOBILE_MIXXBOT },
+          { icon: User, label: 'Profile', path: ROUTES.SETTINGS },
         ];
     }
   };
@@ -103,7 +104,7 @@ export const MobileEnhancedNav = () => {
               variant="ghost" 
               size="icon"
               className="relative"
-              onClick={() => handleNavigation('/notifications')}
+              onClick={() => handleNavigation(ROUTES.NOTIFICATIONS)}
             >
               <Bell className="h-5 w-5" />
               {notificationCount > 0 && (
@@ -126,21 +127,21 @@ export const MobileEnhancedNav = () => {
                   <Button 
                     variant="ghost" 
                     className="justify-start"
-                    onClick={() => handleNavigation('/settings')}
+                    onClick={() => handleNavigation(ROUTES.SETTINGS)}
                   >
                     Settings
                   </Button>
                   <Button 
                     variant="ghost" 
                     className="justify-start"
-                    onClick={() => handleNavigation('/faq')}
+                    onClick={() => handleNavigation(ROUTES.FAQ)}
                   >
                     Help & Support
                   </Button>
                   <Button 
                     variant="ghost" 
                     className="justify-start text-destructive"
-                    onClick={() => handleNavigation('/auth')}
+                    onClick={() => handleNavigation(ROUTES.AUTH)}
                   >
                     Sign Out
                   </Button>
