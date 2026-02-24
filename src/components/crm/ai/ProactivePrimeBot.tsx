@@ -1,6 +1,6 @@
 /**
  * ProactivePrimeBot - Role-specific AI guide with proactive nudges and daily briefings
- * Uses Jax (Artist), Rell (Engineer), Tempo (Producer), or Nova (Fan) based on role
+ * Uses Jax (Artist), Rell (Producer), Prime (Engineer), or Nova (Fan) based on role
  */
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
@@ -143,9 +143,9 @@ export const ProactivePrimeBot = ({ userType, onNavigate }: ProactivePrimeBotPro
           type: 'opportunity',
           title: 'Hot Opportunities! 🔥',
           message: `${jobs.length} new ${userType === 'engineer' ? 'gigs' :
-              userType === 'producer' ? 'beat requests' :
-                userType === 'fan' ? 'discoveries' :
-                  'collaboration requests'
+            userType === 'producer' ? 'beat requests' :
+              userType === 'fan' ? 'discoveries' :
+                'collaboration requests'
             } just dropped. "${jobs[0].title}" looks perfect for you.`,
           action: {
             label: 'Check Them Out',
@@ -241,8 +241,8 @@ export const ProactivePrimeBot = ({ userType, onNavigate }: ProactivePrimeBotPro
           type: 'opportunity',
           title: `${pendingMatches.length} New Match${pendingMatches.length > 1 ? 'es' : ''}! 🎯`,
           message: `${pendingMatches.length} ${userType === 'artist' ? 'engineers match your style' :
-              userType === 'engineer' ? 'artists need your skills' :
-                'creators are waiting to connect'
+            userType === 'engineer' ? 'artists need your skills' :
+              'creators are waiting to connect'
             }. Don't let these connections slip away.`,
           action: {
             label: 'View Matches',

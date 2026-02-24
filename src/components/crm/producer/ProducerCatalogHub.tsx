@@ -84,7 +84,7 @@ export const ProducerCatalogHub = () => {
       <>
         <CharacterEmptyState
           type="catalog"
-          characterId="tempo"
+          characterId="rell"
           title="Your Beat Catalog"
           actionLabel="Upload Your First Beat"
           onAction={() => setUploadModalOpen(true)}
