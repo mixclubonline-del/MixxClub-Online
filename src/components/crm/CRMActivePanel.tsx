@@ -25,9 +25,13 @@ const HUB_TITLES: Record<string, string> = {
   messages: 'Messages',
   earnings: 'Collaborative Earnings',
   music: 'Music Library',
+  mastering: 'AI Mastering',
   store: 'Store',
   profile: 'Brand Hub',
   business: 'Business',
+  'tri-collabs': '3-Way Collaborations',
+  notifications: 'Notifications',
+  schedule: 'Schedule',
   // Producer hubs
   catalog: 'Beat Catalog',
   sales: 'Sales',
@@ -35,8 +39,12 @@ const HUB_TITLES: Record<string, string> = {
   // Fan hubs
   feed: 'Discover',
   day1s: 'Day 1s',
+  communities: 'Communities',
+  drops: 'Drops & Releases',
+  connect: 'Connect',
   missions: 'Missions',
   wallet: 'Wallet',
+  trophies: 'Trophies',
   curator: 'Curator',
   favorites: 'Favorites',
   // Admin hubs
@@ -44,6 +52,7 @@ const HUB_TITLES: Record<string, string> = {
   content: 'Content Management',
   assets: 'Brand Assets',
   system: 'System Controls',
+  prime: 'Prime Brain',
 };
 
 const ROLE_LABELS: Record<string, string> = {
@@ -106,10 +115,10 @@ export const CRMActivePanel: React.FC<CRMActivePanelProps> = ({
         "sticky top-0 z-20 backdrop-blur-2xl",
         "px-6 py-4 flex items-center justify-between"
       )}
-      style={{
-        background: 'rgba(var(--background-rgb, 0, 0, 0), 0.6)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
-      }}
+        style={{
+          background: 'rgba(var(--background-rgb, 0, 0, 0), 0.6)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+        }}
       >
         <div className="flex items-center gap-3">
           <Button
@@ -127,7 +136,7 @@ export const CRMActivePanel: React.FC<CRMActivePanelProps> = ({
             </p>
           </div>
         </div>
-        
+
         {!isMobile && (
           <Button
             variant="ghost"
@@ -139,7 +148,7 @@ export const CRMActivePanel: React.FC<CRMActivePanelProps> = ({
           </Button>
         )}
       </div>
-      
+
       {/* Panel Content */}
       <div className={cn(
         "p-6",
