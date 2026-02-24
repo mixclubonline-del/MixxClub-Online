@@ -114,7 +114,7 @@ export const MobileAuthDialog = ({ open, onOpenChange, mode = 'login' }: MobileA
     setLoading(true);
     try {
       const result = await lovable.auth.signInWithOAuth(provider, {
-        redirect_uri: window.location.origin,
+        redirect_uri: window.location.href,
       });
 
       if (result?.error) throw result.error;

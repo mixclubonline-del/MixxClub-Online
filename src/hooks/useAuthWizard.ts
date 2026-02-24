@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -21,8 +21,10 @@ const RESEND_COOLDOWN_SECONDS = 60;
 
 export function useAuthWizard() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const cooldownTimerRef = useRef<NodeJS.Timeout | null>(null);
   const isMountedRef = useRef(true);
+  const hasRedirected = useRef(false);
 
   const [state, setState] = useState<AuthWizardState>({
     step: 'role',
@@ -45,56 +47,91 @@ export function useAuthWizard() {
     };
   }, []);
 
-  // Check if user is already authenticated — redirect to their CRM
+  /** Redirect authenticated user to their destination */
+  const redirectAuthenticatedUser = useCallback(async (userId: string) => {
+    if (hasRedirected.current || !isMountedRef.current) return;
+
+    // Check for explicit redirect param first
+    const redirectTo = searchParams.get('redirect');
+
+    // Use user_roles table (authoritative source)
+    const { data: userRoles } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', userId);
+
+    if (!isMountedRef.current) return;
+
+    const roles: string[] = userRoles?.map(r => r.role as string) || [];
+    if (roles.length === 0) {
+      navigate('/select-role');
+      return;
+    }
+
+    // Priority: admin > producer > engineer > artist > fan
+    const priority = ['admin', 'producer', 'engineer', 'artist', 'fan'];
+    const primaryRole = priority.find(r => roles.includes(r)) || 'fan';
+
+    hasRedirected.current = true;
+
+    // If redirect param exists, use it (e.g., ?redirect=/admin)
+    if (redirectTo) {
+      navigate(redirectTo);
+      return;
+    }
+
+    // Admins skip onboarding entirely
+    if (primaryRole === 'admin') {
+      navigate('/admin');
+      return;
+    }
+
+    // Check onboarding status for non-admin roles
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('onboarding_completed')
+      .eq('id', userId)
+      .maybeSingle();
+
+    if (!profile?.onboarding_completed) {
+      navigate(`/onboarding/${primaryRole}`);
+      return;
+    }
+
+    const crmMap: Record<string, string> = {
+      producer: '/producer-crm',
+      engineer: '/engineer-crm',
+      fan: '/fan-hub',
+      artist: '/artist-crm',
+    };
+    navigate(crmMap[primaryRole] || '/artist-crm');
+  }, [navigate, searchParams]);
+
+  // Check session on mount AND listen for ongoing auth changes (handles OAuth return)
   useEffect(() => {
+    // Initial check
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user || !isMountedRef.current) return;
-
-      // Use user_roles table (authoritative source) instead of profiles.role
-      const { data: userRoles } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', session.user.id);
-
-      const roles: string[] = userRoles?.map(r => r.role as string) || [];
-      if (roles.length === 0) {
-        navigate('/select-role');
-        return;
+      if (session?.user && isMountedRef.current) {
+        redirectAuthenticatedUser(session.user.id);
       }
-
-      // Priority: admin > producer > engineer > artist > fan
-      const priority = ['admin', 'producer', 'engineer', 'artist', 'fan'];
-      const primaryRole = priority.find(r => roles.includes(r)) || 'fan';
-
-      // Admins skip onboarding entirely
-      if (primaryRole === 'admin') {
-        navigate('/admin');
-        return;
-      }
-
-      // Check onboarding status for non-admin roles
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('onboarding_completed')
-        .eq('id', session.user.id)
-        .maybeSingle();
-
-      if (!profile?.onboarding_completed) {
-        navigate(`/onboarding/${primaryRole}`);
-        return;
-      }
-
-      const crmMap: Record<string, string> = {
-        producer: '/producer-crm',
-        engineer: '/engineer-crm',
-        fan: '/fan-hub',
-        artist: '/artist-crm',
-      };
-      navigate(crmMap[primaryRole] || '/artist-crm');
     };
     checkSession();
-  }, [navigate]);
+
+    // Listen for auth state changes (fires after OAuth redirect completes)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (!isMountedRef.current) return;
+        if (session?.user && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
+          redirectAuthenticatedUser(session.user.id);
+        }
+      }
+    );
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [redirectAuthenticatedUser]);
 
   const setStep = useCallback((step: WizardStep) => {
     setState(prev => ({ ...prev, step, error: null }));
