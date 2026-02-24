@@ -49,7 +49,7 @@ export const GlobalPrimeChat = () => {
   const { user } = useAuth();
   const { bottom, right } = usePrimePosition();
   const { toast } = useToast();
-  
+
   const [isOpen, setIsOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -59,7 +59,7 @@ export const GlobalPrimeChat = () => {
 
   // Hide on CRM/DAW routes (they have dedicated chatbots)
   const shouldHide = HIDDEN_ROUTES.some(route => location.pathname.startsWith(route));
-  
+
   // Hide on CRM routes or for authenticated users
   const shouldRender = !shouldHide && !user;
 
@@ -69,7 +69,7 @@ export const GlobalPrimeChat = () => {
       setIsVisible(false);
       return;
     }
-    
+
     // Show Prime after 8 seconds of page engagement
     const timer = setTimeout(() => setIsVisible(true), 8000);
     return () => clearTimeout(timer);
@@ -170,11 +170,11 @@ export const GlobalPrimeChat = () => {
                   animate={{ scale: [1, 1.5], opacity: [0.5, 0] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 />
-                
+
                 {/* Prime avatar */}
                 <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-white/20">
-                  <img 
-                    src="/assets/prime-pointing.jpg" 
+                  <img
+                    src="/assets/prime-pointing.jpg"
                     alt="Prime"
                     className="w-full h-full object-cover"
                   />
@@ -215,13 +215,13 @@ export const GlobalPrimeChat = () => {
             className="fixed z-[55] w-[calc(100vw-2rem)] sm:w-96 max-w-[400px]"
             style={{ bottom, right }}
           >
-            <div className="glass-ultra rounded-2xl overflow-hidden border border-[hsl(var(--glass-border-glow))] shadow-2xl">
+            <div className="mg-panel rounded-2xl overflow-hidden">
               {/* Header */}
-              <div className="flex items-center justify-between p-3 md:p-4 border-b border-[hsl(var(--border))] bg-gradient-to-r from-[hsl(var(--primary)/0.1)] to-[hsl(var(--accent-cyan)/0.1)]">
+              <div className="mg-header flex items-center justify-between p-3 md:p-4">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden border-2 border-[hsl(var(--primary)/0.5)]">
-                    <img 
-                      src="/assets/prime-pointing.jpg" 
+                    <img
+                      src="/assets/prime-pointing.jpg"
                       alt="Prime"
                       className="w-full h-full object-cover"
                     />
@@ -253,17 +253,16 @@ export const GlobalPrimeChat = () => {
                     className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
                     <div
-                      className={`max-w-[85%] p-2.5 md:p-3 rounded-2xl ${
-                        message.role === 'user'
+                      className={`max-w-[85%] p-2.5 md:p-3 rounded-2xl ${message.role === 'user'
                           ? 'bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent-blue))] text-white'
                           : 'glass-mid'
-                      }`}
+                        }`}
                     >
                       <p className="text-sm">{message.content}</p>
                     </div>
                   </motion.div>
                 ))}
-                
+
                 {isTyping && (
                   <motion.div
                     initial={{ opacity: 0 }}
@@ -296,7 +295,7 @@ export const GlobalPrimeChat = () => {
 
               {/* Input */}
               <div className="p-3 md:p-4 border-t border-[hsl(var(--border))]">
-                <form 
+                <form
                   onSubmit={(e) => { e.preventDefault(); handleSend(); }}
                   className="flex gap-2"
                 >
@@ -306,7 +305,7 @@ export const GlobalPrimeChat = () => {
                     placeholder="Ask about MixClub..."
                     className="flex-1 glass-mid border-[hsl(var(--glass-border))] text-sm"
                   />
-                  <Button 
+                  <Button
                     type="submit"
                     size="icon"
                     disabled={isTyping || !input.trim()}

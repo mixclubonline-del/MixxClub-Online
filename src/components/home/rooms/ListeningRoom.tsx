@@ -93,12 +93,7 @@ export function ListeningRoom({ onScrollHint }: ListeningRoomProps) {
           {FEATURED_TRACKS.map((track, index) => (
             <motion.div
               key={track.title}
-              className="group relative p-6 rounded-2xl border border-white/[0.06] hover:border-primary/30 transition-all cursor-pointer overflow-hidden"
-              style={{
-                background: 'rgba(255, 255, 255, 0.03)',
-                backdropFilter: 'blur(24px)',
-                WebkitBackdropFilter: 'blur(24px)',
-              }}
+              className="mg-panel group cursor-pointer overflow-hidden"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -147,10 +142,7 @@ export function ListeningRoom({ onScrollHint }: ListeningRoomProps) {
               </div>
 
               {/* Genre tag */}
-              <span
-                className="absolute top-4 right-4 text-xs px-2.5 py-1 rounded-full text-primary/90 border border-primary/15"
-                style={{ background: 'hsl(var(--primary) / 0.08)' }}
-              >
+              <span className="mg-pill absolute top-4 right-4 text-xs">
                 {track.genre}
               </span>
             </motion.div>

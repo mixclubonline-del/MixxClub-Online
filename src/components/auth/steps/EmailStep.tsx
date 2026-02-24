@@ -111,7 +111,7 @@ export function EmailStep({
             disabled={loading || googleLoading}
             autoComplete="email"
             autoFocus
-            className="h-12 bg-white/5 border-white/10 text-white placeholder:text-white/40 focus:border-primary"
+            className="h-12 bg-[var(--mg-tint)] border-[var(--mg-edge-subtle)] text-white placeholder:text-white/40 focus:border-primary backdrop-blur-md"
           />
         </div>
 
@@ -159,7 +159,7 @@ export function EmailStep({
           variant="outline"
           onClick={(e) => handleOAuthSignIn(e, 'google')}
           disabled={loading || googleLoading}
-          className="h-12 bg-white/5 border-white/10 text-white hover:bg-white/10"
+          className="h-12 bg-[var(--mg-tint)] border-[var(--mg-edge-subtle)] text-white hover:bg-[var(--mg-tint-mid)] backdrop-blur-sm"
         >
           {googleLoading ? (
             <Loader2 className="w-5 h-5 animate-spin" />
@@ -175,7 +175,7 @@ export function EmailStep({
           variant="outline"
           onClick={(e) => handleOAuthSignIn(e, 'apple')}
           disabled={loading || googleLoading}
-          className="h-12 bg-white/5 border-white/10 text-white hover:bg-white/10"
+          className="h-12 bg-[var(--mg-tint)] border-[var(--mg-edge-subtle)] text-white hover:bg-[var(--mg-tint-mid)] backdrop-blur-sm"
         >
           {googleLoading ? (
             <Loader2 className="w-5 h-5 animate-spin" />

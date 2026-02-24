@@ -136,31 +136,17 @@ export function ControlRoom() {
 
                     {/* Step number */}
                     <div
-                      className="absolute top-4 left-4 w-9 h-9 rounded-full text-sm font-bold flex items-center justify-center border"
-                      style={{
-                        background: 'rgba(0, 0, 0, 0.5)',
-                        borderColor: accent,
-                        color: accent,
-                        backdropFilter: 'blur(8px)',
-                        WebkitBackdropFilter: 'blur(8px)',
-                      }}
+                      className="absolute top-4 left-4 mg-pill font-bold text-sm"
+                      style={{ color: accent }}
                     >
                       {index + 1}
                     </div>
 
                     {/* Stat overlay (desktop hover) */}
                     <div className="absolute bottom-4 right-4 hidden md:block opacity-0 group-hover:opacity-100 transition-opacity">
-                      <div
-                        className="px-4 py-2.5 rounded-xl border"
-                        style={{
-                          background: 'rgba(0, 0, 0, 0.6)',
-                          borderColor: 'rgba(255, 255, 255, 0.08)',
-                          backdropFilter: 'blur(16px)',
-                          WebkitBackdropFilter: 'blur(16px)',
-                        }}
-                      >
-                        <div className="text-2xl font-black" style={{ color: accent }}>{step.stat}</div>
-                        <div className="text-xs text-muted-foreground">{step.statLabel}</div>
+                      <div className="mg-panel px-4 py-2.5">
+                        <div className="relative z-10 text-2xl font-black" style={{ color: accent }}>{step.stat}</div>
+                        <div className="relative z-10 text-xs text-muted-foreground">{step.statLabel}</div>
                       </div>
                     </div>
                   </motion.div>
@@ -170,13 +156,7 @@ export function ControlRoom() {
                 <div className="w-full md:w-1/2">
                   <div className="flex items-center gap-3 mb-4">
                     <motion.div
-                      className="w-12 h-12 rounded-xl flex items-center justify-center border"
-                      style={{
-                        background: 'rgba(255, 255, 255, 0.04)',
-                        borderColor: 'rgba(255, 255, 255, 0.08)',
-                        backdropFilter: 'blur(12px)',
-                        WebkitBackdropFilter: 'blur(12px)',
-                      }}
+                      className="mg-icon"
                       whileHover={{ scale: 1.1, rotate: 5 }}
                     >
                       <Icon className="w-6 h-6 text-primary" />

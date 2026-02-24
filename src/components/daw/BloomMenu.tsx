@@ -190,7 +190,7 @@ export function BloomMenu({
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.15 }}
                         style={{
-                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                            backgroundColor: 'var(--mg-tint)',
                             backdropFilter: 'blur(4px)',
                             WebkitBackdropFilter: 'blur(4px)',
                         }}

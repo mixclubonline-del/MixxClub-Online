@@ -99,13 +99,8 @@ export function VIPBooth() {
             return (
               <motion.div
                 key={plan.id}
-                className={`relative p-6 rounded-2xl border transition-all ${isPopular ? 'md:scale-105' : ''
-                  }`}
+                className={`mg-panel relative p-6 ${isPopular ? 'md:scale-105' : ''}`}
                 style={{
-                  background: isPopular ? 'rgba(212, 175, 55, 0.04)' : 'rgba(255, 255, 255, 0.03)',
-                  borderColor: planGlow.border,
-                  backdropFilter: 'blur(24px)',
-                  WebkitBackdropFilter: 'blur(24px)',
                   boxShadow: planGlow.glow,
                 }}
                 initial={{ opacity: 0, y: 30 }}

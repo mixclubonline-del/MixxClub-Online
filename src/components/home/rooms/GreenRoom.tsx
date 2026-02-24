@@ -83,15 +83,7 @@ export function GreenRoom() {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
         >
-          <div
-            className="flex items-center gap-3 px-6 py-3 rounded-full border"
-            style={{
-              background: 'hsl(var(--primary) / 0.06)',
-              borderColor: 'hsl(var(--primary) / 0.15)',
-              backdropFilter: 'blur(16px)',
-              WebkitBackdropFilter: 'blur(16px)',
-            }}
-          >
+          <div className="mg-pill px-6 py-3">
             <motion.span
               className="relative flex h-3 w-3"
               animate={{ scale: [1, 1.2, 1] }}
@@ -111,12 +103,7 @@ export function GreenRoom() {
           {roles.map((role, index) => (
             <Link to={role.href} key={role.title}>
               <motion.div
-                className="group relative rounded-2xl border border-white/[0.06] hover:border-white/[0.12] transition-all overflow-hidden"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.03)',
-                  backdropFilter: 'blur(24px)',
-                  WebkitBackdropFilter: 'blur(24px)',
-                }}
+                className="mg-panel group overflow-hidden"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}

@@ -27,24 +27,14 @@ export function StreakTracker({ currentStreak, longestStreak, todayComplete }: S
       viewport={{ once: true, margin: '-40px' }}
       transition={{ duration: 0.5 }}
     >
-      <div
-        className="relative rounded-xl border border-orange-500/20 p-5 overflow-hidden"
-        style={{
-          background: 'linear-gradient(135deg, rgba(249,115,22,0.08) 0%, rgba(239,68,68,0.06) 100%)',
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
-        }}
-      >
+      <div className="mg-panel relative p-5 overflow-hidden">
         {/* Ambient glow */}
         <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-orange-500/10 blur-3xl pointer-events-none" />
 
         <div className="relative z-10">
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
-              <div
-                className="p-2.5 rounded-xl"
-                style={{ background: 'rgba(249,115,22,0.15)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
-              >
+              <div className="mg-icon rounded-xl">
                 <Flame className="h-5 w-5 text-orange-400" />
               </div>
               <div>
@@ -55,10 +45,7 @@ export function StreakTracker({ currentStreak, longestStreak, todayComplete }: S
               </div>
             </div>
             {currentStreak >= 7 && (
-              <Badge
-                className="border-orange-500/30 text-orange-400"
-                style={{ background: 'rgba(249,115,22,0.12)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
-              >
+              <Badge className="mg-pill border-orange-500/30 text-orange-400">
                 <Zap className="h-3 w-3 mr-1" />
                 {getMultiplier()} Bonus
               </Badge>
@@ -83,10 +70,10 @@ export function StreakTracker({ currentStreak, longestStreak, todayComplete }: S
                 >
                   <div
                     className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold transition-all ${isComplete
-                        ? 'bg-gradient-to-br from-orange-400 to-orange-600 text-white shadow-lg shadow-orange-500/25'
-                        : isToday
-                          ? 'text-orange-400 ring-2 ring-orange-500'
-                          : 'text-muted-foreground'
+                      ? 'bg-gradient-to-br from-orange-400 to-orange-600 text-white shadow-lg shadow-orange-500/25'
+                      : isToday
+                        ? 'text-orange-400 ring-2 ring-orange-500'
+                        : 'text-muted-foreground'
                       }`}
                     style={
                       !isComplete && isToday

@@ -138,71 +138,64 @@ export function StageDoor({ onJoin }: StageDoorProps) {
               viewport={{ once: true }}
               transition={{ delay: 0.3 }}
             >
-              <div
-                className="p-4 rounded-xl border"
-                style={{
-                  background: 'hsl(var(--primary) / 0.04)',
-                  borderColor: 'hsl(var(--primary) / 0.15)',
-                  backdropFilter: 'blur(16px)',\n                  WebkitBackdropFilter: 'blur(16px)',
-                }}
-              >
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Users className="w-4 h-4" />
-                  <span>Unlocking: {nextMilestone.milestone_name}</span>
+              <div className="mg-panel p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Users className="w-4 h-4" />
+                    <span>Unlocking: {nextMilestone.milestone_name}</span>
+                  </div>
+                  <span className="text-sm font-bold text-primary">
+                    {nextMilestone.progress_percentage}%
+                  </span>
                 </div>
-                <span className="text-sm font-bold text-primary">
-                  {nextMilestone.progress_percentage}%
-                </span>
+                <Progress value={nextMilestone.progress_percentage} className="h-2" />
+                <p className="mt-2 text-xs text-center text-muted-foreground">
+                  {membersNeeded} more {membersNeeded === 1 ? 'member' : 'members'} to unlock
+                </p>
               </div>
-              <Progress value={nextMilestone.progress_percentage} className="h-2" />
-              <p className="mt-2 text-xs text-center text-muted-foreground">
-                {membersNeeded} more {membersNeeded === 1 ? 'member' : 'members'} to unlock
-              </p>
-            </div>
             </motion.div>
           )}
 
-        {/* Primary CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.4 }}
-        >
-          <Button
-            onClick={onJoin}
-            size="lg"
-            className={`group text-lg px-10 py-6 h-auto ${isNearUnlock ? 'animate-pulse' : ''}`}
+          {/* Primary CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.4 }}
           >
-            {isNearUnlock ? 'Help Us Unlock!' : 'Join the Club'}
-            <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-          </Button>
+            <Button
+              onClick={onJoin}
+              size="lg"
+              className={`group text-lg px-10 py-6 h-auto ${isNearUnlock ? 'animate-pulse' : ''}`}
+            >
+              {isNearUnlock ? 'Help Us Unlock!' : 'Join the Club'}
+              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+            </Button>
+          </motion.div>
+
+          {/* Sign in link */}
+          <motion.p
+            className="mt-6 text-sm text-muted-foreground"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.6 }}
+          >
+            Already a member?{' '}
+            <Link
+              to="/auth?mode=login"
+              className="text-primary hover:underline"
+            >
+              Sign in
+            </Link>
+          </motion.p>
         </motion.div>
+      </div>
 
-        {/* Sign in link */}
-        <motion.p
-          className="mt-6 text-sm text-muted-foreground"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.6 }}
-        >
-          Already a member?{' '}
-          <Link
-            to="/auth?mode=login"
-            className="text-primary hover:underline"
-          >
-            Sign in
-          </Link>
-        </motion.p>
-      </motion.div>
-    </div>
-
-      {/* Footer */ }
-  <div className="relative">
-    <HomeFooter />
-  </div>
+      {/* Footer */}
+      <div className="relative">
+        <HomeFooter />
+      </div>
     </ClubRoom >
   );
 }
