@@ -254,10 +254,10 @@ export const ProactivePrimeBot = ({ userType, onNavigate }: ProactivePrimeBotPro
 
       // Session Invitations Waiting
       const { data: sessionInvites } = await (supabase as any)
-        .from('session_participants')
+        .from('session_invitations')
         .select('session_id')
-        .eq('user_id', user.id)
-        .eq('status', 'invited');
+        .eq('engineer_id', user.id)
+        .eq('status', 'pending');
 
       if (sessionInvites && sessionInvites.length > 0) {
         newInsights.push({
@@ -275,11 +275,11 @@ export const ProactivePrimeBot = ({ userType, onNavigate }: ProactivePrimeBotPro
 
       // Deliverables Awaiting Review (for artists/producers)
       if (userType === 'artist' || userType === 'producer') {
-        const { data: pendingDeliverables } = await supabase
+        const { data: pendingDeliverables } = await (supabase as any)
           .from('engineer_deliverables')
-          .select('id, file_name, delivery_type')
+          .select('id, file_name, file_type')
           .eq('status', 'submitted')
-          .limit(5) as any;
+          .limit(5);
 
         if (pendingDeliverables && pendingDeliverables.length > 0) {
           newInsights.push({
@@ -297,31 +297,28 @@ export const ProactivePrimeBot = ({ userType, onNavigate }: ProactivePrimeBotPro
       }
 
       // Community Unlock Progress Nudge
-      const { data: nextUnlock } = await supabase
+      const { data: nextUnlock } = await (supabase as any)
         .from('unlockables')
-        .select('name, current_value, target_value')
+        .select('name, target_value')
         .eq('is_unlocked', false)
         .eq('unlock_type', 'community')
         .order('tier', { ascending: true })
         .limit(1)
-        .maybeSingle() as any;
+        .maybeSingle();
 
       if (nextUnlock) {
-        const remaining = nextUnlock.target_value - nextUnlock.current_value;
-        const progress = Math.round((nextUnlock.current_value / nextUnlock.target_value) * 100);
-        if (progress >= 70) {
-          newInsights.push({
+        // unlockables table doesn't track current_value; show name only
+        newInsights.push({
             id: 'unlock-progress',
             type: 'nudge',
-            title: `${progress}% to ${nextUnlock.name}! 🔓`,
-            message: `The community is ${remaining} ${remaining === 1 ? 'action' : 'actions'} away from unlocking ${nextUnlock.name}. Every session counts.`,
+            title: `Next Unlock: ${nextUnlock.name}! 🔓`,
+            message: `The community is working toward unlocking ${nextUnlock.name}. Every session counts.`,
             action: {
               label: 'View Progress',
               href: '/unlockables'
             },
-            priority: progress >= 90 ? 'high' : 'medium'
+            priority: 'medium'
           });
-        }
       }
 
       setInsights(newInsights);
