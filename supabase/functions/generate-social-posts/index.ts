@@ -14,12 +14,12 @@ serve(async (req) => {
   try {
     const { trackName, genre, mood, vibe, additionalDetails, targetPlatform } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    
+
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY not configured');
     }
 
-    const platforms = targetPlatform === 'all' || !targetPlatform 
+    const platforms = targetPlatform === 'all' || !targetPlatform
       ? ['instagram', 'twitter', 'tiktok', 'facebook']
       : [targetPlatform];
 
@@ -47,7 +47,7 @@ Return as JSON: {"instagram": [variation1, variation2, variation3], "twitter": [
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-3.1',
         messages: [
           { role: 'system', content: 'You are a social media marketing expert for musicians. Always respond with valid JSON.' },
           { role: 'user', content: prompt }
@@ -73,7 +73,7 @@ Return as JSON: {"instagram": [variation1, variation2, variation3], "twitter": [
 
     const data = await response.json();
     const content = data.choices[0].message.content;
-    
+
     let posts;
     try {
       const jsonMatch = content.match(/\{[\s\S]*\}/);

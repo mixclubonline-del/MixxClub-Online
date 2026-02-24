@@ -59,7 +59,7 @@ Format as JSON array with: { type, title, message, action }`;
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-3.1',
         messages: [{ role: 'user', content: prompt }],
       }),
     });
@@ -70,7 +70,7 @@ Format as JSON array with: { type, title, message, action }`;
 
     const data = await response.json();
     const content = data.choices[0].message.content;
-    
+
     // Try to parse JSON from response
     let insights;
     try {

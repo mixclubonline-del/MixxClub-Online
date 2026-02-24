@@ -14,7 +14,7 @@ serve(async (req) => {
   try {
     const { audioUrl, fileName } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    
+
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY not configured');
     }
@@ -62,7 +62,7 @@ Return as JSON: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-3.1',
         messages: [
           { role: 'system', content: 'You are a professional audio mastering engineer. Analyze mix readiness and provide technical feedback. Always respond with valid JSON.' },
           { role: 'user', content: prompt }
@@ -88,17 +88,17 @@ Return as JSON: {
 
     const data = await response.json();
     const content = data.choices[0].message.content;
-    
+
     let analysis;
     try {
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       analysis = JSON.parse(jsonMatch ? jsonMatch[0] : content);
     } catch {
-      analysis = { 
-        score: 75, 
+      analysis = {
+        score: 75,
         checks: [],
         overallFeedback: 'Mix analysis complete. Review technical metrics for details.',
-        error: 'Failed to parse detailed AI response' 
+        error: 'Failed to parse detailed AI response'
       };
     }
 

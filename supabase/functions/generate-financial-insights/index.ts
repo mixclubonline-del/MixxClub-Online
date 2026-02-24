@@ -43,7 +43,7 @@ serve(async (req) => {
 
     // Generate AI insights using Lovable AI
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    
+
     const aiPrompt = `As a financial AI assistant, analyze this data and provide 3-5 actionable insights:
     
 Total Revenue: $${totalRevenue.toFixed(2)}
@@ -64,7 +64,7 @@ Return ONLY a JSON array of insights, no other text.`;
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-3.1',
         messages: [
           { role: 'system', content: 'You are a financial AI assistant. Always respond with valid JSON only.' },
           { role: 'user', content: aiPrompt }
@@ -78,7 +78,7 @@ Return ONLY a JSON array of insights, no other text.`;
 
     const aiData = await aiResponse.json();
     const insightsText = aiData.choices[0].message.content;
-    
+
     // Parse AI response
     let insights = [];
     try {
@@ -118,8 +118,8 @@ Return ONLY a JSON array of insights, no other text.`;
     }
 
     return new Response(
-      JSON.stringify({ 
-        success: true, 
+      JSON.stringify({
+        success: true,
         insights: insertedInsights || insightRecords,
         metrics: {
           totalRevenue,
@@ -128,7 +128,7 @@ Return ONLY a JSON array of insights, no other text.`;
           avgTransactionValue
         }
       }),
-      { 
+      {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
       }
@@ -137,7 +137,7 @@ Return ONLY a JSON array of insights, no other text.`;
     console.error('Error generating insights:', error);
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
-      { 
+      {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,
       }

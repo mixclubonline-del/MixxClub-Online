@@ -13,10 +13,10 @@ serve(async (req) => {
 
   try {
     const { messages, context = {} } = await req.json();
-    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
-    
-    if (!OPENAI_API_KEY) {
-      throw new Error("OPENAI_API_KEY is not configured");
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+
+    if (!LOVABLE_API_KEY) {
+      throw new Error("LOVABLE_API_KEY is not configured");
     }
 
     // System prompt for mixing/mastering expertise
@@ -46,27 +46,25 @@ Always structure responses with:
 4. Specific technical recommendations
 5. How our mastering service would enhance the track`;
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: "google/gemini-3.1",
         messages: [
           { role: "system", content: systemPrompt },
           ...messages,
         ],
-        temperature: 0.7,
-        max_tokens: 800,
       }),
     });
 
     if (!response.ok) {
       const error = await response.text();
-      console.error("OpenAI API error:", response.status, error);
-      throw new Error(`OpenAI API error: ${response.status}`);
+      console.error("Lovable AI API error:", response.status, error);
+      throw new Error(`AI API error: ${response.status}`);
     }
 
     const data = await response.json();
@@ -81,8 +79,8 @@ Always structure responses with:
   } catch (error) {
     console.error("Chat error:", error);
     return new Response(
-      JSON.stringify({ 
-        error: error instanceof Error ? error.message : "Unknown error" 
+      JSON.stringify({
+        error: error instanceof Error ? error.message : "Unknown error"
       }),
       {
         status: 500,

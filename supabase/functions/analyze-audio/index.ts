@@ -20,7 +20,7 @@ serve(async (req) => {
   const logger = createLogger('analyze-audio');
   logger.setContext({ requestId });
   const startTime = Date.now();
-  
+
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -28,12 +28,12 @@ serve(async (req) => {
   try {
     const body = await req.json();
     logger.info('Received analysis request', { fileName: body.fileName });
-    
+
     // Validate required fields
     validateRequest(body, ['fileId', 'filePath', 'fileName']);
-    
+
     const { fileId, filePath, fileName } = body;
-    
+
     // Rate limiting - 10 requests per 5 minutes per file
     const rateLimitResult = await checkRateLimit(
       fileId,
@@ -41,16 +41,16 @@ serve(async (req) => {
       supabaseUrl,
       supabaseServiceKey
     );
-    
+
     if (!rateLimitResult.allowed) {
       logger.warn('Rate limit exceeded', { fileId });
       throw new AppError('Rate limit exceeded. Please try again later.', 429, 'RATE_LIMIT_EXCEEDED');
     }
-    
+
     // Check cache first (5 minute TTL)
     const cacheKey = `analysis:${fileId}`;
     const cached = analysisCache.get(cacheKey);
-    
+
     if (cached) {
       logger.info('Returning cached analysis', { fileId });
       return createResponse({
@@ -58,7 +58,7 @@ serve(async (req) => {
         cached: true
       }, 200, rateLimitHeaders(rateLimitResult));
     }
-    
+
     if (!fileId || !filePath) {
       return new Response(
         JSON.stringify({ error: 'Missing required parameters' }),
@@ -67,7 +67,7 @@ serve(async (req) => {
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
-    
+
     logger.info('Starting AI-powered analysis', { fileName });
 
     // Use Lovable AI for audio analysis
@@ -78,7 +78,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-3.1',
         messages: [
           {
             role: 'system',
@@ -189,13 +189,13 @@ Make educated estimates based on filename analysis and genre conventions.`
 
     if (!analysisResponse.ok) {
       const errorText = await analysisResponse.text();
-      logger.warn('AI analysis failed, using fallback', { 
-        status: analysisResponse.status, 
-        error: errorText 
+      logger.warn('AI analysis failed, using fallback', {
+        status: analysisResponse.status,
+        error: errorText
       });
-      
+
       const fallbackAnalysis = generateFallbackAnalysis(fileName);
-      
+
       // Cache fallback for 2 minutes
       analysisCache.set(cacheKey, { analysis: fallbackAnalysis, source: 'fallback' }, 2 * 60 * 1000);
 
@@ -207,9 +207,9 @@ Make educated estimates based on filename analysis and genre conventions.`
 
     const aiResponse = await analysisResponse.json();
     console.log('AI Response:', JSON.stringify(aiResponse, null, 2));
-    
+
     let analysis;
-    
+
     if (aiResponse.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments) {
       try {
         analysis = JSON.parse(aiResponse.choices[0].message.tool_calls[0].function.arguments);
@@ -224,7 +224,7 @@ Make educated estimates based on filename analysis and genre conventions.`
 
     const duration = Date.now() - startTime;
     logger.performance('Analysis completed', duration, { fileName, source: 'ai' });
-    
+
     // Cache successful analysis for 5 minutes
     const result = { analysis, source: 'ai' };
     analysisCache.set(cacheKey, result, 5 * 60 * 1000);
@@ -233,13 +233,13 @@ Make educated estimates based on filename analysis and genre conventions.`
 
   } catch (error) {
     logger.error('Error in analyze-audio function', error);
-    
+
     // Try fallback for graceful degradation
     try {
       const body = await req.clone().json();
       const fallbackAnalysis = generateFallbackAnalysis(body.fileName || 'unknown_file');
-      
-      return createResponse({ 
+
+      return createResponse({
         analysis: fallbackAnalysis,
         source: 'error_fallback'
       });
@@ -252,18 +252,18 @@ Make educated estimates based on filename analysis and genre conventions.`
 
 function generateFallbackAnalysis(fileName: string): any {
   const lowerFileName = fileName.toLowerCase();
-  
+
   // Try to detect BPM from filename
   const bpmMatch = lowerFileName.match(/(\d{2,3})\s*bpm/);
   const detectedBpm = bpmMatch ? parseInt(bpmMatch[1]) : null;
-  
+
   // Genre-based BPM estimation
   let estimatedBpm = 120; // Default
   let timeSignature = "4/4";
   let genre = "Unknown";
   let instruments = ["Unknown"];
   let confidence = 0.4;
-  
+
   if (lowerFileName.includes('trap') || lowerFileName.includes('hip hop') || lowerFileName.includes('hiphop')) {
     estimatedBpm = detectedBpm || 140;
     genre = "Hip Hop/Trap";

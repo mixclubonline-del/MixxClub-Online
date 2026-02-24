@@ -14,7 +14,7 @@ serve(async (req) => {
   try {
     const { audioData, platforms } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    
+
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY not configured');
     }
@@ -53,7 +53,7 @@ Return JSON:
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-3.1',
         messages: [
           { role: 'system', content: 'You are a mastering engineer expert. Always respond with valid JSON.' },
           { role: 'user', content: prompt }
@@ -79,7 +79,7 @@ Return JSON:
 
     const data = await response.json();
     const content = data.choices[0].message.content;
-    
+
     let result;
     try {
       const jsonMatch = content.match(/\{[\s\S]*\}/);
@@ -89,11 +89,11 @@ Return JSON:
         overallScore: 75,
         checks: {
           mixReadiness: { score: 80, issues: [] },
-          platformCompliance: { 
-            spotify: true, 
-            appleMusic: true, 
+          platformCompliance: {
+            spotify: true,
+            appleMusic: true,
             youtube: true,
-            issues: [] 
+            issues: []
           },
           phaseIssues: { detected: false, locations: [] },
           clipping: { detected: false, locations: [] },
@@ -103,7 +103,7 @@ Return JSON:
       };
     }
 
-    return new Response(JSON.stringify({ 
+    return new Response(JSON.stringify({
       ...result,
       report: 'PDF report data',
     }), {
