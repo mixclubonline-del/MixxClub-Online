@@ -47,7 +47,7 @@ Return as JSON: {"instagram": [variation1, variation2, variation3], "twitter": [
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-3.1',
+        model: 'google/gemini-3-flash-preview',
         messages: [
           { role: 'system', content: 'You are a social media marketing expert for musicians. Always respond with valid JSON.' },
           { role: 'user', content: prompt }

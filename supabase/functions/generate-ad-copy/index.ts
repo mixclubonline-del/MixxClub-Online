@@ -89,7 +89,7 @@ Format as JSON array with objects containing: headline, description, cta, focus 
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-3.1',
+        model: 'google/gemini-3-flash-preview',
         messages: [
           { role: 'system', content: 'You are a music industry advertising expert. Always respond with valid JSON arrays.' },
           { role: 'user', content: prompt }
