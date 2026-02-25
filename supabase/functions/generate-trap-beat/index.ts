@@ -40,7 +40,7 @@ serve(async (req) => {
       input: {
         prompt: `${prompt}. Trap instrumental, no vocals, professional mix, studio quality`,
         seconds_total: 10,
-        steps: 100,
+        steps: 8,
       },
     });
 
