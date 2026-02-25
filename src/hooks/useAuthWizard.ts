@@ -27,10 +27,16 @@ export function useAuthWizard() {
   const isMountedRef = useRef(true);
   const hasRedirected = useRef(false);
 
+  // Derive initial state from URL params
+  const modeParam = searchParams.get('mode') as WizardMode | null;
+  const roleParam = searchParams.get('role') as AppRole | null;
+  const initMode: WizardMode = modeParam === 'login' ? 'login' : 'signup';
+  const initStep: WizardStep = initMode === 'login' ? 'email' : 'role';
+
   const [state, setState] = useState<AuthWizardState>({
-    step: initialStep,
-    mode: initialMode,
-    selectedRole: initialRole,
+    step: initStep,
+    mode: initMode,
+    selectedRole: roleParam,
     email: '',
     password: '',
     loading: false,
