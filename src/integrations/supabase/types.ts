@@ -8988,6 +8988,10 @@ export type Database = {
         }
         Returns: number
       }
+      calculate_bonus_from_rating: {
+        Args: { p_base_amount: number; p_project_id: string }
+        Returns: number
+      }
       calculate_partnership_health: {
         Args: { p_partnership_id: string }
         Returns: number
@@ -9077,6 +9081,11 @@ export type Database = {
           p_stream_id: string
         }
         Returns: string
+      }
+      update_engineer_leaderboard: { Args: never; Returns: undefined }
+      update_engineer_streak: {
+        Args: { p_engineer_id: string }
+        Returns: undefined
       }
       update_stream_viewer_count: {
         Args: { p_count: number; p_stream_id: string }

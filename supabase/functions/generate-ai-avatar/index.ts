@@ -1,4 +1,4 @@
-
+import { requireAuth, authErrorResponse } from "../_shared/auth.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -11,7 +11,11 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { prompt, userId } = await req.json();
+    const authResult = await requireAuth(req);
+    if ('error' in authResult) return authErrorResponse(authResult, corsHeaders);
+
+    const { prompt } = await req.json();
+    const userId = authResult.user.id;
 
     if (!prompt) {
       throw new Error('Prompt is required');

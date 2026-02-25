@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createLogger } from "../_shared/logger.ts";
+import { requireAuth, authErrorResponse } from "../_shared/auth.ts";
 
 const logger = createLogger("copilot-chat");
 
@@ -14,6 +15,9 @@ serve(async (req) => {
   }
 
   try {
+    const authResult = await requireAuth(req);
+    if ('error' in authResult) return authErrorResponse(authResult, corsHeaders);
+
     const { messages } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
