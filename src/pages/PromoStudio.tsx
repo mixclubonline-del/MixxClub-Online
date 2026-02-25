@@ -21,6 +21,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { MIXXCLUB_CHARACTERS, type CharacterId } from '@/config/characters';
+import { CampaignAssembly } from '@/components/admin/CampaignAssembly';
+import { SocialPublisher } from '@/components/admin/SocialPublisher';
 
 // Phase display config
 const PHASES = [
@@ -109,6 +111,7 @@ interface PromoAsset {
     generator_function: string;
     content_url: string | null;
     content_text: string | null;
+    metadata: any;
     status: string;
     created_at: string;
 }
@@ -119,6 +122,9 @@ export default function PromoStudio() {
     const [selectedCharacter, setSelectedCharacter] = useState<CharacterId>('prime');
     const [selectedGenre, setSelectedGenre] = useState('trap');
     const [expandedCampaign, setExpandedCampaign] = useState<string | null>(null);
+    const [socialDrawerOpen, setSocialDrawerOpen] = useState(false);
+    const [socialSelectedPosts, setSocialSelectedPosts] = useState<string[]>([]);
+    const [socialCampaignName, setSocialCampaignName] = useState('');
 
     // Fetch campaigns
     const { data: campaigns = [], isLoading: loadingCampaigns } = useQuery({
@@ -180,6 +186,20 @@ export default function PromoStudio() {
             genre: selectedGenre,
         });
     }, [selectedPhase, selectedCharacter, selectedGenre, generateMutation]);
+
+    // Extract all social posts from current campaign assets for SocialPublisher
+    const getAllSocialPosts = useCallback(() => {
+        const socialAsset = campaignAssets.find(a => a.asset_type === 'social_post');
+        if (!socialAsset?.metadata?.posts) return [];
+        const posts = socialAsset.metadata.posts;
+        return Object.keys(posts).flatMap(platform =>
+            (Array.isArray(posts[platform]) ? posts[platform] : []).map((post: any, i: number) => ({
+                ...post,
+                platform,
+                key: `${platform}-${i}`,
+            }))
+        );
+    }, [campaignAssets]);
 
     const genres = ['trap', 'r&b', 'drill', 'lo-fi', 'afrobeats', 'pop', 'latin', 'indie'];
     const characters = Object.values(MIXXCLUB_CHARACTERS);
@@ -270,8 +290,8 @@ export default function PromoStudio() {
                                                     key={char.id}
                                                     onClick={() => setSelectedCharacter(char.id)}
                                                     className={`mg-pill text-xs font-medium transition-all ${selectedCharacter === char.id
-                                                            ? 'ring-2 ring-primary'
-                                                            : 'opacity-60 hover:opacity-100'
+                                                        ? 'ring-2 ring-primary'
+                                                        : 'opacity-60 hover:opacity-100'
                                                         }`}
                                                     style={{
                                                         color: selectedCharacter === char.id ? char.accentColor : undefined,
@@ -292,8 +312,8 @@ export default function PromoStudio() {
                                                     key={genre}
                                                     onClick={() => setSelectedGenre(genre)}
                                                     className={`mg-pill text-xs font-medium capitalize transition-all ${selectedGenre === genre
-                                                            ? 'ring-2 ring-primary text-primary'
-                                                            : 'opacity-60 hover:opacity-100'
+                                                        ? 'ring-2 ring-primary text-primary'
+                                                        : 'opacity-60 hover:opacity-100'
                                                         }`}
                                                 >
                                                     {genre}
@@ -418,7 +438,7 @@ export default function PromoStudio() {
                                             </div>
                                         </button>
 
-                                        {/* Expanded asset list */}
+                                        {/* Rich Campaign Assembly */}
                                         <AnimatePresence>
                                             {isExpanded && (
                                                 <motion.div
@@ -427,51 +447,21 @@ export default function PromoStudio() {
                                                     exit={{ opacity: 0, height: 0 }}
                                                     className="overflow-hidden"
                                                 >
-                                                    <div className="mg-panel ml-6 mt-1 p-4 space-y-2">
+                                                    <div className="ml-2 mt-2 mb-2">
                                                         {campaignAssets.length === 0 ? (
-                                                            <p className="text-xs text-muted-foreground">Loading assets...</p>
+                                                            <div className="mg-panel p-6 text-center">
+                                                                <Skeleton className="h-40 rounded-xl" />
+                                                            </div>
                                                         ) : (
-                                                            campaignAssets.map(asset => {
-                                                                const AssetIcon = ASSET_ICONS[asset.asset_type] || FileText;
-                                                                const assetStatus = STATUS_CONFIG[asset.status] || STATUS_CONFIG.draft;
-                                                                return (
-                                                                    <div
-                                                                        key={asset.id}
-                                                                        className="flex items-center justify-between py-2 border-b border-border/20 last:border-0"
-                                                                    >
-                                                                        <div className="flex items-center gap-2">
-                                                                            <AssetIcon className="w-3.5 h-3.5 text-muted-foreground" />
-                                                                            <span className="text-xs font-medium capitalize">
-                                                                                {asset.asset_type.replace('_', ' ')}
-                                                                            </span>
-                                                                            <span className="text-xs text-muted-foreground">
-                                                                                via {asset.generator_function}
-                                                                            </span>
-                                                                        </div>
-                                                                        <div className="flex items-center gap-2">
-                                                                            {asset.content_url && (
-                                                                                <a
-                                                                                    href={asset.content_url}
-                                                                                    target="_blank"
-                                                                                    rel="noopener noreferrer"
-                                                                                    className="text-xs text-primary hover:underline"
-                                                                                    onClick={e => e.stopPropagation()}
-                                                                                >
-                                                                                    View
-                                                                                </a>
-                                                                            )}
-                                                                            {asset.content_text && (
-                                                                                <span className="text-xs text-muted-foreground max-w-[200px] truncate">
-                                                                                    {asset.content_text}
-                                                                                </span>
-                                                                            )}
-                                                                            <span className={`text-xs ${assetStatus.color}`}>
-                                                                                {asset.status}
-                                                                            </span>
-                                                                        </div>
-                                                                    </div>
-                                                                );
-                                                            })
+                                                            <CampaignAssembly
+                                                                assets={campaignAssets}
+                                                                campaignName={campaign.name}
+                                                                onPublishSocial={(postKeys) => {
+                                                                    setSocialSelectedPosts(postKeys);
+                                                                    setSocialCampaignName(campaign.name);
+                                                                    setSocialDrawerOpen(true);
+                                                                }}
+                                                            />
                                                         )}
                                                     </div>
                                                 </motion.div>
@@ -484,6 +474,15 @@ export default function PromoStudio() {
                     )}
                 </section>
             </div>
+
+            {/* Social Publisher Drawer */}
+            <SocialPublisher
+                open={socialDrawerOpen}
+                onClose={() => setSocialDrawerOpen(false)}
+                selectedPostKeys={socialSelectedPosts}
+                allPosts={getAllSocialPosts()}
+                campaignName={socialCampaignName}
+            />
         </div>
     );
 }
