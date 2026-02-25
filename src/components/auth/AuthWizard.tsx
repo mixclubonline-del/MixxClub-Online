@@ -33,7 +33,10 @@ export function AuthWizard() {
         <EmailStep
           email={wizard.email}
           onEmailChange={wizard.setEmail}
+          password={wizard.password}
+          onPasswordChange={wizard.setPassword}
           onSubmit={wizard.sendMagicLink}
+          onPasswordSubmit={wizard.signInWithEmail}
           loading={wizard.loading}
           error={wizard.error}
           mode={wizard.mode}

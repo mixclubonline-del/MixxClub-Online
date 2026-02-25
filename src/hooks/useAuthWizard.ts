@@ -12,6 +12,7 @@ export interface AuthWizardState {
   mode: WizardMode;
   selectedRole: AppRole | null;
   email: string;
+  password: string;
   loading: boolean;
   error: string | null;
   resendCooldown: number;
@@ -27,10 +28,11 @@ export function useAuthWizard() {
   const hasRedirected = useRef(false);
 
   const [state, setState] = useState<AuthWizardState>({
-    step: 'role',
-    mode: 'signup',
-    selectedRole: null,
+    step: initialStep,
+    mode: initialMode,
+    selectedRole: initialRole,
     email: '',
+    password: '',
     loading: false,
     error: null,
     resendCooldown: 0,
@@ -138,11 +140,11 @@ export function useAuthWizard() {
   }, []);
 
   const setMode = useCallback((mode: WizardMode) => {
-    setState(prev => ({ 
-      ...prev, 
-      mode, 
+    setState(prev => ({
+      ...prev,
+      mode,
       step: mode === 'login' ? 'email' : 'role',
-      error: null 
+      error: null
     }));
   }, []);
 
@@ -152,6 +154,10 @@ export function useAuthWizard() {
 
   const setEmail = useCallback((email: string) => {
     setState(prev => ({ ...prev, email, error: null }));
+  }, []);
+
+  const setPassword = useCallback((password: string) => {
+    setState(prev => ({ ...prev, password, error: null }));
   }, []);
 
   const setError = useCallback((error: string | null) => {
@@ -164,10 +170,10 @@ export function useAuthWizard() {
 
   const startResendCooldown = useCallback(() => {
     setState(prev => ({ ...prev, resendCooldown: RESEND_COOLDOWN_SECONDS }));
-    
+
     cooldownTimerRef.current = setInterval(() => {
       if (!isMountedRef.current) return;
-      
+
       setState(prev => {
         if (prev.resendCooldown <= 1) {
           if (cooldownTimerRef.current) {
@@ -242,6 +248,77 @@ export function useAuthWizard() {
     return sendMagicLink();
   }, [state.resendCooldown, sendMagicLink]);
 
+  // Email + Password auth
+  const signInWithEmail = useCallback(async () => {
+    if (!state.email) {
+      setError('Please enter your email address');
+      return false;
+    }
+    if (!state.password || state.password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(state.email)) {
+      setError('Please enter a valid email address');
+      return false;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      if (state.mode === 'login') {
+        // Sign in with existing account
+        const { error } = await supabase.auth.signInWithPassword({
+          email: state.email,
+          password: state.password,
+        });
+        if (error) {
+          if (error.message.includes('Invalid login credentials')) {
+            setError('Invalid email or password. Please try again.');
+          } else {
+            setError(error.message);
+          }
+          return false;
+        }
+        toast.success('Signed in successfully!');
+      } else {
+        // Sign up new account
+        const { error } = await supabase.auth.signUp({
+          email: state.email,
+          password: state.password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/auth/callback`,
+            data: {
+              role: state.selectedRole || 'fan',
+            },
+          },
+        });
+        if (error) {
+          if (error.message.includes('already registered')) {
+            setError('This email is already registered. Try signing in instead.');
+          } else {
+            setError(error.message);
+          }
+          return false;
+        }
+        toast.success('Account created! Check your email to confirm.');
+        setState(prev => ({ ...prev, step: 'confirmation' }));
+      }
+      return true;
+    } catch (err) {
+      console.error('Email auth error:', err);
+      setError('Authentication failed. Please try again.');
+      return false;
+    } finally {
+      if (isMountedRef.current) {
+        setLoading(false);
+      }
+    }
+  }, [state.email, state.password, state.mode, state.selectedRole, setError, setLoading]);
+
   const goBack = useCallback(() => {
     setState(prev => {
       if (prev.step === 'confirmation') {
@@ -275,9 +352,11 @@ export function useAuthWizard() {
     setMode,
     setSelectedRole,
     setEmail,
+    setPassword,
     setError,
     setLoading,
     sendMagicLink,
+    signInWithEmail,
     resendMagicLink,
     goBack,
     canGoBack,
