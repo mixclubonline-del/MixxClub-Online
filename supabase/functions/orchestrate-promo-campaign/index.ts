@@ -201,7 +201,8 @@ Deno.serve(async (req: Request) => {
             const hasMetadataContent = !!(result.metadata && (
                 result.metadata.variants || result.metadata.suggestions ||
                 result.metadata.posts || result.metadata.audioUrl ||
-                result.metadata.audio_url || result.metadata.imageUrl
+                result.metadata.audio_url || result.metadata.imageUrl ||
+                result.metadata.waveformData
             ));
             const hasError = !!(result.metadata?.error);
             const assetStatus = (hasContent || hasMetadataContent) && !hasError ? 'ready' : 'failed';
