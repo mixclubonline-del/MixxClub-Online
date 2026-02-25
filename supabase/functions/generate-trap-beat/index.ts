@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import Replicate from "https://esm.sh/replicate@0.25.2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,89 +13,62 @@ serve(async (req) => {
 
   try {
     const { intensity } = await req.json();
-    const SUNO_API_KEY = Deno.env.get('SUNO_API_KEY');
+    const REPLICATE_API_KEY = Deno.env.get('REPLICATE_API_KEY');
 
-    if (!SUNO_API_KEY) {
-      throw new Error('SUNO_API_KEY not configured');
+    if (!REPLICATE_API_KEY) {
+      throw new Error('REPLICATE_API_KEY not configured');
     }
+
+    const replicate = new Replicate({ auth: REPLICATE_API_KEY });
 
     // Define trap beat prompts for different intensity levels
     const prompts: Record<number, string> = {
-      1: "Ambient trap intro, subtle hi-hats, atmospheric pads, minimal, clean, 3 seconds",
-      2: "Trap beat buildup, adding bass kicks, rolling hi-hats, building energy, 3 seconds",
-      3: "Hard trap beat drop, heavy 808 bass, snare rolls, aggressive hi-hats, energetic, 3 seconds",
-      4: "Peak trap intensity, layered percussion, multiple 808s, rapid hi-hats, maximum energy, 3 seconds",
-      5: "Epic trap finale, full arrangement, triumphant synths, powerful bass, climactic, 3 seconds"
+      1: "Ambient trap intro, subtle hi-hats, atmospheric pads, minimal, clean, 140 BPM",
+      2: "Trap beat buildup, 808 bass kicks, rolling hi-hats, building energy, dark atmosphere, 140 BPM",
+      3: "Hard trap beat drop, heavy 808 bass, snare rolls, aggressive hi-hats, energetic, 150 BPM",
+      4: "Peak trap intensity, layered percussion, multiple 808 patterns, rapid hi-hats, maximum energy, 150 BPM",
+      5: "Epic trap finale, full arrangement, triumphant synths, powerful 808 bass, climactic drop, 160 BPM",
     };
 
     const prompt = prompts[intensity] || prompts[1];
 
-    console.log(`Generating trap beat for intensity ${intensity}:`, prompt);
+    console.log(`Generating trap beat for intensity ${intensity} via Replicate:`, prompt);
 
-    // Generate music with Suno API
-    const generateResponse = await fetch('https://api.sunoapi.com/api/v1/gateway/generate/music', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${SUNO_API_KEY}`,
-        'Content-Type': 'application/json',
+    // Use Replicate's stability-ai/stable-audio-2.5 for instrumental generation
+    const prediction = await replicate.predictions.create({
+      model: "stability-ai/stable-audio-2.5",
+      input: {
+        prompt: `${prompt}. Trap instrumental, no vocals, professional mix, studio quality`,
+        seconds_total: 10,
+        steps: 100,
       },
-      body: JSON.stringify({
-        title: `Trap Beat - Intensity ${intensity}`,
-        tags: 'trap, hip hop, instrumental, beat',
-        prompt: prompt,
-        mv: 'chirp-v3-5',
-        continue_clip_id: null,
-        continue_at: null
-      }),
     });
 
-    if (!generateResponse.ok) {
-      const errorText = await generateResponse.text();
-      console.error('Suno API generation error:', errorText);
-      throw new Error(`Failed to generate beat: ${generateResponse.status}`);
-    }
+    console.log("Replicate prediction created:", prediction.id, prediction.status);
 
-    const generateData = await generateResponse.json();
-    console.log('Generation started:', generateData);
-
-    // Get the task IDs
-    const taskIds = generateData.data?.map((item: any) => item.song_id) || [];
-    
-    if (taskIds.length === 0) {
-      throw new Error('No task IDs returned from generation');
-    }
-
-    // Poll for completion
+    // Poll for completion (stable-audio is relatively fast)
     let attempts = 0;
-    const maxAttempts = 60; // 5 minutes max
+    const maxAttempts = 60;
     let audioUrl = null;
 
     while (attempts < maxAttempts && !audioUrl) {
-      await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds
-      
-      const statusResponse = await fetch(`https://api.sunoapi.com/api/v1/gateway/query?ids=${taskIds.join(',')}`, {
-        headers: {
-          'Authorization': `Bearer ${SUNO_API_KEY}`,
-        },
-      });
+      await new Promise(resolve => setTimeout(resolve, 3000));
 
-      if (!statusResponse.ok) {
-        console.error('Status check failed:', await statusResponse.text());
-        attempts++;
-        continue;
+      const status = await replicate.predictions.get(prediction.id);
+      console.log(`Poll ${attempts + 1}: ${status.status}`);
+
+      if (status.status === 'succeeded') {
+        // stable-audio-2.5 returns the audio URL as the output
+        audioUrl = typeof status.output === 'string'
+          ? status.output
+          : Array.isArray(status.output)
+            ? status.output[0]
+            : null;
+        break;
       }
 
-      const statusData = await statusResponse.json();
-      console.log('Status check:', statusData);
-
-      // Check if any track is complete
-      const completedTrack = statusData.data?.find((track: any) => 
-        track.status === 'complete' && track.audio_url
-      );
-
-      if (completedTrack) {
-        audioUrl = completedTrack.audio_url;
-        break;
+      if (status.status === 'failed' || status.status === 'canceled') {
+        throw new Error(`Beat generation failed: ${status.error || status.status}`);
       }
 
       attempts++;
@@ -105,10 +79,12 @@ serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         audioUrl,
+        audio_url: audioUrl, // backward compat for orchestrator
         intensity,
-        cached: false
+        cached: false,
+        provider: 'replicate-stable-audio',
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -118,8 +94,8 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error generating trap beat:', error);
     return new Response(
-      JSON.stringify({ 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+      JSON.stringify({
+        error: error instanceof Error ? error.message : 'Unknown error'
       }),
       {
         status: 500,
