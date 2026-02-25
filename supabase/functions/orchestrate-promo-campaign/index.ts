@@ -119,9 +119,14 @@ async function callGenerator(
 
         const result = await response.json();
 
+        // Map all known generator response shapes
+        const content_url = result.url || result.audio_url || result.audioUrl
+            || result.image_url || result.imageUrl || result.video_url || null;
+        const content_text = result.text || result.copy || result.caption || result.name || null;
+
         return {
-            content_url: result.url || result.audio_url || result.image_url || result.video_url || null,
-            content_text: result.text || result.copy || result.caption || result.name || null,
+            content_url,
+            content_text,
             metadata: result,
         };
     } catch (error) {
@@ -191,7 +196,15 @@ Deno.serve(async (req: Request) => {
                 phase,
             });
 
-            const assetStatus = result.content_url || result.content_text ? 'ready' : 'failed';
+            // Check top-level fields AND metadata for content
+            const hasContent = !!(result.content_url || result.content_text);
+            const hasMetadataContent = !!(result.metadata && (
+                result.metadata.variants || result.metadata.suggestions ||
+                result.metadata.posts || result.metadata.audioUrl ||
+                result.metadata.audio_url || result.metadata.imageUrl
+            ));
+            const hasError = !!(result.metadata?.error);
+            const assetStatus = (hasContent || hasMetadataContent) && !hasError ? 'ready' : 'failed';
 
             // Store asset
             const { error: assetError } = await supabase
