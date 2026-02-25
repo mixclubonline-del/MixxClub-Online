@@ -37,7 +37,7 @@ serve(async (req) => {
       ? {
         prompt: musicPrompt,
         seconds_total: Math.min(duration || 30, 180), // stable-audio max 3 min
-        steps: 100,
+        steps: 8,
       }
       : {
         prompt: musicPrompt,

@@ -231,7 +231,7 @@ async function generateAudio(prompt: string): Promise<{ url: string; provider: s
     input: {
       prompt: `${prompt}. Professional studio quality, clean mix`,
       seconds_total: 30,
-      steps: 100,
+      steps: 8,
     },
   });
 
