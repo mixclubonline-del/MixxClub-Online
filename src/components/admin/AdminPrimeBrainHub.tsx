@@ -24,15 +24,19 @@ import { useWaitlistStats } from '@/hooks/useWaitlist';
 import { supabase } from '@/integrations/supabase/client';
 import { useIsMobile } from '@/hooks/use-mobile';
 import mixclubLogo from '@/assets/mixclub-3d-logo.png';
+import DOMPurify from 'dompurify';
 
-// ── Markdown-lite renderer for AI responses ──
+// ── Markdown-lite renderer for AI responses (sanitized) ──
 function renderMarkdown(text: string) {
     // Bold
     let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     // Inline code
     html = html.replace(/`([^`]+)`/g, '<code class="px-1.5 py-0.5 rounded bg-muted/50 text-xs font-mono">$1</code>');
-    // Links
-    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-primary hover:underline" target="_blank" rel="noopener">$1</a>');
+    // Links - sanitize href to prevent javascript: protocol
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_match, label, url) => {
+        const safeUrl = url.startsWith('http://') || url.startsWith('https://') ? url : '#';
+        return `<a href="${safeUrl}" class="text-primary hover:underline" target="_blank" rel="noopener noreferrer">${label}</a>`;
+    });
     // Line breaks
     html = html.replace(/\n/g, '<br/>');
     // Heading lines (## etc)
@@ -41,7 +45,16 @@ function renderMarkdown(text: string) {
     html = html.replace(/<br\/>-\s+(.*?)(?=<br\/>|$)/g, '<br/><span class="inline-flex items-start gap-1.5 ml-2"><span class="text-primary mt-1">•</span><span>$1</span></span>');
     // Emojis at start of line get a bit more space
     html = html.replace(/<br\/>([\u{1F300}-\u{1F9FF}])/gu, '<br/><span class="mr-1">$1</span>');
-    return html;
+
+    // Sanitize: strip any script tags or event handlers
+    html = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+    html = html.replace(/\bon\w+\s*=\s*["'][^"']*["']/gi, '');
+    html = html.replace(/<iframe\b[^>]*>.*?<\/iframe>/gi, '');
+
+    return DOMPurify.sanitize(html, {
+        ALLOWED_TAGS: ['strong', 'code', 'a', 'br', 'span', 'em'],
+        ALLOWED_ATTR: ['href', 'class', 'target', 'rel'],
+    });
 }
 
 // ── Chat Bubble ──
