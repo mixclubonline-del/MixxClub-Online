@@ -88,7 +88,7 @@ Return as JSON: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-3.1',
+        model: 'google/gemini-3-flash-preview',
         messages: [
           { role: 'system', content: 'You are a professional mixing and mastering engineer. Analyze track comparisons and provide specific, actionable mixing advice. Always respond with valid JSON.' },
           { role: 'user', content: prompt }

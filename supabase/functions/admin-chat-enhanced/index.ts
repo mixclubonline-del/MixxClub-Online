@@ -421,7 +421,7 @@ Use this data to provide context-aware insights and recommendations.`;
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-3.1',
+        model: 'google/gemini-3-flash-preview',
         messages: [
           { role: 'system', content: contextEnhancedPrompt },
           ...aiMessages
@@ -467,7 +467,7 @@ Use this data to provide context-aware insights and recommendations.`;
       injection_attempts_detected: injectionAttempts,
       dangerous_patterns_found: patterns,
       response_time_ms: responseTime,
-      ai_model_used: 'google/gemini-3.1',
+      ai_model_used: 'google/gemini-3-flash-preview',
       token_count: data.usage?.total_tokens || 0,
       ip_address: req.headers.get('cf-connecting-ip') || req.headers.get('x-forwarded-for'),
       user_agent: req.headers.get('user-agent'),

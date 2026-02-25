@@ -45,7 +45,7 @@ Return as JSON array: [{"name": "...", "reason": "..."}]`;
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-3.1',
+        model: 'google/gemini-3-flash-preview',
         messages: [
           { role: 'system', content: 'You are a creative music naming assistant. Always respond with valid JSON.' },
           { role: 'user', content: prompt }

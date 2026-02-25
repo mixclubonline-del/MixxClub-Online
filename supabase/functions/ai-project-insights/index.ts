@@ -59,7 +59,7 @@ Format as JSON array with: { type, title, message, action }`;
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-3.1',
+        model: 'google/gemini-3-flash-preview',
         messages: [{ role: 'user', content: prompt }],
       }),
     });
