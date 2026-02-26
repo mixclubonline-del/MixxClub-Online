@@ -51,7 +51,7 @@ export default defineConfig(({ mode }) => ({
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         maximumFileSizeToCacheInBytes: 25 * 1024 * 1024, // 25 MB limit for WASM files
         // Don't cache auth-related routes
-        navigateFallbackDenylist: [/^\/auth/, /^\/api/],
+        navigateFallbackDenylist: [/^\/~oauth/, /^\/auth/, /^\/api/],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/htvmkylgrrlaydhdbonl\.supabase\.co\/.*/i,
