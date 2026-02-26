@@ -15,6 +15,8 @@ export interface ChapterDef {
 
 export const DEFAULT_CHAPTERS: ChapterDef[] = [
   { id: 'club', title: 'Explore', subtitle: 'The Club' },
+  { id: 'features', title: 'Discover', subtitle: 'Features' },
+  { id: 'pricing', title: 'Plans', subtitle: 'Pricing' },
   { id: 'choose', title: 'Join', subtitle: 'Choose Your Path' },
 ];
 
