@@ -1,18 +1,15 @@
 /**
  * Scene Flow Controller
  * 
- * Manages the immersive scene-based homepage experience.
- * Supports two modes:
- *   - vertical (default dissolve transitions)
- *   - horizontal (storybook chapter sliding)
- * 
- * Toggle with Shift+H during development.
+ * Hybrid flow: vertical dissolve for Hallway/Demo,
+ * then horizontal storybook chapters for Club + Choose Path.
  */
 
 import { useEffect, useCallback, lazy, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useSceneFlowStore } from '@/stores/sceneFlowStore';
+import { useChapterStore } from '@/stores/chapterStore';
 import { SceneStage } from '@/components/scene/SceneStage';
 import { StudioHallway } from '@/components/scene/StudioHallway';
 import { InsiderDemoExperience } from '@/components/demo/InsiderDemoExperience';
@@ -35,68 +32,6 @@ const QUERY_TO_SCENE = {
 } as const;
 
 export function SceneFlow() {
-  const scene = useSceneFlowStore((s) => s.scene);
-  const mode = useSceneFlowStore((s) => s.mode);
-  const go = useSceneFlowStore((s) => s.go);
-  const back = useSceneFlowStore((s) => s.back);
-  const setMode = useSceneFlowStore((s) => s.setMode);
-  const dissolveMs = useSceneFlowStore((s) => s.dissolveMs);
-  const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  // Shift+H to toggle mode during dev
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-      if (e.shiftKey && e.key === 'H') {
-        e.preventDefault();
-        setMode(mode === 'vertical' ? 'horizontal' : 'vertical');
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [mode, setMode]);
-
-  // ─── Horizontal Storybook Mode ───
-  if (mode === 'horizontal') {
-    const slots = [
-      {
-        id: 'hallway',
-        element: <StudioHallway fullscreen onEnter={() => {
-          trackEvent('funnel_cta_click', 'funnel', 'hallway_enter_club');
-          // In horizontal mode, chapter nav handles movement
-        }} />,
-      },
-      {
-        id: 'demo',
-        element: <InsiderDemoExperience
-          embedded
-          onLearnMore={() => {}}
-          onBack={() => {}}
-          onJoinNow={() => {
-            trackEvent('funnel_cta_click', 'funnel', 'demo_join_now');
-            trackEvent('funnel_conversion_complete', 'funnel', 'choose_path');
-          }}
-        />,
-      },
-      {
-        id: 'club',
-        element: <ClubScene onBack={() => {}} />,
-      },
-      {
-        id: 'choose',
-        element: (
-          <Suspense fallback={<div className="w-full h-full bg-background" />}>
-            <ChoosePath />
-          </Suspense>
-        ),
-      },
-    ];
-
-    return <ChapterShell slots={slots} />;
-  }
-
-  // ─── Vertical Dissolve Mode (original) ───
   return <VerticalSceneFlow />;
 }
 
@@ -129,6 +64,15 @@ function VerticalSceneFlow() {
     nextParams.set('scene', target);
     setSearchParams(nextParams, { replace: true });
   }, [scene, searchParams, setSearchParams]);
+
+  // Reset chapter store when entering INFO scene
+  const chapterGoTo = useChapterStore((s) => s.goTo);
+  useEffect(() => {
+    if (scene === 'INFO') {
+      // Reset to first chapter (Club) when entering horizontal zone
+      useChapterStore.setState({ active: 0, transitioning: false, direction: null });
+    }
+  }, [scene]);
 
   // Funnel analytics
   useEffect(() => {
@@ -219,7 +163,22 @@ function VerticalSceneFlow() {
       )}
 
       {scene === 'INFO' && (
-        <ClubScene onBack={handleBackToDemo} />
+        <ChapterShell
+          slots={[
+            {
+              id: 'club',
+              element: <ClubScene onBack={handleBackToDemo} />,
+            },
+            {
+              id: 'choose',
+              element: (
+                <Suspense fallback={<div className="w-full h-full bg-background" />}>
+                  <ChoosePath />
+                </Suspense>
+              ),
+            },
+          ]}
+        />
       )}
     </SceneStage>
   );

@@ -10,10 +10,7 @@
  
 export type SceneId = 'HALLWAY' | 'DEMO' | 'INFO';
 export type TransitionPhase = 'IDLE' | 'DISSOLVE_OUT' | 'DISSOLVE_IN';
-export type SceneMode = 'vertical' | 'horizontal';
-
 interface SceneFlowState {
-  mode: SceneMode;
   scene: SceneId;
   phase: TransitionPhase;
   toScene: SceneId | null;
@@ -24,11 +21,9 @@ interface SceneFlowState {
   go: (next: SceneId) => void;
   back: () => void;
   setDissolveMs: (ms: number) => void;
-  setMode: (mode: SceneMode) => void;
 }
  
  export const useSceneFlowStore = create<SceneFlowState>((set, get) => ({
-  mode: 'horizontal',
   scene: 'HALLWAY',
    phase: 'IDLE',
    toScene: null,
@@ -74,5 +69,4 @@ interface SceneFlowState {
    },
  
   setDissolveMs: (ms) => set({ dissolveMs: Math.max(350, ms) }),
-  setMode: (mode) => set({ mode }),
  }));
