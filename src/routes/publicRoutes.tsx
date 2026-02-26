@@ -68,6 +68,8 @@ export const publicRoutes = (
     {/* Auth & Legal */}
     <Route path="/auth" element={<Auth />} />
     <Route path="/auth/callback" element={<AuthCallback />} />
+    <Route path="/~oauth" element={<AuthCallback />} />
+    <Route path="/~oauth/callback" element={<AuthCallback />} />
     <Route path="/terms" element={<Terms />} />
     <Route path="/privacy" element={<Privacy />} />
   </>
