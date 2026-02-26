@@ -72,7 +72,7 @@ export function EmailStep({
     setGoogleLoading(true);
     try {
       const result = await lovable.auth.signInWithOAuth(provider, {
-        redirect_uri: window.location.href,
+        redirect_uri: `${window.location.origin}/auth/callback`,
       });
 
       if (result?.error) {
