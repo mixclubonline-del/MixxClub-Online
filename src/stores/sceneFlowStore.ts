@@ -8,24 +8,28 @@
  import { create } from 'zustand';
  import { hubEventBus } from '@/lib/hubEventBus';
  
- export type SceneId = 'HALLWAY' | 'DEMO' | 'INFO';
- export type TransitionPhase = 'IDLE' | 'DISSOLVE_OUT' | 'DISSOLVE_IN';
- 
- interface SceneFlowState {
-   scene: SceneId;
-   phase: TransitionPhase;
-   toScene: SceneId | null;
-   lastScene: SceneId | null;
-   dissolveMs: number;
- 
-   // Actions
-   go: (next: SceneId) => void;
-   back: () => void;
-   setDissolveMs: (ms: number) => void;
- }
+export type SceneId = 'HALLWAY' | 'DEMO' | 'INFO';
+export type TransitionPhase = 'IDLE' | 'DISSOLVE_OUT' | 'DISSOLVE_IN';
+export type SceneMode = 'vertical' | 'horizontal';
+
+interface SceneFlowState {
+  mode: SceneMode;
+  scene: SceneId;
+  phase: TransitionPhase;
+  toScene: SceneId | null;
+  lastScene: SceneId | null;
+  dissolveMs: number;
+
+  // Actions
+  go: (next: SceneId) => void;
+  back: () => void;
+  setDissolveMs: (ms: number) => void;
+  setMode: (mode: SceneMode) => void;
+}
  
  export const useSceneFlowStore = create<SceneFlowState>((set, get) => ({
-   scene: 'HALLWAY',
+  mode: 'horizontal',
+  scene: 'HALLWAY',
    phase: 'IDLE',
    toScene: null,
    lastScene: null,
@@ -69,5 +73,6 @@
      get().go(lastScene);
    },
  
-   setDissolveMs: (ms) => set({ dissolveMs: Math.max(350, ms) }),
+  setDissolveMs: (ms) => set({ dissolveMs: Math.max(350, ms) }),
+  setMode: (mode) => set({ mode }),
  }));
