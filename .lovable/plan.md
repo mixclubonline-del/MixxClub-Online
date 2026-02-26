@@ -1,69 +1,64 @@
 
 
-# Hybrid Flow: Vertical Dissolve into Horizontal Chapters
-
-## Concept
-
-Keep the existing Hallway and Demo scenes exactly as they are today (vertical dissolve transitions via `SceneStage`). When the user finishes the Demo and clicks "Learn More" or advances past it, the experience transitions into the horizontal storybook chapter system for everything that follows (Club, Choose Path, and any future pages).
-
-The flow becomes:
-
-```text
-HALLWAY ──dissolve──> DEMO ──dissolve──> HORIZONTAL CHAPTERS
-                                           |
-                                    [Club] ──slide──> [Choose Path]
-```
+# Add Features & Pricing Horizontal Chapters
 
 ## What Changes
 
-### 1. SceneFlow.tsx (modified)
-- Remove the pure "horizontal mode replaces everything" branch
-- Keep the vertical dissolve flow for HALLWAY and DEMO unchanged
-- When scene transitions to INFO, instead of rendering `ClubScene` directly inside `SceneStage`, render the `ChapterShell` with Club + Choose Path as its chapter slots
-- The dissolve-out from DEMO leads into the horizontal chapter world
+Extend the horizontal storybook zone with two new chapters inserted between **Club** and **Choose Path**, making the final chapter order:
 
-### 2. sceneFlowStore.ts (simplified)
-- Remove the `mode` toggle (`'vertical' | 'horizontal'`) since we no longer need a full-page mode switch -- the hybrid is the default behavior
-- Keep all existing dissolve logic intact
+1. **Club** (existing) -- Explore the platform
+2. **Features** (new) -- Showcase key platform capabilities
+3. **Pricing** (new) -- Subscription tiers and service packages
+4. **Choose Path** (existing) -- Sign up / conversion CTA
 
-### 3. chapterStore.ts (updated)
-- Reduce default chapters to just the post-demo pages: Club and Choose Path (2 chapters instead of 4)
-- Update chapter definitions accordingly
+## New Files
 
-### 4. ChapterShell.tsx (minor tweak)
-- No structural changes needed -- it already renders whatever slots it receives
-- Ensure it works cleanly as a child of `SceneStage` (it does, since it's a full-viewport div)
+### 1. `src/components/storybook/chapters/FeaturesChapter.tsx`
+A full-viewport chapter showcasing platform features in a visually rich layout:
+- Hero section with a bold headline ("What You Get") and subtitle
+- 3-column grid of feature cards using glassmorphic styling (consistent with existing `FeatureGlassCards` patterns)
+- Features pulled from core value props: AI-Powered Analysis, Real-Time Collaboration, Pro Engineer Matching, Secure Cloud Storage, Smart Contracts, Community & Events
+- Each card has an icon, title, and description
+- Subtle scroll-triggered animations within the chapter panel (since each chapter allows internal vertical scroll)
+- A "See Pricing" CTA button at the bottom that calls `useChapterStore().next()` to advance to the Pricing chapter
 
-### 5. Shift+H toggle removed
-- No longer needed since the hybrid is the single mode
-- Clean up the keyboard listener from SceneFlow
+### 2. `src/components/storybook/chapters/PricingChapter.tsx`
+A full-viewport chapter displaying pricing tiers:
+- Hero section: "Simple, Transparent Pricing"
+- Reuses the existing `PricingTierCards` component (Starter / Professional / Premium per-track pricing)
+- Reuses the existing `BulkPricingSection` component (EP/Album volume discounts)
+- A "Get Started" CTA button that advances to the Choose Path chapter
+- All content fits within a scrollable chapter panel, no external page navigation needed
 
-## User Experience
+## Modified Files
 
-1. User lands on **Hallway** -- same as today, full dissolve transitions
-2. User clicks "Enter" -- dissolves into **Demo** -- same as today
-3. User clicks "Learn More" -- dissolves into **horizontal chapter zone**
-4. Inside the chapter zone: **Club** slides left/right to **Choose Path**
-5. Arrow keys, swipe, dots, and scroll-wheel all work within the chapter zone
-6. "Back" from the chapter zone dissolves back to Demo
+### 3. `src/stores/chapterStore.ts`
+Update `DEFAULT_CHAPTERS` to include four entries:
+```
+club -> Explore / The Club
+features -> Discover / Features
+pricing -> Plans / Pricing
+choose -> Join / Choose Your Path
+```
+
+### 4. `src/components/home/SceneFlow.tsx`
+Add the two new chapter slots to the `ChapterShell` in the INFO scene:
+- Import `FeaturesChapter` and `PricingChapter` (lazy-loaded)
+- Insert them as slots between Club and Choose Path
+- No changes to the vertical Hallway/Demo flow
 
 ## Technical Details
 
-- The `ChapterShell` renders inside the INFO scene slot of the vertical flow
-- The chapter store resets to chapter 0 (Club) when entering the horizontal zone
-- The `useChapterNavigation` hook only activates when the INFO scene is active
-- Deep-link URL changes from `?scene=info&chapter=0` format
-- ClubScene's internal vertical scroll remains fully functional within its chapter panel
-
-## Files Modified
-| File | Change |
-|---|---|
-| `src/components/home/SceneFlow.tsx` | Replace INFO scene content with ChapterShell; remove mode toggle |
-| `src/stores/sceneFlowStore.ts` | Remove mode/setMode (no longer needed) |
-| `src/stores/chapterStore.ts` | Update default chapters to Club + Choose Path only |
+- Both new chapters are full-height (`min-h-[100svh]`) with internal `overflow-y-auto` so content can scroll within the chapter if it exceeds viewport height
+- The `ChapterNav` dots, `ChapterProgress` bar, and `useChapterNavigation` hook automatically adapt because they read from the chapter store -- no changes needed to those components
+- Features and Pricing chapters are lazy-loaded via `React.lazy()` to keep the initial bundle lean
+- Deep-linking works automatically: `?scene=info&chapter=2` would land on Pricing
+- GPU-accelerated transitions remain unchanged -- adding more slots to the flex strip just extends the `translateX` range
 
 ## Files Unchanged
-- `ChapterShell.tsx`, `ChapterNav.tsx`, `ChapterProgress.tsx` -- work as-is
-- `useChapterNavigation.ts` -- works as-is
-- All room components, StudioHallway, InsiderDemoExperience -- untouched
+- `ChapterShell.tsx` -- works with any number of slots
+- `ChapterNav.tsx` -- reads chapter count from store, auto-adapts dots
+- `ChapterProgress.tsx` -- auto-adapts segment count
+- `useChapterNavigation.ts` -- bounds-checked against store length
+- `PricingTierCards.tsx`, `BulkPricingSection.tsx` -- reused as-is inside PricingChapter
 
