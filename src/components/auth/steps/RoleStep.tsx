@@ -45,8 +45,6 @@ export function RoleStep({ selectedRole, onSelectRole, onNext, onSwitchToLogin, 
   // Auto-advance after role selection for smoother UX
   const handleRoleSelect = (role: AppRole) => {
     onSelectRole(role);
-    // Brief delay so user sees the selection highlight before advancing
-    setTimeout(() => onNext(), 400);
   };
 
   return (
