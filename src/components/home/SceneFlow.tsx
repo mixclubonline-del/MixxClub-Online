@@ -18,6 +18,8 @@ import { ChapterShell } from '@/components/storybook/ChapterShell';
 import { trackEvent } from '@/lib/analytics';
 
 const ChoosePath = lazy(() => import('@/pages/ChoosePath'));
+const FeaturesChapter = lazy(() => import('@/components/storybook/chapters/FeaturesChapter'));
+const PricingChapter = lazy(() => import('@/components/storybook/chapters/PricingChapter'));
 
 const SCENE_TO_QUERY = {
   HALLWAY: 'hallway',
@@ -168,6 +170,22 @@ function VerticalSceneFlow() {
             {
               id: 'club',
               element: <ClubScene onBack={handleBackToDemo} />,
+            },
+            {
+              id: 'features',
+              element: (
+                <Suspense fallback={<div className="w-full h-full bg-background" />}>
+                  <FeaturesChapter />
+                </Suspense>
+              ),
+            },
+            {
+              id: 'pricing',
+              element: (
+                <Suspense fallback={<div className="w-full h-full bg-background" />}>
+                  <PricingChapter />
+                </Suspense>
+              ),
             },
             {
               id: 'choose',
