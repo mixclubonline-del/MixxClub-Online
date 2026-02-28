@@ -1,157 +1,114 @@
 
 
-# Typo Audit + Visual Duplicate Pass
+# Brand Sweep Phase 3: Remaining 78 Source Files + 13 Edge Functions
 
-## 1. Brand Name Spelling Violations
+## Scope
 
-The canonical brand name is **Mixxclub** (two X's). There are **~150+ files** using the single-X "MixClub" variant. Here is every category of violation and the fix required:
+Previous passes fixed ~45 files. This pass covers the remaining **78 source files** and **13 edge function files** still containing "MixClub" (single-X) violations, plus lowercase `mixclub` in URLs, storage keys, and social links.
 
-### A. User-Facing Copy (highest priority -- visitors see these)
-
-| File | Current (wrong) | Fix |
-|---|---|---|
-| `src/pages/Terms.tsx` | "MixClub" (8 occurrences), "MixClub Support", `legal@mixclubonline.com`, `support@mixclubonline.com` | Replace all with "Mixxclub", update emails to `legal@mixxclubonline.com` / `support@mixxclubonline.com` |
-| `src/pages/FAQ.tsx` | "MixClub" (3 occurrences), `support@mixclub.com`, `1-800-MIXCLUB`, `mixclub faq` | Replace all with "Mixxclub", `support@mixxclub.com` -> `support@mixxclubonline.com`, `1-800-MIXXCLUB` |
-| `src/pages/QuickStart.tsx` | "What brings you to MixClub?" | "What brings you to Mixxclub?" |
-| `src/pages/RoleSelection.tsx` | "Welcome to MixClub", "move through MixClub" | Replace with "Mixxclub" |
-| `src/pages/Crowd.tsx` | "The Crowd -- MixClub Online" (title) | "The Crowd -- Mixxclub Online" |
-| `src/pages/Services.tsx` | "Services District -- MixClub Online" (title) | "Mixxclub Online" |
-| `src/pages/AIMastering.tsx` | "AI Mastering -- MixClub Services" | "Mixxclub Services" |
-| `src/pages/MixingShowcase.tsx` | "Mixing Studio -- MixClub Services", "Welcome to MixClub Professional Mixing" | "Mixxclub" |
-| `src/pages/MasteringShowcase.tsx` | Check for same pattern | "Mixxclub" |
-| `src/pages/AudioUpload.tsx` | "Upload music files to MixClub" | "Mixxclub" |
-| `src/pages/Economy.tsx` | "MixxCoinz Economy \| MixClub" (title) | "Mixxclub" |
-| `src/components/auth/steps/RoleStep.tsx` | "What brings you to MixClub?" | "Mixxclub" |
-| `src/components/Contact.tsx` | `hello@mixclubonline.com` | `hello@mixxclubonline.com` |
-| `src/components/GetStartedWizard.tsx` | "get started with Mixxclub" (lowercase c -- correct spelling but verify casing) | Already correct |
-| `src/components/WhyMixClub.tsx` | Component name + "Why Choose MIXXCLUB" (display text is correct, but file/component name uses single-X) | Rename component to `WhyMixxclub` (file name + export) |
-| `src/components/HowItWorks.tsx` | "How MIXXCLUB Works" (display correct), but internal references | Verify internal copy |
-| `src/components/home/RevenuePreview.tsx` | "Before MixClub" / "With MixClub" | "Mixxclub" |
-| `src/components/mixclub/MissionSection.tsx` | "MixClub Online transforms..." | "Mixxclub Online" |
-| `src/components/mixclub/NetworkHero.tsx` | Check copy | "Mixxclub" |
-| `src/components/landing/FloatingPrimeChat.tsx` | "MixClub" (6 occurrences in demo chat responses) | "Mixxclub" |
-
-### B. Alt Text + Metadata (SEO / accessibility)
-
-| File | Fix |
-|---|---|
-| `src/components/Navigation.tsx` | `alt="MixClub 3D Logo"` -> `alt="Mixxclub Logo"` |
-| `src/components/layouts/AppStyleLayout.tsx` | `alt="MixClub"` (2x) -> `alt="Mixxclub"` |
-| `src/components/hero/DynamicLogo.tsx` | `alt="MixClub 3D Logo"` -> `alt="Mixxclub Logo"` |
-| `src/components/mobile/MobileEnhancedNav.tsx` | `alt="MixClub"` -> `alt="Mixxclub"` |
-| `src/components/SplashScreen.tsx` | `alt="MixClub"` -> `alt="Mixxclub"` |
-| `src/components/demo/InsiderDemoExperience.tsx` | `alt="MixClub"` (5x) -> `alt="Mixxclub"` |
-| `src/components/waitlist/WaitlistCapture.tsx` | `alt="MixClub"` -> `alt="Mixxclub"` |
-| `src/components/brand/AnimatedBrandLogo.tsx` | `alt="MixClub Logo"` -> `alt="Mixxclub Logo"` |
-| `src/pages/AudioUpload.tsx` | `alt="MixClub"` -> `alt="Mixxclub"` |
-| `src/lib/seo-schema.ts` | `email: "support@mixclub.com"` -> `support@mixxclubonline.com` |
-
-### C. Backend / Edge Functions (emails users actually receive)
+## Category A: Pages (~20 files)
 
 | File | Violations | Fix |
 |---|---|---|
-| `supabase/functions/send-welcome-email/index.ts` | "MixClub" (15+ occurrences), `from: 'MixClub'`, all `mixclubonline.com` URLs, subject lines, body copy | Replace every "MixClub" with "Mixxclub" |
-| `supabase/functions/send-payment-receipt/index.ts` | `support@mixclubonline.com`, "MixClub" copy | "Mixxclub" |
-| `supabase/functions/send-push-notification/index.ts` | `mixclubonline.com` links | Update domain references |
-| `supabase/functions/send-attorney-notification-email/index.ts` | "MixClub Admin System", `mixclubonline@gmail.com` | "Mixxclub" |
-| `supabase/functions/create-crypto-checkout/index.ts` | `name: 'MixClub - ...'` | "Mixxclub" |
+| `src/pages/Contact.tsx` | SEO title/description "MixClub Support" | "Mixxclub" |
+| `src/pages/Install.tsx` | "Install MixClub App" (5x) | "Mixxclub" |
+| `src/pages/Waitlist.tsx` | Share text, SEO, body copy (6x) | "Mixxclub" |
+| `src/pages/PublicProfile.tsx` | Helmet title/meta "MixClub" (3x) | "Mixxclub" |
+| `src/pages/Community.tsx` | Title "MixClub City" | "Mixxclub City" |
+| `src/pages/Premieres.tsx` | Title "MixClub Online" | "Mixxclub Online" |
+| `src/pages/LivePage.tsx` | "MixClub Live" | "Mixxclub Live" |
+| `src/pages/Achievements.tsx` | SEO title/desc (2x) | "Mixxclub" |
+| `src/pages/Press.tsx` | SEO, body copy, `press@mixclub.com` | "Mixxclub", `press@mixxclubonline.com` |
+| `src/pages/Privacy.tsx` | "MixClub Privacy Team", `privacy@mixclubonline.com` already correct but "MixClub" label needs fix | "Mixxclub" |
+| `src/pages/PrimeBeatForge.tsx` | "MixClub's capabilities" | "Mixxclub" |
+| `src/pages/ForEngineers.tsx` | "earning more on MixClub" | "Mixxclub" |
+| `src/pages/MixClubHome.tsx` | Function name `MixClubHome` -- keep filename for route stability but fix JSDoc/comments | Update comments only |
 
-### D. Internal / Code-Level (lower priority but still wrong)
+## Category B: Components (~35 files)
 
-| Item | Fix |
-|---|---|
-| `src/lib/reportGenerator.ts` | "MixClub Financial Report" -> "Mixxclub Financial Report" |
-| `src/hooks/useGlobalAudio.ts` | `STORAGE_KEY = 'mixclub_audio_prefs'` -- cosmetic, but update to `mixxclub_audio_prefs` |
-| `src/hooks/usePrimeMarketing.ts` | All prompt strings reference "MixClub" (6+ times) | "Mixxclub" |
-| `src/config/socialMediaTemplates.ts` | "MixClub" in social post templates | "Mixxclub" |
-| `src/components/payment/MultiPaymentModal.tsx` | "Thank you for using MixClub!" in PDF receipt | "Mixxclub" |
-| `src/components/brand/LogoShowcase.tsx` | Download filename `mixclub-` | `mixxclub-` |
-| `src/components/mobile/MobileEnhancedNav.tsx` | Image src uses `/lovable-uploads/mixclub-3d-logo.png` (may 404 -- other files use the asset import) | Switch to `import mixclub3DLogo from '@/assets/mixclub-3d-logo.png'` for consistency |
-
-### E. File Names (rename consideration)
-
-The asset file `src/assets/mixclub-3d-logo.png` is imported by **12 files**. Renaming the file to `mixxclub-3d-logo.png` is ideal but requires updating all 12 import paths. This is a single find-and-replace pass.
-
-Similarly, `src/components/WhyMixClub.tsx` should become `WhyMixxclub.tsx`.
-
-**Total brand name fixes: ~150+ string replacements across ~40 files + 6 edge functions.**
-
----
-
-## 2. Duplicate Image Audit
-
-Several images are used in multiple, contextually different locations. These are candidates for replacement with unique, context-appropriate imagery:
-
-### Images used 2+ times in different contexts
-
-| Image | Used In | Recommendation |
+| File | Violations | Fix |
 |---|---|---|
-| `promo/studio-console-hero.jpg` | `StageDoor.tsx` (immersive entry), `PhaseBackground.tsx` (demo invitation phase) | Replace one with a distinct studio angle or entry-point shot |
-| `promo/mixing-collaboration.jpg` | `PhaseBackground.tsx` (connection phase), `CommunityShowcase.tsx` (battles fallback), `MixingShowcase.tsx` | 3 uses -- replace community/battles with a battle-arena or community-specific image |
-| `promo/before-after-master.jpg` | `Showcase.tsx` (tech features), `PhaseBackground.tsx` (problem phase) | Replace one with a waveform comparison or problem-statement visual |
-| `promo/webrtc-collaboration.jpg` | `Showcase.tsx`, `PhaseBackground.tsx` (tribe phase) | Replace tribe phase with a community/tribe-specific image |
-| `promo/mastering-before-after.jpg` | `MasteringShowcase.tsx`, `PhaseBackground.tsx` (transformation phase) | Acceptable overlap (same topic) but a unique "transformation reveal" image would be stronger |
-| `promo/enterprise-whitelabel.jpg` | `Enterprise.tsx`, `CommunityShowcase.tsx` (merch fallback) | Replace merch fallback with actual merch/streetwear imagery |
-| `promo/collaboration-hero.jpg` | `PhaseBackground.tsx` (discovery phase) | Only 1 use -- fine |
-| `mixclub-3d-logo.png` | 12 files | Expected -- it's the logo. No issue. |
+| `src/components/home/SocialProofSection.tsx` | Testimonial quotes "MixClub" (4x) | "Mixxclub" |
+| `src/components/home/LiveActivityFeed.tsx` | "Alex joined MixClub" | "Mixxclub" |
+| `src/components/home/ValueProposition.tsx` | "MixClub:" pricing label | "Mixxclub:" |
+| `src/components/home/HomeFooter.tsx` | Copyright "MixClub", social URLs (`mixclubhq`), `hello@mixclub.io`, `discord.gg/mixclub` | "Mixxclub", update URLs to `mixxclubhq`, `hello@mixxclubonline.com`, `discord.gg/mixxclub` |
+| `src/components/home/CityPreview.tsx` | "Welcome to MixClub City" | "Mixxclub City" |
+| `src/components/marketing/SocialShareButtons.tsx` | Title default, toast messages (5x) | "Mixxclub" |
+| `src/components/marketing/PromotionalHero.tsx` | "MixClub: $50-150" | "Mixxclub" |
+| `src/components/marketing/EmailCampaignManager.tsx` | "Welcome to MixClub!" | "Mixxclub" |
+| `src/components/viral/ShareComponents.tsx` | Share text "on MixClub!" | "Mixxclub" |
+| `src/components/community/PremiereStage.tsx` | "mastered on MixClub" | "Mixxclub" |
+| `src/components/city/CityLayout.tsx` | "MixClub City Map" | "Mixxclub City Map" |
+| `src/components/immersive/CityMapOverlay.tsx` | Comment + aria-label "MixClub City" | "Mixxclub City" |
+| `src/components/partner/PartnerOnboarding.tsx` | "MixClub Partner Program" | "Mixxclub" |
+| `src/components/crm/community/CommunityHub.tsx` | "MixClub community" | "Mixxclub" |
+| `src/components/profile/HireModal.tsx` | "Sent via MixClub Hire" | "Mixxclub Hire" |
+| `src/components/courses/CertificateDisplay.tsx` | PDF branding "MixClub Online" | "Mixxclub Online" |
+| `src/components/demo/PrimeCharacter.tsx` | Alt text "Prime - MixClub Head Engineer" | "Mixxclub" |
+| `src/components/WhyMixxclub.tsx` | Export name still `WhyMixClub` | Rename export to `WhyMixxclub` |
+| `src/components/scene/StudioHallway.tsx` | JSDoc comment | "Mixxclub" |
+| `src/components/distribution/RevenueSharing.tsx` | Referral copy + URL `mixclub.com` | "Mixxclub", `mixxclub.com` |
+| `src/components/storefront/StorefrontSetup.tsx` | Check copy | "Mixxclub" |
+| Other components with 1-2 violations each | ~15 more files based on search | "Mixxclub" |
 
-### Priority replacements (most impactful)
+## Category C: Libraries/Hooks/Utils (~10 files)
 
-1. **`mixing-collaboration.jpg` in `CommunityShowcase.tsx`** -- Used as "battles" fallback. Should be a battle/competition image instead.
-2. **`enterprise-whitelabel.jpg` in `CommunityShowcase.tsx`** -- Used as "merch" fallback. Should be streetwear/merch imagery.
-3. **`studio-console-hero.jpg` in `PhaseBackground.tsx`** -- Used as "invitation" phase. Should be a welcoming/entry image, not a console close-up.
-
----
-
-## 3. Implementation Plan
-
-### Phase 1: Brand name sweep (bulk find-replace)
-
-Touch ~45 files total:
-- Replace all `MixClub` (case-sensitive) with `Mixxclub` in user-facing copy, alt text, SEO metadata, email templates, PDF generators, social templates, AI prompts
-- Preserve `MIXXCLUB` (all-caps) where it appears as a display/logo treatment -- this is intentional and correct
-- Preserve `Mixxclub` where already correct
-- Update emails: standardize on `@mixxclubonline.com` domain
-- Update phone: `1-800-MIXXCLUB`
-
-### Phase 2: File renames
-
-- `src/assets/mixclub-3d-logo.png` -> `src/assets/mixxclub-3d-logo.png` (update 12 imports)
-- `src/assets/mixclub-robot-logo.png` -> `src/assets/mixxclub-robot-logo.png` (check usage)
-- `src/components/WhyMixClub.tsx` -> `src/components/WhyMixxclub.tsx` (update import in `MobileLanding.tsx`)
-- Fix `MobileEnhancedNav.tsx` to use asset import instead of hardcoded `/lovable-uploads/` path
-
-### Phase 3: Image deduplication
-
-Replace 3 duplicate-context images with distinct assets via the dynamic asset system (brand_assets table) or new static imports:
-
-| Slot | Current duplicate | Replacement context |
+| File | Violations | Fix |
 |---|---|---|
-| Community battles | `mixing-collaboration.jpg` | Battle arena / competition visual |
-| Community merch | `enterprise-whitelabel.jpg` | Streetwear / merch display |
-| Demo invitation phase | `studio-console-hero.jpg` | Welcoming entry / open door visual |
+| `src/lib/journey-events.ts` | "on MixClub" (4x) | "Mixxclub" |
+| `src/audio/effects/VelvetCurveProcessor.ts` | JSDoc "MixClub's" | "Mixxclub's" |
+| `src/utils/stateManager.ts` | `STATE_PREFIX = 'mixclub_state_'` | `'mixxclub_state_'` |
+| `src/services/PartnerService.ts` | `mixclub.com?ref=` URL | `mixxclub.com?ref=` |
+| `src/routes/publicRoutes.tsx` | Comment "MixClub platform", variable `MixClubHome` | Fix comment; keep variable name (import path unchanged) |
+| `src/routes/cityRoutes.tsx` | Comment "MixClub City" | "Mixxclub City" |
 
-These can be generated via the existing AI image pipeline or sourced as new static assets.
+## Category D: Edge Functions (~8 remaining files)
 
-### Phase 4: Edge function redeploy
+| File | Violations | Fix |
+|---|---|---|
+| `supabase/functions/n8n-webhook-handler/index.ts` | `from: 'MixClub <noreply@mixclub.com>'` (4x), "Update from MixClub", comment | "Mixxclub", `noreply@mixxclubonline.com` |
+| `supabase/functions/generate-invoice/index.ts` | `name: 'MixClub'`, `billing@mixclub.com` | "Mixxclub", `billing@mixxclubonline.com` |
+| `supabase/functions/copilot-chat/index.ts` | System prompt "MixClub" | "Mixxclub" |
+| `supabase/functions/prime-chat/index.ts` | System prompt "MixClub" (10+ occurrences) | "Mixxclub" |
+| `supabase/functions/admin-chat-enhanced/index.ts` | System prompt "MixClub" (20+ occurrences), "MixClubOnline" | "Mixxclub", "Mixxclub Online" |
+| `supabase/functions/prepare-session-package/index.ts` | "upload via Mixclub" | "Mixxclub" |
+| `supabase/functions/send-attorney-notification-email/index.ts` | `from: "MixClub Legal"`, `mixclubonline@gmail.com` | "Mixxclub Legal" |
+| `supabase/functions/dream-engine/index.ts` | Prompt keyword "MixClub narrative visual" | "Mixxclub" |
 
-After updating the 5 edge functions with corrected brand names, redeploy:
-- `send-welcome-email`
-- `send-payment-receipt`
-- `send-push-notification`
+## Implementation Approach
+
+### Batch 1: All remaining source files (src/)
+
+Sweep all 78 files doing `MixClub` -> `Mixxclub` replacements. For URLs, emails, and social handles, apply domain-consistent updates:
+- `@mixclub.com` / `@mixclub.io` -> `@mixxclubonline.com`
+- `mixclubhq` social handles -> `mixxclubhq`
+- `discord.gg/mixclub` -> `discord.gg/mixxclub`
+- `mixclub.com` referral URLs -> `mixxclub.com`
+- `mixclub_state_` storage prefix -> `mixxclub_state_`
+
+### Batch 2: All remaining edge functions
+
+Fix all 8 edge function files, then redeploy:
+- `n8n-webhook-handler`
+- `generate-invoice`
+- `copilot-chat`
+- `prime-chat`
+- `admin-chat-enhanced`
+- `prepare-session-package`
 - `send-attorney-notification-email`
-- `create-crypto-checkout`
+- `dream-engine`
 
----
+### Batch 3: WhyMixxclub export rename
 
-## Summary
+Update the component export in `WhyMixxclub.tsx` from `WhyMixClub` to `WhyMixxclub` and fix the import in `MobileLanding.tsx`.
 
-| Category | Count | Severity |
-|---|---|---|
-| "MixClub" -> "Mixxclub" string fixes | ~150+ strings | High -- brand consistency |
-| Alt text corrections | ~15 instances | Medium -- accessibility/SEO |
-| Email/URL domain fixes | ~20 instances | High -- user-facing emails |
-| File renames | 3 files | Low -- internal only |
-| Duplicate images to replace | 3 images | Medium -- visual polish |
-| Edge functions to redeploy | 5 functions | High -- live email content |
+### Verification
+
+After all edits, run a final `MixClub` search across the entire project to confirm zero remaining violations (excluding migration SQL files which are immutable history).
+
+## Files Changed
+
+~78 source files + ~8 edge functions = **~86 files total** in this pass.
+
+No structural changes, no new dependencies, no schema changes. Pure string replacements.
 
