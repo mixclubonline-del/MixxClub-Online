@@ -22,8 +22,8 @@ export default defineConfig(({ mode }) => ({
       },
       includeAssets: ['icon-192.png', 'icon-512.png', 'apple-touch-icon.png'],
       manifest: {
-        name: 'MixClub - Audio Engineering Platform',
-        short_name: 'MixClub',
+        name: 'Mixxclub - Audio Engineering Platform',
+        short_name: 'Mixxclub',
         description: 'Professional audio mixing and mastering platform',
         theme_color: '#9b87f5',
         background_color: '#0A0A0A',

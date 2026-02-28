@@ -35,7 +35,7 @@ export function WishlistPage() {
     return (
         <>
             <SEOHead
-                title="My Wishlist - MixClub Marketplace"
+                title="My Wishlist - Mixxclub Marketplace"
                 description="View and manage your saved marketplace items"
             />
 

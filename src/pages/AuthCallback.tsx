@@ -77,12 +77,12 @@ const AuthCallback = () => {
 
         // If no role set anywhere, redirect to role selection
         if (!userRole) {
-          toast.success('Choose your path in MixClub');
+          toast.success('Choose your path in Mixxclub');
           navigate('/select-role');
           return;
         }
 
-        toast.success('Welcome to MixClub!');
+        toast.success('Welcome to Mixxclub!');
 
         // Admins skip onboarding entirely
         if (userRole === 'admin') {

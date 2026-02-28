@@ -58,7 +58,7 @@ export const CommunityHub: React.FC<CommunityHubProps> = ({ userType }) => {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="lg:col-span-3 space-y-6">
-          <CommunityStats />
+          <CommunityStats userType={userType} />
           
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="flex items-center justify-between mb-4">
@@ -102,7 +102,7 @@ export const CommunityHub: React.FC<CommunityHubProps> = ({ userType }) => {
             </div>
 
             <TabsContent value="feed" className="mt-0">
-              <SocialFeed searchQuery={searchQuery} />
+              <SocialFeed userType={userType} searchQuery={searchQuery} />
             </TabsContent>
             
             <TabsContent value="live" className="mt-0">
@@ -118,7 +118,7 @@ export const CommunityHub: React.FC<CommunityHubProps> = ({ userType }) => {
             </TabsContent>
             
             <TabsContent value="leaderboard" className="mt-0">
-              <CommunityLeaderboard />
+              <CommunityLeaderboard userType={userType} />
             </TabsContent>
           </Tabs>
         </div>

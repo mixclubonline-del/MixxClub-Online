@@ -65,7 +65,7 @@ export const AppStyleLayout = ({ children }: AppStyleLayoutProps) => {
             <div className="absolute inset-0 bg-primary/20 rounded-lg blur-lg opacity-0 group-hover:opacity-100 transition-opacity"></div>
             <img 
               src={mixxclub3DLogo} 
-              alt="MixClub" 
+              alt="Mixxclub" 
               className="w-10 h-10 object-contain relative z-10 transition-transform group-hover:scale-110" 
             />
           </button>

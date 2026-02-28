@@ -316,7 +316,7 @@ serve(async (req) => {
         activity_type: activityType,
         title: activityType === "session_started" ? "Started a new session" 
              : activityType === "project_completed" ? "Completed a project"
-             : activityType === "user_joined" ? "Joined MixClub"
+             : activityType === "user_joined" ? "Joined Mixxclub"
              : activityType === "achievement_unlocked" ? "Unlocked an achievement"
              : "Posted a review",
         description: `Demo activity for ${activityType}`,

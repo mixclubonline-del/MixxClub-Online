@@ -80,7 +80,7 @@ export const EngineerCRMChatbot = () => {
     try {
       const pageContext = `Current page: Engineer CRM - ${currentTab === 'overview' ? 'Dashboard' : currentTab}`;
       
-      const systemPrompt = `You are an Engineer CRM assistant for MixClub.
+      const systemPrompt = `You are an Engineer CRM assistant for Mixxclub.
 
 **NAVIGATION MAP:**
 - /engineer-crm (Dashboard with earnings and stats)

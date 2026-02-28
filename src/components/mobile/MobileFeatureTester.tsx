@@ -41,7 +41,7 @@ export const MobileFeatureTester = () => {
       }
 
       // Test notification
-      new Notification("MixClub Test", {
+      new Notification("Mixxclub Test", {
         body: "Push notifications are working!",
         icon: "/icon.png",
       });

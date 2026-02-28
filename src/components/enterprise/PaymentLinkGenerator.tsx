@@ -53,7 +53,7 @@ export function PaymentLinkGenerator({ accountId }: PaymentLinkGeneratorProps) {
           accountId: formData.accountId,
           packageType: formData.packageType,
           amount,
-          description: formData.description || `MixClub ${formData.packageType} package`,
+          description: formData.description || `Mixxclub ${formData.packageType} package`,
           customerEmail: formData.customerEmail,
           customerName: formData.customerName,
         },

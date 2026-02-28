@@ -55,17 +55,43 @@ export class PartnerService {
         console.warn('PartnerService: Creating mock partner');
         const newPartner: Partner = {
             id: uuid(),
-            user_id: data.user_id || 'unknown',
+            userId: data.userId || 'unknown',
+            companyName: data.companyName || 'New Partner',
+            email: data.email || '',
             status: 'pending',
             tier: 'bronze',
-            commission_rate: 10,
-            total_referrals: 0,
-            total_earnings: 0,
-            ...data
+            commissionRate: 10,
+            affiliateCode: `MIXX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+            joinedAt: new Date(),
+            metrics: {
+                totalReferrals: 0,
+                totalSales: 0,
+                totalCommission: 0,
+                activeCustomers: 0,
+            },
+            settings: {
+                marketingMaterialsAccess: true,
+                dedicatedManager: false,
+                trainingWebinars: false,
+                exclusiveDeals: false,
+            },
+            ...data,
         };
         
         mockPartners.push(newPartner);
         return newPartner;
+    }
+
+    /**
+     * Update a partner
+     */
+    static async updatePartner(id: string, updates: Partial<Partner>): Promise<Partner> {
+        const index = mockPartners.findIndex(p => p.id === id);
+        if (index >= 0) {
+            mockPartners[index] = { ...mockPartners[index], ...updates };
+            return mockPartners[index];
+        }
+        throw new Error('Partner not found');
     }
 
     /**
@@ -75,13 +101,14 @@ export class PartnerService {
         console.warn('PartnerService: Generating mock link');
         const newLink: AffiliateLink = {
             id: uuid(),
-            partner_id: partnerId,
+            partnerId: partnerId,
             code: Math.random().toString(36).substring(7),
-            url: 'https://mixxclub.com?ref=8a7b6c5d',
+            url: 'https://mixxclub.com?ref=' + Math.random().toString(36).substring(2, 10),
             campaign: campaign || 'default',
             clicks: 0,
             conversions: 0,
-            created_at: new Date().toISOString()
+            revenue: 0,
+            createdAt: new Date(),
         };
         
         mockAffiliateLinks.push(newLink);
@@ -89,16 +116,76 @@ export class PartnerService {
     }
 
     /**
+     * Create an affiliate link (alias for generateLink)
+     */
+    static async createAffiliateLink(partnerId: string, campaign?: string): Promise<AffiliateLink> {
+        return PartnerService.generateLink(partnerId, campaign);
+    }
+
+    /**
+     * Record a commission
+     */
+    static async recordCommission(partnerId: string, saleId: string, amount: number, rate: number): Promise<Commission> {
+        const commission: Commission = {
+            id: uuid(),
+            partnerId,
+            referralId: uuid(),
+            saleId,
+            amount: amount * (rate / 100),
+            rate,
+            status: 'pending',
+            dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+            createdAt: new Date(),
+        };
+        mockCommissions.push(commission);
+        return commission;
+    }
+
+    /**
+     * Get commissions for a partner
+     */
+    static async getPartnerCommissions(partnerId: string): Promise<Commission[]> {
+        return mockCommissions.filter(c => c.partnerId === partnerId);
+    }
+
+    /**
+     * Create a payout
+     */
+    static async createPayout(partnerId: string, amount: number, method: Payout['method']): Promise<Payout> {
+        const payout: Payout = {
+            id: uuid(),
+            partnerId,
+            amount,
+            status: 'pending',
+            method,
+            startDate: new Date(new Date().setDate(1)),
+            endDate: new Date(),
+            createdAt: new Date(),
+        };
+        mockPayouts.push(payout);
+        return payout;
+    }
+
+    /**
+     * Get payouts for a partner
+     */
+    static async getPartnerPayouts(partnerId: string): Promise<Payout[]> {
+        return mockPayouts.filter(p => p.partnerId === partnerId);
+    }
+
+    /**
      * Get partner metrics
      */
     static async getMetrics(partnerId: string): Promise<PartnerMetrics> {
         return {
-            clicks: 1250,
+            partnerId,
+            month: new Date().toISOString().slice(0, 7),
             referrals: 45,
-            conversion_rate: 3.6,
-            pending_payout: 320.50,
-            last_payout: '2024-03-15',
-            tier_progress: 75
+            sales: 12,
+            revenue: 3200,
+            commission: 320.50,
+            conversionRate: 3.6,
+            averageOrderValue: 266.67,
         };
     }
 }

@@ -53,7 +53,7 @@ const contextEnhancements: Record<string, string> = {
   studio_: "music studio environment, professional audio workspace, creative atmosphere",
   unlock_: "celebration visual, achievement unlocked, reward moment, confetti and glow",
   badge_: "achievement badge design, icon style, clean emblem, award aesthetic",
-  demo_phase_: "cinematic documentary photography, emotional storytelling, MixClub narrative visual, music industry atmosphere, 8K quality",
+  demo_phase_: "cinematic documentary photography, emotional storytelling, Mixxclub narrative visual, music industry atmosphere, 8K quality",
 };
 
 async function generateImage(prompt: string, context?: string, style?: string): Promise<{ url: string; provider: string }> {

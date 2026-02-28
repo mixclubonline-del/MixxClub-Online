@@ -1275,7 +1275,7 @@ All colors MUST be HSL.
     animation: glow-pulse 2s ease-in-out infinite;
   }
 
-  /* MixClub Glass Utilities */
+  /* Mixxclub Glass Utilities */
   .glass {
     background: linear-gradient(135deg, hsl(var(--card) / 0.7), hsl(var(--card) / 0.5));
     -webkit-backdrop-filter: blur(24px) saturate(150%);

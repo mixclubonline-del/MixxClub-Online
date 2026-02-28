@@ -200,7 +200,7 @@ export function WaitlistCapture({ embedded, className }: WaitlistCaptureProps) {
                     <div className="text-center mb-8">
                         <motion.img
                             src={mixxclubLogo}
-                            alt="MixClub"
+                            alt="Mixxclub"
                             className="w-16 h-16 mx-auto mb-4"
                             animate={{ scale: [1, 1.05, 1] }}
                             transition={{ duration: 3, repeat: Infinity }}
