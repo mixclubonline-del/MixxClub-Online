@@ -1,38 +1,100 @@
 
 
-# Scroll-Triggered Card Animations in Features Chapter
+# Quick Start Landing Variant
 
-## What Changes
+## Goal
 
-Replace the Framer Motion `whileInView` animations on the feature cards with the project's native CSS + Intersection Observer approach, aligning with the **visual animation standard** (CSS `@keyframes` + `useInView` over Framer Motion for section reveals).
+Create a `/start` route that takes a new visitor from landing to signup to first action (upload or create profile) in under 60 seconds. No hallway, no cinematic sequences, no scene transitions -- just a sharp, conversion-optimized single page.
 
-## Approach
+## Architecture
 
-Refactor `FeaturesChapter.tsx` to use the existing native `useInView` hook (`src/hooks/useInView.ts`) for triggering visibility, combined with the existing CSS `.stagger-item` classes (`src/index.css`) for staggered fade/slide-in animations. The hero and CTA sections will also switch to this pattern for consistency.
+One new page component (`QuickStart.tsx`) and one new route. Reuses the existing `AuthLayout`, `useAuthWizard` hook, and auth infrastructure. No new database tables or backend changes.
 
-### Changes to `src/components/storybook/chapters/FeaturesChapter.tsx`
-
-1. **Remove Framer Motion** -- drop the `motion` import entirely from this component
-2. **Import `useInView`** from `@/hooks/useInView`
-3. **Hero section**: Use `useInView` to toggle an `opacity-0 translate-y-5` to `opacity-100 translate-y-0` CSS transition on mount
-4. **Feature cards grid**: Apply `useInView` on the grid container; when visible, add `stagger-item` class to each card via a conditional, leveraging the existing `:nth-child` delay ladder in `index.css` (delays from 0.05s to 0.3s for cards 1-6)
-5. **Hover effect**: Replace `whileHover={{ y: -4 }}` with a native Tailwind `hover:-translate-y-1` class
-6. **CTA button**: Same `useInView`-driven opacity transition
-
-### No New CSS Needed
-
-The existing `stagger-item` classes in `index.css` already cover 8 children with progressive delays and use the `fade-in` keyframe (translateY + opacity). The feature grid has exactly 6 cards -- fits perfectly within the existing ladder.
-
-### No Other Files Changed
-
-This is a self-contained refactor of one component. The `useInView` hook and CSS stagger classes are already in the codebase.
-
-## Technical Detail
+## User Flow (3 panels, one page)
 
 ```text
-Before:  motion.div + whileInView + Framer transition
-After:   div + useInView hook + CSS transition/stagger-item class + GPU-composited transforms
+Panel 1: Value Prop + Role Pick     (5 sec)
+Panel 2: Email/Password or OAuth    (15 sec)
+Panel 3: First Action CTA           (5 sec)
+         -> Upload Track (/upload)
+         -> Create Profile (/onboarding/{role})
+         -> Browse Engineers (/engineers)
 ```
 
-The `useInView` hook uses native `IntersectionObserver` with `once: true`, so cards animate in once as the user scrolls within the chapter panel and stay visible. The CSS `animation` property with `backwards` fill mode ensures cards start hidden until their staggered delay fires.
+All three panels live in a single component with CSS transitions between them (no route changes until the final CTA). The auth form embeds inline -- no redirect to `/auth`.
+
+## Files to Create
+
+### 1. `src/pages/QuickStart.tsx`
+- Self-contained page with three steps: `role` | `credentials` | `action`
+- Step 1: Compact role grid (same 4 roles as RoleStep, but smaller cards -- single click advances)
+- Step 2: Inline auth form (email + password, Google/Apple OAuth buttons). Reuses `supabase.auth.signUp` / `signInWithPassword` / `lovable.auth.signInWithOAuth` directly. Listens for `onAuthStateChange` to auto-advance to Step 3.
+- Step 3: "What do you want to do first?" -- three action cards (Upload Track, Create Profile, Browse Engineers) that navigate to the real destination.
+- Minimal styling: dark bg, centered card, progress bar (1/2/3), no particles, no video, no Framer Motion animations beyond simple opacity fades.
+- Mobile-first: `max-w-lg`, `min-h-[100svh]`, thumb-friendly tap targets.
+
+### 2. Route Registration
+- Add `/start` route in `publicRoutes.tsx` (lazy-loaded)
+- Add `/start` to `FULL_IMMERSIVE_ROUTES` in `immersiveRoutes.ts` so no global overlays appear
+- Add `START: '/start'` to the route registry in `config/routes.ts`
+
+### 3. Entry Points
+- Add a "Skip to Quick Start" link in the floating nav pill inside `SceneFlow.tsx` (next to "Join Free") so visitors in the immersive flow can bail out to the fast path at any time.
+
+## What We Reuse (no duplication)
+
+| Concern | Source |
+|---|---|
+| OAuth (Google/Apple) | `lovable.auth.signInWithOAuth` from `@/integrations/lovable` |
+| Email/password auth | `supabase.auth.signUp` / `signInWithPassword` directly |
+| Role persistence | `user_roles` table insert (same pattern as existing onboarding) |
+| Profile auto-creation | Existing database trigger on `auth.users` |
+| Redirect logic | Simplified version of `useAuthWizard.redirectAuthenticatedUser` |
+| Auth callback | Existing `/auth/callback` route handles OAuth returns |
+
+## What We Deliberately Skip
+
+- No Framer Motion (page loads instantly, no animation overhead)
+- No character images/videos (zero asset weight)
+- No WaitlistGate wrapping (this is a direct funnel)
+- No magic link option (password + OAuth only for speed -- magic link adds email-check latency that breaks the 60-second target)
+- No social proof badges or testimonial carousels
+
+## Technical Details
+
+### QuickStart component structure
+
+```text
+QuickStart
+  |-- step state: 'role' | 'credentials' | 'action'
+  |-- selectedRole state
+  |-- auth state (email, password, loading, error)
+  |-- onAuthStateChange listener -> auto-advance to 'action' step
+  |
+  |-- Step 1: Role grid (2x2), single-tap selects + advances
+  |-- Step 2: Email + password form, OAuth row, mode toggle (login/signup)
+  |-- Step 3: Three action cards with navigate() calls
+```
+
+### Auth flow inside QuickStart
+
+On signup success, the existing database trigger creates the profile row. We then insert the selected role into `user_roles` via a simple `supabase.from('user_roles').upsert(...)` call. This mirrors the existing onboarding pattern but happens inline.
+
+For OAuth, we redirect to the provider with `redirect_uri` set to `/auth/callback`, which handles the token exchange and redirects back. We add a `?from=start` param so the callback can redirect back to `/start` instead of the standard post-auth flow, letting Step 3 render.
+
+### Immersive route registration
+
+Adding `/start` to `FULL_IMMERSIVE_ROUTES` prevents the global player bar, status overlays, and console from rendering on this page, keeping it distraction-free.
+
+## Summary
+
+| File | Action |
+|---|---|
+| `src/pages/QuickStart.tsx` | Create -- self-contained 3-step funnel page |
+| `src/routes/publicRoutes.tsx` | Add `/start` route (lazy) |
+| `src/config/routes.ts` | Add `START: '/start'` constant |
+| `src/config/immersiveRoutes.ts` | Add `/start` to immersive list |
+| `src/components/home/SceneFlow.tsx` | Add "Quick Start" link to floating nav pill |
+
+Five touches. One new component. Zero new dependencies. The existing auth infrastructure does the heavy lifting.
 
