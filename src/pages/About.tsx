@@ -18,7 +18,7 @@ export default function About() {
       {/* Hero Section */}
       <div className="container max-w-6xl mx-auto px-4 py-16">
         <div className="text-center mb-16">
-          <h1 className="text-5xl font-bold mb-4">About MixClub</h1>
+          <h1 className="text-5xl font-bold mb-4">About Mixxclub</h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             We're on a mission to make professional audio engineering accessible to every artist, 
             anywhere in the world.
@@ -86,7 +86,7 @@ export default function About() {
           <h2 className="text-3xl font-bold mb-6">Our Story</h2>
           <div className="space-y-4 text-muted-foreground leading-relaxed">
             <p>
-              MixClub was founded in 2024 by a team of audio engineers and software developers who 
+              Mixxclub was founded in 2024 by a team of audio engineers and software developers who 
               saw the challenges independent artists face in getting professional-quality production. 
               We experienced firsthand the frustration of finding reliable engineers, managing complex 
               project workflows, and ensuring consistent quality.
@@ -98,7 +98,7 @@ export default function About() {
               designed to make the production process as smooth as possible.
             </p>
             <p>
-              Today, MixClub serves thousands of artists and engineers worldwide, facilitating millions 
+              Today, Mixxclub serves thousands of artists and engineers worldwide, facilitating millions 
               of dollars in transactions and helping create music that reaches audiences everywhere. 
               We're just getting started.
             </p>

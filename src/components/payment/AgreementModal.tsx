@@ -147,7 +147,7 @@ export function AgreementModal({
 
             <div>
               <h4 className="font-semibold mb-1">Payment Terms</h4>
-              <p>Payment will be processed through MixClub's secure payment system. Engineer earnings will be distributed according to the agreed split percentage.</p>
+              <p>Payment will be processed through Mixxclub's secure payment system. Engineer earnings will be distributed according to the agreed split percentage.</p>
             </div>
           </div>
         </ScrollArea>

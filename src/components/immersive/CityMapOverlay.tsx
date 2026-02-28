@@ -1,7 +1,7 @@
 /**
  * City Map Overlay
  * 
- * Spatial Interface: An immersive aerial view of MixClub City.
+ * Spatial Interface: An immersive aerial view of Mixxclub City.
  * Districts are glowing hotspots on an AI-generated cityscape.
  * Text appears only on hover.
  */

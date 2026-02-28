@@ -194,7 +194,7 @@ const Navigation = () => {
               <div className="absolute inset-0 rounded-lg blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-glass-glow-pulse" style={{ boxShadow: '0 0 40px hsl(var(--primary))' }}></div>
               <img
                 src={mixxclub3DLogo}
-                alt="MixClub 3D Logo"
+                alt="Mixxclub 3D Logo"
                 className="w-12 h-9 object-contain relative z-10 transition-transform duration-300 group-hover:rotate-3"
               />
             </div>

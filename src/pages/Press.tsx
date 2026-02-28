@@ -43,7 +43,7 @@ const Press = () => {
       <SEOHead
         title="Press Kit"
         description="Mixxclub press resources, brand assets, and media information. Download logos, screenshots, and learn about our mission to democratize professional music production."
-        keywords="mixclub press, media kit, brand assets, music production news"
+        keywords="mixxclub press, media kit, brand assets, music production news"
       />
 
       <div className="min-h-screen bg-background">
@@ -99,7 +99,7 @@ const Press = () => {
             </div>
           </section>
 
-          {/* About MixClub */}
+          {/* About Mixxclub */}
           <section className="py-16 px-4">
             <div className="container mx-auto max-w-4xl">
               <Card>

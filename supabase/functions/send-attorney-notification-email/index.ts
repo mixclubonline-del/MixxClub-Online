@@ -25,7 +25,7 @@ serve(async (req) => {
     }
 
     // Send email to admin
-    const adminEmail = "mixclubonline@gmail.com";
+    const adminEmail = "mixxclubonline@gmail.com";
 
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">

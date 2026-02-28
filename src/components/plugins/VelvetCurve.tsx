@@ -1,5 +1,5 @@
 /**
- * VelvetCurve - MixClub's Psychoacoustic Comfort Engine Plugin
+ * VelvetCurve - Mixxclub's Psychoacoustic Comfort Engine Plugin
  * 
  * "We measure serenity, not sharpness."
  */
