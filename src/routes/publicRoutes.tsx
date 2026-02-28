@@ -30,6 +30,7 @@ import { WaitlistGate } from "@/components/waitlist/WaitlistGate";
 // Lazy loaded public pages
 const MixClubHome = React.lazy(() => import("@/pages/MixClubHome"));
 const Enterprise = React.lazy(() => import("@/pages/Enterprise"));
+const QuickStart = React.lazy(() => import("@/pages/QuickStart"));
 
 export const publicRoutes = (
   <>
@@ -37,6 +38,9 @@ export const publicRoutes = (
     <Route path="/" element={<MixClubHome />} />
     <Route path="/home" element={<Navigate to="/" replace />} />
     <Route path="/mixclub" element={<Navigate to="/" replace />} />
+
+    {/* Quick Start - conversion-optimized fast path */}
+    <Route path="/start" element={<QuickStart />} />
 
     {/* Demo/Showcase - parked for demos */}
     <Route path="/demo" element={<InsiderDemo />} />

@@ -24,6 +24,7 @@ export const ROUTES = {
   PRESS: '/press',
   ENTERPRISE: '/enterprise',
   ENTERPRISE_DEMO: '/enterprise-demo',
+  START: '/start',
   SITEMAP: '/sitemap',
 
   // Persona landing pages

@@ -147,8 +147,16 @@ function VerticalSceneFlow() {
           </>
         )}
         <Link
-          to="/choose-path"
+          to="/start"
           className="mg-pill text-xs font-semibold text-primary hover:text-primary/80 transition-colors"
+          aria-label="Quick start sign up"
+        >
+          Quick Start
+        </Link>
+        <span className="text-muted-foreground/40">•</span>
+        <Link
+          to="/choose-path"
+          className="text-xs text-muted-foreground hover:text-foreground transition-colors"
           aria-label="Go to sign up"
         >
           Join Free
