@@ -84,23 +84,13 @@ export function PromoFunnelController({ assets, isLoading, trackStep }: Props) {
 
   return (
     <div
-      className="fixed inset-0 bg-black overflow-hidden select-none touch-none"
+      className="fixed inset-0 bg-black select-none touch-none"
       onPointerDown={onPointerDown}
       onPointerUp={onPointerUp}
     >
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={SCENES[idx]}
-          variants={variants}
-          initial="enter"
-          animate="center"
-          exit="exit"
-          transition={{ duration: prefersReducedMotion.current ? 0 : 0.4 }}
-          className="absolute inset-0"
-        >
-          {sceneComponents[SCENES[idx]]}
-        </motion.div>
-      </AnimatePresence>
+      <div className="absolute inset-0 w-full h-full">
+        {sceneComponents[SCENES[idx]]}
+      </div>
 
       {/* Progress dots */}
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-50">
