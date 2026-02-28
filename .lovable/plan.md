@@ -1,100 +1,85 @@
 
 
-# Quick Start Landing Variant
+# Quick Start Funnel Analytics
 
 ## Goal
 
-Create a `/start` route that takes a new visitor from landing to signup to first action (upload or create profile) in under 60 seconds. No hallway, no cinematic sequences, no scene transitions -- just a sharp, conversion-optimized single page.
+Instrument the Quick Start page and the immersive onboarding flow with funnel step events so we can compare conversion rates between the two paths. Events are persisted to a new `funnel_events` table and also fired through the existing client-side `analytics` singleton.
 
-## Architecture
+## Database: New `funnel_events` Table
 
-One new page component (`QuickStart.tsx`) and one new route. Reuses the existing `AuthLayout`, `useAuthWizard` hook, and auth infrastructure. No new database tables or backend changes.
-
-## User Flow (3 panels, one page)
-
-```text
-Panel 1: Value Prop + Role Pick     (5 sec)
-Panel 2: Email/Password or OAuth    (15 sec)
-Panel 3: First Action CTA           (5 sec)
-         -> Upload Track (/upload)
-         -> Create Profile (/onboarding/{role})
-         -> Browse Engineers (/engineers)
+```sql
+CREATE TABLE public.funnel_events (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_id text NOT NULL,           -- browser session fingerprint (no auth required)
+  funnel_source text NOT NULL,        -- 'quick_start' | 'immersive'
+  step text NOT NULL,                 -- 'landed' | 'role_selected' | 'auth_started' | 'auth_completed' | 'action_selected'
+  step_data jsonb DEFAULT '{}',       -- role, auth method, action chosen, etc.
+  created_at timestamptz DEFAULT now()
+);
 ```
 
-All three panels live in a single component with CSS transitions between them (no route changes until the final CTA). The auth form embeds inline -- no redirect to `/auth`.
+- RLS: INSERT allowed for `anon` and `authenticated` roles (write-only -- visitors must be able to log events before signing up). SELECT restricted to service role (backend queries only).
+- No foreign keys to `auth.users` -- events are keyed by an ephemeral `session_id` generated client-side, so pre-auth visitors are tracked.
 
-## Files to Create
+## Client-Side: Funnel Tracking Hook
 
-### 1. `src/pages/QuickStart.tsx`
-- Self-contained page with three steps: `role` | `credentials` | `action`
-- Step 1: Compact role grid (same 4 roles as RoleStep, but smaller cards -- single click advances)
-- Step 2: Inline auth form (email + password, Google/Apple OAuth buttons). Reuses `supabase.auth.signUp` / `signInWithPassword` / `lovable.auth.signInWithOAuth` directly. Listens for `onAuthStateChange` to auto-advance to Step 3.
-- Step 3: "What do you want to do first?" -- three action cards (Upload Track, Create Profile, Browse Engineers) that navigate to the real destination.
-- Minimal styling: dark bg, centered card, progress bar (1/2/3), no particles, no video, no Framer Motion animations beyond simple opacity fades.
-- Mobile-first: `max-w-lg`, `min-h-[100svh]`, thumb-friendly tap targets.
+Create `src/hooks/useFunnelTracking.ts`:
 
-### 2. Route Registration
-- Add `/start` route in `publicRoutes.tsx` (lazy-loaded)
-- Add `/start` to `FULL_IMMERSIVE_ROUTES` in `immersiveRoutes.ts` so no global overlays appear
-- Add `START: '/start'` to the route registry in `config/routes.ts`
+- Generates a stable `session_id` (stored in `sessionStorage`) on first call.
+- Exposes `trackStep(step, stepData?)` which:
+  1. Fires `analytics.track('funnel_step', { funnel_source, step, ...stepData })` (client-side queue, GA4-ready).
+  2. Inserts a row into `funnel_events` via a fire-and-forget Supabase insert (no `await` blocking the UI).
+- Accepts `funnelSource` as a parameter so the same hook works for both flows.
 
-### 3. Entry Points
-- Add a "Skip to Quick Start" link in the floating nav pill inside `SceneFlow.tsx` (next to "Join Free") so visitors in the immersive flow can bail out to the fast path at any time.
+## QuickStart.tsx Integration
 
-## What We Reuse (no duplication)
+Wire `useFunnelTracking('quick_start')` into the existing step transitions:
 
-| Concern | Source |
+| User action | Event fired |
 |---|---|
-| OAuth (Google/Apple) | `lovable.auth.signInWithOAuth` from `@/integrations/lovable` |
-| Email/password auth | `supabase.auth.signUp` / `signInWithPassword` directly |
-| Role persistence | `user_roles` table insert (same pattern as existing onboarding) |
-| Profile auto-creation | Existing database trigger on `auth.users` |
-| Redirect logic | Simplified version of `useAuthWizard.redirectAuthenticatedUser` |
-| Auth callback | Existing `/auth/callback` route handles OAuth returns |
+| Page mounts | `landed` |
+| Role card tapped | `role_selected` with `{ role }` |
+| Auth form submitted / OAuth clicked | `auth_started` with `{ method: 'email' \| 'google' \| 'apple' }` |
+| `onAuthStateChange` fires SIGNED_IN | `auth_completed` with `{ method, role }` |
+| Action card tapped | `action_selected` with `{ action: 'upload' \| 'profile' \| 'browse' }` |
 
-## What We Deliberately Skip
+Five events, five lines of code added to existing handlers. No structural changes to the component.
 
-- No Framer Motion (page loads instantly, no animation overhead)
-- No character images/videos (zero asset weight)
-- No WaitlistGate wrapping (this is a direct funnel)
-- No magic link option (password + OAuth only for speed -- magic link adds email-check latency that breaks the 60-second target)
-- No social proof badges or testimonial carousels
+## Immersive Flow Tagging (for comparison)
 
-## Technical Details
+Add the same `useFunnelTracking('immersive')` calls at equivalent points in the existing immersive onboarding:
+- `SceneFlow.tsx` mount fires `landed`.
+- Role selection in the hallway/qualifier fires `role_selected`.
+- Auth page fires `auth_started` / `auth_completed`.
 
-### QuickStart component structure
+This gives us an apples-to-apples funnel comparison between the two paths.
 
-```text
-QuickStart
-  |-- step state: 'role' | 'credentials' | 'action'
-  |-- selectedRole state
-  |-- auth state (email, password, loading, error)
-  |-- onAuthStateChange listener -> auto-advance to 'action' step
-  |
-  |-- Step 1: Role grid (2x2), single-tap selects + advances
-  |-- Step 2: Email + password form, OAuth row, mode toggle (login/signup)
-  |-- Step 3: Three action cards with navigate() calls
-```
-
-### Auth flow inside QuickStart
-
-On signup success, the existing database trigger creates the profile row. We then insert the selected role into `user_roles` via a simple `supabase.from('user_roles').upsert(...)` call. This mirrors the existing onboarding pattern but happens inline.
-
-For OAuth, we redirect to the provider with `redirect_uri` set to `/auth/callback`, which handles the token exchange and redirects back. We add a `?from=start` param so the callback can redirect back to `/start` instead of the standard post-auth flow, letting Step 3 render.
-
-### Immersive route registration
-
-Adding `/start` to `FULL_IMMERSIVE_ROUTES` prevents the global player bar, status overlays, and console from rendering on this page, keeping it distraction-free.
-
-## Summary
+## Files
 
 | File | Action |
 |---|---|
-| `src/pages/QuickStart.tsx` | Create -- self-contained 3-step funnel page |
-| `src/routes/publicRoutes.tsx` | Add `/start` route (lazy) |
-| `src/config/routes.ts` | Add `START: '/start'` constant |
-| `src/config/immersiveRoutes.ts` | Add `/start` to immersive list |
-| `src/components/home/SceneFlow.tsx` | Add "Quick Start" link to floating nav pill |
+| Migration SQL | Create `funnel_events` table + anon INSERT policy |
+| `src/hooks/useFunnelTracking.ts` | New -- shared funnel tracking hook |
+| `src/pages/QuickStart.tsx` | Edit -- add 5 `trackStep()` calls at step transitions |
+| `src/components/home/SceneFlow.tsx` | Edit -- add `landed` event on mount |
 
-Five touches. One new component. Zero new dependencies. The existing auth infrastructure does the heavy lifting.
+## Querying Conversion Rates
+
+Once populated, conversion comparison is a single SQL query:
+
+```sql
+SELECT
+  funnel_source,
+  COUNT(*) FILTER (WHERE step = 'landed') AS landed,
+  COUNT(*) FILTER (WHERE step = 'auth_completed') AS converted,
+  ROUND(
+    COUNT(*) FILTER (WHERE step = 'auth_completed')::numeric /
+    NULLIF(COUNT(*) FILTER (WHERE step = 'landed'), 0) * 100, 1
+  ) AS conversion_pct
+FROM funnel_events
+GROUP BY funnel_source;
+```
+
+No dashboard UI in this pass -- the data is queryable from the backend tools immediately. A visual dashboard can be layered on top in a future pass.
 
