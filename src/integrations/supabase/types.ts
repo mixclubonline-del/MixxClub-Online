@@ -3170,6 +3170,33 @@ export type Database = {
         }
         Relationships: []
       }
+      funnel_events: {
+        Row: {
+          created_at: string | null
+          funnel_source: string
+          id: string
+          session_id: string
+          step: string
+          step_data: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          funnel_source: string
+          id?: string
+          session_id: string
+          step: string
+          step_data?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          funnel_source?: string
+          id?: string
+          session_id?: string
+          step?: string
+          step_data?: Json | null
+        }
+        Relationships: []
+      }
       generation_history: {
         Row: {
           context: string | null

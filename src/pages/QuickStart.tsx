@@ -6,6 +6,7 @@ import { lovable } from '@/integrations/lovable';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ROUTES } from '@/config/routes';
+import { useFunnelTracking } from '@/hooks/useFunnelTracking';
 
 type AppRole = 'producer' | 'artist' | 'engineer' | 'fan';
 type Step = 'role' | 'credentials' | 'action';
@@ -18,10 +19,10 @@ const ROLES = [
   { id: 'fan' as const, label: 'Fan', tagline: 'I discover & support', icon: Heart },
 ] as const;
 
-const ACTIONS: { label: string; desc: string; icon: typeof Upload; route?: string; routeFn?: (role: AppRole) => string }[] = [
-  { label: 'Upload a Track', desc: 'Get your music mixed or mastered', icon: Upload, route: ROUTES.UPLOAD },
-  { label: 'Create Profile', desc: 'Set up your presence on MixClub', icon: UserCircle, routeFn: (role: AppRole) => `/onboarding/${role}` },
-  { label: 'Browse Engineers', desc: 'Find your perfect mix engineer', icon: Users, route: ROUTES.ENGINEERS },
+const ACTIONS: { label: string; desc: string; icon: typeof Upload; actionKey: string; route?: string; routeFn?: (role: AppRole) => string }[] = [
+  { label: 'Upload a Track', desc: 'Get your music mixed or mastered', icon: Upload, actionKey: 'upload', route: ROUTES.UPLOAD },
+  { label: 'Create Profile', desc: 'Set up your presence on MixClub', icon: UserCircle, actionKey: 'profile', routeFn: (role: AppRole) => `/onboarding/${role}` },
+  { label: 'Browse Engineers', desc: 'Find your perfect mix engineer', icon: Users, actionKey: 'browse', route: ROUTES.ENGINEERS },
 ];
 
 export default function QuickStart() {
@@ -34,20 +35,24 @@ export default function QuickStart() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { trackStep } = useFunnelTracking('quick_start');
+
+  // Track landing
+  useEffect(() => { trackStep('landed'); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Auto-advance to action step when auth completes
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if ((event === 'SIGNED_IN' || event === 'USER_UPDATED') && session?.user && step === 'credentials') {
-        // Persist role
         if (selectedRole) {
           await supabase.from('user_roles').insert({ user_id: session.user.id, role: selectedRole }).select();
         }
+        trackStep('auth_completed', { method: email ? 'email' : 'oauth', role: selectedRole });
         setStep('action');
       }
     });
     return () => subscription.unsubscribe();
-  }, [step, selectedRole]);
+  }, [step, selectedRole]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Check if already authenticated on mount
   useEffect(() => {
@@ -58,6 +63,7 @@ export default function QuickStart() {
 
   const handleRoleSelect = (role: AppRole) => {
     setSelectedRole(role);
+    trackStep('role_selected', { role });
     setStep('credentials');
   };
 
@@ -65,6 +71,7 @@ export default function QuickStart() {
     e.preventDefault();
     setError(null);
     setLoading(true);
+    trackStep('auth_started', { method: 'email' });
     try {
       if (authMode === 'signup') {
         const { error: signUpError } = await supabase.auth.signUp({
@@ -82,11 +89,12 @@ export default function QuickStart() {
     } finally {
       setLoading(false);
     }
-  }, [email, password, authMode]);
+  }, [email, password, authMode, trackStep]);
 
   const handleOAuth = useCallback(async (provider: 'google' | 'apple') => {
     setError(null);
     setLoading(true);
+    trackStep('auth_started', { method: provider });
     try {
       const { error: oauthError } = await lovable.auth.signInWithOAuth(provider, {
         redirect_uri: `${window.location.origin}/auth/callback`,
@@ -96,7 +104,12 @@ export default function QuickStart() {
       setError(err.message || 'OAuth failed');
       setLoading(false);
     }
-  }, []);
+  }, [trackStep]);
+
+  const handleActionSelect = (actionKey: string, dest: string) => {
+    trackStep('action_selected', { action: actionKey });
+    navigate(dest);
+  };
 
   const stepIndex = step === 'role' ? 0 : step === 'credentials' ? 1 : 2;
 
@@ -265,12 +278,12 @@ export default function QuickStart() {
             <div className="space-y-3">
               {ACTIONS.map((action) => {
                 const Icon = action.icon || UserCircle;
-                const dest = 'routeFn' in action && selectedRole ? action.routeFn(selectedRole) : action.route;
+                const dest = 'routeFn' in action && action.routeFn && selectedRole ? action.routeFn(selectedRole) : action.route!;
                 return (
                   <button
                     key={action.label}
                     type="button"
-                    onClick={() => navigate(dest)}
+                    onClick={() => handleActionSelect(action.actionKey, dest)}
                     className="w-full flex items-center gap-4 rounded-xl p-4 bg-card border border-border
                       hover:border-primary/50 hover:bg-accent/30 transition-all text-left active:scale-[0.98]"
                   >
