@@ -1514,3 +1514,9 @@ All colors MUST be HSL.
     animation-delay: 400ms;
   }
 }
+
+/* Ken Burns zoom for promo funnel backgrounds */
+@keyframes kenBurns {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.08); }
+}
