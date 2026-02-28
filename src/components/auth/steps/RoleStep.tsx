@@ -52,7 +52,7 @@ export function RoleStep({ selectedRole, onSelectRole, onNext, onSwitchToLogin, 
       {/* Header */}
       <div className="text-center space-y-2">
         <h1 className="text-2xl font-bold text-white">Choose Your Path</h1>
-        <p className="text-white/60 text-sm">What brings you to MixClub?</p>
+        <p className="text-white/60 text-sm">What brings you to Mixxclub?</p>
       </div>
 
       {/* Progress indicator */}

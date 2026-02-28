@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { useWaitlistSignup, useWaitlistStats, type WaitlistFormData } from '@/hooks/useWaitlist';
 import { useValidateInviteCode } from '@/hooks/useInviteCodes';
-import mixclubLogo from '@/assets/mixclub-3d-logo.png';
+import mixxclubLogo from '@/assets/mixclub-3d-logo.png';
 
 interface WaitlistCaptureProps {
     embedded?: boolean;
@@ -199,7 +199,7 @@ export function WaitlistCapture({ embedded, className }: WaitlistCaptureProps) {
                     {/* Logo & Header */}
                     <div className="text-center mb-8">
                         <motion.img
-                            src={mixclubLogo}
+                            src={mixxclubLogo}
                             alt="MixClub"
                             className="w-16 h-16 mx-auto mb-4"
                             animate={{ scale: [1, 1.05, 1] }}

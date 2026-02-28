@@ -32,7 +32,7 @@ const MasteringShowcase = () => {
   useEffect(() => {
     const success = searchParams.get('success');
     if (success === 'true') {
-      toast.success('Payment successful! Welcome to MixClub AI Mastering!');
+      toast.success('Payment successful! Welcome to Mixxclub AI Mastering!');
     }
     const cancelled = searchParams.get('canceled');
     if (cancelled === 'true') {
@@ -128,7 +128,7 @@ const MasteringShowcase = () => {
   return (
     <>
       <Helmet>
-        <title>Mastering Suite — MixClub Services</title>
+        <title>Mastering Suite — Mixxclub Services</title>
         <meta name="description" content="AI-powered mastering trained on 100,000+ professional masters. Get Grammy-quality results instantly." />
       </Helmet>
 

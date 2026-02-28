@@ -182,11 +182,11 @@ export function RevenuePreview() {
               <div className="mt-6 pt-4 border-t border-border/50">
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div className="p-3 rounded-lg bg-red-500/10">
-                    <div className="text-xs text-muted-foreground mb-1">Before MixClub</div>
+                    <div className="text-xs text-muted-foreground mb-1">Before Mixxclub</div>
                     <div className="text-lg font-bold text-red-400">$0/mo</div>
                   </div>
                   <div className="p-3 rounded-lg bg-green-500/10">
-                    <div className="text-xs text-muted-foreground mb-1">With MixClub</div>
+                    <div className="text-xs text-muted-foreground mb-1">With Mixxclub</div>
                     <div className="text-lg font-bold text-green-400">$4,200/mo</div>
                   </div>
                 </div>

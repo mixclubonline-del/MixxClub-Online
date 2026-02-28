@@ -11,10 +11,10 @@ interface Message {
 }
 
 const DEMO_RESPONSES: Record<string, string> = {
-  default: "Hey! I'm Prime, your AI guide to MixClub. Ask me about mixing, mastering, or how to get started!",
+  default: "Hey! I'm Prime, your AI guide to Mixxclub. Ask me about mixing, mastering, or how to get started!",
   mixing: "Mixing is all about balance. I can help you find the perfect engineer for your track's genre and style. Want me to show you how our AI matching works?",
   mastering: "Our AI mastering analyzes your track in seconds - detecting genre, BPM, key, and suggesting the perfect processing chain. Try uploading a track to see it in action!",
-  engineer: "MixClub connects you with vetted audio engineers who specialize in your genre. Our AI matches you based on style, budget, and availability.",
+  engineer: "Mixxclub connects you with vetted audio engineers who specialize in your genre. Our AI matches you based on style, budget, and availability.",
   price: "We have flexible pricing! Engineers set their own rates, typically $50-500 per track. Plus, our AI mastering starts at just $9.99.",
   how: "Simple: Upload your track → Get AI analysis → Match with engineers → Collaborate in real-time → Receive professional masters. All in one platform!",
 };
@@ -39,7 +39,7 @@ export const FloatingPrimeChat = () => {
     if (q.includes('engineer')) return DEMO_RESPONSES.engineer;
     if (q.includes('price') || q.includes('cost') || q.includes('$')) return DEMO_RESPONSES.price;
     if (q.includes('how') || q.includes('work')) return DEMO_RESPONSES.how;
-    return "Great question! MixClub is the future of music collaboration. We use AI to match artists with the perfect engineers, analyze tracks instantly, and streamline the entire production process. What specifically would you like to know?";
+    return "Great question! Mixxclub is the future of music collaboration. We use AI to match artists with the perfect engineers, analyze tracks instantly, and streamline the entire production process. What specifically would you like to know?";
   };
 
   const handleSend = async () => {
@@ -158,7 +158,7 @@ export const FloatingPrimeChat = () => {
                       Prime AI
                       <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                     </div>
-                    <div className="text-xs text-muted-foreground">Your MixClub Guide</div>
+                    <div className="text-xs text-muted-foreground">Your Mixxclub Guide</div>
                   </div>
                 </div>
                 <Button

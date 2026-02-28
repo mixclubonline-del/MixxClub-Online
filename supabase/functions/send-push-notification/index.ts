@@ -347,7 +347,7 @@ serve(async (req) => {
                 'Authorization': `Bearer ${RESEND_API_KEY}`,
               },
               body: JSON.stringify({
-                from: 'MixClub <notifications@resend.dev>',
+                from: 'Mixxclub <notifications@resend.dev>',
                 to: [profile.email],
                 subject: title,
                 html: emailHtml,
@@ -396,7 +396,7 @@ function generateNotificationEmail(
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; max-width: 600px; margin: 0 auto; background: #f8f9fa;">
   
   <div style="background: linear-gradient(135deg, #5B3CFF 0%, #7C3AED 100%); padding: 30px; text-align: center;">
-    <h1 style="color: white; margin: 0; font-size: 24px;">🎵 MixClub</h1>
+    <h1 style="color: white; margin: 0; font-size: 24px;">🎵 Mixxclub</h1>
   </div>
   
   <div style="background: white; padding: 30px;">
@@ -414,13 +414,13 @@ function generateNotificationEmail(
     ` : ''}
     
     <p style="margin: 20px 0 0 0; color: #666; font-size: 14px;">
-      — The MixClub Team
+      — The Mixxclub Team
     </p>
   </div>
   
   <div style="padding: 20px; text-align: center; color: #666; font-size: 12px;">
     <p style="margin: 0;">
-      <a href="https://mixclubonline.com/settings" style="color: #5B3CFF;">Manage notification preferences</a>
+      <a href="https://mixxclubonline.com/settings" style="color: #5B3CFF;">Manage notification preferences</a>
     </p>
   </div>
   

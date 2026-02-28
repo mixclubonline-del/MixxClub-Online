@@ -121,7 +121,7 @@ const RoleSelection = () => {
       const contribution = getContributionMessage('user_count', 'Your signup');
       attributionToasts.userJoined(contribution);
 
-      toast.success(`Welcome to MixClub as a ${role}!`);
+      toast.success(`Welcome to Mixxclub as a ${role}!`);
 
       // Navigate to role-specific onboarding
       navigate(`/onboarding/${role}`);
@@ -198,7 +198,7 @@ const RoleSelection = () => {
             transition={{ delay: 0.3 }}
             className="text-muted-foreground text-lg"
           >
-            Select how you want to move through MixClub
+            Select how you want to move through Mixxclub
           </motion.p>
         </div>
 

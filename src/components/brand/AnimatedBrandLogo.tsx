@@ -145,7 +145,7 @@ export const AnimatedBrandLogo = ({
           <motion.img
             key={currentVariant}
             src={currentLogo}
-            alt="MixClub Logo"
+            alt="Mixxclub Logo"
             className={`absolute object-contain ${glowStyles[actualGlow]}`}
             style={{ 
               width: dimensions.width, 

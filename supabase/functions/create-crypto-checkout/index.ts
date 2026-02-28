@@ -51,7 +51,7 @@ serve(async (req) => {
     }
 
     const chargeData = {
-      name: `MixClub - ${project.title}`,
+      name: `Mixxclub - ${project.title}`,
       description: `Payment for project: ${project.title}`,
       pricing_type: 'fixed_price',
       local_price: {

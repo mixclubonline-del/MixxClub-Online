@@ -19,7 +19,7 @@ export default function FAQ() {
           a: "We accept WAV, AIFF, FLAC, and high-quality MP3 files (320kbps). For best results, we recommend 24-bit/48kHz WAV files or higher. Stems should be exported at the same sample rate and bit depth."
         },
         {
-          q: "How do I get started with MixClub?",
+          q: "How do I get started with Mixxclub?",
           a: "Simply create a free account, choose your role (artist or engineer), complete your profile, and start exploring. Artists can post projects or try our AI mastering. Engineers can browse job opportunities and build their portfolio."
         },
         {
@@ -136,8 +136,8 @@ export default function FAQ() {
     <>
       <SEOHead
         title="FAQ"
-        description="Get answers to common questions about MixxClub — file formats, pricing, turnaround times, security, and more."
-        keywords="mixclub faq, music production questions, mixing mastering help, audio engineering faq"
+        description="Get answers to common questions about Mixxclub — file formats, pricing, turnaround times, security, and more."
+        keywords="mixxclub faq, music production questions, mixing mastering help, audio engineering faq"
       />
       <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
       <div className="container px-6 py-12 max-w-4xl">
@@ -147,7 +147,7 @@ export default function FAQ() {
             Frequently Asked Questions
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Everything you need to know about MixClub. Can't find what you're looking for? Contact our support team.
+            Everything you need to know about Mixxclub. Can't find what you're looking for? Contact our support team.
           </p>
         </div>
 
@@ -206,12 +206,12 @@ export default function FAQ() {
               <Button variant="outline" className="flex flex-col h-auto py-4">
                 <Mail className="w-6 h-6 mb-2" />
                 <span className="font-semibold">Email Support</span>
-                <span className="text-xs text-muted-foreground">support@mixclub.com</span>
+                <span className="text-xs text-muted-foreground">support@mixxclubonline.com</span>
               </Button>
               <Button variant="outline" className="flex flex-col h-auto py-4">
                 <Phone className="w-6 h-6 mb-2" />
                 <span className="font-semibold">Phone</span>
-                <span className="text-xs text-muted-foreground">1-800-MIXCLUB</span>
+                <span className="text-xs text-muted-foreground">1-800-MIXXCLUB</span>
               </Button>
             </div>
           </CardContent>
