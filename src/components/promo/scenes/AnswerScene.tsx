@@ -9,7 +9,7 @@ const STEPS = ['Upload', 'Get Mixed', 'Release'];
 
 export function AnswerScene({ asset }: Props) {
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center">
+    <div className="relative w-full min-h-screen flex flex-col items-center justify-center">
       <SceneBackground asset={asset} />
       <div className="relative z-10 px-6 text-center max-w-lg">
         <motion.div
