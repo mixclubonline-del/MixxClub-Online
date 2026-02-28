@@ -11,6 +11,7 @@ export const FULL_IMMERSIVE_ROUTES = [
   '/choose-path',
   '/select-role',
   '/start',
+  '/go',
 ] as const;
 
 export function isFullImmersiveRoute(pathname: string): boolean {

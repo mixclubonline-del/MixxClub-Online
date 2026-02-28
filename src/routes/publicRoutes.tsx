@@ -25,12 +25,14 @@ import Achievements from "@/pages/Achievements";
 import PrimeBeatForge from "@/pages/PrimeBeatForge";
 import PublicProfile from "@/pages/PublicProfile";
 import MixClubHome from "@/pages/MixClubHome";
+import PromoFunnel from "@/pages/PromoFunnel";
 import { ROUTES } from "@/config/routes";
 
 export const publicRoutes = (
   <>
     {/* Marketing / Public Routes */}
     <Route path="/" element={<MixClubHome />} />
+    <Route path={ROUTES.PROMO_FUNNEL} element={<PromoFunnel />} />
     <Route path={ROUTES.AUTH} element={<Auth />} />
     <Route path={ROUTES.AUTH_CALLBACK} element={<AuthCallback />} />
     <Route path="/demo-login" element={<DemoLogin />} />

@@ -2,8 +2,8 @@ import { useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { analytics } from '@/hooks/useAnalytics';
 
-type FunnelSource = 'quick_start' | 'immersive';
-type FunnelStep = 'landed' | 'role_selected' | 'auth_started' | 'auth_completed' | 'action_selected';
+type FunnelSource = 'quick_start' | 'immersive' | 'promo';
+type FunnelStep = 'landed' | 'role_selected' | 'auth_started' | 'auth_completed' | 'action_selected' | 'scene_2' | 'scene_3' | 'scene_4' | 'signup_started' | 'signup_completed';
 
 function getSessionId(): string {
   const KEY = 'funnel_session_id';

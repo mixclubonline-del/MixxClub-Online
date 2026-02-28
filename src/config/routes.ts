@@ -25,6 +25,7 @@ export const ROUTES = {
   ENTERPRISE: '/enterprise',
   ENTERPRISE_DEMO: '/enterprise-demo',
   START: '/start',
+  PROMO_FUNNEL: '/go',
   SITEMAP: '/sitemap',
 
   // Persona landing pages
