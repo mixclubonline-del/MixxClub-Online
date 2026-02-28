@@ -93,7 +93,7 @@ export function SignupScene({ asset, trackStep }: Props) {
   return (
     <div className="relative w-full h-full flex flex-col items-center justify-center overflow-y-auto">
       <SceneBackground asset={asset} kenBurns={false} />
-      <div className="relative z-10 px-6 w-full max-w-md space-y-6 py-16">
+      <div className="relative z-10 px-6 w-full max-w-md space-y-6 py-16 rounded-2xl bg-black/60 backdrop-blur-md border border-white/10 mx-4 p-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

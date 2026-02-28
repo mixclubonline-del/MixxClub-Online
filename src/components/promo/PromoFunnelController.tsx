@@ -61,9 +61,9 @@ export function PromoFunnelController({ assets, isLoading, trackStep }: Props) {
   }, [idx, go]);
 
   const variants = {
-    enter: (d: number) => ({ y: d > 0 ? '100%' : '-100%' }),
-    center: { y: 0 },
-    exit: (d: number) => ({ y: d > 0 ? '-100%' : '100%' }),
+    enter: { opacity: 0 },
+    center: { opacity: 1 },
+    exit: { opacity: 0 },
   };
 
   const sceneComponents: Record<PromoSceneId, React.ReactNode> = {
@@ -88,15 +88,14 @@ export function PromoFunnelController({ assets, isLoading, trackStep }: Props) {
       onPointerDown={onPointerDown}
       onPointerUp={onPointerUp}
     >
-      <AnimatePresence mode="wait" custom={direction}>
+      <AnimatePresence mode="wait">
         <motion.div
           key={SCENES[idx]}
-          custom={direction}
           variants={variants}
           initial="enter"
           animate="center"
           exit="exit"
-          transition={{ duration: prefersReducedMotion.current ? 0 : 0.5, ease: 'easeInOut' }}
+          transition={{ duration: prefersReducedMotion.current ? 0 : 0.4 }}
           className="absolute inset-0"
         >
           {sceneComponents[SCENES[idx]]}
@@ -110,8 +109,8 @@ export function PromoFunnelController({ assets, isLoading, trackStep }: Props) {
             key={i}
             onClick={() => go(i)}
             aria-label={`Scene ${i + 1}`}
-            className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-              i === idx ? 'bg-white scale-125' : 'bg-white/40 hover:bg-white/60'
+            className={`w-3 h-3 rounded-full transition-all duration-300 ring-1 ring-white/30 ${
+              i === idx ? 'bg-primary scale-125 ring-primary/50' : 'bg-white/50 hover:bg-white/70'
             }`}
           />
         ))}
