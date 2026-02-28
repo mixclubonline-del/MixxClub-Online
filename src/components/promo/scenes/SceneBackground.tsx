@@ -35,10 +35,10 @@ export function SceneBackground({ asset, kenBurns = true }: Props) {
           className={`absolute inset-0 w-full h-full object-cover ${kenBurnsClass}`}
         />
       ) : (
-        <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black" />
+        <div className="absolute inset-0 bg-gradient-to-br from-zinc-800 via-zinc-900 to-zinc-800" />
       )}
-      {/* Dark overlay for text readability */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/30" />
+      {/* Scrim for text readability */}
+      <div className="absolute inset-0 bg-black/40" />
     </>
   );
 }

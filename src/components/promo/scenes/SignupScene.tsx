@@ -100,7 +100,7 @@ export function SignupScene({ asset, trackStep }: Props) {
           transition={{ delay: 0.2 }}
           className="text-center space-y-2"
         >
-          <h2 className="text-4xl sm:text-5xl font-black uppercase text-white tracking-tight">
+          <h2 className="text-4xl sm:text-5xl font-black uppercase text-white tracking-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
             Your sound.<br /><span className="text-primary">Elevated.</span>
           </h2>
           <p className="text-sm text-white/60">Sign up in 10 seconds</p>

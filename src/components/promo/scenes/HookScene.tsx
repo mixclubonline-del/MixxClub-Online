@@ -14,7 +14,7 @@ export function HookScene({ asset }: Props) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.8 }}
-          className="text-4xl sm:text-5xl font-black uppercase leading-tight text-white tracking-tight"
+          className="text-4xl sm:text-5xl font-black uppercase leading-tight text-white tracking-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
         >
           87% of independent artists{' '}
           <span className="text-primary">never</span> get their music

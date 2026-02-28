@@ -16,7 +16,7 @@ export function CultureScene({ asset }: Props) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.7 }}
-          className="text-3xl sm:text-4xl font-black uppercase leading-tight text-white tracking-tight"
+          className="text-3xl sm:text-4xl font-black uppercase leading-tight text-white tracking-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
         >
           Whether you make beats, mix tracks, or just love music —{' '}
           <span className="text-primary">there's a place for you.</span>
