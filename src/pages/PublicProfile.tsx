@@ -99,12 +99,12 @@ export default function PublicProfile() {
   return (
     <>
       <Helmet>
-        <title>{profile.full_name || profile.username || "Profile"} | MixClub</title>
+        <title>{profile.full_name || profile.username || "Profile"} | Mixxclub</title>
         <meta
           name="description"
-          content={profile.tagline || profile.bio || `Check out ${profile.full_name || profile.username}'s profile on MixClub`}
+          content={profile.tagline || profile.bio || `Check out ${profile.full_name || profile.username}'s profile on Mixxclub`}
         />
-        <meta property="og:title" content={`${profile.full_name || profile.username} | MixClub`} />
+        <meta property="og:title" content={`${profile.full_name || profile.username} | Mixxclub`} />
         <meta property="og:description" content={profile.tagline || profile.bio || ""} />
         {profile.avatar_url && <meta property="og:image" content={profile.avatar_url} />}
       </Helmet>

@@ -66,7 +66,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "MixClub Legal <onboarding@resend.dev>",
+        from: "Mixxclub Legal <legal@mixxclubonline.com>",
         to: [adminEmail],
         subject: `✓ Legal Document Reviewed: ${document_title}`,
         html: emailHtml,

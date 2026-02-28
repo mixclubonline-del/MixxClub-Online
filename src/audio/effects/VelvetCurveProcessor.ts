@@ -1,5 +1,5 @@
 /**
- * VelvetCurveProcessor - MixClub's Psychoacoustic Comfort Engine
+ * VelvetCurveProcessor - Mixxclub's Psychoacoustic Comfort Engine
  * 
  * The Velvet Curve doctrine: "We measure serenity, not sharpness."
  * This processor applies subtle, genre-aware psychoacoustic enhancement

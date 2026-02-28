@@ -26,7 +26,7 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const systemPrompt = `You are the AI Copilot for MixClub, a professional music production CRM platform.
+    const systemPrompt = `You are the AI Copilot for Mixxclub, a professional music production CRM platform.
 
 Your role is to help users with:
 - Project recommendations based on deadlines, priority, and workload
