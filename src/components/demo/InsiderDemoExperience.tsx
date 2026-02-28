@@ -37,7 +37,7 @@ import { MarketplaceReveal } from '@/components/demo/MarketplaceReveal';
 import { StageReveal } from '@/components/demo/StageReveal';
 import { MoneyReveal } from '@/components/demo/MoneyReveal';
 import { DemoPhaseId } from '@/hooks/useDemoPhaseAssets';
-import mixclubLogo from '@/assets/mixclub-3d-logo.png';
+import mixxclubLogo from '@/assets/mixclub-3d-logo.png';
 import { trackEvent } from '@/lib/analytics';
 
 // Phase markers synced to audio timeline (seconds) — compressed for ~65s audio
@@ -240,7 +240,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
             animate={{ scale: [1, 1.05, 1] }}
             transition={{ duration: 3, repeat: Infinity }}
           >
-            <img src={mixclubLogo} alt="MixClub" className="w-32 h-32 sm:w-48 sm:h-48 md:w-64 md:h-64 mx-auto" />
+            <img src={mixxclubLogo} alt="Mixxclub" className="w-32 h-32 sm:w-48 sm:h-48 md:w-64 md:h-64 mx-auto" />
           </motion.div>
 
           <motion.h1
@@ -340,7 +340,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
               </button>
             )}
             <motion.div animate={{ scale: 1 + (bass / 255) * 0.1 }} transition={{ duration: 0.1 }}>
-              <img src={mixclubLogo} alt="MixClub" className="w-8 h-8 sm:w-10 sm:h-10" />
+              <img src={mixxclubLogo} alt="Mixxclub" className="w-8 h-8 sm:w-10 sm:h-10" />
             </motion.div>
             <div className="hidden sm:block">
               <h2 className="font-bold text-lg">MIXXCLUB</h2>
@@ -437,7 +437,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
                 transition={{ duration: 0.8 }}
               >
                 <motion.img
-                  src={mixclubLogo}
+                  src={mixxclubLogo}
                   alt="MixClub"
                   className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 mx-auto mb-4 sm:mb-6"
                   animate={{
@@ -696,7 +696,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
                 transition={{ duration: 0.6 }}
               >
                 <motion.img
-                  src={mixclubLogo}
+                  src={mixxclubLogo}
                   alt="MixClub"
                   className="w-24 h-24 mx-auto mb-8"
                   animate={{

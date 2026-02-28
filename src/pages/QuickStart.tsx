@@ -21,7 +21,7 @@ const ROLES = [
 
 const ACTIONS: { label: string; desc: string; icon: typeof Upload; actionKey: string; route?: string; routeFn?: (role: AppRole) => string }[] = [
   { label: 'Upload a Track', desc: 'Get your music mixed or mastered', icon: Upload, actionKey: 'upload', route: ROUTES.UPLOAD },
-  { label: 'Create Profile', desc: 'Set up your presence on MixClub', icon: UserCircle, actionKey: 'profile', routeFn: (role: AppRole) => `/onboarding/${role}` },
+  { label: 'Create Profile', desc: 'Set up your presence on Mixxclub', icon: UserCircle, actionKey: 'profile', routeFn: (role: AppRole) => `/onboarding/${role}` },
   { label: 'Browse Engineers', desc: 'Find your perfect mix engineer', icon: Users, actionKey: 'browse', route: ROUTES.ENGINEERS },
 ];
 
@@ -133,7 +133,7 @@ export default function QuickStart() {
         {step === 'role' && (
           <div className="space-y-5 animate-in fade-in duration-300">
             <div className="text-center space-y-1">
-              <h1 className="text-2xl font-bold text-foreground">What brings you to MixClub?</h1>
+              <h1 className="text-2xl font-bold text-foreground">What brings you to Mixxclub?</h1>
               <p className="text-muted-foreground text-sm">Pick your role — you can always change it later.</p>
             </div>
             <div className="grid grid-cols-2 gap-3">

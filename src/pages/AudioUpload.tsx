@@ -213,10 +213,10 @@ export default function AudioUpload() {
             <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <img src={mixclubLogo} alt="MixClub" className="w-10 h-10" />
+            <img src={mixclubLogo} alt="Mixxclub" className="w-10 h-10" />
             <div>
               <h1 className="font-bold text-lg">Audio Upload</h1>
-              <p className="text-xs text-muted-foreground">Upload music files to MixClub</p>
+              <p className="text-xs text-muted-foreground">Upload music files to Mixxclub</p>
             </div>
           </div>
           <Badge variant="outline" className="border-primary/50 text-primary">

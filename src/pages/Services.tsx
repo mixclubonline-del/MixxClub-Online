@@ -54,7 +54,7 @@ export default function Services() {
   return (
     <>
       <Helmet>
-        <title>Services District — MixClub Online</title>
+        <title>Services District — Mixxclub Online</title>
         <meta 
           name="description" 
           content="Professional audio services: mixing, mastering, AI mastering, and distribution. Transform your sound from bedroom to billboard." 

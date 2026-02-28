@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { Zap, Users, Radio, Music, Mic } from 'lucide-react';
-import mixclub3DLogo from '@/assets/mixclub-3d-logo.png';
+import mixxclub3DLogo from '@/assets/mixclub-3d-logo.png';
 import { LogoAnimations } from './LogoAnimations';
 import { useAudioReactivity } from '@/hooks/useAudioReactivity';
 import { useCollaborationStatus } from '@/hooks/useCollaborationStatus';
@@ -66,7 +66,7 @@ export const DynamicLogo = () => {
             
             {/* Main logo */}
             <motion.img
-              src={mixclub3DLogo}
+              src={mixxclub3DLogo}
               alt="MixClub 3D Logo"
               className="w-full h-full relative z-10 rounded-full"
               animate={{
