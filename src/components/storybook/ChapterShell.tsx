@@ -13,6 +13,8 @@ import { useChapterNavigation } from '@/hooks/useChapterNavigation';
 import { ChapterNav } from './ChapterNav';
 import { ChapterProgress } from './ChapterProgress';
 import { useSearchParams } from 'react-router-dom';
+import { useSceneFlowStore } from '@/stores/sceneFlowStore';
+import { ArrowLeft } from 'lucide-react';
 
 interface ChapterSlot {
   id: string;
@@ -153,10 +155,34 @@ export function ChapterShell({ slots }: ChapterShellProps) {
       {/* Bottom navigation */}
       <ChapterNav />
 
+      {/* Back to Demo floating button */}
+      <BackToDemoButton />
+
       {/* ARIA live region */}
       <div className="sr-only" role="status" aria-live="polite">
         {`Chapter ${active + 1} of ${slots.length}`}
       </div>
     </div>
+  );
+}
+
+/** Floating pill button to return to the Demo scene */
+function BackToDemoButton() {
+  const go = useSceneFlowStore((s) => s.go);
+
+  return (
+    <button
+      onClick={() => go('DEMO')}
+      className="fixed top-5 left-5 z-50 flex items-center gap-2 px-4 py-2 rounded-full
+        bg-background/60 backdrop-blur-md border border-white/10
+        text-sm font-medium text-foreground/80
+        hover:bg-background/80 hover:border-white/20 hover:text-foreground
+        transition-all duration-200 hover:-translate-x-0.5
+        shadow-lg shadow-black/10"
+      aria-label="Back to Demo"
+    >
+      <ArrowLeft className="w-4 h-4" />
+      <span className="hidden sm:inline">Back to Demo</span>
+    </button>
   );
 }
