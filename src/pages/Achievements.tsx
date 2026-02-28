@@ -11,8 +11,8 @@ const Achievements = () => {
   return (
     <>
       <SEOHead
-        title="Achievements | MixClub"
-        description="Track your progress and unlock achievements on MixClub"
+        title="Achievements | Mixxclub"
+        description="Track your progress and unlock achievements on Mixxclub"
       />
 
       <main className="container mx-auto px-4 py-8 min-h-screen">

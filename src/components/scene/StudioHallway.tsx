@@ -1,7 +1,7 @@
 /**
  * Studio Hallway Component
  * 
- * An immersive, wordless visualization of MixClub's active sessions.
+ * An immersive, wordless visualization of Mixxclub's active sessions.
  * Uses AI-generated hallway imagery with visual hotspots for active rooms.
  * 
  * Depth-Aware Revelation:

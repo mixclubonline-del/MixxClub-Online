@@ -50,141 +50,88 @@ export const CertificateDisplay: React.FC<CertificateDisplayProps> = ({ certific
         doc.setLineWidth(2);
         doc.rect(10, 10, pageWidth - 20, pageHeight - 20);
 
-        // Title
-        doc.setFontSize(36);
-        doc.setTextColor(99, 102, 241);
-        doc.text('Certificate of Completion', centerX, 45, { align: 'center' });
-
-        // Subtitle
+        // Header
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(40);
+        doc.setTextColor(30, 41, 59);
+        doc.text('CERTIFICATE', centerX, 60, { align: 'center' });
+        
         doc.setFontSize(16);
-        doc.setTextColor(100, 100, 100);
-        doc.text('This is to certify that', centerX, 70, { align: 'center' });
+        doc.setTextColor(100, 116, 139);
+        doc.text('OF COMPLETION', centerX, 75, { align: 'center' });
 
-        // Recipient name placeholder (user would fill in their own name)
-        doc.setFontSize(24);
-        doc.setTextColor(50, 50, 50);
-        doc.text('The Certificate Holder', centerX, 85, { align: 'center' });
-
-        // Course completion text
-        doc.setFontSize(16);
-        doc.setTextColor(100, 100, 100);
-        doc.text('has successfully completed the course', centerX, 100, { align: 'center' });
-
-        // Course name - sanitized and safely rendered via text API
-        doc.setFontSize(20);
-        doc.setTextColor(99, 102, 241);
-        const safeCourseName = displayName.substring(0, 100); // Limit length
-        doc.text(safeCourseName, centerX, 115, { align: 'center' });
-
-        // Certificate details
-        doc.setFontSize(12);
-        doc.setTextColor(100, 100, 100);
-        doc.text(`Certificate Number: ${certificate.certificate_number}`, centerX, 140, { align: 'center' });
-        doc.text(`Issued on: ${new Date(certificate.issued_at).toLocaleDateString()}`, centerX, 150, { align: 'center' });
-
-        // Verification footer
-        doc.setFontSize(10);
-        doc.setTextColor(150, 150, 150);
-        doc.text(`Verify at: ${verificationUrl}`, centerX, 175, { align: 'center' });
-
-        // MixClub branding
+        // Recipient
         doc.setFontSize(14);
+        doc.setTextColor(71, 85, 105);
+        doc.text('This certifies that', centerX, 100, { align: 'center' });
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(32);
+        doc.setTextColor(99, 102, 241); // Primary color
+        // Use user ID if name not available (security preference)
+        doc.text(sanitizeForDisplay(certificate.user_id), centerX, 120, { align: 'center' });
+
+        // Course
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(14);
+        doc.setTextColor(71, 85, 105);
+        doc.text('Has successfully completed the course', centerX, 140, { align: 'center' });
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(24);
+        doc.setTextColor(30, 41, 59);
+        doc.text(sanitizeForDisplay(displayName), centerX, 160, { align: 'center' });
+
+        // Date and ID
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(12);
+        doc.setTextColor(100, 116, 139);
+        doc.text(`Completed on: ${new Date(certificate.issued_at).toLocaleDateString()}`, centerX, 190, { align: 'center' });
+        doc.text(`Certificate ID: ${certificate.certificate_number}`, centerX, 200, { align: 'center' });
+
+        // Verification Link
         doc.setTextColor(99, 102, 241);
-        doc.text('MixClub Online', centerX, 190, { align: 'center' });
+        doc.textWithLink('Verify at mixxclub.com/verify', centerX, 220, { 
+            url: verificationUrl,
+            align: 'center' 
+        });
 
-        // Save PDF with sanitized filename
-        const safeFilename = `Certificate_${certificate.certificate_number.replace(/[^a-zA-Z0-9-]/g, '_')}.pdf`;
-        doc.save(safeFilename);
+        // Footer Branding
+        doc.setFontSize(10);
+        doc.setTextColor(148, 163, 184);
+        doc.text('Mixxclub Online', 20, 280);
+        doc.text('Professional Audio Education', pageWidth - 20, 280, { align: 'right' });
+
+        doc.save(`Certificate_${certificate.certificate_number}.pdf`);
     };
-
-    const handleShare = () => {
-        const shareUrl = verificationUrl;
-        if (navigator.share) {
-            navigator.share({
-                title: 'My Certificate',
-                text: `I just completed ${displayName}!`,
-                url: shareUrl,
-            });
-        } else {
-            navigator.clipboard.writeText(shareUrl);
-            alert('Certificate link copied to clipboard!');
-        }
-    };
-
-    // Sanitize display name for safe rendering in JSX
-    const safeDisplayName = sanitizeForDisplay(displayName);
 
     return (
-        <div className="w-full max-w-2xl rounded-lg border-2 border-gradient-to-r from-purple-400 to-pink-400 bg-gradient-to-br from-blue-50 to-indigo-50 p-8 shadow-lg">
-            {/* Certificate Header */}
-            <div className="mb-8 text-center">
-                <Award className="mx-auto h-16 w-16 text-yellow-500 mb-4" />
-                <h2 className="text-4xl font-bold text-gray-900 mb-2">Certificate of Completion</h2>
-                <p className="text-gray-600">You have successfully completed the course</p>
-            </div>
-
-            {/* Certificate Content */}
-            <div className="mb-8 rounded-lg bg-white p-8 border-2 border-dashed border-gray-300">
-                <p className="mb-4 text-center text-lg text-gray-700">This certifies that</p>
-                <p className="mb-6 text-center text-3xl font-bold text-purple-600">You</p>
-                <p className="mb-6 text-center text-lg text-gray-700">has successfully completed</p>
-                {/* Use textContent-based sanitization for display name */}
-                <p className="mb-8 text-center text-2xl font-bold text-indigo-600">{displayName}</p>
-
-                <hr className="my-6 border-gray-300" />
-
-                <div className="mb-6 grid grid-cols-2 gap-4 text-sm">
-                    <div className="text-center">
-                        <p className="text-gray-600 mb-1">Certificate Number</p>
-                        <p className="font-mono font-bold text-gray-900">{certificate.certificate_number}</p>
-                    </div>
-                    <div className="text-center">
-                        <p className="text-gray-600 mb-1">Issued Date</p>
-                        <p className="font-bold text-gray-900">
-                            {new Date(certificate.issued_at).toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric',
-                            })}
-                        </p>
-                    </div>
-                </div>
-
-                <p className="text-center text-xs text-gray-500 mt-6">
-                    Verification URL: {verificationUrl}
+        <div className="flex flex-col items-center gap-6 p-8 border rounded-xl bg-card">
+            <Award className="w-16 h-16 text-primary animate-pulse" />
+            
+            <div className="text-center space-y-2">
+                <h3 className="text-2xl font-bold">Course Completed!</h3>
+                <p className="text-muted-foreground">
+                    You've earned a certificate for <strong>{displayName}</strong>
+                </p>
+                <p className="text-xs font-mono bg-muted p-2 rounded">
+                    ID: {certificate.certificate_number}
                 </p>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex gap-3 flex-wrap justify-center">
-                <Button
-                    onClick={handleDownload}
-                    className="flex items-center gap-2 bg-purple-600 text-white hover:bg-purple-700"
-                >
-                    <Download className="h-4 w-4" />
+            <div className="flex gap-4">
+                <Button onClick={handleDownload} className="gap-2">
+                    <Download className="w-4 h-4" />
                     Download PDF
                 </Button>
-                <Button
-                    onClick={handleShare}
-                    variant="outline"
-                    className="flex items-center gap-2 border-purple-300 text-purple-600 hover:bg-purple-50"
-                >
-                    <Share2 className="h-4 w-4" />
-                    Share Certificate
-                </Button>
-                <Button
-                    variant="outline"
-                    className="flex items-center gap-2 border-gray-300 text-gray-600 hover:bg-gray-50"
-                    onClick={() => {
-                        navigator.clipboard.writeText(verificationUrl);
-                        alert('Verification URL copied!');
-                    }}
-                >
+                
+                <Button variant="outline" className="gap-2" onClick={() => {
+                    navigator.clipboard.writeText(verificationUrl);
+                }}>
+                    <Share2 className="w-4 h-4" />
                     Copy Link
                 </Button>
             </div>
         </div>
     );
 };
-
-export default CertificateDisplay;

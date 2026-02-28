@@ -43,7 +43,7 @@ const socialLinks = [
   { icon: Twitter, href: 'https://twitter.com/mixclubhq', label: 'Twitter' },
   { icon: Instagram, href: 'https://instagram.com/mixclubhq', label: 'Instagram' },
   { icon: Youtube, href: 'https://youtube.com/@mixclubhq', label: 'YouTube' },
-  { icon: MessageCircle, href: 'https://discord.gg/mixclub', label: 'Discord' },
+  { icon: MessageCircle, href: 'https://discord.gg/mixxclub', label: 'Discord' },
 ];
 
 // Mobile accordion section component
@@ -182,17 +182,17 @@ export function HomeFooter() {
             <ul className="space-y-3">
               <li>
                 <a
-                  href="mailto:hello@mixclub.io"
+                  href="mailto:hello@mixxclubonline.com"
                   className="flex items-center gap-2 text-muted-foreground 
                              hover:text-foreground transition-colors"
                 >
                   <Mail className="w-4 h-4" />
-                  hello@mixclub.io
+                  hello@mixxclubonline.com
                 </a>
               </li>
               <li>
                 <a
-                  href="https://discord.gg/mixclub"
+                  href="https://discord.gg/mixxclub"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-muted-foreground 
@@ -225,7 +225,7 @@ export function HomeFooter() {
         <div className="pt-8 border-t border-border/50">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-sm text-muted-foreground">
-              © {currentYear} MixClub. All rights reserved.
+              © {currentYear} Mixxclub. All rights reserved.
             </p>
             
             <div className="flex items-center gap-6">

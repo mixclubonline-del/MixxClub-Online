@@ -232,9 +232,9 @@ Deno.serve(async (req) => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            from: 'MixClub <noreply@mixclub.com>',
+            from: 'Mixxclub <noreply@mixxclubonline.com>',
             to: profile.email,
-            subject: data.subject || 'Update from MixClub',
+            subject: data.subject || 'Update from Mixxclub',
             html: data.html || `<p>${data.message || 'You have a new update!'}</p>`,
           }),
         });
@@ -445,7 +445,7 @@ Deno.serve(async (req) => {
                   'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                  from: 'MixClub <noreply@mixclub.com>',
+                  from: 'Mixxclub <noreply@mixxclubonline.com>',
                   to: profile.email,
                   subject: data.title,
                   html: `<h2>${data.title}</h2><p>${data.body}</p>`,

@@ -18,63 +18,43 @@ import Waitlist from "@/pages/Waitlist";
 import Press from "@/pages/Press";
 import ForArtists from "@/pages/ForArtists";
 import ForEngineers from "@/pages/ForEngineers";
-import ForProducers from "@/pages/ForProducers";
-import ForFans from "@/pages/ForFans";
-import ChoosePath from "@/pages/ChoosePath";
-import Showcase from "@/pages/Showcase";
-import Artist from "@/pages/Artist";
-import Engineer from "@/pages/Engineer";
-import NotFound from "@/pages/NotFound";
-import { WaitlistGate } from "@/components/waitlist/WaitlistGate";
-
-// Lazy loaded public pages
-const MixClubHome = React.lazy(() => import("@/pages/MixClubHome"));
-const Enterprise = React.lazy(() => import("@/pages/Enterprise"));
-const QuickStart = React.lazy(() => import("@/pages/QuickStart"));
+import Premieres from "@/pages/Premieres";
+import Community from "@/pages/Community";
+import LivePage from "@/pages/LivePage";
+import Achievements from "@/pages/Achievements";
+import PrimeBeatForge from "@/pages/PrimeBeatForge";
+import PublicProfile from "@/pages/PublicProfile";
+import MixClubHome from "@/pages/MixClubHome";
+import { ROUTES } from "@/config/routes";
 
 export const publicRoutes = (
   <>
-    {/* Main entry point - MixClub platform */}
+    {/* Marketing / Public Routes */}
     <Route path="/" element={<MixClubHome />} />
-    <Route path="/home" element={<Navigate to="/" replace />} />
-    <Route path="/mixclub" element={<Navigate to="/" replace />} />
-
-    {/* Quick Start - conversion-optimized fast path */}
-    <Route path="/start" element={<QuickStart />} />
-
-    {/* Demo/Showcase - parked for demos */}
-    <Route path="/demo" element={<InsiderDemo />} />
+    <Route path={ROUTES.AUTH} element={<Auth />} />
+    <Route path={ROUTES.AUTH_CALLBACK} element={<AuthCallback />} />
+    <Route path="/demo-login" element={<DemoLogin />} />
     <Route path="/insider-demo" element={<InsiderDemo />} />
-
-    {/* Waitlist - keep for existing signups */}
-    <Route path="/waitlist" element={<Waitlist />} />
-
-    {/* Standard public pages */}
     <Route path="/install" element={<Install />} />
-    <Route path="/network" element={<Navigate to="/" replace />} />
-    <Route path="/artist" element={<Artist />} />
-    <Route path="/engineer" element={<Engineer />} />
-    <Route path="/how-it-works" element={<HowItWorks />} />
-    <Route path="/showcase" element={<Showcase />} />
-    <Route path="/for-artists" element={<ForArtists />} />
-    <Route path="/for-engineers" element={<ForEngineers />} />
-    <Route path="/for-producers" element={<ForProducers />} />
-    <Route path="/for-fans" element={<ForFans />} />
-    <Route path="/choose-path" element={<WaitlistGate><ChoosePath /></WaitlistGate>} />
-    <Route path="/request-access" element={<WaitlistGate forceCapture><div /></WaitlistGate>} />
+    
+    <Route path={ROUTES.HOW_IT_WORKS} element={<HowItWorks />} />
     <Route path="/faq" element={<FAQ />} />
+    <Route path="/terms" element={<Terms />} />
+    <Route path="/privacy" element={<Privacy />} />
     <Route path="/pricing" element={<Pricing />} />
     <Route path="/contact" element={<Contact />} />
     <Route path="/about" element={<About />} />
+    <Route path="/waitlist" element={<Waitlist />} />
     <Route path="/press" element={<Press />} />
-    <Route path="/enterprise" element={<Enterprise />} />
-
-    {/* Auth & Legal */}
-    <Route path="/auth" element={<Auth />} />
-    <Route path="/auth/callback" element={<AuthCallback />} />
-    <Route path="/~oauth" element={<AuthCallback />} />
-    <Route path="/~oauth/callback" element={<AuthCallback />} />
-    <Route path="/terms" element={<Terms />} />
-    <Route path="/privacy" element={<Privacy />} />
+    <Route path="/for-artists" element={<ForArtists />} />
+    <Route path="/for-engineers" element={<ForEngineers />} />
+    
+    {/* Mixxclub platform routes - authenticated */}
+    <Route path="/premieres" element={<Premieres />} />
+    <Route path="/community" element={<Community />} />
+    <Route path="/live" element={<LivePage />} />
+    <Route path="/achievements" element={<Achievements />} />
+    <Route path="/beat-forge" element={<PrimeBeatForge />} />
+    <Route path="/u/:username" element={<PublicProfile />} />
   </>
 );

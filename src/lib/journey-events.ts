@@ -22,7 +22,7 @@ export const JOURNEYS: Record<string, Journey> = {
     name: 'The Supporter Path',
     description: 'Discover your sound and earn your stripes',
     steps: [
-      { id: 'first_listen', name: 'First Listen', description: 'Play a track on MixClub', xp: 10 },
+      { id: 'first_listen', name: 'First Listen', description: 'Play a track on Mixxclub', xp: 10 },
       { id: 'first_follow', name: 'Find Your Sound', description: 'Follow your first artist', xp: 25 },
       { id: 'first_vote', name: 'Use Your Voice', description: 'Vote on a premiere', xp: 15 },
       { id: 'first_day1', name: 'Day 1 Status', description: 'Become a Day 1 for an artist', xp: 50 },
@@ -32,7 +32,7 @@ export const JOURNEYS: Record<string, Journey> = {
   artist_onboarding: {
     id: 'artist_onboarding',
     name: 'Artist Onboarding',
-    description: 'Get started as an artist on MixClub',
+    description: 'Get started as an artist on Mixxclub',
     steps: [
       { id: 'welcome', name: 'Welcome', description: 'Complete your welcome', xp: 10 },
       { id: 'profile', name: 'Complete Profile', description: 'Fill out your artist profile', xp: 25 },
@@ -43,7 +43,7 @@ export const JOURNEYS: Record<string, Journey> = {
   engineer_onboarding: {
     id: 'engineer_onboarding',
     name: 'Engineer Onboarding',
-    description: 'Get started as an engineer on MixClub',
+    description: 'Get started as an engineer on Mixxclub',
     steps: [
       { id: 'welcome', name: 'Welcome', description: 'Complete your welcome', xp: 10 },
       { id: 'profile', name: 'Complete Profile', description: 'Set up your engineer profile', xp: 25 },
@@ -54,7 +54,7 @@ export const JOURNEYS: Record<string, Journey> = {
   community_explorer: {
     id: 'community_explorer',
     name: 'Community Explorer',
-    description: 'Engage with the MixClub community',
+    description: 'Engage with the Mixxclub community',
     steps: [
       { id: 'join_feed', name: 'Join Feed', description: 'Post in the community feed', xp: 15 },
       { id: 'first_comment', name: 'First Comment', description: 'Comment on a post', xp: 10 },

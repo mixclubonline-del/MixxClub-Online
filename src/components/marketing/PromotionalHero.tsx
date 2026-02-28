@@ -1,3 +1,5 @@
+// ============= Full file contents =============
+
 import { useState } from 'react';
 import { Play, Zap, Music, Users, TrendingUp, Sparkles, ArrowRight, Award } from 'lucide-react';
 
@@ -209,7 +211,7 @@ export function PromotionalHero() {
                                     Save 90%
                                 </div>
                                 <p className="text-slate-300 mb-4">
-                                    Professional studio rates: $500-1000 per mix. MixClub: $50-150. Your choice.
+                                    Professional studio rates: $500-1000 per mix. Mixxclub: $50-150. Your choice.
                                 </p>
                                 <button className="w-full px-6 py-3 bg-gradient-to-r from-pink-600 to-violet-600 text-white font-bold rounded-lg hover:scale-105 transition-transform">
                                     Get Your Mix Today
@@ -282,7 +284,7 @@ export function PromotionalHero() {
                     Ready to <span className="bg-gradient-to-r from-pink-400 to-violet-400 bg-clip-text text-transparent">Change Your Game?</span>
                 </h2>
                 <p className="text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
-                    Join 10,000+ creators already earning, collaborating, and transforming their sound.
+                    These beats showcase Mixxclub's capabilities and populate the marketplace.
                 </p>
                 <button className="group px-12 py-5 bg-gradient-to-r from-pink-600 to-violet-600 text-white text-lg font-bold rounded-lg overflow-hidden transition-all duration-300 hover:scale-110 shadow-2xl">
                     <span className="relative z-10 flex items-center justify-center gap-2">

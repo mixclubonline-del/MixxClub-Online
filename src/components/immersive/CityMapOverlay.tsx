@@ -53,7 +53,7 @@ export const CityMapOverlay = ({ isOpen, onClose }: CityMapOverlayProps) => {
           className="fixed inset-0 z-[75] flex items-center justify-center overflow-hidden"
           role="dialog"
           aria-modal="true"
-          aria-label="MixClub City Map"
+          aria-label="Mixxclub City Map"
         >
           {/* AI-Generated City Background */}
           <motion.img

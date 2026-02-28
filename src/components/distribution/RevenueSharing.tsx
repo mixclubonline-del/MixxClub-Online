@@ -28,136 +28,92 @@ export function RevenueSharing() {
         <div>
           <h2 className="text-2xl font-bold">Revenue Sharing & Commissions</h2>
           <p className="text-muted-foreground">
-            Earn money by referring artists and growing the community
+            Track your earnings from the Mixxclub Partner Program
           </p>
         </div>
-        <Badge variant="secondary">Phase 4</Badge>
+        <Button>
+          <ArrowUpRight className="mr-2 h-4 w-4" />
+          Request Payout
+        </Button>
       </div>
 
-      {/* Earnings Overview */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Earnings</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$1,459.50</div>
+            <div className="text-2xl font-bold">$12,450.00</div>
             <p className="text-xs text-muted-foreground">
-              <TrendingUp className="inline h-3 w-3 text-green-500" /> +18.2% this month
+              +20.1% from last month
             </p>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Payouts</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Pending</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$289.50</div>
+            <div className="text-2xl font-bold">$2,350.00</div>
             <p className="text-xs text-muted-foreground">
-              Available for withdrawal
+              Processing in 3-5 days
             </p>
           </CardContent>
         </Card>
-
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Partner Tier</CardTitle>
+            <Award className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-primary">Gold</div>
+            <p className="text-xs text-muted-foreground">
+              20% Commission Rate
+            </p>
+          </CardContent>
+        </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Referrals</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">24</div>
+            <div className="text-2xl font-bold">142</div>
             <p className="text-xs text-muted-foreground">
-              Active referrals this month
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Commission Rate</CardTitle>
-            <Award className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">15%</div>
-            <p className="text-xs text-muted-foreground">
-              Your current tier rate
+              +12 this week
             </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Referral Program */}
       <Card>
         <CardHeader>
-          <CardTitle>Referral Program</CardTitle>
-          <CardDescription>
-            Earn 15% commission on every artist you refer to MixClub Distribution
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="p-4 border rounded-lg bg-muted/50">
-            <p className="text-sm font-medium mb-2">Your Referral Link</p>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                readOnly
-                value="https://mixclub.com/ref/YOUR_CODE"
-                className="flex-1 px-3 py-2 border rounded text-sm bg-background"
-              />
-              <Button>Copy Link</Button>
-            </div>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="p-4 border rounded-lg">
-              <p className="text-2xl font-bold text-primary">15%</p>
-              <p className="text-sm text-muted-foreground">Per referral sale</p>
-            </div>
-            <div className="p-4 border rounded-lg">
-              <p className="text-2xl font-bold text-primary">$50</p>
-              <p className="text-sm text-muted-foreground">Minimum payout</p>
-            </div>
-            <div className="p-4 border rounded-lg">
-              <p className="text-2xl font-bold text-primary">30d</p>
-              <p className="text-sm text-muted-foreground">Cookie duration</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Commission History */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Commission History</CardTitle>
-              <CardDescription>Your earnings breakdown</CardDescription>
-            </div>
-            <Button variant="outline">
-              Request Payout
-              <ArrowUpRight className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
+          <CardTitle>Recent Commissions</CardTitle>
+          <CardDescription>Your latest earnings activity</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {commissions.map((commission) => (
               <div
                 key={commission.id}
                 className="flex items-center justify-between p-4 border rounded-lg"
               >
-                <div>
-                  <p className="font-medium">{commission.type}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {new Date(commission.date).toLocaleDateString()}
-                  </p>
+                <div className="flex items-center gap-4">
+                  <div className="p-2 bg-primary/10 rounded-full">
+                    <DollarSign className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium">{commission.type}</p>
+                    <p className="text-sm text-muted-foreground">{commission.date}</p>
+                  </div>
                 </div>
-                <div className="text-right flex items-center gap-3">
-                  <p className="font-semibold">${commission.amount.toFixed(2)}</p>
-                  <Badge variant={getStatusColor(commission.status)}>
+                <div className="flex items-center gap-4">
+                  <span className="font-bold text-lg">
+                    +${commission.amount.toFixed(2)}
+                  </span>
+                  <Badge variant={getStatusColor(commission.status) as any}>
                     {commission.status}
                   </Badge>
                 </div>
@@ -167,44 +123,17 @@ export function RevenueSharing() {
         </CardContent>
       </Card>
 
-      {/* Performance Tiers */}
-      <Card className="bg-gradient-to-r from-primary/10 to-purple-500/10 border-primary/20">
+      <Card className="bg-gradient-to-br from-primary/5 to-purple-500/5 border-primary/20">
         <CardHeader>
-          <CardTitle>Performance Tiers</CardTitle>
-          <CardDescription>
-            Increase your commission rate by referring more artists
-          </CardDescription>
+          <CardTitle>Invite & Earn</CardTitle>
+          <CardDescription>Share your unique referral link to earn commissions</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between p-3 border rounded-lg bg-background">
-              <div>
-                <p className="font-medium">Bronze Tier</p>
-                <p className="text-sm text-muted-foreground">1-9 referrals</p>
-              </div>
-              <Badge variant="outline">10% Commission</Badge>
+          <div className="flex gap-4">
+            <div className="flex-1 p-3 bg-background border rounded-md font-mono text-sm">
+              mixxclub.com?ref=alex123
             </div>
-            <div className="flex items-center justify-between p-3 border-2 border-primary rounded-lg bg-primary/5">
-              <div>
-                <p className="font-medium">Silver Tier (Current)</p>
-                <p className="text-sm text-muted-foreground">10-24 referrals</p>
-              </div>
-              <Badge>15% Commission</Badge>
-            </div>
-            <div className="flex items-center justify-between p-3 border rounded-lg bg-background">
-              <div>
-                <p className="font-medium">Gold Tier</p>
-                <p className="text-sm text-muted-foreground">25-49 referrals</p>
-              </div>
-              <Badge variant="secondary">20% Commission</Badge>
-            </div>
-            <div className="flex items-center justify-between p-3 border rounded-lg bg-background">
-              <div>
-                <p className="font-medium">Platinum Tier</p>
-                <p className="text-sm text-muted-foreground">50+ referrals</p>
-              </div>
-              <Badge variant="secondary">25% Commission</Badge>
-            </div>
+            <Button>Copy Link</Button>
           </div>
         </CardContent>
       </Card>

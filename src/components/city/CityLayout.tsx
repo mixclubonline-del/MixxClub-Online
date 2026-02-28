@@ -127,7 +127,7 @@ export const CityLayout = ({ children, currentDistrict }: CityLayoutProps) => {
           >
             <div className="container mx-auto px-4 py-24">
               <h2 className="text-2xl font-bold text-center mb-8 bg-gradient-to-r from-primary to-accent-blue bg-clip-text text-transparent">
-                MixClub City Map
+                Mixxclub City Map
               </h2>
               
               <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">

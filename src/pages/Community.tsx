@@ -21,7 +21,7 @@ export default function Community() {
   return (
     <>
       <Helmet>
-        <title>Community Plaza — MixClub City</title>
+        <title>Community Plaza — Mixxclub City</title>
         <meta 
           name="description" 
           content="Enter the Community Plaza. Connect with artists, engineers, and producers. Join battles, view leaderboards, and engage with the music community." 

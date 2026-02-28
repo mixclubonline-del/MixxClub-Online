@@ -77,8 +77,8 @@ export default function Contact() {
   return (
     <>
       <SEOHead
-        title="Contact Us - Get in Touch with MixClub Support"
-        description="Have questions about our audio mixing and mastering services? Contact MixClub's support team. We respond within 24 hours. Email, phone, and live chat available Mon-Fri 9am-6pm PST."
+        title="Contact Us - Get in Touch with Mixxclub Support"
+        description="Have questions about our audio mixing and mastering services? Contact Mixxclub's support team. We respond within 24 hours. Email, phone, and live chat available Mon-Fri 9am-6pm PST."
         keywords="contact mixclub, audio engineering support, mixing help, customer service"
       />
 
@@ -101,7 +101,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-semibold mb-1">Email</h3>
-                    <p className="text-sm text-muted-foreground">support@mixclub.com</p>
+                    <p className="text-sm text-muted-foreground">support@mixxclubonline.com</p>
                   </div>
                 </div>
               </Card>
