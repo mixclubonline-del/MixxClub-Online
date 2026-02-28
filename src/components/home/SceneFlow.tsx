@@ -16,6 +16,7 @@ import { InsiderDemoExperience } from '@/components/demo/InsiderDemoExperience';
 import { ClubScene } from '@/components/home/ClubScene';
 import { ChapterShell } from '@/components/storybook/ChapterShell';
 import { trackEvent } from '@/lib/analytics';
+import { useFunnelTracking } from '@/hooks/useFunnelTracking';
 
 const ChoosePath = lazy(() => import('@/pages/ChoosePath'));
 const FeaturesChapter = lazy(() => import('@/components/storybook/chapters/FeaturesChapter'));
@@ -45,6 +46,10 @@ function VerticalSceneFlow() {
   const dissolveMs = useSceneFlowStore((s) => s.dissolveMs);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { trackStep } = useFunnelTracking('immersive');
+
+  // Track immersive funnel landing
+  useEffect(() => { trackStep('landed'); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // URL -> scene sync
   useEffect(() => {
