@@ -65,10 +65,10 @@ serve(async (req) => {
             currency_code: 'USD',
             value: amount.toFixed(2),
           },
-          description: `MixClub Project Payment - ${projectId}`,
+          description: `Mixxclub Project Payment - ${projectId}`,
         }],
         application_context: {
-          brand_name: 'MixClub',
+          brand_name: 'Mixxclub',
           shipping_preference: 'NO_SHIPPING',
         },
       }),

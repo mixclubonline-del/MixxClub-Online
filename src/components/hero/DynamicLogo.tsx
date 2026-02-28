@@ -67,7 +67,7 @@ export const DynamicLogo = () => {
             {/* Main logo */}
             <motion.img
               src={mixxclub3DLogo}
-              alt="MixClub 3D Logo"
+              alt="Mixxclub 3D Logo"
               className="w-full h-full relative z-10 rounded-full"
               animate={{
                 rotateY: isHovered ? 360 : 0,

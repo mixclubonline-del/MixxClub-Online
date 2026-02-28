@@ -100,7 +100,7 @@ export const WelcomeExperience = ({ userType, userName, onDismiss }: WelcomeExpe
               </div>
               <div>
                 <CardTitle className="text-xl">
-                  Welcome to MixClub{userName ? `, ${userName}` : ''}! 🎉
+                  Welcome to Mixxclub{userName ? `, ${userName}` : ''}! 🎉
                 </CardTitle>
                 <CardDescription className="mt-1">
                   {userType === 'artist' 

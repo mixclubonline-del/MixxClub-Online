@@ -30,9 +30,9 @@ const getContextualGreeting = (pathname: string): string => {
     return "Ready to master your track? I can walk you through our AI mastering process or help with any questions.";
   }
   if (pathname.includes('/how-it-works')) {
-    return "Want to understand MixClub better? Ask me anything about how we connect artists with engineers!";
+    return "Want to understand Mixxclub better? Ask me anything about how we connect artists with engineers!";
   }
-  return "Hey! I'm Prime, your guide to MixClub. I know everything about mixing, mastering, and building your music career. What can I help you with?";
+  return "Hey! I'm Prime, your guide to Mixxclub. I know everything about mixing, mastering, and building your music career. What can I help you with?";
 };
 
 // Routes where GlobalPrimeChat should be hidden (they have their own chatbots)
@@ -134,7 +134,7 @@ export const GlobalPrimeChat = () => {
       const fallbackMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: "I'm having trouble connecting right now. MixClub connects artists with professional mixing and mastering engineers. You can explore our services or sign up to get started!",
+        content: "I'm having trouble connecting right now. Mixxclub connects artists with professional mixing and mastering engineers. You can explore our services or sign up to get started!",
       };
       setMessages(prev => [...prev, fallbackMessage]);
     } finally {
@@ -231,7 +231,7 @@ export const GlobalPrimeChat = () => {
                       Prime
                       <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                     </div>
-                    <div className="text-xs text-muted-foreground">Your MixClub Guide</div>
+                    <div className="text-xs text-muted-foreground">Your Mixxclub Guide</div>
                   </div>
                 </div>
                 <Button
@@ -302,7 +302,7 @@ export const GlobalPrimeChat = () => {
                   <Input
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder="Ask about MixClub..."
+                    placeholder="Ask about Mixxclub..."
                     className="flex-1 glass-mid border-[hsl(var(--glass-border))] text-sm"
                   />
                   <Button

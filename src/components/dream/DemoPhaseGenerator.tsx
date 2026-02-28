@@ -24,7 +24,7 @@
      id: 'discovery',
      name: 'The Discovery',
      context: 'demo_phase_discovery',
-     prompt: 'Abstract cinematic visualization of hope dawning. Infinity symbol (MixClub logo shape) forming from light particles in dark space. Colors shifting from deep purple to warm gold. Digital gateway opening. The moment of realization. 8K digital art, premium quality. No people, pure concept.',
+     prompt: 'Abstract cinematic visualization of hope dawning. Infinity symbol (Mixxclub logo shape) forming from light particles in dark space. Colors shifting from deep purple to warm gold. Digital gateway opening. The moment of realization. 8K digital art, premium quality. No people, pure concept.',
    },
    {
      id: 'connection',

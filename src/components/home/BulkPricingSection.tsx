@@ -64,7 +64,7 @@ export const BulkPricingSection = () => {
 
       <div className="text-center mt-8 p-4 bg-muted/50 rounded-lg">
         <p className="text-sm text-muted-foreground">
-          💡 <strong>Pro Tip:</strong> Subscribe to MixClub Pro for an additional 20% off all bulk packages
+          💡 <strong>Pro Tip:</strong> Subscribe to Mixxclub Pro for an additional 20% off all bulk packages
         </p>
       </div>
     </motion.div>

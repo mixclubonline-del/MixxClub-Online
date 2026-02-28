@@ -13,7 +13,7 @@ export { usePartnerStore, type Partner, type Commission, type Payout, type Affil
 // ============================================================================
 // Services
 // ============================================================================
-export { default as PartnerService } from '@/services/PartnerService';
+export { PartnerService } from '@/services/PartnerService';
 
 // ============================================================================
 // Hooks

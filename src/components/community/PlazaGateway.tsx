@@ -28,7 +28,7 @@ export const PlazaGateway = () => {
         
         <div className="relative text-center mb-8">
           <h2 className="text-2xl md:text-3xl font-bold mb-2">Join the Community</h2>
-          <p className="text-muted-foreground">Choose your path and enter MixClub City</p>
+          <p className="text-muted-foreground">Choose your path and enter Mixxclub City</p>
         </div>
         
         {/* Gateway cards */}

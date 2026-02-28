@@ -46,7 +46,7 @@ export function RoleGateway() {
             </span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Whether you're creating music or crafting sound, MixClub has your journey mapped out.
+            Whether you're creating music or crafting sound, Mixxclub has your journey mapped out.
           </p>
         </div>
 
@@ -139,7 +139,7 @@ export function RoleGateway() {
 
               <div className="mt-4 text-center">
                 <Badge variant="outline" className="text-xs border-[hsl(142_76%_36%_/_0.3)]">
-                  🎵 {stats?.totalArtists?.toLocaleString() || '10,000'}+ artists trust MixClub
+                  🎵 {stats?.totalArtists?.toLocaleString() || '10,000'}+ artists trust Mixxclub
                 </Badge>
               </div>
             </Card>
