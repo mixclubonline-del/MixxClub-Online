@@ -1,7 +1,7 @@
-import { motion } from 'framer-motion';
 import { useChapterStore } from '@/stores/chapterStore';
 import { Brain, Users, UserCheck, Cloud, FileText, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useInView } from '@/hooks/useInView';
 
 const features = [
   { icon: Brain, title: 'AI-Powered Analysis', description: 'Instant feedback on your mix with spectral analysis, loudness metering, and genre-aware suggestions.' },
@@ -14,53 +14,52 @@ const features = [
 
 export default function FeaturesChapter() {
   const next = useChapterStore((s) => s.next);
+  const [heroRef, heroInView] = useInView({ once: true, threshold: 0.2 });
+  const [gridRef, gridInView] = useInView({ once: true, threshold: 0.1 });
+  const [ctaRef, ctaInView] = useInView({ once: true, threshold: 0.3 });
 
   return (
     <div className="min-h-[100svh] flex flex-col items-center justify-start px-6 py-20 bg-background">
       {/* Hero */}
-      <motion.div
-        className="text-center max-w-3xl mb-16"
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.5 }}
+      <div
+        ref={heroRef}
+        className={`text-center max-w-3xl mb-16 transition-all duration-500 ease-out ${
+          heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
+        }`}
       >
         <h2 className="text-4xl md:text-5xl font-bold mb-4">What You Get</h2>
         <p className="text-lg text-muted-foreground">
           Everything you need to create, collaborate, and release — in one platform.
         </p>
-      </motion.div>
+      </div>
 
       {/* Feature Grid */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl w-full mb-16">
-        {features.map((f, i) => (
-          <motion.div
+      <div ref={gridRef} className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl w-full mb-16">
+        {features.map((f) => (
+          <div
             key={f.title}
-            className="group p-6 rounded-2xl bg-background/40 backdrop-blur-md border border-white/10 hover:border-white/20 hover:shadow-lg transition-all"
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4, delay: i * 0.07 }}
-            whileHover={{ y: -4 }}
+            className={`group p-6 rounded-2xl bg-background/40 backdrop-blur-md border border-white/10 hover:border-white/20 hover:shadow-lg hover:-translate-y-1 transition-all ${
+              gridInView ? 'stagger-item' : 'opacity-0'
+            }`}
           >
             <f.icon className="w-10 h-10 text-primary mb-4 group-hover:scale-110 transition-transform" />
             <h3 className="font-semibold text-lg mb-2">{f.title}</h3>
             <p className="text-sm text-muted-foreground">{f.description}</p>
-          </motion.div>
+          </div>
         ))}
       </div>
 
       {/* CTA */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-        transition={{ delay: 0.3 }}
+      <div
+        ref={ctaRef}
+        className={`transition-all duration-500 ease-out delay-300 ${
+          ctaInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
+        }`}
       >
         <Button size="lg" onClick={next}>
           See Pricing →
         </Button>
-      </motion.div>
+      </div>
     </div>
   );
 }
