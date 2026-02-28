@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { Zap, Users, Radio, Music, Mic } from 'lucide-react';
-import mixxclub3DLogo from '@/assets/mixclub-3d-logo.png';
+import mixxclub3DLogo from '@/assets/mixxclub-3d-logo.png';
 import { LogoAnimations } from './LogoAnimations';
 import { useAudioReactivity } from '@/hooks/useAudioReactivity';
 import { useCollaborationStatus } from '@/hooks/useCollaborationStatus';

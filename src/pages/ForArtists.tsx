@@ -180,7 +180,7 @@ const ForArtists = () => {
   ];
 
   const stats = [
-    { value: "10,000+", label: "Artists Trust MixClub" },
+    { value: "10,000+", label: "Artists Trust Mixxclub" },
     { value: "2.3 sec", label: "Average Match Time" },
     { value: "98%", label: "Satisfaction Rate" },
     { value: "24/7", label: "Global Collaboration" },

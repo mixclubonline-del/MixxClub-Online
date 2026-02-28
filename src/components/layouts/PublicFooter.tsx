@@ -4,7 +4,7 @@
  */
 
 import { Link } from 'react-router-dom';
-import mixclub3DLogo from '@/assets/mixclub-3d-logo.png';
+import mixclub3DLogo from '@/assets/mixxclub-3d-logo.png';
 
 const FOOTER_SECTIONS = [
   {

@@ -118,7 +118,7 @@ export const useReferralStore = create<ReferralStore>((set, get) => ({
         const { myReferralCode } = get();
         if (!myReferralCode) return '';
 
-        return `🎵 Join me on MixClub - the platform for artists & engineers to collaborate! 
+        return `🎵 Join me on Mixxclub - the platform for artists & engineers to collaborate! 
 Get $10 credit with my referral code: ${myReferralCode.code}
 ${get().getReferralLink()}`;
     },

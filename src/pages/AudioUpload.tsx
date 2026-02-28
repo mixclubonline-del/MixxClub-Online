@@ -11,7 +11,7 @@ import {
   Upload, Music, Check, Trash2, Play, Pause, 
   ArrowLeft, Copy, ExternalLink, Loader2, FileAudio, LogIn, Sparkles, Users
 } from 'lucide-react';
-import mixclubLogo from '@/assets/mixclub-3d-logo.png';
+import mixclubLogo from '@/assets/mixxclub-3d-logo.png';
 
 interface UploadedFile {
   id: string;

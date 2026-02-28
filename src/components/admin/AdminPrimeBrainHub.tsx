@@ -23,7 +23,7 @@ import { useAdminChat, type ChatMessage } from '@/hooks/useAdminChat';
 import { useWaitlistStats } from '@/hooks/useWaitlist';
 import { supabase } from '@/integrations/supabase/client';
 import { useIsMobile } from '@/hooks/use-mobile';
-import mixclubLogo from '@/assets/mixclub-3d-logo.png';
+import mixclubLogo from '@/assets/mixxclub-3d-logo.png';
 import DOMPurify from 'dompurify';
 
 // ── Markdown-lite renderer for AI responses (sanitized) ──
