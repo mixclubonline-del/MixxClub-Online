@@ -2,7 +2,7 @@ import { Shield, Sparkles, DollarSign, Radio, CheckCircle, Users } from "lucide-
 import { Card } from "./ui/card";
 import { Badge } from "./ui/badge";
 
-const WhyMixClub = () => {
+const WhyMixxclub = () => {
   const features = [
     {
       icon: Users,
@@ -118,4 +118,4 @@ const WhyMixClub = () => {
   );
 };
 
-export default WhyMixClub;
+export default WhyMixxclub;

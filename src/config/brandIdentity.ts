@@ -1,5 +1,5 @@
 /**
- * MIXCLUB BRAND IDENTITY SYSTEM
+ * MIXXCLUB BRAND IDENTITY SYSTEM
  * Complete visual language for promotional materials
  */
 

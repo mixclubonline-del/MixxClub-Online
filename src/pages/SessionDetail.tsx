@@ -185,8 +185,8 @@ export default function SessionDetail() {
   return (
     <>
       <Helmet>
-        <title>{session.title} — MixClub Session</title>
-        <meta name="description" content={session.description || 'Collaboration session on MixClub'} />
+        <title>{session.title} — Mixxclub Session</title>
+        <meta name="description" content={session.description || 'Collaboration session on Mixxclub'} />
       </Helmet>
 
       <div className="min-h-screen bg-background">

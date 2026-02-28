@@ -3,7 +3,7 @@
  * 
  * A cinematic 10-phase welcome experience showcasing the full Mixx Club ecosystem.
  * Phase 1: The Problem (87% stat, frustration)
- * Phase 2: The Discovery (MixClub as solution)
+ * Phase 2: The Discovery (Mixxclub as solution)
  * Phase 3: The Connection (real human stories)
  * Phase 4: The Transformation (before/after waveform)
  * Phase 5: The Studio (Dream Engine / F.L.O.W. DAW)
@@ -697,7 +697,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
               >
                 <motion.img
                   src={mixxclubLogo}
-                  alt="MixClub"
+                  alt="Mixxclub"
                   className="w-24 h-24 mx-auto mb-8"
                   animate={{
                     scale: isPlaying ? [1, 1.05, 1] : 1,

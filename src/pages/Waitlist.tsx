@@ -125,7 +125,7 @@ const Waitlist = () => {
       <SEOHead
         title="Join the Waitlist"
         description="Be the first to access Mixxclub - the professional mixing & mastering platform that's transforming the music industry. Get early access and exclusive founding member benefits."
-        keywords="mixclub waitlist, early access, music production, mixing mastering"
+        keywords="mixxclub waitlist, early access, music production, mixing mastering"
       />
 
       <div className="min-h-screen bg-background">

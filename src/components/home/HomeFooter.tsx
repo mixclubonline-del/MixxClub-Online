@@ -40,9 +40,9 @@ const footerLinks = {
 };
 
 const socialLinks = [
-  { icon: Twitter, href: 'https://twitter.com/mixclubhq', label: 'Twitter' },
-  { icon: Instagram, href: 'https://instagram.com/mixclubhq', label: 'Instagram' },
-  { icon: Youtube, href: 'https://youtube.com/@mixclubhq', label: 'YouTube' },
+  { icon: Twitter, href: 'https://twitter.com/mixxclubhq', label: 'Twitter' },
+  { icon: Instagram, href: 'https://instagram.com/mixxclubhq', label: 'Instagram' },
+  { icon: Youtube, href: 'https://youtube.com/@mixxclubhq', label: 'YouTube' },
   { icon: MessageCircle, href: 'https://discord.gg/mixxclub', label: 'Discord' },
 ];
 

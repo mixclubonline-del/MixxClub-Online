@@ -23,11 +23,11 @@ if ('serviceWorker' in navigator) {
     }
   });
 
-  // Clear old manual caches with mixclub- prefix
+  // Clear old manual caches with mixclub- or mixxclub- prefix
   if ('caches' in window) {
     caches.keys().then((keys) => {
       keys.forEach((k) => {
-        if (k.startsWith('mixclub-')) {
+        if (k.startsWith('mixclub-') || k.startsWith('mixxclub-')) {
           caches.delete(k);
         }
       });

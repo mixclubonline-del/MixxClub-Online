@@ -79,7 +79,7 @@ export default function Contact() {
       <SEOHead
         title="Contact Us - Get in Touch with Mixxclub Support"
         description="Have questions about our audio mixing and mastering services? Contact Mixxclub's support team. We respond within 24 hours. Email, phone, and live chat available Mon-Fri 9am-6pm PST."
-        keywords="contact mixclub, audio engineering support, mixing help, customer service"
+        keywords="contact mixxclub, audio engineering support, mixing help, customer service"
       />
 
       <div className="min-h-screen bg-gradient-to-b from-background to-accent/5 py-16">

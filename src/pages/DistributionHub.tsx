@@ -272,7 +272,7 @@ const DistributionHub = () => {
       <section className="py-16 px-4 bg-muted/30">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Why Distribute Through MixClub?</h2>
+            <h2 className="text-3xl font-bold mb-4">Why Distribute Through Mixxclub?</h2>
           </div>
           
           <div className="grid md:grid-cols-3 gap-8">

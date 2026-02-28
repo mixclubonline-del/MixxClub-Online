@@ -18,7 +18,7 @@ export default function Privacy() {
       <SEOHead
         title="Privacy Policy"
         description="Learn how Mixxclub collects, uses, and protects your personal data. Your privacy matters — read our full privacy policy."
-        keywords="mixclub privacy policy, data protection, user privacy, audio platform privacy"
+        keywords="mixxclub privacy policy, data protection, user privacy, audio platform privacy"
       />
       <div className="min-h-screen bg-background">
       <Navigation />
@@ -159,7 +159,7 @@ export default function Privacy() {
                 <li>Withdraw consent for marketing communications</li>
               </ul>
               <p className="text-muted-foreground leading-relaxed mt-3">
-                To exercise these rights, please contact us at privacy@mixclubonline.com.
+                To exercise these rights, please contact us at privacy@mixxclubonline.com.
               </p>
             </section>
 
@@ -207,7 +207,7 @@ export default function Privacy() {
               </p>
               <div className="mt-4 p-4 bg-muted/50 rounded-lg border border-border">
                 <p className="text-foreground font-medium">Mixxclub Privacy Team</p>
-                <p className="text-muted-foreground">Email: privacy@mixclubonline.com</p>
+                <p className="text-muted-foreground">Email: privacy@mixxclubonline.com</p>
                 <p className="text-muted-foreground">Address: 1234 Audio Avenue, Suite 500, Los Angeles, CA 90028, United States</p>
               </div>
             </section>
