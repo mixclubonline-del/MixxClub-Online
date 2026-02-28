@@ -6,7 +6,7 @@
  * Lazy-mounts only active ±1 neighbor chapters.
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useChapterStore } from '@/stores/chapterStore';
 import { useChapterNavigation } from '@/hooks/useChapterNavigation';
@@ -45,14 +45,18 @@ export function ChapterShell({ slots }: ChapterShellProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Store → URL sync
+  // Ref to break circular dep with SceneFlow's URL sync
+  const searchParamsRef = useRef(searchParams);
+  searchParamsRef.current = searchParams;
+
+  // Store → URL sync (only fires when `active` changes)
   useEffect(() => {
-    const current = searchParams.get('chapter');
-    if (current === String(active)) return;
-    const next = new URLSearchParams(searchParams);
+    const sp = searchParamsRef.current;
+    if (sp.get('chapter') === String(active)) return;
+    const next = new URLSearchParams(sp);
     next.set('chapter', String(active));
     setSearchParams(next, { replace: true });
-  }, [active, searchParams, setSearchParams]);
+  }, [active, setSearchParams]);
 
   // Focus management: move focus to new chapter
   useEffect(() => {

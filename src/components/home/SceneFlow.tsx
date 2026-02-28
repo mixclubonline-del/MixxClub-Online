@@ -5,7 +5,7 @@
  * then horizontal storybook chapters for Club + Choose Path.
  */
 
-import { useEffect, useCallback, lazy, Suspense } from 'react';
+import { useEffect, useCallback, useRef, lazy, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useSceneFlowStore } from '@/stores/sceneFlowStore';
@@ -57,15 +57,19 @@ function VerticalSceneFlow() {
     }
   }, [searchParams, scene, go]);
 
-  // scene -> URL sync
+  // Ref to break circular dep with ChapterShell's URL sync
+  const searchParamsRef = useRef(searchParams);
+  searchParamsRef.current = searchParams;
+
+  // scene -> URL sync (only fires when `scene` changes)
   useEffect(() => {
-    const currentQueryScene = searchParams.get('scene');
+    const sp = searchParamsRef.current;
     const target = SCENE_TO_QUERY[scene];
-    if (currentQueryScene === target) return;
-    const nextParams = new URLSearchParams(searchParams);
+    if (sp.get('scene') === target) return;
+    const nextParams = new URLSearchParams(sp);
     nextParams.set('scene', target);
     setSearchParams(nextParams, { replace: true });
-  }, [scene, searchParams, setSearchParams]);
+  }, [scene, setSearchParams]);
 
   // Reset chapter store when entering INFO scene
   const chapterGoTo = useChapterStore((s) => s.goTo);
