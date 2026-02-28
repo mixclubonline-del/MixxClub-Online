@@ -37,7 +37,7 @@ import { MarketplaceReveal } from '@/components/demo/MarketplaceReveal';
 import { StageReveal } from '@/components/demo/StageReveal';
 import { MoneyReveal } from '@/components/demo/MoneyReveal';
 import { DemoPhaseId } from '@/hooks/useDemoPhaseAssets';
-import mixxclubLogo from '@/assets/mixclub-3d-logo.png';
+import mixxclubLogo from '@/assets/mixxclub-3d-logo.png';
 import { trackEvent } from '@/lib/analytics';
 
 // Phase markers synced to audio timeline (seconds) — compressed for ~65s audio
@@ -79,7 +79,7 @@ const DEMO_PHASES = [
     id: 'connection',
     title: 'THE CONNECTION',
     duration: 9000,
-    message: "Marcus in Brooklyn needed a master for his EP. Amara in Lagos had 10 years of experience and an empty calendar. MixClub connected them in 3 minutes."
+    message: "Marcus in Brooklyn needed a master for his EP. Amara in Lagos had 10 years of experience and an empty calendar. Mixxclub connected them in 3 minutes."
   },
   {
     id: 'transformation',
@@ -438,7 +438,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
               >
                 <motion.img
                   src={mixxclubLogo}
-                  alt="MixClub"
+                  alt="Mixxclub"
                   className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 mx-auto mb-4 sm:mb-6"
                   animate={{
                     scale: isPlaying ? [1, 1.05, 1] : 1,

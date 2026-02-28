@@ -93,10 +93,10 @@ export const MobileEnhancedNav = () => {
           <div className="flex items-center gap-2">
             <img 
               src="/lovable-uploads/mixclub-3d-logo.png" 
-              alt="MixClub" 
+              alt="Mixxclub" 
               className="h-8 w-8"
             />
-            <span className="font-bold text-lg">MixClub</span>
+            <span className="font-bold text-lg">Mixxclub</span>
           </div>
           <div className="flex items-center gap-2">
             <WalletIndicator variant="mini" />

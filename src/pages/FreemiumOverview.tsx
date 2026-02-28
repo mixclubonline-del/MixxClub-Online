@@ -135,8 +135,8 @@ export default function FreemiumOverview() {
     return (
         <>
             <SEOHead
-                title="Freemium Creator Plans | MixClub"
-                description="Start free and upgrade anytime! Unlimited mixing & mastering with MixClub's flexible creator plans. 7-day free trial on paid plans."
+                title="Freemium Creator Plans | Mixxclub"
+                description="Start free and upgrade anytime! Unlimited mixing & mastering with Mixxclub's flexible creator plans. 7-day free trial on paid plans."
                 keywords="free plan, creator plans, mixing, mastering, unlimited audio processing"
             />
 
@@ -289,7 +289,7 @@ export default function FreemiumOverview() {
                     <div className="text-center">
                         <h2 className="text-3xl font-bold mb-4">Ready to Get Started?</h2>
                         <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-                            Join thousands of artists and engineers collaborating on MixClub. Start free today!
+                            Join thousands of artists and engineers collaborating on Mixxclub. Start free today!
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
                             <Button

@@ -80,7 +80,7 @@ const PROMPT_PRESETS: Record<string, Array<{
       id: 'hallway_active',
       name: 'Hallway Active',
       context: 'studio_hallway_active',
-      prompt: `Same recording studio hallway but alive with energy. Doors glowing with warm light from active sessions inside. Through glass windows you can see silhouettes of artists working. LED strips pulsing gently with the beat. Energy flowing through the space. Purple and gold lighting. This is MixClub alive.`,
+      prompt: `Same recording studio hallway but alive with energy. Doors glowing with warm light from active sessions inside. Through glass windows you can see silhouettes of artists working. LED strips pulsing gently with the beat. Energy flowing through the space. Purple and gold lighting. This is Mixxclub alive.`,
       videoPrompt: `Recording studio hallway with glowing rooms, doors emanating warm light. Silhouettes visible through frosted glass. LED strips pulsing with music energy. Purple and gold lighting. Alive, active, creative energy flowing. Camera drifts through the space.`,
     },
     {
@@ -133,7 +133,7 @@ const PROMPT_PRESETS: Record<string, Array<{
       id: 'discovery',
       name: 'The Discovery',
       context: 'demo_phase_discovery',
-      prompt: `Abstract cinematic visualization of hope dawning. Infinity symbol (MixClub logo shape) forming from light particles in dark space. Colors shifting from deep purple to warm gold. Digital gateway opening. The moment of realization. 8K digital art, premium quality. No people, pure concept.`,
+      prompt: `Abstract cinematic visualization of hope dawning. Infinity symbol (Mixxclub logo shape) forming from light particles in dark space. Colors shifting from deep purple to warm gold. Digital gateway opening. The moment of realization. 8K digital art, premium quality. No people, pure concept.`,
     },
     {
       id: 'connection',

@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Menu, Sparkles, X, Trophy } from "lucide-react";
 import { useState, useEffect } from "react";
-import mixxclub3DLogo from "@/assets/mixclub-3d-logo.png";
+import mixxclub3DLogo from "@/assets/mixxclub-3d-logo.png";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { NotificationCenter } from "./notifications/NotificationCenter";

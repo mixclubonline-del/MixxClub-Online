@@ -9,8 +9,8 @@ export default function About() {
     <>
       <SEOHead
         title="About Us - Professional Audio Engineering Platform"
-        description="Learn about MixClub's mission to democratize professional audio production. We connect 10,000+ artists with 500+ professional engineers worldwide. 50,000+ projects completed."
-        keywords="about mixclub, audio engineering company, music production platform, professional mixing team"
+        description="Learn about Mixxclub's mission to democratize professional audio production. We connect 10,000+ artists with 500+ professional engineers worldwide. 50,000+ projects completed."
+        keywords="about mixxclub, audio engineering company, music production platform, professional mixing team"
         schema={organizationSchema}
       />
       

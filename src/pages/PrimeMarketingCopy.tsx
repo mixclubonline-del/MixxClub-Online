@@ -24,7 +24,7 @@ export default function PrimeMarketingCopy() {
   const [copied, setCopied] = useState(false);
 
   const handleGenerate = () => {
-    generateCopy(selectedType, context || 'General MixClub marketing');
+    generateCopy(selectedType, context || 'General Mixxclub marketing');
   };
 
   const handleCopy = () => {

@@ -34,7 +34,7 @@ export class ReportGenerator {
     // Company header
     this.doc.setFontSize(20);
     this.doc.setTextColor(147, 51, 234); // primary color
-    this.doc.text('MixClub Financial Report', this.pageWidth / 2, 15, { align: 'center' });
+    this.doc.text('Mixxclub Financial Report', this.pageWidth / 2, 15, { align: 'center' });
 
     // Report title
     this.doc.setFontSize(16);
@@ -63,7 +63,7 @@ export class ReportGenerator {
     this.doc.setFontSize(8);
     this.doc.setTextColor(150, 150, 150);
     this.doc.text(
-      `Page ${pageNumber} | MixClub © ${new Date().getFullYear()} | Confidential`,
+      `Page ${pageNumber} | Mixxclub © ${new Date().getFullYear()} | Confidential`,
       this.pageWidth / 2,
       this.pageHeight - 10,
       { align: 'center' }

@@ -7,7 +7,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Upload, Send, User, Music, X, Minimize2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import mixclub3DLogo from '@/assets/mixclub-3d-logo.png';
+import mixclub3DLogo from '@/assets/mixxclub-3d-logo.png';
 
 interface Message {
   id: string;

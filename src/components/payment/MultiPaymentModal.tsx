@@ -111,7 +111,7 @@ export function MultiPaymentModal({
       country: 'US',
       currency: 'usd',
       total: {
-        label: 'MixClub Payment',
+        label: 'Mixxclub Payment',
         amount: Math.round(totalAmount * 100),
       },
       requestPayerName: true,
@@ -238,7 +238,7 @@ export function MultiPaymentModal({
     // Header
     doc.setFontSize(20);
     doc.setTextColor(91, 60, 255);
-    doc.text('MixClub Payment Receipt', 20, 20);
+    doc.text('Mixxclub Payment Receipt', 20, 20);
     
     // Details
     doc.setFontSize(12);
@@ -259,11 +259,11 @@ export function MultiPaymentModal({
     // Footer
     doc.setFontSize(10);
     doc.setTextColor(128, 128, 128);
-    doc.text('Thank you for using MixClub!', 20, 150);
-    doc.text('For support, contact: support@mixclubonline.com', 20, 160);
+    doc.text('Thank you for using Mixxclub!', 20, 150);
+    doc.text('For support, contact: support@mixxclubonline.com', 20, 160);
     
     // Save PDF
-    doc.save(`MixClub_Receipt_${projectId}.pdf`);
+    doc.save(`Mixxclub_Receipt_${projectId}.pdf`);
   };
 
   const sendReceiptEmail = async (transactionId: string, paymentMethodName: string) => {

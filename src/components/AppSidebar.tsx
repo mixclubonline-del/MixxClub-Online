@@ -13,7 +13,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { getNavigationForRole, UserRole } from '@/config/navigationConfig';
-import mixclub3DLogo from '@/assets/mixclub-3d-logo.png';
+import mixclub3DLogo from '@/assets/mixxclub-3d-logo.png';
 import { Badge } from '@/components/ui/badge';
 
 export function AppSidebar() {

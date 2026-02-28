@@ -202,7 +202,7 @@ export const copyframework = {
     tension: 'Every month of delays costs thousands in lost opportunity.',
 
     // Layer 3: SOLUTION
-    solution: 'MixClub matches you instantly. 48-hour turnarounds. Fair pricing.',
+    solution: 'Mixxclub matches you instantly. 48-hour turnarounds. Fair pricing.',
 
     // Layer 4: PROOF
     proof: '10,000 creators. $500K paid. 98% satisfaction.',

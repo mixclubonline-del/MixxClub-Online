@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { useWaitlistSignup, useWaitlistStats, type WaitlistFormData } from '@/hooks/useWaitlist';
 import { useValidateInviteCode } from '@/hooks/useInviteCodes';
-import mixxclubLogo from '@/assets/mixclub-3d-logo.png';
+import mixxclubLogo from '@/assets/mixxclub-3d-logo.png';
 
 interface WaitlistCaptureProps {
     embedded?: boolean;

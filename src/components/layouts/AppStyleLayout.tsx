@@ -4,7 +4,7 @@ import { Home, Users, Briefcase, Compass, Settings, Menu, X } from 'lucide-react
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
-import mixxclub3DLogo from "@/assets/mixclub-3d-logo.png";
+import mixxclub3DLogo from "@/assets/mixxclub-3d-logo.png";
 import { RealTimeNotifications } from '../RealTimeNotifications';
 
 interface AppStyleLayoutProps {
