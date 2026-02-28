@@ -43,7 +43,7 @@ export function ProofScene({ asset }: Props) {
               transition={{ delay: 0.3 + i * 0.2, duration: 0.6 }}
               className="text-center"
             >
-              <p className="text-3xl sm:text-4xl font-black text-white tabular-nums">
+              <p className="text-3xl sm:text-4xl font-black text-white tabular-nums drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
                 <AnimatedCounter target={value} suffix={suffix} />
               </p>
               <p className="text-xs sm:text-sm uppercase tracking-widest text-white/70 mt-1">{label}</p>

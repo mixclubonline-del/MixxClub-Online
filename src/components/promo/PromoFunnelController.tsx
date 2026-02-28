@@ -61,9 +61,9 @@ export function PromoFunnelController({ assets, isLoading, trackStep }: Props) {
   }, [idx, go]);
 
   const variants = {
-    enter: (d: number) => ({ y: d > 0 ? '100%' : '-100%', opacity: 0 }),
-    center: { y: 0, opacity: 1 },
-    exit: (d: number) => ({ y: d > 0 ? '-100%' : '100%', opacity: 0 }),
+    enter: (d: number) => ({ y: d > 0 ? '100%' : '-100%' }),
+    center: { y: 0 },
+    exit: (d: number) => ({ y: d > 0 ? '-100%' : '100%' }),
   };
 
   const sceneComponents: Record<PromoSceneId, React.ReactNode> = {
