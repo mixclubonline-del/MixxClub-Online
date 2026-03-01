@@ -40,7 +40,7 @@ export default function Privacy() {
             </div>
             <div>
               <h1 className="text-4xl font-bold">Privacy Policy</h1>
-              <p className="text-muted-foreground mt-2">Last Updated: January 2025</p>
+              <p className="text-muted-foreground mt-2">Last Updated: March 2026</p>
             </div>
           </div>
 
@@ -110,7 +110,7 @@ export default function Privacy() {
               </p>
               <ul className="list-disc list-inside text-muted-foreground space-y-2 ml-4">
                 <li>Payment processors (Stripe, PayPal, Coinbase Commerce)</li>
-                <li>Cloud storage providers (Supabase)</li>
+                <li>Secure cloud infrastructure</li>
                 <li>Email service providers (Resend)</li>
                 <li>Analytics providers</li>
               </ul>
@@ -208,7 +208,7 @@ export default function Privacy() {
               <div className="mt-4 p-4 bg-muted/50 rounded-lg border border-border">
                 <p className="text-foreground font-medium">Mixxclub Privacy Team</p>
                 <p className="text-muted-foreground">Email: privacy@mixxclubonline.com</p>
-                <p className="text-muted-foreground">Address: 1234 Audio Avenue, Suite 500, Los Angeles, CA 90028, United States</p>
+                <p className="text-muted-foreground">Address: Los Angeles, CA, United States</p>
               </div>
             </section>
           </div>
