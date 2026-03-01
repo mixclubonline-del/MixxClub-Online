@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { velvetMaster, measureLUFS } from '@/lib/velvetMaster';
 import { audioBufferToWav } from '@/lib/audioExport';
 import { WaveformComparison } from '@/components/promo/WaveformComparison';
+import { MasteringPrimeChat } from '@/components/promo/MasteringPrimeChat';
 import type { GenrePreset } from '@/audio/context/GenreContext';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -271,6 +272,16 @@ export function TryItScene({ asset, trackStep, onAdvance }: Props) {
                 {/* Waveform comparison */}
                 {originalBuffer && masteredBuf && (
                   <WaveformComparison originalBuffer={originalBuffer} masteredBuffer={masteredBuf} />
+                )}
+
+                {/* Prime mastering insight + chat */}
+                {analysis && (
+                  <MasteringPrimeChat
+                    genre={genre}
+                    originalLUFS={analysis.originalLUFS}
+                    masteredLUFS={analysis.masteredLUFS}
+                    improvements={analysis.improvements}
+                  />
                 )}
 
                 {/* Audio players */}
