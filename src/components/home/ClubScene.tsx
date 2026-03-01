@@ -75,8 +75,8 @@ export function ClubScene({ onBack }: ClubSceneProps) {
   // Handle join action
   const handleJoin = useCallback(() => {
     trackEvent('funnel_cta_click', 'funnel', 'info_join_now');
-    trackEvent('funnel_conversion_complete', 'funnel', 'choose_path');
-    navigate('/choose-path');
+    trackEvent('funnel_conversion_complete', 'funnel', 'how_it_works');
+    navigate('/how-it-works');
   }, [navigate]);
 
   // Keyboard navigation
