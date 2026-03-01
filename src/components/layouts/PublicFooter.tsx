@@ -12,7 +12,6 @@ const FOOTER_SECTIONS = [
     links: [
       { label: 'How It Works', path: '/how-it-works' },
       { label: 'Pricing', path: '/pricing' },
-      { label: 'Choose Your Path', path: '/how-it-works' },
       { label: 'Showcase', path: '/showcase' },
       { label: 'FAQ', path: '/faq' },
     ],
