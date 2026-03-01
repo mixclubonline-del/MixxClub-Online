@@ -1,9 +1,10 @@
 import { useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, Sparkles, Music, ArrowRight, Volume2, Headphones } from 'lucide-react';
+import { Upload, Sparkles, Music, ArrowRight, Volume2, Headphones, Loader2 } from 'lucide-react';
 import { SceneBackground } from './SceneBackground';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { supabase } from '@/integrations/supabase/client';
 import { velvetMaster, measureLUFS } from '@/lib/velvetMaster';
 import { audioBufferToWav } from '@/lib/audioExport';
 import { WaveformComparison } from '@/components/promo/WaveformComparison';
@@ -46,6 +47,7 @@ export function TryItScene({ asset, trackStep, onAdvance }: Props) {
   const [errorMsg, setErrorMsg] = useState('');
   const [originalBuffer, setOriginalBuffer] = useState<AudioBuffer | null>(null);
   const [masteredBuf, setMasteredBuf] = useState<AudioBuffer | null>(null);
+  const [isLoadingDemo, setIsLoadingDemo] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = useCallback((f: File) => {
@@ -65,19 +67,20 @@ export function TryItScene({ asset, trackStep, onAdvance }: Props) {
     setErrorMsg('');
   }, []);
 
-  const handleMaster = useCallback(async () => {
-    if (!file) return;
+  const handleMaster = useCallback(async (overrideFile?: File) => {
+    const fileToProcess = overrideFile ?? file;
+    if (!fileToProcess) return;
     setPhase('processing');
     setProgress(10);
-    trackStep('demo_mastering_started', { genre, fileSize: file.size });
+    trackStep('demo_mastering_started', { genre, fileSize: fileToProcess.size });
 
     try {
       // Use the raw uploaded file directly for the original player (no re-encode)
-      setOriginalUrl(URL.createObjectURL(file));
+      setOriginalUrl(URL.createObjectURL(fileToProcess));
       setProgress(25);
 
       // Decode into AudioBuffer for Velvet Curve processing
-      const arrayBuffer = await file.arrayBuffer();
+      const arrayBuffer = await fileToProcess.arrayBuffer();
       const audioCtx = new AudioContext();
       const originalBuffer = await audioCtx.decodeAudioData(arrayBuffer);
       audioCtx.close();
@@ -125,6 +128,28 @@ export function TryItScene({ asset, trackStep, onAdvance }: Props) {
       setPhase('error');
     }
   }, [file, genre, trackStep]);
+
+  const handleDemoTrack = useCallback(async () => {
+    setIsLoadingDemo(true);
+    try {
+      const { data, error } = await supabase.storage
+        .from('audio-files')
+        .download('original_1772324337610_TEST MP3.mp3');
+
+      if (error || !data) throw error || new Error('Download failed');
+
+      const demoFile = new File([data], 'Demo Beat.mp3', { type: 'audio/mpeg' });
+      setFile(demoFile);
+      trackStep('demo_beat_loaded');
+      await handleMaster(demoFile);
+    } catch (err: any) {
+      console.error('[TryIt] demo load error:', err);
+      setErrorMsg('Could not load demo beat. Try uploading your own.');
+      setPhase('error');
+    } finally {
+      setIsLoadingDemo(false);
+    }
+  }, [handleMaster, trackStep]);
 
   return (
     <div className="relative w-full min-h-screen flex flex-col items-center justify-center">
@@ -206,7 +231,7 @@ export function TryItScene({ asset, trackStep, onAdvance }: Props) {
                 </div>
 
                 <Button
-                  onClick={handleMaster}
+                  onClick={() => handleMaster()}
                   disabled={!file}
                   className="w-full gap-2"
                   size="lg"
@@ -214,6 +239,36 @@ export function TryItScene({ asset, trackStep, onAdvance }: Props) {
                   <Sparkles className="w-4 h-4" />
                   Master My Track
                 </Button>
+
+                {/* Demo beat option — visible only when no file selected */}
+                {!file && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="h-px flex-1 bg-white/10" />
+                      <span className="text-[10px] uppercase tracking-widest text-white/30">or</span>
+                      <div className="h-px flex-1 bg-white/10" />
+                    </div>
+                    <Button
+                      variant="ghost"
+                      onClick={handleDemoTrack}
+                      disabled={isLoadingDemo}
+                      className="w-full gap-2 text-white/60 hover:text-white"
+                      size="lg"
+                    >
+                      {isLoadingDemo ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Loading demo…
+                        </>
+                      ) : (
+                        <>
+                          <Music className="w-4 h-4" />
+                          Try a demo beat
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                )}
               </motion.div>
             )}
 
