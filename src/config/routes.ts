@@ -33,7 +33,7 @@ export const ROUTES = {
   FOR_ENGINEERS: '/for-engineers',
   FOR_PRODUCERS: '/for-producers',
   FOR_FANS: '/for-fans',
-  CHOOSE_PATH: '/choose-path',
+  CHOOSE_PATH: '/how-it-works',
   REQUEST_ACCESS: '/request-access',
 
   // Auth & legal

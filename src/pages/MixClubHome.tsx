@@ -14,7 +14,7 @@ export default function MixClubHome() {
       </Helmet>
 
       {/* No navigation overlay — the hallway is a pure immersive experience.
-          Navigation begins at Choose Your Path (/choose-path) and beyond. */}
+          Navigation begins at How It Works (/how-it-works) and beyond. */}
       <div className="min-h-screen">
         <PrimeLanding />
       </div>

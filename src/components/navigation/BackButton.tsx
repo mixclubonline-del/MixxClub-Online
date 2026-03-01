@@ -29,11 +29,10 @@ interface BackButtonProps {
 
 // Map of routes to sensible "parent" routes for direct-link fallback
 const parentRoutes: Record<string, string> = {
-    '/for-artists': '/choose-path',
-    '/for-engineers': '/choose-path',
-    '/for-producers': '/choose-path',
-    '/for-fans': '/choose-path',
-    '/choose-path': '/',
+    '/for-artists': '/how-it-works',
+    '/for-engineers': '/how-it-works',
+    '/for-producers': '/how-it-works',
+    '/for-fans': '/how-it-works',
     '/auth': '/',
     '/how-it-works': '/',
     '/faq': '/',
