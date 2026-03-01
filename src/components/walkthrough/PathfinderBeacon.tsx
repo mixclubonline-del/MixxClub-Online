@@ -7,6 +7,7 @@ export const PathfinderBeacon = () => {
   const {
     isActive,
     isReady,
+    journey,
     currentStep,
     stepIndex,
     totalSteps,
@@ -62,7 +63,9 @@ export const PathfinderBeacon = () => {
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Compass className="w-4 h-4 text-primary" />
-              <span className="text-[11px] font-medium text-white/50 uppercase tracking-wider">Pathfinder</span>
+              <span className="text-[11px] font-medium text-white/50 uppercase tracking-wider">
+                {journey ? journey.title : 'Pathfinder'}
+              </span>
             </div>
             <button
               onClick={dismiss}
