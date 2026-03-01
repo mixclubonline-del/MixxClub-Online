@@ -32,6 +32,7 @@ import { PageTransition } from "@/components/layouts/PageTransition";
 import { DashboardSkeleton } from "@/components/ui/loading-skeleton";
 import { PerformanceMonitor } from "@/components/PerformanceMonitor";
 import { CookieConsent } from "@/components/legal/CookieConsent";
+import { PathfinderBeacon } from "@/components/walkthrough/PathfinderBeacon";
 import { GlobalKeyboardShortcuts } from "@/components/GlobalKeyboardShortcuts";
 import { ImmersiveAppShell } from "@/components/immersive/ImmersiveAppShell";
 import { MobileOptimizations } from "@/components/MobileOptimizations";
@@ -151,6 +152,7 @@ const App = () => {
                           <AuthGatedOverlays />
                           <PerformanceMonitor />
                           <CookieConsent />
+                          <PathfinderBeacon />
                         </UnlockCelebrationProvider>
                       </PulseProvider>
                     </TutorialProvider>
