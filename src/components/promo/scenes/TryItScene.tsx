@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { velvetMaster, measureLUFS } from '@/lib/velvetMaster';
 import { audioBufferToWav } from '@/lib/audioExport';
+import { WaveformComparison } from '@/components/promo/WaveformComparison';
 import type { GenrePreset } from '@/audio/context/GenreContext';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -42,6 +43,8 @@ export function TryItScene({ asset, trackStep, onAdvance }: Props) {
   const [masteredUrl, setMasteredUrl] = useState<string | null>(null);
   const [analysis, setAnalysis] = useState<MasteringAnalysis | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
+  const [originalBuffer, setOriginalBuffer] = useState<AudioBuffer | null>(null);
+  const [masteredBuf, setMasteredBuf] = useState<AudioBuffer | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = useCallback((f: File) => {
@@ -83,8 +86,12 @@ export function TryItScene({ asset, trackStep, onAdvance }: Props) {
       const originalLUFS = measureLUFS(originalBuffer);
       setProgress(50);
 
+      // Store original buffer for waveform comparison
+      setOriginalBuffer(originalBuffer);
+
       // Run Velvet Curve mastering (client-side, instant)
       const masteredBuffer = await velvetMaster(originalBuffer, genre);
+      setMasteredBuf(masteredBuffer);
       setProgress(85);
 
       // Measure mastered loudness
@@ -259,6 +266,11 @@ export function TryItScene({ asset, trackStep, onAdvance }: Props) {
                       </p>
                     </div>
                   </div>
+                )}
+
+                {/* Waveform comparison */}
+                {originalBuffer && masteredBuf && (
+                  <WaveformComparison originalBuffer={originalBuffer} masteredBuffer={masteredBuf} />
                 )}
 
                 {/* Audio players */}
