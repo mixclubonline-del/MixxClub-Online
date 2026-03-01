@@ -5384,6 +5384,50 @@ export type Database = {
           },
         ]
       }
+      pathfinder_progress: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          current_step: number
+          dismissed_at: string | null
+          id: string
+          is_completed: boolean
+          journey_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          current_step?: number
+          dismissed_at?: string | null
+          id?: string
+          is_completed?: boolean
+          journey_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          current_step?: number
+          dismissed_at?: string | null
+          id?: string
+          is_completed?: boolean
+          journey_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pathfinder_progress_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payment_links: {
         Row: {
           amount: number | null
