@@ -7,6 +7,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
+import { useHaptics } from '@/hooks/useHaptics';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
@@ -63,6 +64,7 @@ export function DemoTransportBar({
   phases,
   onSkipToPhase,
 }: DemoTransportBarProps) {
+  const { light, medium } = useHaptics();
   const [opacity, setOpacity] = useState(1);
   const [pickerOpen, setPickerOpen] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -107,9 +109,16 @@ export function DemoTransportBar({
   }, [resetFade]);
 
   const handlePhaseSelect = useCallback((index: number) => {
+    light();
     onSkipToPhase?.(index);
     setPickerOpen(false);
-  }, [onSkipToPhase]);
+  }, [onSkipToPhase, light]);
+
+  // Haptic-enhanced handlers
+  const handleToggle = useCallback(() => { medium(); onToggle(); }, [medium, onToggle]);
+  const handlePrev = useCallback(() => { light(); onPrevPhase(); }, [light, onPrevPhase]);
+  const handleNext = useCallback(() => { light(); onNextPhase(); }, [light, onNextPhase]);
+  const handleRestartWithHaptic = useCallback(() => { medium(); onRestart?.(); }, [medium, onRestart]);
 
   const getPhaseState = (index: number): 'completed' | 'active' | 'future' => {
     if (index < currentPhase) return 'completed';
@@ -226,7 +235,7 @@ export function DemoTransportBar({
             <Button
               variant="ghost"
               size="icon"
-              onClick={onPrevPhase}
+              onClick={handlePrev}
               disabled={currentPhase === 0}
               className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted/20 disabled:opacity-30"
               aria-label="Previous phase"
@@ -238,7 +247,7 @@ export function DemoTransportBar({
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={onRestart}
+                onClick={handleRestartWithHaptic}
                 className="h-9 w-9 text-primary hover:bg-primary/10"
                 aria-label="Replay demo"
               >
@@ -248,7 +257,7 @@ export function DemoTransportBar({
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={onToggle}
+                onClick={handleToggle}
                 className="h-9 w-9 text-primary hover:bg-primary/10"
                 aria-label={isPlaying ? 'Pause' : 'Play'}
               >
@@ -259,7 +268,7 @@ export function DemoTransportBar({
             <Button
               variant="ghost"
               size="icon"
-              onClick={onNextPhase}
+              onClick={handleNext}
               disabled={currentPhase >= totalPhases - 1}
               className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted/20 disabled:opacity-30"
               aria-label="Next phase"
