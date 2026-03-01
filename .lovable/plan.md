@@ -1,62 +1,84 @@
 
 
-# Add Visual Waveform Comparison to Mastering Results
+# Integrate Prime AI into Mastering Results (Talk Through Your Master)
 
-## What Changes
+## The Gap
 
-The results phase of TryItScene currently shows LUFS numbers and browser-native audio players. This adds a **side-by-side (stacked) waveform visualization** that lets users visually see the difference Velvet Curve makes -- tighter dynamics, louder peaks, fuller body.
+`GlobalPrimeChat` floats on `/go` but has no knowledge of the mastering session. It sends generic page context (`{ currentPage: "/go" }`) to `prime-chat`. There is no mastering-aware Prime experience in the results phase.
 
-## Approach
+## What This Adds
 
-### New Component: `src/components/promo/WaveformComparison.tsx` (~70 lines)
+After mastering completes, a **Prime insight card** appears in the results phase with:
+1. A one-line AI-generated mastering summary seeded with the actual analysis data (genre, LUFS before/after, improvement tags)
+2. A "Talk to Prime about this master" button that opens an inline chat pre-loaded with mastering context
+3. Prime can answer questions like "Why did you boost the highs?" or "How would this sound on Spotify?" because the conversation includes the full mastering metadata
 
-A lightweight canvas-based before/after waveform renderer purpose-built for the promo funnel. It:
+## Architecture
 
-- Accepts two `AudioBuffer` objects (original and mastered)
-- Renders them as mirrored bar waveforms on two stacked canvases (or one split canvas)
-- Uses the MixxClub gradient palette (pink/lavender/cyan) for the mastered waveform, and muted white/gray for the original
-- Downsamples to ~200 bars for clean visual at mobile widths
-- Animates in with a left-to-right reveal using framer-motion
-- Labels: "Before" (top) and "After - Velvet Curve" (bottom)
+### No new edge function needed
+The existing `prime-chat` edge function already accepts a `context` object and appends it to the system prompt. We just need to send richer context from TryItScene.
+
+### File 1: `src/components/promo/MasteringPrimeChat.tsx` (New, ~120 lines)
+
+A self-contained inline chat component for the mastering results phase:
+
+- Props: `genre`, `originalLUFS`, `masteredLUFS`, `improvements` (the analysis data)
+- On mount, auto-generates a one-line mastering insight by calling `prime-chat` with a short prompt seeded with the analysis (e.g., "Give a one-sentence summary of mastering a trap beat from -22 LUFS to -14 LUFS with 808 punch enhanced, hi-hat clarity")
+- Renders Prime's avatar + insight as a compact card
+- "Ask Prime" button expands an inline chat (same pattern as GlobalPrimeChat but embedded, not floating)
+- All messages sent to `prime-chat` include mastering context:
+  ```json
+  {
+    "currentPage": "/go",
+    "masteringSession": {
+      "genre": "trap",
+      "originalLUFS": -22.3,
+      "masteredLUFS": -14.0,
+      "improvements": ["808 punch enhanced", "Hi-hat clarity"],
+      "engine": "Velvet Curve"
+    }
+  }
+  ```
+- Uses non-streaming `supabase.functions.invoke` for the initial insight (simpler), streaming for follow-up chat messages
+- Handles rate limit (429) and credit (402) errors with toast fallbacks
+
+### File 2: `src/components/promo/scenes/TryItScene.tsx` (Modify, ~5 lines)
+
+- Import `MasteringPrimeChat`
+- Add it to the results phase, between the waveform comparison and the audio players
+- Pass `genre`, `analysis.originalLUFS`, `analysis.masteredLUFS`, `analysis.improvements`
+
+## Visual Layout (Results Phase, top to bottom)
 
 ```text
-+----------------------------------+
-|  Before                          |
-|  ||||| |||| ||| || ||| ||||      |  (white/gray bars)
-|  ||||| |||| ||| || ||| ||||      |
-+----------------------------------+
-|  After - Velvet Curve            |
-|  ||||||||||||||||||||||||||||     |  (pink-to-cyan gradient bars)
-|  ||||||||||||||||||||||||||||     |
-+----------------------------------+
+LUFS Before -> After
+Waveform Comparison (Before / After)
++-----------------------------------------+
+|  [Prime avatar]  "Your trap beat jumped  |
+|  +8.3 dB — 808s hit harder, highs cut   |
+|  through. Streaming-ready."             |
+|                                          |
+|  [ Ask Prime about this master ]         |
++-----------------------------------------+
+   (expands into inline chat on tap)
+Original Player
+Mastered Player
+Improvement Tags
+CTA Button
 ```
 
-The visual difference is immediate: the mastered waveform will show fuller, more consistent bars with tighter dynamic range, while the original will have more variation and lower average level.
+## Technical Notes
 
-### Modified: `src/components/promo/scenes/TryItScene.tsx`
-
-- Store both `originalBuffer` and `masteredBuffer` in state (currently only URLs are kept)
-- Add `<WaveformComparison>` between the LUFS comparison and the audio players in the results phase
-- Pass both AudioBuffers to the new component
-
-Changes are ~15 lines added to TryItScene (two new state variables + the component insertion).
-
-## Technical Details
-
-**Downsampling logic** (inside WaveformComparison):
-- Divide each buffer's channel data into ~200 equal windows
-- For each window, compute the peak absolute value
-- Normalize both waveforms to the same scale so the loudness difference is visually obvious
-- Render as symmetric bars (mirrored around center line)
-
-**Canvas rendering** (not SVG) for performance with 200+ bars on mobile.
-
-**No new dependencies** -- uses raw Canvas API + framer-motion (already installed).
+- The initial insight uses a focused prompt to keep the response short (1-2 sentences max via system instruction)
+- Chat messages include full conversation history + mastering context for continuity
+- Component is lazy — no AI call until the results phase renders
+- GlobalPrimeChat remains unchanged (still available as fallback on other pages)
+- Mobile-safe: the inline chat uses the same max-width constraints as the parent card
 
 ## File Summary
 
-| Action | File | Lines |
-|--------|------|-------|
-| Create | `src/components/promo/WaveformComparison.tsx` | ~70 |
-| Modify | `src/components/promo/scenes/TryItScene.tsx` | ~15 lines added |
+| Action | File | Change |
+|--------|------|--------|
+| Create | `src/components/promo/MasteringPrimeChat.tsx` | Inline Prime chat with mastering context |
+| Modify | `src/components/promo/scenes/TryItScene.tsx` | Add MasteringPrimeChat to results phase |
 
