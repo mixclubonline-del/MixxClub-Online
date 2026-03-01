@@ -68,10 +68,12 @@ export function TryItScene({ asset, trackStep, onAdvance }: Props) {
     trackStep('demo_mastering_started', { genre, fileSize: file.size });
 
     try {
-      // Decode uploaded file into AudioBuffer
-      const arrayBuffer = await file.arrayBuffer();
+      // Use the raw uploaded file directly for the original player (no re-encode)
+      setOriginalUrl(URL.createObjectURL(file));
       setProgress(25);
 
+      // Decode into AudioBuffer for Velvet Curve processing
+      const arrayBuffer = await file.arrayBuffer();
       const audioCtx = new AudioContext();
       const originalBuffer = await audioCtx.decodeAudioData(arrayBuffer);
       audioCtx.close();
@@ -79,10 +81,6 @@ export function TryItScene({ asset, trackStep, onAdvance }: Props) {
 
       // Measure original loudness
       const originalLUFS = measureLUFS(originalBuffer);
-
-      // Create original playback URL
-      const originalBlob = audioBufferToWav(originalBuffer, { bitDepth: 16, normalize: false });
-      setOriginalUrl(URL.createObjectURL(originalBlob));
       setProgress(50);
 
       // Run Velvet Curve mastering (client-side, instant)
@@ -93,7 +91,7 @@ export function TryItScene({ asset, trackStep, onAdvance }: Props) {
       const masteredLUFS = measureLUFS(masteredBuffer);
 
       // Create mastered playback URL
-      const masteredBlob = audioBufferToWav(masteredBuffer, { bitDepth: 16, normalize: false });
+      const masteredBlob = audioBufferToWav(masteredBuffer, { bitDepth: 24, normalize: false });
       setMasteredUrl(URL.createObjectURL(masteredBlob));
       setProgress(95);
 
