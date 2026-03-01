@@ -7,6 +7,7 @@ import { isFullImmersiveRoute } from '@/config/immersiveRoutes';
 import {
   PATHFINDER_JOURNEYS,
   getJourneyById,
+  getJourneyForRole,
   type PathfinderJourney,
   type PathfinderStep,
 } from '@/config/pathfinderJourneys';
@@ -32,7 +33,7 @@ function saveLocal(state: PathfinderState) {
 }
 
 export function usePathfinder() {
-  const { user } = useAuth();
+  const { user, activeRole } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const scene = useSceneFlowStore((s) => s.scene);
@@ -79,7 +80,7 @@ export function usePathfinder() {
     load();
   }, [user]);
 
-  // ─── Auto-start for first-time visitors on the Hallway ───
+  // ─── Auto-start for first-time visitors on the Hallway (Phase 1) ───
   useEffect(() => {
     if (!isReady || state) return;
     if (location.pathname !== '/') return;
@@ -96,6 +97,27 @@ export function usePathfinder() {
       if (autoStartTimerRef.current) clearTimeout(autoStartTimerRef.current);
     };
   }, [isReady, state, location.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ─── Auto-start role-specific journey (Phase 2) ───
+  useEffect(() => {
+    if (!isReady || !user || !activeRole) return;
+    // Don't interrupt an active journey
+    if (state && !state.dismissed && !state.completed) return;
+
+    const roleJourney = getJourneyForRole(activeRole);
+    if (!roleJourney) return;
+
+    const roleKey = `pathfinder_v1_${roleJourney.id}_started`;
+    if (localStorage.getItem(roleKey)) return;
+
+    // Small delay so the page settles
+    const timer = setTimeout(() => {
+      startJourney(roleJourney.id);
+      localStorage.setItem(roleKey, '1');
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [isReady, user, activeRole, state]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ─── Persist changes ───
   const persist = useCallback(async (newState: PathfinderState) => {
@@ -123,7 +145,9 @@ export function usePathfinder() {
   // ─── Check if user is currently at the step's target ───
   const isAtCurrentStep = useCallback(() => {
     if (!currentStep) return false;
-    const routeMatch = location.pathname === currentStep.route;
+    // For routes with query params, match pathname portion
+    const stepPath = currentStep.route.split('?')[0];
+    const routeMatch = location.pathname === stepPath;
     if (!routeMatch) return false;
     if (currentStep.sceneHint) return scene === currentStep.sceneHint;
     return true;
@@ -162,7 +186,6 @@ export function usePathfinder() {
       if (location.pathname !== '/') {
         navigate('/');
       }
-      // Scene transitions handled via sceneFlowStore
       if (scene !== currentStep.sceneHint) {
         go(currentStep.sceneHint);
       }

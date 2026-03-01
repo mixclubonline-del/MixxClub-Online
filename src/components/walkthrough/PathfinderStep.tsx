@@ -1,4 +1,8 @@
-import { DoorOpen, Headphones, LayoutGrid, WandSparkles, Rocket } from 'lucide-react';
+import {
+  DoorOpen, Headphones, LayoutGrid, WandSparkles, Rocket,
+  BarChart3, Users, Briefcase, Music, Coins, Disc3, Heart,
+  Compass, ShoppingBag, Mic2, Radio,
+} from 'lucide-react';
 import type { PathfinderStep as StepType } from '@/config/pathfinderJourneys';
 
 const ICON_MAP: Record<string, React.ElementType> = {
@@ -7,6 +11,17 @@ const ICON_MAP: Record<string, React.ElementType> = {
   'layout-grid': LayoutGrid,
   'wand-sparkles': WandSparkles,
   'rocket': Rocket,
+  'bar-chart-3': BarChart3,
+  'users': Users,
+  'briefcase': Briefcase,
+  'music': Music,
+  'coins': Coins,
+  'disc-3': Disc3,
+  'heart': Heart,
+  'compass': Compass,
+  'shopping-bag': ShoppingBag,
+  'mic-2': Mic2,
+  'radio': Radio,
 };
 
 interface PathfinderStepCardProps {
