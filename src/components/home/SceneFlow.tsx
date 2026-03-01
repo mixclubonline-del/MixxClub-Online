@@ -131,42 +131,55 @@ function VerticalSceneFlow() {
         {scene === 'INFO' && 'Club information scene active'}
       </div>
 
-      {/* Floating nav pill */}
-      <motion.div
-        className="mg-panel fixed top-4 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-2 px-3 py-1.5"
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: scene === 'HALLWAY' ? 2 : 0.3 }}
-      >
-        {scene !== 'HALLWAY' && (
-          <>
-            <button
-              type="button"
-              onClick={handleBackToHallway}
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="Back to home"
-            >
-              Home
-            </button>
-            <span className="text-muted-foreground/40">•</span>
-          </>
-        )}
-        <Link
-          to="/start"
-          className="mg-pill text-xs font-semibold text-primary hover:text-primary/80 transition-colors"
-          aria-label="Quick start sign up"
+      {/* Floating nav pill — collapses to exit button during DEMO */}
+      {scene === 'DEMO' ? (
+        <motion.button
+          onClick={handleBackToHallway}
+          className="fixed top-4 right-4 z-[60] p-2.5 rounded-full bg-black/40 backdrop-blur-xl border border-border/20 text-muted-foreground hover:text-foreground hover:bg-black/60 transition-colors"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.5 }}
+          aria-label="Exit demo"
         >
-          Quick Start
-        </Link>
-        <span className="text-muted-foreground/40">•</span>
-        <Link
-          to="/choose-path"
-          className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-          aria-label="Go to sign up"
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </motion.button>
+      ) : (
+        <motion.div
+          className="mg-panel fixed top-4 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-2 px-3 py-1.5"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: scene === 'HALLWAY' ? 2 : 0.3 }}
         >
-          Join Free
-        </Link>
-      </motion.div>
+          {scene !== 'HALLWAY' && (
+            <>
+              <button
+                type="button"
+                onClick={handleBackToHallway}
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Back to home"
+              >
+                Home
+              </button>
+              <span className="text-muted-foreground/40">•</span>
+            </>
+          )}
+          <Link
+            to="/start"
+            className="mg-pill text-xs font-semibold text-primary hover:text-primary/80 transition-colors"
+            aria-label="Quick start sign up"
+          >
+            Quick Start
+          </Link>
+          <span className="text-muted-foreground/40">•</span>
+          <Link
+            to="/how-it-works"
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Go to sign up"
+          >
+            Join Free
+          </Link>
+        </motion.div>
+      )}
 
       {scene === 'HALLWAY' && (
         <StudioHallway fullscreen onEnter={handleEnterDemo} />
