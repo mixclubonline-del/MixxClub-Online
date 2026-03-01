@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Card } from '@/components/ui/card';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -9,6 +9,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { Mail, Phone, MapPin, MessageSquare, Loader2 } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
 import { z } from 'zod';
+import Navigation from '@/components/Navigation';
+import { PublicFooter } from '@/components/layouts/PublicFooter';
+import { GlassPanel } from '@/components/crm/design/GlassPanel';
+import heroContact from '@/assets/hero-contact.jpg';
 
 const contactSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
@@ -16,6 +20,18 @@ const contactSchema = z.object({
   subject: z.string().trim().min(1, "Subject is required").max(200, "Subject must be less than 200 characters"),
   message: z.string().trim().min(1, "Message is required").max(2000, "Message must be less than 2000 characters"),
 });
+
+const sectionAnim = {
+  hidden: { opacity: 0, y: 40 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] as const } },
+};
+
+const contactInfo = [
+  { icon: Mail, title: 'Email', detail: 'support@mixxclubonline.com', accent: 'rgba(168,85,247,0.35)' },
+  { icon: Phone, title: 'Phone', detail: '1-800-MIXXCLUB', accent: 'rgba(6,182,212,0.35)' },
+  { icon: MapPin, title: 'Office', detail: 'Los Angeles, CA\nUnited States', accent: 'rgba(249,115,22,0.35)' },
+  { icon: MessageSquare, title: 'Live Chat', detail: 'Available Mon-Fri, 9am-6pm PST', accent: 'rgba(34,197,94,0.35)' },
+];
 
 export default function Contact() {
   const { toast } = useToast();
@@ -32,10 +48,8 @@ export default function Contact() {
     setLoading(true);
 
     try {
-      // Validate form data
       const validatedData = contactSchema.parse(formData);
 
-      // Submit via edge function (handles validation, rate limiting, email notification)
       const { data, error } = await supabase.functions.invoke('handle-contact-form', {
         body: {
           name: validatedData.name,
@@ -82,76 +96,72 @@ export default function Contact() {
         keywords="contact mixxclub, audio engineering support, mixing help, customer service"
       />
 
-      <div className="min-h-screen bg-gradient-to-b from-background to-accent/5 py-16">
-        <div className="container max-w-6xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <h1 className="text-5xl font-bold mb-4">Get In Touch</h1>
+      <div className="min-h-screen bg-background relative overflow-hidden">
+        <Navigation />
+
+        {/* Atmospheric background */}
+        <div className="fixed inset-0 z-0 pointer-events-none">
+          <img src={heroContact} alt="" className="w-full h-full object-cover opacity-15" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/85 to-background" />
+        </div>
+
+        {/* Ambient glow orbs */}
+        <div className="absolute top-32 -left-32 w-96 h-96 rounded-full bg-primary/15 blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-32 -right-32 w-96 h-96 rounded-full bg-secondary/15 blur-[120px] pointer-events-none" />
+
+        <div className="relative z-10 container max-w-6xl mx-auto px-4 py-16">
+          <motion.div
+            className="text-center mb-12"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-foreground via-primary to-secondary bg-clip-text text-transparent">
+              Get In Touch
+            </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Have a question? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
             </p>
-          </div>
+          </motion.div>
 
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Contact Info */}
-            <div className="space-y-6">
-              <Card className="p-6">
-                <div className="flex items-start gap-4">
-                  <div className="bg-primary/10 p-3 rounded-lg">
-                    <Mail className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-1">Email</h3>
-                    <p className="text-sm text-muted-foreground">support@mixxclubonline.com</p>
-                  </div>
-                </div>
-              </Card>
-
-              <Card className="p-6">
-                <div className="flex items-start gap-4">
-                  <div className="bg-primary/10 p-3 rounded-lg">
-                    <Phone className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-1">Phone</h3>
-                    <p className="text-sm text-muted-foreground">+1 (555) 123-4567</p>
-                  </div>
-                </div>
-              </Card>
-
-              <Card className="p-6">
-                <div className="flex items-start gap-4">
-                  <div className="bg-primary/10 p-3 rounded-lg">
-                    <MapPin className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-1">Office</h3>
-                    <p className="text-sm text-muted-foreground">
-                      1234 Audio Avenue, Suite 500<br />
-                      Los Angeles, CA 90028<br />
-                      United States
-                    </p>
-                  </div>
-                </div>
-              </Card>
-
-              <Card className="p-6">
-                <div className="flex items-start gap-4">
-                  <div className="bg-primary/10 p-3 rounded-lg">
-                    <MessageSquare className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-1">Live Chat</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Available Mon-Fri, 9am-6pm PST
-                    </p>
-                  </div>
-                </div>
-              </Card>
-            </div>
+            <motion.div
+              className="space-y-6"
+              variants={sectionAnim}
+              initial="hidden"
+              animate="visible"
+            >
+              {contactInfo.map((item, i) => (
+                <motion.div
+                  key={item.title}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 + i * 0.1, duration: 0.5 }}
+                >
+                  <GlassPanel hoverable accent={item.accent}>
+                    <div className="flex items-start gap-4">
+                      <div className="bg-primary/10 p-3 rounded-lg">
+                        <item.icon className="w-6 h-6 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold mb-1">{item.title}</h3>
+                        <p className="text-sm text-muted-foreground whitespace-pre-line">{item.detail}</p>
+                      </div>
+                    </div>
+                  </GlassPanel>
+                </motion.div>
+              ))}
+            </motion.div>
 
             {/* Contact Form */}
-            <div className="lg:col-span-2">
-              <Card className="p-8">
+            <motion.div
+              className="lg:col-span-2"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.7 }}
+            >
+              <GlassPanel glow accent="rgba(168,85,247,0.25)" padding="p-8">
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-2">
@@ -162,6 +172,7 @@ export default function Contact() {
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         placeholder="John Doe"
+                        className="bg-background/50"
                       />
                     </div>
 
@@ -174,6 +185,7 @@ export default function Contact() {
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         placeholder="john@example.com"
+                        className="bg-background/50"
                       />
                     </div>
                   </div>
@@ -186,6 +198,7 @@ export default function Contact() {
                       value={formData.subject}
                       onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                       placeholder="How can we help you?"
+                      className="bg-background/50"
                     />
                   </div>
 
@@ -198,6 +211,7 @@ export default function Contact() {
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                       placeholder="Tell us more about your project or question..."
                       rows={6}
+                      className="bg-background/50"
                     />
                   </div>
 
@@ -212,9 +226,13 @@ export default function Contact() {
                     )}
                   </Button>
                 </form>
-              </Card>
-            </div>
+              </GlassPanel>
+            </motion.div>
           </div>
+        </div>
+
+        <div className="relative z-10">
+          <PublicFooter />
         </div>
       </div>
     </>
