@@ -379,6 +379,8 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
         onBack={embedded ? onBack : undefined}
         hasEnded={hasEnded}
         onRestart={handleRestart}
+        phases={DEMO_PHASES.map(p => ({ id: p.id, title: p.title }))}
+        onSkipToPhase={skipToPhase}
       />
 
       {/* Main Content */}
