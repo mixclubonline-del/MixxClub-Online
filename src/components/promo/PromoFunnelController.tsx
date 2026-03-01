@@ -4,10 +4,11 @@ import type { PromoSceneId } from '@/hooks/usePromoAssets';
 import { HookScene } from './scenes/HookScene';
 import { AnswerScene } from './scenes/AnswerScene';
 import { ProofScene } from './scenes/ProofScene';
+import { TryItScene } from './scenes/TryItScene';
 import { CultureScene } from './scenes/CultureScene';
 import { SignupScene } from './scenes/SignupScene';
 
-const SCENES: PromoSceneId[] = ['hook', 'answer', 'proof', 'culture', 'cta'];
+const SCENES: PromoSceneId[] = ['hook', 'answer', 'proof', 'tryit', 'culture', 'cta'];
 const AUTO_MS = 8000;
 
 interface Props {
@@ -34,9 +35,10 @@ export function PromoFunnelController({ assets, isLoading, trackStep }: Props) {
     }
   }, [idx, trackStep]);
 
-  // Auto-advance (pause on last scene and when reduced motion)
+  // Auto-advance (pause on last scene, tryit scene, and when reduced motion)
   useEffect(() => {
     if (prefersReducedMotion.current || idx >= SCENES.length - 1) return;
+    if (SCENES[idx] === 'tryit') return; // pause for user interaction
     timerRef.current = setTimeout(() => go(idx + 1), AUTO_MS);
     return () => clearTimeout(timerRef.current);
   }, [idx, go]);
@@ -70,6 +72,7 @@ export function PromoFunnelController({ assets, isLoading, trackStep }: Props) {
     hook: <HookScene asset={assets.hook} />,
     answer: <AnswerScene asset={assets.answer} />,
     proof: <ProofScene asset={assets.proof} />,
+    tryit: <TryItScene asset={assets.tryit} trackStep={trackStep} onAdvance={() => go(idx + 1)} />,
     culture: <CultureScene asset={assets.culture} />,
     cta: <SignupScene asset={assets.cta} trackStep={trackStep} />,
   };

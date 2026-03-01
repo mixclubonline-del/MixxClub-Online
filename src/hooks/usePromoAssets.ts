@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-export type PromoSceneId = 'hook' | 'answer' | 'proof' | 'culture' | 'cta';
+export type PromoSceneId = 'hook' | 'answer' | 'proof' | 'tryit' | 'culture' | 'cta';
 
 interface PromoAsset {
   url: string | null;
@@ -12,6 +12,7 @@ const SCENE_CONTEXTS: Record<PromoSceneId, { primary: string; fallback: string }
   hook:    { primary: 'promo_hook',    fallback: 'demo_phase_problem' },
   answer:  { primary: 'promo_answer',  fallback: 'demo_phase_discovery' },
   proof:   { primary: 'promo_proof',   fallback: 'demo_phase_transformation' },
+  tryit:   { primary: 'promo_tryit',   fallback: 'demo_phase_transformation' },
   culture: { primary: 'promo_culture', fallback: 'demo_phase_tribe' },
   cta:     { primary: 'promo_cta',     fallback: 'demo_phase_invitation' },
 };
@@ -28,6 +29,7 @@ export function usePromoAssets() {
     hook: { url: null, isVideo: false },
     answer: { url: null, isVideo: false },
     proof: { url: null, isVideo: false },
+    tryit: { url: null, isVideo: false },
     culture: { url: null, isVideo: false },
     cta: { url: null, isVideo: false },
   });

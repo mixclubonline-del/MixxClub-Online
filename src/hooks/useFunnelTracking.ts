@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { analytics } from '@/hooks/useAnalytics';
 
 type FunnelSource = 'quick_start' | 'immersive' | 'promo';
-type FunnelStep = 'landed' | 'role_selected' | 'auth_started' | 'auth_completed' | 'action_selected' | 'scene_2' | 'scene_3' | 'scene_4' | 'signup_started' | 'signup_completed';
+type FunnelStep = 'landed' | 'role_selected' | 'auth_started' | 'auth_completed' | 'action_selected' | 'scene_2' | 'scene_3' | 'scene_4' | 'scene_tryit' | 'signup_started' | 'signup_completed' | 'demo_mastering_started' | 'demo_mastering_completed';
 
 function getSessionId(): string {
   const KEY = 'funnel_session_id';
