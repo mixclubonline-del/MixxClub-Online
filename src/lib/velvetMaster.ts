@@ -36,19 +36,11 @@ export async function velvetMaster(
   // VelvetCurveProcessor accepts any BaseAudioContext (AudioContext | OfflineAudioContext)
   const velvet = new VelvetCurveProcessor(offlineCtx as unknown as AudioContext);
   velvet.applyGenrePreset(genre);
+  velvet.stopBreathing(); // Ensure breathing modulation is OFF for offline render
 
-  // ── Safety Limiter (-1 dBFS ceiling, music-safe settings) ──
-  const limiter = offlineCtx.createDynamicsCompressor();
-  limiter.threshold.value = -1;
-  limiter.knee.value = 6;       // Soft knee prevents transient clicks
-  limiter.ratio.value = 20;
-  limiter.attack.value = 0.01;  // 10ms attack — fast enough to limit, slow enough to avoid clicks
-  limiter.release.value = 0.15;
-
-  // ── Wire the chain ──
+  // ── Wire the chain (no external limiter — internal power compressor handles dynamics) ──
   source.connect(velvet.getInputNode());
-  velvet.getOutputNode().connect(limiter);
-  limiter.connect(offlineCtx.destination);
+  velvet.getOutputNode().connect(offlineCtx.destination);
 
   // ── Render ──
   source.start(0);
