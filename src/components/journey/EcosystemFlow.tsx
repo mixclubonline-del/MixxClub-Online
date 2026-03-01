@@ -1,12 +1,12 @@
 import { motion } from "framer-motion";
-import { Music, Headphones, Disc3, Heart } from "lucide-react";
+import { getCharacter, type CharacterId } from "@/config/characters";
 
 const nodes = [
-  { id: "producer", label: "Producer", icon: Disc3, color: "hsl(45 90% 50%)", angle: -90 },
-  { id: "artist", label: "Artist", icon: Music, color: "hsl(262 83% 58%)", angle: 0 },
-  { id: "engineer", label: "Engineer", icon: Headphones, color: "hsl(180 100% 50%)", angle: 90 },
-  { id: "fan", label: "Fan", icon: Heart, color: "hsl(330 80% 60%)", angle: 180 },
-] as const;
+  { id: "producer", label: "Rell", sublabel: "Producer", characterId: "rell" as CharacterId, angle: -90 },
+  { id: "artist", label: "Jax", sublabel: "Artist", characterId: "jax" as CharacterId, angle: 0 },
+  { id: "engineer", label: "Prime", sublabel: "Engineer", characterId: "prime" as CharacterId, angle: 90 },
+  { id: "fan", label: "Nova", sublabel: "Fan", characterId: "nova" as CharacterId, angle: 180 },
+];
 
 const connections = [
   { from: "producer", to: "artist", label: "Beats", fromAngle: -90, toAngle: 0 },
@@ -16,6 +16,7 @@ const connections = [
 ];
 
 const RADIUS = 140;
+const NODE_SIZE = 64; // px size of each avatar node
 
 function polarToXY(angleDeg: number) {
   const rad = (angleDeg * Math.PI) / 180;
@@ -40,27 +41,33 @@ const EcosystemFlow = () => {
           </p>
         </motion.div>
 
-        {/* Diagram */}
+        {/* Diagram — single SVG coordinate space for perfect alignment */}
         <div className="relative w-full max-w-lg mx-auto aspect-square flex items-center justify-center">
-          {/* Central hub */}
-          <motion.div
-            className="absolute w-20 h-20 rounded-full bg-gradient-to-br from-primary/30 to-[hsl(180_100%_50%)]/30 border border-border/50 backdrop-blur-md flex items-center justify-center z-10"
-            initial={{ scale: 0 }}
-            whileInView={{ scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ type: "spring", duration: 0.8 }}
+          <svg
+            className="absolute inset-0 w-full h-full overflow-visible"
+            viewBox="-200 -200 400 400"
           >
-            <span className="text-xs font-black text-foreground tracking-wider">MIXX</span>
-          </motion.div>
+            {/* Central hub */}
+            <foreignObject x={-40} y={-40} width={80} height={80} className="overflow-visible">
+              <motion.div
+                className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/30 to-[hsl(180_100%_50%)]/30 border border-border/50 backdrop-blur-md flex items-center justify-center"
+                initial={{ scale: 0 }}
+                whileInView={{ scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ type: "spring", duration: 0.8 }}
+              >
+                <span className="text-xs font-black text-foreground tracking-wider">MIXX</span>
+              </motion.div>
+            </foreignObject>
 
-          {/* Connection lines with animated particles */}
-          <svg className="absolute inset-0 w-full h-full" viewBox="-200 -200 400 400">
+            {/* Connection lines with animated particles */}
             {connections.map((conn, i) => {
               const from = polarToXY(conn.fromAngle);
               const to = polarToXY(conn.toAngle);
               const mid = { x: (from.x + to.x) * 0.3, y: (from.y + to.y) * 0.3 };
               const pathD = `M ${from.x} ${from.y} Q ${mid.x} ${mid.y} ${to.x} ${to.y}`;
               const fromNode = nodes.find((n) => n.id === conn.from);
+              const fromChar = fromNode ? getCharacter(fromNode.characterId) : null;
 
               return (
                 <g key={conn.label}>
@@ -79,7 +86,7 @@ const EcosystemFlow = () => {
                   {/* Animated particle */}
                   <motion.circle
                     r="3"
-                    fill={fromNode?.color ?? "#fff"}
+                    fill={fromChar?.accentColor ?? "#fff"}
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}
                     viewport={{ once: true }}
@@ -108,40 +115,55 @@ const EcosystemFlow = () => {
                 </g>
               );
             })}
-          </svg>
 
-          {/* Role nodes */}
-          {nodes.map((node, i) => {
-            const pos = polarToXY(node.angle);
-            const Icon = node.icon;
-            // Convert SVG coords (-200..200 viewBox) to percentage for absolute positioning
-            const leftPct = ((pos.x + 200) / 400) * 100;
-            const topPct = ((pos.y + 200) / 400) * 100;
+            {/* Role nodes — inside SVG as foreignObject for perfect alignment */}
+            {nodes.map((node, i) => {
+              const pos = polarToXY(node.angle);
+              const character = getCharacter(node.characterId);
+              const halfSize = NODE_SIZE / 2;
 
-            return (
-              <motion.div
-                key={node.id}
-                className="absolute flex flex-col items-center gap-1.5 -translate-x-1/2 -translate-y-1/2 z-10"
-                style={{ left: `${leftPct}%`, top: `${topPct}%` }}
-                initial={{ scale: 0, opacity: 0 }}
-                whileInView={{ scale: 1, opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ type: "spring", delay: 0.3 + i * 0.12 }}
-              >
-                <div
-                  className="w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center border-2"
-                  style={{
-                    backgroundColor: `${node.color}20`,
-                    borderColor: node.color,
-                    boxShadow: `0 0 24px ${node.color}40`,
-                  }}
+              return (
+                <foreignObject
+                  key={node.id}
+                  x={pos.x - halfSize - 8}
+                  y={pos.y - halfSize - 10}
+                  width={NODE_SIZE + 16}
+                  height={NODE_SIZE + 36}
+                  className="overflow-visible"
                 >
-                  <Icon className="w-6 h-6 md:w-7 md:h-7" style={{ color: node.color }} />
-                </div>
-                <span className="text-xs font-bold text-foreground">{node.label}</span>
-              </motion.div>
-            );
-          })}
+                  <motion.div
+                    className="flex flex-col items-center gap-1"
+                    initial={{ scale: 0, opacity: 0 }}
+                    whileInView={{ scale: 1, opacity: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ type: "spring", delay: 0.3 + i * 0.12 }}
+                  >
+                    {/* Avatar circle */}
+                    <div
+                      className="rounded-full overflow-hidden border-2 flex-shrink-0"
+                      style={{
+                        width: NODE_SIZE,
+                        height: NODE_SIZE,
+                        borderColor: character.accentColor,
+                        boxShadow: `0 0 24px ${character.accentColor.replace(')', ' / 0.4)')}`,
+                      }}
+                    >
+                      <img
+                        src={character.avatarPath}
+                        alt={character.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    {/* Character name + role sublabel */}
+                    <div className="text-center leading-tight">
+                      <span className="text-xs font-bold text-foreground block">{node.label}</span>
+                      <span className="text-[10px] text-muted-foreground block">{node.sublabel}</span>
+                    </div>
+                  </motion.div>
+                </foreignObject>
+              );
+            })}
+          </svg>
         </div>
       </div>
     </section>
