@@ -1,132 +1,73 @@
 
 
-# Demo Experience Controls Overhaul + Polish Pass
+# Mini Phase-Picker (Swipe-Up Drawer on Transport Bar)
 
-## Problems Identified
+## Overview
 
-### 1. Controls Hidden by Navigation (Critical)
-The SceneFlow floating nav pill ("Home / Quick Start / Join Free") sits at `z-[60]` top-center and persists during the DEMO scene. The demo's own header also renders at `z-[60]` top-left/right. On desktop they visually collide. On mobile, the demo controls (play/pause, volume, skip, auto-sync, lite mode) are either `hidden sm:block` or fully obscured by the nav pill.
+Add an expandable phase-picker drawer that reveals all 10 phase thumbnails when the user swipes up on the transport bar (or taps a chevron handle). Each thumbnail shows the phase number, title, and active/completed state. Tapping a phase jumps directly to it.
 
-**Result**: On mobile, users have ZERO control over the demo once it starts -- no pause, no skip, no volume. On desktop, the nav pill overlaps the demo branding area.
-
-### 2. Stale `/choose-path` Links (Bug)
-Two locations still navigate to `/choose-path` instead of `/how-it-works`:
-- SceneFlow nav pill "Join Free" link (line 163)
-- InsiderDemoExperience invitation phase "Join Now" button (line 764)
-
-### 3. Phase Navigation Hard to Use
-The phase dots are small, unlabeled circles. On mobile they sit at `bottom-36` competing with the audio visualizer. No phase title is visible -- users don't know which chapter they're in.
-
-### 4. No Replay / Restart Capability
-Once the audio ends, there's no way to replay the experience without refreshing the page.
-
----
-
-## Solution: Bottom Control Bar ("Transport Bar")
-
-Replace the scattered top-right header controls with a unified **bottom transport bar** -- a single glassmorphic strip pinned to the bottom of the screen, above the audio visualizer. This follows the universal media player pattern (Spotify, YouTube, etc.) and keeps the top area clear for content.
-
-### Transport Bar Design
+## Design
 
 ```text
-+------------------------------------------------------+
-|  [<] [||] [>]  |  Phase 3/10: THE CONNECTION  |  Vol  |
-|  prev pause next    phase label + mini progress   mute |
-+------------------------------------------------------+
+  Collapsed (default):
+  +------------------------------------------------------+
+  |  [<] [||] [>]  |  3/10: THE CONNECTION  |  Vol  Gear  |
+  +------------------------------------------------------+
+
+  Expanded (swipe up / tap handle):
+  +------------------------------------------------------+
+  |  1       2       3       4       5                    |
+  |  PROBLEM DISCOV  CONNEC  TRANS   STUDIO              |
+  |  [done]  [done]  [now]   [ ]     [ ]                 |
+  |                                                       |
+  |  6       7       8       9       10                   |
+  |  MARKET  STAGE   BAG     NETWORK INVITE              |
+  |  [ ]     [ ]     [ ]     [ ]     [ ]                 |
+  +------------------------------------------------------+
+  |  [<] [||] [>]  |  3/10: THE CONNECTION  |  Vol  Gear  |
+  +------------------------------------------------------+
 ```
 
-- **Position**: Fixed bottom, `bottom-32` (above the 32-unit audio visualizer), full width with max-w and horizontal padding
-- **Style**: `bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl` -- consistent with Pathfinder and other glassmorphic elements
-- **Z-index**: `z-30` -- above content (z-10) but below the full-screen overlays
-- **Contents**:
-  - **Left cluster**: Previous phase, Play/Pause, Next phase (icon buttons)
-  - **Center**: Current phase title + step counter ("3 of 10") + thin progress bar showing phase-level progress
-  - **Right**: Volume toggle (mute/unmute), Auto-sync indicator dot, Settings gear (opens a popover with Lite Mode toggle and volume slider)
-- **Mobile**: Same layout but slightly more compact. All controls visible -- no `hidden sm:` classes. The phase title truncates. The settings gear replaces inline volume/lite toggles.
-- **Auto-hide**: The bar fades to 70% opacity after 4 seconds of no interaction, returns to full on touch/hover. Optional: fully hides after 8s, tap anywhere to reveal.
-- **Swipe hint**: On mobile, a subtle up-swipe on the bar could expand a mini phase-picker (stretch goal, not in this pass).
+- The picker renders as a grid (5 columns, 2 rows) above the existing transport controls
+- Each cell: phase number, truncated title, colored state indicator (completed = emerald, current = primary pulse, future = muted)
+- A small drag handle / chevron-up icon sits centered above the transport bar as the swipe affordance
+- Tapping any phase fires `onSkipToPhase(index)` and collapses the picker
 
-### SceneFlow Nav Pill Changes
+## Implementation
 
-During the DEMO scene, the floating nav pill should either:
-- **Option A (recommended)**: Collapse to a single minimal "Exit" button (just a small X or door icon at top-right) that returns to the Hallway. Removes visual clutter entirely.
-- **Option B**: Hide completely during DEMO (the transport bar's back button serves the same purpose).
+### Modify: `src/components/demo/DemoTransportBar.tsx`
 
-Going with **Option A**: During DEMO, the nav pill renders as a small translucent exit button at top-right instead of the full "Home / Quick Start / Join Free" strip.
+**New prop**: `phases: Array<{ id: string; title: string }>` and `onSkipToPhase: (index: number) => void` (already in the interface but unused -- will wire it up).
 
-### Demo Header Removal
+**Add state**: `pickerOpen: boolean` (default false).
 
-The existing `<header>` block in InsiderDemoExperience (lines 342-396) is completely replaced by the new transport bar. The MIXXCLUB branding (logo + badge) in the header is removed during active playback -- the content itself carries the brand. The back button is absorbed into the transport bar.
+**Swipe detection**: Attach `onPanEnd` from framer-motion to the outer container. If `deltaY < -40` (upward swipe), open the picker. If `deltaY > 40` (downward swipe), close it. Also add a tap-toggle via a small chevron handle.
 
----
+**Picker panel**: Renders as an `AnimatePresence` block above the control strip. Uses `motion.div` with `initial={{ height: 0, opacity: 0 }}` / `animate={{ height: 'auto', opacity: 1 }}`. Contains a CSS grid (`grid-cols-5`) of phase cells.
 
-## File Changes
+**Phase cell**: Each cell is a button with:
+- Phase number badge (small circle)
+- Truncated title (max 8 chars)
+- State ring: green border if completed (`index < currentPhase`), pulsing primary if active (`index === currentPhase`), dim border if future
+- `onClick={() => { onSkipToPhase(index); setPickerOpen(false); }}`
+
+**Drag handle**: A `ChevronUp` icon (rotates 180deg when open) centered above the bar, acts as both visual affordance and tap target.
+
+**Auto-close**: Picker collapses after a phase is selected or after 6 seconds of inactivity.
 
 ### Modify: `src/components/demo/InsiderDemoExperience.tsx`
 
-**Remove**: The entire `<header>` block (lines 342-396) -- all controls move to the new transport bar component.
+**Pass new props** to `DemoTransportBar`:
+- `phases={DEMO_PHASES.map(p => ({ id: p.id, title: p.title }))}`
+- `onSkipToPhase` is already defined -- ensure it's wired through
 
-**Remove**: The phase navigation dots block (lines 399-418) -- phase navigation moves into the transport bar.
-
-**Add**: Import and render `<DemoTransportBar>` as a fixed-bottom element inside the main demo container, passing all the control state (isPlaying, volume, currentPhase, phases, callbacks).
-
-**Fix**: Line 764 -- change `navigate('/choose-path')` to `navigate('/how-it-works')`.
-
-**Adjust**: Main content padding -- change `pb-36 sm:pb-40` to `pb-48` to make room for the transport bar above the visualizer.
-
-### Create: `src/components/demo/DemoTransportBar.tsx`
-
-The new unified control bar component. Props:
-- `isPlaying`, `onToggle` -- play/pause
-- `currentPhase`, `totalPhases`, `phaseTitle` -- phase info
-- `phaseProgress` -- 0-100 within current phase
-- `onPrevPhase`, `onNextPhase`, `onSkipToPhase` -- navigation
-- `volume`, `onVolumeChange`, `onMuteToggle`, `isMuted` -- audio
-- `isAutoPlay`, `onAutoPlayToggle` -- sync state
-- `liteMode`, `onLiteModeToggle` -- performance
-- `onBack` -- exit demo
-
-Structure:
-- Outer: `fixed bottom-36 left-4 right-4 z-30` with glassmorphic styling
-- Three sections (flex row): transport controls | phase info | settings
-- Settings popover: Radix Popover with volume slider + lite mode toggle
-- Auto-fade: Uses a local `useEffect` timer that sets opacity to 0.7 after 4s of no pointer activity
-
-### Modify: `src/components/home/SceneFlow.tsx`
-
-**Line 136-169 (nav pill)**: Wrap in a conditional:
-- When `scene === 'DEMO'`: Render a compact exit button only (small glassmorphic circle, top-right, with a door/X icon)
-- Otherwise: Render the current nav pill as-is
-
-**Line 163**: Change `to="/choose-path"` to `to="/how-it-works"` and update the label from "Join Free" to "Join Free" (keep label, fix route).
-
-### Adjust: Audio visualizer positioning
-
-The existing visualizer at `bottom-0 h-32` stays. The transport bar sits at `bottom-36` (above the visualizer's gradient region). This creates a clean layered stack: content > transport bar > visualizer gradient.
-
----
-
-## Summary of UX Improvements
-
-| Before | After |
-|--------|-------|
-| Controls hidden behind nav on mobile | All controls in visible bottom bar |
-| No pause/skip on mobile | Play/Pause/Prev/Next always accessible |
-| No phase label visible | "Phase 3 of 10: THE CONNECTION" visible |
-| Phase dots hard to find/use | Phase info integrated into transport bar |
-| Scattered controls across header | Single unified transport strip |
-| Nav pill clashes with demo header | Nav collapses to small exit button during demo |
-| Two stale `/choose-path` links | Both fixed to `/how-it-works` |
-| No replay capability | Back-to-start via prev phase or replay button on final phase |
-| No auto-hide for immersion | Bar fades after 4s inactivity |
-
----
+No other files need changes.
 
 ## Technical Notes
 
-- The transport bar uses the same glassmorphic vocabulary as PathfinderBeacon and QuickStart cards for visual consistency.
-- `z-30` for the transport bar avoids conflicts with the phase progress bar (z-50), dialogs (z-50), and nav elements (z-60).
-- The auto-fade timer resets on `onPointerMove` and `onPointerDown` events within the bar container.
-- Volume state and phase state are passed down from InsiderDemoExperience -- no new global state needed.
-- The Settings popover uses the existing Radix Popover component from the UI library.
+- Swipe gesture uses framer-motion's `onPan` / `onPanEnd` handlers (already imported) rather than adding a new touch library
+- The picker grid uses `grid-cols-5` for a clean 2-row layout of 10 phases
+- Z-index stays at `z-30` -- the picker expands upward within the same container, no new layer needed
+- On desktop, the chevron handle serves as hover/click toggle since swipe isn't natural with a mouse
+- The auto-fade timer pauses while the picker is open to prevent the bar from fading mid-interaction
 
