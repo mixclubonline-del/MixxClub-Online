@@ -118,9 +118,9 @@ function VerticalSceneFlow() {
 
   const handleJoinNow = useCallback(() => {
     trackEvent('funnel_cta_click', 'funnel', 'demo_join_now');
-    trackEvent('funnel_conversion_complete', 'funnel', 'choose_path');
+    trackEvent('funnel_conversion_complete', 'funnel', 'how_it_works');
     go('HALLWAY');
-    setTimeout(() => navigate('/choose-path'), dissolveMs);
+    setTimeout(() => navigate('/how-it-works'), dissolveMs);
   }, [go, navigate, dissolveMs]);
 
   return (
