@@ -1,6 +1,9 @@
 import React from "react";
 import { Route, Navigate } from "react-router-dom";
 
+// Lazy-loaded QuickStart
+const QuickStart = React.lazy(() => import("@/pages/QuickStart"));
+
 // Public/Marketing pages - static imports for critical routes
 import Auth from "@/pages/Auth";
 import AuthCallback from "@/pages/AuthCallback";
@@ -37,6 +40,7 @@ export const publicRoutes = (
     <Route path={ROUTES.AUTH_CALLBACK} element={<AuthCallback />} />
     <Route path="/demo-login" element={<DemoLogin />} />
     <Route path="/insider-demo" element={<InsiderDemo />} />
+    <Route path="/start" element={<React.Suspense fallback={<div className="min-h-screen bg-background" />}><QuickStart /></React.Suspense>} />
     <Route path="/install" element={<Install />} />
     
     <Route path={ROUTES.HOW_IT_WORKS} element={<HowItWorks />} />

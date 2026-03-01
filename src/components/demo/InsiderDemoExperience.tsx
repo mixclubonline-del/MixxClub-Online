@@ -136,9 +136,17 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
   const navigate = useNavigate();
   const prefersReducedMotion = useReducedMotion();
 
-  const { isLoading, isPlaying, analysis, play, pause, toggle, setVolume, seek } = useInsiderAudio();
+  const { isLoading, isPlaying, hasEnded, analysis, play, pause, toggle, setVolume, seek } = useInsiderAudio();
   const { amplitude, bass, mid, high, beats } = analysis;
   const { activities } = useCommunityShowcase(6);
+
+  // When audio ends, jump to the final invitation phase and stop auto-play
+  useEffect(() => {
+    if (hasEnded && isAutoPlay) {
+      setCurrentPhase(DEMO_PHASES.length - 1);
+      setIsAutoPlay(false);
+    }
+  }, [hasEnded, isAutoPlay]);
 
   // Music-synced phase progression
   const { currentPhaseIndex, phaseProgress, syncEnabled, setSyncEnabled } = usePhaseSync({
@@ -321,7 +329,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
       <ParticleStorm amplitude={amplitude} bass={bass} isPlaying={motionEnabled && isPlaying} particleCount={particleCount} />
 
       {/* Bottom AudioVisualizer — solid bg prevents sub-layer bleed-through */}
-      <div className="fixed bottom-0 left-0 right-0 h-32 z-20 pointer-events-none bg-gradient-to-t from-background via-background/80 to-transparent">
+      <div className="fixed bottom-0 left-0 right-0 h-32 z-10 pointer-events-none bg-gradient-to-t from-background via-background/80 to-transparent">
         <AudioVisualizer beats={beats} amplitude={amplitude} bass={bass} variant="bars" className="h-full opacity-70" />
       </div>
 
@@ -330,8 +338,8 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
         <Progress value={phaseProgress} className="h-1 rounded-none bg-background/50" />
       </div>
 
-      {/* Header */}
-      <header className="fixed top-2 left-0 right-0 z-40 px-3 sm:px-6 py-2 sm:py-4">
+      {/* Header — elevated z-index above all overlays */}
+      <header className="fixed top-2 left-0 right-0 z-[60] px-3 sm:px-6 py-2 sm:py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-4">
             {embedded && onBack && (
