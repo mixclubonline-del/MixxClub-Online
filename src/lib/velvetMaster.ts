@@ -49,6 +49,9 @@ export async function velvetMaster(
   // ── Loudness normalization (target -14 LUFS ≈ -14 dBFS RMS for short-term) ──
   normalizeLoudness(mastered, -14);
 
+  // ── Anti-click fade-in/out (10 ms cosine ramp at head & tail) ──
+  applyEdgeFades(mastered, 0.01);
+
   // Cleanup processor nodes
   velvet.destroy();
 
@@ -91,6 +94,28 @@ function normalizeLoudness(buffer: AudioBuffer, targetLUFS: number): void {
       if (data[i] > 0.95 || data[i] < -0.95) {
         data[i] = Math.tanh(data[i]);
       }
+    }
+  }
+}
+
+/**
+ * Apply short cosine fade-in and fade-out to prevent click/pop artifacts
+ * at audio boundaries.
+ */
+function applyEdgeFades(buffer: AudioBuffer, fadeDuration: number): void {
+  const fadeSamples = Math.min(
+    Math.floor(fadeDuration * buffer.sampleRate),
+    Math.floor(buffer.length / 2)
+  );
+  if (fadeSamples < 2) return;
+
+  for (let ch = 0; ch < buffer.numberOfChannels; ch++) {
+    const data = buffer.getChannelData(ch);
+    for (let i = 0; i < fadeSamples; i++) {
+      // Cosine fade: 0 → 1 (smoother than linear)
+      const gain = 0.5 * (1 - Math.cos(Math.PI * i / fadeSamples));
+      data[i] *= gain;
+      data[data.length - 1 - i] *= gain;
     }
   }
 }
