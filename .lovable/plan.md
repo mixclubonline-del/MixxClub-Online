@@ -1,44 +1,36 @@
 
+# Fix Navigation Dropdown Links Redirecting to Auth
 
-# Replace Ecosystem Flow Icons with Character Avatars & Fix Animation Alignment
+## The Problem
 
-## What Changes
+When an unauthenticated user clicks links in the **Studio** or **Community** dropdown menus from the Navigation bar (visible on `/how-it-works` and other public pages), they get redirected to `/auth?redirect=...` instead of reaching the actual page. This is because the service and community routes are **only** defined inside `appRoutes.tsx`, which wraps everything in `ProtectedAppLayout` (requires login).
 
-### 1. Replace Lucide Icons with Character Avatars
+**Affected links:**
+- Studio dropdown: `/services/mixing`, `/services/mastering`, `/services/ai-mastering`, `/services/distribution`, `/showcase`
+- Community dropdown: `/community`, `/community?tab=arena`, `/community?tab=leaderboard`, `/marketplace`
 
-Swap the generic icon circles for each role's canonical character portrait:
+## The Fix
 
-| Role | Current Icon | New Avatar | Character |
-|------|-------------|------------|-----------|
-| Producer | Disc3 (generic) | `/assets/characters/rell-portrait.png` | Rell |
-| Artist | Music (generic) | `/assets/characters/jax-portrait.png` | Jax |
-| Engineer | Headphones (generic) | `/assets/prime-pointing.jpg` | Prime |
-| Fan | Heart (generic) | `/assets/characters/nova-portrait.png` | Nova |
+Move these showcase/marketing routes out of the protected `appRoutes` and into `publicRoutes.tsx` so they're accessible to everyone. The authenticated versions in `appRoutes` (which add the sidebar/header layout) remain for logged-in users.
 
-Each node circle will render a cropped character portrait (`object-cover` in a `rounded-full` container) instead of a Lucide SVG icon, using the character's canonical `accentColor` for the border and glow.
+### File: `src/routes/publicRoutes.tsx`
 
-### 2. Fix Animation Alignment
+Add these public route entries (imports + `<Route>` elements):
 
-The current architecture renders SVG paths in an `<svg viewBox="-200 -200 400 400">` but places role nodes as absolutely-positioned `<div>` elements using percentage math. This creates subtle coordinate drift between the animated particle endpoints and the node positions.
+- `/services` (Services index)
+- `/services/mixing` (MixingShowcase)
+- `/services/mastering` (MasteringShowcase)
+- `/services/ai-mastering` (AIMastering)
+- `/services/distribution` (DistributionHub)
+- `/showcase` (Showcase)
+- `/marketplace` (BeatMarketplace)
 
-**Fix**: Move everything into the same SVG coordinate space. Render the role nodes (now with character avatars) as SVG `<foreignObject>` elements at the exact polar coordinates, eliminating the dual-coordinate-system mismatch. This ensures animated particles travel directly to/from the avatar circles.
+**Note:** `/community` is already in `publicRoutes.tsx` (line 60), so that one is fine. The issue there is that React Router matches the `appRoutes` version first (inside `ProtectedAppLayout`) before the public one. Since both route sets are rendered as siblings inside `<Routes>`, the first match wins -- and `appRoutes` appears after `publicRoutes` in `App.tsx` (line 91-92), so `publicRoutes` should win. But the community dropdown links with query params like `?tab=arena` may still resolve to the protected version if there's a path conflict.
 
-### 3. Technical Details
+### Execution
 
-**File**: `src/components/journey/EcosystemFlow.tsx`
+1. Import `MixingShowcase`, `MasteringShowcase`, `AIMastering`, `DistributionHub`, `Services`, `BeatMarketplace`, and `Showcase` into `publicRoutes.tsx`
+2. Add `<Route>` entries for each path listed above
+3. Keep the same routes in `appRoutes.tsx` as-is (logged-in users get the app layout wrapper; since `publicRoutes` is rendered first in `App.tsx`, unauthenticated users hit the public version)
 
-- Import `getCharacter` and `CharacterId` from `@/config/characters`
-- Update the `nodes` array to include `characterId` instead of `icon`:
-  ```
-  { id: "producer", label: "Rell", sublabel: "Producer", characterId: "rell", ... }
-  { id: "artist", label: "Jax", sublabel: "Artist", characterId: "jax", ... }
-  { id: "engineer", label: "Prime", sublabel: "Engineer", characterId: "prime", ... }
-  { id: "fan", label: "Nova", sublabel: "Fan", characterId: "nova", ... }
-  ```
-- Replace the role node `<div>` elements with `<foreignObject>` inside the same SVG, positioned at exact polar coordinates
-- Each avatar renders as a `<img>` inside a styled circle container with the character's accent color border and glow
-- Display the character name as the primary label and the role as a smaller sublabel beneath
-- Remove Lucide icon imports (Music, Headphones, Disc3, Heart) since they are no longer used
-
-**No new dependencies.** Uses existing character config and avatar assets already in the project.
-
+This is a single-file edit to `src/routes/publicRoutes.tsx` -- roughly 10 new lines of imports and 7 new `<Route>` elements.
