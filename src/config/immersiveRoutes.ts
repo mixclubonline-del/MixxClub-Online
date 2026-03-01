@@ -8,7 +8,7 @@ export const FULL_IMMERSIVE_ROUTES = [
   '/auth',
   '/onboarding',
   '/city/gates',
-  '/choose-path',
+  '/how-it-works',
   '/select-role',
   '/start',
   '/go',
