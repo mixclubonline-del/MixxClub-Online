@@ -1,81 +1,62 @@
 
-# Fix: Eliminate BPM-Synced Click from Velvet Curve Mastering
 
-## Root Cause
+# Add Visual Waveform Comparison to Mastering Results
 
-The `VelvetCurveProcessor` class has two problematic defaults that affect the offline mastering path:
+## What Changes
 
-1. **`isBreathingEnabled` defaults to `true`** (line 35 of VelvetCurveProcessor.ts). While the `requestAnimationFrame` modulation loop does not run inside an `OfflineAudioContext`, the `destroy()` call at the end of mastering triggers `stopBreathing()`, which ramps filter gains via `linearRampToValueAtTime` -- potentially injecting a discontinuity at the tail of the rendered buffer.
+The results phase of TryItScene currently shows LUFS numbers and browser-native audio players. This adds a **side-by-side (stacked) waveform visualization** that lets users visually see the difference Velvet Curve makes -- tighter dynamics, louder peaks, fuller body.
 
-2. **Double-compression pumping**: The VelvetCurveProcessor's internal power compressor (threshold -18dB, ratio 3:1, 10ms attack) plus the safety limiter in `velvetMaster.ts` (threshold -1dB, ratio 20:1, 10ms attack) creates aggressive double-compression. On rhythmic content (trap, drill, etc.), every kick/snare pushes both compressors into gain reduction simultaneously. The fast 10ms attack on both creates a brief but audible transient artifact on every beat -- the "metronome click."
+## Approach
 
-## The Fix
+### New Component: `src/components/promo/WaveformComparison.tsx` (~70 lines)
 
-### File 1: `src/lib/velvetMaster.ts`
+A lightweight canvas-based before/after waveform renderer purpose-built for the promo funnel. It:
 
-**Explicitly disable breathing before rendering** and remove the double-limiter by relying only on the normalization stage for loudness control:
-
-- Call `velvet.stopBreathing()` immediately after construction, before rendering begins. This sets `isBreathingEnabled = false` and ensures `destroy()` later does not inject ramp artifacts.
-- Remove the `DynamicsCompressorNode` safety limiter entirely. The VelvetCurveProcessor already has its own internal power compressor for dynamics control. Adding a second compressor on top is what creates the rhythmic click. The `normalizeLoudness` function with soft saturation (`Math.tanh`) at the end already prevents overs -- no additional limiter needed.
-
-Changes:
-- After `velvet.applyGenrePreset(genre)`, add `velvet.stopBreathing()`
-- Remove the `DynamicsCompressorNode` limiter creation (lines 40-46)
-- Wire the chain directly: `source -> velvet -> destination` (remove limiter from chain)
-- Keep the `normalizeLoudness` post-processing as-is (it already handles loudness + soft saturation safety)
-
-### File 2: `src/audio/effects/VelvetCurveProcessor.ts`
-
-**Change the default `isBreathingEnabled` from `true` to `false`**. Breathing modulation should be opt-in (via `startBreathing()`), not opt-in to disable. This is a defensive fix that prevents any future code paths from accidentally having breathing active.
-
-Change line 35:
-```
-private isBreathingEnabled: boolean = true;
-```
-to:
-```
-private isBreathingEnabled: boolean = false;
-```
-
-This does not affect the DAW/studio path because `useVelvetCurve.ts` already manages breathing explicitly via `toggleBreathing()` which calls `startBreathing()` when needed.
-
-## Why This Works
-
-- **No more double-compression**: Removing the external limiter eliminates the dual-attack transient artifact. The VelvetCurveProcessor's internal compressor (knee: 20, ratio: 3:1) is gentle enough for music dynamics without producing clicks.
-- **No breathing artifacts**: Explicitly disabling breathing before render prevents any ramp-related discontinuities during destroy.
-- **Loudness safety preserved**: The `normalizeLoudness` function with `Math.tanh` soft saturation at 0.95 prevents any overs without the hard-knee click of a DynamicsCompressorNode.
-
-## Signal Chain After Fix
+- Accepts two `AudioBuffer` objects (original and mastered)
+- Renders them as mirrored bar waveforms on two stacked canvases (or one split canvas)
+- Uses the MixxClub gradient palette (pink/lavender/cyan) for the mastered waveform, and muted white/gray for the original
+- Downsamples to ~200 bars for clean visual at mobile widths
+- Animates in with a left-to-right reveal using framer-motion
+- Labels: "Before" (top) and "After - Velvet Curve" (bottom)
 
 ```text
-Input AudioBuffer
-    |
-    v
-OfflineAudioContext
-    |
-    v
-VelvetCurveProcessor (genre-aware, breathing OFF)
-  - Warmth (320Hz peaking)
-  - Silk Edge (8kHz shelf)
-  - Emotion (1kHz peaking)
-  - Power Compressor (gentle: -18dB, knee 20, ratio 3:1)
-  - Harmonic Enhancer (HP @ 30Hz)
-    |
-    v
-destination (no external limiter)
-    |
-    v
-normalizeLoudness() -- gain + tanh soft saturation
-    |
-    v
-Mastered AudioBuffer
++----------------------------------+
+|  Before                          |
+|  ||||| |||| ||| || ||| ||||      |  (white/gray bars)
+|  ||||| |||| ||| || ||| ||||      |
++----------------------------------+
+|  After - Velvet Curve            |
+|  ||||||||||||||||||||||||||||     |  (pink-to-cyan gradient bars)
+|  ||||||||||||||||||||||||||||     |
++----------------------------------+
 ```
+
+The visual difference is immediate: the mastered waveform will show fuller, more consistent bars with tighter dynamic range, while the original will have more variation and lower average level.
+
+### Modified: `src/components/promo/scenes/TryItScene.tsx`
+
+- Store both `originalBuffer` and `masteredBuffer` in state (currently only URLs are kept)
+- Add `<WaveformComparison>` between the LUFS comparison and the audio players in the results phase
+- Pass both AudioBuffers to the new component
+
+Changes are ~15 lines added to TryItScene (two new state variables + the component insertion).
+
+## Technical Details
+
+**Downsampling logic** (inside WaveformComparison):
+- Divide each buffer's channel data into ~200 equal windows
+- For each window, compute the peak absolute value
+- Normalize both waveforms to the same scale so the loudness difference is visually obvious
+- Render as symmetric bars (mirrored around center line)
+
+**Canvas rendering** (not SVG) for performance with 200+ bars on mobile.
+
+**No new dependencies** -- uses raw Canvas API + framer-motion (already installed).
 
 ## File Summary
 
-| Action | File | Change |
-|--------|------|--------|
-| Modify | `src/lib/velvetMaster.ts` | Remove DynamicsCompressorNode limiter, add `stopBreathing()` call |
-| Modify | `src/audio/effects/VelvetCurveProcessor.ts` | Default `isBreathingEnabled` to `false` |
+| Action | File | Lines |
+|--------|------|-------|
+| Create | `src/components/promo/WaveformComparison.tsx` | ~70 |
+| Modify | `src/components/promo/scenes/TryItScene.tsx` | ~15 lines added |
 
-Two files, ~15 lines changed total.
