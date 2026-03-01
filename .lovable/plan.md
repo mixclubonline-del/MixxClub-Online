@@ -1,40 +1,51 @@
 
+# Fix: Eliminate BPM-Synced Click from Velvet Curve Mastering
 
-# Replace Auphonic with Proprietary Velvet Curve Mastering
+## Root Cause
 
-## The Problem
+The `VelvetCurveProcessor` class has two problematic defaults that affect the offline mastering path:
 
-The `advanced-mastering` edge function sends user audio to Auphonic, a third-party service optimized for speech/podcast content. MixxClub already has a proprietary mastering engine -- the Velvet Curve -- with genre-aware psychoacoustic enhancement, dynamics processing, and offline rendering. The promo funnel's "Try It" scene should showcase YOUR technology, not a third party's.
+1. **`isBreathingEnabled` defaults to `true`** (line 35 of VelvetCurveProcessor.ts). While the `requestAnimationFrame` modulation loop does not run inside an `OfflineAudioContext`, the `destroy()` call at the end of mastering triggers `stopBreathing()`, which ramps filter gains via `linearRampToValueAtTime` -- potentially injecting a discontinuity at the tail of the rendered buffer.
 
-## The Solution
+2. **Double-compression pumping**: The VelvetCurveProcessor's internal power compressor (threshold -18dB, ratio 3:1, 10ms attack) plus the safety limiter in `velvetMaster.ts` (threshold -1dB, ratio 20:1, 10ms attack) creates aggressive double-compression. On rhythmic content (trap, drill, etc.), every kick/snare pushes both compressors into gain reduction simultaneously. The fast 10ms attack on both creates a brief but audible transient artifact on every beat -- the "metronome click."
 
-Build a new edge function that processes audio server-side using Web Audio API concepts (via OfflineAudioContext in Deno), applying the Velvet Curve mastering chain, then returns the mastered file. This eliminates the Auphonic dependency entirely for the mastering demo.
+## The Fix
 
-Since Deno edge functions don't have access to Web Audio API (browser-only), the approach is:
+### File 1: `src/lib/velvetMaster.ts`
 
-**Option A -- Client-Side Mastering (Recommended)**
-Process the audio directly in the browser using the existing `audioEngine.renderOffline()` pipeline. The `TryItScene` loads the uploaded file into an AudioBuffer, runs it through a temporary VelvetCurve + limiter chain via OfflineAudioContext, and produces the mastered output -- all client-side, zero backend dependency, instant results.
+**Explicitly disable breathing before rendering** and remove the double-limiter by relying only on the normalization stage for loudness control:
 
-**Option B -- Hybrid (AI Analysis + Client Mastering)**
-Keep the edge function for AI-powered analysis (genre detection, LUFS measurement, improvement suggestions via Gemini) but do the actual audio processing client-side through VelvetCurve.
+- Call `velvet.stopBreathing()` immediately after construction, before rendering begins. This sets `isBreathingEnabled = false` and ensures `destroy()` later does not inject ramp artifacts.
+- Remove the `DynamicsCompressorNode` safety limiter entirely. The VelvetCurveProcessor already has its own internal power compressor for dynamics control. Adding a second compressor on top is what creates the rhythmic click. The `normalizeLoudness` function with soft saturation (`Math.tanh`) at the end already prevents overs -- no additional limiter needed.
 
-Option A is the cleanest path. Option B adds the AI analysis layer on top.
+Changes:
+- After `velvet.applyGenrePreset(genre)`, add `velvet.stopBreathing()`
+- Remove the `DynamicsCompressorNode` limiter creation (lines 40-46)
+- Wire the chain directly: `source -> velvet -> destination` (remove limiter from chain)
+- Keep the `normalizeLoudness` post-processing as-is (it already handles loudness + soft saturation safety)
 
-## Recommended: Option B (Hybrid)
+### File 2: `src/audio/effects/VelvetCurveProcessor.ts`
 
-This gives the best of both worlds -- your proprietary mastering engine does the audio work, and AI provides the professional analysis and feedback that makes the demo feel premium.
+**Change the default `isBreathingEnabled` from `true` to `false`**. Breathing modulation should be opt-in (via `startBreathing()`), not opt-in to disable. This is a defensive fix that prevents any future code paths from accidentally having breathing active.
 
-## Technical Changes
+Change line 35:
+```
+private isBreathingEnabled: boolean = true;
+```
+to:
+```
+private isBreathingEnabled: boolean = false;
+```
 
-### New File: `src/lib/velvetMaster.ts`
+This does not affect the DAW/studio path because `useVelvetCurve.ts` already manages breathing explicitly via `toggleBreathing()` which calls `startBreathing()` when needed.
 
-A standalone offline mastering function (~80 lines) that:
-- Accepts an `AudioBuffer` and genre preset string
-- Creates an `OfflineAudioContext`
-- Wires: source -> VelvetCurveProcessor (with genre preset) -> DynamicsCompressorNode (limiter) -> destination
-- Applies loudness normalization targeting -14 LUFS
-- Returns the mastered `AudioBuffer`
-- No dependency on the live `audioEngine` singleton (creates its own offline context)
+## Why This Works
+
+- **No more double-compression**: Removing the external limiter eliminates the dual-attack transient artifact. The VelvetCurveProcessor's internal compressor (knee: 20, ratio: 3:1) is gentle enough for music dynamics without producing clicks.
+- **No breathing artifacts**: Explicitly disabling breathing before render prevents any ramp-related discontinuities during destroy.
+- **Loudness safety preserved**: The `normalizeLoudness` function with `Math.tanh` soft saturation at 0.95 prevents any overs without the hard-knee click of a DynamicsCompressorNode.
+
+## Signal Chain After Fix
 
 ```text
 Input AudioBuffer
@@ -43,76 +54,28 @@ Input AudioBuffer
 OfflineAudioContext
     |
     v
-VelvetCurveProcessor (genre-aware)
+VelvetCurveProcessor (genre-aware, breathing OFF)
   - Warmth (320Hz peaking)
   - Silk Edge (8kHz shelf)
   - Emotion (1kHz peaking)
-  - Power Compressor
+  - Power Compressor (gentle: -18dB, knee 20, ratio 3:1)
   - Harmonic Enhancer (HP @ 30Hz)
     |
     v
-Safety Limiter (DynamicsCompressorNode, -1dBFS ceiling)
+destination (no external limiter)
+    |
+    v
+normalizeLoudness() -- gain + tanh soft saturation
     |
     v
 Mastered AudioBuffer
 ```
 
-### Modified: `src/components/promo/scenes/TryItScene.tsx`
-
-Replace the `supabase.functions.invoke('advanced-mastering')` call with:
-
-1. Decode uploaded file into `AudioBuffer` using browser's `AudioContext.decodeAudioData()`
-2. Call `velvetMaster(buffer, selectedGenre)` from the new utility
-3. Create object URLs from both original and mastered buffers for `<audio>` playback
-4. Calculate before/after LUFS using simple RMS analysis on the buffers
-5. Optionally call a lightweight edge function for AI analysis text (genre detection, improvement tips) -- but this is cosmetic, not required for the core demo
-
-Key changes:
-- Remove Supabase client import and `functions.invoke` call
-- Add `velvetMaster` import
-- Add `AudioContext` buffer decoding logic
-- Add `audioBufferToWav` import from existing `src/lib/audioExport` for creating playable blobs
-- Processing happens instantly (sub-second for most tracks) -- no polling, no waiting for external APIs
-
-### Modified: `supabase/functions/advanced-mastering/index.ts`
-
-Two options:
-- **Keep as-is** for any non-promo use cases that still want Auphonic (existing subscribers, etc.)
-- **Or** update to remove Auphonic dependency and only provide AI analysis (genre detection, LUFS targets, improvement suggestions via Gemini) while the client handles actual processing
-
-Recommendation: Keep the existing function unchanged for backward compatibility. The promo funnel simply doesn't use it anymore.
-
-### No Changes Needed
-
-- `VelvetCurveProcessor.ts` -- works as-is with any AudioContext including OfflineAudioContext
-- `GenreContext.ts` -- genre presets already defined and exported
-- `audioExport.ts` -- `audioBufferToWav` already exists for encoding
-- `audioEngine.ts` -- not used directly (we create a standalone offline context)
-
-## What the User Experiences
-
-1. Upload a track (WAV/MP3/FLAC, 10MB max)
-2. Select a genre preset (Hip Hop, R&B, Pop, etc.)
-3. Click "Master My Track"
-4. Processing happens instantly in-browser (< 1 second for a 3-minute track)
-5. Before/After playback with LUFS comparison
-6. "Powered by Velvet Curve" branding on the results
-
-## Why This Is Better
-
-1. **It's YOUR technology** -- visitors experience MixxClub's proprietary Velvet Curve, not a third-party podcast tool
-2. **No metronome clicks** -- VelvetCurve is purpose-built for music with genre-aware processing
-3. **Instant results** -- client-side OfflineAudioContext renders in under a second vs. 30-60 second Auphonic round-trip
-4. **Zero API costs** -- no Auphonic credits consumed for promo demos
-5. **Works offline** -- no network dependency for the mastering step
-6. **Genre-aware** -- Trap, Drill, R&B presets automatically tune the processing chain
-
 ## File Summary
 
-| Action | File | Lines |
-|--------|------|-------|
-| Create | `src/lib/velvetMaster.ts` | ~80 |
-| Modify | `src/components/promo/scenes/TryItScene.tsx` | ~40 lines changed |
+| Action | File | Change |
+|--------|------|--------|
+| Modify | `src/lib/velvetMaster.ts` | Remove DynamicsCompressorNode limiter, add `stopBreathing()` call |
+| Modify | `src/audio/effects/VelvetCurveProcessor.ts` | Default `isBreathingEnabled` to `false` |
 
-Zero new dependencies. Zero new edge functions. Zero external API calls.
-
+Two files, ~15 lines changed total.
