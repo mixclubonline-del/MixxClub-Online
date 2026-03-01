@@ -20,8 +20,11 @@ export const PathfinderBeacon = () => {
 
   if (!isReady || !isActive || !currentStep) return null;
 
-  // On immersive routes: show a subtle pulsing beacon only
-  if (isOnImmersiveRoute) {
+  // On immersive routes show beacon only when user is NOT at the step's target;
+  // when they arrive at the step's target, show the full card even on immersive routes.
+  const showBeaconOnly = isOnImmersiveRoute && !isAtCurrentStep;
+
+  if (showBeaconOnly) {
     return (
       <AnimatePresence>
         <motion.div
@@ -31,13 +34,12 @@ export const PathfinderBeacon = () => {
           className="fixed bottom-6 right-6 z-[55]"
         >
           <button
-            onClick={isAtCurrentStep ? next : goToStep}
+            onClick={goToStep}
             className="group relative w-12 h-12 rounded-full bg-black/60 backdrop-blur-xl border border-white/10
               hover:border-primary/40 hover:bg-black/70 transition-all"
             aria-label="Pathfinder walkthrough"
           >
             <Compass className="w-5 h-5 text-primary mx-auto" />
-            {/* Pulse ring */}
             <span className="absolute inset-0 rounded-full border-2 border-primary/30 animate-ping" />
           </button>
         </motion.div>
@@ -45,7 +47,7 @@ export const PathfinderBeacon = () => {
     );
   }
 
-  // Standard card mode
+  // Full card mode — shown on non-immersive routes OR when at the step's target
   return (
     <AnimatePresence>
       <motion.div
