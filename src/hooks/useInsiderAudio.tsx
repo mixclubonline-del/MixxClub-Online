@@ -27,6 +27,7 @@ export const useInsiderAudio = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [hasEnded, setHasEnded] = useState(false);
   const [analysis, setAnalysis] = useState<AudioAnalysis>({
     amplitude: 0,
     bass: 0,
@@ -88,7 +89,17 @@ export const useInsiderAudio = () => {
         }
       }
 
-      audio.loop = true;
+      audio.loop = false;
+
+      // Stop at the end instead of restarting
+      audio.addEventListener('ended', () => {
+        setIsPlaying(false);
+        setHasEnded(true);
+        if (animationFrameRef.current) {
+          cancelAnimationFrame(animationFrameRef.current);
+          animationFrameRef.current = null;
+        }
+      });
 
       // Create analyser
       const analyser = audioContextRef.current.createAnalyser();
@@ -239,6 +250,7 @@ export const useInsiderAudio = () => {
     isLoading,
     isReady,
     isPlaying,
+    hasEnded,
     analysis,
     play,
     pause,
