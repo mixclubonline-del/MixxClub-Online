@@ -37,13 +37,13 @@ export async function velvetMaster(
   const velvet = new VelvetCurveProcessor(offlineCtx as unknown as AudioContext);
   velvet.applyGenrePreset(genre);
 
-  // ── Safety Limiter (-1 dBFS ceiling) ──
+  // ── Safety Limiter (-1 dBFS ceiling, music-safe settings) ──
   const limiter = offlineCtx.createDynamicsCompressor();
   limiter.threshold.value = -1;
-  limiter.knee.value = 0;
+  limiter.knee.value = 6;       // Soft knee prevents transient clicks
   limiter.ratio.value = 20;
-  limiter.attack.value = 0.001;
-  limiter.release.value = 0.1;
+  limiter.attack.value = 0.01;  // 10ms attack — fast enough to limit, slow enough to avoid clicks
+  limiter.release.value = 0.15;
 
   // ── Wire the chain ──
   source.connect(velvet.getInputNode());
@@ -90,14 +90,15 @@ function normalizeLoudness(buffer: AudioBuffer, targetLUFS: number): void {
   // Clamp gain to prevent boosting silence or over-amplifying
   const clampedGain = Math.min(gainLinear, 6); // max +15.5 dB boost
 
-  // Apply gain in-place
+  // Apply gain in-place with soft saturation (no hard clipping)
   for (let ch = 0; ch < buffer.numberOfChannels; ch++) {
     const data = buffer.getChannelData(ch);
     for (let i = 0; i < data.length; i++) {
       data[i] *= clampedGain;
-      // Hard clip at ±1.0 as final safety
-      if (data[i] > 1.0) data[i] = 1.0;
-      else if (data[i] < -1.0) data[i] = -1.0;
+      // Soft saturation instead of hard clip — tanh curve prevents discontinuities
+      if (data[i] > 0.95 || data[i] < -0.95) {
+        data[i] = Math.tanh(data[i]);
+      }
     }
   }
 }
