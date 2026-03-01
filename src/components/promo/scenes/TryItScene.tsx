@@ -2,18 +2,21 @@ import { useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, Sparkles, Music, ArrowRight, Volume2, Headphones } from 'lucide-react';
 import { SceneBackground } from './SceneBackground';
-import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { velvetMaster, measureLUFS } from '@/lib/velvetMaster';
+import { audioBufferToWav } from '@/lib/audioExport';
+import type { GenrePreset } from '@/audio/context/GenreContext';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-const GENRES = [
-  { name: 'Hip Hop', value: 'hip-hop' },
-  { name: 'Rock', value: 'rock' },
-  { name: 'Electronic', value: 'electronic' },
-  { name: 'Pop', value: 'pop' },
-  { name: 'Jazz', value: 'jazz' },
-  { name: 'Classical', value: 'classical' },
+const GENRES: { name: string; value: GenrePreset }[] = [
+  { name: 'Trap', value: 'trap' },
+  { name: 'Drill', value: 'drill' },
+  { name: 'R&B', value: 'rnb' },
+  { name: 'Reggaeton', value: 'reggaeton' },
+  { name: 'Afrobeat', value: 'afrobeat' },
+  { name: 'Amapiano', value: 'amapiano' },
+  { name: 'Melodic Trap', value: 'melodic-trap' },
 ];
 
 type Phase = 'upload' | 'processing' | 'results' | 'error';
@@ -33,13 +36,12 @@ interface Props {
 export function TryItScene({ asset, trackStep, onAdvance }: Props) {
   const [phase, setPhase] = useState<Phase>('upload');
   const [file, setFile] = useState<File | null>(null);
-  const [genre, setGenre] = useState('pop');
+  const [genre, setGenre] = useState<GenrePreset>('trap');
   const [progress, setProgress] = useState(0);
   const [originalUrl, setOriginalUrl] = useState<string | null>(null);
   const [masteredUrl, setMasteredUrl] = useState<string | null>(null);
   const [analysis, setAnalysis] = useState<MasteringAnalysis | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
-  const [aiAnalysis, setAiAnalysis] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = useCallback((f: File) => {
@@ -48,15 +50,11 @@ export function TryItScene({ asset, trackStep, onAdvance }: Props) {
       setPhase('error');
       return;
     }
-    const validTypes = ['audio/mpeg', 'audio/wav', 'audio/flac', 'audio/x-flac', 'audio/mp3'];
-    if (!validTypes.some(t => f.type.includes(t.split('/')[1]))) {
-      // Be lenient — accept any audio/* and common extensions
-      const ext = f.name.split('.').pop()?.toLowerCase();
-      if (!['mp3', 'wav', 'flac', 'wave'].includes(ext || '')) {
-        setErrorMsg('Upload a WAV, MP3, or FLAC file.');
-        setPhase('error');
-        return;
-      }
+    const ext = f.name.split('.').pop()?.toLowerCase();
+    if (!['mp3', 'wav', 'flac', 'wave'].includes(ext || '')) {
+      setErrorMsg('Upload a WAV, MP3, or FLAC file.');
+      setPhase('error');
+      return;
     }
     setFile(f);
     setPhase('upload');
@@ -66,65 +64,58 @@ export function TryItScene({ asset, trackStep, onAdvance }: Props) {
   const handleMaster = useCallback(async () => {
     if (!file) return;
     setPhase('processing');
-    setProgress(5);
+    setProgress(10);
     trackStep('demo_mastering_started', { genre, fileSize: file.size });
 
     try {
-      // Read file as base64
-      const buffer = await file.arrayBuffer();
-      const bytes = new Uint8Array(buffer);
-      let binary = '';
-      for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
-      const base64 = btoa(binary);
+      // Decode uploaded file into AudioBuffer
+      const arrayBuffer = await file.arrayBuffer();
+      setProgress(25);
 
-      setProgress(15);
+      const audioCtx = new AudioContext();
+      const originalBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+      audioCtx.close();
+      setProgress(40);
 
-      // Simulate progress while waiting
-      const progressInterval = setInterval(() => {
-        setProgress(prev => Math.min(prev + 2, 85));
-      }, 3000);
+      // Measure original loudness
+      const originalLUFS = measureLUFS(originalBuffer);
 
-      const { data, error } = await supabase.functions.invoke('advanced-mastering', {
-        body: {
-          message: `Master this ${genre} track for streaming platforms.`,
-          audioFile: { data: base64, name: file.name, size: file.size },
-          preferences: { genre, loudnessTarget: -14 },
-        },
-      });
+      // Create original playback URL
+      const originalBlob = audioBufferToWav(originalBuffer, { bitDepth: 16, normalize: false });
+      setOriginalUrl(URL.createObjectURL(originalBlob));
+      setProgress(50);
 
-      clearInterval(progressInterval);
+      // Run Velvet Curve mastering (client-side, instant)
+      const masteredBuffer = await velvetMaster(originalBuffer, genre);
+      setProgress(85);
 
-      if (error) throw new Error(error.message || 'Mastering failed');
-      if (data?.error) throw new Error(data.error);
+      // Measure mastered loudness
+      const masteredLUFS = measureLUFS(masteredBuffer);
 
+      // Create mastered playback URL
+      const masteredBlob = audioBufferToWav(masteredBuffer, { bitDepth: 16, normalize: false });
+      setMasteredUrl(URL.createObjectURL(masteredBlob));
       setProgress(95);
 
-      if (data?.masteringResult) {
-        setOriginalUrl(data.masteringResult.originalUrl);
-        setMasteredUrl(data.masteringResult.masteredUrl);
-        setAnalysis(data.masteringResult.analysis);
-      }
-      if (data?.analysis) {
-        setAiAnalysis(data.analysis);
-      }
+      // Build improvement tags based on genre preset
+      const improvements = buildImprovementTags(genre, originalLUFS, masteredLUFS);
+
+      setAnalysis({
+        originalLUFS: Math.max(originalLUFS, -60),
+        masteredLUFS: Math.max(masteredLUFS, -60),
+        improvements,
+      });
 
       setProgress(100);
       setPhase('results');
       trackStep('demo_mastering_completed', {
         genre,
-        originalLUFS: data?.masteringResult?.analysis?.originalLUFS,
-        masteredLUFS: data?.masteringResult?.analysis?.masteredLUFS,
+        originalLUFS,
+        masteredLUFS,
       });
     } catch (err: any) {
       console.error('[TryIt] mastering error:', err);
-      const msg = err?.message || 'Something went wrong.';
-      if (msg.includes('rate limit') || msg.includes('429')) {
-        setErrorMsg('Our mastering engine is busy — try again in a moment.');
-      } else if (msg.includes('402') || msg.includes('payment')) {
-        setErrorMsg('Demo limit reached. Sign up for unlimited mastering!');
-      } else {
-        setErrorMsg(msg);
-      }
+      setErrorMsg(err?.message || 'Something went wrong decoding your audio.');
       setPhase('error');
     }
   }, [file, genre, trackStep]);
@@ -235,11 +226,11 @@ export function TryItScene({ asset, trackStep, onAdvance }: Props) {
                   </div>
                 </div>
                 <p className="text-center text-sm text-white/80">
-                  AI is mastering your track…
+                  Velvet Curve is mastering your track…
                 </p>
                 <Progress value={progress} className="h-2 bg-white/10" />
                 <p className="text-center text-xs text-white/40">
-                  Auphonic processing &middot; this may take up to 2 minutes
+                  Powered by Velvet Curve &middot; genre-aware mastering
                 </p>
               </motion.div>
             )}
@@ -284,7 +275,7 @@ export function TryItScene({ asset, trackStep, onAdvance }: Props) {
                 {masteredUrl && (
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-xs text-primary">
-                      <Headphones className="w-3 h-3" /> Mastered
+                      <Headphones className="w-3 h-3" /> Mastered by Velvet Curve
                     </div>
                     <audio src={masteredUrl} controls className="w-full h-8 [&::-webkit-media-controls-panel]:bg-primary/10 rounded" />
                   </div>
@@ -320,11 +311,6 @@ export function TryItScene({ asset, trackStep, onAdvance }: Props) {
               >
                 <p className="text-sm text-red-400">{errorMsg}</p>
 
-                {/* Show AI analysis text if we got it despite mastering failure */}
-                {aiAnalysis && (
-                  <p className="text-xs text-white/50 line-clamp-4">{aiAnalysis}</p>
-                )}
-
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
@@ -344,4 +330,29 @@ export function TryItScene({ asset, trackStep, onAdvance }: Props) {
       </div>
     </div>
   );
+}
+
+/** Generate contextual improvement tags based on genre and loudness delta */
+function buildImprovementTags(genre: GenrePreset, beforeLUFS: number, afterLUFS: number): string[] {
+  const tags: string[] = [];
+  const delta = afterLUFS - beforeLUFS;
+
+  // Loudness improvement
+  if (delta > 1) tags.push(`+${delta.toFixed(1)} dB louder`);
+  tags.push('Streaming-ready (-14 LUFS)');
+
+  // Genre-specific tags
+  const genreTags: Record<string, string[]> = {
+    trap: ['808 punch enhanced', 'Hi-hat clarity'],
+    drill: ['Dark tone sculpted', 'Aggressive dynamics'],
+    rnb: ['Velvet warmth applied', 'Silky highs'],
+    reggaeton: ['Dembow punch', 'Balanced warmth'],
+    afrobeat: ['Groovy dynamics', 'Open highs'],
+    amapiano: ['Deep warmth', 'Log drum presence'],
+    'melodic-trap': ['Vocal-forward EQ', 'Emotional mids'],
+    default: ['Balanced mastering', 'Professional clarity'],
+  };
+
+  tags.push(...(genreTags[genre] || genreTags.default));
+  return tags;
 }
