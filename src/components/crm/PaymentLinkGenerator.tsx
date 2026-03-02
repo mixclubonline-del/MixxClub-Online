@@ -87,6 +87,44 @@ export const PaymentLinkGenerator: React.FC<PaymentLinkGeneratorProps> = ({
         setIsLoading(true);
 
         try {
+            const amount = parseFloat(formData.amount);
+            const expiresAt = new Date(Date.now() + parseInt(formData.expirationDays, 10) * 24 * 60 * 60 * 1000).toISOString();
+            const description = formData.description || `Payment for ${recipientName}`;
+
+            const response = await createShareableLink({
+                amount,
+                currency: 'USD',
+                description,
+                partnershipId,
+                recipientId,
+                metadata: {
+                    project_id: projectId || '',
+                    payment_method: formData.paymentMethod,
+                    expiration_days: formData.expirationDays,
+                },
+            });
+
+            const generatedId = String(response?.id || `link_${Date.now()}`);
+            const generatedUrl = String(response?.url || '');
+            const generatedToken = generatedUrl.split('/').pop() || generatedId;
+
+            const newLink: PaymentLink = {
+                id: generatedId,
+                token: generatedToken,
+                url: generatedUrl,
+                creator_id: user?.id || 'unknown',
+                recipient_id: recipientId,
+                partnership_id: partnershipId,
+                project_id: projectId,
+                amount,
+                currency: 'USD',
+                description,
+                payment_method: formData.paymentMethod,
+                status: 'pending',
+                expires_at: expiresAt,
+                paid_at: undefined,
+                created_at: new Date().toISOString(),
+            };
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error('Not authenticated');
 
