@@ -15,7 +15,7 @@ export const MissionSection = () => {
             Your Sound. Elevated.
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            MixClub Online transforms low-quality, home-recorded tracks into industry-standard, 
+            Mixxclub Online transforms low-quality, home-recorded tracks into industry-standard, 
             radio-ready songs. The platform empowers artists and engineers to collaborate, compete, 
             and create together — merging traditional audio engineering with cutting-edge AI tools.
           </p>

@@ -12,6 +12,9 @@ import { webhookHeaders } from '../_shared/cors.ts';
 const PLATFORM_FEE_PERCENTAGE = 0.30; // 30% platform fee
 const ENGINEER_SHARE_PERCENTAGE = 0.70; // 70% to engineer
 
+// deno-lint-ignore no-explicit-any
+type SupabaseAdmin = any;
+
 serve(async (req) => {
   // Webhooks should not accept OPTIONS/preflight requests
   if (req.method === 'OPTIONS') {
@@ -96,7 +99,7 @@ serve(async (req) => {
  * Records payment, creates subscription records, triggers engineer payout, processes referrals
  */
 async function handleCheckoutCompleted(
-  supabase: ReturnType<typeof createClient>,
+  supabase: SupabaseAdmin,
   stripe: Stripe,
   session: Stripe.Checkout.Session
 ) {
@@ -209,7 +212,7 @@ async function handleCheckoutCompleted(
  * Calculates tier-based commission and updates referral record
  */
 async function processReferralCommission(
-  supabase: ReturnType<typeof createClient>,
+  supabase: SupabaseAdmin,
   params: {
     referralCode: string;
     paymentId: string;
@@ -300,7 +303,7 @@ async function processReferralCommission(
  * Create user subscription record based on package type
  */
 async function createUserSubscription(
-  supabase: ReturnType<typeof createClient>,
+  supabase: SupabaseAdmin,
   userId: string,
   packageId: string,
   packageType: string,
@@ -352,7 +355,7 @@ async function createUserSubscription(
  * Queue engineer payout with platform fee calculation
  */
 async function queueEngineerPayout(
-  supabase: ReturnType<typeof createClient>,
+  supabase: SupabaseAdmin,
   params: {
     engineerId: string;
     paymentId: string;
@@ -386,7 +389,7 @@ async function queueEngineerPayout(
  * Record earnings in engineer_earnings table
  */
 async function recordEngineerEarnings(
-  supabase: ReturnType<typeof createClient>,
+  supabase: SupabaseAdmin,
   engineerId: string,
   amount: number,
   projectId?: string
@@ -413,7 +416,7 @@ async function recordEngineerEarnings(
  * Handle invoice.paid event for recurring subscriptions
  */
 async function handleInvoicePaid(
-  supabase: ReturnType<typeof createClient>,
+  supabase: SupabaseAdmin,
   invoice: Stripe.Invoice
 ) {
   console.log('[STRIPE-WEBHOOK] Invoice paid:', invoice.id);
@@ -448,7 +451,7 @@ async function handleInvoicePaid(
  * Handle subscription status changes
  */
 async function handleSubscriptionChange(
-  supabase: ReturnType<typeof createClient>,
+  supabase: SupabaseAdmin,
   subscription: Stripe.Subscription
 ) {
   console.log('[STRIPE-WEBHOOK] Subscription changed:', subscription.id, subscription.status);
@@ -477,7 +480,7 @@ async function handleSubscriptionChange(
  * Handle subscription cancellation
  */
 async function handleSubscriptionCanceled(
-  supabase: ReturnType<typeof createClient>,
+  supabase: SupabaseAdmin,
   subscription: Stripe.Subscription
 ) {
   console.log('[STRIPE-WEBHOOK] Subscription canceled:', subscription.id);
@@ -503,7 +506,7 @@ async function handleSubscriptionCanceled(
  * Handle payment intent succeeded (for one-time payments without checkout)
  */
 async function handlePaymentIntentSucceeded(
-  supabase: ReturnType<typeof createClient>,
+  supabase: SupabaseAdmin,
   paymentIntent: Stripe.PaymentIntent
 ) {
   console.log('[STRIPE-WEBHOOK] Payment intent succeeded:', paymentIntent.id);
@@ -538,7 +541,7 @@ async function handlePaymentIntentSucceeded(
  * Handle transfer created (for engineer payouts via Connect)
  */
 async function handleTransferCreated(
-  supabase: ReturnType<typeof createClient>,
+  supabase: SupabaseAdmin,
   transfer: Stripe.Transfer
 ) {
   console.log('[STRIPE-WEBHOOK] Transfer created:', transfer.id);
@@ -560,7 +563,7 @@ async function handleTransferCreated(
  * Handle course enrollment after successful payment
  */
 async function handleCourseEnrollment(
-  supabase: ReturnType<typeof createClient>,
+  supabase: SupabaseAdmin,
   params: {
     userId: string;
     courseId: string;
@@ -629,7 +632,7 @@ async function handleCourseEnrollment(
  * Records purchase, marks exclusive as unavailable, trigger handles notifications
  */
 async function handleBeatPurchase(
-  supabase: ReturnType<typeof createClient>,
+  supabase: SupabaseAdmin,
   session: Stripe.Checkout.Session
 ) {
   const metadata = session.metadata;
@@ -694,7 +697,7 @@ async function handleBeatPurchase(
  * Updates wallet balance and records transaction
  */
 async function handleCoinzPurchase(
-  supabase: ReturnType<typeof createClient>,
+  supabase: SupabaseAdmin,
   session: Stripe.Checkout.Session
 ) {
   const metadata = session.metadata;

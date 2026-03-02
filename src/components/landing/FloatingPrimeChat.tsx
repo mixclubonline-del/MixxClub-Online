@@ -11,10 +11,10 @@ interface Message {
 }
 
 const DEMO_RESPONSES: Record<string, string> = {
-  default: "Hey! I'm Prime, your AI guide to MixClub. Ask me about mixing, mastering, or how to get started!",
+  default: "Hey! I'm Prime, your AI guide to Mixxclub. Ask me about mixing, mastering, or how to get started!",
   mixing: "Mixing is all about balance. I can help you find the perfect engineer for your track's genre and style. Want me to show you how our AI matching works?",
   mastering: "Our AI mastering analyzes your track in seconds - detecting genre, BPM, key, and suggesting the perfect processing chain. Try uploading a track to see it in action!",
-  engineer: "MixClub connects you with vetted audio engineers who specialize in your genre. Our AI matches you based on style, budget, and availability.",
+  engineer: "Mixxclub connects you with vetted audio engineers who specialize in your genre. Our AI matches you based on style, budget, and availability.",
   price: "We have flexible pricing! Engineers set their own rates, typically $50-500 per track. Plus, our AI mastering starts at just $9.99.",
   how: "Simple: Upload your track → Get AI analysis → Match with engineers → Collaborate in real-time → Receive professional masters. All in one platform!",
 };
@@ -39,7 +39,7 @@ export const FloatingPrimeChat = () => {
     if (q.includes('engineer')) return DEMO_RESPONSES.engineer;
     if (q.includes('price') || q.includes('cost') || q.includes('$')) return DEMO_RESPONSES.price;
     if (q.includes('how') || q.includes('work')) return DEMO_RESPONSES.how;
-    return "Great question! MixClub is the future of music collaboration. We use AI to match artists with the perfect engineers, analyze tracks instantly, and streamline the entire production process. What specifically would you like to know?";
+    return "Great question! Mixxclub is the future of music collaboration. We use AI to match artists with the perfect engineers, analyze tracks instantly, and streamline the entire production process. What specifically would you like to know?";
   };
 
   const handleSend = async () => {
@@ -59,7 +59,7 @@ export const FloatingPrimeChat = () => {
     await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
 
     const response = getResponse(input);
-    
+
     // Typewriter effect for response
     const assistantMessage: Message = {
       id: (Date.now() + 1).toString(),
@@ -98,11 +98,11 @@ export const FloatingPrimeChat = () => {
                   animate={{ scale: [1, 1.5], opacity: [0.5, 0] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 />
-                
+
                 {/* Prime avatar mini */}
                 <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white/20">
-                  <img 
-                    src="/assets/prime-pointing.jpg" 
+                  <img
+                    src="/assets/prime-pointing.jpg"
                     alt="Prime"
                     className="w-full h-full object-cover"
                   />
@@ -142,13 +142,13 @@ export const FloatingPrimeChat = () => {
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             className="fixed bottom-6 right-6 z-50 w-96 max-w-[calc(100vw-3rem)]"
           >
-            <div className="glass-ultra rounded-2xl overflow-hidden border border-[hsl(var(--glass-border-glow))] shadow-2xl">
+            <div className="mg-panel rounded-2xl overflow-hidden">
               {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b border-[hsl(var(--border))] bg-gradient-to-r from-[hsl(var(--primary)/0.1)] to-[hsl(var(--accent-cyan)/0.1)]">
+              <div className="mg-header flex items-center justify-between p-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-[hsl(var(--primary)/0.5)]">
-                    <img 
-                      src="/assets/prime-pointing.jpg" 
+                    <img
+                      src="/assets/prime-pointing.jpg"
                       alt="Prime"
                       className="w-full h-full object-cover"
                     />
@@ -158,7 +158,7 @@ export const FloatingPrimeChat = () => {
                       Prime AI
                       <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                     </div>
-                    <div className="text-xs text-muted-foreground">Your MixClub Guide</div>
+                    <div className="text-xs text-muted-foreground">Your Mixxclub Guide</div>
                   </div>
                 </div>
                 <Button
@@ -180,17 +180,16 @@ export const FloatingPrimeChat = () => {
                     className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
                     <div
-                      className={`max-w-[80%] p-3 rounded-2xl ${
-                        message.role === 'user'
+                      className={`max-w-[80%] p-3 rounded-2xl ${message.role === 'user'
                           ? 'bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent-blue))] text-white'
                           : 'glass-mid'
-                      }`}
+                        }`}
                     >
                       <p className="text-sm">{message.content}</p>
                     </div>
                   </motion.div>
                 ))}
-                
+
                 {isTyping && (
                   <motion.div
                     initial={{ opacity: 0 }}
@@ -223,7 +222,7 @@ export const FloatingPrimeChat = () => {
 
               {/* Input */}
               <div className="p-4 border-t border-[hsl(var(--border))]">
-                <form 
+                <form
                   onSubmit={(e) => { e.preventDefault(); handleSend(); }}
                   className="flex gap-2"
                 >
@@ -233,7 +232,7 @@ export const FloatingPrimeChat = () => {
                     placeholder="Ask about mixing, mastering..."
                     className="flex-1 glass-mid border-[hsl(var(--glass-border))]"
                   />
-                  <Button 
+                  <Button
                     type="submit"
                     size="icon"
                     className="bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent-cyan))]"

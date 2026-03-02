@@ -33,7 +33,7 @@ export const PWAInstallPrompt = () => {
         </div>
         
         <div className="flex-1">
-          <h4 className="font-semibold mb-1">Install MixClub</h4>
+          <h4 className="font-semibold mb-1">Install Mixxclub</h4>
           <p className="text-sm text-muted-foreground mb-3">
             Get the full app experience with offline access and faster loading
           </p>

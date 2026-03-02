@@ -225,7 +225,7 @@ export const StorefrontManager = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">Store URL</p>
-                  <p className="font-medium">mixclub.com/store/{storefront.storefront_slug}</p>
+                  <p className="font-medium">mixxclub.com/store/{storefront.storefront_slug}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">Display Name</p>

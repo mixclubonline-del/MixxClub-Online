@@ -178,7 +178,7 @@ export default function MerchStore() {
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-4xl font-bold mb-2">MixClub Merch Store</h1>
+          <h1 className="text-4xl font-bold mb-2">Mixxclub Merch Store</h1>
           <p className="text-muted-foreground">Exclusive gear for audio professionals</p>
         </div>
         
@@ -202,7 +202,7 @@ export default function MerchStore() {
       ) : (
         <Tabs defaultValue="official" className="w-full">
           <TabsList className="grid w-full max-w-md mb-8" style={{ gridTemplateColumns: '1fr 1fr' }}>
-            <TabsTrigger value="official">MixClub Official</TabsTrigger>
+            <TabsTrigger value="official">Mixxclub Official</TabsTrigger>
             <TabsTrigger value="artists">Artist Designs</TabsTrigger>
           </TabsList>
           

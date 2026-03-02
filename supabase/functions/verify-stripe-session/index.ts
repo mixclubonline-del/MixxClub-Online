@@ -126,7 +126,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           error: 'Session not found or expired',
-          details: error.message 
+          details: (error as Error).message 
         }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listening Room Hero Video</title>
+    <style>
+        :root {
+            --primary: #a855f7;
+            --secondary: #f97316;
+            --bg: #09090b;
+            --panel: #18181b;
+            --led-off: #27272a;
+        }
+        
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg);
+            overflow: hidden;
+            font-family: system-ui, -apple-system, sans-serif;
+            background-image: radial-gradient(circle at 50% 150%, rgba(168, 85, 247, 0.15), transparent 70%);
+        }
+
+        #scene-container {
+            width: 120%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* Slow pan effect */
+            animation: slowPan 15s ease-in-out infinite alternate;
+            position: relative;
+        }
+
+        @keyframes slowPan {
+            0% { transform: translateX(0) scale(1.05); }
+            100% { transform: translateX(-10%) scale(1.05); }
+        }
+
+        /* The Console Board */
+        .console-board {
+            display: flex;
+            gap: 20px;
+            padding: 40px;
+            background: linear-gradient(145deg, var(--panel), #101012);
+            border-radius: 12px;
+            border-top: 2px solid rgba(255,255,255,0.05);
+            border-bottom: 4px solid #000;
+            box-shadow: 0 40px 100px -20px rgba(0,0,0,0.8), inset 0 2px 20px rgba(255,255,255,0.02);
+            transform: perspective(1000px) rotateX(25deg);
+            transform-style: preserve-3d;
+        }
+
+        /* Channel Strip */
+        .channel-strip {
+            width: 80px;
+            height: 500px;
+            background: #121214;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.03);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        /* Knobs */
+        .knob {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3f3f46, #18181b);
+            border: 2px solid #27272a;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.1);
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .knob::after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 50%;
+            width: 2px;
+            height: 10px;
+            background: rgba(255,255,255,0.7);
+            transform-origin: bottom center;
+            transform: translateX(-50%) rotate(var(--rotation, -30deg));
+            border-radius: 1px;
+        }
+
+        .knob-primary { border-color: rgba(168, 85, 247, 0.4); }
+        .knob-primary::after { background: var(--primary); box-shadow: 0 0 5px var(--primary); }
+
+        .knob-secondary { border-color: rgba(249, 115, 22, 0.4); }
+        .knob-secondary::after { background: var(--secondary); box-shadow: 0 0 5px var(--secondary); }
+
+        /* LED Meters */
+        .meter {
+            width: 14px;
+            height: 150px;
+            background: rgba(0,0,0,0.6);
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 2px;
+            gap: 2px;
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.8);
+        }
+
+        .led {
+            width: 100%;
+            height: 6px;
+            background: var(--led-off);
+            border-radius: 1px;
+            transition: background-color 0.05s, box-shadow 0.05s;
+        }
+
+        .led.active-green { background: #22c55e; box-shadow: 0 0 8px #22c55e; }
+        .led.active-yellow { background: #eab308; box-shadow: 0 0 8px #eab308; }
+        .led.active-red { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
+
+        /* Faders */
+        .fader-track {
+            width: 10px;
+            height: 120px;
+            background: #000;
+            border-radius: 5px;
+            position: relative;
+            margin-top: auto;
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.8);
+        }
+
+        .fader-cap {
+            width: 28px;
+            height: 44px;
+            background: linear-gradient(to bottom, #d4d4d8, #71717a);
+            border-radius: 4px;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: var(--fader-pos, 20%);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.5);
+            border: 1px solid rgba(0,0,0,0.8);
+        }
+        
+        .fader-cap::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 10%;
+            width: 80%;
+            height: 4px;
+            background: #000;
+            transform: translateY(-50%);
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* Ambient Glow & Dust */
+        #dust-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            mix-blend-mode: screen;
+            z-index: 10;
+        }
+
+        .ambient-light {
+            position: absolute;
+            top: -20%;
+            left: 0;
+            width: 140%;
+            height: 50%;
+            background: linear-gradient(to bottom, rgba(168, 85, 247, 0.15), transparent);
+            pointer-events: none;
+            transform: rotate(-5deg);
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-light"></div>
+    <canvas id="dust-canvas"></canvas>
+
+    <div id="scene-container">
+        <div class="console-board" id="board">
+            <!-- Driven by JS -->
+        </div>
+    </div>
+
+    <script>
+        // Generate Console Strips
+        const board = document.getElementById('board');
+        const numStrips = 12;
+
+        for (let i = 0; i < numStrips; i++) {
+            const isMaster = i === numStrips - 1 || i === numStrips - 2;
+            const strip = document.createElement('div');
+            strip.className = 'channel-strip';
+
+            // Top Knobs
+            for (let k = 0; k < 3; k++) {
+                const knob = document.createElement('div');
+                knob.className = `knob ${isMaster ? 'knob-secondary' : 'knob-primary'}`;
+                // Randomize knob rotation
+                const rot = Math.floor(Math.random() * 270) - 135;
+                knob.style.setProperty('--rotation', `${rot}deg`);
+                strip.appendChild(knob);
+            }
+
+            // Meter
+            const meter = document.createElement('div');
+            meter.className = 'meter';
+            meter.id = `meter-${i}`;
+            
+            // Generate 20 LEDs (bottom to top)
+            for (let l = 0; l < 20; l++) {
+                const led = document.createElement('div');
+                led.className = 'led';
+                meter.appendChild(led);
+            }
+            strip.appendChild(meter);
+
+            // Fader
+            const faderTrack = document.createElement('div');
+            faderTrack.className = 'fader-track';
+            const faderCap = document.createElement('div');
+            faderCap.className = 'fader-cap';
+            
+            // Randomize fader pos
+            const pos = isMaster ? 80 : 20 + Math.random() * 60;
+            faderCap.style.setProperty('--fader-pos', `${pos}%`);
+            
+            faderTrack.appendChild(faderCap);
+            strip.appendChild(faderTrack);
+
+            board.appendChild(strip);
+        }
+
+        // Animate Meters
+        function animateMeters() {
+            for (let i = 0; i < numStrips; i++) {
+                const meter = document.getElementById(`meter-${i}`);
+                const leds = Array.from(meter.children).reverse(); // Bottom to top
+                
+                // Audio simulation: pick a random "volume target"
+                // Simulate a kick/snare pattern
+                const time = Date.now();
+                const beat = (time % 500) < 100; // 120BPM quarter note
+                
+                const isMaster = i === numStrips - 1 || i === numStrips - 2;
+                
+                let targetLevel = 0;
+                
+                if (isMaster) {
+                    targetLevel = beat ? 16 + Math.random() * 4 : 10 + Math.random() * 5;
+                } else {
+                    // Some channels active, some quiet
+                    if (i % 3 === 0) targetLevel = beat ? 14 + Math.random() * 4 : 4;
+                    else if (i % 2 === 0) targetLevel = 8 + Math.sin(time / 200) * 4;
+                    else targetLevel = 4 + Math.random() * 4;
+                }
+
+                // Smooth out the motion
+                const currentLevel = parseInt(meter.dataset.level || '0');
+                const nextLevel = Math.floor(currentLevel + (targetLevel - currentLevel) * 0.4);
+                meter.dataset.level = nextLevel;
+
+                leds.forEach((led, index) => {
+                    led.className = 'led'; // reset
+                    if (index < nextLevel) {
+                        if (index > 16) led.classList.add('active-red');
+                        else if (index > 12) led.classList.add('active-yellow');
+                        else led.classList.add('active-green');
+                    }
+                });
+            }
+            requestAnimationFrame(animateMeters);
+        }
+        animateMeters();
+
+        // Canvas Dust Particles
+        const canvas = document.getElementById('dust-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            
+            particles = [];
+            for(let i=0; i<150; i++) {
+                particles.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    radius: Math.random() * 1.5 + 0.5,
+                    vx: Math.random() * 0.5 - 0.25,
+                    vy: Math.random() * 0.5 - 0.7, // Float upwards
+                    opacity: Math.random() * 0.5 + 0.1
+                });
+            }
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        function animateDust() {
+            ctx.clearRect(0, 0, width, height);
+            
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                
+                if(p.y < 0) p.y = height;
+                if(p.x < 0) p.x = width;
+                if(p.x > width) p.x = 0;
+
+                // Make them glow (simulate bokeh)
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 230, 180, ${p.opacity * (0.5 + Math.sin(Date.now()/500 + p.x)*0.5)})`;
+                ctx.fill();
+            });
+            
+            requestAnimationFrame(animateDust);
+        }
+        animateDust();
+    </script>
+</body>
+</html>

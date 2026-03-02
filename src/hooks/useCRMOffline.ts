@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { uuid } from '@/lib/uuid';
 
 interface QueuedAction {
   id: string;
@@ -71,7 +72,7 @@ export function useCRMOffline() {
     data: Record<string, unknown>
   ): string => {
     const action: QueuedAction = {
-      id: crypto.randomUUID(),
+      id: uuid(),
       type,
       table,
       data,

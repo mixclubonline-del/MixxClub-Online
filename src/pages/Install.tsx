@@ -47,10 +47,10 @@ export default function Install() {
   return (
     <>
       <Helmet>
-        <title>Install MixClub App - Professional Music Mixing</title>
+        <title>Install Mixxclub App - Professional Music Mixing</title>
         <meta 
           name="description" 
-          content="Install MixClub as a mobile app for faster access, offline support, and native-like experience. Works on iPhone and Android." 
+          content="Install Mixxclub as a mobile app for faster access, offline support, and native-like experience. Works on iPhone and Android."
         />
       </Helmet>
 
@@ -65,7 +65,7 @@ export default function Install() {
                 <Download className="w-10 h-10 text-primary-foreground" />
               </div>
               <h1 className="text-4xl md:text-5xl font-bold">
-                Install MixClub App
+                Install Mixxclub App
               </h1>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
                 Get the best experience with our installable web app. Fast, offline-ready, and feels just like a native app.
@@ -78,10 +78,10 @@ export default function Install() {
                 <Check className="w-16 h-16 mx-auto mb-4 text-primary" />
                 <h2 className="text-2xl font-bold mb-2">App Installed!</h2>
                 <p className="text-muted-foreground mb-6">
-                  MixClub is now installed on your device. You can find it on your home screen or app drawer.
+                  Mixxclub is now installed on your device. You can find it on your home screen or app drawer.
                 </p>
                 <Button size="lg" onClick={() => window.location.href = '/'}>
-                  Open MixClub
+                  Open Mixxclub
                 </Button>
               </Card>
             ) : (
@@ -91,7 +91,7 @@ export default function Install() {
                   <Card className="p-8 text-center bg-gradient-to-br from-primary/10 to-primary-glow/10 border-2 border-primary">
                     <h2 className="text-2xl font-bold mb-4">Quick Install</h2>
                     <p className="text-muted-foreground mb-6">
-                      Click the button below to install MixClub to your device
+                      Click the button below to install Mixxclub to your device
                     </p>
                     <Button size="lg" onClick={handleInstallClick}>
                       <Download className="w-5 h-5 mr-2" />

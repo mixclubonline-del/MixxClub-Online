@@ -181,7 +181,7 @@ const Contact = () => {
                   <Mail className="w-5 h-5 text-primary mt-1" />
                   <div>
                     <p className="font-medium">Email</p>
-                    <p className="text-sm text-muted-foreground">hello@mixclubonline.com</p>
+                    <p className="text-sm text-muted-foreground">hello@mixxclubonline.com</p>
                     <p className="text-xs text-muted-foreground mt-1">Best for detailed project discussions</p>
                   </div>
                 </div>
@@ -197,7 +197,7 @@ const Contact = () => {
                   <MessageCircle className="w-5 h-5 text-primary mt-1" />
                   <div>
                     <p className="font-medium">Discord</p>
-                    <p className="text-sm text-muted-foreground">MixClub#1234</p>
+                    <p className="text-sm text-muted-foreground">Mixxclub#1234</p>
                     <p className="text-xs text-muted-foreground mt-1">Real-time collaboration and updates</p>
                   </div>
                 </div>

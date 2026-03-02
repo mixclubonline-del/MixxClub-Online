@@ -11,12 +11,12 @@ import { Link } from 'react-router-dom';
 import { ClubRoom } from '../ClubRoom';
 import { useOnlineUsers } from '@/hooks/useOnlineUsers';
 import { getCharacter } from '@/config/characters';
-import portalArtistImg from '@/assets/portal-artist.jpg';
-import portalEngineerImg from '@/assets/portal-engineer.jpg';
+import portalArtistImg from '@/assets/videos/portal_artist.webp';
+import portalEngineerImg from '@/assets/videos/portal_engineer.webp';
 
 export function GreenRoom() {
   const { totalOnline, onlineEngineers, onlineArtists, isLoading } = useOnlineUsers();
-  
+
   const jax = getCharacter('jax');
   const rell = getCharacter('rell');
 
@@ -33,7 +33,7 @@ export function GreenRoom() {
     },
     {
       character: rell,
-      title: 'Engineer', 
+      title: 'Engineer',
       subtitle: 'Mixer, Producer',
       onlineCount: onlineEngineers,
       href: '/for-engineers',
@@ -83,15 +83,7 @@ export function GreenRoom() {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
         >
-          <div
-            className="flex items-center gap-3 px-6 py-3 rounded-full border"
-            style={{
-              background: 'hsl(var(--primary) / 0.06)',
-              borderColor: 'hsl(var(--primary) / 0.15)',
-              backdropFilter: 'blur(16px)',
-              WebkitBackdropFilter: 'blur(16px)',
-            }}
-          >
+          <div className="mg-pill px-6 py-3">
             <motion.span
               className="relative flex h-3 w-3"
               animate={{ scale: [1, 1.2, 1] }}
@@ -111,12 +103,7 @@ export function GreenRoom() {
           {roles.map((role, index) => (
             <Link to={role.href} key={role.title}>
               <motion.div
-                className="group relative rounded-2xl border border-white/[0.06] hover:border-white/[0.12] transition-all overflow-hidden"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.03)',
-                  backdropFilter: 'blur(24px)',
-                  WebkitBackdropFilter: 'blur(24px)',
-                }}
+                className="mg-panel group overflow-hidden"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -131,13 +118,13 @@ export function GreenRoom() {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     loading="lazy"
                   />
-                  <div 
+                  <div
                     className="absolute inset-0"
                     style={{
                       background: 'linear-gradient(to bottom, transparent 20%, hsl(var(--background)) 100%)'
                     }}
                   />
-                  
+
                   {/* Character avatar */}
                   <motion.div
                     className="absolute -bottom-6 left-6 w-16 h-16 rounded-xl overflow-hidden border-4 border-background"
@@ -174,7 +161,7 @@ export function GreenRoom() {
                 </div>
 
                 {/* Hover glow */}
-                <div 
+                <div
                   className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
                   style={{ background: `radial-gradient(circle at center 70%, ${role.glowColor} 0%, transparent 70%)` }}
                 />

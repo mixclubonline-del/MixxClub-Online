@@ -82,7 +82,7 @@ export function GlobalAudioPlayer() {
         {isExpanded && (
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium truncate text-foreground">
-              MixClub Theme
+              Mixxclub Theme
             </p>
             <p className="text-xs text-muted-foreground">
               {formatTime(currentTime)} / {formatTime(duration)}

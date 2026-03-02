@@ -8,12 +8,13 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { DistrictPortal } from '@/components/ui/DistrictPortal';
 import { cn } from '@/lib/utils';
+import { ROUTES } from '@/config/routes';
 
 const districts = [
   { 
     id: 'creator', 
     name: 'Creator Hub', 
-    path: '/city/creator', 
+    path: ROUTES.CITY_CREATOR, 
     icon: Music, 
     color: 'from-purple-500 to-pink-500', 
     description: 'Upload tracks, start projects, collaborate',
@@ -22,7 +23,7 @@ const districts = [
   { 
     id: 'rsd', 
     name: 'RSD Chamber', 
-    path: '/city/studio', 
+    path: ROUTES.CITY_STUDIO, 
     icon: Sparkles, 
     color: 'from-orange-500 to-red-500', 
     description: 'AI beat generation, mixing tools, Suno integration',
@@ -32,7 +33,7 @@ const districts = [
   { 
     id: 'neural', 
     name: 'Neural Engine', 
-    path: '/city/prime', 
+    path: ROUTES.CITY_PRIME, 
     icon: Brain, 
     color: 'from-cyan-500 to-blue-500', 
     description: "Prime 4.0 AI assistant, smart matching",
@@ -41,7 +42,7 @@ const districts = [
   { 
     id: 'data', 
     name: 'Data Realm', 
-    path: '/city/analytics', 
+    path: ROUTES.CITY_ANALYTICS, 
     icon: BarChart3, 
     color: 'from-green-500 to-emerald-500', 
     description: 'Analytics, insights, growth metrics',
@@ -50,7 +51,7 @@ const districts = [
   { 
     id: 'commerce', 
     name: 'Commerce District', 
-    path: '/city/commerce', 
+    path: ROUTES.CITY_COMMERCE, 
     icon: Store, 
     color: 'from-yellow-500 to-orange-500', 
     description: '10 revenue streams, marketplace, services',
@@ -59,7 +60,7 @@ const districts = [
   { 
     id: 'broadcast', 
     name: 'Broadcast Tower', 
-    path: '/city/broadcast', 
+    path: ROUTES.CITY_BROADCAST, 
     icon: Radio, 
     color: 'from-indigo-500 to-purple-500', 
     description: 'Distribution, releases, promotion',
@@ -68,7 +69,7 @@ const districts = [
   { 
     id: 'arena', 
     name: 'The Arena', 
-    path: '/city/arena', 
+    path: ROUTES.CITY_ARENA, 
     icon: Users, 
     color: 'from-red-500 to-pink-500', 
     description: 'Battles, community, leaderboards',
@@ -77,7 +78,7 @@ const districts = [
   { 
     id: 'apartments', 
     name: 'Your Apartment', 
-    path: '/city/profile', 
+    path: ROUTES.SETTINGS, 
     icon: Home, 
     color: 'from-teal-500 to-cyan-500', 
     description: 'Profile, portfolio, achievements',
@@ -86,10 +87,10 @@ const districts = [
 ];
 
 const quickActions = [
-  { label: 'Generate Beat', icon: Sparkles, path: '/city/studio', color: 'text-orange-400' },
-  { label: 'Upload Track', icon: Music, path: '/city/creator', color: 'text-purple-400' },
-  { label: 'Ask Prime', icon: Brain, path: '/city/prime', color: 'text-cyan-400' },
-  { label: 'View Stats', icon: TrendingUp, path: '/city/analytics', color: 'text-green-400' },
+  { label: 'Generate Beat', icon: Sparkles, path: ROUTES.CITY_STUDIO, color: 'text-orange-400' },
+  { label: 'Upload Track', icon: Music, path: ROUTES.CITY_CREATOR, color: 'text-purple-400' },
+  { label: 'Ask Prime', icon: Brain, path: ROUTES.CITY_PRIME, color: 'text-cyan-400' },
+  { label: 'View Stats', icon: TrendingUp, path: ROUTES.CITY_ANALYTICS, color: 'text-green-400' },
 ];
 
 export default function MixxTechTower() {
@@ -98,7 +99,7 @@ export default function MixxTechTower() {
   return (
     <DistrictPortal districtId="tower">
       <div className="p-6 md:p-8 pb-24">
-        {/* Quick Actions - First thing users see after scrolling */}
+        {/* Quick Actions */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

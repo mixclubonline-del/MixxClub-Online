@@ -14,13 +14,13 @@ serve(async (req) => {
   try {
     const { audioData, restorationType, settings } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    
+
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY not configured');
     }
 
     let prompt = '';
-    
+
     switch (restorationType) {
       case 'noise':
         prompt = `Apply noise reduction at ${settings.noiseReduction}% strength. Remove background noise, hiss, and hum while preserving audio quality.`;
@@ -46,11 +46,11 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-3-flash-preview',
         messages: [
-          { 
-            role: 'system', 
-            content: 'You are an audio restoration assistant. Analyze the restoration request and return processing parameters.' 
+          {
+            role: 'system',
+            content: 'You are an audio restoration assistant. Analyze the restoration request and return processing parameters.'
           },
           { role: 'user', content: prompt }
         ],
@@ -73,7 +73,7 @@ serve(async (req) => {
       throw new Error(`AI gateway error: ${response.status}`);
     }
 
-    return new Response(JSON.stringify({ 
+    return new Response(JSON.stringify({
       audioUrl: audioData,
       message: 'Audio restoration complete',
     }), {

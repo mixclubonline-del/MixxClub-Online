@@ -41,7 +41,7 @@ export const MobileFeatureTester = () => {
       }
 
       // Test notification
-      new Notification("MixClub Test", {
+      new Notification("Mixxclub Test", {
         body: "Push notifications are working!",
         icon: "/icon.png",
       });
@@ -121,7 +121,7 @@ export const MobileFeatureTester = () => {
       }
 
       // Test cache API
-      const cache = await caches.open('mixclub-v1');
+      const cache = await caches.open('mixxclub-v1');
       await cache.add('/');
       
       updateTest("Offline Mode", "pass", "Service Worker & Cache API working");

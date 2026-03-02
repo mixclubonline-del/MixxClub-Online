@@ -42,8 +42,8 @@ const Press = () => {
     <>
       <SEOHead
         title="Press Kit"
-        description="MixClub press resources, brand assets, and media information. Download logos, screenshots, and learn about our mission to democratize professional music production."
-        keywords="mixclub press, media kit, brand assets, music production news"
+        description="Mixxclub press resources, brand assets, and media information. Download logos, screenshots, and learn about our mission to democratize professional music production."
+        keywords="mixxclub press, media kit, brand assets, music production news"
       />
 
       <div className="min-h-screen bg-background">
@@ -59,11 +59,11 @@ const Press = () => {
               </Badge>
 
               <h1 className="text-5xl md:text-6xl font-bold mb-6">
-                MixClub Press Resources
+                Mixxclub Press Resources
               </h1>
 
               <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-                Everything you need to write about MixClub. Download brand assets, 
+                Everything you need to write about Mixxclub. Download brand assets, 
                 get key statistics, and contact our press team.
               </p>
 
@@ -99,33 +99,33 @@ const Press = () => {
             </div>
           </section>
 
-          {/* About MixClub */}
+          {/* About Mixxclub */}
           <section className="py-16 px-4">
             <div className="container mx-auto max-w-4xl">
               <Card>
                 <CardHeader>
-                  <CardTitle>About MixClub</CardTitle>
+                  <CardTitle>About Mixxclub</CardTitle>
                   <CardDescription>For press and media use</CardDescription>
                 </CardHeader>
                 <CardContent className="prose prose-invert max-w-none">
                   <h3 className="text-lg font-semibold mb-3">Short Description (50 words)</h3>
                   <p className="text-muted-foreground mb-6">
-                    MixClub is a professional audio engineering platform connecting artists with 
+                    Mixxclub is a professional audio engineering platform connecting artists with 
                     world-class mixing and mastering engineers. Powered by AI-enhanced tools and 
-                    real-time collaboration, MixClub transforms bedroom recordings into billboard-ready 
+                    real-time collaboration, Mixxclub transforms bedroom recordings into billboard-ready 
                     productions, starting at just $29.
                   </p>
 
                   <h3 className="text-lg font-semibold mb-3">Long Description (150 words)</h3>
                   <p className="text-muted-foreground mb-6">
-                    MixClub is revolutionizing the music production industry by democratizing access 
+                    Mixxclub is revolutionizing the music production industry by democratizing access 
                     to professional mixing and mastering services. Our platform combines cutting-edge 
                     AI technology with human expertise, enabling artists worldwide to achieve 
                     studio-quality sound from anywhere.
                   </p>
                   <p className="text-muted-foreground mb-6">
                     Founded on the belief that every artist deserves professional-quality production, 
-                    MixClub offers tiered pricing from $29 to $149+, making premium audio engineering 
+                    Mixxclub offers tiered pricing from $29 to $149+, making premium audio engineering 
                     accessible to independent musicians and major labels alike. Our network of 
                     verified engineers earns industry-leading 70-85% revenue splits, attracting top 
                     talent from around the globe.
@@ -133,7 +133,7 @@ const Press = () => {
                   <p className="text-muted-foreground">
                     Key features include AI-powered audio analysis, real-time collaboration studios, 
                     instant payments, and a gamified progression system that rewards quality and 
-                    consistency. MixClub is where technology meets artistry.
+                    consistency. Mixxclub is where technology meets artistry.
                   </p>
                 </CardContent>
               </Card>
@@ -246,7 +246,7 @@ const Press = () => {
               </p>
               <Button size="lg" className="gap-2">
                 <Mail className="w-5 h-5" />
-                press@mixclub.com
+                press@mixxclubonline.com
               </Button>
             </div>
           </section>

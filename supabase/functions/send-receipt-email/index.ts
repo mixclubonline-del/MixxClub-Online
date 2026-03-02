@@ -108,9 +108,9 @@ serve(async (req) => {
               <p>If you have any questions about this payment, please don't hesitate to contact our support team.</p>
               
               <div class="footer">
-                <p>MixClub - Professional Audio Services</p>
+                <p>Mixxclub - Professional Audio Services</p>
                 <p>1234 Audio Avenue, Suite 500, Los Angeles, CA 90028</p>
-                <p>&copy; ${new Date().getFullYear()} MixClub. All rights reserved.</p>
+                <p>&copy; ${new Date().getFullYear()} Mixxclub. All rights reserved.</p>
               </div>
             </div>
           </div>
@@ -126,7 +126,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'MixClub <receipts@mixclub.com>',
+        from: 'Mixxclub <receipts@mixxclubonline.com>',
         to: [payment.user?.email || ''],
         subject: `Payment Receipt - Order #${payment.id.substring(0, 8).toUpperCase()}`,
         html: receiptHtml,

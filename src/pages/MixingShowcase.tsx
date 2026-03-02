@@ -32,7 +32,7 @@ const MixingShowcase = () => {
   useEffect(() => {
     const success = searchParams.get('success');
     if (success === 'true') {
-      toast.success('Payment successful! Welcome to MixClub Professional Mixing!');
+      toast.success('Payment successful! Welcome to Mixxclub Professional Mixing!');
     }
     const cancelled = searchParams.get('canceled');
     if (cancelled === 'true') {
@@ -144,7 +144,7 @@ const MixingShowcase = () => {
   return (
     <>
       <Helmet>
-        <title>Mixing Studio — MixClub Services</title>
+        <title>Mixing Studio — Mixxclub Services</title>
         <meta name="description" content="Professional collaborative mixing with real engineers and AI-powered insights. Three-way collaboration for the perfect mix." />
       </Helmet>
 

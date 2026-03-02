@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import Replicate from "https://esm.sh/replicate@0.25.2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -13,55 +14,93 @@ serve(async (req) => {
 
   try {
     const { prompt, genre, mood, duration, generateType } = await req.json();
-    const SUNO_API_KEY = Deno.env.get('SUNO_API_KEY');
-    
-    if (!SUNO_API_KEY) {
-      throw new Error('SUNO_API_KEY not configured');
+    const REPLICATE_API_KEY = Deno.env.get('REPLICATE_API_KEY');
+
+    if (!REPLICATE_API_KEY) {
+      throw new Error('REPLICATE_API_KEY not configured');
     }
 
-    // Generate music using Suno API
-    const sunoPrompt = `${generateType === 'beat' ? '[Instrumental] [Drums] [No vocals]' : ''} ${prompt}. Genre: ${genre}. Mood: ${mood}.`;
-    
-    const response = await fetch('https://api.suno.ai/v1/generate', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${SUNO_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        prompt: sunoPrompt,
-        make_instrumental: generateType === 'beat' || generateType === 'melody',
-        duration: duration || 30,
-      }),
+    const replicate = new Replicate({ auth: REPLICATE_API_KEY });
+
+    // Build prompt with genre/mood context
+    const isInstrumental = generateType === 'beat' || generateType === 'melody';
+    const musicPrompt = `${isInstrumental ? '[Instrumental] [No vocals] ' : ''}${prompt}. Genre: ${genre}. Mood: ${mood}. Professional studio quality.`;
+
+    console.log(`Generating music via Replicate (type: ${generateType}):`, musicPrompt);
+
+    // Use stable-audio-2.5 for instrumentals, minimax/music-1.5 for full songs
+    const model = isInstrumental
+      ? "stability-ai/stable-audio-2.5"
+      : "minimax/music-1.5";
+
+    const input = isInstrumental
+      ? {
+        prompt: musicPrompt,
+        seconds_total: Math.min(duration || 30, 180), // stable-audio max 3 min
+        steps: 8,
+      }
+      : {
+        prompt: musicPrompt,
+        song_duration: duration || 30,
+      };
+
+    // Create async prediction
+    const prediction = await replicate.predictions.create({
+      model,
+      input,
     });
 
-    if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }), {
-          status: 429,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
+    console.log("Replicate prediction created:", prediction.id, prediction.status);
+
+    // Poll for completion
+    let attempts = 0;
+    const maxAttempts = 120; // 6 minutes max
+    let audioUrl = null;
+
+    while (attempts < maxAttempts && !audioUrl) {
+      await new Promise(resolve => setTimeout(resolve, 3000));
+
+      const status = await replicate.predictions.get(prediction.id);
+
+      if (status.status === 'succeeded') {
+        audioUrl = typeof status.output === 'string'
+          ? status.output
+          : Array.isArray(status.output)
+            ? status.output[0]
+            : null;
+        break;
       }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: 'Suno API credits required. Please add funds.' }), {
-          status: 402,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
+
+      if (status.status === 'failed' || status.status === 'canceled') {
+        throw new Error(`Music generation failed: ${status.error || status.status}`);
       }
-      throw new Error(`Suno API error: ${response.status}`);
+
+      attempts++;
     }
 
-    const data = await response.json();
+    if (!audioUrl) {
+      throw new Error('Music generation timed out');
+    }
 
-    return new Response(JSON.stringify({ 
-      jobId: data.id,
-      status: 'processing',
-      message: 'Music generation started. Check status in a few moments.',
+    return new Response(JSON.stringify({
+      audioUrl,
+      audio_url: audioUrl,
+      status: 'complete',
+      provider: `replicate-${isInstrumental ? 'stable-audio' : 'minimax-music'}`,
+      message: 'Music generation complete.',
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error: any) {
     console.error('Error in generate-music:', error);
+
+    if (error.message?.includes('Rate limit') || error.status === 429) {
+      return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }), {
+        status: 429,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

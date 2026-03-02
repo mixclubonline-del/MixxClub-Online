@@ -1,4 +1,5 @@
-import { GoogleGenerativeAI } from 'https://esm.sh/@google/generative-ai@0.21.0';
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,31 +13,31 @@ interface AdCopyRequest {
   genre?: string;
   tone?: string;
   variantCount?: number;
+  prompt_context?: string;
+  character?: { name: string; role: string; tone: string };
 }
 
-Deno.serve(async (req) => {
+serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
 
   try {
     const {
-      platform,
+      platform = 'instagram',
       targetAudience = 'independent musicians',
       budgetRange = '$50-100',
       genre = 'all genres',
       tone = 'professional and inspiring',
       variantCount = 5,
+      prompt_context,
+      character,
     }: AdCopyRequest = await req.json();
 
-    // Using OPENAI_API_KEY for Google AI (this is intentional - using same key)
-    const apiKey = Deno.env.get('OPENAI_API_KEY');
-    if (!apiKey) {
-      throw new Error('OPENAI_API_KEY not configured');
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    if (!LOVABLE_API_KEY) {
+      throw new Error('LOVABLE_API_KEY not configured');
     }
-
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
 
     const platformSpecs: Record<string, { headline: number; description: number }> = {
       google: { headline: 30, description: 90 },
@@ -47,13 +48,21 @@ Deno.serve(async (req) => {
 
     const specs = platformSpecs[platform] || platformSpecs.facebook;
 
-    const prompt = `Generate ${variantCount} compelling ad copy variants for MixClub, an online platform connecting musicians with professional audio engineers.
+    const charContext = character
+      ? `\nBrand Voice: ${character.name} (${character.role}) — ${character.tone}`
+      : '';
+
+    const campaignContext = prompt_context
+      ? `\nCampaign: ${prompt_context}`
+      : '';
+
+    const prompt = `Generate ${variantCount} compelling ad copy variants for MixxClub, an online platform connecting musicians with professional audio engineers.
 
 Platform: ${platform}
 Target Audience: ${targetAudience}
 Budget Range: ${budgetRange}
 Genre Focus: ${genre}
-Tone: ${tone}
+Tone: ${tone}${charContext}${campaignContext}
 
 Ad Character Limits:
 - Headline: ${specs.headline} characters
@@ -73,9 +82,39 @@ Generate ${variantCount} unique ad variants with:
 
 Format as JSON array with objects containing: headline, description, cta, focus (what pain point it addresses)`;
 
-    const result = await model.generateContent(prompt);
-    const response = result.response;
-    const text = response.text();
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-3-flash-preview',
+        messages: [
+          { role: 'system', content: 'You are a music industry advertising expert. Always respond with valid JSON arrays.' },
+          { role: 'user', content: prompt }
+        ],
+      }),
+    });
+
+    if (!response.ok) {
+      if (response.status === 429) {
+        return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }), {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      if (response.status === 402) {
+        return new Response(JSON.stringify({ error: 'AI credits required. Please add funds to continue.' }), {
+          status: 402,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      throw new Error(`AI gateway error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const text = data.choices[0].message.content;
 
     // Parse JSON from response
     const jsonMatch = text.match(/\[[\s\S]*\]/);

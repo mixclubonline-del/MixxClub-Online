@@ -9,17 +9,17 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const PRIME_SYSTEM_PROMPT = `You are Prime 4.0 — the lead AI engineer and guide for MixClub, the revolutionary platform connecting artists with audio engineers. You are NOT a generic assistant. You are THE expert.
+const PRIME_SYSTEM_PROMPT = `You are Prime 4.0 — the lead AI engineer and guide for Mixxclub, the revolutionary platform connecting artists with audio engineers. You are NOT a generic assistant. You are THE expert.
 
 ## YOUR IDENTITY
-- You are Prime, the AI backbone of MixClub
+- You are Prime, the AI backbone of Mixxclub
 - You have personality: confident, encouraging, direct, with occasional hip-hop culture references
 - You speak like a seasoned industry veteran who's seen it all but stays humble
 - You're excited about music and helping people succeed
 
 ## YOUR KNOWLEDGE DOMAINS
 
-### 1. MIXCLUB PLATFORM (You know EVERYTHING)
+### 1. MIXXCLUB PLATFORM (You know EVERYTHING)
 - **Session System**: Artists create sessions, engineers apply, real-time collaboration
 - **Pricing**: Mastering ($9.99-$299.99), Mixing ($75-$499), Distribution ($19.99-$99.99/year)
 - **Features**: AI analysis, waveform visualization, real-time messaging, payment escrow
@@ -56,7 +56,7 @@ const PRIME_SYSTEM_PROMPT = `You are Prime 4.0 — the lead AI engineer and guid
 
 ### When helping ARTISTS:
 - Ask about their vision and vibe first
-- Suggest specific engineers on MixClub for their genre
+- Suggest specific engineers on Mixxclub for their genre
 - Give actionable feedback on their music
 - Encourage them to level up their craft
 
@@ -69,7 +69,7 @@ const PRIME_SYSTEM_PROMPT = `You are Prime 4.0 — the lead AI engineer and guid
 ### ALWAYS:
 - Be concise but thorough
 - Give specific, actionable advice (not generic platitudes)
-- Reference MixClub features when relevant
+- Reference Mixxclub features when relevant
 - Use occasional music/hip-hop references naturally
 - Ask clarifying questions when needed
 - Celebrate progress and encourage persistence
@@ -100,7 +100,7 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const clientIP = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
-    
+
     const rateLimit = await checkRateLimit(clientIP, {
       maxRequests: 20,
       windowMs: 60000, // 1 minute
@@ -115,11 +115,11 @@ serve(async (req) => {
     }
 
     const { messages, context, useDeepThink } = await req.json();
-    
+
     // Try Google AI first, fall back to Lovable AI
     const GOOGLE_AI_API_KEY = Deno.env.get("GOOGLE_AI_API_KEY");
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    
+
     if (!GOOGLE_AI_API_KEY && !LOVABLE_API_KEY) {
       throw new Error("No AI API key configured");
     }
@@ -130,8 +130,8 @@ serve(async (req) => {
       systemPrompt += `\n\n## CURRENT CONTEXT\n${JSON.stringify(context, null, 2)}`;
     }
 
-    logger.info("Prime chat request", { 
-      messageCount: messages.length, 
+    logger.info("Prime chat request", {
+      messageCount: messages.length,
       hasContext: !!context,
       useDeepThink,
       usingGoogle: !!GOOGLE_AI_API_KEY
@@ -139,10 +139,10 @@ serve(async (req) => {
 
     if (GOOGLE_AI_API_KEY) {
       // Use Gemini 2.0 Flash (or Pro for deep think)
-      const model = useDeepThink ? 'gemini-2.5-pro-preview-06-05' : 'gemini-2.0-flash';
-      
+      const model = useDeepThink ? 'gemini-3.1-pro' : 'gemini-3.1-flash';
+
       const baseUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?key=${GOOGLE_AI_API_KEY}`;
-      
+
       // Convert messages to Gemini format
       const contents = messages
         .filter((m: ChatMessage) => m.role !== 'system')
@@ -169,19 +169,19 @@ serve(async (req) => {
       if (!response.ok) {
         const errorText = await response.text();
         logger.error("Gemini API error", { status: response.status, error: errorText });
-        
+
         if (response.status === 429) {
           return new Response(
-            JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), 
+            JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }),
             { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
-        
+
         // Fall back to Lovable AI
         if (LOVABLE_API_KEY) {
           return await fallbackToLovable(LOVABLE_API_KEY, messages, systemPrompt);
         }
-        
+
         throw new Error(`Gemini API error: ${response.status}`);
       }
 
@@ -196,7 +196,7 @@ serve(async (req) => {
   } catch (error) {
     logger.error("Prime chat error", error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }), 
+      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -206,8 +206,8 @@ serve(async (req) => {
 });
 
 async function fallbackToLovable(
-  apiKey: string, 
-  messages: ChatMessage[], 
+  apiKey: string,
+  messages: ChatMessage[],
   systemPrompt: string
 ): Promise<Response> {
   const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -217,7 +217,7 @@ async function fallbackToLovable(
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: "google/gemini-2.5-flash",
+      model: "google/gemini-3-flash-preview",
       messages: [
         { role: "system", content: systemPrompt },
         ...messages,
@@ -229,13 +229,13 @@ async function fallbackToLovable(
   if (!response.ok) {
     if (response.status === 429) {
       return new Response(
-        JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), 
+        JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }),
         { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
     if (response.status === 402) {
       return new Response(
-        JSON.stringify({ error: "AI credits depleted. Please add credits." }), 
+        JSON.stringify({ error: "AI credits depleted. Please add credits." }),
         { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }

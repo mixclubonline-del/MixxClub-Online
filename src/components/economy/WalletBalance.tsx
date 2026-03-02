@@ -10,10 +10,7 @@ export function WalletBalance() {
 
   if (isLoading) {
     return (
-      <div
-        className="rounded-xl border border-white/[0.06] p-6"
-        style={{ background: 'rgba(255,255,255,0.02)', backdropFilter: 'blur(16px)' }}
-      >
+      <div className="mg-panel p-6">
         <Skeleton className="h-8 w-32 mb-2" />
         <Skeleton className="h-12 w-48" />
       </div>
@@ -25,24 +22,24 @@ export function WalletBalance() {
   }
 
   const stats = [
-    { 
-      label: 'Earned', 
-      value: wallet.earned_balance, 
-      icon: TrendingUp, 
+    {
+      label: 'Earned',
+      value: wallet.earned_balance,
+      icon: TrendingUp,
       color: 'text-emerald-400',
       glow: 'rgba(52,211,153,0.12)',
     },
-    { 
-      label: 'Purchased', 
-      value: wallet.purchased_balance, 
-      icon: ShoppingBag, 
+    {
+      label: 'Purchased',
+      value: wallet.purchased_balance,
+      icon: ShoppingBag,
       color: 'text-blue-400',
       glow: 'rgba(96,165,250,0.12)',
     },
-    { 
-      label: 'Gifted', 
-      value: wallet.total_gifted, 
-      icon: Gift, 
+    {
+      label: 'Gifted',
+      value: wallet.total_gifted,
+      icon: Gift,
       color: 'text-pink-400',
       glow: 'rgba(244,114,182,0.12)',
     },
@@ -55,18 +52,11 @@ export function WalletBalance() {
       viewport={{ once: true, margin: '-40px' }}
       transition={{ duration: 0.5 }}
     >
-      <div
-        className="relative rounded-xl border border-primary/15 p-6 overflow-hidden"
-        style={{
-          background: 'linear-gradient(135deg, rgba(var(--primary-rgb, 168,85,247), 0.08) 0%, rgba(var(--accent-rgb, 244,114,182), 0.05) 100%)',
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
-        }}
-      >
+      <div className="mg-panel relative p-6 overflow-hidden">
         {/* Decorative ambient glows */}
         <div className="absolute -top-16 -right-16 w-40 h-40 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-accent/5 rounded-full blur-2xl pointer-events-none" />
-        
+
         <div className="relative z-10">
           {/* Total Balance */}
           <div className="flex items-center justify-between mb-6">

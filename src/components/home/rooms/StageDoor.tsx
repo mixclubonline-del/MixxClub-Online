@@ -34,7 +34,7 @@ export function StageDoor({ onJoin }: StageDoorProps) {
         .eq('is_active', true)
         .limit(1)
         .maybeSingle();
-      
+
       if (data?.asset_type === 'video' && data.public_url) {
         setVideoBgUrl(data.public_url);
       }
@@ -44,8 +44,8 @@ export function StageDoor({ onJoin }: StageDoorProps) {
 
   const nextMilestone = milestones.find((m) => !m.is_unlocked);
   const isNearUnlock = nextMilestone && nextMilestone.progress_percentage >= 80;
-  const membersNeeded = nextMilestone 
-    ? nextMilestone.target_value - nextMilestone.current_value 
+  const membersNeeded = nextMilestone
+    ? nextMilestone.target_value - nextMilestone.current_value
     : 0;
 
   return (
@@ -71,7 +71,7 @@ export function StageDoor({ onJoin }: StageDoorProps) {
             loading="lazy"
           />
         )}
-        <div 
+        <div
           className="absolute inset-0"
           style={{
             background: `linear-gradient(to bottom, hsl(var(--background) / 0.5) 0%, hsl(var(--background) / 0.35) 40%, hsl(var(--background) / 0.35) 60%, hsl(var(--background) / 0.65) 100%)`
@@ -90,12 +90,8 @@ export function StageDoor({ onJoin }: StageDoorProps) {
       {/* Main CTA — Enhanced Glassmorphic Container */}
       <div className="relative flex-1 flex flex-col items-center justify-center px-6 py-20">
         <motion.div
-          className="rounded-3xl p-8 md:p-12 border flex flex-col items-center max-w-2xl w-full"
+          className="mg-panel mg-shimmer rounded-3xl p-8 md:p-12 flex flex-col items-center max-w-2xl w-full"
           style={{
-            background: 'rgba(255, 255, 255, 0.04)',
-            borderColor: 'rgba(255, 255, 255, 0.08)',
-            backdropFilter: 'blur(32px)',
-            WebkitBackdropFilter: 'blur(32px)',
             boxShadow: '0 0 100px -30px hsl(var(--primary) / 0.15)',
           }}
           initial={{ opacity: 0, scale: 0.95 }}
@@ -138,14 +134,7 @@ export function StageDoor({ onJoin }: StageDoorProps) {
               viewport={{ once: true }}
               transition={{ delay: 0.3 }}
             >
-              <div
-                className="p-4 rounded-xl border"
-                style={{
-                  background: 'hsl(var(--primary) / 0.04)',
-                  borderColor: 'hsl(var(--primary) / 0.15)',
-                  backdropFilter: 'blur(16px)',
-                }}
-              >
+              <div className="mg-panel p-4">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Users className="w-4 h-4" />
@@ -189,8 +178,8 @@ export function StageDoor({ onJoin }: StageDoorProps) {
             transition={{ delay: 0.6 }}
           >
             Already a member?{' '}
-            <Link 
-              to="/auth?mode=login" 
+            <Link
+              to="/auth?mode=login"
               className="text-primary hover:underline"
             >
               Sign in
@@ -203,6 +192,6 @@ export function StageDoor({ onJoin }: StageDoorProps) {
       <div className="relative">
         <HomeFooter />
       </div>
-    </ClubRoom>
+    </ClubRoom >
   );
 }

@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import React, { useState, useCallback } from "react";
+import { CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,11 +9,11 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  User, 
-  Palette, 
-  Globe, 
-  MessageSquare, 
+import {
+  User,
+  Palette,
+  Globe,
+  MessageSquare,
   Eye,
   Sparkles,
   MapPin,
@@ -27,6 +27,12 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { GlassPanel, HubHeader, HubSkeleton } from "./design";
+import {
+  ProfileCanvasEditor,
+  type ProfileConfig,
+  DEFAULT_PROFILE_CONFIG,
+} from "@/components/profile/identity";
 
 const PROFILE_THEMES = [
   { value: "default", label: "Default", color: "bg-primary" },
@@ -74,6 +80,9 @@ export function BrandHub() {
     is_available_for_collab: true,
   });
 
+  // Visual identity config
+  const [visualConfig, setVisualConfig] = useState<ProfileConfig>(DEFAULT_PROFILE_CONFIG);
+
   // Update form when profile loads
   React.useEffect(() => {
     if (profile) {
@@ -89,6 +98,11 @@ export function BrandHub() {
         status_text: profile.status_text || "",
         is_available_for_collab: profile.is_available_for_collab ?? true,
       });
+      // Load visual identity config
+      const savedConfig = (profile as Record<string, unknown>).profile_config;
+      if (savedConfig && typeof savedConfig === 'object') {
+        setVisualConfig({ ...DEFAULT_PROFILE_CONFIG, ...(savedConfig as Partial<ProfileConfig>) });
+      }
     }
   }, [profile]);
 
@@ -96,7 +110,7 @@ export function BrandHub() {
   const saveMutation = useMutation({
     mutationFn: async (updates: typeof formData) => {
       if (!user?.id) throw new Error("Not logged in");
-      
+
       const { error } = await supabase
         .from("profiles")
         .update(updates)
@@ -129,49 +143,43 @@ export function BrandHub() {
     .toUpperCase() || "?";
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <HubSkeleton variant="tabs" count={3} />;
   }
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <Sparkles className="h-6 w-6 text-primary" />
-            Brand Hub
-          </h2>
-          <p className="text-muted-foreground">Build and manage your professional identity</p>
-        </div>
-        <div className="flex gap-3">
-          {formData.username && (
-            <Button variant="outline" onClick={() => navigate(`/u/${formData.username}`)}>
-              <Eye className="h-4 w-4 mr-2" />
-              View Public Profile
+      <HubHeader
+        icon={<Sparkles className="h-5 w-5 text-amber-400" />}
+        title="Brand Hub"
+        subtitle="Build and manage your professional identity"
+        accent="rgba(245, 158, 11, 0.5)"
+        action={
+          <div className="flex gap-3">
+            {formData.username && (
+              <Button variant="outline" onClick={() => navigate(`/u/${formData.username}`)} className="border-white/10">
+                <Eye className="h-4 w-4 mr-2" />
+                View Public Profile
+              </Button>
+            )}
+            <Button onClick={handleSave} disabled={isSaving}>
+              {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              Save Changes
             </Button>
-          )}
-          <Button onClick={handleSave} disabled={isSaving}>
-            {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-            Save Changes
-          </Button>
-        </div>
-      </div>
+          </div>
+        }
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Live Preview Card */}
-        <Card className="lg:col-span-1">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Eye className="h-5 w-5" />
-              Live Preview
-            </CardTitle>
-            <CardDescription>How others see you</CardDescription>
-          </CardHeader>
-          <CardContent>
+        <GlassPanel className="lg:col-span-1">
+          <HubHeader
+            icon={<Eye className="h-5 w-5 text-blue-400" />}
+            title="Live Preview"
+            subtitle="How others see you"
+            accent="rgba(59, 130, 246, 0.5)"
+          />
+          <div className="mt-4">
             <div className="space-y-4">
               {/* Avatar Preview */}
               <div className="flex flex-col items-center text-center">
@@ -248,17 +256,19 @@ export function BrandHub() {
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </GlassPanel>
 
         {/* Editor */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="text-lg">Edit Your Brand</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <GlassPanel className="lg:col-span-2" glow accent="rgba(245, 158, 11, 0.3)">
+          <HubHeader
+            icon={<User className="h-5 w-5 text-amber-400" />}
+            title="Edit Your Brand"
+            accent="rgba(245, 158, 11, 0.5)"
+          />
+          <div className="mt-4">
             <Tabs defaultValue="identity" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 mb-6">
+              <TabsList className="grid w-full grid-cols-4 mb-6">
                 <TabsTrigger value="identity" className="gap-2">
                   <User className="h-4 w-4" />
                   Identity
@@ -270,6 +280,10 @@ export function BrandHub() {
                 <TabsTrigger value="theme" className="gap-2">
                   <Palette className="h-4 w-4" />
                   Theme
+                </TabsTrigger>
+                <TabsTrigger value="visual" className="gap-2">
+                  <Sparkles className="h-4 w-4" />
+                  Visual ID
                 </TabsTrigger>
               </TabsList>
 
@@ -369,11 +383,10 @@ export function BrandHub() {
                           key={emoji}
                           type="button"
                           onClick={() => setFormData({ ...formData, status_emoji: formData.status_emoji === emoji ? "" : emoji })}
-                          className={`text-2xl p-2 rounded-lg transition-colors ${
-                            formData.status_emoji === emoji 
-                              ? "bg-primary/20 ring-2 ring-primary" 
-                              : "hover:bg-muted"
-                          }`}
+                          className={`text-2xl p-2 rounded-lg transition-colors ${formData.status_emoji === emoji
+                            ? "bg-primary/20 ring-2 ring-primary"
+                            : "hover:bg-muted"
+                            }`}
                         >
                           {emoji}
                         </button>
@@ -404,11 +417,10 @@ export function BrandHub() {
                         key={theme.value}
                         type="button"
                         onClick={() => setFormData({ ...formData, profile_theme: theme.value })}
-                        className={`h-16 rounded-lg ${theme.color} transition-all ${
-                          formData.profile_theme === theme.value 
-                            ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-105" 
-                            : "opacity-70 hover:opacity-100"
-                        }`}
+                        className={`h-16 rounded-lg ${theme.color} transition-all ${formData.profile_theme === theme.value
+                          ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-105"
+                          : "opacity-70 hover:opacity-100"
+                          }`}
                         title={theme.label}
                       />
                     ))}
@@ -418,51 +430,70 @@ export function BrandHub() {
                   </p>
                 </div>
 
-                <div className="rounded-lg border border-dashed border-muted-foreground/30 p-6 text-center">
-                  <Palette className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">
-                    More customization options coming soon!
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Custom colors, cover images, and profile frames
+                <div className="rounded-lg border border-dashed border-muted-foreground/30 p-4 text-center">
+                  <p className="text-xs text-muted-foreground">
+                    💡 For advanced customization, check the <strong>Visual ID</strong> tab
                   </p>
                 </div>
               </TabsContent>
+
+              <TabsContent value="visual" className="space-y-4">
+                <ProfileCanvasEditor
+                  config={visualConfig}
+                  onChange={setVisualConfig}
+                  onSave={handleSave}
+                  saving={isSaving}
+                  profile={{
+                    full_name: formData.full_name,
+                    username: formData.username,
+                    avatar_url: profile?.avatar_url,
+                    tagline: formData.tagline,
+                    bio: formData.bio,
+                  }}
+                />
+              </TabsContent>
             </Tabs>
-          </CardContent>
-        </Card>
+          </div>
+        </GlassPanel>
       </div>
 
       {/* Analytics Preview */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <MessageSquare className="h-5 w-5" />
-            Brand Performance
-          </CardTitle>
-          <CardDescription>How your profile is performing</CardDescription>
-        </CardHeader>
-        <CardContent>
+      <GlassPanel glow accent="rgba(245, 158, 11, 0.3)">
+        <HubHeader
+          icon={<MessageSquare className="h-5 w-5 text-amber-400" />}
+          title="Brand Performance"
+          subtitle="How your profile is performing"
+          accent="rgba(245, 158, 11, 0.5)"
+        />
+        <div className="mt-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center p-4 rounded-lg bg-muted/50">
-              <p className="text-3xl font-bold">{profile?.profile_views_count || 0}</p>
-              <p className="text-sm text-muted-foreground">Profile Views</p>
-            </div>
-            <div className="text-center p-4 rounded-lg bg-muted/50">
-              <p className="text-3xl font-bold">{profile?.follower_count || 0}</p>
-              <p className="text-sm text-muted-foreground">Followers</p>
-            </div>
-            <div className="text-center p-4 rounded-lg bg-muted/50">
-              <p className="text-3xl font-bold">{profile?.following_count || 0}</p>
-              <p className="text-sm text-muted-foreground">Following</p>
-            </div>
-            <div className="text-center p-4 rounded-lg bg-muted/50">
-              <p className="text-3xl font-bold">Level {profile?.level || 1}</p>
-              <p className="text-sm text-muted-foreground">{profile?.total_xp || 0} XP</p>
-            </div>
+            <GlassPanel padding="p-4" hoverable>
+              <div className="text-center">
+                <p className="text-3xl font-bold text-foreground">{profile?.profile_views_count || 0}</p>
+                <p className="text-sm text-muted-foreground">Profile Views</p>
+              </div>
+            </GlassPanel>
+            <GlassPanel padding="p-4" hoverable>
+              <div className="text-center">
+                <p className="text-3xl font-bold text-foreground">{profile?.follower_count || 0}</p>
+                <p className="text-sm text-muted-foreground">Followers</p>
+              </div>
+            </GlassPanel>
+            <GlassPanel padding="p-4" hoverable>
+              <div className="text-center">
+                <p className="text-3xl font-bold text-foreground">{profile?.following_count || 0}</p>
+                <p className="text-sm text-muted-foreground">Following</p>
+              </div>
+            </GlassPanel>
+            <GlassPanel padding="p-4" hoverable>
+              <div className="text-center">
+                <p className="text-3xl font-bold text-foreground">Level {profile?.level || 1}</p>
+                <p className="text-sm text-muted-foreground">{profile?.total_xp || 0} XP</p>
+              </div>
+            </GlassPanel>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </GlassPanel>
     </div>
   );
 }

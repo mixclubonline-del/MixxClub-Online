@@ -40,7 +40,7 @@ export function WhiteLabelDistribution() {
         <div>
           <h2 className="text-2xl font-bold">White-Label Distribution</h2>
           <p className="text-muted-foreground">
-            Choose from our curated distribution partners with exclusive MixClub pricing
+            Choose from our curated distribution partners with exclusive Mixxclub pricing
           </p>
         </div>
         <Badge variant="secondary">Phase 2</Badge>
@@ -88,7 +88,7 @@ export function WhiteLabelDistribution() {
 
       <Card className="bg-muted/50">
         <CardContent className="pt-6">
-          <h3 className="font-semibold mb-2">✨ MixClub Exclusive Benefits</h3>
+          <h3 className="font-semibold mb-2">✨ Mixxclub Exclusive Benefits</h3>
           <ul className="space-y-1 text-sm text-muted-foreground">
             <li>• 20% discount on all distribution packages</li>
             <li>• Priority support from distribution partners</li>

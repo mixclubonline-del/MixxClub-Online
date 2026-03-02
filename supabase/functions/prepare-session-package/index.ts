@@ -302,7 +302,7 @@ ${stems.map((s: any) => `- ${s.name} (${s.type})`).join('\n')}
 1. Open the project file in your DAW
 2. All stems are organized in the /stems folder
 3. Reference tracks (if any) are in the /references folder
-4. When finished, export your mix and upload via Mixclub
+4. When finished, export your mix and upload via Mixxclub
 
 ## Notes
 ${project.description || 'No additional notes'}

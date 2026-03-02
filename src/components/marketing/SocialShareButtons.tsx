@@ -14,7 +14,7 @@ interface SocialShareButtonsProps {
 
 export const SocialShareButtons = ({ 
   url = window.location.href,
-  title = "MixClub - Connect with Top Audio Engineers",
+  title = "Mixxclub - Connect with Top Audio Engineers",
   description = "Professional audio mixing and mastering platform"
 }: SocialShareButtonsProps) => {
   const { toast } = useToast();
@@ -26,7 +26,7 @@ export const SocialShareButtons = ({
     
     toast({
       title: "Opening Twitter",
-      description: "Share MixClub with your followers!"
+      description: "Share Mixxclub with your followers!"
     });
   };
 
@@ -36,7 +36,7 @@ export const SocialShareButtons = ({
     
     toast({
       title: "Opening Facebook",
-      description: "Share MixClub with your network!"
+      description: "Share Mixxclub with your network!"
     });
   };
 
@@ -46,7 +46,7 @@ export const SocialShareButtons = ({
     
     toast({
       title: "Opening LinkedIn",
-      description: "Share MixClub with professionals!"
+      description: "Share Mixxclub with professionals!"
     });
   };
 
@@ -65,7 +65,7 @@ export const SocialShareButtons = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Share MixClub</CardTitle>
+        <CardTitle>Share Mixxclub</CardTitle>
         <CardDescription>
           Help us grow by sharing with your network
         </CardDescription>

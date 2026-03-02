@@ -53,7 +53,7 @@ export const RoleSelectionCTA = () => {
             Which Side Are <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">You On?</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Whether you're creating music or engineering sound, MixClub has a place for you
+            Whether you're creating music or engineering sound, Mixxclub has a place for you
           </p>
         </motion.div>
 

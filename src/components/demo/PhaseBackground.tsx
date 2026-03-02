@@ -15,6 +15,7 @@ import fallbackProblem from '@/assets/promo/before-after-master.jpg';
 import fallbackDiscovery from '@/assets/promo/collaboration-hero.jpg';
 import fallbackConnection from '@/assets/promo/mixing-collaboration.jpg';
 import fallbackTransformation from '@/assets/promo/mastering-before-after.jpg';
+import fallbackStudio from '@/assets/videos/mixxos_flow_console_video.mp4';
 import fallbackTribe from '@/assets/promo/webrtc-collaboration.jpg';
 import fallbackInvitation from '@/assets/promo/studio-console-hero.jpg';
 
@@ -32,7 +33,7 @@ const STATIC_FALLBACKS: Record<DemoPhaseId, string> = {
   discovery: fallbackDiscovery,
   connection: fallbackConnection,
   transformation: fallbackTransformation,
-  studio: fallbackProblem, // No dedicated static fallback; gradient is primary
+  studio: fallbackStudio,
   marketplace: fallbackDiscovery,
   stage: fallbackConnection,
   bag: fallbackTransformation,
@@ -94,24 +95,24 @@ const PHASE_GRADIENTS: Record<DemoPhaseId, string> = {
   `,
 };
 
-export function PhaseBackground({ 
-  phaseId, 
-  amplitude, 
-  bass, 
-  mid = 0, 
+export function PhaseBackground({
+  phaseId,
+  amplitude,
+  bass,
+  mid = 0,
   high = 0,
-  isPlaying 
+  isPlaying
 }: PhaseBackgroundProps) {
   const { getAssetForPhase, getAssetTypeForPhase, isLoading } = useDemoPhaseAssets();
-  
+
   const dbAssetUrl = getAssetForPhase(phaseId);
   const dbAssetType = getAssetTypeForPhase(phaseId);
   const staticFallback = STATIC_FALLBACKS[phaseId];
   const fallbackGradient = PHASE_GRADIENTS[phaseId];
 
-  // Priority: DB asset (image or video) > static fallback image > gradient
-  const resolvedUrl = dbAssetUrl || null;
-  const isVideo = dbAssetUrl && dbAssetType === 'video';
+  // Priority: DB asset (image or video) > static fallback (image or video) > gradient
+  const resolvedUrl = dbAssetUrl || staticFallback || null;
+  const isVideo = (dbAssetUrl && dbAssetType === 'video') || (resolvedUrl && resolvedUrl.endsWith('.mp4'));
 
   // Audio-reactive glow intensity
   const bassGlow = isPlaying ? (bass / 255) * 0.25 : 0;
@@ -165,7 +166,7 @@ export function PhaseBackground({
       </AnimatePresence>
 
       {/* Layer 2: Darkening Gradient Overlay for readability */}
-      <div 
+      <div
         className="absolute inset-0"
         style={{
           background: `
@@ -180,7 +181,7 @@ export function PhaseBackground({
       />
 
       {/* Layer 3: Audio-Reactive Glow */}
-      <motion.div 
+      <motion.div
         className="absolute inset-0"
         animate={{
           opacity: isPlaying ? 1 : 0.5,

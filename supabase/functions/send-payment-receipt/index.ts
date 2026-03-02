@@ -61,7 +61,7 @@ serve(async (req) => {
     // Generate HTML email
     const emailHtml = generateReceiptEmail({
       userName,
-      projectName: project.title || 'MixClub Project',
+      projectName: project.title || 'Mixxclub Project',
       amount: paymentDetails.amount,
       engineerShare: paymentDetails.engineerShare,
       platformFee: paymentDetails.platformFee,
@@ -82,7 +82,7 @@ serve(async (req) => {
         'Authorization': `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: 'MixClub <onboarding@resend.dev>',
+        from: 'Mixxclub <onboarding@resend.dev>',
         to: [userEmail],
         subject: `Payment Receipt - ${project.title}`,
         html: emailHtml,
@@ -224,14 +224,14 @@ function generateReceiptEmail(details: {
     <div style="margin-top: 30px; padding: 20px; background: white; border-radius: 8px; text-align: center;">
       <p style="margin: 0; color: #666; font-size: 14px;">
         Questions about your payment? Contact us at 
-        <a href="mailto:support@mixclubonline.com" style="color: #5B3CFF; text-decoration: none;">support@mixclubonline.com</a>
+        <a href="mailto:support@mixxclubonline.com" style="color: #5B3CFF; text-decoration: none;">support@mixxclubonline.com</a>
       </p>
     </div>
     
   </div>
   
   <div style="text-align: center; margin-top: 30px; color: #999; font-size: 12px;">
-    <p>© ${new Date().getFullYear()} MixClub. All rights reserved.</p>
+    <p>© ${new Date().getFullYear()} Mixxclub. All rights reserved.</p>
     <p style="margin: 10px 0 0 0;">
       This is an automated receipt for your records. Please do not reply to this email.
     </p>

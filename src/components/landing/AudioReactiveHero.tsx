@@ -190,7 +190,7 @@ export const AudioReactiveHero = () => {
                 ) : (
                   <>
                     <Play className="w-6 h-6" />
-                    Experience MixClub
+                    Experience Mixxclub
                   </>
                 )}
               </span>

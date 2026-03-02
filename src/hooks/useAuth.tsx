@@ -19,7 +19,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // ─── Dev Auth Bypass ───────────────────────────────────────────────────
-const DEV_AUTH_BYPASS = import.meta.env.VITE_DEV_AUTH_BYPASS === 'true';
+// Only allow dev bypass in actual development mode AND when explicitly enabled
+const DEV_AUTH_BYPASS = import.meta.env.DEV && import.meta.env.VITE_DEV_AUTH_BYPASS === 'true';
 
 const DEV_MOCK_USER = {
   id: '00000000-0000-4000-8000-000000000000',
@@ -83,7 +84,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           userRole: 'producer',
           userRoles: ['producer', 'engineer', 'artist'],
           activeRole: 'producer',
-          setActiveRole: () => {},
+          setActiveRole: () => { },
           isHybridUser: true,
           signOut: async () => { window.location.href = '/auth'; },
         }}
@@ -181,6 +182,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
     setSession(null);
     clearRoles();
+    // Redirect to home page so user doesn't remain on a stale protected page
+    window.location.href = '/';
   };
 
   return (

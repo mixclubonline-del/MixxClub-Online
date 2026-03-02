@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { uuid } from '@/lib/uuid';
 
 export interface AuditLogEntry {
   id?: string;
@@ -43,7 +44,7 @@ export function useAuditLog() {
 
       // Store in localStorage for demo purposes (in production, use a proper audit log table)
       const logs = JSON.parse(localStorage.getItem('audit_logs') || '[]');
-      logs.push({ ...auditEntry, id: crypto.randomUUID(), created_at: new Date().toISOString() });
+      logs.push({ ...auditEntry, id: uuid(), created_at: new Date().toISOString() });
       
       // Keep only last 1000 entries
       if (logs.length > 1000) {

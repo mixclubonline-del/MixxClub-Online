@@ -42,18 +42,6 @@ export const SupabaseService = {
     },
 
     /**
-     * Execute a SQL query directly (admin only)
-     */
-    async executeQuery<T extends Record<string, unknown>>(query: string): Promise<T[]> {
-        try {
-            const { data, error } = await supabase.rpc('execute_query', { query });
-            if (error) throw error;
-            return data as T[];
-        } catch (error) {
-            console.error('Query execution failed:', error);
-            throw error;
-        }
-    },    /**
      * Get the current authenticated user
      */
     async getCurrentUser() {
