@@ -54,7 +54,7 @@ interface AuphonicProduction {
 
 serve(async (req) => {
   console.log(`Advanced mastering request: ${req.method}`);
-  
+
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -119,13 +119,13 @@ Always provide detailed technical analysis with specific recommendations for imp
 
     if (requestData.audioFile) {
       console.log(`Processing ${requestData.audioFile.name} (${requestData.audioFile.size} bytes)`);
-      
+
       const startTime = Date.now();
-      
+
       // Upload original file to Supabase Storage
       const fileBuffer = Uint8Array.from(atob(requestData.audioFile.data), c => c.charCodeAt(0));
       const originalFileName = `original_${Date.now()}_${requestData.audioFile.name}`;
-      
+
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('audio-files')
         .upload(originalFileName, fileBuffer, {
@@ -172,7 +172,7 @@ Always provide detailed technical analysis with specific recommendations for imp
     }
 
     // Enhanced AI Analysis with Lovable AI
-    const analysisPrompt = masteringResult 
+    const analysisPrompt = masteringResult
       ? `Analyze this professional mastering result:\n\nOriginal LUFS: ${masteringResult.analysis.originalLUFS}\nMastered LUFS: ${masteringResult.analysis.masteredLUFS}\nDynamic Range: ${masteringResult.analysis.dynamicRange}\nPeak Reduction: ${masteringResult.analysis.peakReduction}dB\n\nProcessing: ${masteringResult.processing.service}\nSettings: ${JSON.stringify(masteringResult.processing.settings)}\n\nUser request: "${requestData.message}"\n\nProvide expert analysis of the mastering results, explain the technical improvements, and suggest any additional optimizations. Focus on professional terminology and actionable insights.`
       : `User message: "${requestData.message}"\n\nProvide expert mastering guidance, technical recommendations, and professional insights. If they're asking about mastering techniques, explain the process in detail with specific technical parameters.`;
 
@@ -183,7 +183,7 @@ Always provide detailed technical analysis with specific recommendations for imp
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-3-flash-preview',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: analysisPrompt }
@@ -226,7 +226,7 @@ Always provide detailed technical analysis with specific recommendations for imp
           // Determine recommended package based on quality needs
           const qualityScore = masteringResult.analysis.masteredLUFS + masteringResult.analysis.dynamicRange;
           let recommendedPackage = packages[0]; // Default to cheapest
-          
+
           if (qualityScore > -10) {
             // High quality result - recommend premium package
             recommendedPackage = packages[packages.length - 1];
@@ -247,13 +247,13 @@ Always provide detailed technical analysis with specific recommendations for imp
           salesProposal = {
             recommendedPackage: {
               ...recommendedPackage,
-              features: typeof recommendedPackage.features === 'string' 
+              features: typeof recommendedPackage.features === 'string'
                 ? JSON.parse(recommendedPackage.features)
                 : recommendedPackage.features
             },
             allPackages: packages.map(pkg => ({
               ...pkg,
-              features: typeof pkg.features === 'string' 
+              features: typeof pkg.features === 'string'
                 ? JSON.parse(pkg.features)
                 : pkg.features,
               popular: pkg.name.toLowerCase().includes('pro')
@@ -283,7 +283,7 @@ Always provide detailed technical analysis with specific recommendations for imp
   } catch (error) {
     console.error('Advanced mastering error:', error);
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         error: error instanceof Error ? error.message : 'Unknown error occurred',
         service: 'Advanced AI Mastering Suite'
       }),
@@ -303,7 +303,7 @@ async function processWithAuphonic(
   originalFileName: string
 ): Promise<MasteringResult> {
   const startTime = Date.now();
-  
+
   console.log('Creating Auphonic production with audio URL');
 
   // Step 1: Create a production using the regular JSON API
@@ -365,7 +365,7 @@ async function processWithAuphonic(
 
   while (attempts < maxAttempts) {
     await new Promise(resolve => setTimeout(resolve, 5000));
-    
+
     const statusResponse = await fetch(`https://auphonic.com/api/production/${productionUuid}.json`, {
       headers: {
         'Authorization': `Bearer ${apiKey}`,
@@ -434,7 +434,7 @@ async function processWithAuphonic(
   // Generate realistic analysis
   const originalLUFS = -20 - Math.random() * 4;
   const masteredLUFS = (preferences.loudnessTarget || -16) + (Math.random() * 2 - 1);
-  
+
   return {
     originalUrl: audioUrl,
     masteredUrl: masteredUrlData.signedUrl,

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import type { Database } from '@/integrations/supabase/types';
+import { uuid } from '@/lib/uuid';
 
 // Database types aligned with actual schema
 type DbPartnership = Database['public']['Tables']['partnerships']['Row'];
@@ -356,7 +357,7 @@ export const usePartnershipEarnings = (): UsePartnershipEarningsResult => {
           project_id: data.projectId,
           created_by: user.id,
           amount: data.amount,
-          link_url: `https://pay.mixxclub.com/${crypto.randomUUID().slice(0, 8)}`,
+          link_url: `https://pay.mixxclub.com/${uuid().slice(0, 8)}`,
           status: 'active',
         })
         .select()

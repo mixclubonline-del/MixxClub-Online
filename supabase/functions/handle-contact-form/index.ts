@@ -126,7 +126,7 @@ serve(async (req) => {
                         Authorization: `Bearer ${resendApiKey}`,
                     },
                     body: JSON.stringify({
-                        from: "MixClub <notifications@mixclub.com>",
+                        from: "Mixxclub <notifications@mixxclubonline.com>",
                         to: [adminEmail],
                         subject: `[Contact Form] ${subject}`,
                         html: `

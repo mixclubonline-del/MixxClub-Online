@@ -48,10 +48,34 @@ const getRoleHubPath = (userRole?: string | null) => {
 
 export function HomeOverlayNav() {
   const { user, userRole } = useAuth();
+  const { user, activeRole } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const scene = useSceneFlowStore((s) => s.scene);
   const activeLinks = useMemo(() => (user ? AUTHENTICATED_LINKS : PUBLIC_LINKS), [user]);
   const dashboardPath = useMemo(() => getRoleHubPath(userRole), [userRole]);
+
+  const roleRoutes = {
+    artist: '/artist-crm',
+    engineer: '/engineer-crm',
+    producer: '/producer-crm',
+    fan: '/fan-hub',
+    admin: '/admin-crm',
+  } as const;
+
+  const roleAwarePath = (path: string) => {
+    if (!user) return path;
+
+    const map: Record<string, string> = {
+      '/for-artists': '/artist-crm',
+      '/for-engineers': '/engineer-crm',
+      '/for-producers': '/producer-crm',
+      '/for-fans': '/fan-hub',
+    };
+
+    return map[path] || path;
+  };
+
+  const dashboardPath = activeRole ? roleRoutes[activeRole] : '/dashboard';
 
   // Hide entirely during Demo and Club Scene — they have their own internal nav
   if (scene !== 'HALLWAY') return null;
@@ -70,7 +94,7 @@ export function HomeOverlayNav() {
           {activeLinks.slice(0, 6).map((link) => (
             <Link
               key={link.path}
-              to={link.path}
+              to={roleAwarePath(link.path)}
               className="px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground rounded-lg hover:bg-foreground/5 transition-all"
             >
               {link.label}
@@ -90,7 +114,7 @@ export function HomeOverlayNav() {
                 <Link to="/auth">Sign In</Link>
               </Button>
               <Button asChild size="sm" className="h-8 text-xs">
-                <Link to="/choose-path">Get Started</Link>
+                <Link to="/how-it-works">Get Started</Link>
               </Button>
             </>
           )}
@@ -120,7 +144,7 @@ export function HomeOverlayNav() {
               {activeLinks.map((link) => (
                 <Link
                   key={link.path}
-                  to={link.path}
+                  to={roleAwarePath(link.path)}
                   onClick={() => setMenuOpen(false)}
                   className="px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground rounded-lg hover:bg-foreground/5 transition-all"
                 >

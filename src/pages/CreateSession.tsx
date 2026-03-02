@@ -1,7 +1,9 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useUnlockContribution } from "@/hooks/useUnlockContribution";
+import { attributionToasts } from "@/components/unlock/UnlockAttributionToast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,7 +15,7 @@ import { ArrowLeft, Music, DollarSign, Clock, Sparkles, Users, Zap } from "lucid
 import { toast } from "sonner";
 
 const GENRES = [
-  "Hip-Hop", "R&B", "Trap", "Pop", "Rock", "Electronic", 
+  "Hip-Hop", "R&B", "Trap", "Pop", "Rock", "Electronic",
   "Jazz", "Soul", "Latin", "Country", "Indie", "Other"
 ];
 
@@ -26,9 +28,19 @@ const SERVICE_TYPES = [
 
 const CreateSession = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
+  const { getContributionMessage } = useUnlockContribution();
   const [loading, setLoading] = useState(false);
-  
+  const collaboratorId = searchParams.get('with');
+  const [collaborator, setCollaborator] = useState<{
+    id: string;
+    full_name: string;
+    username: string;
+    avatar_url: string | null;
+    role: string;
+  } | null>(null);
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -36,12 +48,26 @@ const CreateSession = () => {
     serviceType: "mixing",
     budget: 150,
     deadline: "",
-    visibility: "public",
+    visibility: collaboratorId ? "private" : "public",
   });
+
+  // Fetch collaborator profile when pre-selected via ?with= param
+  useEffect(() => {
+    if (!collaboratorId) return;
+    const fetchCollaborator = async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('id, full_name, username, avatar_url, role')
+        .eq('id', collaboratorId)
+        .single();
+      if (data) setCollaborator(data);
+    };
+    fetchCollaborator();
+  }, [collaboratorId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!user) {
       toast.error("Please sign in to create a session");
       navigate("/auth?mode=signup");
@@ -56,7 +82,7 @@ const CreateSession = () => {
     setLoading(true);
 
     try {
-      const { error } = await supabase.from("collaboration_sessions").insert({
+      const { data: session, error } = await supabase.from("collaboration_sessions").insert({
         host_user_id: user.id,
         title: formData.title,
         description: formData.description,
@@ -67,13 +93,40 @@ const CreateSession = () => {
           genre: formData.genre,
           budget: formData.budget,
           deadline: formData.deadline,
+          invited_collaborator: collaborator?.id || null,
         },
-      });
+      }).select('id').single();
 
       if (error) throw error;
 
-      toast.success("Session created! Engineers can now apply.");
-      navigate("/sessions");
+      // If we have a pre-selected collaborator, add them as a participant
+      if (collaborator && session) {
+        await supabase.from("session_participants").insert({
+          session_id: session.id,
+          user_id: collaborator.id,
+          role: collaborator.role === 'engineer' ? 'engineer' : 'collaborator',
+          status: 'invited',
+        });
+
+        // Update the match status to 'working' if this came from a match
+        await supabase
+          .from('user_matches')
+          .update({ status: 'working' })
+          .or(`matched_user_id.eq.${collaborator.id}, user_id.eq.${collaborator.id} `)
+          .eq('status', 'contacted');
+      }
+
+      toast.success(
+        collaborator
+          ? `Session created! ${collaborator.full_name || collaborator.username} has been invited.`
+          : "Session created! Engineers can now apply."
+      );
+
+      // Trigger unlock attribution toast
+      const contribution = getContributionMessage('sessions_completed', 'Session');
+      attributionToasts.sessionCompleted(contribution);
+
+      navigate(session ? `/session/${session.id}` : "/sessions");
     } catch (err) {
       console.error("Failed to create session:", err);
       toast.error("Failed to create session. Please try again.");
@@ -93,15 +146,15 @@ const CreateSession = () => {
       <div className="relative z-10 container max-w-4xl mx-auto px-4 py-12">
         {/* Header */}
         <div className="mb-8">
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             onClick={() => navigate(-1)}
             className="mb-4 text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
           </Button>
-          
+
           <div className="flex items-center gap-4 mb-2">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
               <Music className="w-6 h-6 text-primary-foreground" />
@@ -112,6 +165,28 @@ const CreateSession = () => {
             </div>
           </div>
         </div>
+
+        {/* Invited Collaborator Banner */}
+        {collaborator && (
+          <Card className="mb-6 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-green-500/30">
+            <CardContent className="py-4">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white font-bold text-lg">
+                  {collaborator.full_name?.[0] || collaborator.username?.[0] || '?'}
+                </div>
+                <div className="flex-1">
+                  <p className="font-semibold text-foreground">
+                    Session with {collaborator.full_name || collaborator.username}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {collaborator.role === 'engineer' ? 'Mix Engineer' : collaborator.role === 'producer' ? 'Producer' : 'Collaborator'} • Private session
+                  </p>
+                </div>
+                <Users className="w-5 h-5 text-green-500" />
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Benefits Banner */}
         <Card className="mb-8 bg-gradient-to-r from-primary/10 to-accent-blue/10 border-primary/20">

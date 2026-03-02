@@ -37,13 +37,7 @@ const MyPurchases = React.lazy(() => import("@/pages/MyPurchases"));
 const WishlistPage = React.lazy(() => import("@/components/marketplace/WishlistPage").then(m => ({ default: m.WishlistPage })));
 const SellerDashboardPage = React.lazy(() => import("@/pages/SellerDashboard"));
 
-// Onboarding pages
-import ArtistOnboarding from "@/pages/ArtistOnboarding";
-import EngineerOnboarding from "@/pages/EngineerOnboarding";
-import HybridOnboarding from "@/pages/HybridOnboarding";
-import ProducerOnboarding from "@/pages/ProducerOnboarding";
-import FanOnboarding from "@/pages/FanOnboarding";
-import RoleSelection from "@/pages/RoleSelection";
+
 
 // Service showcase pages
 import MixingShowcase from "@/pages/MixingShowcase";
@@ -90,6 +84,20 @@ const BroadcastPage = React.lazy(() => import("@/pages/BroadcastPage"));
 // Public Profile
 const PublicProfile = React.lazy(() => import("@/pages/PublicProfile"));
 
+
+
+
+// Promo Studio
+const PromoStudio = React.lazy(() => import("@/pages/PromoStudio"));
+
+// Onboarding pages
+const RoleSelection = React.lazy(() => import("@/pages/RoleSelection"));
+const ArtistOnboarding = React.lazy(() => import("@/pages/ArtistOnboarding"));
+const EngineerOnboarding = React.lazy(() => import("@/pages/EngineerOnboarding"));
+const HybridOnboarding = React.lazy(() => import("@/pages/HybridOnboarding"));
+const ProducerOnboarding = React.lazy(() => import("@/pages/ProducerOnboarding"));
+const FanOnboarding = React.lazy(() => import("@/pages/FanOnboarding"));
+
 // Job Board
 import { JobBoard } from "@/pages/JobBoard";
 
@@ -112,9 +120,19 @@ export const appRoutes = (
       <Route path="/producer-crm" element={<ProducerCRM />} />
       <Route path="/fan-hub" element={<FanHub />} />
       <Route path="/admin" element={<AdminRoute><AdminCRM /></AdminRoute>} />
+      <Route path="/promo-studio" element={<AdminRoute><React.Suspense fallback={null}><PromoStudio /></React.Suspense></AdminRoute>} />
+
+      {/* Legacy onboarding redirects → canonical standalone routes */}
+      <Route path="/artist-onboarding" element={<Navigate to="/onboarding/artist" replace />} />
+      <Route path="/engineer-onboarding" element={<Navigate to="/onboarding/engineer" replace />} />
+      <Route path="/producer-onboarding" element={<Navigate to="/onboarding/producer" replace />} />
+      <Route path="/fan-onboarding" element={<Navigate to="/onboarding/fan" replace />} />
+      <Route path="/hybrid-onboarding" element={<Navigate to="/onboarding/hybrid" replace />} />
+      <Route path="/role-selection" element={<Navigate to="/select-role" replace />} />
 
       {/* Sessions & Collaboration */}
       <Route path="/sessions" element={<SessionsBrowser />} />
+      <Route path="/sessions-browser" element={<SessionsBrowser />} />
       <Route path="/create-session" element={<CreateSession />} />
       <Route path="/session/:sessionId" element={<SessionDetail />} />
       <Route path="/collaborate/:sessionId" element={<CollaborativeWorkspace />} />
@@ -230,5 +248,7 @@ export const appRoutes = (
 
     {/* Enterprise demo (public) */}
     <Route path="/enterprise-demo" element={<EnterpriseDemo />} />
+
+    {/* Public pages route to publicRoutes.tsx — no duplicates needed here */}
   </>
 );

@@ -51,7 +51,7 @@ export default function DemoLogin() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted p-4">
       <Card className="w-full max-w-2xl">
         <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-bold">MixClub CRM Demo</CardTitle>
+          <CardTitle className="text-3xl font-bold">Mixxclub CRM Demo</CardTitle>
           <CardDescription className="text-lg">
             Choose a role to explore the platform (session expires in 4 hours)
           </CardDescription>

@@ -19,6 +19,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import { uuid } from '@/lib/uuid';
 
 interface Milestone {
   id: string;
@@ -64,7 +65,7 @@ export const MilestoneTracker = ({ projectId }: MilestoneTrackerProps) => {
         ...m,
         deliverables: Array.isArray(m.deliverables) 
           ? m.deliverables.map((d: any) => ({
-              id: d.id || crypto.randomUUID(),
+              id: d.id || uuid(),
               title: d.title || '',
               completed: d.completed || false,
             }))

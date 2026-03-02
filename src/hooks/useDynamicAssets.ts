@@ -46,6 +46,9 @@ export type SectionKey =
   // Community
   | 'community_plaza' | 'community_arena' | 'community_stage' 
   | 'community_leaderboard' | 'community_network'
+  // Community Showcase (How It Works)
+  | 'community_unlockables' | 'community_battles' | 'community_merch'
+  | 'community_learning' | 'community_sessions'
   // Services
   | 'services_lobby' | 'services_mixing' | 'services_mastering' 
   | 'services_ai' | 'services_distribution'
@@ -88,6 +91,13 @@ const SECTION_ASSET_MAP: Record<SectionKey, string[]> = {
   community_stage: ['community_stage', 'premiere_stage'],
   community_leaderboard: ['community_leaderboard'],
   community_network: ['community_network', 'connection_web'],
+
+  // Community Showcase pillars
+  community_unlockables: ['community_unlockables', 'community_progression'],
+  community_battles: ['community_battles', 'community_competition'],
+  community_merch: ['community_merch', 'community_storefront'],
+  community_learning: ['community_learning', 'community_education'],
+  community_sessions: ['community_sessions', 'community_live'],
 
   // === Services District (NEW) ===
   services_lobby: ['services_lobby', 'services_background'],

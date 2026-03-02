@@ -72,7 +72,7 @@ export const SplashScreen = ({ onComplete, duration = 2500 }: SplashScreenProps)
             >
               <img 
                 src="/splash-screen.png" 
-                alt="MixClub" 
+                alt="Mixxclub" 
                 className="w-64 h-64 object-contain"
               />
             </motion.div>

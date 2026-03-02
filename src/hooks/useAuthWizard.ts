@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -12,6 +12,7 @@ export interface AuthWizardState {
   mode: WizardMode;
   selectedRole: AppRole | null;
   email: string;
+  password: string;
   loading: boolean;
   error: string | null;
   resendCooldown: number;
@@ -21,14 +22,23 @@ const RESEND_COOLDOWN_SECONDS = 60;
 
 export function useAuthWizard() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const cooldownTimerRef = useRef<NodeJS.Timeout | null>(null);
   const isMountedRef = useRef(true);
+  const hasRedirected = useRef(false);
+
+  // Derive initial state from URL params
+  const modeParam = searchParams.get('mode') as WizardMode | null;
+  const roleParam = searchParams.get('role') as AppRole | null;
+  const initMode: WizardMode = modeParam === 'login' ? 'login' : 'signup';
+  const initStep: WizardStep = initMode === 'login' ? 'email' : 'role';
 
   const [state, setState] = useState<AuthWizardState>({
-    step: 'role',
-    mode: 'signup',
-    selectedRole: null,
+    step: initStep,
+    mode: initMode,
+    selectedRole: roleParam,
     email: '',
+    password: '',
     loading: false,
     error: null,
     resendCooldown: 0,
@@ -45,67 +55,102 @@ export function useAuthWizard() {
     };
   }, []);
 
-  // Check if user is already authenticated — redirect to their CRM
+  /** Redirect authenticated user to their destination */
+  const redirectAuthenticatedUser = useCallback(async (userId: string) => {
+    if (hasRedirected.current || !isMountedRef.current) return;
+
+    // Check for explicit redirect param first
+    const redirectTo = searchParams.get('redirect');
+
+    // Use user_roles table (authoritative source)
+    const { data: userRoles } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', userId);
+
+    if (!isMountedRef.current) return;
+
+    const roles: string[] = userRoles?.map(r => r.role as string) || [];
+    if (roles.length === 0) {
+      navigate('/select-role');
+      return;
+    }
+
+    // Priority: admin > producer > engineer > artist > fan
+    const priority = ['admin', 'producer', 'engineer', 'artist', 'fan'];
+    const primaryRole = priority.find(r => roles.includes(r)) || 'fan';
+
+    hasRedirected.current = true;
+
+    // If redirect param exists, use it (e.g., ?redirect=/admin)
+    if (redirectTo) {
+      navigate(redirectTo);
+      return;
+    }
+
+    // Admins skip onboarding entirely
+    if (primaryRole === 'admin') {
+      navigate('/admin');
+      return;
+    }
+
+    // Check onboarding status for non-admin roles
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('onboarding_completed')
+      .eq('id', userId)
+      .maybeSingle();
+
+    if (!profile?.onboarding_completed) {
+      navigate(`/onboarding/${primaryRole}`);
+      return;
+    }
+
+    const crmMap: Record<string, string> = {
+      producer: '/producer-crm',
+      engineer: '/engineer-crm',
+      fan: '/fan-hub',
+      artist: '/artist-crm',
+    };
+    navigate(crmMap[primaryRole] || '/artist-crm');
+  }, [navigate, searchParams]);
+
+  // Check session on mount AND listen for ongoing auth changes (handles OAuth return)
   useEffect(() => {
+    // Initial check
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user || !isMountedRef.current) return;
-
-      // Use user_roles table (authoritative source) instead of profiles.role
-      const { data: userRoles } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', session.user.id);
-
-      const roles: string[] = userRoles?.map(r => r.role as string) || [];
-      if (roles.length === 0) {
-        navigate('/select-role');
-        return;
+      if (session?.user && isMountedRef.current) {
+        redirectAuthenticatedUser(session.user.id);
       }
-
-      // Priority: admin > producer > engineer > artist > fan
-      const priority = ['admin', 'producer', 'engineer', 'artist', 'fan'];
-      const primaryRole = priority.find(r => roles.includes(r)) || 'fan';
-
-      // Admins skip onboarding entirely
-      if (primaryRole === 'admin') {
-        navigate('/admin');
-        return;
-      }
-
-      // Check onboarding status for non-admin roles
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('onboarding_completed')
-        .eq('id', session.user.id)
-        .maybeSingle();
-
-      if (!profile?.onboarding_completed) {
-        navigate(`/onboarding/${primaryRole}`);
-        return;
-      }
-
-      const crmMap: Record<string, string> = {
-        producer: '/producer-crm',
-        engineer: '/engineer-crm',
-        fan: '/fan-hub',
-        artist: '/artist-crm',
-      };
-      navigate(crmMap[primaryRole] || '/artist-crm');
     };
     checkSession();
-  }, [navigate]);
+
+    // Listen for auth state changes (fires after OAuth redirect completes)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (!isMountedRef.current) return;
+        if (session?.user && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
+          redirectAuthenticatedUser(session.user.id);
+        }
+      }
+    );
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [redirectAuthenticatedUser]);
 
   const setStep = useCallback((step: WizardStep) => {
     setState(prev => ({ ...prev, step, error: null }));
   }, []);
 
   const setMode = useCallback((mode: WizardMode) => {
-    setState(prev => ({ 
-      ...prev, 
-      mode, 
+    setState(prev => ({
+      ...prev,
+      mode,
       step: mode === 'login' ? 'email' : 'role',
-      error: null 
+      error: null
     }));
   }, []);
 
@@ -115,6 +160,10 @@ export function useAuthWizard() {
 
   const setEmail = useCallback((email: string) => {
     setState(prev => ({ ...prev, email, error: null }));
+  }, []);
+
+  const setPassword = useCallback((password: string) => {
+    setState(prev => ({ ...prev, password, error: null }));
   }, []);
 
   const setError = useCallback((error: string | null) => {
@@ -127,10 +176,10 @@ export function useAuthWizard() {
 
   const startResendCooldown = useCallback(() => {
     setState(prev => ({ ...prev, resendCooldown: RESEND_COOLDOWN_SECONDS }));
-    
+
     cooldownTimerRef.current = setInterval(() => {
       if (!isMountedRef.current) return;
-      
+
       setState(prev => {
         if (prev.resendCooldown <= 1) {
           if (cooldownTimerRef.current) {
@@ -205,6 +254,77 @@ export function useAuthWizard() {
     return sendMagicLink();
   }, [state.resendCooldown, sendMagicLink]);
 
+  // Email + Password auth
+  const signInWithEmail = useCallback(async () => {
+    if (!state.email) {
+      setError('Please enter your email address');
+      return false;
+    }
+    if (!state.password || state.password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(state.email)) {
+      setError('Please enter a valid email address');
+      return false;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      if (state.mode === 'login') {
+        // Sign in with existing account
+        const { error } = await supabase.auth.signInWithPassword({
+          email: state.email,
+          password: state.password,
+        });
+        if (error) {
+          if (error.message.includes('Invalid login credentials')) {
+            setError('Invalid email or password. Please try again.');
+          } else {
+            setError(error.message);
+          }
+          return false;
+        }
+        toast.success('Signed in successfully!');
+      } else {
+        // Sign up new account
+        const { error } = await supabase.auth.signUp({
+          email: state.email,
+          password: state.password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/auth/callback`,
+            data: {
+              role: state.selectedRole || 'fan',
+            },
+          },
+        });
+        if (error) {
+          if (error.message.includes('already registered')) {
+            setError('This email is already registered. Try signing in instead.');
+          } else {
+            setError(error.message);
+          }
+          return false;
+        }
+        toast.success('Account created! Check your email to confirm.');
+        setState(prev => ({ ...prev, step: 'confirmation' }));
+      }
+      return true;
+    } catch (err) {
+      console.error('Email auth error:', err);
+      setError('Authentication failed. Please try again.');
+      return false;
+    } finally {
+      if (isMountedRef.current) {
+        setLoading(false);
+      }
+    }
+  }, [state.email, state.password, state.mode, state.selectedRole, setError, setLoading]);
+
   const goBack = useCallback(() => {
     setState(prev => {
       if (prev.step === 'confirmation') {
@@ -238,9 +358,11 @@ export function useAuthWizard() {
     setMode,
     setSelectedRole,
     setEmail,
+    setPassword,
     setError,
     setLoading,
     sendMagicLink,
+    signInWithEmail,
     resendMagicLink,
     goBack,
     canGoBack,

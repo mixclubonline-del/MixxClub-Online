@@ -89,7 +89,7 @@ export default function Crowd() {
   return (
     <>
       <Helmet>
-        <title>The Crowd — MixClub Online</title>
+        <title>The Crowd — Mixxclub Online</title>
         <meta 
           name="description" 
           content="Fan zone for music lovers. Vote on tracks, discover new artists, and earn rewards for your engagement." 

@@ -34,12 +34,12 @@ serve(async (req) => {
 
     // Generate AI forecast using Lovable AI
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    
+
     const historicalData = {
-      monthlyRevenue: historicalRevenue?.map(r => ({ 
-        month: r.period_start, 
-        mrr: r.mrr, 
-        arr: r.arr 
+      monthlyRevenue: historicalRevenue?.map(r => ({
+        month: r.period_start,
+        mrr: r.mrr,
+        arr: r.arr
       })) || [],
       recentTransactions: recentPayments?.length || 0,
       totalRecent: recentPayments?.reduce((sum, p) => sum + Number(p.amount || 0), 0) || 0
@@ -64,7 +64,7 @@ Return ONLY a JSON array of forecasts with this structure:
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-3-flash-preview',
         messages: [
           { role: 'system', content: 'You are a financial forecasting expert. Always respond with valid JSON only.' },
           { role: 'user', content: aiPrompt }
@@ -78,7 +78,7 @@ Return ONLY a JSON array of forecasts with this structure:
 
     const aiData = await aiResponse.json();
     const forecastText = aiData.choices[0].message.content;
-    
+
     let forecasts = [];
     try {
       forecasts = JSON.parse(forecastText);
@@ -109,9 +109,9 @@ Return ONLY a JSON array of forecasts with this structure:
 
     const { data: insertedForecasts, error: insertError } = await supabaseClient
       .from('financial_forecasts')
-      .upsert(forecastRecords, { 
+      .upsert(forecastRecords, {
         onConflict: 'forecast_type,forecast_date',
-        ignoreDuplicates: false 
+        ignoreDuplicates: false
       })
       .select();
 
@@ -120,11 +120,11 @@ Return ONLY a JSON array of forecasts with this structure:
     }
 
     return new Response(
-      JSON.stringify({ 
-        success: true, 
+      JSON.stringify({
+        success: true,
         forecasts: insertedForecasts || forecastRecords
       }),
-      { 
+      {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
       }
@@ -133,7 +133,7 @@ Return ONLY a JSON array of forecasts with this structure:
     console.error('Error generating forecast:', error);
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
-      { 
+      {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,
       }

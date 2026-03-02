@@ -1,19 +1,29 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { getCorsHeaders } from '../_shared/cors.ts';
+import { requireAuth, authErrorResponse } from '../_shared/auth.ts';
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
+
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Authenticate caller
+    const auth = await requireAuth(req);
+    if ('error' in auth) return authErrorResponse(auth, corsHeaders);
+
     const { projectId, amount } = await req.json();
 
-    console.log('Creating PayPal order for project:', projectId, 'amount:', amount);
+    if (!projectId || !amount || typeof amount !== 'number' || amount <= 0) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid request parameters' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('Creating PayPal order for user:', auth.user.id, 'project:', projectId, 'amount:', amount);
 
     // PayPal API credentials
     const PAYPAL_CLIENT_ID = Deno.env.get('PAYPAL_CLIENT_ID');
@@ -21,7 +31,11 @@ serve(async (req) => {
     const PAYPAL_API = Deno.env.get('PAYPAL_API_URL') || 'https://api-m.sandbox.paypal.com';
 
     if (!PAYPAL_CLIENT_ID || !PAYPAL_SECRET) {
-      throw new Error('PayPal credentials not configured');
+      console.error('[INTERNAL] PayPal credentials not configured');
+      return new Response(
+        JSON.stringify({ error: 'Payment service unavailable' }),
+        { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // Get PayPal access token
@@ -51,10 +65,10 @@ serve(async (req) => {
             currency_code: 'USD',
             value: amount.toFixed(2),
           },
-          description: `MixClub Project Payment - ${projectId}`,
+          description: `Mixxclub Project Payment - ${projectId}`,
         }],
         application_context: {
-          brand_name: 'MixClub',
+          brand_name: 'Mixxclub',
           shipping_preference: 'NO_SHIPPING',
         },
       }),
@@ -63,7 +77,11 @@ serve(async (req) => {
     const orderData = await orderResponse.json();
 
     if (!orderResponse.ok) {
-      throw new Error(orderData.message || 'Failed to create PayPal order');
+      console.error('[INTERNAL] PayPal order creation failed:', orderData);
+      return new Response(
+        JSON.stringify({ error: 'Failed to create payment order' }),
+        { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     console.log('PayPal order created:', orderData.id);
@@ -74,14 +92,10 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Error creating PayPal order:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('[INTERNAL] Error creating PayPal order:', error);
     return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { 
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      }
+      JSON.stringify({ error: 'An unexpected error occurred' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });

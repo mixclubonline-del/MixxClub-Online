@@ -40,14 +40,7 @@ export function TierProgressCard({ totalEarned }: TierProgressCardProps) {
       viewport={{ once: true, margin: '-40px' }}
       transition={{ duration: 0.5, delay: 0.1 }}
     >
-      <div
-        className="relative rounded-xl border border-white/[0.08] p-6 overflow-hidden"
-        style={{
-          background: `linear-gradient(135deg, ${currentTier.glow} 0%, rgba(0,0,0,0.2) 100%)`,
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
-        }}
-      >
+      <div className="mg-panel relative p-6 overflow-hidden">
         {/* Background decoration */}
         <div className="absolute top-0 right-0 w-36 h-36 opacity-[0.06] pointer-events-none">
           <CurrentIcon className="w-full h-full" />
@@ -57,10 +50,7 @@ export function TierProgressCard({ totalEarned }: TierProgressCardProps) {
         <div className="relative z-10">
           {/* Current Tier */}
           <div className="flex items-center gap-4 mb-5">
-            <div
-              className="p-3 rounded-xl"
-              style={{ background: currentTier.glow, backdropFilter: 'blur(8px)' }}
-            >
+            <div className="mg-icon rounded-xl p-3">
               <CurrentIcon className={`h-8 w-8 ${currentTier.color}`} />
             </div>
             <div>

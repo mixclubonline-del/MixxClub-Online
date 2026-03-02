@@ -53,7 +53,7 @@ const contextEnhancements: Record<string, string> = {
   studio_: "music studio environment, professional audio workspace, creative atmosphere",
   unlock_: "celebration visual, achievement unlocked, reward moment, confetti and glow",
   badge_: "achievement badge design, icon style, clean emblem, award aesthetic",
-  demo_phase_: "cinematic documentary photography, emotional storytelling, MixClub narrative visual, music industry atmosphere, 8K quality",
+  demo_phase_: "cinematic documentary photography, emotional storytelling, Mixxclub narrative visual, music industry atmosphere, 8K quality",
 };
 
 async function generateImage(prompt: string, context?: string, style?: string): Promise<{ url: string; provider: string }> {
@@ -64,12 +64,12 @@ async function generateImage(prompt: string, context?: string, style?: string): 
 
   // Build enhanced prompt
   let enhancedPrompt = prompt;
-  
+
   // Add style preset if specified
   if (style && stylePresets[style]) {
     enhancedPrompt = `${enhancedPrompt}. Style: ${stylePresets[style]}`;
   }
-  
+
   // Add context enhancement if applicable
   if (context) {
     const prefix = Object.keys(contextEnhancements).find(p => context.startsWith(p));
@@ -105,32 +105,32 @@ async function generateImage(prompt: string, context?: string, style?: string): 
   }
 
   const data = await response.json();
-   
-   // Primary path: Lovable AI gateway format with images array
-   const imageUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
-   if (imageUrl) {
-     return { url: imageUrl, provider: "lovable-gemini-3-pro" };
-   }
- 
-   // Fallback 1: Check content array format (OpenAI-style multimodal)
-   const content = data.choices?.[0]?.message?.content;
-   if (Array.isArray(content)) {
-     const imageContent = content.find((c: any) => c.type === "image_url");
-     if (imageContent?.image_url?.url) {
-       return { url: imageContent.image_url.url, provider: "lovable-gemini-3-pro" };
-     }
+
+  // Primary path: Lovable AI gateway format with images array
+  const imageUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+  if (imageUrl) {
+    return { url: imageUrl, provider: "lovable-gemini-3-pro" };
   }
 
-   // Fallback 2: Direct inline data from Gemini native format
-   const inlineData = data.candidates?.[0]?.content?.parts?.find((p: any) => p.inlineData);
-   if (inlineData?.inlineData) {
-     const dataUrl = `data:${inlineData.inlineData.mimeType};base64,${inlineData.inlineData.data}`;
-     return { url: dataUrl, provider: "lovable-gemini-3-pro" };
-   }
- 
-   // Log actual response structure for debugging
-   console.error("Unexpected response structure:", JSON.stringify(data).substring(0, 500));
-   throw new Error("No image generated in response");
+  // Fallback 1: Check content array format (OpenAI-style multimodal)
+  const content = data.choices?.[0]?.message?.content;
+  if (Array.isArray(content)) {
+    const imageContent = content.find((c: any) => c.type === "image_url");
+    if (imageContent?.image_url?.url) {
+      return { url: imageContent.image_url.url, provider: "lovable-gemini-3-pro" };
+    }
+  }
+
+  // Fallback 2: Direct inline data from Gemini native format
+  const inlineData = data.candidates?.[0]?.content?.parts?.find((p: any) => p.inlineData);
+  if (inlineData?.inlineData) {
+    const dataUrl = `data:${inlineData.inlineData.mimeType};base64,${inlineData.inlineData.data}`;
+    return { url: dataUrl, provider: "lovable-gemini-3-pro" };
+  }
+
+  // Log actual response structure for debugging
+  console.error("Unexpected response structure:", JSON.stringify(data).substring(0, 500));
+  throw new Error("No image generated in response");
 }
 
 async function generateVideo(prompt: string, sourceImage?: string, model?: string): Promise<{ url: string; provider: string; operationId?: string }> {
@@ -181,70 +181,82 @@ async function generateVideo(prompt: string, sourceImage?: string, model?: strin
 
   // Primary path: Replicate (sync, fast)
   const replicateKey = Deno.env.get("REPLICATE_API_KEY");
-  
+
   if (replicateKey) {
     const { default: Replicate } = await import("npm:replicate@0.25.2");
     const replicate = new Replicate({ auth: replicateKey });
-    
+
     const input: Record<string, unknown> = {
       prompt,
       num_frames: 49,
     };
-    
+
     if (sourceImage) {
       input.first_frame_image = sourceImage;
     }
-    
+
     console.log("Generating video with Replicate...");
     const output = await replicate.run(
       "minimax/video-01",
       { input }
     );
-    
+
     if (typeof output === "string") {
       return { url: output, provider: "replicate-minimax" };
     }
     if (Array.isArray(output) && output[0]) {
       return { url: output[0], provider: "replicate-minimax" };
     }
-    
+
     throw new Error("Replicate did not return video URL");
   }
-  
+
   throw new Error("No video generation provider available. Configure REPLICATE_API_KEY or use model='veo'.");
 }
 
 async function generateAudio(prompt: string): Promise<{ url: string; provider: string }> {
-  const sunoKey = Deno.env.get("SUNO_API_KEY");
-  
-  if (!sunoKey) {
-    throw new Error("Audio generation requires SUNO_API_KEY to be configured");
+  const replicateKey = Deno.env.get("REPLICATE_API_KEY");
+
+  if (!replicateKey) {
+    throw new Error("Audio generation requires REPLICATE_API_KEY to be configured");
   }
-  
-  // Suno API integration
-  console.log("Generating audio with Suno...");
-  const response = await fetch("https://api.suno.ai/v1/generations", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${sunoKey}`,
-      "Content-Type": "application/json",
+
+  // Replicate stable-audio-2.5 integration
+  console.log("Generating audio with Replicate stable-audio-2.5...");
+  const { default: Replicate } = await import("npm:replicate@0.25.2");
+  const replicate = new Replicate({ auth: replicateKey });
+
+  const prediction = await replicate.predictions.create({
+    model: "stability-ai/stable-audio-2.5",
+    input: {
+      prompt: `${prompt}. Professional studio quality, clean mix`,
+      seconds_total: 30,
+      steps: 8,
     },
-    body: JSON.stringify({
-      prompt,
-      duration: 30,
-    }),
   });
-  
-  if (!response.ok) {
-    throw new Error(`Suno API error: ${response.status}`);
+
+  // Poll for completion
+  let attempts = 0;
+  while (attempts < 60) {
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    const status = await replicate.predictions.get(prediction.id);
+
+    if (status.status === 'succeeded') {
+      const audioUrl = typeof status.output === 'string'
+        ? status.output
+        : Array.isArray(status.output) ? status.output[0] : null;
+      if (audioUrl) {
+        return { url: audioUrl, provider: "replicate-stable-audio" };
+      }
+    }
+
+    if (status.status === 'failed' || status.status === 'canceled') {
+      throw new Error(`Audio generation failed: ${status.error || status.status}`);
+    }
+    attempts++;
   }
-  
-  const data = await response.json();
-  if (data.audio_url) {
-    return { url: data.audio_url, provider: "suno" };
-  }
-  
-  throw new Error("Audio generation failed");
+
+  throw new Error("Audio generation timed out");
 }
 
 // Character voice mapping
@@ -257,14 +269,14 @@ const CHARACTER_VOICES: Record<string, string> = {
 
 async function generateSpeech(text: string, characterId?: string): Promise<{ url: string; provider: string }> {
   const elevenLabsKey = Deno.env.get("ELEVEN_LABS_API_KEY");
-  
+
   if (!elevenLabsKey) {
     throw new Error("Speech generation requires ELEVEN_LABS_API_KEY to be configured.");
   }
 
   // Select voice based on character, default to Prime
-  const voiceId = characterId && CHARACTER_VOICES[characterId] 
-    ? CHARACTER_VOICES[characterId] 
+  const voiceId = characterId && CHARACTER_VOICES[characterId]
+    ? CHARACTER_VOICES[characterId]
     : CHARACTER_VOICES.prime;
 
   console.log(`Generating speech with ElevenLabs: voice=${voiceId}, character=${characterId || 'prime'}`);
@@ -293,21 +305,21 @@ async function generateSpeech(text: string, characterId?: string): Promise<{ url
   if (!response.ok) {
     const errorText = await response.text();
     console.error("ElevenLabs error:", errorText);
-    
+
     if (response.status === 429) {
       throw new Error("Voice generation rate limit. Please try again in a moment.");
     }
     if (response.status === 401) {
       throw new Error("ElevenLabs API key invalid or expired.");
     }
-    
+
     throw new Error(`Speech generation failed: ${response.status}`);
   }
 
   // Convert to base64 audio using Deno's encoding
   const audioBuffer = await response.arrayBuffer();
   const uint8Array = new Uint8Array(audioBuffer);
-  
+
   // Use btoa with chunks to avoid stack overflow
   let binary = '';
   const chunkSize = 8192;
@@ -317,9 +329,9 @@ async function generateSpeech(text: string, characterId?: string): Promise<{ url
   }
   const base64Audio = btoa(binary);
 
-  return { 
-    url: `data:audio/mpeg;base64,${base64Audio}`, 
-    provider: `elevenlabs-${characterId || 'prime'}` 
+  return {
+    url: `data:audio/mpeg;base64,${base64Audio}`,
+    provider: `elevenlabs-${characterId || 'prime'}`
   };
 }
 
@@ -335,7 +347,7 @@ async function saveAsset(
 ): Promise<string> {
   // Determine asset type
   const assetType = mode === 'video' ? 'video' : mode === 'audio' ? 'audio' : 'image';
-  
+
   // Call save-brand-asset function
   const { data, error } = await supabase.functions.invoke('save-brand-asset', {
     body: {
@@ -348,12 +360,12 @@ async function saveAsset(
       deactivateSiblings: makeActive ?? false,
     },
   });
-  
+
   if (error || !data?.ok) {
     console.error("Save asset error:", error || data);
     throw new Error(data?.message || "Failed to save asset");
   }
-  
+
   return data.asset.id;
 }
 
@@ -484,7 +496,7 @@ Deno.serve(async (req) => {
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Unexpected error";
     console.error("Dream Engine error:", err);
-    
+
     return new Response(
       JSON.stringify({ ok: false, error: message }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }

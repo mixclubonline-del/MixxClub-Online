@@ -105,7 +105,7 @@ export default function Premieres() {
   return (
     <>
       <Helmet>
-        <title>Track Premieres — MixClub Online</title>
+        <title>Track Premieres — Mixxclub Online</title>
         <meta 
           name="description" 
           content="Discover and vote on newly mixed tracks. Support artists and earn rewards." 

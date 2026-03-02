@@ -4,7 +4,7 @@ import { Home, Users, Briefcase, Compass, Settings, Menu, X } from 'lucide-react
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
-import mixclub3DLogo from "@/assets/mixclub-3d-logo.png";
+import mixxclub3DLogo from "@/assets/mixxclub-3d-logo.png";
 import { RealTimeNotifications } from '../RealTimeNotifications';
 
 interface AppStyleLayoutProps {
@@ -64,8 +64,8 @@ export const AppStyleLayout = ({ children }: AppStyleLayoutProps) => {
           >
             <div className="absolute inset-0 bg-primary/20 rounded-lg blur-lg opacity-0 group-hover:opacity-100 transition-opacity"></div>
             <img 
-              src={mixclub3DLogo} 
-              alt="MixClub" 
+              src={mixxclub3DLogo} 
+              alt="Mixxclub" 
               className="w-10 h-10 object-contain relative z-10 transition-transform group-hover:scale-110" 
             />
           </button>
@@ -114,7 +114,7 @@ export const AppStyleLayout = ({ children }: AppStyleLayoutProps) => {
       {/* Mobile Header */}
       <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-card/95 backdrop-blur-lg border-b border-border z-50 flex items-center justify-between px-4">
         <button onClick={() => navigate('/')} className="flex items-center gap-2">
-          <img src={mixclub3DLogo} alt="MixClub" className="w-8 h-8" />
+          <img src={mixxclub3DLogo} alt="Mixxclub" className="w-8 h-8" />
           <span className="font-bold text-lg bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
             MIXXCLUB
           </span>

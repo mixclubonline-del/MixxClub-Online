@@ -1,9 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.58.0';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { getCorsHeaders } from '../_shared/cors.ts';
+import { requireAdmin, authErrorResponse } from '../_shared/auth.ts';
 
 // Demo data constants
 const FIRST_NAMES = [
@@ -143,12 +140,18 @@ function getTimeAgo(hoursAgo: number): string {
 }
 
 Deno.serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
+
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
 
   try {
-    console.log('[Seeding] Starting comprehensive demo data seeding...');
+    // Require admin authentication
+    const auth = await requireAdmin(req);
+    if ('error' in auth) return authErrorResponse(auth, corsHeaders);
+
+    console.log('[Seeding] Starting comprehensive demo data seeding, admin:', auth.user.id);
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',

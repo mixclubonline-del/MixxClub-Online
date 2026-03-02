@@ -17,7 +17,7 @@ serve(async (req) => {
   try {
     const { audioFeatures, trackContext } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    
+
     if (!LOVABLE_API_KEY) {
       logger.error("LOVABLE_API_KEY is not configured");
       throw new Error("LOVABLE_API_KEY is not configured");
@@ -70,7 +70,7 @@ Provide melody analysis with:
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt }
@@ -134,7 +134,7 @@ Provide melody analysis with:
       if (response.status === 429) {
         logger.warn("Rate limit exceeded");
         return new Response(
-          JSON.stringify({ error: "Rate limits exceeded. Please try again in a moment." }), 
+          JSON.stringify({ error: "Rate limits exceeded. Please try again in a moment." }),
           {
             status: 429,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -144,7 +144,7 @@ Provide melody analysis with:
       if (response.status === 402) {
         logger.warn("Payment required");
         return new Response(
-          JSON.stringify({ error: "AI credits depleted. Please add credits to your workspace." }), 
+          JSON.stringify({ error: "AI credits depleted. Please add credits to your workspace." }),
           {
             status: 402,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -154,7 +154,7 @@ Provide melody analysis with:
       const errorText = await response.text();
       logger.error("AI gateway error", { status: response.status, error: errorText });
       return new Response(
-        JSON.stringify({ error: "AI gateway error" }), 
+        JSON.stringify({ error: "AI gateway error" }),
         {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -164,13 +164,13 @@ Provide melody analysis with:
 
     const data = await response.json();
     const toolCall = data.choices[0].message.tool_calls?.[0];
-    
+
     if (toolCall && toolCall.function.name === "analyze_melody") {
       const analysis = JSON.parse(toolCall.function.arguments);
       logger.info("Melody analysis complete", { patternType: analysis.pattern_type });
-      
+
       return new Response(
-        JSON.stringify({ analysis }), 
+        JSON.stringify({ analysis }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         }
@@ -182,7 +182,7 @@ Provide melody analysis with:
   } catch (error) {
     logger.error("Melody analysis error", error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }), 
+      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

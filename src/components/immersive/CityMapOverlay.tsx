@@ -1,7 +1,7 @@
 /**
  * City Map Overlay
  * 
- * Spatial Interface: An immersive aerial view of MixClub City.
+ * Spatial Interface: An immersive aerial view of Mixxclub City.
  * Districts are glowing hotspots on an AI-generated cityscape.
  * Text appears only on hover.
  */
@@ -53,7 +53,7 @@ export const CityMapOverlay = ({ isOpen, onClose }: CityMapOverlayProps) => {
           className="fixed inset-0 z-[75] flex items-center justify-center overflow-hidden"
           role="dialog"
           aria-modal="true"
-          aria-label="MixClub City Map"
+          aria-label="Mixxclub City Map"
         >
           {/* AI-Generated City Background */}
           <motion.img

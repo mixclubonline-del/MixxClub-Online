@@ -66,7 +66,7 @@ export const LogoShowcase = () => {
   const handleDownload = (src: string, name: string) => {
     const link = document.createElement('a');
     link.href = src;
-    link.download = `mixclub-${name.toLowerCase().replace(/\s+/g, '-')}.png`;
+    link.download = `mixxclub-${name.toLowerCase().replace(/\s+/g, '-')}.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

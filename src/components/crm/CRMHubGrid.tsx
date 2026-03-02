@@ -21,6 +21,12 @@ import {
   Heart,
   Triangle,
   Lock,
+  Bell,
+  MessageCircle,
+  Trophy,
+  Calendar,
+  Brain,
+  Rocket,
   type LucideIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -67,6 +73,8 @@ const ROLE_HUB_DEFINITIONS: Record<string, HubDefinition[]> = {
     { id: 'store', label: 'Store', icon: ShoppingBag, description: 'Merch & products' },
     { id: 'profile', label: 'Brand Hub', icon: User, description: 'Your identity' },
     { id: 'tri-collabs', label: '3-Way Collabs', icon: Triangle, description: 'Tri partnerships' },
+    { id: 'notifications', label: 'Alerts', icon: Bell, description: 'Updates & notifications' },
+    { id: 'schedule', label: 'Schedule', icon: Calendar, description: 'Calendar & deadlines' },
   ],
   engineer: [
     { id: 'dashboard', label: 'Dashboard', icon: Home, description: 'Business control center' },
@@ -76,13 +84,17 @@ const ROLE_HUB_DEFINITIONS: Record<string, HubDefinition[]> = {
     { id: 'matches', label: 'AI Matches', icon: Sparkles, description: 'Smart connections' },
     { id: 'opportunities', label: 'Opportunities', icon: Search, description: 'Gig marketplace' },
     { id: 'active-work', label: 'Active Work', icon: Briefcase, description: 'Current projects' },
+    { id: 'music', label: 'Music', icon: Music, description: 'Your catalog' },
     { id: 'revenue', label: 'Revenue', icon: TrendingUp, description: 'Earnings analytics' },
     { id: 'community', label: 'Community', icon: Users, description: 'Engineer network' },
     { id: 'growth', label: 'Growth', icon: Target, description: 'Career coaching' },
     { id: 'messages', label: 'Messages', icon: MessageSquare, description: 'Communications' },
     { id: 'earnings', label: 'Earnings', icon: Handshake, description: 'Collaborative pay' },
+    { id: 'store', label: 'Store', icon: ShoppingBag, description: 'Merch & products' },
     { id: 'profile', label: 'Brand Hub', icon: User, description: 'Your identity' },
     { id: 'tri-collabs', label: '3-Way Collabs', icon: Triangle, description: 'Tri partnerships' },
+    { id: 'notifications', label: 'Alerts', icon: Bell, description: 'Updates & notifications' },
+    { id: 'schedule', label: 'Schedule', icon: Calendar, description: 'Calendar & deadlines' },
   ],
   producer: [
     { id: 'dashboard', label: 'Dashboard', icon: Home, description: 'Your beat empire' },
@@ -101,14 +113,19 @@ const ROLE_HUB_DEFINITIONS: Record<string, HubDefinition[]> = {
     { id: 'earnings', label: 'Earnings', icon: Handshake, description: 'Collaborative pay' },
     { id: 'profile', label: 'Brand Hub', icon: User, description: 'Your identity' },
     { id: 'tri-collabs', label: '3-Way Collabs', icon: Triangle, description: 'Tri partnerships' },
+    { id: 'notifications', label: 'Alerts', icon: Bell, description: 'Updates & notifications' },
+    { id: 'schedule', label: 'Schedule', icon: Calendar, description: 'Calendar & deadlines' },
   ],
   fan: [
-    { id: 'feed', label: 'Feed', icon: Compass, description: 'Discover new music' },
-    { id: 'missions', label: 'Missions', icon: Target, description: 'Earn MixxCoinz' },
+    { id: 'feed', label: 'Discover', icon: Compass, description: 'AI-curated artist feed' },
     { id: 'day1s', label: 'Day 1s', icon: Star, description: 'Your early supports' },
+    { id: 'communities', label: 'Communities', icon: Users, description: 'Circles & events' },
+    { id: 'drops', label: 'Drops', icon: Bell, description: 'Releases & alerts' },
+    { id: 'connect', label: 'Connect', icon: MessageCircle, description: 'DM & vote' },
+    { id: 'missions', label: 'Missions', icon: Target, description: 'Earn MixxCoinz' },
     { id: 'wallet', label: 'Wallet', icon: Coins, description: 'Your rewards' },
+    { id: 'trophies', label: 'Trophies', icon: Trophy, description: 'Achievements' },
     { id: 'curator', label: 'Curator', icon: Sparkles, description: 'Playlist power' },
-    { id: 'favorites', label: 'Favorites', icon: Heart, description: 'Saved music' },
   ],
   admin: [
     { id: 'dashboard', label: 'Dashboard', icon: Home, description: 'Platform overview' },
@@ -119,6 +136,8 @@ const ROLE_HUB_DEFINITIONS: Record<string, HubDefinition[]> = {
     { id: 'community', label: 'Community', icon: Users, description: 'Activity & battles' },
     { id: 'assets', label: 'Assets', icon: Star, description: 'Dream Engine assets' },
     { id: 'system', label: 'System', icon: Target, description: 'Seeding & security' },
+    { id: 'prime', label: 'Prime Brain', icon: Brain, description: 'AI command center' },
+    { id: 'promo', label: 'Promo Studio', icon: Rocket, description: 'Campaign engine' },
   ],
 };
 
@@ -159,18 +178,10 @@ export const CRMHubGrid: React.FC<CRMHubGridProps> = ({
   };
 
   return (
-    <div className="space-y-8">
-      {/* Quick Actions Row — Glassmorphic */}
+    <div className="space-y-8" data-mg-role={userType}>
+      {/* Quick Actions Row — MixxGlass */}
       <motion.div
-        className={cn(
-          "backdrop-blur-2xl rounded-2xl p-5",
-          "shadow-xl"
-        )}
-        style={{
-          background: 'rgba(var(--background-rgb, 0, 0, 0), 0.3)',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
-          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 32px -8px rgba(0,0,0,0.4)',
-        }}
+        className="mg-panel p-5"
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
@@ -205,9 +216,9 @@ export const CRMHubGrid: React.FC<CRMHubGridProps> = ({
         </div>
       </motion.div>
 
-      {/* Hub Modules Grid — Responsive with whileInView */}
+      {/* Hub Modules Grid — MixxGlass */}
       <div className={cn(
-        "grid gap-4",
+        "mg-grid-bg grid gap-4",
         isMobile ? "grid-cols-2" : "grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
       )}>
         {hubs.map((hub, index) => {

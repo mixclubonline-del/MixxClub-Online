@@ -1,3 +1,5 @@
+// ============= Full file contents =============
+
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -15,12 +17,12 @@ import {
   Check, 
   Share2, 
   Twitter, 
-  Linkedin,
-  Mail,
-  Rocket,
-  Gift,
-  Crown,
-  Zap
+  Linkedin, 
+  Mail, 
+  Rocket, 
+  Gift, 
+  Crown, 
+  Zap 
 } from "lucide-react";
 
 const Waitlist = () => {
@@ -97,7 +99,7 @@ const Waitlist = () => {
   };
 
   const shareOnTwitter = () => {
-    const text = `I just joined the MixClub waitlist! Professional mixing & mastering for artists, powered by AI. Join me and let's level up our music together 🎵`;
+    const text = `I just joined the Mixxclub waitlist! Professional mixing & mastering for artists, powered by AI. Join me and let's level up our music together 🎵`;
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(referralLink)}`, '_blank');
   };
 
@@ -106,8 +108,8 @@ const Waitlist = () => {
   };
 
   const shareByEmail = () => {
-    const subject = "Join me on MixClub!";
-    const body = `Hey! I just joined the MixClub waitlist - it's a professional mixing & mastering platform for artists. Check it out: ${referralLink}`;
+    const subject = "Join me on Mixxclub!";
+    const body = `Hey! I just joined the Mixxclub waitlist - it's a professional mixing & mastering platform for artists. Check it out: ${referralLink}`;
     window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
 
@@ -122,8 +124,8 @@ const Waitlist = () => {
     <>
       <SEOHead
         title="Join the Waitlist"
-        description="Be the first to access MixClub - the professional mixing & mastering platform that's transforming the music industry. Get early access and exclusive founding member benefits."
-        keywords="mixclub waitlist, early access, music production, mixing mastering"
+        description="Be the first to access Mixxclub - the professional mixing & mastering platform that's transforming the music industry. Get early access and exclusive founding member benefits."
+        keywords="mixxclub waitlist, early access, music production, mixing mastering"
       />
 
       <div className="min-h-screen bg-background">
@@ -150,7 +152,7 @@ const Waitlist = () => {
                 </h1>
 
                 <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-2xl mx-auto">
-                  Join the waitlist to get early access to MixClub - where AI meets human creativity 
+                  Join the waitlist to get early access to Mixxclub - where AI meets human creativity 
                   to transform your music.
                 </p>
 

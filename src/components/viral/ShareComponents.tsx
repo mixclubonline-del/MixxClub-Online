@@ -37,7 +37,7 @@ export function ShareBattleResult({ result, onShare }: ShareBattleResultProps) {
     const rankEmoji = result.rank === 1 ? '🏆' : result.rank === 2 ? '🥈' : '🥉';
     const rankText = result.rank === 1 ? '1st Place' : result.rank === 2 ? '2nd Place' : '3rd Place';
 
-    const shareText = `${rankEmoji} I just won ${rankText} in the "${result.battleTitle}" Mix Battle on MixClub! ${result.totalVotes} people voted for my mix. Can you beat me?`;
+    const shareText = `${rankEmoji} I just won ${rankText} in the "${result.battleTitle}" Mix Battle on Mixxclub! ${result.totalVotes} people voted for my mix. Can you beat me?`;
 
     const platforms = [
         {

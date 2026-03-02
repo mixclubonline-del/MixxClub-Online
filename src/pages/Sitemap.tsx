@@ -18,7 +18,7 @@ export default function Sitemap() {
       { url: '/for-engineers', priority: '0.8', changefreq: 'monthly' },
       { url: '/for-producers', priority: '0.8', changefreq: 'monthly' },
       { url: '/for-fans', priority: '0.8', changefreq: 'monthly' },
-      { url: '/choose-path', priority: '0.7', changefreq: 'monthly' },
+      { url: '/how-it-works', priority: '0.7', changefreq: 'monthly' },
       { url: '/about', priority: '0.7', changefreq: 'monthly' },
       { url: '/contact', priority: '0.7', changefreq: 'monthly' },
       { url: '/press', priority: '0.7', changefreq: 'monthly' },

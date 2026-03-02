@@ -11,24 +11,24 @@ export interface ShareContent {
 
 const SHARE_TEMPLATES = {
   joined: {
-    title: "I just joined MixClub!",
-    text: "I just joined MixClub - the professional mixing & mastering platform for artists. Join me and let's level up our music together! 🎵",
-    hashtags: ["MixClub", "MusicProduction", "MixingMastering"],
+    title: "I just joined Mixxclub!",
+    text: "I just joined Mixxclub - the professional mixing & mastering platform for artists. Join me and let's level up our music together! 🎵",
+    hashtags: ["Mixxclub", "MusicProduction", "MixingMastering"],
   },
   engineer_profile: (name: string) => ({
-    title: `Check out ${name} on MixClub`,
-    text: `I found an amazing engineer on MixClub! Check out ${name}'s work - professional mixing & mastering services.`,
-    hashtags: ["MixClub", "MixingEngineer", "MusicProduction"],
+    title: `Check out ${name} on Mixxclub`,
+    text: `I found an amazing engineer on Mixxclub! Check out ${name}'s work - professional mixing & mastering services.`,
+    hashtags: ["Mixxclub", "MixingEngineer", "MusicProduction"],
   }),
   project_complete: (trackName: string) => ({
-    title: `Just finished "${trackName}" on MixClub!`,
-    text: `Just got my track "${trackName}" professionally mixed on MixClub! The collaboration was amazing. 🔥`,
-    hashtags: ["MixClub", "NewMusic", "Collaboration"],
+    title: `Just finished "${trackName}" on Mixxclub!`,
+    text: `Just got my track "${trackName}" professionally mixed on Mixxclub! The collaboration was amazing. 🔥`,
+    hashtags: ["Mixxclub", "NewMusic", "Collaboration"],
   }),
   premiere: (trackName: string, artistName: string) => ({
     title: `Premiere: ${trackName} by ${artistName}`,
-    text: `🎵 PREMIERE: "${trackName}" by ${artistName} is now live on MixClub! Listen now and vote!`,
-    hashtags: ["MixClub", "Premiere", "NewMusic"],
+    text: `🎵 PREMIERE: "${trackName}" by ${artistName} is now live on Mixxclub! Listen now and vote!`,
+    hashtags: ["Mixxclub", "Premiere", "NewMusic"],
   }),
 };
 

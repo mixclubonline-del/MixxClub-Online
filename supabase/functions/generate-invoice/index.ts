@@ -65,10 +65,10 @@ serve(async (req) => {
       
       // Company details
       from: {
-        name: 'MixClub',
+        name: 'Mixxclub',
         address: '123 Audio Street',
         city: 'Los Angeles, CA 90001',
-        email: 'billing@mixclub.com'
+        email: 'billing@mixxclubonline.com'
       },
       
       // Customer details

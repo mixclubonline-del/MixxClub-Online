@@ -1,5 +1,5 @@
 /**
- * MIXCLUB SOCIAL MEDIA TEMPLATES
+ * MIXXCLUB SOCIAL MEDIA TEMPLATES
  * Copy-paste ready content for Instagram, TikTok, LinkedIn, Twitter
  */
 
@@ -17,17 +17,17 @@ That's thousands of creators getting paid for doing what they love.
 Every day, engineers are earning $150-500 per battle.
 Every day, artists are getting studio-quality mixes for under $100.
 
-The question isn't "Can I make money on MixClub?"
+The question isn't "Can I make money on Mixxclub?"
 It's "How much will YOU make?"
 
 10K+ creators. 500+ battles daily. $0 BS fees.
 
 Link in bio 👆
 
-#MixClub #AudioEngineering #MusicProduction #MakeMoney #IndieArtist #ProducerLife #MusicCollaboration #GigEconomy`,
+#Mixxclub #AudioEngineering #MusicProduction #MakeMoney #IndieArtist #ProducerLife #MusicCollaboration #GigEconomy`,
 
             hashtags: [
-                '#MixClub',
+                '#Mixxclub',
                 '#Earnings',
                 '#MusicProduction',
                 '#AudioEngineering',
@@ -58,14 +58,14 @@ Link in bio 👆
 
 That's what happens when world-class talent collides.
 
-This happens 500x per day on MixClub.
+This happens 500x per day on Mixxclub.
 
 Could YOU be next? 👇
 
-#MixClub #MusicBattle #ProAudio #Studio #Collaboration`,
+#Mixxclub #MusicBattle #ProAudio #Studio #Collaboration`,
 
             hashtags: [
-                '#MixClub',
+                '#Mixxclub',
                 '#MusicBattle',
                 '#ProAudio',
                 '#AudioMastering',
@@ -79,7 +79,7 @@ Could YOU be next? 👇
         testimonial: {
             caption: `"I quit my job 6 months ago.
 
-Now I'm booked solid with clients from MixClub. 
+Now I'm booked solid with clients from Mixxclub. 
 
 Earning $5K/month from my bedroom.
 
@@ -89,7 +89,7 @@ This platform literally changed my life."
 
 Your story could be next. 🚀
 
-#MixClub #AudioEngineer #Success #Entrepreneur #MusicBusiness`,
+#Mixxclub #AudioEngineer #Success #Entrepreneur #MusicBusiness`,
 
             variations: [
                 'Artist perspective version',
@@ -110,7 +110,7 @@ If you're serious about this...
 
 👉 link in bio
 
-#MixClub #UrgentRecruiting #AudioEngineering #ProducerLife`,
+#Mixxclub #UrgentRecruiting #AudioEngineering #ProducerLife`,
         },
 
         // Educational post
@@ -119,7 +119,7 @@ If you're serious about this...
 
 Professional studio mixing costs $500-1000 per song.
 
-On MixClub?
+On Mixxclub?
 $50-150.
 
 That's 90% cheaper.
@@ -130,7 +130,7 @@ Why? Because engineers here compete for your project. There's no complacency.
 
 Ready to stop overpaying?
 
-#MixClub #ProAudio #MusicBusiness #IndieArtist #ProductionTips`,
+#Mixxclub #ProAudio #MusicBusiness #IndieArtist #ProductionTips`,
         },
     },
 
@@ -145,12 +145,12 @@ Ready to stop overpaying?
 [Scene 3 - 6-12s] Quick cuts: uploading file → working in DAW → earning notification
 [Scene 4 - 12-15s] "I just made $250 in 3 hours"
 [Scene 5 - 15-18s] Earnings counter ticking up
-[Scene 6 - 18-30s] "And I'm still sleeping. MixClub changed my life."
+[Scene 6 - 18-30s] "And I'm still sleeping. Mixxclub changed my life."
 
 [Hook Text] "POV: You're making $5K/month from bed"
 [End Card] "Link in bio"`,
 
-            hashtags: '#MixClub #MakeMoney #AudioEngineering #SideHustle #MusicProduction',
+            hashtags: '#Mixxclub #MakeMoney #AudioEngineering #SideHustle #MusicProduction',
             expectedViews: '500K-2M',
         },
 
@@ -173,7 +173,7 @@ Ready to stop overpaying?
             script: `[0-3s] Girl: "How much did you make today?"
 Engineer: *shows phone* "$250"
 [3-6s] Girl: "In an hour??"
-Engineer: "3 hours. On MixClub"
+Engineer: "3 hours. On Mixxclub"
 [6-30s] *Music drops* "Join thousands of engineers making insane money"`,
 
             expectedEngagement: '10-15%',
@@ -185,7 +185,7 @@ Engineer: "3 hours. On MixClub"
 Get it heard by 10K+ creators.
 Win $500+.
 
-Use #MixClubBattle 🎵"`,
+Use #MixxclubBattle 🎵"`,
 
             frames: '15-30s',
             expectedSubmissions: '1000+/week',
@@ -202,7 +202,7 @@ Use #MixClubBattle 🎵"`,
 
 Best decision ever.
 
-Here's what I'm doing now: Audio engineering on MixClub. Working 15-20 hours/week. Earning $5K/month.
+Here's what I'm doing now: Audio engineering on Mixxclub. Working 15-20 hours/week. Earning $5K/month.
 
 Why this works:
 ✓ Global clients (no geographic limits)
@@ -227,7 +227,7 @@ Artists overpay for mediocre mixes.
 Engineers can't find reliable work.
 Studios are outdated.
 
-MixClub is fixing it.
+Mixxclub is fixing it.
 
 In the last month:
 • 10K+ creators
@@ -253,7 +253,7 @@ If you're:
 ✓ Looking for flexible income
 ✓ Want to work with global artists
 
-MixClub has unlimited opportunities.
+Mixxclub has unlimited opportunities.
 
 Link in comments.`,
         },
@@ -266,7 +266,7 @@ Link in comments.`,
         // Hot take
         hotTake: {
             tweets: [
-                `Day 1 on MixClub: 
+                `Day 1 on Mixxclub: 
 "I have no idea what I'm doing"
 
 Day 30:
@@ -274,7 +274,7 @@ Day 30:
 
 The platform isn't for everyone. It's for people serious about their craft.`,
 
-                `10,000 creators are making money right now on MixClub.
+                `10,000 creators are making money right now on Mixxclub.
 
 You're not one of them yet.
 
@@ -291,7 +291,7 @@ We provide #3. You provide #1 & #2.`,
 
                 `The studio gatekeeping era is OVER.
 
-MixClub is proof. 500+ collaborations per day. Zero BS fees.`,
+Mixxclub is proof. 500+ collaborations per day. Zero BS fees.`,
             ],
         },
 
@@ -301,7 +301,7 @@ MixClub is proof. 500+ collaborations per day. Zero BS fees.`,
 
 It wasn't luck. Here's exactly what I did:`,
             threadTwo: `Step 1: Learned audio in my bedroom (1 year)`,
-            threadThree: `Step 2: Posted portfolio on MixClub (Week 1)`,
+            threadThree: `Step 2: Posted portfolio on Mixxclub (Week 1)`,
             threadFour: `Step 3: Won my first battle (Week 2)`,
             threadFive: `Step 4: Got reviews. More work came.`,
             threadSix: `Step 5: Reached $5K/month (Month 6)
@@ -338,7 +338,7 @@ What's your excuse?`,
             '#IndieArtist',
         ],
         medium_volume: [
-            '#MixClub',
+            '#Mixxclub',
             '#ProAudio',
             '#Collaboration',
             '#MusicTech',

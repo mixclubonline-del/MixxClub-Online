@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createLogger } from "../_shared/logger.ts";
+import { requireAuth, authErrorResponse } from "../_shared/auth.ts";
 
 const logger = createLogger("copilot-chat");
 
@@ -14,15 +15,18 @@ serve(async (req) => {
   }
 
   try {
+    const authResult = await requireAuth(req);
+    if ('error' in authResult) return authErrorResponse(authResult, corsHeaders);
+
     const { messages } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    
+
     if (!LOVABLE_API_KEY) {
       logger.error("LOVABLE_API_KEY is not configured");
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const systemPrompt = `You are the AI Copilot for MixClub, a professional music production CRM platform.
+    const systemPrompt = `You are the AI Copilot for Mixxclub, a professional music production CRM platform.
 
 Your role is to help users with:
 - Project recommendations based on deadlines, priority, and workload
@@ -44,7 +48,7 @@ When suggesting actions, be clear about the next steps.`;
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: systemPrompt },
           ...messages,
@@ -57,7 +61,7 @@ When suggesting actions, be clear about the next steps.`;
       if (response.status === 429) {
         logger.warn("Rate limit exceeded");
         return new Response(
-          JSON.stringify({ error: "Rate limits exceeded. Please try again in a moment." }), 
+          JSON.stringify({ error: "Rate limits exceeded. Please try again in a moment." }),
           {
             status: 429,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -67,7 +71,7 @@ When suggesting actions, be clear about the next steps.`;
       if (response.status === 402) {
         logger.warn("Payment required");
         return new Response(
-          JSON.stringify({ error: "AI credits depleted. Please add credits to your workspace." }), 
+          JSON.stringify({ error: "AI credits depleted. Please add credits to your workspace." }),
           {
             status: 402,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -77,7 +81,7 @@ When suggesting actions, be clear about the next steps.`;
       const errorText = await response.text();
       logger.error("AI gateway error", { status: response.status, error: errorText });
       return new Response(
-        JSON.stringify({ error: "AI gateway error" }), 
+        JSON.stringify({ error: "AI gateway error" }),
         {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -93,7 +97,7 @@ When suggesting actions, be clear about the next steps.`;
   } catch (error) {
     logger.error("Copilot chat error", error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }), 
+      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,6 +22,7 @@ import {
   Zap,
   X,
   Filter,
+  PlayCircle,
 } from 'lucide-react';
 import { useDirectMessaging, Conversation } from '@/hooks/useDirectMessaging';
 import { useAuth } from '@/hooks/useAuth';
@@ -45,6 +46,7 @@ const QUICK_REPLIES = [
 
 export const MessagingHub = ({ userType }: MessagingHubProps) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const recipientParam = searchParams.get('recipient');
 
@@ -375,9 +377,20 @@ export const MessagingHub = ({ userType }: MessagingHubProps) => {
                       </p>
                     </div>
                   </div>
-                  <Button variant="ghost" size="icon">
-                    <MoreVertical className="w-4 h-4" />
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-xs gap-1.5 bg-primary/10 border-primary/30 hover:bg-primary/20 text-primary"
+                      onClick={() => navigate(`/create-session?with=${selectedConversation.other_user?.id}`)}
+                    >
+                      <PlayCircle className="w-3.5 h-3.5" />
+                      Start Session
+                    </Button>
+                    <Button variant="ghost" size="icon">
+                      <MoreVertical className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
 

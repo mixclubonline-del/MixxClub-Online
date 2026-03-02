@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { uuid } from '@/lib/uuid';
 
 interface UploadProgress {
   audio: number;
@@ -37,7 +38,7 @@ export function useBeatUpload() {
       return null;
     }
 
-    const fileName = `${user.id}/beats/${Date.now()}-${crypto.randomUUID()}.${fileExt}`;
+    const fileName = `${user.id}/beats/${Date.now()}-${uuid()}.${fileExt}`;
     
     try {
       setProgress(prev => ({ ...prev, audio: 10 }));
@@ -88,7 +89,7 @@ export function useBeatUpload() {
       return null;
     }
 
-    const fileName = `beats/covers/${user.id}/${Date.now()}-${crypto.randomUUID()}.${fileExt}`;
+    const fileName = `beats/covers/${user.id}/${Date.now()}-${uuid()}.${fileExt}`;
     
     try {
       setProgress(prev => ({ ...prev, cover: 10 }));

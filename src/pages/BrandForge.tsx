@@ -18,7 +18,7 @@ const logoPrompts = [
   { id: 'neural', name: 'Neural Waveform', prompt: 'A sleek logo mark combining audio waveforms morphing into neural network patterns, neon purple and electric blue glow, cyberpunk aesthetic, minimalist, on transparent background' },
   { id: 'infinity', name: 'Infinity Engine', prompt: 'Modern infinity symbol logo with AI circuit nodes along the curves, glowing data streams, holographic 3D effect, purple and cyan neon, music production brand' },
   { id: 'crown', name: 'Frequency Crown', prompt: 'Audio frequency spectrum bars arranged in a crown shape, hip-hop royalty meets technology, bold commanding presence, gold and purple gradient, logo mark' },
-  { id: 'sigil', name: 'MixClub Sigil', prompt: 'Abstract geometric logo combining vinyl record grooves, circuit board traces, and sound waves, unique brand mark, purple blue pink neon colors, futuristic' },
+  { id: 'sigil', name: 'Mixxclub Sigil', prompt: 'Abstract geometric logo combining vinyl record grooves, circuit board traces, and sound waves, unique brand mark, purple blue pink neon colors, futuristic' },
 ];
 
 const videoPrompts = [
@@ -158,8 +158,8 @@ export default function BrandForge() {
   return (
     <>
       <Helmet>
-        <title>Brand Forge - MixClub AI Brand Generator</title>
-        <meta name="description" content="Generate unique brand assets using MixClub's AI" />
+        <title>Brand Forge - Mixxclub AI Brand Generator</title>
+        <meta name="description" content="Generate unique brand assets using Mixxclub's AI" />
       </Helmet>
 
       <main className="min-h-screen bg-background relative">
@@ -179,7 +179,7 @@ export default function BrandForge() {
               </span>
             </h1>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Build the thing to build the thing. Generate unique brand assets using MixClub's own AI.
+              Build the thing to build the thing. Generate unique brand assets using Mixxclub's own AI.
             </p>
           </motion.div>
 

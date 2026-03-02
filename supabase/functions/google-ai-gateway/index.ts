@@ -35,7 +35,7 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const clientIP = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
-    
+
     const rateLimit = await checkRateLimit(clientIP, {
       maxRequests: 30,
       windowMs: 60000, // 1 minute
@@ -50,7 +50,7 @@ serve(async (req) => {
     }
 
     const GOOGLE_AI_API_KEY = Deno.env.get("GOOGLE_AI_API_KEY");
-    
+
     if (!GOOGLE_AI_API_KEY) {
       logger.error("GOOGLE_AI_API_KEY is not configured");
       throw new Error("GOOGLE_AI_API_KEY is not configured");
@@ -63,21 +63,21 @@ serve(async (req) => {
 
     switch (type) {
       case 'chat':
-        return await handleChat(GOOGLE_AI_API_KEY, messages || [], model || 'gemini-2.0-flash', context);
-      
+        return await handleChat(GOOGLE_AI_API_KEY, messages || [], model || 'gemini-3.1-flash', context);
+
       case 'image':
         return await handleImageGeneration(GOOGLE_AI_API_KEY, prompt || '', model || 'gemini-2.0-flash-exp-image-generation');
-      
+
       case 'tts':
         return await handleTTS(GOOGLE_AI_API_KEY, prompt || '', voice || 'Kore');
-      
+
       default:
         throw new Error(`Unsupported request type: ${type}`);
     }
   } catch (error) {
     logger.error("Google AI Gateway error", error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }), 
+      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -87,13 +87,13 @@ serve(async (req) => {
 });
 
 async function handleChat(
-  apiKey: string, 
-  messages: ChatMessage[], 
+  apiKey: string,
+  messages: ChatMessage[],
   model: string,
   context?: any
 ): Promise<Response> {
   const baseUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?key=${apiKey}`;
-  
+
   // Convert messages to Gemini format
   const contents = messages
     .filter(m => m.role !== 'system')
@@ -104,7 +104,7 @@ async function handleChat(
 
   // Extract system instruction
   const systemMessage = messages.find(m => m.role === 'system');
-  
+
   const requestBody: any = {
     contents,
     generationConfig: {
@@ -132,14 +132,14 @@ async function handleChat(
   if (!response.ok) {
     const errorText = await response.text();
     console.error("Gemini API error:", response.status, errorText);
-    
+
     if (response.status === 429) {
       return new Response(
-        JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), 
+        JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }),
         { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-    
+
     throw new Error(`Gemini API error: ${response.status} - ${errorText}`);
   }
 
@@ -155,7 +155,7 @@ async function handleImageGeneration(
   model: string
 ): Promise<Response> {
   const baseUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-  
+
   const response = await fetch(baseUrl, {
     method: "POST",
     headers: {
@@ -178,22 +178,22 @@ async function handleImageGeneration(
   }
 
   const data = await response.json();
-  
+
   // Extract image from response
   const imagePart = data.candidates?.[0]?.content?.parts?.find((p: any) => p.inlineData);
-  
+
   if (imagePart?.inlineData) {
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         imageUrl: `data:${imagePart.inlineData.mimeType};base64,${imagePart.inlineData.data}`,
         text: data.candidates?.[0]?.content?.parts?.find((p: any) => p.text)?.text
-      }), 
+      }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 
   return new Response(
-    JSON.stringify({ error: "No image generated", text: data.candidates?.[0]?.content?.parts?.[0]?.text }), 
+    JSON.stringify({ error: "No image generated", text: data.candidates?.[0]?.content?.parts?.[0]?.text }),
     { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
   );
 }
@@ -205,7 +205,7 @@ async function handleTTS(
 ): Promise<Response> {
   // Using Google Cloud TTS via Gemini
   const baseUrl = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`;
-  
+
   const response = await fetch(baseUrl, {
     method: "POST",
     headers: {
@@ -233,12 +233,12 @@ async function handleTTS(
   }
 
   const data = await response.json();
-  
+
   return new Response(
-    JSON.stringify({ 
+    JSON.stringify({
       audioContent: data.audioContent,
       audioUrl: `data:audio/mp3;base64,${data.audioContent}`
-    }), 
+    }),
     { headers: { ...corsHeaders, "Content-Type": "application/json" } }
   );
 }

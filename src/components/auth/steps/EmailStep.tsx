@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowRight, Loader2 } from 'lucide-react';
+import { ArrowRight, Loader2, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -24,10 +24,15 @@ const AppleIcon = () => (
   </svg>
 );
 
+type AuthMethod = 'password' | 'magic-link';
+
 interface EmailStepProps {
   email: string;
   onEmailChange: (email: string) => void;
+  password?: string;
+  onPasswordChange?: (password: string) => void;
   onSubmit: () => void;
+  onPasswordSubmit?: () => void;
   loading: boolean;
   error: string | null;
   mode: WizardMode;
@@ -37,18 +42,27 @@ interface EmailStepProps {
 export function EmailStep({
   email,
   onEmailChange,
+  password = '',
+  onPasswordChange,
   onSubmit,
+  onPasswordSubmit,
   loading,
   error,
   mode,
   onSwitchMode,
 }: EmailStepProps) {
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [authMethod, setAuthMethod] = useState<AuthMethod>('password');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    onSubmit();
+    if (authMethod === 'password' && onPasswordSubmit) {
+      onPasswordSubmit();
+    } else {
+      onSubmit();
+    }
   };
 
   const handleOAuthSignIn = async (e: React.MouseEvent, provider: 'google' | 'apple') => {
@@ -58,7 +72,7 @@ export function EmailStep({
     setGoogleLoading(true);
     try {
       const result = await lovable.auth.signInWithOAuth(provider, {
-        redirect_uri: window.location.origin,
+        redirect_uri: `${window.location.origin}/auth/callback`,
       });
 
       if (result?.error) {
@@ -73,6 +87,7 @@ export function EmailStep({
   };
 
   const isLogin = mode === 'login';
+  const isPasswordMode = authMethod === 'password';
 
   return (
     <div className="space-y-6">
@@ -84,18 +99,37 @@ export function EmailStep({
         <p className="text-white/60 text-sm">
           {isLogin
             ? 'Sign in to continue your journey'
-            : 'We\'ll send you a magic link to sign in'}
+            : 'Create your account to get started'}
         </p>
       </div>
 
-      {/* Progress indicator */}
-      <div className="flex items-center justify-center gap-2">
-        <div className={`w-8 h-1 rounded-full ${isLogin ? 'bg-white/20' : 'bg-primary'}`} />
-        <div className="w-8 h-1 rounded-full bg-primary" />
-        <div className="w-8 h-1 rounded-full bg-white/20" />
+      {/* Auth method toggle */}
+      <div className="flex gap-1 p-1 rounded-xl bg-white/5 border border-white/10">
+        <button
+          type="button"
+          onClick={() => setAuthMethod('password')}
+          className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-medium transition-all ${isPasswordMode
+              ? 'bg-primary text-primary-foreground shadow-sm'
+              : 'text-white/50 hover:text-white/80'
+            }`}
+        >
+          <Lock className="w-3.5 h-3.5" />
+          Email & Password
+        </button>
+        <button
+          type="button"
+          onClick={() => setAuthMethod('magic-link')}
+          className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-medium transition-all ${!isPasswordMode
+              ? 'bg-primary text-primary-foreground shadow-sm'
+              : 'text-white/50 hover:text-white/80'
+            }`}
+        >
+          <Mail className="w-3.5 h-3.5" />
+          Magic Link
+        </button>
       </div>
 
-      {/* Email form */}
+      {/* Email + Password form */}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="email" className="text-white/80">
@@ -111,9 +145,39 @@ export function EmailStep({
             disabled={loading || googleLoading}
             autoComplete="email"
             autoFocus
-            className="h-12 bg-white/5 border-white/10 text-white placeholder:text-white/40 focus:border-primary"
+            className="h-12 bg-[var(--mg-tint)] border-[var(--mg-edge-subtle)] text-white placeholder:text-white/40 focus:border-primary backdrop-blur-md"
           />
         </div>
+
+        {/* Password field — only shown in password mode */}
+        {isPasswordMode && (
+          <div className="space-y-2">
+            <Label htmlFor="password" className="text-white/80">
+              Password
+            </Label>
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder={isLogin ? 'Enter your password' : 'Create a password (6+ chars)'}
+                value={password}
+                onChange={(e) => onPasswordChange?.(e.target.value)}
+                onKeyDownCapture={(e) => e.stopPropagation()}
+                disabled={loading || googleLoading}
+                autoComplete={isLogin ? 'current-password' : 'new-password'}
+                className="h-12 pr-12 bg-[var(--mg-tint)] border-[var(--mg-edge-subtle)] text-white placeholder:text-white/40 focus:border-primary backdrop-blur-md"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors"
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Error message */}
         {error && (
@@ -125,18 +189,23 @@ export function EmailStep({
         {/* Submit button */}
         <Button
           type="submit"
-          disabled={loading || googleLoading || !email}
+          disabled={loading || googleLoading || !email || (isPasswordMode && !password)}
           className="w-full h-12 text-base font-medium"
         >
           {loading ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Sending...
+              {isPasswordMode ? (isLogin ? 'Signing in...' : 'Creating account...') : 'Sending...'}
+            </>
+          ) : isPasswordMode ? (
+            <>
+              {isLogin ? 'Sign In' : 'Create Account'}
+              <ArrowRight className="w-4 h-4 ml-2" />
             </>
           ) : (
             <>
               Send Magic Link
-              <ArrowRight className="w-4 h-4 ml-2" />
+              <Mail className="w-4 h-4 ml-2" />
             </>
           )}
         </Button>
@@ -159,7 +228,7 @@ export function EmailStep({
           variant="outline"
           onClick={(e) => handleOAuthSignIn(e, 'google')}
           disabled={loading || googleLoading}
-          className="h-12 bg-white/5 border-white/10 text-white hover:bg-white/10"
+          className="h-12 bg-[var(--mg-tint)] border-[var(--mg-edge-subtle)] text-white hover:bg-[var(--mg-tint-mid)] backdrop-blur-sm"
         >
           {googleLoading ? (
             <Loader2 className="w-5 h-5 animate-spin" />
@@ -175,7 +244,7 @@ export function EmailStep({
           variant="outline"
           onClick={(e) => handleOAuthSignIn(e, 'apple')}
           disabled={loading || googleLoading}
-          className="h-12 bg-white/5 border-white/10 text-white hover:bg-white/10"
+          className="h-12 bg-[var(--mg-tint)] border-[var(--mg-edge-subtle)] text-white hover:bg-[var(--mg-tint-mid)] backdrop-blur-sm"
         >
           {googleLoading ? (
             <Loader2 className="w-5 h-5 animate-spin" />

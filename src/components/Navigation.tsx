@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Menu, Sparkles, X, Trophy } from "lucide-react";
 import { useState, useEffect } from "react";
-import mixclub3DLogo from "@/assets/mixclub-3d-logo.png";
+import mixxclub3DLogo from "@/assets/mixxclub-3d-logo.png";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { NotificationCenter } from "./notifications/NotificationCenter";
@@ -193,8 +193,8 @@ const Navigation = () => {
             <div className="relative">
               <div className="absolute inset-0 rounded-lg blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-glass-glow-pulse" style={{ boxShadow: '0 0 40px hsl(var(--primary))' }}></div>
               <img
-                src={mixclub3DLogo}
-                alt="MixClub 3D Logo"
+                src={mixxclub3DLogo}
+                alt="Mixxclub 3D Logo"
                 className="w-12 h-9 object-contain relative z-10 transition-transform duration-300 group-hover:rotate-3"
               />
             </div>

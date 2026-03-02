@@ -26,7 +26,7 @@ interface ShowcaseJourneyProps {
   title: string;
   subtitle: string;
   steps: ShowcaseStep[];
-  variant?: 'artist' | 'engineer';
+  variant?: 'artist' | 'engineer' | 'producer' | 'fan';
 }
 
 export function ShowcaseJourney({
@@ -36,9 +36,13 @@ export function ShowcaseJourney({
   steps,
   variant = 'artist'
 }: ShowcaseJourneyProps) {
-  const accentColor = variant === 'artist' 
-    ? 'hsl(var(--primary))' 
-    : 'hsl(180 100% 50%)';
+  const accentColorMap: Record<string, string> = {
+    artist: 'hsl(var(--primary))',
+    engineer: 'hsl(180 100% 50%)',
+    producer: 'hsl(45 90% 50%)',
+    fan: 'hsl(330 80% 60%)',
+  };
+  const accentColor = accentColorMap[variant];
 
   return (
     <section className="py-16 md:py-24">
@@ -86,7 +90,7 @@ export function ShowcaseJourney({
                       className="absolute top-4 left-4 z-10 w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold"
                       style={{ 
                         backgroundColor: accentColor,
-                        color: variant === 'engineer' ? 'hsl(var(--background))' : 'hsl(var(--primary-foreground))'
+                        color: variant === 'artist' ? 'hsl(var(--primary-foreground))' : 'hsl(var(--background))'
                       }}
                     >
                       {step.stepNumber}

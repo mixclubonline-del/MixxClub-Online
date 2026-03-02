@@ -1,158 +1,376 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+/**
+ * MobileHome — The Morning Feed
+ * 
+ * This is what you see when you unlock your phone and open MixxClub.
+ * Not a dashboard. Not charts. A FEED.
+ * 
+ * Philosophy: "Group chat, group messages — everybody wrapped around 
+ * like being on the phone at the same time."
+ * 
+ * For engineers: "3 artists need mixes" → tap → jump in
+ * For artists: "2 engineers applied to your session" → tap → accept
+ * For fans: "Live session happening now" → tap → watch
+ */
+
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { MobileEnhancedNav } from '@/components/mobile/MobileEnhancedNav';
-import { PullToRefresh } from '@/components/mobile/PullToRefresh';
+import { MobileBottomNav } from '@/components/mobile/MobileBottomNav';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Briefcase, DollarSign, TrendingUp, Plus, Zap, Music } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { MobileJobPostWizard } from '@/components/mobile/MobileJobPostWizard';
-import { useMobileOptimization } from '@/hooks/useMobileOptimization';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  Plus, Headphones, DollarSign, TrendingUp,
+  Radio, Users, MessageCircle, Bell, Zap, Music, Send,
+  ChevronRight, Loader2, Sparkles,
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  useOpenSessions,
+  useMyApplications,
+  useSessionMarketplaceStats,
+} from '@/hooks/useSessionMarketplace';
+import { MobileSessionCard } from '@/components/mobile/MobileSessionCard';
 
 export default function MobileHome() {
-  const { user } = useAuth();
+  const { user, activeRole } = useAuth();
   const navigate = useNavigate();
-  const [showJobWizard, setShowJobWizard] = useState(false);
-  const { triggerHaptic } = useMobileOptimization({ enableHaptics: true });
-  const [stats, setStats] = useState({
-    activeJobs: 0,
-    applications: 0,
-    earnings: 0
-  });
 
-  useEffect(() => {
-    if (!user) {
-      navigate('/auth');
-      return;
-    }
+  // Real data — no demo
+  const { data: openSessions, isLoading: sessionsLoading } = useOpenSessions();
+  const { data: stats } = useSessionMarketplaceStats();
+  const { data: myApps } = useMyApplications();
 
-    loadStats();
-  }, [user, navigate]);
+  if (!user) {
+    navigate('/auth');
+    return null;
+  }
 
-  const loadStats = async () => {
-    if (!user) return;
+  const isEngineer = activeRole === 'engineer';
+  const isArtist = activeRole === 'artist';
+  const isProducer = activeRole === 'producer';
+  const isFan = activeRole === 'fan';
 
-    // Load relevant stats based on user type
-    const { data: jobs } = await supabase
-      .from('job_postings')
-      .select('*', { count: 'exact', head: true })
-      .eq('artist_id', user.id)
-      .eq('status', 'open');
-
-    const { data: applications } = await supabase
-      .from('job_applications')
-      .select('*', { count: 'exact', head: true })
-      .eq('engineer_id', user.id);
-
-    setStats({
-      activeJobs: jobs?.length || 0,
-      applications: applications?.length || 0,
-      earnings: 0
-    });
-  };
-
-  const handleRefresh = async () => {
-    triggerHaptic('medium');
-    await loadStats();
-  };
-
-  const handleAction = (action: () => void) => {
-    triggerHaptic('light');
-    action();
-  };
+  const pendingApps = (myApps || []).filter((a: any) => a.status === 'applied');
+  const acceptedApps = (myApps || []).filter((a: any) => a.status === 'accepted');
 
   return (
-    <div className="min-h-screen bg-background pb-20 overflow-y-auto touch-manipulation">
-      <MobileEnhancedNav />
-
-      <PullToRefresh onRefresh={handleRefresh}>
-        <div className="container mx-auto px-4 py-6 space-y-6 pb-safe">
-          {/* Quick Actions */}
-          <div className="grid grid-cols-2 gap-4">
-            <Button
-              onClick={() => handleAction(() => setShowJobWizard(true))}
-              className="h-24 flex flex-col gap-2"
-            >
-              <Plus className="h-6 w-6" />
-              <span>Post Job</span>
-            </Button>
-            <Button
-              onClick={() => handleAction(() => navigate('/jobs'))}
-              variant="outline"
-              className="h-24 flex flex-col gap-2"
-            >
-              <Briefcase className="h-6 w-6" />
-              <span>Browse Jobs</span>
-            </Button>
+    <div className="min-h-screen bg-background pb-24 overflow-y-auto touch-manipulation">
+      {/* ─── Header ─── */}
+      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur-xl border-b border-border/20">
+        <div className="px-4 py-3 flex items-center justify-between">
+          <div>
+            <h1 className="text-lg font-bold">
+              MixxClub
+            </h1>
+            <p className="text-xs text-muted-foreground">
+              {isEngineer && 'Engineer Mode'}
+              {isArtist && 'Artist Mode'}
+              {isProducer && 'Producer Mode'}
+              {isFan && 'Fan Mode'}
+            </p>
           </div>
-
-          {/* AI Quick Actions */}
-          <Card className="p-4 bg-gradient-to-br from-primary/10 to-accent/10 border-primary/20">
-            <h3 className="font-semibold mb-3 flex items-center gap-2">
-              <Zap className="h-5 w-5 text-primary" />
-              AI-Powered Tools
-            </h3>
-            <div className="grid grid-cols-2 gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleAction(() => navigate('/mobile-mixxbot'))}
-                className="h-16"
-              >
-                <div className="flex flex-col items-center gap-1">
-                  <Music className="h-4 w-4" />
-                  <span className="text-xs">AI Mix</span>
-                </div>
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleAction(() => navigate('/mastering-studio'))}
-                className="h-16"
-              >
-                <div className="flex flex-col items-center gap-1">
-                  <Zap className="h-4 w-4" />
-                  <span className="text-xs">AI Master</span>
-                </div>
-              </Button>
-            </div>
-          </Card>
-
-          {/* Stats Overview */}
-          <div className="grid grid-cols-3 gap-3">
-          <Card className="p-4 text-center">
-            <Briefcase className="h-5 w-5 mx-auto mb-2 text-primary" />
-            <p className="text-2xl font-bold">{stats.activeJobs}</p>
-            <p className="text-xs text-muted-foreground">Active Jobs</p>
-          </Card>
-          <Card className="p-4 text-center">
-            <TrendingUp className="h-5 w-5 mx-auto mb-2 text-primary" />
-            <p className="text-2xl font-bold">{stats.applications}</p>
-            <p className="text-xs text-muted-foreground">Applications</p>
-          </Card>
-          <Card className="p-4 text-center">
-            <DollarSign className="h-5 w-5 mx-auto mb-2 text-primary" />
-            <p className="text-2xl font-bold">${stats.earnings}</p>
-            <p className="text-xs text-muted-foreground">Earnings</p>
-          </Card>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="w-10 h-10"
+              onClick={() => navigate('/notifications')}
+            >
+              <Bell className="w-5 h-5" />
+            </Button>
+            <Avatar
+              className="w-8 h-8 cursor-pointer"
+              onClick={() => navigate(isEngineer ? '/engineer-crm?tab=profile' : '/artist-crm?tab=profile')}
+            >
+              <AvatarImage src={(user as any)?.user_metadata?.avatar_url} />
+              <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">
+                {(user.email || 'U').charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
           </div>
-
-          {/* Recent Activity */}
-          <Card className="p-4">
-            <h2 className="font-semibold mb-4">Recent Activity</h2>
-            <div className="space-y-3 text-sm text-muted-foreground">
-              <p>No recent activity</p>
-            </div>
-          </Card>
         </div>
-      </PullToRefresh>
+      </div>
 
-      <MobileJobPostWizard
-        isOpen={showJobWizard}
-        onClose={() => setShowJobWizard(false)}
-        onSuccess={loadStats}
-      />
+      <div className="px-4 py-4 space-y-5">
+        {/* ─── Morning Stat ─── */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <Card className="bg-gradient-to-br from-green-500/10 via-card to-emerald-500/5 border-green-500/20 p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                <Radio className="w-6 h-6 text-green-500" />
+              </div>
+              <div className="flex-1">
+                {isEngineer ? (
+                  <>
+                    <p className="text-2xl font-bold text-green-500">
+                      {stats?.openSessions || 0}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {stats?.openSessions === 1
+                        ? 'artist needs a mix'
+                        : 'artists need sessions mixed'}
+                    </p>
+                  </>
+                ) : isArtist ? (
+                  <>
+                    <p className="text-2xl font-bold text-green-500">
+                      {pendingApps.length + acceptedApps.length}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      engineers responded to your sessions
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-2xl font-bold text-green-500">
+                      {stats?.openSessions || 0}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      live sessions happening now
+                    </p>
+                  </>
+                )}
+              </div>
+              {stats && stats.matchedToday > 0 && (
+                <Badge className="bg-green-500/15 text-green-400 border-green-500/30 text-[10px]">
+                  <Zap className="w-3 h-3 mr-0.5" />
+                  {stats.matchedToday} matched
+                </Badge>
+              )}
+            </div>
+          </Card>
+        </motion.div>
+
+        {/* ─── Quick Actions ─── */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+          className="grid grid-cols-3 gap-3"
+        >
+          {isEngineer ? (
+            <>
+              <QuickAction
+                icon={Headphones}
+                label="Browse"
+                onClick={() => navigate('/sessions')}
+              />
+              <QuickAction
+                icon={MessageCircle}
+                label="Messages"
+                onClick={() => navigate('/engineer-crm?tab=messages')}
+              />
+              <QuickAction
+                icon={DollarSign}
+                label="Earnings"
+                onClick={() => navigate('/engineer-crm?tab=earnings')}
+              />
+            </>
+          ) : isArtist ? (
+            <>
+              <QuickAction
+                icon={Plus}
+                label="Post Session"
+                onClick={() => navigate('/create-session')}
+                primary
+              />
+              <QuickAction
+                icon={Users}
+                label="Find Engineer"
+                onClick={() => navigate('/engineers')}
+              />
+              <QuickAction
+                icon={MessageCircle}
+                label="Messages"
+                onClick={() => navigate('/artist-crm?tab=messages')}
+              />
+            </>
+          ) : (
+            <>
+              <QuickAction
+                icon={Radio}
+                label="Live"
+                onClick={() => navigate('/sessions')}
+                primary
+              />
+              <QuickAction
+                icon={Music}
+                label="Discover"
+                onClick={() => navigate('/community')}
+              />
+              <QuickAction
+                icon={MessageCircle}
+                label="Messages"
+                onClick={() => navigate('/fan-hub')}
+              />
+            </>
+          )}
+        </motion.div>
+
+        {/* ─── Session Feed ─── */}
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-base font-semibold flex items-center gap-2">
+              {isEngineer ? (
+                <>
+                  <Sparkles className="w-4 h-4 text-green-500" />
+                  Open Sessions
+                </>
+              ) : isArtist ? (
+                <>
+                  <Users className="w-4 h-4 text-primary" />
+                  Your Sessions
+                </>
+              ) : (
+                <>
+                  <Radio className="w-4 h-4 text-green-500" />
+                  Happening Now
+                </>
+              )}
+            </h2>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs text-muted-foreground h-8"
+              onClick={() => navigate('/sessions')}
+            >
+              See All
+              <ChevronRight className="w-3 h-3 ml-0.5" />
+            </Button>
+          </div>
+
+          {sessionsLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+            </div>
+          ) : !openSessions || openSessions.length === 0 ? (
+            <Card className="p-8 text-center bg-card/50 border-border/30">
+              <Headphones className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+              <p className="text-sm text-muted-foreground mb-3">
+                {isEngineer
+                  ? 'No open sessions right now. Check back soon!'
+                  : 'Post your first session and find an engineer.'}
+              </p>
+              {isArtist && (
+                <Button
+                  size="sm"
+                  className="bg-gradient-to-r from-green-500 to-emerald-600 h-10 px-6"
+                  onClick={() => navigate('/create-session')}
+                >
+                  <Plus className="w-4 h-4 mr-1.5" />
+                  Post Session
+                </Button>
+              )}
+            </Card>
+          ) : (
+            <AnimatePresence>
+              <div className="space-y-3">
+                {openSessions.slice(0, 5).map((session) => (
+                  <MobileSessionCard key={session.id} session={session} />
+                ))}
+              </div>
+            </AnimatePresence>
+          )}
+        </div>
+
+        {/* ─── My Applications (Engineers) ─── */}
+        {isEngineer && myApps && myApps.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+          >
+            <h2 className="text-base font-semibold mb-3 flex items-center gap-2">
+              <Send className="w-4 h-4 text-blue-500" />
+              Your Applications
+              <Badge variant="secondary" className="text-[10px]">
+                {myApps.length}
+              </Badge>
+            </h2>
+            <div className="space-y-2">
+              {myApps.slice(0, 3).map((app: any) => {
+                const session = app.collaboration_sessions;
+                const host = session?.profiles;
+                return (
+                  <Card
+                    key={app.id}
+                    className="p-3 bg-card/50 border-border/30 active:bg-card/80 touch-manipulation"
+                    onClick={() => navigate(`/session/${app.session_id}`)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Avatar className="w-9 h-9">
+                        <AvatarImage src={host?.avatar_url} />
+                        <AvatarFallback className="bg-primary/20 text-primary text-xs">
+                          {(host?.full_name || 'A').charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">
+                          {session?.title || 'Session'}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {host?.full_name || 'Artist'}
+                        </p>
+                      </div>
+                      <Badge
+                        className={
+                          app.status === 'accepted'
+                            ? 'bg-green-500/15 text-green-400 border-green-500/30 text-[10px]'
+                            : 'bg-yellow-500/15 text-yellow-400 border-yellow-500/30 text-[10px]'
+                        }
+                      >
+                        {app.status === 'accepted' ? 'Accepted!' : 'Pending'}
+                      </Badge>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </div>
+
+      {/* Bottom Nav */}
+      <MobileBottomNav />
     </div>
+  );
+}
+
+// ─── Quick Action Button ──────────────────────────────────────
+
+function QuickAction({
+  icon: Icon,
+  label,
+  onClick,
+  primary = false,
+}: {
+  icon: typeof Plus;
+  label: string;
+  onClick: () => void;
+  primary?: boolean;
+}) {
+  return (
+    <motion.button
+      whileTap={{ scale: 0.93 }}
+      onClick={onClick}
+      className={`
+        flex flex-col items-center justify-center gap-1.5 p-4 rounded-2xl
+        transition-colors touch-manipulation
+        ${primary
+          ? 'bg-gradient-to-br from-green-500/15 to-emerald-500/10 border border-green-500/20'
+          : 'bg-card/50 border border-border/30'
+        }
+      `}
+    >
+      <Icon className={`w-5 h-5 ${primary ? 'text-green-500' : 'text-muted-foreground'}`} />
+      <span className={`text-xs font-medium ${primary ? 'text-green-500' : 'text-muted-foreground'}`}>
+        {label}
+      </span>
+    </motion.button>
   );
 }
