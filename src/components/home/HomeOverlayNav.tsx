@@ -77,6 +77,29 @@ export function HomeOverlayNav() {
 
   const dashboardPath = activeRole ? roleRoutes[activeRole] : '/dashboard';
 
+  const roleRoutes = {
+    artist: '/sessions',
+    engineer: '/engineers',
+    producer: '/dream-engine',
+    fan: '/community',
+    admin: '/dashboard',
+  } as const;
+
+  const roleAwarePath = (path: string) => {
+    if (!user) return path;
+
+    const map: Record<string, string> = {
+      '/for-artists': '/sessions',
+      '/for-engineers': '/engineers',
+      '/for-producers': '/dream-engine',
+      '/for-fans': '/community',
+    };
+
+    return map[path] || path;
+  };
+
+  const dashboardPath = activeRole ? roleRoutes[activeRole] : '/dashboard';
+
   // Hide entirely during Demo and Club Scene — they have their own internal nav
   if (scene !== 'HALLWAY') return null;
 

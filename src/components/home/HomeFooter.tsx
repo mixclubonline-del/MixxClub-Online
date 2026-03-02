@@ -98,6 +98,10 @@ export function HomeFooter() {
     if (!user) return href;
 
     const map: Record<string, string> = {
+      '/for-artists': '/sessions',
+      '/for-engineers': '/engineers',
+      '/for-producers': '/dream-engine',
+      '/for-fans': '/community',
       '/for-artists': '/artist-crm',
       '/for-engineers': '/engineer-crm',
       '/for-producers': '/producer-crm',
