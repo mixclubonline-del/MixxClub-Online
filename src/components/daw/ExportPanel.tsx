@@ -71,7 +71,7 @@ export function ExportPanel({ isOpen, onClose }: ExportPanelProps) {
       setExportedToCloud(false);
       // Generate default title
       const timestamp = new Date().toISOString().slice(0, 10);
-      setTrackTitle(`MixClub Export ${timestamp}`);
+      setTrackTitle(`Mixxclub Export ${timestamp}`);
     }
   }, [isOpen]);
   
@@ -258,7 +258,7 @@ export function ExportPanel({ isOpen, onClose }: ExportPanelProps) {
                 <div className="space-y-0.5">
                   <Label className="flex items-center gap-1.5">
                     <Cloud className="w-4 h-4 text-primary" />
-                    Save to MixClub Cloud
+                    Save to Mixxclub Cloud
                   </Label>
                   <p className="text-xs text-muted-foreground">Enable one-click distribution</p>
                 </div>

@@ -200,7 +200,7 @@ export function HeroPromo() {
                             { icon: Zap, label: 'Instant Matching', desc: 'AI pairs you with perfect engineers' },
                             { icon: Music, label: 'Real-Time Collab', desc: 'Work together from anywhere' },
                             { icon: Users, label: 'Global Network', desc: 'Access thousands of creators' },
-                            { icon: TrendingUp, label: 'Fair Pricing', desc: '$0 platform fee on MixClub Pro' },
+                            { icon: TrendingUp, label: 'Fair Pricing', desc: '$0 platform fee on Mixxclub Pro' },
                         ].map((feature, idx) => (
                             <div
                                 key={idx}

@@ -36,11 +36,11 @@ export const ComparisonTable = () => {
                   <div className="text-sm text-muted-foreground">$12</div>
                 </th>
                 <th className="text-center py-4 px-2 bg-muted/30">
-                  <div className="font-bold text-primary">MixClub Starter</div>
+                  <div className="font-bold text-primary">Mixxclub Starter</div>
                   <div className="text-sm text-primary">$29</div>
                 </th>
                 <th className="text-center py-4 px-2 bg-primary/10">
-                  <div className="font-bold text-primary">MixClub Pro</div>
+                  <div className="font-bold text-primary">Mixxclub Pro</div>
                   <div className="text-sm text-primary">$79</div>
                 </th>
               </tr>

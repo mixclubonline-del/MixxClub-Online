@@ -17,8 +17,8 @@ export default function Terms() {
     <>
       <SEOHead
         title="Terms of Service"
-        description="Read MixxClub's terms of service. Understand your rights, responsibilities, payment terms, and intellectual property protections."
-        keywords="mixclub terms, terms of service, user agreement, audio platform terms"
+        description="Read Mixxclub's terms of service. Understand your rights, responsibilities, payment terms, and intellectual property protections."
+        keywords="mixxclub terms, terms of service, user agreement, audio platform terms"
       />
       <div className="min-h-screen bg-background">
       <Navigation />
@@ -40,7 +40,7 @@ export default function Terms() {
             </div>
             <div>
               <h1 className="text-4xl font-bold">Terms of Service</h1>
-              <p className="text-muted-foreground mt-2">Last Updated: January 2025</p>
+              <p className="text-muted-foreground mt-2">Last Updated: March 2026</p>
             </div>
           </div>
 
@@ -48,14 +48,14 @@ export default function Terms() {
             <section>
               <h2 className="text-2xl font-semibold text-foreground mb-4">1. Acceptance of Terms</h2>
               <p className="text-muted-foreground leading-relaxed">
-                By accessing and using MixClub ("the Service"), you accept and agree to be bound by the terms and provisions of this agreement. If you do not agree to these Terms of Service, please do not use the Service.
+                By accessing and using Mixxclub ("the Service"), you accept and agree to be bound by the terms and provisions of this agreement. If you do not agree to these Terms of Service, please do not use the Service.
               </p>
             </section>
 
             <section>
               <h2 className="text-2xl font-semibold text-foreground mb-4">2. Service Description</h2>
               <p className="text-muted-foreground leading-relaxed mb-3">
-                MixClub is a platform that connects music artists with audio engineers for mixing, mastering, and other audio production services. The Service includes:
+                Mixxclub is a platform that connects music artists with audio engineers for mixing, mastering, and other audio production services. The Service includes:
               </p>
               <ul className="list-disc list-inside text-muted-foreground space-y-2 ml-4">
                 <li>Project management and collaboration tools</li>
@@ -93,12 +93,12 @@ export default function Terms() {
 
               <h3 className="text-xl font-semibold text-foreground mb-3 mt-4">4.2 Service Fees</h3>
               <p className="text-muted-foreground leading-relaxed">
-                MixClub charges a platform fee on each transaction. Engineers receive 70% of the project payment, while 30% goes to platform fees and payment processing.
+                Mixxclub charges a platform fee on each transaction. Engineers receive 70% of the project payment, while 30% goes to platform fees and payment processing.
               </p>
 
               <h3 className="text-xl font-semibold text-foreground mb-3 mt-4">4.3 Refund Policy</h3>
               <p className="text-muted-foreground leading-relaxed">
-                Refunds are handled on a case-by-case basis. If you are not satisfied with the service provided, please contact support@mixclubonline.com within 7 days of project completion.
+                Refunds are handled on a case-by-case basis. If you are not satisfied with the service provided, please contact support@mixxclubonline.com within 7 days of project completion.
               </p>
             </section>
 
@@ -106,7 +106,7 @@ export default function Terms() {
               <h2 className="text-2xl font-semibold text-foreground mb-4">5. Intellectual Property</h2>
               <h3 className="text-xl font-semibold text-foreground mb-3 mt-4">5.1 User Content</h3>
               <p className="text-muted-foreground leading-relaxed">
-                You retain all rights to the audio content you upload. By using the Service, you grant MixClub a limited license to store, process, and transmit your content solely for the purpose of providing the Service.
+                You retain all rights to the audio content you upload. By using the Service, you grant Mixxclub a limited license to store, process, and transmit your content solely for the purpose of providing the Service.
               </p>
 
               <h3 className="text-xl font-semibold text-foreground mb-3 mt-4">5.2 Work Product</h3>
@@ -131,7 +131,7 @@ export default function Terms() {
             <section>
               <h2 className="text-2xl font-semibold text-foreground mb-4">7. Limitation of Liability</h2>
               <p className="text-muted-foreground leading-relaxed">
-                MixClub acts as an intermediary platform. We are not responsible for the quality of work provided by engineers or the actions of users. Our total liability shall not exceed the amount paid by you for the Service in the 12 months preceding the claim.
+                Mixxclub acts as an intermediary platform. We are not responsible for the quality of work provided by engineers or the actions of users. Our total liability shall not exceed the amount paid by you for the Service in the 12 months preceding the claim.
               </p>
             </section>
 
@@ -162,9 +162,9 @@ export default function Terms() {
                 For questions about these Terms, please contact us at:
               </p>
               <div className="mt-4 p-4 bg-muted/50 rounded-lg border border-border">
-                <p className="text-foreground font-medium">MixClub Support</p>
-                <p className="text-muted-foreground">Email: legal@mixclubonline.com</p>
-                <p className="text-muted-foreground">Address: 1234 Audio Avenue, Suite 500, Los Angeles, CA 90028, United States</p>
+                <p className="text-foreground font-medium">Mixxclub Support</p>
+                <p className="text-muted-foreground">Email: legal@mixxclubonline.com</p>
+                <p className="text-muted-foreground">Address: Los Angeles, CA, United States</p>
               </div>
             </section>
           </div>

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { HubType, useHubData } from '@/contexts/HubDataContext';
+import { uuid } from '@/lib/uuid';
 
 export type PrimeBotMode = 'collapsed' | 'expanded' | 'command-palette';
 
@@ -76,7 +77,7 @@ export function PrimeBotProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const addAction = useCallback((action: Omit<PrimeBotAction, 'id' | 'timestamp'>): string => {
-    const id = crypto.randomUUID();
+    const id = uuid();
     const newAction: PrimeBotAction = {
       ...action,
       id,

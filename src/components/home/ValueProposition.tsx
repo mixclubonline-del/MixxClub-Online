@@ -40,7 +40,7 @@ export const ValueProposition = () => {
                   <span className="font-bold">$9-19/track</span>
                 </div>
                 <div className="flex justify-between items-center border-t pt-3">
-                  <span className="font-semibold">MixClub:</span>
+                  <span className="font-semibold">Mixxclub:</span>
                   <span className="font-bold text-primary">$29-149/track</span>
                 </div>
                 <p className="text-xs text-muted-foreground">Human expertise + AI power</p>
@@ -96,7 +96,7 @@ export const ValueProposition = () => {
                   <span className="font-bold">30% commission</span>
                 </div>
                 <div className="flex justify-between items-center border-t pt-3">
-                  <span className="font-semibold">MixClub:</span>
+                  <span className="font-semibold">Mixxclub:</span>
                   <span className="font-bold text-primary">30% (you keep 70%)</span>
                 </div>
               </div>

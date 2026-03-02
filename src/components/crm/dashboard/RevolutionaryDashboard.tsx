@@ -21,6 +21,7 @@ export const RevolutionaryDashboard = () => {
   // Dynamic glass style for audio reactivity
   const reactiveGlassStyle = {
     backdropFilter: `blur(${16 + glassIntensity * 24}px) saturate(${180 + glassIntensity * 40}%)`,
+    WebkitBackdropFilter: `blur(${16 + glassIntensity * 24}px) saturate(${180 + glassIntensity * 40}%)`,
     borderColor: `rgba(255, 120, 80, ${0.1 + glassIntensity * 0.3})`,
   };
 
@@ -74,8 +75,8 @@ export const RevolutionaryDashboard = () => {
               height: `${3 + glassIntensity * 6}px`,
               boxShadow: `0 0 ${8 + glassIntensity * 16}px rgba(255, 120, 80, ${0.2 + glassIntensity * 0.3})`,
             }}
-            initial={{ 
-              x: Math.random() * window.innerWidth, 
+            initial={{
+              x: Math.random() * window.innerWidth,
               y: Math.random() * window.innerHeight,
               opacity: 0.3 + intensity * 0.3,
             }}
@@ -150,9 +151,9 @@ export const RevolutionaryDashboard = () => {
               onClick={(e) => e.stopPropagation()}
               className="w-full max-w-2xl glass-ultra rounded-lg"
             >
-              <QuickActionLauncher 
-                fullScreen 
-                onClose={() => setShowCommandPalette(false)} 
+              <QuickActionLauncher
+                fullScreen
+                onClose={() => setShowCommandPalette(false)}
               />
             </motion.div>
           </motion.div>

@@ -3,7 +3,7 @@
  */
 
 const STATE_VERSION = '1.0';
-const STATE_PREFIX = 'mixclub_state_';
+const STATE_PREFIX = 'mixxclub_state_';
 
 interface StoredState<T> {
   version: string;

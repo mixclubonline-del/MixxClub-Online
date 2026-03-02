@@ -5,7 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { queryClient } from "@/lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/hooks/useAuth";
+import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { PWAInstallPrompt } from "@/components/mobile/PWAInstallPrompt";
 import { MobileRouteGuard } from "@/components/mobile/MobileRouteGuard";
 import { OfflineIndicator } from "@/components/mobile/OfflineIndicator";
@@ -32,6 +32,7 @@ import { PageTransition } from "@/components/layouts/PageTransition";
 import { DashboardSkeleton } from "@/components/ui/loading-skeleton";
 import { PerformanceMonitor } from "@/components/PerformanceMonitor";
 import { CookieConsent } from "@/components/legal/CookieConsent";
+import { PathfinderBeacon } from "@/components/walkthrough/PathfinderBeacon";
 import { GlobalKeyboardShortcuts } from "@/components/GlobalKeyboardShortcuts";
 import { ImmersiveAppShell } from "@/components/immersive/ImmersiveAppShell";
 import { MobileOptimizations } from "@/components/MobileOptimizations";
@@ -47,8 +48,9 @@ import NotFound from "@/pages/NotFound";
 // Desktop-only components wrapper (Prime Console/Status only)
 const DesktopOnlyComponents = () => {
   const { deviceType } = useMobileDetect();
+  const { user } = useAuth();
 
-  if (deviceType !== "desktop") {
+  if (deviceType !== "desktop" || !user) {
     return null;
   }
 
@@ -56,6 +58,20 @@ const DesktopOnlyComponents = () => {
     <>
       <PrimeConsole />
       <PrimeStatusBar />
+    </>
+  );
+};
+
+// Auth-gated overlays — only shown to logged-in users
+const AuthGatedOverlays = () => {
+  const { user } = useAuth();
+  if (!user) return null;
+  return (
+    <>
+      <TutorialOverlay />
+      <GlobalAudioPlayer />
+      <GlobalMusicPlayer />
+      <GlobalPrimeChat />
     </>
   );
 };
@@ -133,12 +149,10 @@ const App = () => {
                           <GlobalKeyboardShortcuts />
                           <MobileOptimizations />
                           <DesktopOnlyComponents />
-                          <TutorialOverlay />
-                          <GlobalAudioPlayer />
-                          <GlobalMusicPlayer />
-                          <GlobalPrimeChat />
+                          <AuthGatedOverlays />
                           <PerformanceMonitor />
                           <CookieConsent />
+                          <PathfinderBeacon />
                         </UnlockCelebrationProvider>
                       </PulseProvider>
                     </TutorialProvider>

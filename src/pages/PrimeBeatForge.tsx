@@ -108,7 +108,7 @@ export default function PrimeBeatForge() {
           </h1>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Prime uses Suno AI to generate demo beats for the platform. 
-            These beats showcase MixClub's capabilities and populate the marketplace.
+            These beats showcase Mixxclub's capabilities and populate the marketplace.
           </p>
         </motion.div>
 

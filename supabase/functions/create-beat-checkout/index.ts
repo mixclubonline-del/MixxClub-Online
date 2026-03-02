@@ -145,7 +145,8 @@
      }
  
      // Get producer name for display
-     const producerName = beat.producer?.full_name || beat.producer?.username || 'Producer';
+  const producer = Array.isArray(beat.producer) ? beat.producer[0] : beat.producer;
+  const producerName = producer?.full_name || producer?.username || 'Producer';
  
      // Create checkout session
      const session = await stripe.checkout.sessions.create({

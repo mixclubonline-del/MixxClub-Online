@@ -22,7 +22,7 @@ export const NetworkHero = () => {
           className="relative"
         >
           <h1 className="text-7xl md:text-9xl font-bold mb-4 bg-gradient-to-r from-primary via-accent-blue to-accent-cyan bg-clip-text text-transparent">
-            MixClub Online
+            Mixxclub Online
           </h1>
           <p className="text-2xl md:text-4xl text-foreground/90 font-light mb-8">
             The Social Hub

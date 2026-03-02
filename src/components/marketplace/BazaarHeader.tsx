@@ -43,7 +43,7 @@ export function BazaarHeader() {
         transition={{ duration: 0.6, delay: 0.4 }}
         className="text-lg text-white/60 max-w-2xl mx-auto"
       >
-        Discover premium beats, samples, and presets from talented creators across MixClub City
+        Discover premium beats, samples, and presets from talented creators across Mixxclub City
       </motion.p>
 
       {/* Animated underline */}

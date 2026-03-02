@@ -101,7 +101,7 @@ export function HireModal({ open, onOpenChange, profile, specialties = [] }: Hir
 ${projectDescription}
 
 ---
-Sent via MixClub Hire`;
+Sent via Mixxclub Hire`;
 
       // Send initial message (skip message notification since we send hire_request notification)
       const success = await sendInitialMessage(profile.id, message, true);

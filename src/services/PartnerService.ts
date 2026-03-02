@@ -5,6 +5,7 @@
  */
 
 import type { Partner, Commission, Payout, AffiliateLink, PartnerMetrics } from '@/stores/partnerStore';
+import { uuid } from '@/lib/uuid';
 
 // In-memory mock data (resets on page refresh)
 const mockPartners: Partner[] = [];
@@ -27,9 +28,11 @@ export class PartnerService {
         if (filters?.status) {
             result = result.filter(p => p.status === filters.status);
         }
+        
         if (filters?.tier) {
             result = result.filter(p => p.tier === filters.tier);
         }
+        
         if (filters?.limit) {
             result = result.slice(0, filters.limit);
         }
@@ -38,59 +41,97 @@ export class PartnerService {
     }
 
     /**
-     * Fetch single partner
+     * Get a single partner by ID
      */
-    static async getPartner(partnerId: string): Promise<Partner | null> {
-        console.warn('PartnerService: Using mock data - partners table not configured');
-        return mockPartners.find(p => p.id === partnerId) || null;
+    static async getPartner(id: string): Promise<Partner | null> {
+        console.warn('PartnerService: Using mock data');
+        return mockPartners.find(p => p.id === id) || null;
     }
 
     /**
-     * Create new partner
+     * Create a new partner application
      */
-    static async createPartner(partner: Omit<Partner, 'id' | 'joinedAt'>): Promise<Partner> {
-        console.warn('PartnerService: Using mock data - partners table not configured');
+    static async createPartner(data: Partial<Partner>): Promise<Partner> {
+        console.warn('PartnerService: Creating mock partner');
         const newPartner: Partner = {
-            ...partner,
-            id: crypto.randomUUID(),
+            id: uuid(),
+            userId: data.userId || 'unknown',
+            companyName: data.companyName || 'New Partner',
+            email: data.email || '',
+            status: 'pending',
+            tier: 'bronze',
+            commissionRate: 10,
+            affiliateCode: `MIXX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
             joinedAt: new Date(),
+            metrics: {
+                totalReferrals: 0,
+                totalSales: 0,
+                totalCommission: 0,
+                activeCustomers: 0,
+            },
+            settings: {
+                marketingMaterialsAccess: true,
+                dedicatedManager: false,
+                trainingWebinars: false,
+                exclusiveDeals: false,
+            },
+            ...data,
         };
+        
         mockPartners.push(newPartner);
         return newPartner;
     }
 
     /**
-     * Update partner details
+     * Update a partner
      */
-    static async updatePartner(
-        partnerId: string,
-        updates: Partial<Partner>
-    ): Promise<Partner> {
-        console.warn('PartnerService: Using mock data - partners table not configured');
-        const index = mockPartners.findIndex(p => p.id === partnerId);
-        if (index === -1) {
-            throw new Error('Partner not found');
+    static async updatePartner(id: string, updates: Partial<Partner>): Promise<Partner> {
+        const index = mockPartners.findIndex(p => p.id === id);
+        if (index >= 0) {
+            mockPartners[index] = { ...mockPartners[index], ...updates };
+            return mockPartners[index];
         }
-        mockPartners[index] = { ...mockPartners[index], ...updates };
-        return mockPartners[index];
+        throw new Error('Partner not found');
     }
 
     /**
-     * Record commission for a sale
+     * Generate an affiliate link
      */
-    static async recordCommission(
-        partnerId: string,
-        saleId: string,
-        amount: number,
-        rate: number
-    ): Promise<Commission> {
-        console.warn('PartnerService: Using mock data - commissions table not configured');
+    static async generateLink(partnerId: string, campaign?: string): Promise<AffiliateLink> {
+        console.warn('PartnerService: Generating mock link');
+        const newLink: AffiliateLink = {
+            id: uuid(),
+            partnerId: partnerId,
+            code: Math.random().toString(36).substring(7),
+            url: 'https://mixxclub.com?ref=' + Math.random().toString(36).substring(2, 10),
+            campaign: campaign || 'default',
+            clicks: 0,
+            conversions: 0,
+            revenue: 0,
+            createdAt: new Date(),
+        };
+        
+        mockAffiliateLinks.push(newLink);
+        return newLink;
+    }
+
+    /**
+     * Create an affiliate link (alias for generateLink)
+     */
+    static async createAffiliateLink(partnerId: string, campaign?: string): Promise<AffiliateLink> {
+        return PartnerService.generateLink(partnerId, campaign);
+    }
+
+    /**
+     * Record a commission
+     */
+    static async recordCommission(partnerId: string, saleId: string, amount: number, rate: number): Promise<Commission> {
         const commission: Commission = {
-            id: crypto.randomUUID(),
+            id: uuid(),
             partnerId,
-            referralId: '',
+            referralId: uuid(),
             saleId,
-            amount: amount * rate,
+            amount: amount * (rate / 100),
             rate,
             status: 'pending',
             dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
@@ -101,36 +142,23 @@ export class PartnerService {
     }
 
     /**
-     * Get partner commissions
+     * Get commissions for a partner
      */
-    static async getPartnerCommissions(
-        partnerId: string,
-        status?: string
-    ): Promise<Commission[]> {
-        console.warn('PartnerService: Using mock data - commissions table not configured');
-        let result = mockCommissions.filter(c => c.partnerId === partnerId);
-        if (status) {
-            result = result.filter(c => c.status === status);
-        }
-        return result;
+    static async getPartnerCommissions(partnerId: string): Promise<Commission[]> {
+        return mockCommissions.filter(c => c.partnerId === partnerId);
     }
 
     /**
-     * Create payout for partner
+     * Create a payout
      */
-    static async createPayout(
-        partnerId: string,
-        amount: number,
-        method: Payout['method']
-    ): Promise<Payout> {
-        console.warn('PartnerService: Using mock data - payouts table not configured');
+    static async createPayout(partnerId: string, amount: number, method: Payout['method']): Promise<Payout> {
         const payout: Payout = {
-            id: crypto.randomUUID(),
+            id: uuid(),
             partnerId,
             amount,
             status: 'pending',
             method,
-            startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+            startDate: new Date(new Date().setDate(1)),
             endDate: new Date(),
             createdAt: new Date(),
         };
@@ -139,78 +167,25 @@ export class PartnerService {
     }
 
     /**
-     * Get partner payouts
+     * Get payouts for a partner
      */
     static async getPartnerPayouts(partnerId: string): Promise<Payout[]> {
-        console.warn('PartnerService: Using mock data - payouts table not configured');
         return mockPayouts.filter(p => p.partnerId === partnerId);
-    }
-
-    /**
-     * Create affiliate link
-     */
-    static async createAffiliateLink(
-        partnerId: string,
-        campaign?: string
-    ): Promise<AffiliateLink> {
-        console.warn('PartnerService: Using mock data - affiliate_links table not configured');
-        const code = `AFF${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-        const link: AffiliateLink = {
-            id: crypto.randomUUID(),
-            partnerId,
-            code,
-            url: `https://mixclub.com?ref=${code}`,
-            campaign,
-            createdAt: new Date(),
-            clicks: 0,
-            conversions: 0,
-            revenue: 0,
-        };
-        mockAffiliateLinks.push(link);
-        return link;
-    }
-
-    /**
-     * Track link click
-     */
-    static async trackLinkClick(linkId: string): Promise<void> {
-        console.warn('PartnerService: Using mock data - affiliate_links table not configured');
-        const link = mockAffiliateLinks.find(l => l.id === linkId);
-        if (link) {
-            link.clicks += 1;
-        }
     }
 
     /**
      * Get partner metrics
      */
-    static async getPartnerMetrics(
-        partnerId: string,
-        _month?: string
-    ): Promise<PartnerMetrics[]> {
-        console.warn('PartnerService: Using mock data - partner_metrics table not configured');
-        return [];
-    }
-
-    /**
-     * Calculate total commission owed
-     */
-    static async calculateCommissionOwed(partnerId: string): Promise<number> {
-        console.warn('PartnerService: Using mock data - commissions table not configured');
-        return mockCommissions
-            .filter(c => c.partnerId === partnerId && (c.status === 'pending' || c.status === 'earned'))
-            .reduce((sum, c) => sum + c.amount, 0);
-    }
-
-    /**
-     * Get top performing partners
-     */
-    static async getTopPartners(limit: number = 10): Promise<Partner[]> {
-        console.warn('PartnerService: Using mock data - partners table not configured');
-        return mockPartners
-            .sort((a, b) => (b.metrics?.totalSales || 0) - (a.metrics?.totalSales || 0))
-            .slice(0, limit);
+    static async getMetrics(partnerId: string): Promise<PartnerMetrics> {
+        return {
+            partnerId,
+            month: new Date().toISOString().slice(0, 7),
+            referrals: 45,
+            sales: 12,
+            revenue: 3200,
+            commission: 320.50,
+            conversionRate: 3.6,
+            averageOrderValue: 266.67,
+        };
     }
 }
-
-export default PartnerService;

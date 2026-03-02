@@ -14,13 +14,13 @@ serve(async (req) => {
   try {
     const { trackName, audioAnalysis } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    
+
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY not configured');
     }
 
     const { tempo, key, genre, energy, mood } = audioAnalysis || {};
-    
+
     const prompt = `Generate 5 creative, catchy track names for a music project with these characteristics:
 ${trackName ? `Current name: ${trackName}` : ''}
 ${tempo ? `Tempo: ${tempo} BPM` : ''}
@@ -45,7 +45,7 @@ Return as JSON array: [{"name": "...", "reason": "..."}]`;
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-3-flash-preview',
         messages: [
           { role: 'system', content: 'You are a creative music naming assistant. Always respond with valid JSON.' },
           { role: 'user', content: prompt }
@@ -71,7 +71,7 @@ Return as JSON array: [{"name": "...", "reason": "..."}]`;
 
     const data = await response.json();
     const content = data.choices[0].message.content;
-    
+
     // Parse JSON from response
     let suggestions;
     try {

@@ -1,71 +1,36 @@
 
+# Fix Navigation Dropdown Links Redirecting to Auth
 
-## Phase 2: Background Blackout + Hallway Centering Fix
+## The Problem
 
-Three surgical fixes that eliminate the remaining visual bleed-through and alignment bugs.
+When an unauthenticated user clicks links in the **Studio** or **Community** dropdown menus from the Navigation bar (visible on `/how-it-works` and other public pages), they get redirected to `/auth?redirect=...` instead of reaching the actual page. This is because the service and community routes are **only** defined inside `appRoutes.tsx`, which wraps everything in `ProtectedAppLayout` (requires login).
 
----
+**Affected links:**
+- Studio dropdown: `/services/mixing`, `/services/mastering`, `/services/ai-mastering`, `/services/distribution`, `/showcase`
+- Community dropdown: `/community`, `/community?tab=arena`, `/community?tab=leaderboard`, `/marketplace`
 
-### Fix 1: Kill the Static Fallback Images in PhaseBackground
+## The Fix
 
-**File**: `src/components/demo/PhaseBackground.tsx`
+Move these showcase/marketing routes out of the protected `appRoutes` and into `publicRoutes.tsx` so they're accessible to everyone. The authenticated versions in `appRoutes` (which add the sidebar/header layout) remain for logged-in users.
 
-**Problem**: Line 113 currently reads `const resolvedUrl = dbAssetUrl || staticFallback;` — meaning every phase without a database-uploaded asset falls back to a DAW screenshot or promo photo at 35% opacity. The result: track names, channel strips, "File / View / Edit" menus, and watermarks bleed through behind demo content across all 10 phases.
+### File: `src/routes/publicRoutes.tsx`
 
-**Fix**: Change the resolution chain from `DB asset > static image > gradient` to `DB asset > gradient`. When no database asset is uploaded, the handcrafted `PHASE_GRADIENTS` become the primary background. The gradients are already defined for all 10 phases and provide superior cinematic atmosphere without any UI bleed.
+Add these public route entries (imports + `<Route>` elements):
 
-Change line 113 from:
-```
-const resolvedUrl = dbAssetUrl || staticFallback;
-```
-to:
-```
-const resolvedUrl = dbAssetUrl || null;
-```
+- `/services` (Services index)
+- `/services/mixing` (MixingShowcase)
+- `/services/mastering` (MasteringShowcase)
+- `/services/ai-mastering` (AIMastering)
+- `/services/distribution` (DistributionHub)
+- `/showcase` (Showcase)
+- `/marketplace` (BeatMarketplace)
 
-The static imports and `STATIC_FALLBACKS` record stay in the file for documentation — they will be tree-shaken out by the bundler since nothing references them at runtime.
+**Note:** `/community` is already in `publicRoutes.tsx` (line 60), so that one is fine. The issue there is that React Router matches the `appRoutes` version first (inside `ProtectedAppLayout`) before the public one. Since both route sets are rendered as siblings inside `<Routes>`, the first match wins -- and `appRoutes` appears after `publicRoutes` in `App.tsx` (line 91-92), so `publicRoutes` should win. But the community dropdown links with query params like `?tab=arena` may still resolve to the protected version if there's a path conflict.
 
----
+### Execution
 
-### Fix 2: Separate Floor Logo Centering from Perspective Transform
+1. Import `MixingShowcase`, `MasteringShowcase`, `AIMastering`, `DistributionHub`, `Services`, `BeatMarketplace`, and `Showcase` into `publicRoutes.tsx`
+2. Add `<Route>` entries for each path listed above
+3. Keep the same routes in `appRoutes.tsx` as-is (logged-in users get the app layout wrapper; since `publicRoutes` is rendered first in `App.tsx`, unauthenticated users hit the public version)
 
-**File**: `src/components/scene/StudioHallway.tsx`
-
-**Problem**: The floor logo div (lines 251-268) has `className="... left-1/2 -translate-x-1/2"` AND an inline `style={{ transform: 'translateX(-50%) perspective(500px) rotateX(60deg) scaleX(0.9)' }}`. The inline `transform` overrides Tailwind's `-translate-x-1/2` entirely. While the manual `translateX(-50%)` compensates, the two transform systems fighting creates a fragile pattern and the perspective distortion shifts the visual center.
-
-**Fix**: Nest two divs. Outer div handles centering only (Tailwind). Inner div handles perspective only (inline style). No conflicts.
-
-```
-BEFORE (single div, conflicting transforms):
-  <div class="left-1/2 -translate-x-1/2" style="transform: translateX(-50%) perspective(...)">
-
-AFTER (nested, clean separation):
-  <div class="absolute bottom-44 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
-    <div style="transform: perspective(500px) rotateX(60deg) scaleX(0.9); opacity: 0.13">
-      ...logo...
-    </div>
-  </div>
-```
-
----
-
-### Fix 3: Remove Background Image from CommunityShowcase
-
-**File**: `src/components/demo/CommunityShowcase.tsx`
-
-**Problem**: Lines 43-53 render `mixing-collaboration.jpg` at 20% opacity behind the floating member cards. This is a secondary source of image bleed independent of `PhaseBackground` — it layers a promo photo under the connection phase content, adding visual noise that competes with the phase gradient.
-
-**Fix**: Remove the atmospheric background image container entirely (lines 43-53). The phase gradient from `PhaseBackground` already provides the atmosphere. The floating glassmorphic member cards provide all the visual depth needed. Also remove the unused `mixingCollabImg` import on line 5.
-
----
-
-### Files Modified
-
-| File | Change |
-|---|---|
-| `src/components/demo/PhaseBackground.tsx` | Skip static fallback images; use gradient as default when no DB asset |
-| `src/components/scene/StudioHallway.tsx` | Separate floor logo centering wrapper from perspective wrapper |
-| `src/components/demo/CommunityShowcase.tsx` | Remove inline background image and its import |
-
-No new files. No database changes. No new dependencies. Three files, three clean cuts.
-
+This is a single-file edit to `src/routes/publicRoutes.tsx` -- roughly 10 new lines of imports and 7 new `<Route>` elements.

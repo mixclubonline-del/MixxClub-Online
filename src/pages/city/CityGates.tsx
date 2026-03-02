@@ -19,7 +19,7 @@ export default function CityGates() {
     setEntering(true);
     
     // Store role preference
-    localStorage.setItem('mixclub_role', role);
+    localStorage.setItem('mixxclub_role', role);
     
     // Navigate after zoom animation
     setTimeout(() => {

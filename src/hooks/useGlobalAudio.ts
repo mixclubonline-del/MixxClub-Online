@@ -17,7 +17,7 @@ interface GlobalAudioState {
   audioData: AudioData | null;
 }
 
-const STORAGE_KEY = 'mixclub_audio_prefs';
+const STORAGE_KEY = 'mixxclub_audio_prefs';
 const THEME_SONG_PATH = 'audio-files/uploads/1764786509897-m8ucjp.mp3';
 
 export function useGlobalAudio() {

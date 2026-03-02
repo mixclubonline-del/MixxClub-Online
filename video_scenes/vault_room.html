@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vault Room Loop</title>
+    <style>
+        :root {
+            --primary: #a855f7;
+            --primary-glow: rgba(168, 85, 247, 0.4);
+            --bg: #09090b;
+            --metal: #18181b;
+            --metal-dark: #0f0f11;
+        }
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-image:
+                radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.05) 0%, transparent 60%),
+                linear-gradient(0deg, rgba(0, 0, 0, 0.8) 0%, transparent 20%, transparent 80%, rgba(0, 0, 0, 0.8) 100%);
+        }
+
+        /* The Massive Vault Door */
+        .vault-door {
+            position: relative;
+            width: 800px;
+            height: 800px;
+            border-radius: 50%;
+            background: radial-gradient(circle at center, var(--metal), var(--bg));
+            box-shadow:
+                0 0 100px rgba(0, 0, 0, 0.9),
+                inset 0 0 50px rgba(0, 0, 0, 0.8),
+                inset 0 0 0 10px #27272a,
+                inset 0 0 0 12px #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* Subtle breathing animation */
+            animation: breathe 8s ease-in-out infinite alternate;
+        }
+
+        @keyframes breathe {
+            0% {
+                transform: scale(1) translateY(0);
+                filter: brightness(1);
+            }
+
+            100% {
+                transform: scale(1.02) translateY(-10px);
+                filter: brightness(1.2);
+            }
+        }
+
+        /* Concentric Rings */
+        .ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid #3f3f46;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow:
+                inset 0 0 20px rgba(0, 0, 0, 0.8),
+                0 0 20px rgba(0, 0, 0, 0.8);
+        }
+
+        .ring-1 {
+            width: 650px;
+            height: 650px;
+            border-width: 40px;
+            border-color: var(--metal-dark);
+            border-style: dashed;
+            animation: spinCounter 60s linear infinite;
+        }
+
+        .ring-2 {
+            width: 500px;
+            height: 500px;
+            border-width: 20px;
+            border-color: #27272a;
+            animation: spin 40s linear infinite;
+        }
+
+        .ring-3 {
+            width: 350px;
+            height: 350px;
+            border-width: 8px;
+            border-color: var(--primary);
+            box-shadow: 0 0 30px var(--primary-glow), inset 0 0 30px var(--primary-glow);
+            animation: spinCounter 20s linear infinite;
+        }
+
+        /* Lock Bolts */
+        .bolts {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            animation: spin 120s linear infinite;
+        }
+
+        .bolt-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 750px;
+            height: 40px;
+            margin-top: -20px;
+            margin-left: -375px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .bolt {
+            width: 60px;
+            height: 40px;
+            background: linear-gradient(90deg, #3f3f46, #71717a, #3f3f46);
+            border-radius: 4px;
+            box-shadow: inset 0 2px 5px rgba(255, 255, 255, 0.2), 0 5px 15px rgba(0, 0, 0, 0.9);
+            position: relative;
+        }
+
+        /* The Core */
+        .core {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: radial-gradient(circle at center, #fff, var(--primary) 20%, #000 80%);
+            box-shadow: 0 0 80px var(--primary-glow), inset 0 0 40px #000;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulseCore 4s ease-in-out infinite alternate;
+        }
+
+        .core-inner {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #000;
+            border: 4px solid var(--primary);
+            box-shadow: 0 0 20px var(--primary);
+            animation: spin 5s linear infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .core-inner::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 0 10px #fff;
+        }
+
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes spinCounter {
+            100% {
+                transform: rotate(-360deg);
+            }
+        }
+
+        @keyframes pulseCore {
+            0% {
+                box-shadow: 0 0 50px var(--primary-glow), inset 0 0 40px #000;
+                opacity: 0.8;
+            }
+
+            100% {
+                box-shadow: 0 0 120px var(--primary), inset 0 0 20px #000;
+                opacity: 1;
+            }
+        }
+
+        /* Ambient Dust */
+        .particle {
+            position: absolute;
+            background: rgba(168, 85, 247, 0.4);
+            border-radius: 50%;
+            pointer-events: none;
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.8);
+            animation: float 15s linear infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) translateX(0) scale(0);
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 1;
+                transform: translateY(50vh) translateX(50px) scale(1);
+            }
+
+            100% {
+                transform: translateY(-100px) translateX(-50px) scale(0.5);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="vault-door">
+        <!-- Generative Bolts -->
+        <div class="bolts" id="bolts"></div>
+
+        <div class="ring ring-1"></div>
+        <div class="ring ring-2"></div>
+        <div class="ring ring-3"></div>
+
+        <div class="core">
+            <div class="core-inner"></div>
+        </div>
+    </div>
+
+    <!-- Dust particles container -->
+    <div id="particles"
+        style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:20;"></div>
+
+    <script>
+        // Generate Bolts
+        const boltsContainer = document.getElementById('bolts');
+        for (let i = 0; i < 8; i++) {
+            const rot = (360 / 8) * i;
+            boltsContainer.innerHTML += `
+                <div class="bolt-container" style="transform: rotate(${rot}deg)">
+                    <div class="bolt"></div>
+                    <div class="bolt"></div>
+                </div>
+            `;
+        }
+
+        // Generate ambient floating particles
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 40; i++) {
+            const size = Math.random() * 4 + 1;
+            const left = Math.random() * 100;
+            const delay = Math.random() * 15;
+            const duration = 10 + Math.random() * 10;
+
+            particlesContainer.innerHTML += `
+                <div class="particle" style="
+                    width: ${size}px; 
+                    height: ${size}px; 
+                    left: ${left}vw;
+                    animation-duration: ${duration}s;
+                    animation-delay: -${delay}s;
+                "></div>
+            `;
+        }
+    </script>
+</body>
+
+</html>

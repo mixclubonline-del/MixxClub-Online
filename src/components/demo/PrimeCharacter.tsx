@@ -92,7 +92,7 @@ export const PrimeCharacter = ({
       >
         <img
           src={imageSrc}
-          alt="Prime - MixClub Head Engineer"
+          alt="Prime - Mixxclub Head Engineer"
           className="w-full h-full object-cover"
           style={{
             filter: isPlaying 

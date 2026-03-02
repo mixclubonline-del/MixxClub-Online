@@ -37,7 +37,7 @@ const ROLE_BADGE_ACCENTS: Record<string, string> = {
 };
 
 interface CRMStatusBarProps {
-   userType: 'artist' | 'engineer' | 'producer' | 'fan' | 'admin';
+  userType: 'artist' | 'engineer' | 'producer' | 'fan' | 'admin';
   profile: any;
   stats: Array<{
     icon: ReactNode;
@@ -56,13 +56,13 @@ export const CRMStatusBar: React.FC<CRMStatusBarProps> = ({
 }) => {
   const isMobile = useIsMobile();
   const badgeAccent = ROLE_BADGE_ACCENTS[userType] || ROLE_BADGE_ACCENTS.artist;
-  
+
   // Get role-specific AI guide character
   const guide = useMemo(() => {
     const characterId = ENTRY_POINT_CHARACTERS[userType as keyof typeof ENTRY_POINT_CHARACTERS] || 'jax';
     return getCharacter(characterId);
   }, [userType]);
-  
+
   const getLevelProgress = () => {
     if (!profile) return 0;
     const currentLevelPoints = (profile.level - 1) * 1000;
@@ -73,14 +73,9 @@ export const CRMStatusBar: React.FC<CRMStatusBarProps> = ({
   return (
     <motion.div
       className={cn(
-        "backdrop-blur-2xl rounded-2xl",
+        "mg-panel",
         isMobile ? "p-4" : "p-5"
       )}
-      style={{
-        background: 'rgba(var(--background-rgb, 0, 0, 0), 0.35)',
-        border: '1px solid rgba(255, 255, 255, 0.08)',
-        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 32px -8px rgba(0,0,0,0.4)',
-      }}
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
@@ -98,7 +93,7 @@ export const CRMStatusBar: React.FC<CRMStatusBarProps> = ({
               <ChevronLeft className="h-5 w-5" />
             </Button>
           )}
-          
+
           <div className="flex items-center gap-3">
             <Avatar className="h-12 w-12 border-2 border-white/10 shadow-lg shadow-primary/10">
               <AvatarImage src={profile?.avatar_url} />
@@ -106,32 +101,32 @@ export const CRMStatusBar: React.FC<CRMStatusBarProps> = ({
                 {profile?.full_name?.charAt(0) || '?'}
               </AvatarFallback>
             </Avatar>
-            
+
             <div className="hidden sm:block">
               <div className="flex items-center gap-2">
                 <h2 className="font-bold text-foreground">
                   {profile?.full_name || 'Welcome'}
                 </h2>
                 {/* AI Guide Avatar */}
-                <div 
+                <div
                   className="w-6 h-6 rounded-full overflow-hidden border border-white/15"
                   style={{ boxShadow: `0 0 10px ${guide.accentColor}` }}
                   title={`${guide.name} is your guide`}
                 >
-                  <img 
-                    src={guide.avatarPath} 
+                  <img
+                    src={guide.avatarPath}
                     alt={guide.name}
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <Badge 
-                  variant="outline" 
+                <Badge
+                  variant="outline"
                   className={cn("text-xs", badgeAccent)}
                 >
                   {ROLE_LABELS[userType] || 'Creator'}
                 </Badge>
               </div>
-              
+
               {/* Level progress */}
               <div className="flex items-center gap-2 mt-1">
                 <Award className="h-3.5 w-3.5 text-primary" />
@@ -146,18 +141,14 @@ export const CRMStatusBar: React.FC<CRMStatusBarProps> = ({
             </div>
           </div>
         </div>
-        
+
         {/* Right section: Stats — Glassmorphic stat pills */}
         {!isMobile && (
           <div className="flex items-center gap-3">
             {stats.slice(0, 4).map((stat, index) => (
               <motion.div
                 key={index}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl backdrop-blur-md"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.04)',
-                  border: '1px solid rgba(255, 255, 255, 0.06)',
-                }}
+                className="mg-pill flex items-center gap-2 px-4 py-2 rounded-xl"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: index * 0.1 }}
@@ -173,16 +164,16 @@ export const CRMStatusBar: React.FC<CRMStatusBarProps> = ({
             ))}
           </div>
         )}
-        
+
         {/* Mobile: Compact stats with guide */}
         {isMobile && (
           <div className="flex items-center gap-2">
-            <div 
+            <div
               className="w-7 h-7 rounded-full overflow-hidden border border-white/15"
               style={{ boxShadow: `0 0 8px ${guide.accentColor}` }}
             >
-              <img 
-                src={guide.avatarPath} 
+              <img
+                src={guide.avatarPath}
                 alt={guide.name}
                 className="w-full h-full object-cover"
               />
@@ -193,18 +184,14 @@ export const CRMStatusBar: React.FC<CRMStatusBarProps> = ({
           </div>
         )}
       </div>
-      
+
       {/* Mobile stats row */}
       {isMobile && (
         <div className="flex gap-2 mt-4 overflow-x-auto pb-1 scrollbar-hide">
           {stats.map((stat, index) => (
             <div
               key={index}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg backdrop-blur-md shrink-0"
-              style={{
-                background: 'rgba(255, 255, 255, 0.04)',
-                border: '1px solid rgba(255, 255, 255, 0.06)',
-              }}
+              className="mg-pill flex items-center gap-2 px-3 py-2 rounded-lg shrink-0"
             >
               <div className={cn("p-1 rounded", stat.color)}>
                 {stat.icon}

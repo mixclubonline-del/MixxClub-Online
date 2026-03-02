@@ -59,7 +59,7 @@ export const SEOOptimizer = () => {
   ]);
 
   const [metaData, setMetaData] = useState({
-    title: 'MixClub - Professional Audio Mixing & Mastering Platform',
+    title: 'Mixxclub - Professional Audio Mixing & Mastering Platform',
     description: 'Connect with top audio engineers for professional mixing and mastering. AI-powered matching, real-time collaboration, and quality guaranteed.',
     keywords: 'audio mixing, mastering, music production, audio engineers, mixing services'
   });

@@ -1,26 +1,26 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { createLogger } from "../_shared/logger.ts";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
-
-const logger = createLogger("collect-system-metrics");
+import { getCorsHeaders } from '../_shared/cors.ts';
+import { requireAdmin, authErrorResponse } from '../_shared/auth.ts';
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
+
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Require admin authentication
+    const auth = await requireAdmin(req);
+    if ('error' in auth) return authErrorResponse(auth, corsHeaders);
+
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    const metrics = [];
+    const metrics: any[] = [];
     const recordedAt = new Date().toISOString();
 
     // Collect user metrics
@@ -65,7 +65,7 @@ serve(async (req) => {
       .select("amount")
       .eq("status", "completed");
 
-    const totalRevenue = totalPayments?.reduce((sum, p) => sum + (p.amount || 0), 0) || 0;
+    const totalRevenue = totalPayments?.reduce((sum: number, p: any) => sum + (p.amount || 0), 0) || 0;
 
     metrics.push({
       metric_type: "total_revenue",
@@ -80,7 +80,7 @@ serve(async (req) => {
       .select("total_amount")
       .eq("status", "paid");
 
-    const totalPaidOut = engineerEarnings?.reduce((sum, e) => sum + (e.total_amount || 0), 0) || 0;
+    const totalPaidOut = engineerEarnings?.reduce((sum: number, e: any) => sum + (e.total_amount || 0), 0) || 0;
 
     metrics.push({
       metric_type: "engineer_payouts",
@@ -110,24 +110,6 @@ serve(async (req) => {
       recorded_at: recordedAt,
     });
 
-    // Database size (mock for now - requires admin SQL access)
-    metrics.push({
-      metric_type: "database_size",
-      metric_value: 0,
-      metric_unit: "MB",
-      metadata: { note: "Requires admin SQL access" },
-      recorded_at: recordedAt,
-    });
-
-    // Storage usage (mock for now)
-    metrics.push({
-      metric_type: "storage_used",
-      metric_value: 0,
-      metric_unit: "GB",
-      metadata: { note: "Requires storage API access" },
-      recorded_at: recordedAt,
-    });
-
     // Insert all metrics
     const { error: insertError } = await supabaseClient
       .from("system_metrics")
@@ -137,16 +119,16 @@ serve(async (req) => {
       throw insertError;
     }
 
-    logger.info("System metrics collected successfully", { count: metrics.length });
+    console.log("System metrics collected by admin:", auth.user.id, "count:", metrics.length);
 
     return new Response(
       JSON.stringify({ success: true, metrics_collected: metrics.length }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: any) {
-    logger.error("Error collecting system metrics", error);
+    console.error("[INTERNAL] Error collecting system metrics:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: "Failed to collect metrics" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

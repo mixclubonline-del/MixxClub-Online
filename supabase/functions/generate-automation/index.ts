@@ -14,13 +14,13 @@ serve(async (req) => {
   try {
     const { audioData, automationType } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    
+
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY not configured');
     }
 
     let prompt = '';
-    
+
     switch (automationType) {
       case 'volume':
         prompt = 'Analyze audio dynamics and suggest intelligent volume automation curves for balanced dynamic control throughout the track.';
@@ -45,11 +45,11 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-3-flash-preview',
         messages: [
-          { 
-            role: 'system', 
-            content: 'You are an audio automation expert. Return automation data in JSON format with time points and values.' 
+          {
+            role: 'system',
+            content: 'You are an audio automation expert. Return automation data in JSON format with time points and values.'
           },
           { role: 'user', content: prompt }
         ],
@@ -73,8 +73,8 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    
-    return new Response(JSON.stringify({ 
+
+    return new Response(JSON.stringify({
       automation: {
         type: automationType,
         points: Array.from({ length: 10 }, (_, i) => ({

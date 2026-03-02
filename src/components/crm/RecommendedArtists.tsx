@@ -173,7 +173,7 @@ export const RecommendedArtists = () => {
         <Music className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
         <h3 className="text-lg font-semibold mb-2">No matching opportunities right now</h3>
         <p className="text-muted-foreground mb-4">Check back soon for new artist projects</p>
-        <Button variant="outline" onClick={() => navigate('/job-board')}>
+        <Button variant="outline" onClick={() => navigate('/jobs')}>
           Browse All Opportunities
         </Button>
       </Card>
@@ -261,7 +261,7 @@ export const RecommendedArtists = () => {
               {/* Action */}
               <Button 
                 className="w-full" 
-                onClick={() => navigate('/job-board')}
+                onClick={() => navigate('/jobs')}
               >
                 View & Apply
               </Button>
@@ -273,7 +273,7 @@ export const RecommendedArtists = () => {
       <div className="text-center">
         <Button 
           variant="outline" 
-          onClick={() => navigate('/job-board')}
+          onClick={() => navigate('/jobs')}
         >
           Browse All Opportunities
         </Button>

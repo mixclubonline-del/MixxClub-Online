@@ -10,24 +10,24 @@ import { PersonalUnlocksWidget } from '@/components/unlock/PersonalUnlocksWidget
 export const ProducerDashboardHub = () => {
   const { analytics, loading } = useProducerRevenueStreams();
   const { data: personalUnlockables, isLoading: unlockablesLoading } = usePersonalUnlockables('producer');
-  
+
   const hasData = !loading && analytics && (analytics.totalBeatsSold > 0 || analytics.totalRevenue > 0);
 
   if (!loading && !hasData) {
     return (
       <CharacterEmptyState
         type="beats"
-        characterId="tempo"
+        characterId="rell"
         title="Your Command Center Awaits"
         actionLabel="Upload Your First Beat"
-        onAction={() => {}}
+        onAction={() => { }}
       />
     );
   }
 
   const formatCurrency = (value: number) =>
     value.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 });
- 
+
   const stats = [
     {
       icon: Disc3,
@@ -88,8 +88,8 @@ export const ProducerDashboardHub = () => {
                 <div className="flex items-center justify-between">
                   <p className="text-2xl font-bold text-foreground">{stat.displayValue}</p>
                   {stat.trend !== undefined && (
-                    <Badge 
-                      variant="outline" 
+                    <Badge
+                      variant="outline"
                       className={stat.trend >= 0 ? 'text-green-400 border-green-500/30' : 'text-red-400 border-red-500/30'}
                     >
                       {stat.trend >= 0 ? '+' : ''}{stat.trend.toFixed(1)}%

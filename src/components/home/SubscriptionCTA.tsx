@@ -30,7 +30,7 @@ export const SubscriptionCTA = () => {
           </div>
           
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Professional Artists Choose MixClub Pro
+            Professional Artists Choose Mixxclub Pro
           </h2>
           
           <div className="grid md:grid-cols-2 gap-8 items-center">

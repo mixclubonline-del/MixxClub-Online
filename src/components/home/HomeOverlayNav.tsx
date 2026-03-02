@@ -8,7 +8,7 @@
  * - Full role set: includes For Fans
  */
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
@@ -27,10 +27,55 @@ const PUBLIC_LINKS = [
   { label: 'FAQ', path: '/faq' },
 ];
 
+const AUTHENTICATED_LINKS = [
+  { label: 'How It Works', path: '/how-it-works' },
+  { label: 'For Artists', path: '/artist-crm' },
+  { label: 'For Engineers', path: '/engineer-crm' },
+  { label: 'For Producers', path: '/producer-crm' },
+  { label: 'For Fans', path: '/fan-hub' },
+  { label: 'Pricing', path: '/pricing' },
+  { label: 'About', path: '/about' },
+  { label: 'FAQ', path: '/faq' },
+];
+
+const getRoleHubPath = (userRole?: string | null) => {
+  if (userRole === 'admin') return '/admin';
+  if (userRole === 'engineer') return '/engineer-crm';
+  if (userRole === 'producer') return '/producer-crm';
+  if (userRole === 'fan') return '/fan-hub';
+  return '/artist-crm';
+};
+
 export function HomeOverlayNav() {
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
+  const { user, activeRole } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const scene = useSceneFlowStore((s) => s.scene);
+  const activeLinks = useMemo(() => (user ? AUTHENTICATED_LINKS : PUBLIC_LINKS), [user]);
+  const dashboardPath = useMemo(() => getRoleHubPath(userRole), [userRole]);
+
+  const roleRoutes = {
+    artist: '/artist-crm',
+    engineer: '/engineer-crm',
+    producer: '/producer-crm',
+    fan: '/fan-hub',
+    admin: '/admin-crm',
+  } as const;
+
+  const roleAwarePath = (path: string) => {
+    if (!user) return path;
+
+    const map: Record<string, string> = {
+      '/for-artists': '/artist-crm',
+      '/for-engineers': '/engineer-crm',
+      '/for-producers': '/producer-crm',
+      '/for-fans': '/fan-hub',
+    };
+
+    return map[path] || path;
+  };
+
+  const dashboardPath = activeRole ? roleRoutes[activeRole] : '/dashboard';
 
   // Hide entirely during Demo and Club Scene — they have their own internal nav
   if (scene !== 'HALLWAY') return null;
@@ -46,10 +91,10 @@ export function HomeOverlayNav() {
       >
         {/* Center: Desktop links — all 6 roles, no duplication */}
         <nav className="hidden md:flex items-center gap-1">
-          {PUBLIC_LINKS.slice(0, 6).map((link) => (
+          {activeLinks.slice(0, 6).map((link) => (
             <Link
               key={link.path}
-              to={link.path}
+              to={roleAwarePath(link.path)}
               className="px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground rounded-lg hover:bg-foreground/5 transition-all"
             >
               {link.label}
@@ -61,7 +106,7 @@ export function HomeOverlayNav() {
         <div className="flex items-center gap-2 ml-auto">
           {user ? (
             <Button asChild size="sm" variant="outline" className="h-8 text-xs border-border/40 bg-background/30 backdrop-blur-sm">
-              <Link to="/dashboard">Dashboard →</Link>
+              <Link to={dashboardPath}>Dashboard →</Link>
             </Button>
           ) : (
             <>
@@ -69,7 +114,7 @@ export function HomeOverlayNav() {
                 <Link to="/auth">Sign In</Link>
               </Button>
               <Button asChild size="sm" className="h-8 text-xs">
-                <Link to="/choose-path">Get Started</Link>
+                <Link to="/how-it-works">Get Started</Link>
               </Button>
             </>
           )}
@@ -96,10 +141,10 @@ export function HomeOverlayNav() {
             transition={{ duration: 0.2 }}
           >
             <nav className="flex flex-col p-4 gap-1">
-              {PUBLIC_LINKS.map((link) => (
+              {activeLinks.map((link) => (
                 <Link
                   key={link.path}
-                  to={link.path}
+                  to={roleAwarePath(link.path)}
                   onClick={() => setMenuOpen(false)}
                   className="px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground rounded-lg hover:bg-foreground/5 transition-all"
                 >

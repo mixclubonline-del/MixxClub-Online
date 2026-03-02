@@ -3,7 +3,7 @@
  * 
  * A cinematic 10-phase welcome experience showcasing the full Mixx Club ecosystem.
  * Phase 1: The Problem (87% stat, frustration)
- * Phase 2: The Discovery (MixClub as solution)
+ * Phase 2: The Discovery (Mixxclub as solution)
  * Phase 3: The Connection (real human stories)
  * Phase 4: The Transformation (before/after waveform)
  * Phase 5: The Studio (Dream Engine / F.L.O.W. DAW)
@@ -22,7 +22,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import {
-  Play, Pause, ChevronLeft, Users, SkipForward, ArrowRight, BookOpen, Volume2
+  Play, ChevronLeft, Users, ArrowRight, BookOpen, Volume2
 } from 'lucide-react';
 import { useInsiderAudio } from '@/hooks/useInsiderAudio';
 import { useCommunityShowcase } from '@/hooks/useCommunityShowcase';
@@ -36,6 +36,7 @@ import { StudioReveal } from '@/components/demo/StudioReveal';
 import { MarketplaceReveal } from '@/components/demo/MarketplaceReveal';
 import { StageReveal } from '@/components/demo/StageReveal';
 import { MoneyReveal } from '@/components/demo/MoneyReveal';
+import { DemoTransportBar } from '@/components/demo/DemoTransportBar';
 import { DemoPhaseId } from '@/hooks/useDemoPhaseAssets';
 import mixclubLogo from '@/assets/mixclub-3d-logo.png';
 import { trackEvent } from '@/lib/analytics';
@@ -79,7 +80,7 @@ const DEMO_PHASES = [
     id: 'connection',
     title: 'THE CONNECTION',
     duration: 9000,
-    message: "Marcus in Brooklyn needed a master for his EP. Amara in Lagos had 10 years of experience and an empty calendar. MixClub connected them in 3 minutes."
+    message: "Marcus in Brooklyn needed a master for his EP. Amara in Lagos had 10 years of experience and an empty calendar. Mixxclub connected them in 3 minutes."
   },
   {
     id: 'transformation',
@@ -136,9 +137,17 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
   const navigate = useNavigate();
   const prefersReducedMotion = useReducedMotion();
 
-  const { isLoading, isPlaying, analysis, play, pause, toggle, setVolume, seek } = useInsiderAudio();
+  const { isLoading, isPlaying, hasEnded, analysis, play, pause, toggle, setVolume, seek } = useInsiderAudio();
   const { amplitude, bass, mid, high, beats } = analysis;
   const { activities } = useCommunityShowcase(6);
+
+  // When audio ends, jump to the final invitation phase and stop auto-play
+  useEffect(() => {
+    if (hasEnded && isAutoPlay) {
+      setCurrentPhase(DEMO_PHASES.length - 1);
+      setIsAutoPlay(false);
+    }
+  }, [hasEnded, isAutoPlay]);
 
   // Music-synced phase progression
   const { currentPhaseIndex, phaseProgress, syncEnabled, setSyncEnabled } = usePhaseSync({
@@ -190,6 +199,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
 
   const handleVolumeChange = (value: number) => {
     setVolumeState(value);
+    setIsMuted(false);
     setVolume(value);
   };
 
@@ -214,7 +224,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
   // Pre-experience screen
   if (!isPlaying && !isAutoPlay) {
     return (
-      <div className="h-[100svh] w-full bg-background flex items-center justify-center relative overflow-hidden">
+      <div className="h-[100svh] w-full bg-background flex items-center justify-center relative overflow-hidden touch-manipulation">
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-purple-950/20" />
 
         {/* Back button for embedded mode */}
@@ -240,11 +250,11 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
             animate={{ scale: [1, 1.05, 1] }}
             transition={{ duration: 3, repeat: Infinity }}
           >
-            <img src={mixclubLogo} alt="MixClub" className="w-48 h-48 md:w-64 md:h-64 mx-auto" />
+            <img src={mixxclubLogo} alt="Mixxclub" className="w-32 h-32 sm:w-48 sm:h-48 md:w-64 md:h-64 mx-auto" />
           </motion.div>
 
           <motion.h1
-            className="text-5xl md:text-7xl font-black mt-8 mb-4"
+            className="text-3xl sm:text-5xl md:text-7xl font-black mt-6 sm:mt-8 mb-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
@@ -255,7 +265,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
           </motion.h1>
 
           <motion.p
-            className="text-xl text-muted-foreground mb-8 max-w-md mx-auto"
+            className="text-base sm:text-xl text-muted-foreground mb-6 sm:mb-8 max-w-md mx-auto px-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
@@ -272,7 +282,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
               size="lg"
               onClick={startExperience}
               disabled={isLoading}
-              className="text-xl px-12 py-6 bg-gradient-to-r from-primary via-purple-600 to-cyan-600 hover:opacity-90 shadow-lg shadow-primary/30"
+              className="text-base sm:text-xl px-8 sm:px-12 py-5 sm:py-6 bg-gradient-to-r from-primary via-purple-600 to-cyan-600 hover:opacity-90 shadow-lg shadow-primary/30"
             >
               {isLoading ? (
                 <span className="flex items-center gap-3">
@@ -307,7 +317,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
   }
 
   return (
-    <div className="h-[100svh] w-full bg-background relative overflow-hidden isolate">
+    <div className="h-[100svh] w-full bg-background relative overflow-hidden isolate touch-manipulation">
       {/* Cinematic Phase Background with Audio-Reactive Glow */}
       <PhaseBackground
         phaseId={phase.id as DemoPhaseId}
@@ -321,7 +331,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
       <ParticleStorm amplitude={amplitude} bass={bass} isPlaying={motionEnabled && isPlaying} particleCount={particleCount} />
 
       {/* Bottom AudioVisualizer — solid bg prevents sub-layer bleed-through */}
-      <div className="fixed bottom-0 left-0 right-0 h-32 z-20 pointer-events-none bg-gradient-to-t from-background via-background/80 to-transparent">
+      <div className="fixed bottom-0 left-0 right-0 h-32 z-10 pointer-events-none bg-gradient-to-t from-background via-background/80 to-transparent">
         <AudioVisualizer beats={beats} amplitude={amplitude} bass={bass} variant="bars" className="h-full opacity-70" />
       </div>
 
@@ -428,9 +438,9 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
                 transition={{ duration: 0.8 }}
               >
                 <motion.img
-                  src={mixclubLogo}
-                  alt="MixClub"
-                  className="w-32 h-32 md:w-40 md:h-40 mx-auto mb-6"
+                  src={mixxclubLogo}
+                  alt="Mixxclub"
+                  className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 mx-auto mb-4 sm:mb-6"
                   animate={{
                     scale: isPlaying ? [1, 1.05, 1] : 1,
                     filter: isPlaying ? `drop-shadow(0 0 ${20 + (bass / 255) * 30}px hsl(var(--primary)))` : 'none'
@@ -440,7 +450,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
               </motion.div>
 
               <motion.h1
-                className="text-4xl md:text-6xl font-black mb-6"
+                className="text-2xl sm:text-4xl md:text-6xl font-black mb-4 sm:mb-6"
                 initial={{ y: 50, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.3 }}
@@ -451,7 +461,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
               </motion.h1>
 
               <motion.p
-                className="text-xl md:text-2xl text-muted-foreground mb-8"
+                className="text-base sm:text-xl md:text-2xl text-muted-foreground mb-6 sm:mb-8"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
@@ -481,7 +491,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
             >
               <div className="text-center mb-8">
                 <motion.h1
-                  className="text-4xl md:text-6xl font-black mb-4"
+                  className="text-2xl sm:text-4xl md:text-6xl font-black mb-4"
                   initial={{ y: 30, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                 >
@@ -593,7 +603,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
               className="w-full max-w-5xl text-center"
             >
               <motion.h1
-                className="text-4xl md:text-6xl font-black mb-4"
+                className="text-2xl sm:text-4xl md:text-6xl font-black mb-4"
                 initial={{ y: 30, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
               >
@@ -641,7 +651,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
                     whileHover={{ scale: 1.02 }}
                   >
                     <motion.div
-                      className={`text-3xl md:text-4xl font-black bg-gradient-to-r ${stat.color} bg-clip-text text-transparent`}
+                      className={`text-2xl sm:text-3xl md:text-4xl font-black bg-gradient-to-r ${stat.color} bg-clip-text text-transparent`}
                       animate={{
                         scale: isPlaying ? [1, 1.05, 1] : 1
                       }}
@@ -687,8 +697,8 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
                 transition={{ duration: 0.6 }}
               >
                 <motion.img
-                  src={mixclubLogo}
-                  alt="MixClub"
+                  src={mixxclubLogo}
+                  alt="Mixxclub"
                   className="w-24 h-24 mx-auto mb-8"
                   animate={{
                     scale: isPlaying ? [1, 1.05, 1] : 1,
@@ -700,7 +710,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
 
               {/* Main headline */}
               <motion.h1
-                className="text-4xl md:text-6xl font-black mb-4"
+                className="text-2xl sm:text-4xl md:text-6xl font-black mb-4"
                 initial={{ y: 30, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.2 }}
@@ -712,7 +722,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
 
               {/* Subtext */}
               <motion.p
-                className="text-xl text-muted-foreground mb-8"
+                className="text-base sm:text-xl text-muted-foreground mb-6 sm:mb-8"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
@@ -744,9 +754,9 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
                       onJoinNow();
                       return;
                     }
-                    navigate('/choose-path');
+                    navigate('/how-it-works');
                   }}
-                  className="text-xl px-12 py-6 bg-gradient-to-r from-primary via-purple-600 to-cyan-600 hover:opacity-90 shadow-lg shadow-primary/30"
+                  className="text-base sm:text-xl px-8 sm:px-12 py-5 sm:py-6 bg-gradient-to-r from-primary via-purple-600 to-cyan-600 hover:opacity-90 shadow-lg shadow-primary/30"
                 >
                   <span className="flex items-center gap-3">
                     Join Now

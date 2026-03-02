@@ -1,10 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { getCorsHeaders } from '../_shared/cors.ts';
+import { requireAdmin, authErrorResponse } from '../_shared/auth.ts';
 
 // Realistic demo data
 const FIRST_NAMES = ["Marcus", "Aaliyah", "Devon", "Jasmine", "Tyrell", "Keisha", "Brandon", "Destiny", "Jordan", "Brianna", "Malik", "Ciara", "Dwayne", "Tiffany", "Andre", "Monique", "Rashad", "Shaniqua", "Terrance", "Latoya", "Jamal", "Amber", "DeShawn", "Crystal", "Xavier", "Nicole", "Kendrick", "Janelle", "Jermaine", "Tamika"];
@@ -51,11 +48,18 @@ function generateUsername(firstName: string, lastName: string): string {
 }
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
+
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Require admin authentication
+    const auth = await requireAdmin(req);
+    if ('error' in auth) return authErrorResponse(auth, corsHeaders);
+
+    console.log("[Seeding] Admin:", auth.user.id);
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     
@@ -312,7 +316,7 @@ serve(async (req) => {
         activity_type: activityType,
         title: activityType === "session_started" ? "Started a new session" 
              : activityType === "project_completed" ? "Completed a project"
-             : activityType === "user_joined" ? "Joined MixClub"
+             : activityType === "user_joined" ? "Joined Mixxclub"
              : activityType === "achievement_unlocked" ? "Unlocked an achievement"
              : "Posted a review",
         description: `Demo activity for ${activityType}`,

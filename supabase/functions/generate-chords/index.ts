@@ -14,7 +14,7 @@ serve(async (req) => {
   try {
     const { key, scale, mood, complexity } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    
+
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY not configured');
     }
@@ -48,7 +48,7 @@ Consider ${mood} mood:
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-3-flash-preview',
         messages: [
           { role: 'system', content: 'You are a music theory expert. Always respond with valid JSON.' },
           { role: 'user', content: prompt }
@@ -74,7 +74,7 @@ Consider ${mood} mood:
 
     const data = await response.json();
     const content = data.choices[0].message.content;
-    
+
     let result;
     try {
       const jsonMatch = content.match(/\{[\s\S]*\}/);

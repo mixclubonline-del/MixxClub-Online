@@ -30,7 +30,7 @@ export const JobBoard = () => {
       <main className="container mx-auto px-4 py-6">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold mb-4">MixClub Job Board</h1>
+            <h1 className="text-4xl font-bold mb-4">Mixxclub Job Board</h1>
             <p className="text-xl text-muted-foreground">
               Connect artists with professional engineers
             </p>

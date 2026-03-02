@@ -124,7 +124,7 @@ const AIMastering = () => {
   return (
     <>
       <Helmet>
-        <title>AI Mastering — MixClub Services</title>
+        <title>AI Mastering — Mixxclub Services</title>
         <meta name="description" content="Instant AI-powered mastering trained on 100,000+ professional masters. Get Grammy-quality results in 60 seconds." />
       </Helmet>
 

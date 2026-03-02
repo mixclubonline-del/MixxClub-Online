@@ -7,10 +7,17 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Mic2, Headphones, Disc3, Heart, ArrowRight, Sparkles, Zap, Crown, Star } from 'lucide-react';
+import { Mic2, Headphones, Disc3, Heart, ArrowRight, Sparkles, Zap, Crown, Star, Rocket } from 'lucide-react';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { SEOHead } from '@/components/SEOHead';
 import { BackButton } from '@/components/navigation/BackButton';
+
+import jaxImage from '@/assets/characters/jax_original.png';
+import jaxVideo from '@/assets/videos/jax_video.mp4';
+import rellImage from '@/assets/characters/rell_original.png';
+import rellVideo from '@/assets/videos/rell_video.mp4';
+import novaImage from '@/assets/characters/nova_original.png';
+// Nova doesn't have a generated video sequence yet, she sits in the crowd!
 
 type PathRole = 'producer' | 'artist' | 'engineer' | 'fan';
 
@@ -27,6 +34,8 @@ interface PathOption {
     keyHint: string;
     stat: { value: string; label: string };
     particles: string;
+    image?: string;
+    video?: string;
 }
 
 const pathOptions: PathOption[] = [
@@ -57,6 +66,8 @@ const pathOptions: PathOption[] = [
         keyHint: '2',
         stat: { value: '10K+', label: 'releases' },
         particles: 'bg-purple-400',
+        image: jaxImage,
+        video: jaxVideo,
     },
     {
         id: 'engineer',
@@ -71,6 +82,8 @@ const pathOptions: PathOption[] = [
         keyHint: '3',
         stat: { value: '85%', label: 'rev split' },
         particles: 'bg-cyan-400',
+        image: rellImage,
+        video: rellVideo,
     },
     {
         id: 'fan',
@@ -85,6 +98,7 @@ const pathOptions: PathOption[] = [
         keyHint: '4',
         stat: { value: 'Free', label: 'forever' },
         particles: 'bg-rose-400',
+        image: novaImage,
     },
 ];
 
@@ -219,11 +233,12 @@ const ChoosePath = () => {
                 >
                     {/* Cinematic Title Sequence */}
                     <div className="text-center mb-14">
+                        {/* Top-label badge */}
                         <motion.div
                             initial={{ opacity: 0, y: -15 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.3, duration: 0.6 }}
-                            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm mb-6"
+                            className="mg-pill mb-6"
                         >
                             <Sparkles className="w-3.5 h-3.5 text-purple-400" />
                             <span className="text-xs font-medium tracking-widest uppercase text-white/60">Your Journey Starts Here</span>
@@ -305,32 +320,28 @@ const ChoosePath = () => {
                                     }}
                                 />
 
-                                {/* Glass surface */}
+                                {/* Glass surface — mg-panel base */}
                                 <div
-                                    className="relative p-6 pb-5 backdrop-blur-2xl border transition-all duration-500 rounded-2xl h-full flex flex-col"
+                                    className="mg-panel relative p-6 pb-5 transition-all duration-500 rounded-2xl h-full flex flex-col"
                                     style={{
-                                        background: hoveredRole === role.id
-                                            ? `linear-gradient(160deg, hsl(${role.accentHsl} / 0.12) 0%, rgba(255,255,255,0.04) 50%, hsl(${role.accentHsl} / 0.06) 100%)`
-                                            : 'linear-gradient(160deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)',
+                                        boxShadow: hoveredRole === role.id
+                                            ? `0 20px 60px -15px hsl(${role.accentHsl} / 0.25), 0 0 0 1px hsl(${role.accentHsl} / 0.1)`
+                                            : undefined,
                                         borderColor: hoveredRole === role.id
                                             ? `hsl(${role.accentHsl} / 0.35)`
-                                            : 'rgba(255,255,255,0.06)',
-                                        boxShadow: hoveredRole === role.id
-                                            ? `0 20px 60px -15px hsl(${role.accentHsl} / 0.25), 0 0 0 1px hsl(${role.accentHsl} / 0.1), inset 0 1px 0 rgba(255,255,255,0.08)`
-                                            : 'inset 0 1px 0 rgba(255,255,255,0.04)',
+                                            : undefined,
                                     }}
                                 >
                                     {/* Key hint badge */}
                                     <div
-                                        className="absolute top-4 right-4 w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-300"
+                                        className="mg-pill absolute top-4 right-4 w-7 h-7 flex items-center justify-center transition-all duration-300"
                                         style={{
                                             background: hoveredRole === role.id
                                                 ? `hsl(${role.accentHsl} / 0.2)`
-                                                : 'rgba(255,255,255,0.06)',
+                                                : undefined,
                                             borderColor: hoveredRole === role.id
                                                 ? `hsl(${role.accentHsl} / 0.3)`
-                                                : 'transparent',
-                                            border: '1px solid',
+                                                : undefined,
                                         }}
                                     >
                                         <span
@@ -345,38 +356,64 @@ const ChoosePath = () => {
                                         </span>
                                     </div>
 
-                                    {/* Icon */}
                                     <div
-                                        className="w-14 h-14 rounded-xl flex items-center justify-center mb-4 transition-all duration-500 relative overflow-hidden"
+                                        className="mg-icon w-16 h-16 rounded-2xl flex items-center justify-center mb-6 transition-all duration-500 relative overflow-hidden"
                                         style={{
-                                            background: hoveredRole === role.id
-                                                ? `linear-gradient(135deg, hsl(${role.accentHsl} / 0.25), hsl(${role.accentHsl} / 0.1))`
-                                                : 'rgba(255,255,255,0.05)',
                                             boxShadow: hoveredRole === role.id
                                                 ? `0 0 30px hsl(${role.accentHsl} / 0.2)`
                                                 : 'none',
+                                            background: hoveredRole === role.id
+                                                ? `linear-gradient(135deg, hsl(${role.accentHsl} / 0.25), hsl(${role.accentHsl} / 0.1))`
+                                                : undefined,
+                                            padding: role.image ? '2px' : '0'
                                         }}
                                     >
-                                        {/* Icon glow ring */}
+                                        {/* Icon/Image flow ring */}
                                         {hoveredRole === role.id && (
                                             <motion.div
-                                                className="absolute inset-0 rounded-xl"
+                                                className="absolute inset-0 rounded-2xl"
                                                 style={{ border: `1px solid hsl(${role.accentHsl} / 0.4)` }}
                                                 initial={{ scale: 0.8, opacity: 0 }}
                                                 animate={{ scale: 1, opacity: 1 }}
                                                 transition={{ duration: 0.3 }}
                                             />
                                         )}
-                                        <span
-                                            className="relative z-10 transition-colors duration-300"
-                                            style={{
-                                                color: hoveredRole === role.id
-                                                    ? `hsl(${role.accentHsl})`
-                                                    : 'rgba(255,255,255,0.5)',
-                                            }}
-                                        >
-                                            {role.icon}
-                                        </span>
+
+                                        {role.image ? (
+                                            <div className="w-full h-full relative z-10 rounded-[14px] overflow-hidden">
+                                                {role.video && hoveredRole === role.id && (
+                                                    <video
+                                                        src={role.video}
+                                                        autoPlay
+                                                        loop
+                                                        muted
+                                                        playsInline
+                                                        className="absolute inset-0 w-full h-full object-cover z-20"
+                                                        style={{ transform: 'scale(1.1)' }}
+                                                    />
+                                                )}
+                                                <img
+                                                    src={role.image}
+                                                    alt={role.title}
+                                                    className="w-full h-full object-cover shrink-0 transition-transform duration-500 ease-out"
+                                                    style={{
+                                                        transform: hoveredRole === role.id ? 'scale(1.1)' : 'scale(1)',
+                                                        opacity: role.video && hoveredRole === role.id ? 0 : 1
+                                                    }}
+                                                />
+                                            </div>
+                                        ) : (
+                                            <span
+                                                className="relative z-10 transition-colors duration-300"
+                                                style={{
+                                                    color: hoveredRole === role.id
+                                                        ? `hsl(${role.accentHsl})`
+                                                        : 'rgba(255,255,255,0.5)',
+                                                }}
+                                            >
+                                                {role.icon}
+                                            </span>
+                                        )}
                                     </div>
 
                                     {/* Title & subtitle */}
@@ -427,22 +464,47 @@ const ChoosePath = () => {
                                         <span className="text-xs text-white/30">{role.stat.label}</span>
                                     </div>
 
-                                    {/* CTA */}
-                                    <div
-                                        className="flex items-center gap-2 text-sm font-semibold transition-all duration-300"
-                                        style={{
-                                            color: hoveredRole === role.id
-                                                ? `hsl(${role.accentHsl})`
-                                                : 'rgba(255,255,255,0.25)',
-                                        }}
-                                    >
-                                        <span>Explore</span>
-                                        <motion.div
-                                            animate={{ x: hoveredRole === role.id ? 4 : 0 }}
-                                            transition={{ type: 'spring', stiffness: 300 }}
+                                    {/* Dual CTA — Explore vs Get Started */}
+                                    <div className="flex items-center justify-between gap-2">
+                                        <div
+                                            className="flex items-center gap-1.5 text-sm font-semibold transition-all duration-300"
+                                            style={{
+                                                color: hoveredRole === role.id
+                                                    ? `hsl(${role.accentHsl})`
+                                                    : 'rgba(255,255,255,0.25)',
+                                            }}
                                         >
-                                            <ArrowRight className="w-4 h-4" />
-                                        </motion.div>
+                                            <span>Explore</span>
+                                            <motion.div
+                                                animate={{ x: hoveredRole === role.id ? 4 : 0 }}
+                                                transition={{ type: 'spring', stiffness: 300 }}
+                                            >
+                                                <ArrowRight className="w-4 h-4" />
+                                            </motion.div>
+                                        </div>
+                                        <span
+                                            role="button"
+                                            tabIndex={0}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                navigate(`/auth?mode=signup&role=${role.id}`);
+                                            }}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    e.stopPropagation();
+                                                    navigate(`/auth?mode=signup&role=${role.id}`);
+                                                }
+                                            }}
+                                            className="mg-pill text-xs font-bold cursor-pointer hover:scale-105 transition-transform"
+                                            style={{
+                                                color: `hsl(${role.accentHsl})`,
+                                                borderColor: `hsl(${role.accentHsl} / 0.3)`,
+                                                background: `hsl(${role.accentHsl} / 0.12)`,
+                                            }}
+                                        >
+                                            <Rocket className="w-3 h-3" />
+                                            Get Started
+                                        </span>
                                     </div>
                                 </div>
                             </motion.button>
@@ -469,8 +531,8 @@ const ChoosePath = () => {
                             {' '}to explore
                         </p>
                     </motion.div>
-                </motion.div>
-            </div>
+                </motion.div >
+            </div >
         </>
     );
 };

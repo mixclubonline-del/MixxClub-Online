@@ -74,7 +74,7 @@ export const SavedJobsList = () => {
         <p className="text-muted-foreground mb-4">
           Save jobs you're interested in to review later
         </p>
-        <Button onClick={() => navigate('/job-board')}>
+        <Button onClick={() => navigate('/jobs')}>
           Browse Jobs
         </Button>
       </Card>
@@ -102,7 +102,7 @@ export const SavedJobsList = () => {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => navigate(`/job-board?job=${saved.job_postings.id}`)}
+                onClick={() => navigate(`/jobs?job=${saved.job_postings.id}`)}
               >
                 <ExternalLink className="w-4 h-4" />
               </Button>
