@@ -11,7 +11,7 @@ import { ClubRoom } from '../ClubRoom';
 import { Button } from '@/components/ui/button';
 import { useSubscriptionPlans, getYearlyDiscountPercent } from '@/hooks/useSubscriptionPlans';
 import { useNavigate } from 'react-router-dom';
-import engineerHeroImg from '@/assets/promo/engineer-workspace-hero.jpg';
+import vipBoothVideo from '@/assets/videos/vip_booth.webp';
 
 const PLAN_GLOWS = [
   { border: 'rgba(255, 255, 255, 0.06)', glow: 'none' },
@@ -60,7 +60,7 @@ export function VIPBooth() {
               access.
             </span>
           </h2>
-          
+
           <p className="text-xl text-muted-foreground">
             No hidden fees. No contracts. Cancel anytime.
           </p>
@@ -74,12 +74,12 @@ export function VIPBooth() {
           viewport={{ once: true }}
         >
           <img
-            src={engineerHeroImg}
-            alt="Professional studio workspace"
+            src={vipBoothVideo}
+            alt="Premium gold-tinted glowing gear racks with blinking indicators"
             className="w-full h-[260px] md:h-[300px] object-cover group-hover:scale-[1.02] transition-transform duration-700"
             loading="lazy"
           />
-          <div 
+          <div
             className="absolute inset-0"
             style={{
               background: 'linear-gradient(to bottom, transparent 25%, hsl(var(--background)) 100%)'
@@ -92,21 +92,15 @@ export function VIPBooth() {
           {displayPlans.map((plan, index) => {
             const isPopular = index === 1;
             const planGlow = PLAN_GLOWS[index];
-            const yearlyDiscount = 'price_yearly' in plan && plan.price_yearly 
-              ? getYearlyDiscountPercent(plan as any) 
+            const yearlyDiscount = 'price_yearly' in plan && plan.price_yearly
+              ? getYearlyDiscountPercent(plan as any)
               : 0;
 
             return (
               <motion.div
                 key={plan.id}
-                className={`relative p-6 rounded-2xl border transition-all ${
-                  isPopular ? 'md:scale-105' : ''
-                }`}
+                className={`mg-panel relative p-6 ${isPopular ? 'md:scale-105' : ''}`}
                 style={{
-                  background: isPopular ? 'rgba(212, 175, 55, 0.04)' : 'rgba(255, 255, 255, 0.03)',
-                  borderColor: planGlow.border,
-                  backdropFilter: 'blur(24px)',
-                  WebkitBackdropFilter: 'blur(24px)',
                   boxShadow: planGlow.glow,
                 }}
                 initial={{ opacity: 0, y: 30 }}
@@ -137,7 +131,7 @@ export function VIPBooth() {
                   {plan.price_monthly > 0 && (
                     <span className="text-muted-foreground">/month</span>
                   )}
-                  
+
                   {yearlyDiscount > 0 && (
                     <span
                       className="ml-2 text-xs px-2 py-1 rounded-full"

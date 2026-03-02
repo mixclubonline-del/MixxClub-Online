@@ -1,10 +1,74 @@
 import { motion } from "framer-motion";
-import { Music, Headphones } from "lucide-react";
+import { Music, Headphones, Disc3, Heart } from "lucide-react";
+
+export type JourneyRole = "artist" | "engineer" | "producer" | "fan";
 
 interface JourneyGatewayProps {
-  activeRole: "artist" | "engineer";
-  onRoleChange: (role: "artist" | "engineer") => void;
+  activeRole: JourneyRole;
+  onRoleChange: (role: JourneyRole) => void;
 }
+
+const roles: {
+  id: JourneyRole;
+  icon: typeof Music;
+  label: string;
+  tagline: string;
+  color: string;
+  glowColor: string;
+  bgActive: string;
+  borderActive: string;
+  hoverBorder: string;
+  iconBg: string;
+}[] = [
+  {
+    id: "artist",
+    icon: Music,
+    label: "Artist Path",
+    tagline: "Create & Release",
+    color: "hsl(var(--primary))",
+    glowColor: "hsl(262 83% 58% / 0.3)",
+    bgActive: "bg-primary/20",
+    borderActive: "border-primary",
+    hoverBorder: "hover:border-primary/50",
+    iconBg: "bg-primary text-primary-foreground",
+  },
+  {
+    id: "engineer",
+    icon: Headphones,
+    label: "Engineer Path",
+    tagline: "Build & Earn",
+    color: "hsl(180 100% 50%)",
+    glowColor: "hsl(180 100% 50% / 0.3)",
+    bgActive: "bg-[hsl(180_100%_50%)]/20",
+    borderActive: "border-[hsl(180_100%_50%)]",
+    hoverBorder: "hover:border-[hsl(180_100%_50%)]/50",
+    iconBg: "bg-[hsl(180_100%_50%)] text-background",
+  },
+  {
+    id: "producer",
+    icon: Disc3,
+    label: "Producer Path",
+    tagline: "Supply the Sound",
+    color: "hsl(45 90% 50%)",
+    glowColor: "hsl(45 90% 50% / 0.3)",
+    bgActive: "bg-[hsl(45_90%_50%)]/20",
+    borderActive: "border-[hsl(45_90%_50%)]",
+    hoverBorder: "hover:border-[hsl(45_90%_50%)]/50",
+    iconBg: "bg-[hsl(45_90%_50%)] text-background",
+  },
+  {
+    id: "fan",
+    icon: Heart,
+    label: "Fan Path",
+    tagline: "Discover & Invest",
+    color: "hsl(330 80% 60%)",
+    glowColor: "hsl(330 80% 60% / 0.3)",
+    bgActive: "bg-[hsl(330_80%_60%)]/20",
+    borderActive: "border-[hsl(330_80%_60%)]",
+    hoverBorder: "hover:border-[hsl(330_80%_60%)]/50",
+    iconBg: "bg-[hsl(330_80%_60%)] text-background",
+  },
+];
 
 const JourneyGateway = ({ activeRole, onRoleChange }: JourneyGatewayProps) => {
   return (
@@ -20,85 +84,73 @@ const JourneyGateway = ({ activeRole, onRoleChange }: JourneyGatewayProps) => {
           Your Journey Begins
         </h1>
         <p className="text-lg text-muted-foreground max-w-md mx-auto">
-          Choose your path through MixClub City
+          Choose your path through the MixxClub ecosystem
         </p>
       </motion.div>
 
-      {/* Gateway portals */}
-      <motion.div 
-        className="flex flex-col sm:flex-row gap-6"
+      {/* Gateway portals — 2x2 on mobile, 4-across on desktop */}
+      <motion.div
+        className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 w-full max-w-3xl px-4"
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6, delay: 0.2 }}
       >
-        {/* Artist Portal */}
-        <motion.button
-          onClick={() => onRoleChange("artist")}
-          className={`relative group p-8 rounded-2xl border-2 transition-all duration-500 min-w-[200px] ${
-            activeRole === "artist"
-              ? "border-primary bg-primary/20 shadow-glow-raven"
-              : "border-border/50 bg-card/30 backdrop-blur-sm hover:border-primary/50"
-          }`}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <div className={`absolute inset-0 rounded-2xl transition-opacity duration-500 ${
-            activeRole === "artist" ? "opacity-100" : "opacity-0"
-          }`} style={{
-            background: "radial-gradient(circle at center, hsl(262 83% 58% / 0.3), transparent 70%)"
-          }} />
-          
-          <div className="relative flex flex-col items-center gap-4">
-            <div className={`w-16 h-16 rounded-full flex items-center justify-center transition-all duration-500 ${
-              activeRole === "artist"
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground group-hover:bg-primary/20"
-            }`}>
-              <Music className="w-8 h-8" />
-            </div>
-            <div>
-              <h3 className="text-xl font-bold text-foreground">Artist Path</h3>
-              <p className="text-sm text-muted-foreground">Create & Release</p>
-            </div>
-          </div>
-        </motion.button>
+        {roles.map((role, i) => {
+          const isActive = activeRole === role.id;
+          const Icon = role.icon;
 
-        {/* Divider */}
-        <div className="hidden sm:flex items-center">
-          <div className="w-px h-24 bg-gradient-to-b from-transparent via-border to-transparent" />
-        </div>
+          return (
+            <motion.button
+              key={role.id}
+              onClick={() => onRoleChange(role.id)}
+              className={`relative group p-6 rounded-2xl border-2 transition-all duration-500 ${
+                isActive
+                  ? `${role.borderActive} ${role.bgActive}`
+                  : `border-border/50 bg-card/30 backdrop-blur-sm ${role.hoverBorder}`
+              }`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 + i * 0.08 }}
+              style={
+                isActive
+                  ? { boxShadow: `0 0 30px ${role.glowColor}` }
+                  : undefined
+              }
+            >
+              {/* Radial glow */}
+              <div
+                className={`absolute inset-0 rounded-2xl transition-opacity duration-500 ${
+                  isActive ? "opacity-100" : "opacity-0"
+                }`}
+                style={{
+                  background: `radial-gradient(circle at center, ${role.glowColor}, transparent 70%)`,
+                }}
+              />
 
-        {/* Engineer Portal */}
-        <motion.button
-          onClick={() => onRoleChange("engineer")}
-          className={`relative group p-8 rounded-2xl border-2 transition-all duration-500 min-w-[200px] ${
-            activeRole === "engineer"
-              ? "border-[hsl(180_100%_50%)] bg-[hsl(180_100%_50%)]/20 shadow-[0_0_30px_hsl(180_100%_50%_/_0.3)]"
-              : "border-border/50 bg-card/30 backdrop-blur-sm hover:border-[hsl(180_100%_50%)]/50"
-          }`}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <div className={`absolute inset-0 rounded-2xl transition-opacity duration-500 ${
-            activeRole === "engineer" ? "opacity-100" : "opacity-0"
-          }`} style={{
-            background: "radial-gradient(circle at center, hsl(180 100% 50% / 0.3), transparent 70%)"
-          }} />
-          
-          <div className="relative flex flex-col items-center gap-4">
-            <div className={`w-16 h-16 rounded-full flex items-center justify-center transition-all duration-500 ${
-              activeRole === "engineer"
-                ? "bg-[hsl(180_100%_50%)] text-background"
-                : "bg-muted text-muted-foreground group-hover:bg-[hsl(180_100%_50%)]/20"
-            }`}>
-              <Headphones className="w-8 h-8" />
-            </div>
-            <div>
-              <h3 className="text-xl font-bold text-foreground">Engineer Path</h3>
-              <p className="text-sm text-muted-foreground">Build & Earn</p>
-            </div>
-          </div>
-        </motion.button>
+              <div className="relative flex flex-col items-center gap-3">
+                <div
+                  className={`w-14 h-14 rounded-full flex items-center justify-center transition-all duration-500 ${
+                    isActive
+                      ? role.iconBg
+                      : "bg-muted text-muted-foreground group-hover:bg-muted/80"
+                  }`}
+                >
+                  <Icon className="w-7 h-7" />
+                </div>
+                <div className="text-center">
+                  <h3 className="text-base font-bold text-foreground leading-tight">
+                    {role.label}
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {role.tagline}
+                  </p>
+                </div>
+              </div>
+            </motion.button>
+          );
+        })}
       </motion.div>
     </div>
   );

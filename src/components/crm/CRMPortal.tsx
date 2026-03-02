@@ -20,7 +20,7 @@ import fanBg from '@/assets/crm-fan-bg.jpg';
 
 interface CRMPortalProps {
   children: ReactNode;
-   userType: 'artist' | 'engineer' | 'producer' | 'fan' | 'admin';
+  userType: 'artist' | 'engineer' | 'producer' | 'fan' | 'admin';
   profile: any;
   stats: Array<{
     icon: ReactNode;
@@ -84,19 +84,19 @@ export const CRMPortal: React.FC<CRMPortalProps> = ({
   const isMobile = useIsMobile();
   const { isPreviewMode } = useAdminPreview();
   const [isHubGridVisible, setIsHubGridVisible] = useState(activeTab === 'dashboard' || activeTab === '');
-  
+
   const visuals = ROLE_VISUALS[userType] || ROLE_VISUALS.artist;
-  
+
   const handleHubSelect = (hubId: string) => {
     onTabChange(hubId);
     setIsHubGridVisible(false);
   };
-  
+
   const handleBackToGrid = () => {
     onTabChange('dashboard');
     setIsHubGridVisible(true);
   };
-  
+
   const handleNavigate = (path: string) => {
     navigate(path);
   };
@@ -105,27 +105,27 @@ export const CRMPortal: React.FC<CRMPortalProps> = ({
     <>
       <RoleSwitcher />
       {isPreviewMode && <AdminRolePreview />}
-      <div className="min-h-screen relative overflow-hidden">
+      <div className="min-h-screen relative overflow-hidden" data-mg-role={userType}>
         {/* Immersive Cinematic Background */}
-        <motion.div 
+        <motion.div
           className="fixed inset-0 -z-20"
           initial={{ scale: 1.08, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 2, ease: 'easeOut' }}
         >
-          <img 
+          <img
             src={visuals.bg}
             alt=""
             className="w-full h-full object-cover"
             loading="eager"
           />
           {/* Cinematic gradient overlay */}
-          <div 
+          <div
             className="absolute inset-0"
             style={{ background: visuals.overlayGradient }}
           />
           {/* Secondary noise texture for depth */}
-          <div 
+          <div
             className="absolute inset-0 opacity-[0.03]"
             style={{
               backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence baseFrequency=\'0.9\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\' opacity=\'1\'/%3E%3C/svg%3E")',
@@ -133,9 +133,9 @@ export const CRMPortal: React.FC<CRMPortalProps> = ({
             }}
           />
         </motion.div>
-        
+
         {/* Ambient glow — role-tinted radial */}
-        <div 
+        <div
           className="fixed inset-0 -z-10 pointer-events-none"
           style={{
             background: `
@@ -144,7 +144,7 @@ export const CRMPortal: React.FC<CRMPortalProps> = ({
             `,
           }}
         />
-        
+
         {/* Floating particles */}
         <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
           {[...Array(10)].map((_, i) => (
@@ -172,21 +172,21 @@ export const CRMPortal: React.FC<CRMPortalProps> = ({
             />
           ))}
         </div>
-        
+
         <Navigation />
-        
+
         <div className={cn(
           "relative z-10",
           isMobile ? "pt-20 pb-24 px-4" : "pt-20 px-6"
         )}>
           {/* Status Bar */}
-          <CRMStatusBar 
-            userType={userType} 
-            profile={profile} 
+          <CRMStatusBar
+            userType={userType}
+            profile={profile}
             stats={stats}
             onBackToGrid={!isHubGridVisible ? handleBackToGrid : undefined}
           />
-          
+
           {/* Main Content Area */}
           <div className="mt-6 max-w-[1800px] mx-auto">
             <AnimatePresence mode="wait">
@@ -198,8 +198,8 @@ export const CRMPortal: React.FC<CRMPortalProps> = ({
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <CRMHubGrid 
-                    userType={userType} 
+                  <CRMHubGrid
+                    userType={userType}
                     onHubSelect={handleHubSelect}
                     quickActions={quickActions}
                   />
@@ -212,8 +212,8 @@ export const CRMPortal: React.FC<CRMPortalProps> = ({
                   exit={{ opacity: 0, y: 30 }}
                   transition={{ duration: 0.4 }}
                 >
-                  <CRMActivePanel 
-                    hubId={activeTab} 
+                  <CRMActivePanel
+                    hubId={activeTab}
                     userType={userType}
                     onClose={handleBackToGrid}
                   >
@@ -224,7 +224,7 @@ export const CRMPortal: React.FC<CRMPortalProps> = ({
             </AnimatePresence>
           </div>
         </div>
-        
+
         {/* Proactive Prime Bot */}
         {userType !== 'admin' && <ProactivePrimeBot userType={userType} onNavigate={handleNavigate} />}
       </div>

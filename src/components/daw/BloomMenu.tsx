@@ -190,8 +190,9 @@ export function BloomMenu({
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.15 }}
                         style={{
-                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                            backgroundColor: 'var(--mg-tint)',
                             backdropFilter: 'blur(4px)',
+                            WebkitBackdropFilter: 'blur(4px)',
                         }}
                         onClick={onClose}
                     />
@@ -292,6 +293,7 @@ export function BloomMenu({
                                                 ? `0 0 30px ${petal.color}50`
                                                 : '0 4px 12px rgba(0,0,0,0.3)',
                                         backdropFilter: 'blur(12px)',
+                                        WebkitBackdropFilter: 'blur(12px)',
                                     }}
                                     initial={{
                                         scale: 0,
@@ -389,6 +391,7 @@ export function BloomMenu({
                                 boxShadow:
                                     '0 0 40px rgba(168, 85, 247, 0.15), inset 0 0 30px rgba(168, 85, 247, 0.05), 0 8px 32px rgba(0,0,0,0.5)',
                                 backdropFilter: 'blur(20px)',
+                                WebkitBackdropFilter: 'blur(20px)',
                             }}
                             initial={{ scale: 0, rotate: -90 }}
                             animate={{

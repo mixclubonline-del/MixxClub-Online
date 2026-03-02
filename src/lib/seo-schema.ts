@@ -3,19 +3,19 @@
 export const organizationSchema = {
   "@context": "https://schema.org",
   "@type": "Organization",
-  "name": "MixClub",
+  "name": "Mixxclub",
   "description": "Professional audio mixing and mastering platform connecting artists with world-class engineers",
-  "url": "https://mixclub.com",
-  "logo": "https://mixclub.com/logo.png",
+  "url": "https://mixxclub.lovable.app",
+  "logo": "https://mixxclub.lovable.app/logo.png",
   "sameAs": [
-    "https://twitter.com/mixclub",
-    "https://facebook.com/mixclub",
-    "https://instagram.com/mixclub"
+    "https://twitter.com/mixxclub",
+    "https://facebook.com/mixxclub",
+    "https://instagram.com/mixxclub"
   ],
   "contactPoint": {
     "@type": "ContactPoint",
     "contactType": "Customer Service",
-    "email": "support@mixclub.com"
+    "email": "support@mixxclubonline.com"
   }
 };
 
@@ -25,7 +25,7 @@ export const serviceSchema = {
   "name": "Professional Audio Mixing & Mastering",
   "provider": {
     "@type": "Organization",
-    "name": "MixClub"
+    "name": "Mixxclub"
   },
   "serviceType": "Audio Engineering",
   "areaServed": "Worldwide",
@@ -43,7 +43,7 @@ export const generateProductSchema = (product: {
   "@type": "Product",
   "name": product.name,
   "description": product.description,
-  "image": product.imageUrl || "https://mixclub.com/og-default.jpg",
+  "image": product.imageUrl || "https://mixxclub.lovable.app/og-default.jpg",
   "offers": {
     "@type": "Offer",
     "price": product.price,

@@ -70,7 +70,7 @@ export default function EngineerDirectory() {
   return (
     <>
       <Helmet>
-        <title>Find Engineers — MixClub Online</title>
+        <title>Find Engineers — Mixxclub Online</title>
         <meta 
           name="description" 
           content="Discover professional audio engineers for mixing, mastering, and production. Browse by genre, rate, and rating." 
@@ -295,7 +295,7 @@ export default function EngineerDirectory() {
             <Card className="bg-gradient-to-br from-primary/10 to-accent-blue/10 border-primary/20 p-8">
               <h2 className="text-2xl font-bold mb-3">Are you an engineer?</h2>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                Join MixClub and start earning from your studio. Get matched with artists who need your skills.
+                Join Mixxclub and start earning from your studio. Get matched with artists who need your skills.
               </p>
               <Button asChild className="bg-gradient-to-r from-primary to-accent-blue hover:opacity-90">
                 <Link to="/auth?role=engineer">

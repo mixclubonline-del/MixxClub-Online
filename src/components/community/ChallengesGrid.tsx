@@ -43,7 +43,7 @@ const SAMPLE_CHALLENGES = [
   {
     id: '4',
     title: 'Community Builder',
-    description: 'Invite 3 friends to join MixClub',
+    description: 'Invite 3 friends to join Mixxclub',
     xp_reward: 2000,
     type: 'social',
     difficulty: 'medium',

@@ -1,10 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { getCorsHeaders } from '../_shared/cors.ts';
+import { requireAdmin, authErrorResponse } from '../_shared/auth.ts';
 
 // Demo engineer data with realistic profiles
 const demoEngineers = [
@@ -169,16 +166,22 @@ const sessionTitles = [
 ];
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
+
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Require admin authentication
+    const auth = await requireAdmin(req);
+    if ('error' in auth) return authErrorResponse(auth, corsHeaders);
+
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    console.log("Starting demo data seeding...");
+    console.log("Starting demo data seeding, admin:", auth.user.id);
 
     const results = {
       engineers: 0,

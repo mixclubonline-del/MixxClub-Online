@@ -1,3 +1,5 @@
+// ============= Full file contents =============
+
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Building2, Radio, Trophy, DollarSign, Sparkles } from 'lucide-react';
@@ -55,7 +57,7 @@ export const CityPreview = () => {
           </motion.div>
 
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            Welcome to MixClub City
+            Welcome to Mixxclub City
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             This is where you'll live. A city for creators.

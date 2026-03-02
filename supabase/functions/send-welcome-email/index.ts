@@ -55,9 +55,9 @@ serve(async (req) => {
         'Authorization': `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: 'MixClub <onboarding@resend.dev>',
+        from: 'Mixxclub <onboarding@resend.dev>',
         to: [email],
-        subject: `Welcome to MixClub${isEngineer ? ' - Start Earning Today!' : ' - Your Music Journey Begins!'}`,
+        subject: `Welcome to Mixxclub${isEngineer ? ' - Start Earning Today!' : ' - Your Music Journey Begins!'}`,
         html: emailHtml,
       }),
     });
@@ -93,13 +93,13 @@ function generateArtistWelcomeEmail(userName: string, totalUsers: number, active
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Welcome to MixClub</title>
+  <title>Welcome to Mixxclub</title>
 </head>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 0; background-color: #f8f9fa;">
   
   <!-- Header -->
   <div style="background: linear-gradient(135deg, #5B3CFF 0%, #7C3AED 100%); padding: 40px 20px; text-align: center;">
-    <h1 style="color: white; margin: 0; font-size: 32px; font-weight: bold;">🎵 Welcome to MixClub!</h1>
+    <h1 style="color: white; margin: 0; font-size: 32px; font-weight: bold;">🎵 Welcome to Mixxclub!</h1>
     <p style="color: rgba(255,255,255,0.95); margin: 15px 0 0 0; font-size: 18px;">Your music deserves the best sound</p>
   </div>
   
@@ -113,7 +113,7 @@ function generateArtistWelcomeEmail(userName: string, totalUsers: number, active
         We're thrilled to have you join our community of <strong>${totalUsers.toLocaleString()}+ artists</strong> who are transforming their music with professional mixing and mastering.
       </p>
       <p style="margin: 0; font-size: 16px; line-height: 1.8;">
-        MixClub connects you with top-tier audio engineers who will bring your creative vision to life. No more struggling with complex software or settling for amateur sound quality.
+        Mixxclub connects you with top-tier audio engineers who will bring your creative vision to life. No more struggling with complex software or settling for amateur sound quality.
       </p>
     </div>
 
@@ -189,7 +189,7 @@ function generateArtistWelcomeEmail(userName: string, totalUsers: number, active
 
     <!-- CTA Button -->
     <div style="text-align: center; margin: 40px 0 30px 0;">
-      <a href="https://mixclubonline.com/artist-crm" style="display: inline-block; background: linear-gradient(135deg, #5B3CFF 0%, #7C3AED 100%); color: white; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-weight: bold; font-size: 18px; box-shadow: 0 4px 15px rgba(91, 60, 255, 0.4);">
+      <a href="https://mixxclubonline.com/artist-crm" style="display: inline-block; background: linear-gradient(135deg, #5B3CFF 0%, #7C3AED 100%); color: white; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-weight: bold; font-size: 18px; box-shadow: 0 4px 15px rgba(91, 60, 255, 0.4);">
         Start Your First Project
       </a>
     </div>
@@ -200,7 +200,7 @@ function generateArtistWelcomeEmail(userName: string, totalUsers: number, active
         Need help getting started? Our team is here for you!
       </p>
       <p style="margin: 0; font-size: 14px;">
-        <a href="mailto:support@mixclubonline.com" style="color: #5B3CFF; text-decoration: none; font-weight: bold;">📧 support@mixclubonline.com</a>
+        <a href="mailto:support@mixxclubonline.com" style="color: #5B3CFF; text-decoration: none; font-weight: bold;">📧 support@mixxclubonline.com</a>
       </p>
     </div>
 
@@ -217,11 +217,11 @@ function generateArtistWelcomeEmail(userName: string, totalUsers: number, active
       <a href="#" style="color: #5B3CFF; text-decoration: none; margin: 0 10px; font-size: 24px;">🎵</a>
     </div>
     <p style="margin: 0; color: #718096; font-size: 12px;">
-      © ${new Date().getFullYear()} MixClub Online. All rights reserved.
+      © ${new Date().getFullYear()} Mixxclub Online. All rights reserved.
     </p>
     <p style="margin: 10px 0 0 0; font-size: 12px;">
-      <a href="https://mixclubonline.com" style="color: #5B3CFF; text-decoration: none;">Visit Website</a> • 
-      <a href="https://mixclubonline.com/faq" style="color: #5B3CFF; text-decoration: none;">FAQ</a>
+      <a href="https://mixxclubonline.com" style="color: #5B3CFF; text-decoration: none;">Visit Website</a> • 
+      <a href="https://mixxclubonline.com/faq" style="color: #5B3CFF; text-decoration: none;">FAQ</a>
     </p>
   </div>
   
@@ -237,13 +237,13 @@ function generateEngineerWelcomeEmail(userName: string, totalUsers: number, acti
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Welcome to MixClub Online - Engineer</title>
+  <title>Welcome to Mixxclub Online - Engineer</title>
 </head>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 0; background-color: #f8f9fa;">
   
   <!-- Header -->
   <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 40px 20px; text-align: center;">
-    <h1 style="color: white; margin: 0; font-size: 32px; font-weight: bold;">🎚️ Welcome to MixClub Online!</h1>
+    <h1 style="color: white; margin: 0; font-size: 32px; font-weight: bold;">🎚️ Welcome to Mixxclub Online!</h1>
     <p style="color: rgba(255,255,255,0.95); margin: 15px 0 0 0; font-size: 18px;">Start earning from your audio engineering skills</p>
   </div>
   
@@ -257,7 +257,7 @@ function generateEngineerWelcomeEmail(userName: string, totalUsers: number, acti
         Welcome to a community where your audio engineering expertise is valued and rewarded. Join <strong>${Math.floor(totalUsers * 0.15).toLocaleString()}+ professional engineers</strong> earning from their craft.
       </p>
       <p style="margin: 0; font-size: 16px; line-height: 1.8;">
-        MixClub Online connects you directly with artists who need your skills. Set your rates, choose your projects, and build your reputation - all in one platform.
+        Mixxclub Online connects you directly with artists who need your skills. Set your rates, choose your projects, and build your reputation - all in one platform.
       </p>
     </div>
 
@@ -340,29 +340,18 @@ function generateEngineerWelcomeEmail(userName: string, totalUsers: number, acti
 
     <!-- CTA Button -->
     <div style="text-align: center; margin: 40px 0 30px 0;">
-      <a href="https://mixclubonline.com/engineer-crm" style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-weight: bold; font-size: 18px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);">
-        Complete Your Profile & Start Earning
+      <a href="https://mixxclubonline.com/engineer-crm" style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-weight: bold; font-size: 18px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);">
+        Complete Your Profile
       </a>
-    </div>
-
-    <!-- Tips -->
-    <div style="background: #f0fdf4; padding: 20px; border-radius: 8px; margin-top: 30px; border-left: 3px solid #10b981;">
-      <h4 style="color: #10b981; margin: 0 0 10px 0; font-size: 16px;">💡 Pro Tips for Success</h4>
-      <ul style="margin: 0; padding-left: 20px; color: #666; font-size: 14px;">
-        <li style="margin-bottom: 8px;">Upload portfolio samples showcasing your best work</li>
-        <li style="margin-bottom: 8px;">Set competitive rates based on your experience level</li>
-        <li style="margin-bottom: 8px;">Respond quickly to project inquiries to increase your chances</li>
-        <li style="margin-bottom: 0;">Maintain high quality and communication for better reviews</li>
-      </ul>
     </div>
 
     <!-- Support -->
     <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center; margin-top: 30px;">
       <p style="margin: 0 0 10px 0; color: #666; font-size: 14px;">
-        Questions about the platform? We're here to help!
+        Questions about getting started? Contact our engineer support:
       </p>
       <p style="margin: 0; font-size: 14px;">
-        <a href="mailto:support@mixclubonline.com" style="color: #10b981; text-decoration: none; font-weight: bold;">📧 support@mixclubonline.com</a>
+        <a href="mailto:support@mixxclubonline.com" style="color: #10b981; text-decoration: none; font-weight: bold;">📧 support@mixxclubonline.com</a>
       </p>
     </div>
 
@@ -371,19 +360,19 @@ function generateEngineerWelcomeEmail(userName: string, totalUsers: number, acti
   <!-- Footer -->
   <div style="background: #2d3748; padding: 30px 20px; text-align: center; color: #a0aec0;">
     <p style="margin: 0 0 15px 0; font-size: 14px;">
-      Join our engineer community:
+      Follow us for industry news and community highlights:
     </p>
     <div style="margin-bottom: 20px;">
       <a href="#" style="color: #10b981; text-decoration: none; margin: 0 10px; font-size: 24px;">📸</a>
       <a href="#" style="color: #10b981; text-decoration: none; margin: 0 10px; font-size: 24px;">🐦</a>
-      <a href="#" style="color: #10b981; text-decoration: none; margin: 0 10px; font-size: 24px;">💼</a>
+      <a href="#" style="color: #10b981; text-decoration: none; margin: 0 10px; font-size: 24px;">🎵</a>
     </div>
     <p style="margin: 0; color: #718096; font-size: 12px;">
-      © ${new Date().getFullYear()} MixClub Online. All rights reserved.
+      © ${new Date().getFullYear()} Mixxclub Online. All rights reserved.
     </p>
     <p style="margin: 10px 0 0 0; font-size: 12px;">
-      <a href="https://mixclubonline.com" style="color: #10b981; text-decoration: none;">Visit Website</a> • 
-      <a href="https://mixclubonline.com/faq" style="color: #10b981; text-decoration: none;">FAQ</a>
+      <a href="https://mixxclubonline.com" style="color: #10b981; text-decoration: none;">Visit Website</a> • 
+      <a href="https://mixxclubonline.com/terms" style="color: #10b981; text-decoration: none;">Terms</a>
     </p>
   </div>
   

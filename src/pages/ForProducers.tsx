@@ -265,7 +265,7 @@ const ForProducers = () => {
             <PortalInvitation
                 icon={<Crown className="w-10 h-10" />}
                 title="Ready to Monetize Your Sound?"
-                subtitle="Join the producers already earning on MixClub."
+                subtitle="Join the producers already earning on Mixxclub."
                 cta={{ text: "Start Free Today", href: "/auth?mode=signup&role=producer" }}
                 variant="producer"
                 disclaimer="No credit card required • Keep 80%+ of earnings • Instant payouts"

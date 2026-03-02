@@ -30,11 +30,12 @@ const ResizableHandle = ({
     {...props}
   >
     {withHandle && (
-      <div 
+      <div
         className="z-10 flex h-6 w-4 items-center justify-center rounded-md transition-all"
         style={{
           background: 'linear-gradient(135deg, hsl(var(--primary) / 0.3), hsl(var(--accent) / 0.3))',
           backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
           border: '1px solid hsl(var(--primary) / 0.4)',
           boxShadow: '0 0 10px hsl(var(--primary) / 0.3)',
         }}

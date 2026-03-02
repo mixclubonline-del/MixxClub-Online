@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '@/config/routes';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -42,7 +43,7 @@ export const WelcomeExperience = ({ userType, userName, onDismiss }: WelcomeExpe
       icon: <Mic2 className="w-5 h-5" />,
       title: "Start Your First Session",
       description: "Create a collaboration session and invite engineers",
-      action: () => navigate('/sessions/create'),
+      action: () => navigate(ROUTES.CREATE_SESSION),
       primary: true,
     },
     {
@@ -99,7 +100,7 @@ export const WelcomeExperience = ({ userType, userName, onDismiss }: WelcomeExpe
               </div>
               <div>
                 <CardTitle className="text-xl">
-                  Welcome to MixClub{userName ? `, ${userName}` : ''}! 🎉
+                  Welcome to Mixxclub{userName ? `, ${userName}` : ''}! 🎉
                 </CardTitle>
                 <CardDescription className="mt-1">
                   {userType === 'artist' 
@@ -174,15 +175,15 @@ export const EmptyStatePrompt = ({ type, userType }: EmptyStatePromptProps) => {
 
   const actions = {
     sessions: {
-      artist: { action: "Create Session", onClick: () => navigate('/sessions/create') },
-      engineer: { action: "Browse Sessions", onClick: () => navigate('/sessions-browser') },
+      artist: { action: "Create Session", onClick: () => navigate(ROUTES.CREATE_SESSION) },
+      engineer: { action: "Browse Sessions", onClick: () => navigate(ROUTES.SESSIONS_BROWSER) },
     },
     projects: {
-      artist: { action: "Upload Track", onClick: () => navigate('/upload') },
+      artist: { action: "Upload Track", onClick: () => navigate(ROUTES.UPLOAD) },
       engineer: { action: "Complete Profile", onClick: () => navigate('?tab=profile') },
     },
     earnings: {
-      artist: { action: "View Services", onClick: () => navigate('/services') },
+      artist: { action: "View Services", onClick: () => navigate(ROUTES.SERVICES) },
       engineer: { action: "Set Rates", onClick: () => navigate('?tab=settings') },
     },
     messages: {

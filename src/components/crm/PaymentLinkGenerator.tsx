@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import { PaymentLink } from '@/types/partnership';
 import { usePaymentLink } from '@/hooks/usePaymentLink';
 import { useAuth } from '@/hooks/useAuth';
@@ -86,44 +87,59 @@ export const PaymentLinkGenerator: React.FC<PaymentLinkGeneratorProps> = ({
         setIsLoading(true);
 
         try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error('Not authenticated');
+
+            const expiresAt = new Date(Date.now() + parseInt(formData.expirationDays) * 24 * 60 * 60 * 1000).toISOString();
             const amount = parseFloat(formData.amount);
-            const expiresAt = new Date(Date.now() + parseInt(formData.expirationDays, 10) * 24 * 60 * 60 * 1000).toISOString();
-            const description = formData.description || `Payment for ${recipientName}`;
 
-            const response = await createShareableLink({
-                amount,
-                currency: 'USD',
-                description,
-                partnershipId,
-                recipientId,
-                metadata: {
-                    project_id: projectId || '',
-                    payment_method: formData.paymentMethod,
-                    expiration_days: formData.expirationDays,
-                },
-            });
+            // Attempt to create via Stripe edge function
+            let newLink: PaymentLink;
+            try {
+                const { data, error } = await supabase.functions.invoke('create-payment-link', {
+                    body: {
+                        recipientId,
+                        amount,
+                        currency: 'USD',
+                        description: formData.description,
+                        paymentMethod: formData.paymentMethod,
+                        expiresAt,
+                        partnershipId,
+                        projectId,
+                    },
+                });
 
-            const generatedId = String(response?.id || `link_${Date.now()}`);
-            const generatedUrl = String(response?.url || '');
-            const generatedToken = generatedUrl.split('/').pop() || generatedId;
+                if (error) throw error;
+                newLink = data as PaymentLink;
+            } catch {
+                // Fallback: persist locally via payment_links table
+                const token = Math.random().toString(36).substr(2, 12);
+                const { data: dbLink, error: dbError } = await supabase
+                    .from('payment_links')
+                    .insert({
+                        creator_id: user.id,
+                        recipient_id: recipientId,
+                        partnership_id: partnershipId || null,
+                        project_id: projectId || null,
+                        amount,
+                        currency: 'USD',
+                        description: formData.description || null,
+                        payment_method: formData.paymentMethod,
+                        status: 'pending',
+                        token,
+                        url: `${window.location.origin}/pay/${token}`,
+                        expires_at: expiresAt,
+                    } as any)
+                    .select()
+                    .single();
 
-            const newLink: PaymentLink = {
-                id: generatedId,
-                token: generatedToken,
-                url: generatedUrl,
-                creator_id: user?.id || 'unknown',
-                recipient_id: recipientId,
-                partnership_id: partnershipId,
-                project_id: projectId,
-                amount,
-                currency: 'USD',
-                description,
-                payment_method: formData.paymentMethod,
-                status: 'pending',
-                expires_at: expiresAt,
-                paid_at: undefined,
-                created_at: new Date().toISOString(),
-            };
+                if (dbError) throw dbError;
+
+                newLink = {
+                    ...dbLink,
+                    paid_at: null,
+                } as unknown as PaymentLink;
+            }
 
             setPaymentLinks((prev) => [newLink, ...prev]);
             onLinkCreated?.(newLink);

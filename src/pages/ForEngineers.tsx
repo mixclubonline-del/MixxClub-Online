@@ -202,7 +202,7 @@ export default function ForEngineers() {
       <PortalInvitation
         icon={<Award className="w-10 h-10" />}
         title="Ready to Transform Your Engineering Career?"
-        subtitle="Join thousands of engineers already earning more on MixClub."
+        subtitle="Join thousands of engineers already earning more on Mixxclub."
         cta={{ text: "Get Started Now", href: "/engineer-onboarding" }}
         variant="engineer"
         disclaimer="No setup fees • Keep 70-85% of earnings • Instant payouts"

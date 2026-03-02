@@ -74,7 +74,7 @@ export const EngineerVerificationBadge = ({
               </Badge>
             </TooltipTrigger>
             <TooltipContent>
-              <p className="text-xs">Successfully completed projects on MixClub</p>
+              <p className="text-xs">Successfully completed projects on Mixxclub</p>
             </TooltipContent>
           </Tooltip>
         )}

@@ -80,11 +80,9 @@ export function AuthLayout({ children, onBack, showBackToLanding = true }: AuthL
       {/* Main content */}
       <div className="relative z-10 min-h-screen flex items-center justify-center p-4 safe-area-inset">
         <div className="w-full max-w-md">
-          {/* Glass card container */}
-          <div className="relative rounded-2xl border border-white/10 bg-black/40 backdrop-blur-xl p-6 sm:p-8 shadow-2xl">
-            {/* Subtle glow effect */}
-            <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />
-            
+          {/* MixxGlass card container */}
+          <div className="mg-panel p-6 sm:p-8">
+            <div className="mg-shimmer" />
             <div className="relative z-10">
               {children}
             </div>

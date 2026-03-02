@@ -14,13 +14,13 @@ serve(async (req) => {
   try {
     const { analysisType, userData } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    
+
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY not configured');
     }
 
     let prompt = '';
-    
+
     switch (analysisType) {
       case 'pricing':
         prompt = `Analyze this service data and recommend optimal pricing:
@@ -102,7 +102,7 @@ Return as JSON: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-3-flash-preview',
         messages: [
           { role: 'system', content: 'You are a business consultant specializing in audio production and music industry economics. Always respond with valid JSON.' },
           { role: 'user', content: prompt }
@@ -128,7 +128,7 @@ Return as JSON: {
 
     const data = await response.json();
     const content = data.choices[0].message.content;
-    
+
     let analysis;
     try {
       const jsonMatch = content.match(/\{[\s\S]*\}/);

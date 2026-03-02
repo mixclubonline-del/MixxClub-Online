@@ -31,14 +31,7 @@ export function LeaderboardWidget({ compact = true }: LeaderboardWidgetProps) {
 
   if (isLoading) {
     return (
-      <div
-        className="rounded-xl border border-white/[0.06] p-4"
-        style={{
-          background: 'rgba(255,255,255,0.02)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-        }}
-      >
+      <div className="mg-panel p-4">
         <div className="flex items-center gap-2 mb-4">
           <Skeleton className="h-5 w-5 rounded" />
           <Skeleton className="h-5 w-32" />
@@ -64,11 +57,10 @@ export function LeaderboardWidget({ compact = true }: LeaderboardWidgetProps) {
         whileInView={{ opacity: 1, x: 0 }}
         viewport={{ once: true }}
         transition={{ delay: index * 0.05 }}
-        className={`flex items-center gap-3 p-2.5 rounded-lg transition-all ${
-          isCurrentUser 
-            ? 'border border-primary/20' 
+        className={`flex items-center gap-3 p-2.5 rounded-lg transition-all ${isCurrentUser
+            ? 'border border-primary/20'
             : 'hover:bg-white/[0.03]'
-        }`}
+          }`}
         style={isCurrentUser ? { background: 'rgba(var(--primary), 0.06)' } : undefined}
       >
         {/* Rank */}
@@ -123,14 +115,7 @@ export function LeaderboardWidget({ compact = true }: LeaderboardWidgetProps) {
       viewport={{ once: true, margin: '-40px' }}
       transition={{ duration: 0.5, delay: 0.2 }}
     >
-      <div
-        className="relative rounded-xl border border-purple-500/10 p-4 overflow-hidden"
-        style={{
-          background: 'linear-gradient(135deg, rgba(168,85,247,0.05) 0%, rgba(244,114,182,0.04) 100%)',
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
-        }}
-      >
+      <div className="mg-panel relative p-4 overflow-hidden">
         <div className="absolute -bottom-12 -right-12 w-36 h-36 rounded-full bg-purple-500/8 blur-3xl pointer-events-none" />
 
         <div className="relative z-10">

@@ -37,7 +37,7 @@ export const LivePage: React.FC = () => {
               </div>
               <div>
                 <h1 className="text-3xl font-bold flex items-center gap-2">
-                  MixClub Live
+                  Mixxclub Live
                   {liveCount > 0 && (
                     <Badge variant="destructive">{liveCount} Live</Badge>
                   )}

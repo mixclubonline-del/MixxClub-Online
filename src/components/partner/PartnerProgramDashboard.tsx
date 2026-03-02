@@ -248,7 +248,7 @@ const PartnerProgramDashboard: React.FC = () => {
                   </Button>
                   <Button variant="outline" size="sm" asChild>
                     <a 
-                      href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`Check out MixClub - the ultimate platform for music creators! ${generateAffiliateLink('twitter')}`)}`}
+                      href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`Check out Mixxclub - the ultimate platform for music creators! ${generateAffiliateLink('twitter')}`)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >

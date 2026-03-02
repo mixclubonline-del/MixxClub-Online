@@ -25,7 +25,7 @@ serve(async (req) => {
     }
 
     // Send email to admin
-    const adminEmail = "mixclubonline@gmail.com";
+    const adminEmail = "mixxclubonline@gmail.com";
 
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -53,7 +53,7 @@ serve(async (req) => {
         <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;" />
         
         <p style="color: #6b7280; font-size: 14px;">
-          MixClub Admin System<br />
+          Mixxclub Admin System<br />
           This is an automated notification. Do not reply to this email.
         </p>
       </div>
@@ -66,7 +66,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "MixClub Legal <onboarding@resend.dev>",
+        from: "Mixxclub Legal <legal@mixxclubonline.com>",
         to: [adminEmail],
         subject: `✓ Legal Document Reviewed: ${document_title}`,
         html: emailHtml,

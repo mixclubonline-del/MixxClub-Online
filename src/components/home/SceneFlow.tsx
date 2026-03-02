@@ -1,15 +1,14 @@
 /**
  * Scene Flow Controller
  * 
- * Manages the immersive scene-based homepage experience.
- * Dissolves between: Hallway (Intrigue) → Demo (Energy) → Information (Clarity)
- * 
- * Uses Zustand state machine for transitions and keyboard navigation.
+ * Hybrid flow: vertical dissolve for Hallway/Demo,
+ * then horizontal storybook chapters for Club + Choose Path.
  */
 
 import { useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useSceneFlowStore } from '@/stores/sceneFlowStore';
+import { useChapterStore } from '@/stores/chapterStore';
 import { SceneStage } from '@/components/scene/SceneStage';
 import { StudioHallway } from '@/components/scene/StudioHallway';
 import { InsiderDemoExperience } from '@/components/demo/InsiderDemoExperience';
@@ -29,6 +28,11 @@ const QUERY_TO_SCENE = {
 } as const;
 
 export function SceneFlow() {
+  return <VerticalSceneFlow />;
+}
+
+/** Original vertical dissolve implementation, extracted for clarity */
+function VerticalSceneFlow() {
   const scene = useSceneFlowStore((s) => s.scene);
   const go = useSceneFlowStore((s) => s.go);
   const back = useSceneFlowStore((s) => s.back);
@@ -74,28 +78,10 @@ export function SceneFlow() {
   // Keyboard navigation
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      // Ignore if user is typing in an input
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
-        return;
-      }
-
-      if (e.key === 'Enter' && scene === 'HALLWAY') {
-        e.preventDefault();
-        go('DEMO');
-      }
-
-      // Press 'I' to skip to info (from Hallway)
-      if ((e.key === 'i' || e.key === 'I') && scene === 'HALLWAY') {
-        e.preventDefault();
-        go('INFO');
-      }
-
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        back();
-      }
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.key === 'Enter' && scene === 'HALLWAY') { e.preventDefault(); go('DEMO'); }
+      if (e.key === 'Escape') { e.preventDefault(); back(); }
     };
-
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [scene, go, back]);
@@ -123,7 +109,7 @@ export function SceneFlow() {
     trackEvent('funnel_conversion_complete', 'funnel', 'choose_path');
     // Dissolve out, then navigate after dissolve completes
     go('HALLWAY');
-    setTimeout(() => navigate('/choose-path'), dissolveMs);
+    setTimeout(() => navigate('/how-it-works'), dissolveMs);
   }, [go, navigate, dissolveMs]);
 
   return (
@@ -136,7 +122,7 @@ export function SceneFlow() {
 
 
       {scene === 'HALLWAY' && (
-        <StudioHallway fullscreen onEnter={handleEnterDemo} onSkipToInfo={handleSkipToInfo} />
+        <StudioHallway fullscreen onEnter={handleEnterDemo} />
       )}
 
       {scene === 'DEMO' && (
@@ -149,7 +135,38 @@ export function SceneFlow() {
       )}
 
       {scene === 'INFO' && (
-        <ClubScene onBack={handleBackToDemo} />
+        <ChapterShell
+          slots={[
+            {
+              id: 'club',
+              element: <ClubScene onBack={handleBackToDemo} />,
+            },
+            {
+              id: 'features',
+              element: (
+                <Suspense fallback={<div className="w-full h-full bg-background" />}>
+                  <FeaturesChapter />
+                </Suspense>
+              ),
+            },
+            {
+              id: 'pricing',
+              element: (
+                <Suspense fallback={<div className="w-full h-full bg-background" />}>
+                  <PricingChapter />
+                </Suspense>
+              ),
+            },
+            {
+              id: 'choose',
+              element: (
+                <Suspense fallback={<div className="w-full h-full bg-background" />}>
+                  <ChoosePath />
+                </Suspense>
+              ),
+            },
+          ]}
+        />
       )}
     </SceneStage>
   );

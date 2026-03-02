@@ -10,6 +10,7 @@ import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useToast } from './use-toast';
+import { uuid } from '@/lib/uuid';
 
 // --- Types ---
 
@@ -142,7 +143,7 @@ export const useAutoSplitRevenue = () => {
             }
 
             const record: DistributionRecord = {
-                id: crypto.randomUUID(),
+                id: uuid(),
                 partnershipId,
                 totalAmount,
                 parties,

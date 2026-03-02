@@ -672,13 +672,83 @@ const HybridDAW = () => {
     });
   };
 
-  // Export Project
-  const exportProject = () => {
-    // TODO: Implement project export
+  // Export Project — Real offline rendering to WAV
+  const exportProject = async () => {
+    if (tracks.length === 0 || !tracks.some(t => t.audioBuffer)) {
+      toast({
+        title: "Nothing to Export",
+        description: "Add audio tracks before exporting.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     toast({
-      title: "Export Started",
-      description: "Your project is being exported...",
+      title: "🎛️ Mixing Down...",
+      description: "Rendering your project to 24-bit WAV",
     });
+
+    try {
+      // Find the longest track duration for the render length
+      const maxDuration = Math.max(
+        ...tracks
+          .filter(t => t.audioBuffer && !t.mute)
+          .flatMap(t => (t.regions || []).map(r => r.startTime + r.duration))
+      );
+
+      if (maxDuration <= 0) throw new Error('No audible content to export');
+
+      const sampleRate = audioEngine.ctx.sampleRate;
+      const offline = new OfflineAudioContext(2, Math.ceil(maxDuration * sampleRate), sampleRate);
+
+      // Render each non-muted track into the offline context
+      for (const track of tracks) {
+        if (track.mute || !track.audioBuffer) continue;
+
+        for (const region of (track.regions || [])) {
+          if (!region.audioBuffer) continue;
+
+          const source = offline.createBufferSource();
+          source.buffer = region.audioBuffer;
+
+          // Apply track gain + pan
+          const gainNode = offline.createGain();
+          gainNode.gain.value = track.volume ?? 0.8;
+
+          const panner = offline.createStereoPanner();
+          panner.pan.value = track.pan ?? 0;
+
+          source.connect(gainNode);
+          gainNode.connect(panner);
+          panner.connect(offline.destination);
+
+          source.start(region.startTime, region.sourceStartOffset || 0, region.duration);
+        }
+      }
+
+      const renderedBuffer = await offline.startRendering();
+
+      // Use the audioExport library to encode and download
+      const { downloadAudioAsWav } = await import('@/lib/audioExport');
+      const projectName = `MixxClub-Export-${new Date().toISOString().slice(0, 10)}`;
+      downloadAudioAsWav(renderedBuffer, `${projectName}.wav`, { bitDepth: 24, normalize: true });
+
+      toast({
+        title: "✅ Export Complete!",
+        description: `${projectName}.wav — ${renderedBuffer.duration.toFixed(1)}s, 24-bit WAV`,
+      });
+
+      // Unlock achievement
+      unlockAchievement('first-export');
+
+    } catch (error) {
+      console.error('[Export] Failed:', error);
+      toast({
+        title: "Export Failed",
+        description: error instanceof Error ? error.message : "Could not render audio",
+        variant: "destructive",
+      });
+    }
   };
 
   // Handle Processed Stems
@@ -982,12 +1052,12 @@ const HybridDAW = () => {
                                 <div
                                   key={i}
                                   className={`flex-1 rounded-full transition-all duration-150 ${i < Math.floor(track.volume * 12)
-                                      ? i < 8
-                                        ? 'bg-gradient-to-r from-green-500 to-green-400 shadow-[0_0_4px_rgba(34,197,94,0.5)]'
-                                        : i < 10
-                                          ? 'bg-gradient-to-r from-yellow-500 to-yellow-400 shadow-[0_0_4px_rgba(234,179,8,0.5)]'
-                                          : 'bg-gradient-to-r from-red-500 to-red-400 shadow-[0_0_4px_rgba(239,68,68,0.5)] animate-pulse-glow'
-                                      : 'bg-muted/30'
+                                    ? i < 8
+                                      ? 'bg-gradient-to-r from-green-500 to-green-400 shadow-[0_0_4px_rgba(34,197,94,0.5)]'
+                                      : i < 10
+                                        ? 'bg-gradient-to-r from-yellow-500 to-yellow-400 shadow-[0_0_4px_rgba(234,179,8,0.5)]'
+                                        : 'bg-gradient-to-r from-red-500 to-red-400 shadow-[0_0_4px_rgba(239,68,68,0.5)] animate-pulse-glow'
+                                    : 'bg-muted/30'
                                     }`}
                                 />
                               ))}

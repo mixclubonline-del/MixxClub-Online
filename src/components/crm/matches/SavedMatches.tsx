@@ -28,7 +28,7 @@ export const SavedMatches: React.FC<SavedMatchesProps> = ({ userType, searchQuer
   };
 
   const handleViewProfile = (matchedUserId: string) => {
-    navigate(`/profile/${matchedUserId}`);
+    navigate(`/u/${matchedUserId}`);
   };
 
   if (loading) {

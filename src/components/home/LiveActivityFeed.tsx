@@ -11,7 +11,7 @@ interface Activity {
 }
 
 const activityTemplates = [
-  { type: "join" as const, messages: ["Alex joined MixClub", "Sarah just signed up", "Mike joined the community", "Emma started their journey"], icon: UserPlus },
+  { type: "join" as const, messages: ["Alex joined Mixxclub", "Sarah just signed up", "Mike joined the community", "Emma started their journey"], icon: UserPlus },
   { type: "upload" as const, messages: ["New track uploaded to mixing", "Fresh beat ready for mastering", "Producer uploaded new project", "Artist shared new vocals"], icon: Music },
   { type: "competition" as const, messages: ["Vote cast in Mix Battle", "New battle entry submitted", "Competition vote recorded", "Battle participant joined"], icon: Trophy },
   { type: "achievement" as const, messages: ["Badge unlocked: First Mix", "Milestone reached!", "New certification earned", "Level up achieved"], icon: Sparkles },

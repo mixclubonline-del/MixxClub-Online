@@ -73,6 +73,7 @@ export type Database = {
           icon: string | null
           id: string
           metadata: Json | null
+          name: string | null
           title: string
           user_id: string
         }
@@ -86,6 +87,7 @@ export type Database = {
           icon?: string | null
           id?: string
           metadata?: Json | null
+          name?: string | null
           title: string
           user_id: string
         }
@@ -99,6 +101,7 @@ export type Database = {
           icon?: string | null
           id?: string
           metadata?: Json | null
+          name?: string | null
           title?: string
           user_id?: string
         }
@@ -3167,6 +3170,33 @@ export type Database = {
         }
         Relationships: []
       }
+      funnel_events: {
+        Row: {
+          created_at: string | null
+          funnel_source: string
+          id: string
+          session_id: string
+          step: string
+          step_data: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          funnel_source: string
+          id?: string
+          session_id: string
+          step: string
+          step_data?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          funnel_source?: string
+          id?: string
+          session_id?: string
+          step?: string
+          step_data?: Json | null
+        }
+        Relationships: []
+      }
       generation_history: {
         Row: {
           context: string | null
@@ -5354,6 +5384,50 @@ export type Database = {
           },
         ]
       }
+      pathfinder_progress: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          current_step: number
+          dismissed_at: string | null
+          id: string
+          is_completed: boolean
+          journey_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          current_step?: number
+          dismissed_at?: string | null
+          id?: string
+          is_completed?: boolean
+          journey_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          current_step?: number
+          dismissed_at?: string | null
+          id?: string
+          is_completed?: boolean
+          journey_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pathfinder_progress_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payment_links: {
         Row: {
           amount: number | null
@@ -6070,6 +6144,7 @@ export type Database = {
           follower_count: number | null
           following_count: number | null
           full_name: string | null
+          genre: string | null
           genre_specialties: Json | null
           id: string
           is_available_for_collab: boolean | null
@@ -6105,6 +6180,7 @@ export type Database = {
           follower_count?: number | null
           following_count?: number | null
           full_name?: string | null
+          genre?: string | null
           genre_specialties?: Json | null
           id: string
           is_available_for_collab?: boolean | null
@@ -6140,6 +6216,7 @@ export type Database = {
           follower_count?: number | null
           following_count?: number | null
           full_name?: string | null
+          genre?: string | null
           genre_specialties?: Json | null
           id?: string
           is_available_for_collab?: boolean | null
@@ -6458,6 +6535,7 @@ export type Database = {
         Row: {
           bpm: number | null
           client_id: string | null
+          completed_at: string | null
           created_at: string
           deadline: string | null
           description: string | null
@@ -6478,6 +6556,7 @@ export type Database = {
         Insert: {
           bpm?: number | null
           client_id?: string | null
+          completed_at?: string | null
           created_at?: string
           deadline?: string | null
           description?: string | null
@@ -6498,6 +6577,7 @@ export type Database = {
         Update: {
           bpm?: number | null
           client_id?: string | null
+          completed_at?: string | null
           created_at?: string
           deadline?: string | null
           description?: string | null
@@ -6531,6 +6611,122 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      promo_assets: {
+        Row: {
+          asset_type: string
+          campaign_id: string
+          content_text: string | null
+          content_url: string | null
+          created_at: string | null
+          generator_function: string
+          id: string
+          metadata: Json | null
+          status: string | null
+        }
+        Insert: {
+          asset_type: string
+          campaign_id: string
+          content_text?: string | null
+          content_url?: string | null
+          created_at?: string | null
+          generator_function: string
+          id?: string
+          metadata?: Json | null
+          status?: string | null
+        }
+        Update: {
+          asset_type?: string
+          campaign_id?: string
+          content_text?: string | null
+          content_url?: string | null
+          created_at?: string | null
+          generator_function?: string
+          id?: string
+          metadata?: Json | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promo_assets_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "promo_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      promo_campaigns: {
+        Row: {
+          asset_count: number | null
+          character_id: string | null
+          config: Json
+          created_at: string | null
+          created_by: string | null
+          genre: string | null
+          id: string
+          name: string
+          phase: string
+          published_at: string | null
+          status: string
+        }
+        Insert: {
+          asset_count?: number | null
+          character_id?: string | null
+          config?: Json
+          created_at?: string | null
+          created_by?: string | null
+          genre?: string | null
+          id?: string
+          name: string
+          phase: string
+          published_at?: string | null
+          status?: string
+        }
+        Update: {
+          asset_count?: number | null
+          character_id?: string | null
+          config?: Json
+          created_at?: string | null
+          created_by?: string | null
+          genre?: string | null
+          id?: string
+          name?: string
+          phase?: string
+          published_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      promo_phase_configs: {
+        Row: {
+          asset_pipeline: Json
+          created_at: string | null
+          default_config: Json
+          description: string | null
+          display_name: string
+          id: string
+          phase: string
+        }
+        Insert: {
+          asset_pipeline?: Json
+          created_at?: string | null
+          default_config?: Json
+          description?: string | null
+          display_name: string
+          id?: string
+          phase: string
+        }
+        Update: {
+          asset_pipeline?: Json
+          created_at?: string | null
+          default_config?: Json
+          description?: string | null
+          display_name?: string
+          id?: string
+          phase?: string
+        }
+        Relationships: []
       }
       push_tokens: {
         Row: {
@@ -8863,6 +9059,10 @@ export type Database = {
         }
         Returns: number
       }
+      calculate_bonus_from_rating: {
+        Args: { p_base_amount: number; p_project_id: string }
+        Returns: number
+      }
       calculate_partnership_health: {
         Args: { p_partnership_id: string }
         Returns: number
@@ -8952,6 +9152,11 @@ export type Database = {
           p_stream_id: string
         }
         Returns: string
+      }
+      update_engineer_leaderboard: { Args: never; Returns: undefined }
+      update_engineer_streak: {
+        Args: { p_engineer_id: string }
+        Returns: undefined
       }
       update_stream_viewer_count: {
         Args: { p_count: number; p_stream_id: string }

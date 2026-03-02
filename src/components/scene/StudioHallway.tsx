@@ -1,7 +1,7 @@
 /**
  * Studio Hallway Component
  * 
- * An immersive, wordless visualization of MixClub's active sessions.
+ * An immersive, wordless visualization of Mixxclub's active sessions.
  * Uses AI-generated hallway imagery with visual hotspots for active rooms.
  * 
  * Depth-Aware Revelation:
@@ -13,8 +13,9 @@
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useStudios, useFeaturedSession, useSceneSystemInit } from '@/hooks/useSceneSystem';
+import { useStudios, useFeaturedSession, useSceneSystemInit, useCommunityPulse } from '@/hooks/useSceneSystem';
 import { useDepthLayer } from '@/hooks/useDepthLayer';
 import { useAuth } from '@/hooks/useAuth';
 import { DepthAwareHotspot } from './DepthAwareHotspot';
@@ -42,16 +43,16 @@ const DOOR_POSITIONS = [
 interface StudioHallwayProps {
   fullscreen?: boolean;
   onEnter?: () => void;
-  onSkipToInfo?: () => void;
 }
 
-export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: StudioHallwayProps) {
+export function StudioHallway({ fullscreen = false, onEnter }: StudioHallwayProps) {
   const navigate = useNavigate();
   const [showSkipHint, setShowSkipHint] = useState(false);
   const [hoveredRoomId, setHoveredRoomId] = useState<string | null>(null);
   const { user } = useAuth();
   const { isConnected } = useSceneSystemInit();
   const { studios, activeCount } = useStudios();
+  const communityPulse = useCommunityPulse();
   const { featuredSession } = useFeaturedSession();
   const { currentLayer, isOnStage } = useDepthLayer();
   const [imageError, setImageError] = useState(false);
@@ -71,16 +72,16 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
     ensureAmbience();
     setHoveredRoomId(hovered ? roomId : null);
   }, [ensureAmbience]);
-  
+
   const hasActiveSessions = activeCount > 0;
-  
-  // Show skip hint after 3 seconds idle in fullscreen mode
+
+  // Show sign-in hint after 3 seconds idle in fullscreen mode
   useEffect(() => {
-    if (!fullscreen || !onSkipToInfo) return;
+    if (!fullscreen) return;
     const timer = setTimeout(() => setShowSkipHint(true), 3000);
     return () => clearTimeout(timer);
-  }, [fullscreen, onSkipToInfo]);
-  
+  }, [fullscreen]);
+
   // Check if current user has a featured session (On Stage gets the glow)
   const userFeaturedRoomId = useMemo(() => {
     if (!user || !isOnStage) return null;
@@ -90,24 +91,24 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
     );
     return userRoom?.id || null;
   }, [user, isOnStage, studios]);
-  
+
   const handleRoomClick = (room: StudioRoom) => {
     // Only On the Mic and On Stage can enter sessions
     if (currentLayer === 'posted-up' || currentLayer === 'in-the-room') {
       return;
     }
-    
+
     if (room.visibility === 'public' && room.sessionId) {
       navigate(`/session/${room.sessionId}`);
     }
   };
-  
+
   // Map studios to door positions
   const studioPositions = studios.slice(0, DOOR_POSITIONS.length).map((studio, index) => ({
     room: studio,
     position: DOOR_POSITIONS[index]
   }));
-  
+
   return (
     <section className={`relative w-full overflow-hidden ${
       fullscreen ? 'h-screen' : 'h-[70vh] min-h-[500px] max-h-[800px]'
@@ -131,7 +132,7 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
               transition={{ duration: 1.5, ease: 'easeInOut' }}
               onError={() => setImageError(true)}
             />
-            
+
             {/* Active (lit) layer */}
             <motion.img
               src={hallwayActive}
@@ -144,12 +145,12 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
             />
           </>
         )}
-        
+
         {/* Gradient overlays for depth */}
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-transparent to-background" />
       </div>
-      
+
       {/* Ambient breathing animation for empty state */}
       {!hasActiveSessions && (
         <motion.div
@@ -158,7 +159,7 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
           transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
         />
       )}
-      
+
       {/* Depth layer indicator — moved to bottom-left, ground-level ambient info */}
       <motion.div
         className="absolute bottom-28 left-4 z-20"
@@ -167,18 +168,17 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
         transition={{ delay: 0.5 }}
       >
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/60 backdrop-blur-md border border-border/30">
-          <div className={`w-2 h-2 rounded-full ${
-            currentLayer === 'on-stage' ? 'bg-primary' :
+          <div className={`w-2 h-2 rounded-full ${currentLayer === 'on-stage' ? 'bg-primary' :
             currentLayer === 'on-the-mic' ? 'bg-primary/80' :
-            currentLayer === 'in-the-room' ? 'bg-primary/60' :
-            'bg-muted-foreground/40'
-          }`} />
+              currentLayer === 'in-the-room' ? 'bg-primary/60' :
+                'bg-muted-foreground/40'
+            }`} />
           <span className="text-xs font-medium text-muted-foreground capitalize">
             {currentLayer.replace('-', ' ')}
           </span>
         </div>
       </motion.div>
-      
+
       {/* Connection indicator - subtle, positioned top-right */}
       <motion.div
         className="absolute top-4 right-4 z-20"
@@ -192,7 +192,7 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
           transition={{ duration: 2, repeat: Infinity }}
         />
       </motion.div>
-      
+
       {/* Studio hotspots - depth-aware rendering */}
       <div className="absolute inset-0">
         <AnimatePresence mode="sync">
@@ -209,7 +209,7 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
           ))}
         </AnimatePresence>
       </div>
-      
+
       {/* Featured session highlight - extra glow for On Stage users */}
       {featuredSession && isOnStage && (
         <motion.div
@@ -242,9 +242,9 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
           })}
         </motion.div>
       )}
-      
+
       {/* Active session count removed — hallway ambient light level communicates this */}
-      
+
       {/* Floor Logo — Mixxclub infinity inlay perspective-foreshortened on the studio floor */}
       {fullscreen && (
         <div className="absolute bottom-44 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
@@ -296,7 +296,26 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
             </span>
           </motion.button>
 
-          {/* Social proof whisper */}
+          {/* Sign In button for logged-out users */}
+          {!user && (
+            <motion.button
+              onClick={() => navigate('/auth?mode=login')}
+              aria-label="Sign in to your account"
+              className="mg-panel group flex items-center gap-2 px-6 py-3 rounded-xl hover:border-primary/60 transition-all"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.5 }}
+            >
+              <Lock className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-foreground/80 group-hover:text-foreground transition-colors">
+                Sign In
+              </span>
+            </motion.button>
+          )}
+
+          {/* Social proof whisper — real community data */}
           <motion.div
             className="flex items-center gap-2"
             initial={{ opacity: 0 }}
@@ -339,8 +358,8 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
         </motion.div>
       )}
 
-      {/* "Been here before?" — bottom center ghost pill, appears after 3s */}
-      {fullscreen && showSkipHint && onSkipToInfo && (
+      {/* "Been here before?" — bottom center ghost pill, sign-in shortcut */}
+      {fullscreen && showSkipHint && (
         <motion.button
           onClick={onSkipToInfo}
           aria-label="Skip hallway and go to info scene"
@@ -349,8 +368,8 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <span>Been here before?</span>
-          <span className="px-1.5 py-0.5 rounded bg-muted/40 text-[10px] font-mono text-muted-foreground/40">I</span>
+          <Lock className="w-3 h-3" />
+          <span>Sign In</span>
         </motion.button>
       )}
     </section>

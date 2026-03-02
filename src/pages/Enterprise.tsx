@@ -152,7 +152,7 @@ export default function Enterprise() {
       icon: Globe,
       title: 'White-Label Platform',
       subtitle: 'Your Brand, Your Rules',
-      description: 'Rebrand MixClub entirely with your logo, colors, and custom domain. Present a seamless experience to your artists and clients.',
+      description: 'Rebrand Mixxclub entirely with your logo, colors, and custom domain. Present a seamless experience to your artists and clients.',
       stats: [
         { label: 'Custom Domain', value: '✓' },
         { label: 'Full Branding', value: '✓' },
@@ -489,7 +489,7 @@ export default function Enterprise() {
               Ready to Scale Your Operation?
             </h2>
             <p className="text-lg text-muted-foreground mb-8">
-              Join industry leaders who trust MixClub Enterprise for their audio production needs.
+              Join industry leaders who trust Mixxclub Enterprise for their audio production needs.
             </p>
             <Button
               size="lg"
@@ -505,7 +505,7 @@ export default function Enterprise() {
       {/* Footer */}
       <footer className="border-t border-border py-8 bg-muted/30">
         <div className="container px-6 text-center text-sm text-muted-foreground">
-          <p>© 2026 MixClub Enterprise. Built for the music industry.</p>
+          <p>© 2026 Mixxclub Enterprise. Built for the music industry.</p>
         </div>
       </footer>
     </div>

@@ -27,7 +27,7 @@ export const EmailCampaignManager = () => {
     {
       id: '1',
       name: 'Welcome Series - Day 1',
-      subject: 'Welcome to MixClub! Get Started in 5 Minutes',
+      subject: 'Welcome to Mixxclub! Get Started in 5 Minutes',
       status: 'sent',
       recipients: 342,
       opens: 187,

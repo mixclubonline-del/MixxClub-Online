@@ -12,7 +12,7 @@ interface ResizableAICopilotProps {
   defaultOpen?: boolean;
 }
 
-const STORAGE_KEY = "mixclub-copilot-panel-size";
+const STORAGE_KEY = "mixxclub-copilot-panel-size";
 const DEFAULT_SIZE = 25; // 25% of screen width
 const MIN_SIZE = 20; // ~280px on 1280px screen
 const MAX_SIZE = 45; // ~600px on 1280px screen

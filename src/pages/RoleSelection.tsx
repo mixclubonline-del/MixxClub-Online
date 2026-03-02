@@ -71,14 +71,14 @@ const RoleSelection = () => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (isSubmitting) return;
-      
+
       const keyMap: Record<string, AppRole> = {
         '1': 'producer',
         '2': 'artist',
         '3': 'engineer',
         '4': 'fan',
       };
-      
+
       if (keyMap[e.key]) {
         handleRoleSelect(keyMap[e.key]);
       }
@@ -90,7 +90,7 @@ const RoleSelection = () => {
 
   const handleRoleSelect = async (role: AppRole) => {
     if (isSubmitting || !user) return;
-    
+
     setSelectedRole(role);
     setIsSubmitting(true);
 
@@ -121,8 +121,8 @@ const RoleSelection = () => {
       const contribution = getContributionMessage('user_count', 'Your signup');
       attributionToasts.userJoined(contribution);
 
-      toast.success(`Welcome to MixClub as a ${role}!`);
-      
+      toast.success(`Welcome to Mixxclub as a ${role}!`);
+
       // Navigate to role-specific onboarding
       navigate(`/onboarding/${role}`);
     } catch (err) {
@@ -146,17 +146,17 @@ const RoleSelection = () => {
       <div className="absolute inset-0 pointer-events-none">
         {/* Base gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-background" />
-        
+
         {/* Static ambient orbs */}
-        <div 
+        <div
           className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full blur-[120px] opacity-30 transition-all duration-1000"
           style={{ background: activeAccent ? `hsl(${activeAccent} / 0.4)` : 'hsl(280 65% 60% / 0.15)' }}
         />
-        <div 
+        <div
           className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full blur-[100px] opacity-25 transition-all duration-1000"
           style={{ background: activeAccent ? `hsl(${activeAccent} / 0.3)` : 'hsl(190 95% 50% / 0.1)' }}
         />
-        <div 
+        <div
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-[140px] opacity-15 transition-all duration-1000"
           style={{ background: activeAccent ? `hsl(${activeAccent} / 0.25)` : 'hsl(36 95% 55% / 0.08)' }}
         />
@@ -198,7 +198,7 @@ const RoleSelection = () => {
             transition={{ delay: 0.3 }}
             className="text-muted-foreground text-lg"
           >
-            Select how you want to move through MixClub
+            Select how you want to move through Mixxclub
           </motion.p>
         </div>
 
@@ -220,45 +220,36 @@ const RoleSelection = () => {
                 onMouseLeave={() => setHoveredRole(null)}
                 disabled={isSubmitting}
                 className={`
-                  relative group text-left p-6 rounded-2xl transition-all duration-300
-                  backdrop-blur-2xl
+                  mg-panel relative group text-left p-6 transition-all duration-300
                   ${isDimmed ? 'opacity-40 scale-[0.97]' : ''}
                   hover:scale-[1.02] active:scale-[0.98]
                   disabled:cursor-not-allowed
                 `}
                 style={{
-                  background: isSelected
-                    ? `linear-gradient(135deg, hsl(${role.accentHsl} / 0.18), hsl(${role.accentHsl} / 0.06))`
+                  borderColor: isSelected
+                    ? `hsl(${role.accentHsl} / 0.5)`
                     : isHovered
-                      ? 'rgba(255,255,255,0.06)'
-                      : 'rgba(255,255,255,0.03)',
-                  border: `1.5px solid ${
-                    isSelected
-                      ? `hsl(${role.accentHsl} / 0.5)`
-                      : isHovered
-                        ? `hsl(${role.accentHsl} / 0.25)`
-                        : 'rgba(255,255,255,0.06)'
-                  }`,
+                      ? `hsl(${role.accentHsl} / 0.25)`
+                      : undefined,
                   boxShadow: isSelected
-                    ? `0 0 40px -8px hsl(${role.accentHsl} / 0.35), inset 0 1px 0 0 rgba(255,255,255,0.08)`
+                    ? `0 0 40px -8px hsl(${role.accentHsl} / 0.35)`
                     : isHovered
-                      ? `0 0 30px -10px hsl(${role.accentHsl} / 0.2), inset 0 1px 0 0 rgba(255,255,255,0.06)`
-                      : 'inset 0 1px 0 0 rgba(255,255,255,0.04)',
+                      ? `0 0 30px -10px hsl(${role.accentHsl} / 0.2)`
+                      : undefined,
                 }}
               >
-                {/* Key hint badge */}
-                <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-white/10 flex items-center justify-center">
+                <div className="mg-pill absolute top-3 right-3 w-6 h-6 flex items-center justify-center">
                   <span className="text-xs text-white/50 font-mono">{role.keyHint}</span>
                 </div>
 
                 {/* Content */}
                 <div className="relative z-10 flex flex-col gap-4">
                   <div
-                    className="w-14 h-14 rounded-xl flex items-center justify-center transition-colors duration-300"
+                    className="mg-icon w-14 h-14 rounded-xl flex items-center justify-center transition-colors duration-300"
                     style={{
                       background: isSelected || isHovered
                         ? `hsl(${role.accentHsl} / 0.2)`
-                        : 'rgba(255,255,255,0.08)',
+                        : undefined,
                     }}
                   >
                     <span

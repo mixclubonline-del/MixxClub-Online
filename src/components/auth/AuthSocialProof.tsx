@@ -49,7 +49,7 @@ export const AuthSocialProof = ({ className }: AuthSocialProofProps) => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="text-center p-3 rounded-lg bg-white/5 border border-white/10"
+          className="text-center p-3 rounded-lg mg-pill flex-col"
         >
           <Users className="w-5 h-5 text-primary mx-auto mb-1" />
           <div className="text-lg font-bold text-white">{displayStats.totalUsers.toLocaleString()}</div>
@@ -60,7 +60,7 @@ export const AuthSocialProof = ({ className }: AuthSocialProofProps) => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="text-center p-3 rounded-lg bg-white/5 border border-white/10"
+          className="text-center p-3 rounded-lg mg-pill flex-col"
         >
           <Music className="w-5 h-5 text-cyan-400 mx-auto mb-1" />
           <div className="text-lg font-bold text-white">{displayStats.projectsCompleted.toLocaleString()}</div>
@@ -71,7 +71,7 @@ export const AuthSocialProof = ({ className }: AuthSocialProofProps) => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="text-center p-3 rounded-lg bg-white/5 border border-white/10"
+          className="text-center p-3 rounded-lg mg-pill flex-col"
         >
           <DollarSign className="w-5 h-5 text-green-400 mx-auto mb-1" />
           <div className="text-lg font-bold text-white">${(displayStats.totalEarnings / 1000).toFixed(0)}K+</div>
@@ -84,7 +84,7 @@ export const AuthSocialProof = ({ className }: AuthSocialProofProps) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.4 }}
-        className="relative h-10 overflow-hidden rounded-lg bg-white/5 border border-white/10"
+        className="relative h-10 overflow-hidden rounded-lg mg-pill"
       >
         <AnimatePresence mode="wait">
           <motion.div
@@ -155,12 +155,12 @@ export const RoleBenefits = ({ role }: { role: 'artist' | 'engineer' | 'producer
     { icon: <Users className="w-4 h-4" />, text: "Day 1 Badges" },
   ];
 
-  const benefits = role === 'artist' ? artistBenefits : 
-                   role === 'engineer' ? engineerBenefits :
-                   role === 'producer' ? producerBenefits : fanBenefits;
-  const accentColor = role === 'artist' ? 'text-primary' : 
-                      role === 'engineer' ? 'text-cyan-400' :
-                      role === 'producer' ? 'text-amber-400' : 'text-pink-400';
+  const benefits = role === 'artist' ? artistBenefits :
+    role === 'engineer' ? engineerBenefits :
+      role === 'producer' ? producerBenefits : fanBenefits;
+  const accentColor = role === 'artist' ? 'text-primary' :
+    role === 'engineer' ? 'text-cyan-400' :
+      role === 'producer' ? 'text-amber-400' : 'text-pink-400';
 
   return (
     <div className="space-y-2 mt-4">
@@ -172,7 +172,7 @@ export const RoleBenefits = ({ role }: { role: 'artist' | 'engineer' | 'producer
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.1 * idx }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10"
+            className="mg-pill"
           >
             <span className={accentColor}>{benefit.icon}</span>
             <span className="text-xs text-white/70">{benefit.text}</span>

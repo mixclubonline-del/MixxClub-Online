@@ -107,7 +107,7 @@ export const StorefrontSetup = ({ onComplete }: StorefrontSetupProps) => {
               <div className="space-y-2">
                 <Label htmlFor="slug">Storefront URL *</Label>
                 <div className="flex items-center gap-2">
-                  <span className="text-muted-foreground text-sm">mixclub.com/store/</span>
+                  <span className="text-muted-foreground text-sm">mixxclub.com/store/</span>
                   <Input
                     id="slug"
                     placeholder="your-name"

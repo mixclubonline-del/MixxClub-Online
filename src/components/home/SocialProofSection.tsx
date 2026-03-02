@@ -19,7 +19,7 @@ const testimonials = [
     location: 'Atlanta, GA',
     avatar: null,
     rating: 5,
-    quote: 'MixClub connected me with an engineer who understood my vision. My track went from bedroom demo to streaming on Spotify in two weeks.',
+    quote: 'Mixxclub connected me with an engineer who understood my vision. My track went from bedroom demo to streaming on Spotify in two weeks.',
     trackName: 'Rise Up',
     hasAudio: true,
   },
@@ -52,7 +52,7 @@ const testimonials = [
     location: 'Miami, FL',
     avatar: null,
     rating: 5,
-    quote: 'Left my studio job to go full-time on MixClub. Best decision I ever made. The community here is unmatched.',
+    quote: 'Left my studio job to go full-time on Mixxclub. Best decision I ever made. The community here is unmatched.',
     trackName: null,
     hasAudio: false,
   },
@@ -176,7 +176,7 @@ export function SocialProofSection() {
             Real Artists. Real Results.
           </h2>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            Hear from the creators and engineers building their careers on MixClub
+            Hear from the creators and engineers building their careers on Mixxclub
           </p>
         </motion.div>
         
@@ -281,7 +281,7 @@ export function SocialProofSection() {
               <span className="font-bold text-foreground">
                 {totalUsers.toLocaleString()}+
               </span>
-              <span className="text-muted-foreground"> artists and engineers trust MixClub</span>
+              <span className="text-muted-foreground"> artists and engineers trust Mixxclub</span>
             </span>
           </div>
         </motion.div>

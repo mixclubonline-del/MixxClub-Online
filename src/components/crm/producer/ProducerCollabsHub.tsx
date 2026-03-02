@@ -12,11 +12,11 @@ import { useProducerPartnerships } from '@/hooks/useProducerPartnerships';
 import { useBeatRoyalties } from '@/hooks/useBeatRoyalties';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  Users, 
-  Search, 
-  Clock, 
-  CheckCircle2, 
+import {
+  Users,
+  Search,
+  Clock,
+  CheckCircle2,
   TrendingUp,
   Music
 } from 'lucide-react';
@@ -91,10 +91,10 @@ export const ProducerCollabsHub = () => {
     return (
       <CharacterEmptyState
         type="collabs"
-        characterId="tempo"
+        characterId="rell"
         title="Artist Collaborations"
         actionLabel="Find Artists"
-        onAction={() => {}}
+        onAction={() => { }}
       />
     );
   }

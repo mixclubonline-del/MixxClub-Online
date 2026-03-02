@@ -108,7 +108,7 @@ export const PremiereStage = () => {
                 <div>
                   <h3 className="text-2xl font-bold mb-2">{featuredPremiere.title}</h3>
                   <p className="text-muted-foreground mb-4">
-                    {featuredPremiere.description || 'Freshly mixed and mastered on MixClub'}
+                    {featuredPremiere.description || 'Freshly mixed and mastered on Mixxclub'}
                   </p>
 
                   <div className="flex flex-wrap gap-2 mb-4">

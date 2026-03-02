@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
     Radio, Users, Zap, ArrowRight, UserPlus,
-    Headphones, Crown, Play,
+    Headphones, Crown, Play, Mail,
 } from 'lucide-react';
 import { SessionsHub } from './SessionsHub';
 import { motion } from 'framer-motion';
@@ -27,6 +27,10 @@ interface PartnerSession {
         avatar_url: string | null;
     };
     participant_count: number;
+}
+
+interface InvitedSession extends PartnerSession {
+    participant_status: string;
 }
 
 const ROLE_CONFIG = {
@@ -54,6 +58,7 @@ export const SessionCommandCenter = ({ userType }: SessionCommandCenterProps) =>
     const { user } = useAuth();
     const [liveCount, setLiveCount] = useState(0);
     const [partnerSessions, setPartnerSessions] = useState<PartnerSession[]>([]);
+    const [invitedSessions, setInvitedSessions] = useState<InvitedSession[]>([]);
 
     const config = ROLE_CONFIG[userType];
     const RoleIcon = config.icon;
@@ -111,6 +116,43 @@ export const SessionCommandCenter = ({ userType }: SessionCommandCenterProps) =>
                     }
                 }
             }
+
+            // Get sessions where user is a direct participant (match→session invites)
+            const { data: participantEntries } = await supabase
+                .from('session_participants')
+                .select('session_id, status, role')
+                .eq('user_id', user.id) as any;
+
+            if (participantEntries && participantEntries.length > 0) {
+                const sessionIds = participantEntries.map(p => p.session_id);
+                const { data: invitedSessionsData } = await supabase
+                    .from('collaboration_sessions')
+                    .select(`
+                        id, title, status, host_user_id,
+                        host_profile:profiles!collaboration_sessions_host_user_id_fkey (
+                            full_name, avatar_url
+                        )
+                    `)
+                    .in('id', sessionIds)
+                    .in('status', ['active', 'waiting'])
+                    .limit(5);
+
+                if (invitedSessionsData) {
+                    setInvitedSessions(
+                        invitedSessionsData.map((s) => {
+                            const entry = participantEntries.find(p => p.session_id === s.id);
+                            return {
+                                ...s,
+                                host_profile: Array.isArray(s.host_profile)
+                                    ? s.host_profile[0]
+                                    : s.host_profile,
+                                participant_count: 0,
+                                participant_status: entry?.status || 'invited',
+                            };
+                        })
+                    );
+                }
+            }
         };
 
         fetchLiveData();
@@ -165,6 +207,49 @@ export const SessionCommandCenter = ({ userType }: SessionCommandCenterProps) =>
                 <div className="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-white/10" />
                 <div className="absolute -right-4 -bottom-4 w-20 h-20 rounded-full bg-white/5" />
             </motion.div>
+
+            {/* Invited Sessions — from match→session bridge */}
+            {invitedSessions.length > 0 && (
+                <Card className="border-primary/30 bg-primary/5">
+                    <CardHeader className="pb-3">
+                        <CardTitle className="text-sm font-medium flex items-center gap-2 text-primary">
+                            <Mail className="w-4 h-4" />
+                            Session Invitations
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-2">
+                            {invitedSessions.map((session) => (
+                                <motion.div
+                                    key={session.id}
+                                    whileHover={{ scale: 1.01 }}
+                                    className="flex items-center gap-3 px-4 py-3 rounded-lg border border-primary/20 bg-background/80 hover:border-primary/40 transition-colors cursor-pointer"
+                                    onClick={() => window.location.href = `/session/${session.id}`}
+                                >
+                                    <Avatar className="w-8 h-8">
+                                        <AvatarImage src={session.host_profile?.avatar_url || undefined} />
+                                        <AvatarFallback className="text-xs">
+                                            {session.host_profile?.full_name?.charAt(0) || '?'}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium truncate">{session.title}</p>
+                                        <p className="text-xs text-muted-foreground">
+                                            from {session.host_profile?.full_name}
+                                        </p>
+                                    </div>
+                                    <Badge
+                                        variant="outline"
+                                        className="text-xs bg-primary/10 text-primary border-primary/20"
+                                    >
+                                        {session.participant_status === 'invited' ? 'New Invite' : 'Joined'}
+                                    </Badge>
+                                </motion.div>
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
 
             {/* Partner Sessions Quick-Join */}
             {partnerSessions.length > 0 && (

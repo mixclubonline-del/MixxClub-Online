@@ -1,4 +1,4 @@
-import { HelpCircle } from 'lucide-react';
+import { HelpCircle, Compass } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useTutorial } from '@/contexts/TutorialContext';
+import { usePathfinder } from '@/hooks/usePathfinder';
 
 interface TutorialLauncherProps {
   contextTutorials?: string[];
@@ -16,6 +17,7 @@ interface TutorialLauncherProps {
 
 export const TutorialLauncher = ({ contextTutorials = [] }: TutorialLauncherProps) => {
   const { allTutorials, startTutorial } = useTutorial();
+  const { startJourney, allJourneys } = usePathfinder();
 
   const suggestedTutorials = contextTutorials.length > 0
     ? allTutorials.filter(t => contextTutorials.includes(t.slug))
@@ -41,6 +43,20 @@ export const TutorialLauncher = ({ contextTutorials = [] }: TutorialLauncherProp
             <span className="text-xs text-muted-foreground">
               {tutorial.estimated_minutes} min
             </span>
+          </DropdownMenuItem>
+        ))}
+        <DropdownMenuSeparator />
+        <DropdownMenuLabel className="flex items-center gap-2">
+          <Compass className="h-3.5 w-3.5" />
+          Site Walkthrough
+        </DropdownMenuLabel>
+        {allJourneys.map((journey) => (
+          <DropdownMenuItem
+            key={journey.id}
+            onClick={() => startJourney(journey.id)}
+            className="cursor-pointer"
+          >
+            <span className="text-sm">{journey.title}</span>
           </DropdownMenuItem>
         ))}
         <DropdownMenuSeparator />

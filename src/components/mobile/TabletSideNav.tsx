@@ -86,7 +86,7 @@ export const TabletSideNav: React.FC = () => {
         {!isCollapsed ? (
           <>
             <span className="font-bold text-lg bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              MixClub
+              Mixxclub
             </span>
             <WalletIndicator variant="mini" />
           </>

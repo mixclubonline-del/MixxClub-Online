@@ -5,7 +5,7 @@
 
 import { useState, useCallback } from 'react';
 import { usePartnerStore } from '@/stores/partnerStore';
-import PartnerService from '@/services/PartnerService';
+import { PartnerService } from '@/services/PartnerService';
 import type { Commission, Payout } from '@/stores/partnerStore';
 
 export interface UseCommissionResult {

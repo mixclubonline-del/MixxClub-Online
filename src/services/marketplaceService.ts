@@ -4,6 +4,7 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
+import { uuid } from '@/lib/uuid';
 
 export interface MarketplaceProduct {
     id: string;
@@ -266,7 +267,7 @@ export const MarketplaceService = {
 
         return {
             client_secret: `order_${Date.now()}`,
-            order_id: firstPurchase?.id || crypto.randomUUID(),
+            order_id: firstPurchase?.id || uuid(),
         };
     },
 

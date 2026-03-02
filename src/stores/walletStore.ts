@@ -35,7 +35,7 @@ interface WalletState {
   transactions: MixxTransaction[];
   isLoading: boolean;
   error: string | null;
-  
+
   // Actions
   fetchWallet: (userId: string) => Promise<void>;
   fetchTransactions: (userId: string, limit?: number) => Promise<void>;
@@ -85,38 +85,20 @@ export const useWalletStore = create<WalletState>((set, get) => ({
   },
 
   earnCoinz: async (userId, amount, source, description, referenceType, referenceId) => {
-    const { wallet } = get();
-    if (!wallet) return false;
-
     try {
-      // Update wallet
-      const { error: walletError } = await supabase
-        .from('mixx_wallets')
-        .update({
-          earned_balance: wallet.earned_balance + amount,
-          total_earned: wallet.total_earned + amount,
-        })
-        .eq('user_id', userId);
+      // Atomic RPC — all math + locking in Postgres
+      const { data, error } = await (supabase.rpc as any)('earn_coinz', {
+        p_user_id: userId,
+        p_amount: amount,
+        p_source: source,
+        p_description: description || null,
+        p_reference_type: referenceType || null,
+        p_reference_id: referenceId || null,
+      });
 
-      if (walletError) throw walletError;
+      if (error) throw error;
 
-      // Record transaction
-      const { error: txError } = await supabase
-        .from('mixx_transactions')
-        .insert({
-          user_id: userId,
-          transaction_type: 'EARN',
-          source,
-          amount,
-          balance_type: 'earned',
-          description,
-          reference_type: referenceType,
-          reference_id: referenceId,
-        });
-
-      if (txError) throw txError;
-
-      // Refresh wallet state
+      // Refresh wallet state from DB
       await get().fetchWallet(userId);
       return true;
     } catch (error) {
@@ -126,73 +108,24 @@ export const useWalletStore = create<WalletState>((set, get) => ({
   },
 
   spendCoinz: async (userId, amount, source, description, preferEarned = true, referenceType, referenceId) => {
-    const { wallet, canAfford } = get();
-    if (!wallet || !canAfford(amount)) return false;
+    const { canAfford } = get();
+    if (!canAfford(amount)) return false;
 
     try {
-      let earnedToSpend = 0;
-      let purchasedToSpend = 0;
+      // Atomic RPC — balance check + math + locking + transactions all in Postgres
+      const { data, error } = await (supabase.rpc as any)('spend_coinz', {
+        p_user_id: userId,
+        p_amount: amount,
+        p_source: source,
+        p_description: description || null,
+        p_prefer_earned: preferEarned,
+        p_reference_type: referenceType || null,
+        p_reference_id: referenceId || null,
+      });
 
-      if (preferEarned) {
-        // Spend earned first, then purchased
-        earnedToSpend = Math.min(wallet.earned_balance, amount);
-        purchasedToSpend = amount - earnedToSpend;
-      } else {
-        // Spend purchased first, then earned
-        purchasedToSpend = Math.min(wallet.purchased_balance, amount);
-        earnedToSpend = amount - purchasedToSpend;
-      }
+      if (error) throw error;
 
-      // Update wallet
-      const { error: walletError } = await supabase
-        .from('mixx_wallets')
-        .update({
-          earned_balance: wallet.earned_balance - earnedToSpend,
-          purchased_balance: wallet.purchased_balance - purchasedToSpend,
-          total_spent: wallet.total_spent + amount,
-        })
-        .eq('user_id', userId);
-
-      if (walletError) throw walletError;
-
-      // Record transactions (one for each balance type used)
-      const transactions = [];
-      
-      if (earnedToSpend > 0) {
-        transactions.push({
-          user_id: userId,
-          transaction_type: 'SPEND' as const,
-          source,
-          amount: earnedToSpend,
-          balance_type: 'earned' as const,
-          description,
-          reference_type: referenceType,
-          reference_id: referenceId,
-        });
-      }
-      
-      if (purchasedToSpend > 0) {
-        transactions.push({
-          user_id: userId,
-          transaction_type: 'SPEND' as const,
-          source,
-          amount: purchasedToSpend,
-          balance_type: 'purchased' as const,
-          description,
-          reference_type: referenceType,
-          reference_id: referenceId,
-        });
-      }
-
-      if (transactions.length > 0) {
-        const { error: txError } = await supabase
-          .from('mixx_transactions')
-          .insert(transactions);
-
-        if (txError) throw txError;
-      }
-
-      // Refresh wallet state
+      // Refresh wallet state from DB
       await get().fetchWallet(userId);
       return true;
     } catch (error) {

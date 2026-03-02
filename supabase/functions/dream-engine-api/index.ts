@@ -187,9 +187,9 @@ async function handleGetCapabilities(): Promise<Response> {
       description: "Video generation via Replicate",
     },
     audio: {
-      available: !!Deno.env.get("SUNO_API_KEY"),
-      provider: "suno",
-      description: "Audio/music generation via Suno",
+      available: !!Deno.env.get("REPLICATE_API_KEY"),
+      provider: "replicate-stable-audio",
+      description: "Audio/music generation via Replicate (Stable Audio 2.5)",
     },
     speech: {
       available: false,

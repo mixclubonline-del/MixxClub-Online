@@ -1,7 +1,7 @@
 /**
  * Spatial Interface Doctrine
  * 
- * MixClub doesn't have pages — it has places.
+ * Mixxclub doesn't have pages — it has places.
  * Users don't click navigation — they move through space.
  * The interface disappears; the world remains.
  * 
