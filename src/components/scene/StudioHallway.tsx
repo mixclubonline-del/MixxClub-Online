@@ -111,7 +111,7 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
   return (
     <section className={`relative w-full overflow-hidden ${
       fullscreen ? 'h-screen' : 'h-[70vh] min-h-[500px] max-h-[800px]'
-    }`}>
+    }`} aria-label="Studio hallway scene">
       {/* Background image - crossfade between base and active, with fallback */}
       <div className="absolute inset-0">
         {imageError ? (
@@ -279,6 +279,7 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
           {/* Main CTA button */}
           <motion.button
             onClick={() => { ensureAmbience(); onEnter(); }}
+            aria-label="Enter the club demo"
             className="group flex flex-col items-center gap-3 px-8 py-4 rounded-2xl bg-background/60 backdrop-blur-md border border-primary/30 hover:border-primary/60 transition-all"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.98 }}
@@ -308,7 +309,7 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
               transition={{ duration: 2, repeat: Infinity }}
             />
             <span className="text-xs text-muted-foreground/60">
-              10,000+ Artists, Engineers, Producers and Fans collaborating right now
+              Artists, engineers, producers, and fans are collaborating across the community
             </span>
           </motion.div>
 
@@ -342,6 +343,7 @@ export function StudioHallway({ fullscreen = false, onEnter, onSkipToInfo }: Stu
       {fullscreen && showSkipHint && onSkipToInfo && (
         <motion.button
           onClick={onSkipToInfo}
+          aria-label="Skip hallway and go to info scene"
           className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 px-4 py-2 rounded-full bg-background/30 backdrop-blur-sm text-muted-foreground/50 hover:text-muted-foreground hover:bg-background/50 transition-all text-xs border border-border/20 hover:border-border/40"
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
