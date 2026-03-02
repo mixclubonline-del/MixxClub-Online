@@ -7,6 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { PaymentLink } from '@/types/partnership';
+import { usePaymentLink } from '@/hooks/usePaymentLink';
+import { useAuth } from '@/hooks/useAuth';
 
 interface PaymentLinkGeneratorProps {
     partnershipId?: string;
@@ -49,6 +51,8 @@ export const PaymentLinkGenerator: React.FC<PaymentLinkGeneratorProps> = ({
     });
 
     const { toast } = useToast();
+    const { createShareableLink } = usePaymentLink();
+    const { user } = useAuth();
 
     // Handle form input changes
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -82,35 +86,46 @@ export const PaymentLinkGenerator: React.FC<PaymentLinkGeneratorProps> = ({
         setIsLoading(true);
 
         try {
-            // TODO: Call API to create payment link
-            // const response = await createPaymentLink({
-            //   recipientId,
-            //   amount: parseFloat(formData.amount),
-            //   description: formData.description,
-            //   paymentMethod: formData.paymentMethod,
-            //   expiresIn: parseInt(formData.expirationDays) * 24 * 60 * 60,
-            //   partnershipId,
-            //   projectId,
-            // });
+            const amount = parseFloat(formData.amount);
+            const expiresAt = new Date(Date.now() + parseInt(formData.expirationDays, 10) * 24 * 60 * 60 * 1000).toISOString();
+            const description = formData.description || `Payment for ${recipientName}`;
 
-            // For now, simulate link creation
+            const response = await createShareableLink({
+                amount,
+                currency: 'USD',
+                description,
+                partnershipId,
+                recipientId,
+                metadata: {
+                    project_id: projectId || '',
+                    payment_method: formData.paymentMethod,
+                    expiration_days: formData.expirationDays,
+                },
+            });
+
+            const generatedId = String(response?.id || `link_${Date.now()}`);
+            const generatedUrl = String(response?.url || '');
+            const generatedToken = generatedUrl.split('/').pop() || generatedId;
+
             const newLink: PaymentLink = {
-                id: `link_${Date.now()}`,
-                token: `token_${Math.random().toString(36).substr(2, 9)}`,
-                url: `https://pay.ravenmix.ai/${Math.random().toString(36).substr(2, 9)}`,
-                creator_id: 'current_user',
+                id: generatedId,
+                token: generatedToken,
+                url: generatedUrl,
+                creator_id: user?.id || 'unknown',
                 recipient_id: recipientId,
                 partnership_id: partnershipId,
                 project_id: projectId,
-                amount: parseFloat(formData.amount),
+                amount,
                 currency: 'USD',
-                description: formData.description,
+                description,
                 payment_method: formData.paymentMethod,
-                status: 'pending' as const,
-                expires_at: new Date(Date.now() + parseInt(formData.expirationDays) * 24 * 60 * 60 * 1000).toISOString(),
-                paid_at: null,
+                status: 'pending',
+                expires_at: expiresAt,
+                paid_at: undefined,
                 created_at: new Date().toISOString(),
-            }; setPaymentLinks((prev) => [newLink, ...prev]);
+            };
+
+            setPaymentLinks((prev) => [newLink, ...prev]);
             onLinkCreated?.(newLink);
 
             toast({

@@ -5,6 +5,7 @@
 
 import { Link } from 'react-router-dom';
 import mixclub3DLogo from '@/assets/mixclub-3d-logo.png';
+import { useAuth } from '@/hooks/useAuth';
 
 const FOOTER_SECTIONS = [
   {
@@ -95,6 +96,33 @@ const SOCIAL_LINKS = [
 ];
 
 export function PublicFooter() {
+  const { user, activeRole } = useAuth();
+
+  const roleAwarePath = (path: string) => {
+    if (!user) return path;
+
+    const map: Record<string, string> = {
+      '/for-artists': '/artist-crm',
+      '/for-engineers': '/engineer-crm',
+      '/for-producers': '/producer-crm',
+      '/for-fans': '/fan-hub',
+    };
+
+    return map[path] || path;
+  };
+
+  const roleDashboardPath = (() => {
+    if (!activeRole) return '/dashboard';
+    const map = {
+      artist: '/artist-crm',
+      engineer: '/engineer-crm',
+      producer: '/producer-crm',
+      fan: '/fan-hub',
+      admin: '/admin-crm',
+    } as const;
+    return map[activeRole];
+  })();
+
   return (
     <footer className="relative z-20 border-t border-border/30 bg-card/50 backdrop-blur-sm">
       <div className="container mx-auto px-4 py-12">
@@ -135,7 +163,7 @@ export function PublicFooter() {
                 {section.links.map((link) => (
                   <li key={link.path}>
                     <Link
-                      to={link.path}
+                      to={roleAwarePath(link.path)}
                       className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                     >
                       {link.label}
@@ -153,12 +181,20 @@ export function PublicFooter() {
             © {new Date().getFullYear()} Mixxed AI Technology Company. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
-            <Link to="/auth" className="text-xs text-primary hover:text-primary/80 font-medium transition-colors">
-              Sign In
-            </Link>
-            <Link to="/choose-path" className="text-xs text-primary hover:text-primary/80 font-medium transition-colors">
-              Get Started
-            </Link>
+            {user ? (
+              <Link to={roleDashboardPath} className="text-xs text-primary hover:text-primary/80 font-medium transition-colors">
+                Open App
+              </Link>
+            ) : (
+              <>
+                <Link to="/auth" className="text-xs text-primary hover:text-primary/80 font-medium transition-colors">
+                  Sign In
+                </Link>
+                <Link to="/choose-path" className="text-xs text-primary hover:text-primary/80 font-medium transition-colors">
+                  Get Started
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>
