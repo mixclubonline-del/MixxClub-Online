@@ -8,6 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { PaymentLink } from '@/types/partnership';
+import { usePaymentLink } from '@/hooks/usePaymentLink';
+import { useAuth } from '@/hooks/useAuth';
 
 interface PaymentLinkGeneratorProps {
     partnershipId?: string;
@@ -50,6 +52,8 @@ export const PaymentLinkGenerator: React.FC<PaymentLinkGeneratorProps> = ({
     });
 
     const { toast } = useToast();
+    const { createShareableLink } = usePaymentLink();
+    const { user } = useAuth();
 
     // Handle form input changes
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {

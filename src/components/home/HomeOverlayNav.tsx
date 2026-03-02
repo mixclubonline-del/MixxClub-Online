@@ -28,9 +28,32 @@ const PUBLIC_LINKS = [
 ];
 
 export function HomeOverlayNav() {
-  const { user } = useAuth();
+  const { user, activeRole } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const scene = useSceneFlowStore((s) => s.scene);
+
+  const roleRoutes = {
+    artist: '/artist-crm',
+    engineer: '/engineer-crm',
+    producer: '/producer-crm',
+    fan: '/fan-hub',
+    admin: '/admin-crm',
+  } as const;
+
+  const roleAwarePath = (path: string) => {
+    if (!user) return path;
+
+    const map: Record<string, string> = {
+      '/for-artists': '/artist-crm',
+      '/for-engineers': '/engineer-crm',
+      '/for-producers': '/producer-crm',
+      '/for-fans': '/fan-hub',
+    };
+
+    return map[path] || path;
+  };
+
+  const dashboardPath = activeRole ? roleRoutes[activeRole] : '/dashboard';
 
   // Hide entirely during Demo and Club Scene — they have their own internal nav
   if (scene !== 'HALLWAY') return null;
@@ -49,7 +72,7 @@ export function HomeOverlayNav() {
           {PUBLIC_LINKS.slice(0, 6).map((link) => (
             <Link
               key={link.path}
-              to={link.path}
+              to={roleAwarePath(link.path)}
               className="px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground rounded-lg hover:bg-foreground/5 transition-all"
             >
               {link.label}
@@ -61,7 +84,7 @@ export function HomeOverlayNav() {
         <div className="flex items-center gap-2 ml-auto">
           {user ? (
             <Button asChild size="sm" variant="outline" className="h-8 text-xs border-border/40 bg-background/30 backdrop-blur-sm">
-              <Link to="/dashboard">Dashboard →</Link>
+              <Link to={dashboardPath}>Dashboard →</Link>
             </Button>
           ) : (
             <>
@@ -99,7 +122,7 @@ export function HomeOverlayNav() {
               {PUBLIC_LINKS.map((link) => (
                 <Link
                   key={link.path}
-                  to={link.path}
+                  to={roleAwarePath(link.path)}
                   onClick={() => setMenuOpen(false)}
                   className="px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground rounded-lg hover:bg-foreground/5 transition-all"
                 >
