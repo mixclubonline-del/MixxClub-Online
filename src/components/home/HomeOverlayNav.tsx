@@ -47,12 +47,10 @@ const getRoleHubPath = (userRole?: string | null) => {
 };
 
 export function HomeOverlayNav() {
-  const { user, userRole } = useAuth();
   const { user, activeRole } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const scene = useSceneFlowStore((s) => s.scene);
   const activeLinks = useMemo(() => (user ? AUTHENTICATED_LINKS : PUBLIC_LINKS), [user]);
-  const dashboardPath = useMemo(() => getRoleHubPath(userRole), [userRole]);
 
   const roleRoutes = {
     artist: '/artist-crm',
@@ -70,29 +68,6 @@ export function HomeOverlayNav() {
       '/for-engineers': '/engineer-crm',
       '/for-producers': '/producer-crm',
       '/for-fans': '/fan-hub',
-    };
-
-    return map[path] || path;
-  };
-
-  const dashboardPath = activeRole ? roleRoutes[activeRole] : '/dashboard';
-
-  const roleRoutes = {
-    artist: '/sessions',
-    engineer: '/engineers',
-    producer: '/dream-engine',
-    fan: '/community',
-    admin: '/dashboard',
-  } as const;
-
-  const roleAwarePath = (path: string) => {
-    if (!user) return path;
-
-    const map: Record<string, string> = {
-      '/for-artists': '/sessions',
-      '/for-engineers': '/engineers',
-      '/for-producers': '/dream-engine',
-      '/for-fans': '/community',
     };
 
     return map[path] || path;
