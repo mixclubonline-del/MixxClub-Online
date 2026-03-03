@@ -101,17 +101,10 @@ export function PublicFooter() {
     if (!user) return path;
 
     const map: Record<string, string> = {
-<<<<<<< codex/analyze-new-version-of-mixxclub-online-245586
-      '/for-artists': '/sessions',
-      '/for-engineers': '/engineers',
-      '/for-producers': '/dream-engine',
-      '/for-fans': '/community',
-=======
       '/for-artists': '/artist-crm',
       '/for-engineers': '/engineer-crm',
       '/for-producers': '/producer-crm',
       '/for-fans': '/fan-hub',
->>>>>>> main
     };
 
     return map[path] || path;
@@ -120,19 +113,11 @@ export function PublicFooter() {
   const roleDashboardPath = (() => {
     if (!activeRole) return '/dashboard';
     const map = {
-<<<<<<< codex/analyze-new-version-of-mixxclub-online-245586
-      artist: '/sessions',
-      engineer: '/engineers',
-      producer: '/dream-engine',
-      fan: '/community',
-      admin: '/dashboard',
-=======
       artist: '/artist-crm',
       engineer: '/engineer-crm',
       producer: '/producer-crm',
       fan: '/fan-hub',
       admin: '/admin-crm',
->>>>>>> main
     } as const;
     return map[activeRole];
   })();
