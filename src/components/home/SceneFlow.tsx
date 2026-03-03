@@ -5,7 +5,7 @@
  * then horizontal storybook chapters for Club + Choose Path.
  */
 
-import { useEffect, useCallback } from 'react';
+import React, { Suspense, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useSceneFlowStore } from '@/stores/sceneFlowStore';
 import { useChapterStore } from '@/stores/chapterStore';
@@ -14,6 +14,11 @@ import { StudioHallway } from '@/components/scene/StudioHallway';
 import { InsiderDemoExperience } from '@/components/demo/InsiderDemoExperience';
 import { ClubScene } from '@/components/home/ClubScene';
 import { trackEvent } from '@/lib/analytics';
+
+const ChapterShell = React.lazy(() => import('@/components/storybook/ChapterShell').then(m => ({ default: m.ChapterShell })));
+const FeaturesChapter = React.lazy(() => import('@/components/storybook/chapters/FeaturesChapter'));
+const PricingChapter = React.lazy(() => import('@/components/storybook/chapters/PricingChapter'));
+const ChoosePath = React.lazy(() => import('@/pages/ChoosePath'));
 
 const SCENE_TO_QUERY = {
   HALLWAY: 'hallway',

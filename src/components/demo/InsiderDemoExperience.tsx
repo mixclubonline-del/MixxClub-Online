@@ -22,7 +22,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import {
-  Play, ChevronLeft, Users, ArrowRight, BookOpen, Volume2
+  Play, Pause, ChevronLeft, Users, ArrowRight, BookOpen, Volume2, SkipForward
 } from 'lucide-react';
 import { useInsiderAudio } from '@/hooks/useInsiderAudio';
 import { useCommunityShowcase } from '@/hooks/useCommunityShowcase';
@@ -132,6 +132,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
   const [typedText, setTypedText] = useState('');
   const [showTitle, setShowTitle] = useState(false);
   const [volume, setVolumeState] = useState(0.7);
+  const [isMuted, setIsMuted] = useState(false);
   const [liteMode, setLiteMode] = useState(false);
 
   const navigate = useNavigate();
@@ -250,7 +251,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
             animate={{ scale: [1, 1.05, 1] }}
             transition={{ duration: 3, repeat: Infinity }}
           >
-            <img src={mixxclubLogo} alt="Mixxclub" className="w-32 h-32 sm:w-48 sm:h-48 md:w-64 md:h-64 mx-auto" />
+            <img src={mixclubLogo} alt="Mixxclub" className="w-32 h-32 sm:w-48 sm:h-48 md:w-64 md:h-64 mx-auto" />
           </motion.div>
 
           <motion.h1
@@ -438,7 +439,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
                 transition={{ duration: 0.8 }}
               >
                 <motion.img
-                  src={mixxclubLogo}
+                  src={mixclubLogo}
                   alt="Mixxclub"
                   className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 mx-auto mb-4 sm:mb-6"
                   animate={{
@@ -697,7 +698,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
                 transition={{ duration: 0.6 }}
               >
                 <motion.img
-                  src={mixxclubLogo}
+                  src={mixclubLogo}
                   alt="Mixxclub"
                   className="w-24 h-24 mx-auto mb-8"
                   animate={{

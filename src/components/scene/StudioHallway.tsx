@@ -361,8 +361,8 @@ export function StudioHallway({ fullscreen = false, onEnter }: StudioHallwayProp
       {/* "Been here before?" — bottom center ghost pill, sign-in shortcut */}
       {fullscreen && showSkipHint && (
         <motion.button
-          onClick={onSkipToInfo}
-          aria-label="Skip hallway and go to info scene"
+          onClick={() => navigate('/auth')}
+          aria-label="Skip hallway and sign in"
           className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 px-4 py-2 rounded-full bg-background/30 backdrop-blur-sm text-muted-foreground/50 hover:text-muted-foreground hover:bg-background/50 transition-all text-xs border border-border/20 hover:border-border/40"
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
