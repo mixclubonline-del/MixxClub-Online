@@ -75,8 +75,8 @@ export function ClubScene({ onBack }: ClubSceneProps) {
   // Handle join action
   const handleJoin = useCallback(() => {
     trackEvent('funnel_cta_click', 'funnel', 'info_join_now');
-    trackEvent('funnel_conversion_complete', 'funnel', 'choose_path');
-    navigate('/choose-path');
+    trackEvent('funnel_conversion_complete', 'funnel', 'how_it_works');
+    navigate('/how-it-works');
   }, [navigate]);
 
   // Keyboard navigation
@@ -115,6 +115,17 @@ export function ClubScene({ onBack }: ClubSceneProps) {
       <ClubAmbience />
 
       {/* Back button */}
+      <div className="fixed top-6 right-6 z-50">
+        <button
+          type="button"
+          onClick={() => navigate('/')}
+          className="flex items-center gap-2 px-4 py-2 rounded-full bg-background/60 backdrop-blur-md border border-border/50 text-muted-foreground hover:text-foreground transition-colors"
+          aria-label="Go to main site"
+        >
+          <Home className="w-4 h-4" />
+          <span className="text-sm">Main Site</span>
+        </button>
+      </div>
 
       {onBack && (
         <motion.button

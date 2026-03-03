@@ -47,10 +47,10 @@ export const FanDay1sHub = () => {
       <CharacterEmptyState
         type="favorites"
         characterId="nova"
-        title="Your Day 1 Artists"
-        message="Support artists early and earn your Day 1 badge when they blow up."
-        actionLabel="Discover Rising Artists"
-        onAction={() => navigate('/for-artists')}
+        title="Your Day 1 Collection"
+        message="Support artists early and earn your Day 1 badge when they blow up. Go discover underground artists to start building your collection."
+        actionLabel="Discover Artists"
+        onAction={() => navigate('/fan-hub?tab=feed')}
       />
     );
   }

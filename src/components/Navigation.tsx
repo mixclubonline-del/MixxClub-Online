@@ -74,24 +74,24 @@ const Navigation = () => {
 
     if (userRole === 'engineer') {
       return [
-        { to: "/engineer-crm", label: "Engineer Hub" },
+        { to: "/engineer-crm", label: "Dashboard" },
         { to: "/jobs", label: "Find Work" },
         {
-          label: "Create",
+          label: "The Studio",
           isDropdown: true,
           items: [
-            { to: "/sessions", label: "Sessions" },
-            { to: "/hybrid-daw", label: "Hybrid DAW" },
-            { to: "/audio-lab", label: "Audio Lab" },
+            { to: "/services/mixing", label: "Mixing" },
+            { to: "/services/mastering", label: "Mastering" },
+            { to: "/showcase", label: "Technology" },
           ]
         },
         {
-          label: "Growth",
+          label: "Community",
           isDropdown: true,
           items: [
-            { to: "/engineer-crm?tab=opportunities", label: "Opportunities" },
-            { to: "/engineer-crm?tab=business", label: "Earnings" },
-            { to: "/engineer-crm?tab=clients", label: "Clients" },
+            { to: "/community", label: "The Network" },
+            { to: "/community?tab=arena", label: "Mix Battles" },
+            { to: "/community?tab=leaderboard", label: "Leaderboard" },
           ]
         },
       ];
@@ -99,24 +99,25 @@ const Navigation = () => {
 
     if (userRole === 'producer') {
       return [
-        { to: "/producer-crm", label: "Producer Hub" },
-        { to: "/beats", label: "Beat Marketplace" },
+        { to: "/producer-crm", label: "Dashboard" },
+        { to: "/beats", label: "Beat Store" },
         {
-          label: "Create",
+          label: "The Studio",
           isDropdown: true,
           items: [
             { to: "/prime-beat-forge", label: "Beat Forge" },
-            { to: "/hybrid-daw", label: "Hybrid DAW" },
-            { to: "/sessions", label: "Sessions" },
+            { to: "/services/mixing", label: "Mixing" },
+            { to: "/services/mastering", label: "Mastering" },
+            { to: "/services/distribution", label: "Distribution" },
           ]
         },
         {
-          label: "Business",
+          label: "Community",
           isDropdown: true,
           items: [
-            { to: "/producer-crm?tab=business", label: "Revenue" },
-            { to: "/producer-crm?tab=opportunities", label: "Opportunities" },
-            { to: "/producer-crm?tab=store", label: "Store" },
+            { to: "/community", label: "The Network" },
+            { to: "/community?tab=arena", label: "Mix Battles" },
+            { to: "/sessions", label: "Sessions" },
           ]
         },
       ];
@@ -124,24 +125,24 @@ const Navigation = () => {
 
     if (userRole === 'fan') {
       return [
-        { to: "/fan-hub", label: "Fan Hub" },
+        { to: "/fan-hub", label: "My Feed" },
         {
           label: "Discover",
           isDropdown: true,
           items: [
+            { to: "/community", label: "The Network" },
             { to: "/sessions", label: "Live Sessions" },
-            { to: "/community", label: "Community" },
-            { to: "/beats", label: "Beats" },
             { to: "/marketplace", label: "Marketplace" },
+            { to: "/beats", label: "Beats" },
           ]
         },
         {
-          label: "My Activity",
+          label: "Community",
           isDropdown: true,
           items: [
-            { to: "/fan-hub?tab=feed", label: "My Feed" },
-            { to: "/fan-hub?tab=day1s", label: "My Day 1s" },
-            { to: "/fan-hub?tab=rewards", label: "Rewards" },
+            { to: "/community?tab=arena", label: "Mix Battles" },
+            { to: "/community?tab=leaderboard", label: "Leaderboard" },
+            { to: "/crowd", label: "Crowd" },
           ]
         },
       ];
@@ -149,26 +150,27 @@ const Navigation = () => {
 
     // Artists (default)
     return [
-      { to: "/artist-crm", label: "Artist Hub" },
+      { to: "/artist-crm", label: "Dashboard" },
       {
-        label: "Create",
+        label: "The Studio",
         isDropdown: true,
         items: [
-          { to: "/sessions", label: "Sessions" },
-          { to: "/hybrid-daw", label: "Hybrid DAW" },
-          { to: "/audio-lab", label: "Audio Lab" },
+          { to: "/services/mixing", label: "Mixing Magic" },
+          { to: "/services/mastering", label: "Mastering" },
+          { to: "/services/ai-mastering", label: "AI Mastering" },
+          { to: "/services/distribution", label: "Distribution" },
         ]
       },
       {
-        label: "Grow",
+        label: "Community",
         isDropdown: true,
         items: [
-          { to: "/artist-crm?tab=matches", label: "Find Engineers" },
-          { to: "/artist-crm?tab=opportunities", label: "Opportunities" },
-          { to: "/artist-crm?tab=revenue", label: "Revenue" },
+          { to: "/community", label: "The Network" },
+          { to: "/community?tab=arena", label: "Mix Battles" },
+          { to: "/marketplace", label: "Marketplace" },
         ]
       },
-      { to: "/marketplace", label: "Marketplace" },
+      { to: "/for-artists", label: "Resources" },
     ];
   };
 

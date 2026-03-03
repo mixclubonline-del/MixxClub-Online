@@ -29,16 +29,7 @@ import PrimeBeatForge from "@/pages/PrimeBeatForge";
 import PublicProfile from "@/pages/PublicProfile";
 import MixClubHome from "@/pages/MixClubHome";
 import PromoFunnel from "@/pages/PromoFunnel";
-import Services from "@/pages/Services";
-import MixingShowcase from "@/pages/MixingShowcase";
-import MasteringShowcase from "@/pages/MasteringShowcase";
-import DistributionHub from "@/pages/DistributionHub";
-import BeatMarketplace from "@/pages/BeatMarketplace";
-import Showcase from "@/pages/Showcase";
-import Marketplace from "@/pages/Marketplace";
 import { ROUTES } from "@/config/routes";
-
-const AIMastering = React.lazy(() => import("@/pages/AIMastering"));
 
 export const publicRoutes = (
   <>
@@ -71,15 +62,5 @@ export const publicRoutes = (
     <Route path="/achievements" element={<Achievements />} />
     <Route path="/beat-forge" element={<PrimeBeatForge />} />
     <Route path="/u/:username" element={<PublicProfile />} />
-
-    {/* Public service & marketplace showcase routes */}
-    <Route path="/services" element={<Services />} />
-    <Route path="/services/mixing" element={<MixingShowcase />} />
-    <Route path="/services/mastering" element={<MasteringShowcase />} />
-    <Route path="/services/ai-mastering" element={<React.Suspense fallback={<div className="min-h-screen bg-background" />}><AIMastering /></React.Suspense>} />
-    <Route path="/services/distribution" element={<DistributionHub />} />
-    <Route path="/showcase" element={<Showcase />} />
-    <Route path="/marketplace" element={<React.Suspense fallback={<div className="min-h-screen bg-background" />}><Marketplace /></React.Suspense>} />
-    <Route path="/beats" element={<BeatMarketplace />} />
   </>
 );

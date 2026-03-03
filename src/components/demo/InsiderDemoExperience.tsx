@@ -22,7 +22,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import {
-  Play, Pause, ChevronLeft, Users, ArrowRight, BookOpen, Volume2, SkipForward
+  Play, ChevronLeft, Users, ArrowRight, BookOpen, Volume2
 } from 'lucide-react';
 import { useInsiderAudio } from '@/hooks/useInsiderAudio';
 import { useCommunityShowcase } from '@/hooks/useCommunityShowcase';
@@ -38,7 +38,7 @@ import { StageReveal } from '@/components/demo/StageReveal';
 import { MoneyReveal } from '@/components/demo/MoneyReveal';
 import { DemoTransportBar } from '@/components/demo/DemoTransportBar';
 import { DemoPhaseId } from '@/hooks/useDemoPhaseAssets';
-import mixclubLogo from '@/assets/mixxclub-3d-logo.png';
+import mixxclubLogo from '@/assets/mixxclub-3d-logo.png';
 import { trackEvent } from '@/lib/analytics';
 
 // Phase markers synced to audio timeline (seconds) — compressed for ~65s audio
@@ -204,6 +204,23 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
     setVolume(value);
   };
 
+  const handleMuteToggle = () => {
+    if (isMuted) {
+      setIsMuted(false);
+      setVolume(volume);
+    } else {
+      setIsMuted(true);
+      setVolume(0);
+    }
+  };
+
+  const handleRestart = useCallback(async () => {
+    seek(0);
+    setCurrentPhase(0);
+    setIsAutoPlay(true);
+    await play();
+  }, [seek, play]);
+
   useEffect(() => {
     if (prefersReducedMotion) {
       setLiteMode(true);
@@ -251,7 +268,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
             animate={{ scale: [1, 1.05, 1] }}
             transition={{ duration: 3, repeat: Infinity }}
           >
-            <img src={mixclubLogo} alt="Mixxclub" className="w-32 h-32 sm:w-48 sm:h-48 md:w-64 md:h-64 mx-auto" />
+            <img src={mixxclubLogo} alt="Mixxclub" className="w-32 h-32 sm:w-48 sm:h-48 md:w-64 md:h-64 mx-auto" />
           </motion.div>
 
           <motion.h1
@@ -341,78 +358,33 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
         <Progress value={phaseProgress} className="h-1 rounded-none bg-background/50" />
       </div>
 
-      {/* Header */}
-      <header className="fixed top-2 left-0 right-0 z-40 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            {embedded && onBack && (
-              <button onClick={onBack} className="p-2 hover:bg-muted/50 rounded-lg transition-colors">
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-            )}
-            <motion.div animate={{ scale: 1 + (bass / 255) * 0.1 }} transition={{ duration: 0.1 }}>
-              <img src={mixclubLogo} alt="MixClub" className="w-10 h-10" />
-            </motion.div>
-            <div>
-              <h2 className="font-bold text-lg">MIXXCLUB</h2>
-              <Badge variant="outline" className="text-xs border-primary/50 text-primary">
-                <Users className="w-3 h-3 mr-1" /> Find Your People
-              </Badge>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" onClick={toggle} aria-label={isPlaying ? 'Pause demo audio' : 'Play demo audio'}>
-                {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-              </Button>
-              <input
-                aria-label="Demo volume"
-                type="range"
-                min="0"
-                max="1"
-                step="0.1"
-                value={volume}
-                onChange={(e) => handleVolumeChange(parseFloat(e.target.value))}
-                className="w-20 accent-primary"
-              />
-            </div>
-
-            <Button variant="outline" size="sm" onClick={() => setIsAutoPlay(!isAutoPlay)} className="gap-2">
-              {isAutoPlay && syncEnabled && (
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              )}
-              {isAutoPlay ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-              {isAutoPlay ? 'Synced' : 'Auto'}
-            </Button>
-
-            <Button variant="outline" size="icon" onClick={() => skipToPhase(Math.min(currentPhase + 1, DEMO_PHASES.length - 1))} aria-label="Skip to next phase">
-              <SkipForward className="w-4 h-4" />
-            </Button>
-
-            <Button variant="ghost" size="sm" onClick={() => setLiteMode((prev) => !prev)} className="text-xs text-muted-foreground hover:text-foreground" aria-label="Toggle calm motion mode">
-              {liteMode ? 'Calm Motion On' : 'Calm Motion'}
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      {/* Phase Navigation */}
-      <div className="fixed left-6 top-1/2 -translate-y-1/2 z-40 space-y-2">
-        {DEMO_PHASES.map((p, i) => (
-          <button
-            key={p.id}
-            onClick={() => skipToPhase(i)}
-            className={`block w-2 h-6 rounded-full transition-all ${i === currentPhase ? 'bg-primary w-3' : i < currentPhase ? 'bg-primary/50' : 'bg-muted-foreground/30'
-              }`}
-            title={p.title}
-            aria-label={`Go to ${p.title} phase`}
-          />
-        ))}
-      </div>
+      {/* Transport Bar — replaces old header + phase dots */}
+      <DemoTransportBar
+        isPlaying={isPlaying}
+        onToggle={toggle}
+        currentPhase={currentPhase}
+        totalPhases={DEMO_PHASES.length}
+        phaseTitle={phase.title}
+        phaseProgress={phaseProgress}
+        onPrevPhase={() => skipToPhase(Math.max(0, currentPhase - 1))}
+        onNextPhase={() => skipToPhase(Math.min(currentPhase + 1, DEMO_PHASES.length - 1))}
+        volume={isMuted ? 0 : volume}
+        onVolumeChange={handleVolumeChange}
+        isMuted={isMuted}
+        onMuteToggle={handleMuteToggle}
+        isAutoPlay={isAutoPlay}
+        onAutoPlayToggle={() => setIsAutoPlay(!isAutoPlay)}
+        liteMode={liteMode}
+        onLiteModeToggle={() => setLiteMode((prev) => !prev)}
+        onBack={embedded ? onBack : undefined}
+        hasEnded={hasEnded}
+        onRestart={handleRestart}
+        phases={DEMO_PHASES.map(p => ({ id: p.id, title: p.title }))}
+        onSkipToPhase={skipToPhase}
+      />
 
       {/* Main Content */}
-      <main className="relative z-10 h-[100svh] w-full flex flex-col items-center justify-center px-6 pt-24 pb-40 overflow-hidden" aria-label="Insider demo experience">
+      <main className="relative z-10 h-[100svh] w-full flex flex-col items-center justify-center px-4 sm:px-6 pt-6 sm:pt-10 pb-48 overflow-hidden" aria-label="Insider demo experience">
         <AnimatePresence mode="wait">
           {/* Phase 1: THE PROBLEM */}
           {phase.id === 'problem' && (
@@ -439,7 +411,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
                 transition={{ duration: 0.8 }}
               >
                 <motion.img
-                  src={mixclubLogo}
+                  src={mixxclubLogo}
                   alt="Mixxclub"
                   className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 mx-auto mb-4 sm:mb-6"
                   animate={{
@@ -698,7 +670,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
                 transition={{ duration: 0.6 }}
               >
                 <motion.img
-                  src={mixclubLogo}
+                  src={mixxclubLogo}
                   alt="Mixxclub"
                   className="w-24 h-24 mx-auto mb-8"
                   animate={{

@@ -1,4 +1,4 @@
-import { useState, useEffect, useId } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -46,8 +46,6 @@ const categoryIcons: Record<string, React.ElementType> = {
   other: File,
 };
 
-const MAX_FILE_SIZE_MB = 250;
-
 const categoryColors: Record<string, string> = {
   audio: 'bg-purple-500/10 text-purple-500',
   stems: 'bg-blue-500/10 text-blue-500',
@@ -65,7 +63,6 @@ export const ProjectFiles = ({ projectId }: ProjectFilesProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [uploading, setUploading] = useState(false);
-  const uploadInputId = useId();
 
   useEffect(() => {
     fetchFiles();
@@ -89,74 +86,51 @@ export const ProjectFiles = ({ projectId }: ProjectFilesProps) => {
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = Array.from(event.target.files || []);
-    if (selectedFiles.length === 0) return;
+    const file = event.target.files?.[0];
+    if (!file) return;
 
     setUploading(true);
     try {
-      // Get current user once for the batch
+      const fileExt = file.name.split('.').pop();
+      const filePath = `projects/${projectId}/${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('project-files')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // Determine category based on file type
+      let category = 'other';
+      if (file.type.startsWith('audio/')) category = 'audio';
+      else if (file.type.startsWith('image/')) category = 'artwork';
+      else if (file.type.includes('pdf') || file.type.includes('document')) category = 'document';
+
+      // Get current user
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      let uploadedCount = 0;
+      const { error: dbError } = await supabase
+        .from('project_files')
+        .insert({
+          project_id: projectId,
+          file_name: file.name,
+          file_path: filePath,
+          file_type: file.type,
+          file_size: file.size,
+          category,
+          version: 1,
+          user_id: user.id
+        });
 
-      for (const file of selectedFiles) {
-        if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
-          toast.error(`${file.name} is too large (max ${MAX_FILE_SIZE_MB}MB)`);
-          continue;
-        }
+      if (dbError) throw dbError;
 
-        const fileExt = file.name.split('.').pop();
-        const filePath = `projects/${projectId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${fileExt}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from('project-files')
-          .upload(filePath, file);
-
-        if (uploadError) {
-          console.error('Error uploading file to storage:', uploadError);
-          toast.error(`Failed to upload ${file.name}`);
-          continue;
-        }
-
-        // Determine category based on file type
-        let category = 'other';
-        if (file.type.startsWith('audio/')) category = 'audio';
-        else if (file.type.startsWith('image/')) category = 'artwork';
-        else if (file.type.includes('pdf') || file.type.includes('document')) category = 'document';
-
-        const { error: dbError } = await supabase
-          .from('project_files')
-          .insert({
-            project_id: projectId,
-            file_name: file.name,
-            file_path: filePath,
-            file_type: file.type,
-            file_size: file.size,
-            category,
-            version: 1,
-            user_id: user.id
-          });
-
-        if (dbError) {
-          console.error('Error creating file record:', dbError);
-          toast.error(`Uploaded ${file.name}, but failed to index it`);
-          await supabase.storage.from('project-files').remove([filePath]);
-          continue;
-        }
-
-        uploadedCount += 1;
-      }
-
-      if (uploadedCount > 0) {
-        toast.success(uploadedCount === 1 ? 'File uploaded successfully' : `${uploadedCount} files uploaded successfully`);
-        fetchFiles();
-      }
+      toast.success('File uploaded successfully');
+      fetchFiles();
     } catch (error) {
-      console.error('Error uploading file(s):', error);
-      toast.error('Failed to upload file(s)');
+      console.error('Error uploading file:', error);
+      toast.error('Failed to upload file');
     } finally {
-      event.target.value = '';
       setUploading(false);
     }
   };
@@ -269,13 +243,12 @@ export const ProjectFiles = ({ projectId }: ProjectFilesProps) => {
       <div className="border-2 border-dashed rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
         <input
           type="file"
-          id={uploadInputId}
-          multiple
+          id="file-upload"
           className="hidden"
           onChange={handleFileUpload}
           disabled={uploading}
         />
-        <label htmlFor={uploadInputId} className="cursor-pointer">
+        <label htmlFor="file-upload" className="cursor-pointer">
           <Upload className={`w-8 h-8 mx-auto mb-2 ${uploading ? 'animate-pulse' : 'text-muted-foreground'}`} />
           <p className="text-sm text-muted-foreground">
             {uploading ? 'Uploading...' : 'Click to upload or drag and drop'}

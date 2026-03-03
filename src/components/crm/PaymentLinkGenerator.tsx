@@ -8,8 +8,6 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { PaymentLink } from '@/types/partnership';
-import { usePaymentLink } from '@/hooks/usePaymentLink';
-import { useAuth } from '@/hooks/useAuth';
 
 interface PaymentLinkGeneratorProps {
     partnershipId?: string;
@@ -52,8 +50,6 @@ export const PaymentLinkGenerator: React.FC<PaymentLinkGeneratorProps> = ({
     });
 
     const { toast } = useToast();
-    const { createShareableLink } = usePaymentLink();
-    const { user } = useAuth();
 
     // Handle form input changes
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -87,12 +83,11 @@ export const PaymentLinkGenerator: React.FC<PaymentLinkGeneratorProps> = ({
         setIsLoading(true);
 
         try {
-            const { data: { user: authUser } } = await supabase.auth.getUser();
-            if (!authUser) throw new Error('Not authenticated');
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error('Not authenticated');
 
+            const expiresAt = new Date(Date.now() + parseInt(formData.expirationDays) * 24 * 60 * 60 * 1000).toISOString();
             const amount = parseFloat(formData.amount);
-            const expiresAt = new Date(Date.now() + parseInt(formData.expirationDays, 10) * 24 * 60 * 60 * 1000).toISOString();
-            const description = formData.description || `Payment for ${recipientName}`;
 
             // Attempt to create via Stripe edge function
             let newLink: PaymentLink;
@@ -102,7 +97,7 @@ export const PaymentLinkGenerator: React.FC<PaymentLinkGeneratorProps> = ({
                         recipientId,
                         amount,
                         currency: 'USD',
-                        description,
+                        description: formData.description,
                         paymentMethod: formData.paymentMethod,
                         expiresAt,
                         partnershipId,
@@ -118,7 +113,7 @@ export const PaymentLinkGenerator: React.FC<PaymentLinkGeneratorProps> = ({
                 const { data: dbLink, error: dbError } = await supabase
                     .from('payment_links')
                     .insert({
-                        creator_id: authUser.id,
+                        creator_id: user.id,
                         recipient_id: recipientId,
                         partnership_id: partnershipId || null,
                         project_id: projectId || null,

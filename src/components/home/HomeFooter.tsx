@@ -7,7 +7,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '@/hooks/useAuth';
 import { 
   Twitter, 
   Instagram, 
@@ -92,20 +91,6 @@ function MobileFooterSection({ title, children }: { title: string; children: Rea
 
 export function HomeFooter() {
   const currentYear = new Date().getFullYear();
-  const { user } = useAuth();
-
-  const roleAwareHref = (href: string) => {
-    if (!user) return href;
-
-    const map: Record<string, string> = {
-      '/for-artists': '/artist-crm',
-      '/for-engineers': '/engineer-crm',
-      '/for-producers': '/producer-crm',
-      '/for-fans': '/fan-hub',
-    };
-
-    return map[href] || href;
-  };
   
   return (
     <footer className="relative overflow-hidden border-t border-border/50">
@@ -164,7 +149,7 @@ export function HomeFooter() {
               {footerLinks.services.map((link) => (
                 <li key={link.href}>
                   <Link
-                    to={roleAwareHref(link.href)}
+                    to={link.href}
                     className="text-muted-foreground hover:text-foreground 
                                transition-colors"
                   >
@@ -181,7 +166,7 @@ export function HomeFooter() {
               {footerLinks.company.map((link) => (
                 <li key={link.href}>
                   <Link
-                    to={roleAwareHref(link.href)}
+                    to={link.href}
                     className="text-muted-foreground hover:text-foreground 
                                transition-colors"
                   >

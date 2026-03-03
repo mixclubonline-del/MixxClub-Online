@@ -93,6 +93,7 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
   // Audio/Video controls
   const [isMicEnabled, setIsMicEnabled] = useState(false);
   const [isVideoEnabled, setIsVideoEnabled] = useState(false);
+  const [isScreenSharing, setIsScreenSharing] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [masterVolume, setMasterVolume] = useState([80]);
   const [isInCall, setIsInCall] = useState(false);
@@ -399,12 +400,44 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
   };
 
   const handleToggleScreenShare = async () => {
+    if (isScreenSharing) {
+      await webrtcStopScreenShare();
+    } else {
+      await webrtcStartScreenShare();
+    }
+    setIsScreenSharing(!isScreenSharing);
+  };
+
+  const toggleScreenShare = async () => {
     try {
-      if (webrtcScreenSharing) {
-        await webrtcStopScreenShare();
+      if (!isScreenSharing) {
+        const screenStream = await navigator.mediaDevices.getDisplayMedia({
+          video: true
+        });
+        
+        // Create screen share record
+        await supabase
+          .from('screen_shares')
+          .insert({
+            session_id: sessionId,
+            user_id: user?.id,
+            is_active: true
+          });
+        
+        toast.success('Screen sharing started');
       } else {
-        await webrtcStartScreenShare();
+        // End screen share
+        await supabase
+          .from('screen_shares')
+          .update({ is_active: false })
+          .eq('session_id', sessionId)
+          .eq('user_id', user?.id)
+          .eq('is_active', true);
+        
+        toast.success('Screen sharing stopped');
       }
+      
+      setIsScreenSharing(!isScreenSharing);
     } catch (error) {
       console.error('Error toggling screen share:', error);
       toast.error('Failed to toggle screen sharing');
@@ -670,7 +703,7 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
                   />
                   <div className="absolute bottom-2 left-2 bg-black/60 px-3 py-1 rounded-full text-white text-sm flex items-center gap-2">
                     <div className="w-2 h-2 bg-green-500 rounded-full pulse-live" />
-                    You {webrtcScreenSharing && '(Screen)'}
+                    You {isScreenSharing && '(Screen)'}
                   </div>
                   <div className="absolute top-2 right-2 flex gap-1">
                     {!isMicEnabled && (
@@ -699,7 +732,7 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
                 </div>
               )}
             </div>
-          ) : webrtcScreenSharing ? (
+          ) : isScreenSharing ? (
             <div className="flex-1 flex items-center justify-center animate-fade-in">
               <div className="text-center">
                 <div className="p-6 bg-primary/10 rounded-full w-fit mx-auto mb-4 bloom-hover">
@@ -788,12 +821,12 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
                 </Button>
                 
                 <Button
-                  variant={webrtcScreenSharing ? "default" : "secondary"}
+                  variant={isScreenSharing ? "default" : "secondary"}
                   size="lg"
                   onClick={handleToggleScreenShare}
                   className="rounded-full w-14 h-14 bloom-hover"
                 >
-                  {webrtcScreenSharing ? <MonitorOff className="w-6 h-6" /> : <Monitor className="w-6 h-6" />}
+                  {isScreenSharing ? <MonitorOff className="w-6 h-6" /> : <Monitor className="w-6 h-6" />}
                 </Button>
                 
                 <Button

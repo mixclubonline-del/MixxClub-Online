@@ -15,8 +15,6 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePartnershipEarnings } from '@/hooks/usePartnershipEarnings';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 import type { Database } from '@/integrations/supabase/types';
 
@@ -130,28 +128,16 @@ export const ProjectBoard = ({ onCreateProject }: ProjectBoardProps) => {
   }, [projects]);
 
   const handleMoveProject = async (projectId: string, newStatus: ProjectStatus) => {
-    const previousProjects = localProjects;
-
     // Optimistic update
     setLocalProjects(prev => 
       prev.map(p => p.id === projectId ? { ...p, status: newStatus } : p)
     );
 
-    try {
-      const { error } = await supabase
-        .from('collaborative_projects')
-        .update({ status: newStatus })
-        .eq('id', projectId);
-
-      if (error) throw error;
-
-      toast.success('Project status updated');
+    // TODO: Implement actual status update via Supabase
+    // For now, just refresh after a delay to simulate
+    setTimeout(() => {
       fetchProjects();
-    } catch (error) {
-      console.error('Error updating project status:', error);
-      setLocalProjects(previousProjects);
-      toast.error('Failed to update project status');
-    }
+    }, 500);
   };
 
   const getProjectsByStatus = (status: ProjectStatus) => 
