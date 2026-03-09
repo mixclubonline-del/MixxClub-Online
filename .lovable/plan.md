@@ -1,67 +1,44 @@
 
 
-# End-to-End QA Pass — Marketing Pages Audit
+# Replace Ecosystem Flow Icons with Character Avatars & Fix Animation Alignment
 
-## Issues Found
+## What Changes
 
-### 1. Missing `PublicFooter` on Public Pages
-These public-route pages lack the shared footer, breaking navigation consistency:
-- **Waitlist** (`/waitlist`) — has `Navigation` but no `PublicFooter`
-- **Install** (`/install`) — has `Navigation` but no `PublicFooter`
-- **Community** (`/community`) — no `Navigation`, no `PublicFooter`
-- **Premieres** (`/premieres`) — uses `GlobalHeader` but no `PublicFooter`
-- **LivePage** (`/live`) — no `Navigation`, no `PublicFooter`
-- **Achievements** (`/achievements`) — no `Navigation`, no `PublicFooter`
-- **PrimeBeatForge** (`/beat-forge`) — needs audit (likely missing both)
-- **EconomyPublic** (`/economy`) — has `PublicFooter` but no top `Navigation`
+### 1. Replace Lucide Icons with Character Avatars
 
-### 2. Missing `SEOHead` Component
-These pages use raw `<Helmet>` instead of the standardized `SEOHead` component:
-- **Community** — raw Helmet
-- **Install** — raw Helmet
-- **EconomyPublic** — raw Helmet
-- **LivePage** — no SEO meta at all
-- **MixClubHome** — raw Helmet
+Swap the generic icon circles for each role's canonical character portrait:
 
-### 3. Missing Top Navigation on Public Pages
-Several public pages have no way to navigate back without browser back button:
-- **Community**, **LivePage**, **Achievements**, **EconomyPublic**
+| Role | Current Icon | New Avatar | Character |
+|------|-------------|------------|-----------|
+| Producer | Disc3 (generic) | `/assets/characters/rell-portrait.png` | Rell |
+| Artist | Music (generic) | `/assets/characters/jax-portrait.png` | Jax |
+| Engineer | Headphones (generic) | `/assets/prime-pointing.jpg` | Prime |
+| Fan | Heart (generic) | `/assets/characters/nova-portrait.png` | Nova |
 
-### 4. Inconsistent `Navigation` Usage
-Some pages use `Navigation` (desktop nav bar), others use `GlobalHeader`, and some have nothing. Public marketing pages should consistently use `Navigation`.
+Each node circle will render a cropped character portrait (`object-cover` in a `rounded-full` container) instead of a Lucide SVG icon, using the character's canonical `accentColor` for the border and glow.
 
-## Fix Plan
+### 2. Fix Animation Alignment
 
-### File: `src/pages/EconomyPublic.tsx`
-- Replace raw `<Helmet>` with `<SEOHead>`
-- Add `Navigation` import and render above content
+The current architecture renders SVG paths in an `<svg viewBox="-200 -200 400 400">` but places role nodes as absolutely-positioned `<div>` elements using percentage math. This creates subtle coordinate drift between the animated particle endpoints and the node positions.
 
-### File: `src/pages/Waitlist.tsx`
-- Add `<PublicFooter />` at end of content
+**Fix**: Move everything into the same SVG coordinate space. Render the role nodes (now with character avatars) as SVG `<foreignObject>` elements at the exact polar coordinates, eliminating the dual-coordinate-system mismatch. This ensures animated particles travel directly to/from the avatar circles.
 
-### File: `src/pages/Install.tsx`
-- Replace raw `<Helmet>` with `<SEOHead>`
-- Add `<PublicFooter />` at end of content
+### 3. Technical Details
 
-### File: `src/pages/Community.tsx`
-- Replace raw `<Helmet>` with `<SEOHead>`
-- Add `Navigation` at top
-- Add `<PublicFooter />` at end
+**File**: `src/components/journey/EcosystemFlow.tsx`
 
-### File: `src/pages/Premieres.tsx`
-- Add `<PublicFooter />` at end
+- Import `getCharacter` and `CharacterId` from `@/config/characters`
+- Update the `nodes` array to include `characterId` instead of `icon`:
+  ```
+  { id: "producer", label: "Rell", sublabel: "Producer", characterId: "rell", ... }
+  { id: "artist", label: "Jax", sublabel: "Artist", characterId: "jax", ... }
+  { id: "engineer", label: "Prime", sublabel: "Engineer", characterId: "prime", ... }
+  { id: "fan", label: "Nova", sublabel: "Fan", characterId: "nova", ... }
+  ```
+- Replace the role node `<div>` elements with `<foreignObject>` inside the same SVG, positioned at exact polar coordinates
+- Each avatar renders as a `<img>` inside a styled circle container with the character's accent color border and glow
+- Display the character name as the primary label and the role as a smaller sublabel beneath
+- Remove Lucide icon imports (Music, Headphones, Disc3, Heart) since they are no longer used
 
-### File: `src/pages/LivePage.tsx`
-- Add `<SEOHead>` with proper title/description
-- Add `Navigation` at top
-- Add `<PublicFooter />` at end
-
-### File: `src/pages/Achievements.tsx`
-- Add `Navigation` at top
-- Add `<PublicFooter />` at end
-
-### File: `src/pages/PrimeBeatForge.tsx`
-- Audit and add `Navigation` + `PublicFooter` if missing
-
-**Total: ~8 files edited.** Each change is small — import + render 1-2 components. No layout restructuring needed.
+**No new dependencies.** Uses existing character config and avatar assets already in the project.
 

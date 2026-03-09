@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { Radio, Filter, TrendingUp } from 'lucide-react';
+import { SEOHead } from '@/components/SEOHead';
+import Navigation from '@/components/Navigation';
+import { PublicFooter } from '@/components/layouts/PublicFooter';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -27,6 +30,12 @@ export const LivePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Live Streams"
+        description="Watch creators mix, perform, and collaborate in real-time on Mixxclub Live."
+        keywords="live streaming, music production live, mixing sessions, live collaboration"
+      />
+      <Navigation />
       {/* Header */}
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40">
         <div className="container mx-auto px-4 py-6">
@@ -92,6 +101,8 @@ export const LivePage: React.FC = () => {
 
       {/* Floating Go Live Button */}
       <GoLiveButton variant="floating" />
+
+      <PublicFooter />
     </div>
   );
 };

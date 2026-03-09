@@ -1,5 +1,6 @@
-import { Helmet } from 'react-helmet-async';
 import { Swords, Music2, Trophy, Network } from 'lucide-react';
+import { SEOHead } from '@/components/SEOHead';
+import { PublicFooter } from '@/components/layouts/PublicFooter';
 
 // Plaza components
 import CommunityPlaza from '@/components/community/CommunityPlaza';
@@ -20,13 +21,11 @@ import communityPlazaBg from '@/assets/community-plaza.jpg';
 export default function Community() {
   return (
     <>
-      <Helmet>
-        <title>Community Plaza — Mixxclub City</title>
-        <meta 
-          name="description" 
-          content="Enter the Community Plaza. Connect with artists, engineers, and producers. Join battles, view leaderboards, and engage with the music community." 
-        />
-      </Helmet>
+      <SEOHead
+        title="Community Plaza"
+        description="Enter the Community Plaza. Connect with artists, engineers, and producers. Join battles, view leaderboards, and engage with the music community."
+        keywords="music community, artist collaboration, beat battles, leaderboards"
+      />
 
       <CommunityPlaza backgroundAsset={communityPlazaBg}>
         {/* Ambient particles */}
@@ -88,6 +87,8 @@ export default function Community() {
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
           <PlazaGateway />
         </div>
+        
+        <PublicFooter />
       </CommunityPlaza>
     </>
   );

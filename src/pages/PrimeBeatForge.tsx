@@ -4,6 +4,9 @@ import {
   Sparkles, Music, Drum, Play, Pause, Download, Trash2,
   Star, Loader2, Volume2, Wand2, Zap
 } from 'lucide-react';
+import { SEOHead } from '@/components/SEOHead';
+import Navigation from '@/components/Navigation';
+import { PublicFooter } from '@/components/layouts/PublicFooter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -91,8 +94,15 @@ export default function PrimeBeatForge() {
   };
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Beat Forge"
+        description="Generate AI-powered demo beats with Prime's Beat Forge. Explore trap, drill, lofi, and more styles."
+        keywords="AI beat generator, demo beats, music production, beat forge"
+      />
+      <Navigation />
+
+      <div className="max-w-7xl mx-auto space-y-8 p-4 md:p-8 pt-24">
         {/* Header */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
@@ -375,6 +385,8 @@ export default function PrimeBeatForge() {
           </Card>
         </div>
       </div>
+
+      <PublicFooter />
     </div>
   );
 }

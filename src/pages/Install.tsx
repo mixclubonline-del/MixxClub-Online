@@ -3,7 +3,8 @@ import { Download, Smartphone, Monitor, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Navigation from '@/components/Navigation';
-import { Helmet } from 'react-helmet-async';
+import { SEOHead } from '@/components/SEOHead';
+import { PublicFooter } from '@/components/layouts/PublicFooter';
 
 export default function Install() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -46,13 +47,11 @@ export default function Install() {
 
   return (
     <>
-      <Helmet>
-        <title>Install Mixxclub App - Professional Music Mixing</title>
-        <meta 
-          name="description" 
-          content="Install Mixxclub as a mobile app for faster access, offline support, and native-like experience. Works on iPhone and Android."
-        />
-      </Helmet>
+      <SEOHead
+        title="Install Mixxclub App"
+        description="Install Mixxclub as a mobile app for faster access, offline support, and native-like experience. Works on iPhone and Android."
+        keywords="mixxclub app, install, PWA, mobile music production"
+      />
 
       <div className="min-h-screen bg-background">
         <Navigation />
@@ -233,6 +232,8 @@ export default function Install() {
             </Card>
           </div>
         </main>
+
+        <PublicFooter />
       </div>
     </>
   );

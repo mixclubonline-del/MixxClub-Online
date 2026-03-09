@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { SEOHead } from "@/components/SEOHead";
 import Navigation from "@/components/Navigation";
+import { PublicFooter } from "@/components/layouts/PublicFooter";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { 
@@ -291,6 +292,8 @@ const Waitlist = () => {
             </div>
           </section>
         </div>
+
+        <PublicFooter />
       </div>
     </>
   );

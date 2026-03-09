@@ -1,10 +1,11 @@
-import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import {
   Coins, Zap, ShieldCheck, Crown, Music, Headphones, Mic2, Heart,
   ArrowRight, Sparkles, Lock, Gift, TrendingUp, Star, Award, Users
 } from 'lucide-react';
+import { SEOHead } from '@/components/SEOHead';
+import Navigation from '@/components/Navigation';
 import { MixxCoin3D } from '@/components/economy/MixxCoin3D';
 import { MixxCoin } from '@/components/economy/MixxCoin';
 import { ScrollRevealSection } from '@/components/landing/ScrollRevealSection';
@@ -51,12 +52,14 @@ export default function EconomyPublic() {
 
   return (
     <>
-      <Helmet>
-        <title>MixxCoinz Economy — Own Your Value | Mixxclub</title>
-        <meta name="description" content="Earn, spend, unlock, and own with MixxCoinz — the ownership economy of Mixxclub. No subscriptions. No middlemen. Your grind, your equity." />
-      </Helmet>
+      <SEOHead
+        title="MixxCoinz Economy — Own Your Value"
+        description="Earn, spend, unlock, and own with MixxCoinz — the ownership economy of Mixxclub. No subscriptions. No middlemen. Your grind, your equity."
+        keywords="MixxCoinz, music economy, earn coinz, music platform currency"
+      />
 
       <div className="min-h-screen bg-background text-foreground overflow-hidden">
+        <Navigation />
         {/* ─── Hero ───────────────────────────────────────────── */}
         <section className="relative min-h-[90vh] flex flex-col items-center justify-center px-6">
           {/* Atmospheric background */}

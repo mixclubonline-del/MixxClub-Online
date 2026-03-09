@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Helmet } from 'react-helmet-async';
-import GlobalHeader from '@/components/GlobalHeader';
+import { SEOHead } from '@/components/SEOHead';
+import Navigation from '@/components/Navigation';
+import { PublicFooter } from '@/components/layouts/PublicFooter';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -104,16 +105,14 @@ export default function Premieres() {
 
   return (
     <>
-      <Helmet>
-        <title>Track Premieres — Mixxclub Online</title>
-        <meta 
-          name="description" 
-          content="Discover and vote on newly mixed tracks. Support artists and earn rewards." 
-        />
-      </Helmet>
+      <SEOHead
+        title="Track Premieres"
+        description="Discover and vote on newly mixed tracks. Support artists and earn rewards on Mixxclub."
+        keywords="track premieres, music voting, new music, artist support"
+      />
 
       <div className="min-h-screen bg-background">
-        <GlobalHeader />
+        <Navigation />
         
         <main className="max-w-7xl mx-auto px-6 py-16">
           <div className="text-center mb-12">
@@ -209,6 +208,8 @@ export default function Premieres() {
             )}
           </div>
         </main>
+
+        <PublicFooter />
       </div>
     </>
   );
