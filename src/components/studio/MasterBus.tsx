@@ -111,7 +111,10 @@ export const MasterBus: React.FC<MasterBusProps> = ({}) => {
           variant="outline" 
           className="gap-1" 
           title="Multiband"
-          onClick={() => console.log('TODO: Open MultiComp editor')}
+          onClick={() => {
+            const { toast } = require('sonner');
+            toast.info('MultiComp editor coming in Phase 3 — stay tuned! 🎚️');
+          }}
         >
           <Gauge size={14} /> MultiComp
         </Button>
