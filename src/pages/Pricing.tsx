@@ -574,6 +574,15 @@ export default function Pricing() {
             </GlassPanel>
           </motion.div>
 
+          {/* Pricing Calculator */}
+          <div className="mb-12">
+            <PricingCalculator
+              mixingPackages={mixingPackages}
+              masteringPackages={masteringPackages}
+              addons={addons}
+            />
+          </div>
+
           <div className="mt-12">
             <TrustBadges />
           </div>
