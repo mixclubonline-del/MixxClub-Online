@@ -109,12 +109,12 @@ export default function Pricing() {
 
           {/* Service Type Selector */}
           <Tabs value={serviceType} onValueChange={(v) => setServiceType(v as typeof serviceType)} className="mb-12">
-            <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-5">
-              <TabsTrigger value="subscriptions">Creator Plans</TabsTrigger>
-              <TabsTrigger value="mixing">Mixing</TabsTrigger>
-              <TabsTrigger value="mastering">Mastering</TabsTrigger>
-              <TabsTrigger value="distribution">Distribution</TabsTrigger>
-              <TabsTrigger value="beats">Beat Licensing</TabsTrigger>
+            <TabsList className="flex w-full max-w-2xl mx-auto overflow-x-auto no-scrollbar">
+              <TabsTrigger value="subscriptions" className="whitespace-nowrap shrink-0">Creator Plans</TabsTrigger>
+              <TabsTrigger value="mixing" className="whitespace-nowrap shrink-0">Mixing</TabsTrigger>
+              <TabsTrigger value="mastering" className="whitespace-nowrap shrink-0">Mastering</TabsTrigger>
+              <TabsTrigger value="distribution" className="whitespace-nowrap shrink-0">Distribution</TabsTrigger>
+              <TabsTrigger value="beats" className="whitespace-nowrap shrink-0">Beat Licensing</TabsTrigger>
             </TabsList>
 
             {/* SUBSCRIPTIONS TAB */}

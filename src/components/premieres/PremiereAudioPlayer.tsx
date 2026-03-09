@@ -31,14 +31,20 @@ export default function PremiereAudioPlayer({
 
     const initWaveSurfer = async () => {
       try {
-        // Get the audio file from Supabase storage
-        const { data } = await supabase.storage
-          .from('audio-files')
-          .createSignedUrl(audioUrl, 3600);
+        // Detect if audioUrl is already a full URL (no signing needed)
+        let resolvedUrl: string;
+        if (audioUrl.startsWith('http://') || audioUrl.startsWith('https://')) {
+          resolvedUrl = audioUrl;
+        } else {
+          const { data } = await supabase.storage
+            .from('audio-files')
+            .createSignedUrl(audioUrl, 3600);
 
-        if (!data?.signedUrl) {
-          console.error('Failed to get signed URL for audio');
-          return;
+          if (!data?.signedUrl) {
+            console.error('Failed to get signed URL for audio');
+            return;
+          }
+          resolvedUrl = data.signedUrl;
         }
 
         wavesurferRef.current = WaveSurfer.create({
@@ -55,7 +61,7 @@ export default function PremiereAudioPlayer({
           backend: 'WebAudio',
         });
 
-        wavesurferRef.current.load(data.signedUrl);
+        wavesurferRef.current.load(resolvedUrl);
 
         wavesurferRef.current.on('ready', () => {
           setIsLoading(false);
