@@ -1,5 +1,6 @@
 import { SEOHead } from '@/components/SEOHead';
-
+import Navigation from '@/components/Navigation';
+import { PublicFooter } from '@/components/layouts/PublicFooter';
 import { UserLevelBadge } from '@/components/gamification/UserLevelBadge';
 import { XPProgressBar } from '@/components/gamification/XPProgressBar';
 import { AchievementsGrid } from '@/components/gamification/AchievementsGrid';
