@@ -8,7 +8,10 @@ interface Props {
 export function EcosystemCycleScene({ asset }: Props) {
   return (
     <div className="absolute inset-0 w-full h-full">
-      <EcosystemSceneBackground asset={asset} />
+      <EcosystemSceneBackground
+        asset={asset}
+        fallbackGradient="bg-gradient-to-br from-indigo-950 via-purple-900/60 to-cyan-950"
+      />
       <div className="absolute inset-0 flex flex-col items-center justify-end pb-24 sm:pb-32 px-6">
         <motion.div
           className="text-center"

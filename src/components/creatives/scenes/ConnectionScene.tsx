@@ -8,7 +8,10 @@ interface Props {
 export function ConnectionScene({ asset }: Props) {
   return (
     <div className="absolute inset-0 w-full h-full">
-      <EcosystemSceneBackground asset={asset} />
+      <EcosystemSceneBackground
+        asset={asset}
+        fallbackGradient="bg-gradient-to-br from-purple-900/60 via-cyan-900/40 to-amber-900/60"
+      />
       <div className="absolute inset-0 flex flex-col items-center justify-center px-6">
         <motion.p
           className="text-4xl sm:text-6xl lg:text-8xl font-black text-white text-center"

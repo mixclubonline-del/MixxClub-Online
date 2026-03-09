@@ -1,18 +1,24 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 
 interface Props {
   asset: { url: string; isVideo: boolean };
   tint?: string;
+  fallbackGradient?: string;
 }
 
-export function EcosystemSceneBackground({ asset, tint }: Props) {
+export function EcosystemSceneBackground({ asset, tint, fallbackGradient }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [imgFailed, setImgFailed] = useState(false);
 
   useEffect(() => {
     videoRef.current?.play().catch(() => {});
   }, [asset.url]);
 
-  if (asset.isVideo) {
+  // Check if URL looks like a broken import (empty data uri, blob, or very short)
+  const isBrokenUrl = !asset.url || asset.url.length < 20;
+  const showGradient = (imgFailed || isBrokenUrl) && !asset.isVideo;
+
+  if (asset.isVideo && !isBrokenUrl) {
     return (
       <div className="absolute inset-0 overflow-hidden">
         <video
@@ -22,11 +28,20 @@ export function EcosystemSceneBackground({ asset, tint }: Props) {
           loop
           muted
           playsInline
-          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+          className="absolute inset-0 w-full h-full object-cover"
         />
         {tint && (
           <div className={`absolute inset-0 bg-gradient-to-t ${tint} to-transparent opacity-60`} />
         )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
+      </div>
+    );
+  }
+
+  if (showGradient && fallbackGradient) {
+    return (
+      <div className="absolute inset-0 overflow-hidden">
+        <div className={`absolute inset-0 ${fallbackGradient}`} />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
       </div>
     );
@@ -41,6 +56,13 @@ export function EcosystemSceneBackground({ asset, tint }: Props) {
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
+      />
+      {/* Hidden img to detect load failure */}
+      <img
+        src={asset.url}
+        alt=""
+        className="hidden"
+        onError={() => setImgFailed(true)}
       />
       {tint && (
         <div className={`absolute inset-0 bg-gradient-to-t ${tint} to-transparent opacity-60`} />

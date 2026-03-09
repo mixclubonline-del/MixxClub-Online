@@ -8,7 +8,11 @@ interface Props {
 export function EngineerPainScene({ asset }: Props) {
   return (
     <div className="absolute inset-0 w-full h-full">
-      <EcosystemSceneBackground asset={asset} tint="from-cyan-900/50 via-cyan-900/20" />
+      <EcosystemSceneBackground
+        asset={asset}
+        tint="from-cyan-900/50 via-cyan-900/20"
+        fallbackGradient="bg-gradient-to-br from-cyan-950 via-cyan-900/80 to-black"
+      />
       <div className="absolute inset-0 flex flex-col items-center justify-end pb-24 sm:pb-32 px-6">
         <motion.p
           className="text-3xl sm:text-5xl lg:text-6xl font-bold text-white text-center leading-tight max-w-3xl"
