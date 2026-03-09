@@ -22,6 +22,7 @@ const PUBLIC_LINKS = [
   { label: 'Pricing', path: '/pricing' },
   { label: 'Showcase', path: '/showcase' },
   { label: 'About', path: '/about' },
+  { label: 'The Ecosystem', path: '/for-creatives' },
   { label: 'For Artists', path: '/for-artists' },
   { label: 'For Engineers', path: '/for-engineers' },
   { label: 'For Producers', path: '/for-producers' },
