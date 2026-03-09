@@ -24,7 +24,7 @@ export function SceneBackground({ asset, fallbackGradient, children }: Props) {
   const showImage = hasUrl && !asset.isVideo && imgLoaded && !imgFailed;
 
   return (
-    <div className="absolute inset-0 w-full h-full">
+    <div className="absolute inset-0 w-full h-full overflow-hidden">
       {/* Gradient fallback — always present */}
       <div className={`absolute inset-0 ${fallbackGradient}`} />
 
