@@ -135,7 +135,10 @@ export const MasterBus: React.FC<MasterBusProps> = ({}) => {
           variant="outline" 
           className="gap-1" 
           title="Clipper"
-          onClick={() => console.log('TODO: Open Clipper editor')}
+          onClick={() => {
+            const { toast } = require('sonner');
+            toast.info('Clipper editor coming in Phase 3 — stay tuned! ⚡');
+          }}
         >
           <Zap size={14} /> Clipper
         </Button>
