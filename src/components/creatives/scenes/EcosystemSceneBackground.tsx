@@ -12,9 +12,9 @@ export function EcosystemSceneBackground({ asset, tint }: Props) {
     videoRef.current?.play().catch(() => {});
   }, [asset.url]);
 
-  return (
-    <div className="absolute inset-0 w-full h-full">
-      {asset.isVideo ? (
+  if (asset.isVideo) {
+    return (
+      <div className="absolute inset-0 overflow-hidden">
         <video
           ref={videoRef}
           src={asset.url}
@@ -22,16 +22,26 @@ export function EcosystemSceneBackground({ asset, tint }: Props) {
           loop
           muted
           playsInline
-          className="absolute inset-0 w-full h-full object-cover"
+          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
         />
-      ) : (
-        <img
-          src={asset.url}
-          alt=""
-          loading="eager"
-          className="absolute inset-0 w-full h-full object-cover animate-[kenBurns_20s_ease-in-out_infinite_alternate]"
-        />
-      )}
+        {tint && (
+          <div className={`absolute inset-0 bg-gradient-to-t ${tint} to-transparent opacity-60`} />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="absolute inset-0 overflow-hidden">
+      <div
+        className="absolute inset-0 animate-[kenBurns_20s_ease-in-out_infinite_alternate]"
+        style={{
+          backgroundImage: `url(${asset.url})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      />
       {tint && (
         <div className={`absolute inset-0 bg-gradient-to-t ${tint} to-transparent opacity-60`} />
       )}
