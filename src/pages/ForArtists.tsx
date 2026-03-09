@@ -210,7 +210,7 @@ const ForArtists = () => {
       <PortalHero
         badge={{ icon: <Music className="w-4 h-4" />, text: "For Artists" }}
         title="Turn Bedroom Beats Into Billboard Bangers"
-        subtitle="Professional mixing, AI-powered mastering, and real-time collaboration with world-class engineers."
+        subtitle="Professional mixing, AI-powered mastering, real-time collaboration, and MixxCoinz rewards with world-class engineers."
         stats={stats}
         primaryAction={{
           text: "Start Your Journey Free",
