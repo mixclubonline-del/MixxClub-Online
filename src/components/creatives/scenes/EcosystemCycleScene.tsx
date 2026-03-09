@@ -10,7 +10,7 @@ export function EcosystemCycleScene({ asset }: Props) {
     <div className="absolute inset-0 w-full h-full">
       <EcosystemSceneBackground
         asset={asset}
-        fallbackGradient="bg-gradient-to-br from-indigo-950 via-purple-900/60 to-cyan-950"
+        fallbackGradient="bg-gradient-to-br from-indigo-800 via-purple-800 to-cyan-900"
       />
       <div className="absolute inset-0 z-10 flex flex-col items-center justify-end pb-24 sm:pb-32 px-6">
         <motion.div

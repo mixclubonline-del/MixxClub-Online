@@ -11,7 +11,7 @@ export function ArtistPainScene({ asset }: Props) {
       <EcosystemSceneBackground
         asset={asset}
         tint="from-purple-900/50 via-purple-900/20"
-        fallbackGradient="bg-gradient-to-br from-purple-950 via-purple-900/80 to-black"
+        fallbackGradient="bg-gradient-to-br from-purple-800 via-purple-900 to-indigo-950"
       />
       <div className="absolute inset-0 z-10 flex flex-col items-center justify-end pb-24 sm:pb-32 px-6">
         <motion.p

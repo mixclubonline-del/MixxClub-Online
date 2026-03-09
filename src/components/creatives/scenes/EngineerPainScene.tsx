@@ -11,7 +11,7 @@ export function EngineerPainScene({ asset }: Props) {
       <EcosystemSceneBackground
         asset={asset}
         tint="from-cyan-900/50 via-cyan-900/20"
-        fallbackGradient="bg-gradient-to-br from-cyan-950 via-cyan-900/80 to-black"
+        fallbackGradient="bg-gradient-to-br from-cyan-800 via-teal-900 to-slate-950"
       />
       <div className="absolute inset-0 z-10 flex flex-col items-center justify-end pb-24 sm:pb-32 px-6">
         <motion.p

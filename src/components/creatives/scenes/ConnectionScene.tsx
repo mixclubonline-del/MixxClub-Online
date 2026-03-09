@@ -10,7 +10,7 @@ export function ConnectionScene({ asset }: Props) {
     <div className="absolute inset-0 w-full h-full">
       <EcosystemSceneBackground
         asset={asset}
-        fallbackGradient="bg-gradient-to-br from-purple-900/60 via-cyan-900/40 to-amber-900/60"
+        fallbackGradient="bg-gradient-to-br from-purple-700 via-cyan-800 to-amber-900"
       />
       <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6">
         <motion.p

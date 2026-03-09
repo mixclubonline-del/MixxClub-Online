@@ -18,7 +18,7 @@ export function PickPathScene({ asset }: Props) {
     <div className="absolute inset-0 w-full h-full">
       <EcosystemSceneBackground
         asset={asset}
-        fallbackGradient="bg-gradient-to-br from-gray-950 via-purple-950/40 to-black"
+        fallbackGradient="bg-gradient-to-br from-gray-800 via-purple-800 to-indigo-900"
       />
       <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6">
         <motion.p
