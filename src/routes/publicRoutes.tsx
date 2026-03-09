@@ -4,6 +4,15 @@ import { Route, Navigate } from "react-router-dom";
 // Lazy-loaded QuickStart
 const QuickStart = React.lazy(() => import("@/pages/QuickStart"));
 
+// Lazy-loaded showcase/service pages for public access
+const Services = React.lazy(() => import("@/pages/Services"));
+const MixingShowcase = React.lazy(() => import("@/pages/MixingShowcase"));
+const MasteringShowcase = React.lazy(() => import("@/pages/MasteringShowcase"));
+const AIMastering = React.lazy(() => import("@/pages/AIMastering"));
+const DistributionHub = React.lazy(() => import("@/pages/DistributionHub"));
+const Showcase = React.lazy(() => import("@/pages/Showcase"));
+const BeatMarketplace = React.lazy(() => import("@/pages/BeatMarketplace"));
+
 // Public/Marketing pages - static imports for critical routes
 import Auth from "@/pages/Auth";
 import AuthCallback from "@/pages/AuthCallback";
