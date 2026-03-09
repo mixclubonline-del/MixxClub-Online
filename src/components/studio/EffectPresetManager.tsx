@@ -93,8 +93,15 @@ export const EffectPresetManager = ({
 
       if (publicError) throw publicError;
 
-      setPresets(userPresets || []);
-      setPublicPresets(publicPresetsData || []);
+      // Cast parameters from JSON to the expected type
+      const mapPresets = (data: DatabasePreset[]): Preset[] =>
+        data.map(p => ({
+          ...p,
+          parameters: p.parameters as Record<string, number>,
+        }));
+
+      setPresets(mapPresets(userPresets || []));
+      setPublicPresets(mapPresets(publicPresetsData || []));
     } catch (error) {
       console.error('Error loading presets:', error);
       toast({
