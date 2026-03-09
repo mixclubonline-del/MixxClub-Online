@@ -3,7 +3,8 @@ import { Download, Smartphone, Monitor, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Navigation from '@/components/Navigation';
-import { Helmet } from 'react-helmet-async';
+import { SEOHead } from '@/components/SEOHead';
+import { PublicFooter } from '@/components/layouts/PublicFooter';
 
 export default function Install() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
