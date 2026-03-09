@@ -87,19 +87,10 @@ export function EcosystemStoryController({ assets, isLoading }: Props) {
       onPointerDown={onPointerDown}
       onPointerUp={onPointerUp}
     >
-      {/* Crossfade scene transitions */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={SCENES[idx]}
-          className="absolute inset-0 w-full h-full"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.6, ease: 'easeInOut' }}
-        >
-          {sceneComponents[SCENES[idx]]}
-        </motion.div>
-      </AnimatePresence>
+      {/* Scene layer — no AnimatePresence, direct render for reliability */}
+      <div className="absolute inset-0 w-full h-full">
+        {sceneComponents[SCENES[idx]]}
+      </div>
 
       {/* Stories-style progress bar */}
       <div className="fixed top-0 left-0 right-0 z-50 flex gap-1 px-3 py-2">
