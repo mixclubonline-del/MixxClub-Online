@@ -52,12 +52,14 @@ export default function EconomyPublic() {
 
   return (
     <>
-      <Helmet>
-        <title>MixxCoinz Economy — Own Your Value | Mixxclub</title>
-        <meta name="description" content="Earn, spend, unlock, and own with MixxCoinz — the ownership economy of Mixxclub. No subscriptions. No middlemen. Your grind, your equity." />
-      </Helmet>
+      <SEOHead
+        title="MixxCoinz Economy — Own Your Value"
+        description="Earn, spend, unlock, and own with MixxCoinz — the ownership economy of Mixxclub. No subscriptions. No middlemen. Your grind, your equity."
+        keywords="MixxCoinz, music economy, earn coinz, music platform currency"
+      />
 
       <div className="min-h-screen bg-background text-foreground overflow-hidden">
+        <Navigation />
         {/* ─── Hero ───────────────────────────────────────────── */}
         <section className="relative min-h-[90vh] flex flex-col items-center justify-center px-6">
           {/* Atmospheric background */}

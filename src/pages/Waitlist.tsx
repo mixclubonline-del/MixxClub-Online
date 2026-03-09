@@ -292,6 +292,8 @@ const Waitlist = () => {
             </div>
           </section>
         </div>
+
+        <PublicFooter />
       </div>
     </>
   );

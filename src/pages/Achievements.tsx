@@ -103,6 +103,8 @@ const Achievements = () => {
           </Tabs>
         </div>
       </main>
+
+      <PublicFooter />
     </>
   );
 };

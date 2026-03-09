@@ -101,6 +101,8 @@ export const LivePage: React.FC = () => {
 
       {/* Floating Go Live Button */}
       <GoLiveButton variant="floating" />
+
+      <PublicFooter />
     </div>
   );
 };

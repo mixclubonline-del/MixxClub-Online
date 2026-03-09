@@ -208,6 +208,8 @@ export default function Premieres() {
             )}
           </div>
         </main>
+
+        <PublicFooter />
       </div>
     </>
   );

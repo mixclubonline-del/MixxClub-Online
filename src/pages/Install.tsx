@@ -232,6 +232,8 @@ export default function Install() {
             </Card>
           </div>
         </main>
+
+        <PublicFooter />
       </div>
     </>
   );

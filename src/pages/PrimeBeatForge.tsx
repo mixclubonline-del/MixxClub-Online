@@ -385,6 +385,8 @@ export default function PrimeBeatForge() {
           </Card>
         </div>
       </div>
+
+      <PublicFooter />
     </div>
   );
 }
