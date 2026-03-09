@@ -27,6 +27,16 @@ interface Preset {
   user_id: string;
 }
 
+type DatabasePreset = {
+  id: string;
+  preset_name: string;
+  parameters: unknown;
+  is_public: boolean;
+  created_at: string;
+  user_id: string;
+  effect_type: string;
+};
+
 export const EffectPresetManager = ({
   isOpen,
   onClose,
