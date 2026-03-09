@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { PublicFooter } from '@/components/layouts/PublicFooter';
 import Navigation from '@/components/Navigation';
-import { Check, Zap, Crown, Loader2 } from 'lucide-react';
+import { Check, Zap, Crown, Loader2, Coins, Globe, FileCheck, Lock, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { TrustBadges } from '@/components/TrustBadges';
 import { SEOHead } from '@/components/SEOHead';
 import { generateProductSchema } from '@/lib/seo-schema';
@@ -16,6 +16,7 @@ import { useSubscriptionPlans, getYearlyDiscountPercent } from '@/hooks/useSubsc
 import { useMixingPackages } from '@/hooks/useMixingPackages';
 import { useMasteringPackages } from '@/hooks/useMasteringPackages';
 import { useAddonServices } from '@/hooks/useAddonServices';
+import { useDistributionPackages } from '@/hooks/useDistribution';
 import { GlassPanel } from '@/components/crm/design/GlassPanel';
 import heroPricing from '@/assets/hero-pricing.jpg';
 
