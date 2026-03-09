@@ -15,7 +15,8 @@ import {
     Zap,
     ArrowRight,
     Users,
-    Package
+    Package,
+    Coins
 } from "lucide-react";
 import { LandingPortal } from "@/components/landing/LandingPortal";
 import { PortalHero } from "@/components/landing/PortalHero";
