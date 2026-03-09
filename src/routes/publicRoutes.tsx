@@ -3,6 +3,7 @@ import { Route, Navigate } from "react-router-dom";
 
 // Lazy-loaded QuickStart
 const QuickStart = React.lazy(() => import("@/pages/QuickStart"));
+const EconomyPublic = React.lazy(() => import("@/pages/EconomyPublic"));
 
 // Lazy-loaded showcase/service pages for public access
 const Services = React.lazy(() => import("@/pages/Services"));
@@ -86,6 +87,7 @@ export const publicRoutes = (
     <Route path="/live" element={<LivePage />} />
     <Route path="/achievements" element={<Achievements />} />
     <Route path="/beat-forge" element={<PrimeBeatForge />} />
+    <Route path={ROUTES.ECONOMY} element={<React.Suspense fallback={<div className="min-h-screen bg-background" />}><EconomyPublic /></React.Suspense>} />
     <Route path="/u/:username" element={<PublicProfile />} />
   </>
 );

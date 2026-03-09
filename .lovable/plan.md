@@ -1,33 +1,44 @@
 
 
-# Public Economy Landing Page
+# Replace Ecosystem Flow Icons with Character Avatars & Fix Animation Alignment
 
-## Problem
-The `/economy` route is currently protected (inside `appRoutes.tsx`), so unauthenticated visitors hitting links from the Footer, Pricing page, or role pages get redirected to login. We need a public-facing explainer page that markets the MixxCoinz ownership model to visitors, with a CTA to sign up.
+## What Changes
 
-## Approach
+### 1. Replace Lucide Icons with Character Avatars
 
-### 1. Create `src/pages/EconomyPublic.tsx`
-A cinematic marketing page (matching the Showcase-First visual standard) with these sections:
+Swap the generic icon circles for each role's canonical character portrait:
 
-- **Hero** — MixxCoin3D component with cosmic gradient background, headline "Own Your Value", subtitle about the ownership economy
-- **Dual Coin Explainer** — Earned (Soundwave) vs Premium (Crown) coin cards, reusing the visual pattern from MixxEconomy but static/public
-- **How It Works** — 4-step journey: Earn → Spend → Unlock → Own (using ShowcaseJourney pattern)
-- **Tier System** — Visual grid of fan tiers (Newcomer → Legend) with benefits at each level
-- **Role Benefits** — Cards showing what each role earns: Artists (mix revenue), Engineers (service tips), Producers (beat sales), Fans (engagement missions)
-- **CTA Section** — "Start Earning" button → `/auth?signup=true`
-- **PublicFooter** at bottom
+| Role | Current Icon | New Avatar | Character |
+|------|-------------|------------|-----------|
+| Producer | Disc3 (generic) | `/assets/characters/rell-portrait.png` | Rell |
+| Artist | Music (generic) | `/assets/characters/jax-portrait.png` | Jax |
+| Engineer | Headphones (generic) | `/assets/prime-pointing.jpg` | Prime |
+| Fan | Heart (generic) | `/assets/characters/nova-portrait.png` | Nova |
 
-### 2. Update `src/routes/publicRoutes.tsx`
-Add `/economy` route pointing to `EconomyPublic` (lazy-loaded).
+Each node circle will render a cropped character portrait (`object-cover` in a `rounded-full` container) instead of a Lucide SVG icon, using the character's canonical `accentColor` for the border and glow.
 
-### 3. Update `src/routes/appRoutes.tsx`
-Keep the authenticated `/economy` route as-is — it renders the full dashboard with wallet, missions, vault, ledger. The public route will be matched first for unauthenticated users; authenticated users accessing `/economy` within the protected layout get the full dashboard.
+### 2. Fix Animation Alignment
 
-### 4. Route Conflict Resolution
-Since `publicRoutes` renders before `appRoutes` in the router, add logic so the public economy page checks auth state: if logged in, redirect to the app version. Or simply let both coexist — public route outside `ProtectedRoute` wrapper, app route inside it. The router naturally resolves this since `appRoutes` is wrapped in `ProtectedRoute`.
+The current architecture renders SVG paths in an `<svg viewBox="-200 -200 400 400">` but places role nodes as absolutely-positioned `<div>` elements using percentage math. This creates subtle coordinate drift between the animated particle endpoints and the node positions.
 
-## Files Changed
-1. **New:** `src/pages/EconomyPublic.tsx` — public marketing page
-2. **Edit:** `src/routes/publicRoutes.tsx` — add `/economy` route
+**Fix**: Move everything into the same SVG coordinate space. Render the role nodes (now with character avatars) as SVG `<foreignObject>` elements at the exact polar coordinates, eliminating the dual-coordinate-system mismatch. This ensures animated particles travel directly to/from the avatar circles.
+
+### 3. Technical Details
+
+**File**: `src/components/journey/EcosystemFlow.tsx`
+
+- Import `getCharacter` and `CharacterId` from `@/config/characters`
+- Update the `nodes` array to include `characterId` instead of `icon`:
+  ```
+  { id: "producer", label: "Rell", sublabel: "Producer", characterId: "rell", ... }
+  { id: "artist", label: "Jax", sublabel: "Artist", characterId: "jax", ... }
+  { id: "engineer", label: "Prime", sublabel: "Engineer", characterId: "prime", ... }
+  { id: "fan", label: "Nova", sublabel: "Fan", characterId: "nova", ... }
+  ```
+- Replace the role node `<div>` elements with `<foreignObject>` inside the same SVG, positioned at exact polar coordinates
+- Each avatar renders as a `<img>` inside a styled circle container with the character's accent color border and glow
+- Display the character name as the primary label and the role as a smaller sublabel beneath
+- Remove Lucide icon imports (Music, Headphones, Disc3, Heart) since they are no longer used
+
+**No new dependencies.** Uses existing character config and avatar assets already in the project.
 
