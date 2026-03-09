@@ -301,7 +301,7 @@ export function PricingCalculator({ mixingPackages, masteringPackages, addons }:
                   </div>
 
                   {breakdown.discountAmount > 0 && (
-                    <p className="text-xs text-green-400">
+                    <p className="text-xs text-accent-foreground">
                       You save ${breakdown.discountAmount.toFixed(0)} with {TIER_OPTIONS[tierIndex].label} tier
                     </p>
                   )}
