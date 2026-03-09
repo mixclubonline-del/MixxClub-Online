@@ -2479,6 +2479,44 @@ export type Database = {
           },
         ]
       }
+      effect_presets: {
+        Row: {
+          created_at: string
+          effect_type: string
+          id: string
+          is_public: boolean | null
+          parameters: Json
+          preset_name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          effect_type: string
+          id?: string
+          is_public?: boolean | null
+          parameters: Json
+          preset_name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          effect_type?: string
+          id?: string
+          is_public?: boolean | null
+          parameters?: Json
+          preset_name?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "effect_presets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_sequence_enrollments: {
         Row: {
           completed_at: string | null
@@ -2863,6 +2901,61 @@ export type Database = {
           years_experience?: number | null
         }
         Relationships: []
+      }
+      engineer_reviews: {
+        Row: {
+          client_id: string
+          created_at: string
+          engineer_id: string
+          id: string
+          is_verified: boolean | null
+          project_id: string | null
+          rating: number
+          review_text: string | null
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          engineer_id: string
+          id?: string
+          is_verified?: boolean | null
+          project_id?: string | null
+          rating: number
+          review_text?: string | null
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          engineer_id?: string
+          id?: string
+          is_verified?: boolean | null
+          project_id?: string | null
+          rating?: number
+          review_text?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "engineer_reviews_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "engineer_reviews_engineer_id_fkey"
+            columns: ["engineer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "engineer_reviews_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       engineer_streaks: {
         Row: {
@@ -7881,6 +7974,47 @@ export type Database = {
         }
         Relationships: []
       }
+      studio_sessions: {
+        Row: {
+          bpm: number | null
+          created_at: string
+          id: string
+          plugins: Json | null
+          session_name: string
+          tracks: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bpm?: number | null
+          created_at?: string
+          id?: string
+          plugins?: Json | null
+          session_name: string
+          tracks: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bpm?: number | null
+          created_at?: string
+          id?: string
+          plugins?: Json | null
+          session_name?: string
+          tracks?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "studio_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscription_plans: {
         Row: {
           created_at: string | null
@@ -8662,6 +8796,50 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          email_notifications: boolean | null
+          notification_frequency: string | null
+          profile_visibility: string | null
+          push_notifications: boolean | null
+          show_earnings: boolean | null
+          show_email: boolean | null
+          show_location: boolean | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          email_notifications?: boolean | null
+          notification_frequency?: string | null
+          profile_visibility?: string | null
+          push_notifications?: boolean | null
+          show_earnings?: boolean | null
+          show_email?: boolean | null
+          show_location?: boolean | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          email_notifications?: boolean | null
+          notification_frequency?: string | null
+          profile_visibility?: string | null
+          push_notifications?: boolean | null
+          show_earnings?: boolean | null
+          show_email?: boolean | null
+          show_location?: boolean | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

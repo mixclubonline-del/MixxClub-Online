@@ -99,7 +99,10 @@ export const MasterBus: React.FC<MasterBusProps> = ({}) => {
           variant="outline" 
           className="gap-1" 
           title="EQ (click to open, Alt-click to bypass)"
-          onClick={() => console.log('TODO: Open Master EQ editor')}
+          onClick={() => {
+            const { toast } = require('sonner');
+            toast.info('Master EQ editor coming in Phase 3 — stay tuned! 🎛️');
+          }}
         >
           <SlidersHorizontal size={14} /> EQ
         </Button>
@@ -108,7 +111,10 @@ export const MasterBus: React.FC<MasterBusProps> = ({}) => {
           variant="outline" 
           className="gap-1" 
           title="Multiband"
-          onClick={() => console.log('TODO: Open MultiComp editor')}
+          onClick={() => {
+            const { toast } = require('sonner');
+            toast.info('MultiComp editor coming in Phase 3 — stay tuned! 🎚️');
+          }}
         >
           <Gauge size={14} /> MultiComp
         </Button>
@@ -117,7 +123,10 @@ export const MasterBus: React.FC<MasterBusProps> = ({}) => {
           variant="outline" 
           className="gap-1" 
           title="Limiter"
-          onClick={() => console.log('TODO: Open Limiter editor')}
+          onClick={() => {
+            const { toast } = require('sonner');
+            toast.info('Limiter editor coming in Phase 3 — stay tuned! 🛡️');
+          }}
         >
           <ShieldCheck size={14} /> Limiter
         </Button>
@@ -126,7 +135,10 @@ export const MasterBus: React.FC<MasterBusProps> = ({}) => {
           variant="outline" 
           className="gap-1" 
           title="Clipper"
-          onClick={() => console.log('TODO: Open Clipper editor')}
+          onClick={() => {
+            const { toast } = require('sonner');
+            toast.info('Clipper editor coming in Phase 3 — stay tuned! ⚡');
+          }}
         >
           <Zap size={14} /> Clipper
         </Button>
