@@ -18,13 +18,15 @@ import { Button } from '@/components/ui/button';
 import { MixxclubLogo } from '@/components/brand/MixxclubLogo';
 
 const PUBLIC_LINKS = [
-    { label: 'How It Works', path: '/how-it-works' },
+    { label: 'Home', path: '/home' },
+    { label: 'MixxCoinz', path: '/economy' },
+    { label: 'Pricing', path: '/pricing' },
+    { label: 'Showcase', path: '/showcase' },
+    { label: 'About', path: '/about' },
     { label: 'For Artists', path: '/for-artists' },
     { label: 'For Engineers', path: '/for-engineers' },
     { label: 'For Producers', path: '/for-producers' },
     { label: 'For Fans', path: '/for-fans' },
-    { label: 'Pricing', path: '/pricing' },
-    { label: 'About', path: '/about' },
     { label: 'FAQ', path: '/faq' },
 ];
 
