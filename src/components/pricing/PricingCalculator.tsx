@@ -211,15 +211,15 @@ export function PricingCalculator({ mixingPackages, masteringPackages, addons }:
               </Label>
               <div className="flex flex-wrap gap-2">
                 {TIER_OPTIONS.map((tier, i) => (
-                  <button
-                    key={tier.label}
-                    onClick={() => setTierIndex(i)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                      tierIndex === i
-                        ? 'border-amber-400/60 bg-amber-400/15 text-amber-300'
-                        : 'border-border/40 text-muted-foreground hover:border-amber-400/30'
-                    }`}
-                  >
+                    <button
+                      key={tier.label}
+                      onClick={() => setTierIndex(i)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                        tierIndex === i
+                          ? 'border-accent/60 bg-accent/15 text-accent-foreground'
+                          : 'border-border/40 text-muted-foreground hover:border-accent/30'
+                      }`}
+                    >
                     {tier.label} {tier.discount > 0 ? `(−${tier.discount}%)` : ''}
                   </button>
                 ))}
