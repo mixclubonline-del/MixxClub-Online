@@ -1,44 +1,51 @@
 
 
-# Replace Ecosystem Flow Icons with Character Avatars & Fix Animation Alignment
+# Generate & Upload Ecosystem Cinematic Assets
 
-## What Changes
+## What needs to happen
 
-### 1. Replace Lucide Icons with Character Avatars
+1. **Register `ecosystem_` context prefix** in `asset_contexts` table (required by the `validate_asset_context` trigger on `brand_assets`)
+2. **Generate 7 cinematic images** via the `dream-engine-api` edge function using `action: "generate"` with `save: true` and `makeActive: true`
+3. No code changes needed — `useEcosystemAssets` already queries `brand_assets` for these exact contexts
 
-Swap the generic icon circles for each role's canonical character portrait:
+## Database insert
 
-| Role | Current Icon | New Avatar | Character |
-|------|-------------|------------|-----------|
-| Producer | Disc3 (generic) | `/assets/characters/rell-portrait.png` | Rell |
-| Artist | Music (generic) | `/assets/characters/jax-portrait.png` | Jax |
-| Engineer | Headphones (generic) | `/assets/prime-pointing.jpg` | Prime |
-| Fan | Heart (generic) | `/assets/characters/nova-portrait.png` | Nova |
+Insert one row into `asset_contexts`:
+```sql
+INSERT INTO asset_contexts (context_prefix, name, description, icon)
+VALUES ('ecosystem_', 'Ecosystem Story', 'Cinematic backgrounds for the For Creatives ecosystem story page', '🎬');
+```
 
-Each node circle will render a cropped character portrait (`object-cover` in a `rounded-full` container) instead of a Lucide SVG icon, using the character's canonical `accentColor` for the border and glow.
+## Also add `ecosystem_` to the dream engine context enhancements
 
-### 2. Fix Animation Alignment
+Add an entry in `supabase/functions/dream-engine/index.ts` contextEnhancements so prompts get auto-enhanced:
+```
+ecosystem_: "cinematic documentary photography, emotional storytelling, music industry atmosphere, dramatic lighting, 8K quality, film grain"
+```
 
-The current architecture renders SVG paths in an `<svg viewBox="-200 -200 400 400">` but places role nodes as absolutely-positioned `<div>` elements using percentage math. This creates subtle coordinate drift between the animated particle endpoints and the node positions.
+## Generate 7 images via dream-engine-api
 
-**Fix**: Move everything into the same SVG coordinate space. Render the role nodes (now with character avatars) as SVG `<foreignObject>` elements at the exact polar coordinates, eliminating the dual-coordinate-system mismatch. This ensures animated particles travel directly to/from the avatar circles.
+Call the `dream-engine-api` edge function 7 times with `action: "generate"`, `mode: "image"`, `save: true`, `makeActive: true`, and these specific prompts/contexts:
 
-### 3. Technical Details
+| Context | Prompt |
+|---|---|
+| `ecosystem_artist_pain` | A young Black artist alone in a dimly lit bedroom at 3am, laptop open showing a folder with dozens of unreleased tracks, headphones around their neck, purple/violet ambient lighting, expression of frustration and longing, lo-fi film aesthetic |
+| `ecosystem_engineer_pain` | A mixing engineer sitting alone in a professional home studio, dual monitors glowing with Pro Tools, acoustic panels on walls, expensive gear everywhere but an empty client chair, cyan/teal mood lighting, feeling of wasted potential |
+| `ecosystem_producer_pain` | A producer at their workstation late at night, YouTube Studio analytics on screen showing single-digit views on type beats, MIDI keyboard and monitors, amber/gold lighting, stacks of beats but no connections, isolation |
+| `ecosystem_fan_disconnect` | A music fan scrolling their phone in a dark room, streaming app visible, double-tapping but feeling disconnected, rose/pink lighting reflecting off their face, thousands of streams but zero connection to the artist |
+| `ecosystem_connection` | Split composition showing four music creators connecting through screens and technology, purple cyan amber and pink light beams converging in the center, moment of discovery and hope, collaborative energy emerging |
+| `ecosystem_cycle` | Abstract cinematic visualization of a music economy ecosystem, flowing energy between creators, currency and music notes moving in a circular pattern, all four colors (purple, cyan, amber, pink) blending, sense of abundance and flow |
+| `ecosystem_cta` | Four glowing doorways/portals side by side, each a different color (purple, cyan, amber, rose), inviting the viewer to choose their path, dramatic fog and volumetric lighting, cinematic wide shot, sense of possibility |
 
-**File**: `src/components/journey/EcosystemFlow.tsx`
+Each call uses `style: "cinematic"` and the dream engine will:
+- Generate via Lovable AI (Gemini image model)
+- Upload to `brand-assets` storage bucket
+- Insert into `brand_assets` table with correct `asset_context`
+- Set `is_active: true`
 
-- Import `getCharacter` and `CharacterId` from `@/config/characters`
-- Update the `nodes` array to include `characterId` instead of `icon`:
-  ```
-  { id: "producer", label: "Rell", sublabel: "Producer", characterId: "rell", ... }
-  { id: "artist", label: "Jax", sublabel: "Artist", characterId: "jax", ... }
-  { id: "engineer", label: "Prime", sublabel: "Engineer", characterId: "prime", ... }
-  { id: "fan", label: "Nova", sublabel: "Fan", characterId: "nova", ... }
-  ```
-- Replace the role node `<div>` elements with `<foreignObject>` inside the same SVG, positioned at exact polar coordinates
-- Each avatar renders as a `<img>` inside a styled circle container with the character's accent color border and glow
-- Display the character name as the primary label and the role as a smaller sublabel beneath
-- Remove Lucide icon imports (Music, Headphones, Disc3, Heart) since they are no longer used
+## Files modified
+- `supabase/functions/dream-engine/index.ts` — add `ecosystem_` context enhancement (1 line)
 
-**No new dependencies.** Uses existing character config and avatar assets already in the project.
+## No other code changes
+The `useEcosystemAssets` hook already queries for these exact contexts and will automatically display the images over the gradient fallbacks.
 
