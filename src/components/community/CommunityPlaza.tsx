@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { motion } from 'framer-motion';
-import GlobalHeader from '@/components/GlobalHeader';
+import Navigation from '@/components/Navigation';
 
 interface CommunityPlazaProps {
   backgroundAsset: string;
