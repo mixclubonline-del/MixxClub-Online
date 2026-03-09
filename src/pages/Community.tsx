@@ -21,13 +21,11 @@ import communityPlazaBg from '@/assets/community-plaza.jpg';
 export default function Community() {
   return (
     <>
-      <Helmet>
-        <title>Community Plaza — Mixxclub City</title>
-        <meta 
-          name="description" 
-          content="Enter the Community Plaza. Connect with artists, engineers, and producers. Join battles, view leaderboards, and engage with the music community." 
-        />
-      </Helmet>
+      <SEOHead
+        title="Community Plaza"
+        description="Enter the Community Plaza. Connect with artists, engineers, and producers. Join battles, view leaderboards, and engage with the music community."
+        keywords="music community, artist collaboration, beat battles, leaderboards"
+      />
 
       <CommunityPlaza backgroundAsset={communityPlazaBg}>
         {/* Ambient particles */}
