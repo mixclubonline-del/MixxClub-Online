@@ -2,7 +2,7 @@ import { useRef, useEffect } from 'react';
 
 interface Props {
   asset: { url: string; isVideo: boolean };
-  tint?: string; // e.g. 'from-purple-900/60' for role color overlay
+  tint?: string;
 }
 
 export function EcosystemSceneBackground({ asset, tint }: Props) {
@@ -28,15 +28,16 @@ export function EcosystemSceneBackground({ asset, tint }: Props) {
         <img
           src={asset.url}
           alt=""
+          loading="eager"
           className="absolute inset-0 w-full h-full object-cover animate-[kenBurns_20s_ease-in-out_infinite_alternate]"
         />
       )}
-      {/* Role-tinted gradient overlay */}
+      {/* Role-tinted gradient — subtle wash */}
       {tint && (
-        <div className={`absolute inset-0 bg-gradient-to-t ${tint} to-transparent`} />
+        <div className={`absolute inset-0 bg-gradient-to-t ${tint} to-transparent opacity-60`} />
       )}
-      {/* Bottom scrim for text */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/40" />
+      {/* Bottom scrim for text readability only */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
     </>
   );
 }
