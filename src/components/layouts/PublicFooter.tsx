@@ -10,7 +10,8 @@ const FOOTER_SECTIONS = [
   {
     title: 'Platform',
     links: [
-      { label: 'How It Works', path: '/how-it-works' },
+      { label: 'Home', path: '/home' },
+      { label: 'MixxCoinz', path: '/economy' },
       { label: 'Pricing', path: '/pricing' },
       { label: 'Showcase', path: '/showcase' },
       { label: 'Economy', path: '/economy' },
