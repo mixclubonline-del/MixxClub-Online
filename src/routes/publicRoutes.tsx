@@ -21,6 +21,7 @@ import DemoLogin from "@/pages/DemoLogin";
 import InsiderDemo from "@/pages/InsiderDemo";
 import Install from "@/pages/Install";
 import HowItWorks from "@/pages/HowItWorks";
+import { Navigate } from "react-router-dom";
 import FAQ from "@/pages/FAQ";
 import Terms from "@/pages/Terms";
 import Privacy from "@/pages/Privacy";
