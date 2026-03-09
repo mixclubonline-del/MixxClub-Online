@@ -1,5 +1,6 @@
-import { Helmet } from 'react-helmet-async';
 import { Swords, Music2, Trophy, Network } from 'lucide-react';
+import { SEOHead } from '@/components/SEOHead';
+import { PublicFooter } from '@/components/layouts/PublicFooter';
 
 // Plaza components
 import CommunityPlaza from '@/components/community/CommunityPlaza';
