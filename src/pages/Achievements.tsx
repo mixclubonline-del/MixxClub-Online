@@ -12,11 +12,13 @@ const Achievements = () => {
   return (
     <>
       <SEOHead
-        title="Achievements | Mixxclub"
+        title="Achievements"
         description="Track your progress and unlock achievements on Mixxclub"
+        keywords="achievements, gamification, XP, music progress"
       />
+      <Navigation />
 
-      <main className="container mx-auto px-4 py-8 min-h-screen">
+      <main className="container mx-auto px-4 py-8 pt-24 min-h-screen">
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Header */}
           <div className="text-center space-y-4">
