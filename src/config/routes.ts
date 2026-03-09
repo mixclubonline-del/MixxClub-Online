@@ -34,6 +34,7 @@ export const ROUTES = {
   FOR_ENGINEERS: '/for-engineers',
   FOR_PRODUCERS: '/for-producers',
   FOR_FANS: '/for-fans',
+  FOR_CREATIVES: '/for-creatives',
   CHOOSE_PATH: '/home',
   REQUEST_ACCESS: '/request-access',
 

@@ -60,6 +60,7 @@ const Navigation = () => {
           label: "For Creatives",
           isDropdown: true,
           items: [
+            { to: "/for-creatives", label: "The Ecosystem" },
             { to: "/for-artists", label: "For Artists" },
             { to: "/for-engineers", label: "For Engineers" },
             { to: "/for-producers", label: "For Producers" },

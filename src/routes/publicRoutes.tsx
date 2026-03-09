@@ -70,6 +70,7 @@ export const publicRoutes = (
     <Route path="/for-engineers" element={<ForEngineers />} />
     <Route path="/for-producers" element={<ForProducers />} />
     <Route path="/for-fans" element={<ForFans />} />
+    <Route path={ROUTES.FOR_CREATIVES} element={<React.Suspense fallback={<div className="min-h-screen bg-background" />}><ForCreatives /></React.Suspense>} />
     
     {/* Studio & Services — Public showcase (unauthenticated access) */}
     <Route path={ROUTES.SERVICES} element={<React.Suspense fallback={<div className="min-h-screen bg-background" />}><Services /></React.Suspense>} />

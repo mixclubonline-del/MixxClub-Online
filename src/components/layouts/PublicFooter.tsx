@@ -22,6 +22,7 @@ const FOOTER_SECTIONS = [
   {
     title: 'For Creatives',
     links: [
+      { label: 'The Ecosystem', path: '/for-creatives' },
       { label: 'For Artists', path: '/for-artists' },
       { label: 'For Engineers', path: '/for-engineers' },
       { label: 'For Producers', path: '/for-producers' },
