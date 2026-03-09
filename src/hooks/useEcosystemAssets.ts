@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-// Static fallback imports
+// Static fallback imports (real generated images)
 import artistPainFallback from '@/assets/ecosystem/artist-pain.jpg';
 import engineerPainFallback from '@/assets/ecosystem/engineer-pain.jpg';
 import producerPainFallback from '@/assets/ecosystem/producer-pain.jpg';
@@ -51,7 +51,7 @@ function isVideoUrl(url: string): boolean {
 }
 
 export function useEcosystemAssets() {
-  const [dbAssets, setDbAssets] = useState<Record<string, { url: string; isVideo: boolean }>>({});
+  const [dbAssets, setDbAssets] = useState<Record<string, EcosystemAsset>>({});
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -65,7 +65,7 @@ export function useEcosystemAssets() {
           .eq('is_active', true);
 
         if (!error && data) {
-          const map: Record<string, { url: string; isVideo: boolean }> = {};
+          const map: Record<string, EcosystemAsset> = {};
           data.forEach((a) => {
             if (a.asset_context) {
               map[a.asset_context] = {

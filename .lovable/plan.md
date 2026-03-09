@@ -1,45 +1,44 @@
 
 
-# Next Phases: Fix Black Screen + Dream Engine Assets
+# Replace Ecosystem Flow Icons with Character Avatars & Fix Animation Alignment
 
-## Current Issue
-The `/for-creatives` page is stuck on the app's global loading screen. The scene controller and components are structurally sound, but the **fallback images** created as `.jpg` files in `src/assets/ecosystem/` are likely empty placeholder files (0 bytes or invalid). The `useEcosystemAssets` hook queries `brand_assets` for `ecosystem_*` contexts, finds nothing in the database, falls back to these broken static imports, and the page renders black backgrounds behind dark overlays — appearing as a black screen.
+## What Changes
 
-## Phase 1: Fix the Black Screen (Immediate)
+### 1. Replace Lucide Icons with Character Avatars
 
-**Problem**: Static fallback images are empty/broken files. No `brand_assets` rows exist for `ecosystem_*` contexts.
+Swap the generic icon circles for each role's canonical character portrait:
 
-**Fix**: Replace the broken static fallback approach with inline gradient backgrounds per scene so the page works immediately without any image assets:
-- Each scene component gets a role-colored gradient fallback (purple for artist, cyan for engineer, amber for producer, pink for fan, mixed for connection/ecosystem/cta)
-- `EcosystemSceneBackground` gets a `fallbackGradient` prop — when the asset URL fails to load or is a broken import, show the gradient instead
-- This makes the page functional and visually on-brand right now
+| Role | Current Icon | New Avatar | Character |
+|------|-------------|------------|-----------|
+| Producer | Disc3 (generic) | `/assets/characters/rell-portrait.png` | Rell |
+| Artist | Music (generic) | `/assets/characters/jax-portrait.png` | Jax |
+| Engineer | Headphones (generic) | `/assets/prime-pointing.jpg` | Prime |
+| Fan | Heart (generic) | `/assets/characters/nova-portrait.png` | Nova |
 
-**Files**: `EcosystemSceneBackground.tsx`, all 7 scene components (minor prop additions)
+Each node circle will render a cropped character portrait (`object-cover` in a `rounded-full` container) instead of a Lucide SVG icon, using the character's canonical `accentColor` for the border and glow.
 
-## Phase 2: Generate Real Dream Engine Assets
+### 2. Fix Animation Alignment
 
-Once the page is functional with gradient fallbacks, use the Dream Engine to generate the 7 cinematic images and store them in `brand_assets` with the correct `ecosystem_*` contexts. The `useEcosystemAssets` hook will automatically pick them up — no code changes needed.
+The current architecture renders SVG paths in an `<svg viewBox="-200 -200 400 400">` but places role nodes as absolutely-positioned `<div>` elements using percentage math. This creates subtle coordinate drift between the animated particle endpoints and the node positions.
 
-**Assets to generate**:
-1. `ecosystem_artist_pain` — bedroom studio, unreleased tracks, purple/violet mood
-2. `ecosystem_engineer_pain` — empty professional studio, cyan/teal mood
-3. `ecosystem_producer_pain` — type beat grind, amber/gold mood
-4. `ecosystem_fan_disconnect` — scrolling phone, rose/pink mood
-5. `ecosystem_connection` — people connecting, multi-color
-6. `ecosystem_cycle` — living ecosystem, flowing energy
-7. `ecosystem_cta` — four glowing portals
+**Fix**: Move everything into the same SVG coordinate space. Render the role nodes (now with character avatars) as SVG `<foreignObject>` elements at the exact polar coordinates, eliminating the dual-coordinate-system mismatch. This ensures animated particles travel directly to/from the avatar circles.
 
-## Phase 3: Polish & Enhancements
+### 3. Technical Details
 
-After assets are live:
-- Scene transitions (crossfade between scenes instead of hard cut)
-- Haptic feedback on mobile swipe (Capacitor Haptics is already installed)
-- Sound design hooks (optional ambient audio per scene)
-- Analytics tracking for scene completion rates
+**File**: `src/components/journey/EcosystemFlow.tsx`
 
-## Execution Order
+- Import `getCharacter` and `CharacterId` from `@/config/characters`
+- Update the `nodes` array to include `characterId` instead of `icon`:
+  ```
+  { id: "producer", label: "Rell", sublabel: "Producer", characterId: "rell", ... }
+  { id: "artist", label: "Jax", sublabel: "Artist", characterId: "jax", ... }
+  { id: "engineer", label: "Prime", sublabel: "Engineer", characterId: "prime", ... }
+  { id: "fan", label: "Nova", sublabel: "Fan", characterId: "nova", ... }
+  ```
+- Replace the role node `<div>` elements with `<foreignObject>` inside the same SVG, positioned at exact polar coordinates
+- Each avatar renders as a `<img>` inside a styled circle container with the character's accent color border and glow
+- Display the character name as the primary label and the role as a smaller sublabel beneath
+- Remove Lucide icon imports (Music, Headphones, Disc3, Heart) since they are no longer used
 
-Phase 1 first (gradient fallbacks) → page works immediately. Phase 2 (Dream Engine images) → page becomes cinematic. Phase 3 → refinement.
-
-**Total Phase 1: ~8 files touched. No database changes.**
+**No new dependencies.** Uses existing character config and avatar assets already in the project.
 

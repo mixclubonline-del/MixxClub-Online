@@ -1,5 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import type { EcosystemSceneId } from '@/hooks/useEcosystemAssets';
+import { useHapticFeedback } from '@/hooks/useHapticFeedback';
 import { ArtistPainScene } from './scenes/ArtistPainScene';
 import { EngineerPainScene } from './scenes/EngineerPainScene';
 import { ProducerPainScene } from './scenes/ProducerPainScene';
@@ -13,7 +15,7 @@ const SCENES: EcosystemSceneId[] = [
   'connection', 'ecosystem', 'cta',
 ];
 
-const AUTO_MS = 6000; // 6s per pain scene, fast emotional pacing
+const AUTO_MS = 6000;
 
 interface Props {
   assets: Record<EcosystemSceneId, { url: string; isVideo: boolean }>;
@@ -24,6 +26,7 @@ export function EcosystemStoryController({ assets, isLoading }: Props) {
   const [idx, setIdx] = useState(0);
   const timerRef = useRef<ReturnType<typeof setTimeout>>();
   const touchStart = useRef<number | null>(null);
+  const { triggerHaptic } = useHapticFeedback();
   const prefersReducedMotion = useRef(
     typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
   );
@@ -31,7 +34,8 @@ export function EcosystemStoryController({ assets, isLoading }: Props) {
   const go = useCallback((next: number) => {
     if (next < 0 || next >= SCENES.length) return;
     setIdx(next);
-  }, []);
+    triggerHaptic('light');
+  }, [triggerHaptic]);
 
   // Auto-advance (pause on CTA scene and reduced motion)
   useEffect(() => {
@@ -83,9 +87,19 @@ export function EcosystemStoryController({ assets, isLoading }: Props) {
       onPointerDown={onPointerDown}
       onPointerUp={onPointerUp}
     >
-      <div className="absolute inset-0 w-full h-full">
-        {sceneComponents[SCENES[idx]]}
-      </div>
+      {/* Crossfade scene transitions */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={SCENES[idx]}
+          className="absolute inset-0 w-full h-full"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.6, ease: 'easeInOut' }}
+        >
+          {sceneComponents[SCENES[idx]]}
+        </motion.div>
+      </AnimatePresence>
 
       {/* Stories-style progress bar */}
       <div className="fixed top-0 left-0 right-0 z-50 flex gap-1 px-3 py-2">
@@ -98,9 +112,15 @@ export function EcosystemStoryController({ assets, isLoading }: Props) {
           >
             <div
               className={`h-full rounded-full transition-all duration-300 ${
-                i < idx ? 'bg-white w-full' : i === idx ? 'bg-white animate-[progressFill_6s_linear_forwards]' : 'bg-transparent w-0'
+                i < idx ? 'bg-white w-full' : i === idx ? 'bg-white' : 'bg-transparent w-0'
               }`}
-              style={i === idx ? { animation: `progressFill ${AUTO_MS}ms linear forwards` } : i < idx ? { width: '100%' } : { width: '0%' }}
+              style={
+                i === idx
+                  ? { animation: `progressFill ${AUTO_MS}ms linear forwards` }
+                  : i < idx
+                  ? { width: '100%' }
+                  : { width: '0%' }
+              }
             />
           </button>
         ))}
