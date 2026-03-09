@@ -8,14 +8,12 @@ interface Props {
 export function EcosystemSceneBackground({ asset, tint }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  console.log('[EcosystemBG] asset:', asset.url, 'isVideo:', asset.isVideo);
-
   useEffect(() => {
     videoRef.current?.play().catch(() => {});
   }, [asset.url]);
 
   return (
-    <>
+    <div className="absolute inset-0 w-full h-full">
       {asset.isVideo ? (
         <video
           ref={videoRef}
@@ -34,12 +32,10 @@ export function EcosystemSceneBackground({ asset, tint }: Props) {
           className="absolute inset-0 w-full h-full object-cover animate-[kenBurns_20s_ease-in-out_infinite_alternate]"
         />
       )}
-      {/* Role-tinted gradient — subtle wash */}
       {tint && (
         <div className={`absolute inset-0 bg-gradient-to-t ${tint} to-transparent opacity-60`} />
       )}
-      {/* Bottom scrim for text readability only */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
-    </>
+    </div>
   );
 }
