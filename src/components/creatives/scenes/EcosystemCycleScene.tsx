@@ -1,31 +1,19 @@
-import { motion } from 'framer-motion';
-import { EcosystemSceneBackground } from './EcosystemSceneBackground';
-
 interface Props {
   asset: { url: string; isVideo: boolean };
 }
 
 export function EcosystemCycleScene({ asset }: Props) {
   return (
-    <div className="absolute inset-0 w-full h-full">
-      <EcosystemSceneBackground
-        asset={asset}
-        fallbackGradient="bg-gradient-to-br from-indigo-950 via-purple-900/60 to-cyan-950"
-      />
-      <div className="absolute inset-0 flex flex-col items-center justify-end pb-24 sm:pb-32 px-6">
-        <motion.div
-          className="text-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.8 }}
-        >
+    <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-indigo-800 via-purple-800 to-cyan-900">
+      <div className="absolute inset-0 z-10 flex flex-col items-center justify-end pb-24 sm:pb-32 px-6">
+        <div className="text-center animate-fade-in">
           <p className="text-2xl sm:text-4xl lg:text-5xl font-bold text-white">
             You keep <span className="text-primary">70%</span>. Period.
           </p>
           <p className="text-base sm:text-xl text-white/60 mt-4 max-w-lg mx-auto">
             Every transaction feeds the ecosystem. Artists, engineers, producers, fans — connected.
           </p>
-        </motion.div>
+        </div>
       </div>
     </div>
   );
