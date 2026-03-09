@@ -12,6 +12,7 @@ import { TrustBadges } from '@/components/TrustBadges';
 import { SEOHead } from '@/components/SEOHead';
 import { generateProductSchema } from '@/lib/seo-schema';
 import { ScarcityIndicator } from '@/components/pricing/ScarcityIndicator';
+import { PricingCalculator } from '@/components/pricing/PricingCalculator';
 import { useSubscriptionPlans, getYearlyDiscountPercent } from '@/hooks/useSubscriptionPlans';
 import { useMixingPackages } from '@/hooks/useMixingPackages';
 import { useMasteringPackages } from '@/hooks/useMasteringPackages';
