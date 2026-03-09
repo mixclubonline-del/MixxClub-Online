@@ -13,7 +13,9 @@ import {
   Crown,
   Star,
   Trophy,
-  Play
+  Play,
+  Coins,
+  Radio
 } from "lucide-react";
 import { LandingPortal } from "@/components/landing/LandingPortal";
 import { PortalHero } from "@/components/landing/PortalHero";
