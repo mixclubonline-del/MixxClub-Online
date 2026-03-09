@@ -1,10 +1,12 @@
+import { SceneBackground } from './SceneBackground';
+
 interface Props {
   asset: { url: string; isVideo: boolean };
 }
 
 export function FanDisconnectScene({ asset }: Props) {
   return (
-    <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-pink-700 via-rose-900 to-slate-950">
+    <SceneBackground asset={asset} fallbackGradient="bg-gradient-to-br from-pink-700 via-rose-900 to-slate-950">
       <div className="absolute inset-0 z-10 flex flex-col items-center justify-end pb-24 sm:pb-32 px-6">
         <p className="text-3xl sm:text-5xl lg:text-6xl font-bold text-white text-center leading-tight max-w-3xl animate-fade-in">
           You stream 4 hours a day.
@@ -13,6 +15,6 @@ export function FanDisconnectScene({ asset }: Props) {
           They don't even know your name.
         </p>
       </div>
-    </div>
+    </SceneBackground>
   );
 }
