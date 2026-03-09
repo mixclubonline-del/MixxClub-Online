@@ -103,14 +103,14 @@ const ForFans = () => {
             image: artistDelivery,
             icon: Gift,
             stepNumber: 5,
-            title: "Earn Rewards",
-            description: "Your engagement = rewards. Stream, share, attend events, and refer friends to earn points redeemable for merch, tickets, and exclusive experiences.",
+            title: "Earn MixxCoinz",
+            description: "Your engagement = MixxCoinz. Stream, share, attend events, and refer friends to earn our platform currency — redeemable for merch, tickets, and exclusive experiences.",
             stats: [
-                { label: "Reward Types", value: "20+" },
+                { label: "Earn Methods", value: "20+" },
                 { label: "Redemption", value: "Instant" },
                 { label: "Perks", value: "Exclusive" }
             ],
-            techDetails: ["Stream Rewards", "Share Bonuses", "Event Points", "Referral Credits"]
+            techDetails: ["Stream Rewards", "Share Bonuses", "Event Coinz", "Referral Credits"]
         },
         {
             image: artistReleaseGrowth,
