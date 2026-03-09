@@ -24,7 +24,7 @@ import {
   UsersRound,
   Video,
   Building2,
-  Map
+  Map,
 } from 'lucide-react';
 
 export type UserRole = 'artist' | 'engineer' | 'producer' | 'fan' | 'admin' | null;

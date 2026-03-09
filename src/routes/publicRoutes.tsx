@@ -65,6 +65,8 @@ export const publicRoutes = (
     <Route path="/press" element={<Press />} />
     <Route path="/for-artists" element={<ForArtists />} />
     <Route path="/for-engineers" element={<ForEngineers />} />
+    <Route path="/for-producers" element={<ForProducers />} />
+    <Route path="/for-fans" element={<ForFans />} />
     
     {/* Studio & Services — Public showcase (unauthenticated access) */}
     <Route path={ROUTES.SERVICES} element={<React.Suspense fallback={<div className="min-h-screen bg-background" />}><Services /></React.Suspense>} />
@@ -78,7 +80,7 @@ export const publicRoutes = (
     <Route path={ROUTES.MARKETPLACE} element={<React.Suspense fallback={<div className="min-h-screen bg-background" />}><BeatMarketplace /></React.Suspense>} />
     <Route path={ROUTES.BEATS} element={<React.Suspense fallback={<div className="min-h-screen bg-background" />}><BeatMarketplace /></React.Suspense>} />
 
-    {/* Mixxclub platform routes - authenticated */}
+    {/* Mixxclub platform routes - public */}
     <Route path="/premieres" element={<Premieres />} />
     <Route path="/community" element={<Community />} />
     <Route path="/live" element={<LivePage />} />
