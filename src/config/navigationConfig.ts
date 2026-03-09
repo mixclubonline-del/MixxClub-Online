@@ -24,7 +24,7 @@ import {
   UsersRound,
   Video,
   Building2,
-  Map
+  Map,
 } from 'lucide-react';
 
 export type UserRole = 'artist' | 'engineer' | 'producer' | 'fan' | 'admin' | null;
@@ -192,6 +192,13 @@ const navigationItems: NavItem[] = [
     category: 'Economy',
     badge: 'NEW',
   },
+  {
+    label: 'Achievements',
+    path: '/achievements',
+    icon: Award,
+    roles: ['artist', 'engineer', 'producer', 'fan'],
+    category: 'Economy',
+  },
 
   // Discover
   {
@@ -214,6 +221,43 @@ const navigationItems: NavItem[] = [
     icon: Video,
     roles: ['artist', 'engineer', 'producer', 'fan'],
     category: 'Discover',
+  },
+  {
+    label: 'Premieres',
+    path: '/premieres',
+    icon: Star,
+    roles: ['artist', 'fan'],
+    category: 'Discover',
+  },
+
+  // Growth (engineer/producer)
+  {
+    label: 'Certifications',
+    path: '/my-certifications',
+    icon: Map,
+    roles: ['engineer'],
+    category: 'Growth',
+  },
+  {
+    label: 'Integrations',
+    path: '/integrations',
+    icon: Compass,
+    roles: ['engineer'],
+    category: 'Growth',
+  },
+  {
+    label: 'Beat Forge',
+    path: '/beat-forge',
+    icon: Disc3,
+    roles: ['producer'],
+    category: 'Studio',
+  },
+  {
+    label: 'AI Studio',
+    path: '/ai-audio-intelligence',
+    icon: Sparkles,
+    roles: ['artist', 'engineer'],
+    category: 'Studio',
   },
 
   // Explore
