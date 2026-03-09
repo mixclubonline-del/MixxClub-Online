@@ -123,7 +123,10 @@ export const MasterBus: React.FC<MasterBusProps> = ({}) => {
           variant="outline" 
           className="gap-1" 
           title="Limiter"
-          onClick={() => console.log('TODO: Open Limiter editor')}
+          onClick={() => {
+            const { toast } = require('sonner');
+            toast.info('Limiter editor coming in Phase 3 — stay tuned! 🛡️');
+          }}
         >
           <ShieldCheck size={14} /> Limiter
         </Button>
