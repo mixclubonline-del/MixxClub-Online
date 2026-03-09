@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Helmet } from 'react-helmet-async';
-import GlobalHeader from '@/components/GlobalHeader';
+import { SEOHead } from '@/components/SEOHead';
+import Navigation from '@/components/Navigation';
+import { PublicFooter } from '@/components/layouts/PublicFooter';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
