@@ -4,6 +4,9 @@ import {
   Sparkles, Music, Drum, Play, Pause, Download, Trash2,
   Star, Loader2, Volume2, Wand2, Zap
 } from 'lucide-react';
+import { SEOHead } from '@/components/SEOHead';
+import Navigation from '@/components/Navigation';
+import { PublicFooter } from '@/components/layouts/PublicFooter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
