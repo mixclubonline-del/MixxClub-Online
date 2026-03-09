@@ -315,7 +315,7 @@ export const AudioReactiveHero = () => {
               </span>
             </Button>
           </Link>
-          <Link to="/how-it-works">
+          <Link to="/home">
             <Button 
               size="lg" 
               variant="outline" 
