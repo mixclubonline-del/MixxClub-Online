@@ -99,7 +99,10 @@ export const MasterBus: React.FC<MasterBusProps> = ({}) => {
           variant="outline" 
           className="gap-1" 
           title="EQ (click to open, Alt-click to bypass)"
-          onClick={() => console.log('TODO: Open Master EQ editor')}
+          onClick={() => {
+            const { toast } = require('sonner');
+            toast.info('Master EQ editor coming in Phase 3 — stay tuned! 🎛️');
+          }}
         >
           <SlidersHorizontal size={14} /> EQ
         </Button>
