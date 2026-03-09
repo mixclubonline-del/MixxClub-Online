@@ -274,7 +274,7 @@ export function PricingCalculator({ mixingPackages, masteringPackages, addons }:
                     <motion.div
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
-                      className="flex justify-between text-sm text-green-400"
+                      className="flex justify-between text-sm text-accent-foreground"
                     >
                       <span>{TIER_OPTIONS[tierIndex].label} discount</span>
                       <span>−${breakdown.discountAmount.toFixed(0)}</span>
