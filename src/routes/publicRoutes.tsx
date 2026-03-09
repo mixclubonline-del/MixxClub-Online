@@ -87,6 +87,7 @@ export const publicRoutes = (
     <Route path="/live" element={<LivePage />} />
     <Route path="/achievements" element={<Achievements />} />
     <Route path="/beat-forge" element={<PrimeBeatForge />} />
+    <Route path={ROUTES.ECONOMY} element={<React.Suspense fallback={<div className="min-h-screen bg-background" />}><EconomyPublic /></React.Suspense>} />
     <Route path="/u/:username" element={<PublicProfile />} />
   </>
 );

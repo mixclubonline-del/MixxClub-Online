@@ -10,7 +10,7 @@ import { MixxCoin } from '@/components/economy/MixxCoin';
 import { ScrollRevealSection } from '@/components/landing/ScrollRevealSection';
 import { PulsingCTA } from '@/components/landing/PulsingCTA';
 import { Badge } from '@/components/ui/badge';
-import PublicFooter from '@/components/layouts/PublicFooter';
+import { PublicFooter } from '@/components/layouts/PublicFooter';
 import { useAuth } from '@/hooks/useAuth';
 import { Navigate } from 'react-router-dom';
 import { ROUTES } from '@/config/routes';
