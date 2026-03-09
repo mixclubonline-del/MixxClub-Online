@@ -1,6 +1,15 @@
 import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
+// Static fallback imports (real generated images)
+import artistPainFallback from '@/assets/ecosystem/artist-pain.jpg';
+import engineerPainFallback from '@/assets/ecosystem/engineer-pain.jpg';
+import producerPainFallback from '@/assets/ecosystem/producer-pain.jpg';
+import fanDisconnectFallback from '@/assets/ecosystem/fan-disconnect.jpg';
+import connectionFallback from '@/assets/ecosystem/connection.jpg';
+import cycleFallback from '@/assets/ecosystem/cycle.jpg';
+import ctaPortalsFallback from '@/assets/ecosystem/cta-portals.jpg';
+
 export type EcosystemSceneId = 
   | 'artist_pain' 
   | 'engineer_pain' 
@@ -25,14 +34,21 @@ const SCENE_CONTEXTS: Record<EcosystemSceneId, string> = {
   cta: 'ecosystem_cta',
 };
 
+const STATIC_FALLBACKS: Record<EcosystemSceneId, string> = {
+  artist_pain: artistPainFallback,
+  engineer_pain: engineerPainFallback,
+  producer_pain: producerPainFallback,
+  fan_disconnect: fanDisconnectFallback,
+  connection: connectionFallback,
+  ecosystem: cycleFallback,
+  cta: ctaPortalsFallback,
+};
+
 const VIDEO_EXTS = ['.mp4', '.webm', '.mov'];
 
 function isVideoUrl(url: string): boolean {
   return VIDEO_EXTS.some((ext) => url.toLowerCase().includes(ext));
 }
-
-// Empty fallback — scenes use gradient fallbacks via fallbackGradient prop
-const EMPTY_ASSET: EcosystemAsset = { url: '', isVideo: false };
 
 export function useEcosystemAssets() {
   const [dbAssets, setDbAssets] = useState<Record<string, EcosystemAsset>>({});
@@ -71,7 +87,10 @@ export function useEcosystemAssets() {
   const assets = useMemo(() => {
     const result = {} as Record<EcosystemSceneId, EcosystemAsset>;
     for (const [scene, context] of Object.entries(SCENE_CONTEXTS)) {
-      result[scene as EcosystemSceneId] = dbAssets[context] || EMPTY_ASSET;
+      const db = dbAssets[context];
+      result[scene as EcosystemSceneId] = db
+        ? { url: db.url, isVideo: db.isVideo }
+        : { url: STATIC_FALLBACKS[scene as EcosystemSceneId], isVideo: false };
     }
     return result;
   }, [dbAssets]);
