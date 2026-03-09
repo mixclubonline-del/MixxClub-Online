@@ -86,18 +86,32 @@ export const SessionWorkspacePage = () => {
       if (!sessionId) return;
       const { data, error } = await supabase
         .from('session_comments')
-        .select(`
-          id,
-          comment_text,
-          timestamp_seconds,
-          created_at,
-          user:profiles!user_id(full_name, username, avatar_url)
-        `)
+        .select('id, comment_text, timestamp_seconds, created_at, user_id')
         .eq('session_id', sessionId)
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      setComments(data as SessionComment[] || []);
+
+      // Enrich comments with profile data
+      const enriched: SessionComment[] = await Promise.all(
+        (data || []).map(async (c) => {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name, username, avatar_url')
+            .eq('id', c.user_id)
+            .maybeSingle();
+
+          return {
+            id: c.id,
+            comment_text: c.comment_text,
+            timestamp_seconds: c.timestamp_seconds,
+            created_at: c.created_at,
+            user: profile || null,
+          };
+        })
+      );
+
+      setComments(enriched);
     } catch (err) {
       console.error('Error loading comments:', err);
     } finally {
