@@ -63,9 +63,9 @@ const pillars = [
 ];
 
 const values = [
-  { title: 'Intention Over Convention',  desc: 'Every feature is deliberate. We don't ship until it elevates the experience for all four roles.', accent: 'rgba(168,85,247,0.35)' },
+  { title: 'Intention Over Convention',  desc: 'Every feature is deliberate. We do not ship until it elevates the experience for all four roles.', accent: 'rgba(168,85,247,0.35)' },
   { title: 'Ownership Economy',          desc: 'MixxCoinz puts real value in the hands of every creator, engineer, and fan who shows up consistently.', accent: 'rgba(6,182,212,0.35)' },
-  { title: 'Built For The Culture',      desc: 'We didn't build a generic audio SaaS. We built a home — for hip-hop, R&B, afrobeat, and every genre in between.', accent: 'rgba(249,115,22,0.35)' },
+  { title: 'Built For The Culture',      desc: 'We did not build a generic audio SaaS. We built a home for hip-hop, R&B, afrobeat, and every genre in between.', accent: 'rgba(249,115,22,0.35)' },
 ];
 
 export default function About() {
