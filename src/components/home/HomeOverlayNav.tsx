@@ -70,7 +70,7 @@ export function HomeOverlayNav() {
                 <Link to="/auth">Sign In</Link>
               </Button>
               <Button asChild size="sm" className="h-8 text-xs">
-                <Link to="/how-it-works">Get Started</Link>
+                <Link to="/home">Get Started</Link>
               </Button>
             </>
           )}

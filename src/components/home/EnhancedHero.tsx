@@ -68,7 +68,7 @@ export const EnhancedHero = () => {
               <Button 
                 size="lg" 
                 variant="outline"
-                onClick={() => navigate('/how-it-works')}
+                onClick={() => navigate('/home')}
                 className="gap-2 glass-morphic backdrop-blur-xl border-primary/20 hover:border-primary/40 text-lg px-8 py-6"
               >
                 <Play className="w-5 h-5" />

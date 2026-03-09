@@ -158,7 +158,7 @@ export function PublicFooter() {
             <Link to="/auth" className="text-xs text-primary hover:text-primary/80 font-medium transition-colors">
               Sign In
             </Link>
-            <Link to="/how-it-works" className="text-xs text-primary hover:text-primary/80 font-medium transition-colors">
+            <Link to="/home" className="text-xs text-primary hover:text-primary/80 font-medium transition-colors">
               Get Started
             </Link>
           </div>

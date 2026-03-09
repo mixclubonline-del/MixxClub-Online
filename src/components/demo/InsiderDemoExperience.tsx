@@ -727,7 +727,7 @@ export function InsiderDemoExperience({ embedded, onLearnMore, onBack, onJoinNow
                       onJoinNow();
                       return;
                     }
-                    navigate('/how-it-works');
+                    navigate('/home');
                   }}
                   className="text-base sm:text-xl px-8 sm:px-12 py-5 sm:py-6 bg-gradient-to-r from-primary via-purple-600 to-cyan-600 hover:opacity-90 shadow-lg shadow-primary/30"
                 >

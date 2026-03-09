@@ -172,7 +172,7 @@ function VerticalSceneFlow() {
           </Link>
           <span className="text-muted-foreground/40">•</span>
           <Link
-            to="/how-it-works"
+            to="/home"
             className="text-xs text-muted-foreground hover:text-foreground transition-colors"
             aria-label="Go to sign up"
           >

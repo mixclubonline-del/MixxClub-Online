@@ -131,7 +131,7 @@ export function HomeHeroSection() {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
         >
-          <Link to="/how-it-works">
+          <Link to="/home">
             <Button
               size="lg"
               className="group relative px-8 py-6 text-lg font-semibold
@@ -145,7 +145,7 @@ export function HomeHeroSection() {
             </Button>
           </Link>
 
-          <Link to="/how-it-works">
+          <Link to="/home">
             <Button
               variant="outline"
               size="lg"

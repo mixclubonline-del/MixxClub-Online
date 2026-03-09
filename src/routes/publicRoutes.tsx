@@ -56,7 +56,8 @@ export const publicRoutes = (
     <Route path="/start" element={<React.Suspense fallback={<div className="min-h-screen bg-background" />}><QuickStart /></React.Suspense>} />
     <Route path="/install" element={<Install />} />
     
-    <Route path={ROUTES.HOW_IT_WORKS} element={<HowItWorks />} />
+    <Route path="/home" element={<HowItWorks />} />
+    <Route path={ROUTES.HOW_IT_WORKS} element={<Navigate to="/home" replace />} />
     <Route path="/faq" element={<FAQ />} />
     <Route path="/terms" element={<Terms />} />
     <Route path="/privacy" element={<Privacy />} />
