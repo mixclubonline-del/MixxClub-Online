@@ -16,6 +16,7 @@ export const ROUTES = {
   WAITLIST: '/waitlist',
   INSTALL: '/install',
   HOW_IT_WORKS: '/how-it-works',
+  INTRO_HOME: '/home',
   SHOWCASE: '/showcase',
   FAQ: '/faq',
   PRICING: '/pricing',
