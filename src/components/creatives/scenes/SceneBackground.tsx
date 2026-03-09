@@ -25,8 +25,8 @@ export function SceneBackground({ asset, fallbackGradient, children }: Props) {
 
   return (
     <div className="absolute inset-0 w-full h-full overflow-hidden">
-      {/* Gradient fallback — always present */}
-      <div className={`absolute inset-0 ${fallbackGradient}`} />
+      {/* Gradient fallback */}
+      <div className={`absolute inset-0 ${fallbackGradient}`} style={{ zIndex: 1 }} />
 
       {/* Video layer */}
       {asset.isVideo && hasUrl && (
@@ -38,6 +38,7 @@ export function SceneBackground({ asset, fallbackGradient, children }: Props) {
           muted
           playsInline
           className="absolute inset-0 w-full h-full object-cover"
+          style={{ zIndex: 2 }}
         />
       )}
 
@@ -51,6 +52,7 @@ export function SceneBackground({ asset, fallbackGradient, children }: Props) {
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               opacity: showImage ? 1 : 0,
+              zIndex: 2,
             }}
           />
           <img
@@ -64,10 +66,15 @@ export function SceneBackground({ asset, fallbackGradient, children }: Props) {
       )}
 
       {/* Dark overlay for text readability */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/20" />
+      <div
+        className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-black/10"
+        style={{ zIndex: 3 }}
+      />
 
       {/* Content */}
-      {children}
+      <div className="absolute inset-0" style={{ zIndex: 10 }}>
+        {children}
+      </div>
     </div>
   );
 }
