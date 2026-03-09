@@ -8,6 +8,8 @@ interface Props {
 export function EcosystemSceneBackground({ asset, tint }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  console.log('[EcosystemBG] asset:', asset.url, 'isVideo:', asset.isVideo);
+
   useEffect(() => {
     videoRef.current?.play().catch(() => {});
   }, [asset.url]);
