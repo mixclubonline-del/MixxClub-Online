@@ -1,42 +1,44 @@
 
 
-# Route Rename & Navigation Restructure (Updated)
+# Replace Ecosystem Flow Icons with Character Avatars & Fix Animation Alignment
 
-## Summary
+## What Changes
 
-Same plan as previously approved, with one addition: the **Platform** dropdown now includes **MixxCoinz** (`/economy`).
+### 1. Replace Lucide Icons with Character Avatars
 
-## Route Changes
+Swap the generic icon circles for each role's canonical character portrait:
 
-| Current | New | Component |
-|---|---|---|
-| `/` | `/` (unchanged) | `MixClubHome` (hallway) |
-| `/how-it-works` | `/home` | `HowItWorks` (renamed to Home) |
-| — | `/how-it-works` | `<Navigate to="/home" replace />` |
+| Role | Current Icon | New Avatar | Character |
+|------|-------------|------------|-----------|
+| Producer | Disc3 (generic) | `/assets/characters/rell-portrait.png` | Rell |
+| Artist | Music (generic) | `/assets/characters/jax-portrait.png` | Jax |
+| Engineer | Headphones (generic) | `/assets/prime-pointing.jpg` | Prime |
+| Fan | Heart (generic) | `/assets/characters/nova-portrait.png` | Nova |
 
-`src/config/routes.ts` — add `INTRO_HOME: '/home'`, keep `HOME: '/'`.
+Each node circle will render a cropped character portrait (`object-cover` in a `rounded-full` container) instead of a Lucide SVG icon, using the character's canonical `accentColor` for the border and glow.
 
-`src/routes/publicRoutes.tsx` — add `/home` route, add `/how-it-works` redirect.
+### 2. Fix Animation Alignment
 
-`src/config/immersiveRoutes.ts` — no changes needed.
+The current architecture renders SVG paths in an `<svg viewBox="-200 -200 400 400">` but places role nodes as absolutely-positioned `<div>` elements using percentage math. This creates subtle coordinate drift between the animated particle endpoints and the node positions.
 
-## Navigation Structure (logged-out)
+**Fix**: Move everything into the same SVG coordinate space. Render the role nodes (now with character avatars) as SVG `<foreignObject>` elements at the exact polar coordinates, eliminating the dual-coordinate-system mismatch. This ensures animated particles travel directly to/from the avatar circles.
 
-```text
-Platform            For Creatives     Studio              Community
-├ Home (/home)      ├ For Artists     ├ Mixing Magic       ├ The Network
-├ MixxCoinz         ├ For Engineers   ├ Mastering          ├ Mix Battles
-├ Pricing           ├ For Producers   ├ AI Mastering       ├ Leaderboard
-├ Showcase          └ For Fans        └ Distribution       └ Marketplace
-└ About
-```
+### 3. Technical Details
 
-Update in: `Navigation.tsx`, `HomeOverlayNav.tsx`, `PublicFooter.tsx`, `PublicPageLayout.tsx`.
+**File**: `src/components/journey/EcosystemFlow.tsx`
 
-## Internal Link Updates (~11 files)
+- Import `getCharacter` and `CharacterId` from `@/config/characters`
+- Update the `nodes` array to include `characterId` instead of `icon`:
+  ```
+  { id: "producer", label: "Rell", sublabel: "Producer", characterId: "rell", ... }
+  { id: "artist", label: "Jax", sublabel: "Artist", characterId: "jax", ... }
+  { id: "engineer", label: "Prime", sublabel: "Engineer", characterId: "prime", ... }
+  { id: "fan", label: "Nova", sublabel: "Fan", characterId: "nova", ... }
+  ```
+- Replace the role node `<div>` elements with `<foreignObject>` inside the same SVG, positioned at exact polar coordinates
+- Each avatar renders as a `<img>` inside a styled circle container with the character's accent color border and glow
+- Display the character name as the primary label and the role as a smaller sublabel beneath
+- Remove Lucide icon imports (Music, Headphones, Disc3, Heart) since they are no longer used
 
-All references to `/how-it-works` as a navigation target → `/home`:
-- `SceneFlow.tsx`, `ClubScene.tsx`, `HomeHeroSection.tsx`, `EnhancedHero.tsx`, `AudioReactiveHero.tsx`, `Hero.tsx`, `InsiderDemo.tsx`, `InsiderDemoExperience.tsx`, `HomeOverlayNav.tsx`, `PublicPageLayout.tsx`, `PublicFooter.tsx`
-
-## Total: ~15 files changed. No database changes.
+**No new dependencies.** Uses existing character config and avatar assets already in the project.
 

@@ -17,14 +17,15 @@ import { Button } from '@/components/ui/button';
 import { useSceneFlowStore } from '@/stores/sceneFlowStore';
 
 const PUBLIC_LINKS = [
-  { label: 'How It Works', path: '/how-it-works' },
+  { label: 'Home', path: '/home' },
+  { label: 'MixxCoinz', path: '/economy' },
+  { label: 'Pricing', path: '/pricing' },
+  { label: 'Showcase', path: '/showcase' },
+  { label: 'About', path: '/about' },
   { label: 'For Artists', path: '/for-artists' },
   { label: 'For Engineers', path: '/for-engineers' },
   { label: 'For Producers', path: '/for-producers' },
   { label: 'For Fans', path: '/for-fans' },
-  { label: 'Pricing', path: '/pricing' },
-  { label: 'About', path: '/about' },
-  { label: 'FAQ', path: '/faq' },
 ];
 
 export function HomeOverlayNav() {
@@ -69,7 +70,7 @@ export function HomeOverlayNav() {
                 <Link to="/auth">Sign In</Link>
               </Button>
               <Button asChild size="sm" className="h-8 text-xs">
-                <Link to="/how-it-works">Get Started</Link>
+                <Link to="/home">Get Started</Link>
               </Button>
             </>
           )}

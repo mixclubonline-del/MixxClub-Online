@@ -10,8 +10,7 @@ export default function MixClubHome() {
         keywords="MIXXCLUB, music mixing, mastering, AI studio, music collaboration, professional engineers, music production"
       />
 
-      {/* No navigation overlay — the hallway is a pure immersive experience.
-          Navigation begins at How It Works (/how-it-works) and beyond. */}
+      {/* Immersive hallway intro — navigation begins at /home and beyond. */}
       <div className="min-h-screen">
         <PrimeLanding />
       </div>

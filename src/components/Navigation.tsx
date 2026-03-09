@@ -43,17 +43,37 @@ const Navigation = () => {
   // Role-specific navigation - Story-driven structure
   const getNavLinks = () => {
     if (!user) {
-      // Logged out: Focus on story - Studio, Community, Roles, Showcase
+      // Logged out: 4-category structure
       return [
         {
-          label: "The Studio",
+          label: "Platform",
+          isDropdown: true,
+          items: [
+            { to: "/home", label: "Home" },
+            { to: "/economy", label: "MixxCoinz" },
+            { to: "/pricing", label: "Pricing" },
+            { to: "/showcase", label: "Showcase" },
+            { to: "/about", label: "About" },
+          ]
+        },
+        {
+          label: "For Creatives",
+          isDropdown: true,
+          items: [
+            { to: "/for-artists", label: "For Artists" },
+            { to: "/for-engineers", label: "For Engineers" },
+            { to: "/for-producers", label: "For Producers" },
+            { to: "/for-fans", label: "For Fans" },
+          ]
+        },
+        {
+          label: "Studio",
           isDropdown: true,
           items: [
             { to: "/services/mixing", label: "Mixing Magic" },
             { to: "/services/mastering", label: "Mastering" },
             { to: "/services/ai-mastering", label: "AI Mastering" },
             { to: "/services/distribution", label: "Distribution" },
-            { to: "/showcase", label: "The Technology", badge: "NEW" },
           ]
         },
         {
@@ -66,9 +86,6 @@ const Navigation = () => {
             { to: "/marketplace", label: "Marketplace" },
           ]
         },
-        { to: "/for-artists", label: "For Artists" },
-        { to: "/for-engineers", label: "For Engineers" },
-        { to: "/showcase", label: "Showcase" },
       ];
     }
 

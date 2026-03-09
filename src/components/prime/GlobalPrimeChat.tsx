@@ -29,7 +29,7 @@ const getContextualGreeting = (pathname: string): string => {
   if (pathname.includes('/ai-mastering')) {
     return "Ready to master your track? I can walk you through our AI mastering process or help with any questions.";
   }
-  if (pathname.includes('/how-it-works')) {
+  if (pathname.includes('/home') || pathname.includes('/how-it-works')) {
     return "Want to understand Mixxclub better? Ask me anything about how we connect artists with engineers!";
   }
   return "Hey! I'm Prime, your guide to Mixxclub. I know everything about mixing, mastering, and building your music career. What can I help you with?";

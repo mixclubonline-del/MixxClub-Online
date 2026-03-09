@@ -16,6 +16,7 @@ export const ROUTES = {
   WAITLIST: '/waitlist',
   INSTALL: '/install',
   HOW_IT_WORKS: '/how-it-works',
+  INTRO_HOME: '/home',
   SHOWCASE: '/showcase',
   FAQ: '/faq',
   PRICING: '/pricing',
@@ -33,7 +34,7 @@ export const ROUTES = {
   FOR_ENGINEERS: '/for-engineers',
   FOR_PRODUCERS: '/for-producers',
   FOR_FANS: '/for-fans',
-  CHOOSE_PATH: '/how-it-works',
+  CHOOSE_PATH: '/home',
   REQUEST_ACCESS: '/request-access',
 
   // Auth & legal

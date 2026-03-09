@@ -120,7 +120,7 @@ function VerticalSceneFlow() {
     trackEvent('funnel_cta_click', 'funnel', 'demo_join_now');
     trackEvent('funnel_conversion_complete', 'funnel', 'how_it_works');
     go('HALLWAY');
-    setTimeout(() => navigate('/how-it-works'), dissolveMs);
+    setTimeout(() => navigate('/home'), dissolveMs);
   }, [go, navigate, dissolveMs]);
 
   return (
@@ -172,7 +172,7 @@ function VerticalSceneFlow() {
           </Link>
           <span className="text-muted-foreground/40">•</span>
           <Link
-            to="/how-it-works"
+            to="/home"
             className="text-xs text-muted-foreground hover:text-foreground transition-colors"
             aria-label="Go to sign up"
           >
