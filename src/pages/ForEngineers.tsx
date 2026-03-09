@@ -145,7 +145,7 @@ export default function ForEngineers() {
       <PortalHero
         badge={{ icon: <Sliders className="w-4 h-4" />, text: "For Engineers" }}
         title="Your Skills Deserve to Be Paid"
-        subtitle="Transform your audio expertise into a thriving business with 10 revenue streams and automatic client matching."
+        subtitle="Transform your audio expertise into a thriving business with 10 revenue streams, verified certifications, and automatic client matching."
         stats={stats}
         primaryAction={{
           text: "Start Earning Today",
