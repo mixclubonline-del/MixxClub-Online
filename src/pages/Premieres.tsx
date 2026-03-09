@@ -105,16 +105,14 @@ export default function Premieres() {
 
   return (
     <>
-      <Helmet>
-        <title>Track Premieres — Mixxclub Online</title>
-        <meta 
-          name="description" 
-          content="Discover and vote on newly mixed tracks. Support artists and earn rewards." 
-        />
-      </Helmet>
+      <SEOHead
+        title="Track Premieres"
+        description="Discover and vote on newly mixed tracks. Support artists and earn rewards on Mixxclub."
+        keywords="track premieres, music voting, new music, artist support"
+      />
 
       <div className="min-h-screen bg-background">
-        <GlobalHeader />
+        <Navigation />
         
         <main className="max-w-7xl mx-auto px-6 py-16">
           <div className="text-center mb-12">
