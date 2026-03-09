@@ -29,13 +29,14 @@ const planIcons: Record<string, typeof Zap> = {
 
 export default function Pricing() {
   const navigate = useNavigate();
-  const [serviceType, setServiceType] = useState<'mixing' | 'mastering' | 'subscriptions'>('subscriptions');
+  const [serviceType, setServiceType] = useState<'mixing' | 'mastering' | 'subscriptions' | 'distribution' | 'beats'>('subscriptions');
   const [yearlyBilling, setYearlyBilling] = useState(false);
 
   const { data: subscriptionPlans, isLoading: loadingPlans } = useSubscriptionPlans();
   const { data: mixingPackages, isLoading: loadingMixing } = useMixingPackages();
   const { data: masteringPackages, isLoading: loadingMastering } = useMasteringPackages();
-  const { data: addons } = useAddonServices(serviceType === 'subscriptions' ? undefined : serviceType);
+  const { data: distributionPackages, isLoading: loadingDistribution } = useDistributionPackages();
+  const { data: addons } = useAddonServices(serviceType === 'subscriptions' ? undefined : (serviceType === 'distribution' || serviceType === 'beats' ? undefined : serviceType));
 
   const isLoading = loadingPlans || loadingMixing || loadingMastering;
 
