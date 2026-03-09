@@ -1,18 +1,16 @@
-import { useState } from 'react';
-
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AccountSettings } from '@/components/settings/AccountSettings';
+import { NotificationSettings } from '@/components/settings/NotificationSettings';
+import { PrivacySettings } from '@/components/settings/PrivacySettings';
 
 export default function Settings() {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-background">
-      
-      
       <div className="container max-w-4xl py-12 px-6">
         <Button
           variant="ghost"
@@ -41,11 +39,11 @@ export default function Settings() {
             </TabsContent>
             
             <TabsContent value="notifications" className="mt-6">
-              <p className="text-muted-foreground">Notification preferences coming soon...</p>
+              <NotificationSettings />
             </TabsContent>
             
             <TabsContent value="privacy" className="mt-6">
-              <p className="text-muted-foreground">Privacy settings coming soon...</p>
+              <PrivacySettings />
             </TabsContent>
           </Tabs>
         </div>
