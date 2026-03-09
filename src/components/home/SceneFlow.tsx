@@ -120,7 +120,7 @@ function VerticalSceneFlow() {
     trackEvent('funnel_cta_click', 'funnel', 'demo_join_now');
     trackEvent('funnel_conversion_complete', 'funnel', 'how_it_works');
     go('HALLWAY');
-    setTimeout(() => navigate('/how-it-works'), dissolveMs);
+    setTimeout(() => navigate('/home'), dissolveMs);
   }, [go, navigate, dissolveMs]);
 
   return (
