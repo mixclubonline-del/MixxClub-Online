@@ -179,6 +179,19 @@ const ForFans = () => {
                 { label: "Leaderboard", value: "Global" }
             ],
             techDetails: ["Badge Collection", "NFT Moments", "Fan Leaderboard", "Milestone Rewards"]
+        },
+        {
+            image: artistCrmDashboard,
+            icon: Wallet,
+            title: "MixxCoinz Wallet",
+            subtitle: "Your Engagement Currency",
+            description: "Track your MixxCoinz balance, earning history, and spending power. Every stream, share, and referral adds to your wallet — spend on merch, exclusives, and experiences.",
+            stats: [
+                { label: "Earn Methods", value: "20+" },
+                { label: "Spend On", value: "Merch & More" },
+                { label: "Tiers", value: "5 Levels" }
+            ],
+            techDetails: ["Earned Balance", "Spending Destinations", "Tier Progress", "Transaction History"]
         }
     ];
 

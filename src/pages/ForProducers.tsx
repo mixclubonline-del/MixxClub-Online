@@ -176,7 +176,20 @@ const ForProducers = () => {
                 { label: "Tiers", value: "5" },
                 { label: "Rewards", value: "Monthly" }
             ],
-            techDetails: ["XP System", "Tier Progression", "Featured Beats", "Exclusive Events"]
+            techDetails: ["XP System", "Tier Progression", "MixxCoinz Rewards", "Exclusive Events"]
+        },
+        {
+            image: artistCrmDashboard,
+            icon: Coins,
+            title: "MixxCoinz Earnings",
+            subtitle: "Earn From Every Beat",
+            description: "Every beat sale, license, and collaboration earns MixxCoinz. Spend on promotion, featured placements, and premium tools — or cash out to USD at 200:1.",
+            stats: [
+                { label: "Earn Rate", value: "Every Sale" },
+                { label: "Max Discount", value: "15%" },
+                { label: "Cashout", value: "200:1" }
+            ],
+            techDetails: ["Beat Sale Rewards", "Promo Spending", "Tier Benefits", "USD Cashout"]
         }
     ];
 

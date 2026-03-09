@@ -362,7 +362,216 @@ export default function Pricing() {
                 </motion.div>
               )}
             </TabsContent>
+
+            {/* DISTRIBUTION TAB */}
+            <TabsContent value="distribution" className="mt-8">
+              <div className="mb-8 text-center">
+                <h2 className="text-3xl font-bold mb-2">Distribution Partners</h2>
+                <p className="text-lg text-muted-foreground">Get your music on every major platform through our trusted partners.</p>
+              </div>
+              <div className="grid md:grid-cols-3 gap-6">
+                {distributionPackages?.map((pkg, i) => (
+                  <motion.div
+                    key={pkg.id}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.1, duration: 0.6 }}
+                  >
+                    <GlassPanel
+                      hoverable
+                      glow={pkg.is_featured ?? false}
+                      accent={pkg.is_featured ? 'rgba(168,85,247,0.4)' : undefined}
+                      className={`relative h-full flex flex-col ${pkg.is_featured ? 'ring-2 ring-primary/50' : ''}`}
+                    >
+                      {pkg.is_featured && (
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-medium z-20">
+                          Recommended
+                        </div>
+                      )}
+
+                      <div className="text-center mb-6">
+                        <div className="flex items-center justify-center gap-2 mb-2">
+                          <Globe className="w-5 h-5 text-primary" />
+                          <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">{pkg.partner_name}</span>
+                        </div>
+                        <h3 className="text-2xl font-bold mb-2">{pkg.package_name}</h3>
+                        <p className="text-muted-foreground text-sm mb-4">{pkg.package_description}</p>
+                        <div className="mb-2">
+                          <span className="text-4xl font-bold">${pkg.price}</span>
+                          <span className="text-muted-foreground">/{pkg.billing_cycle || 'year'}</span>
+                        </div>
+                        {pkg.platforms_count && (
+                          <div className="text-sm text-muted-foreground">{pkg.platforms_count}+ platforms</div>
+                        )}
+                      </div>
+
+                      <div className="space-y-3 mb-6 flex-1">
+                        {pkg.features.map((feature) => (
+                          <div key={feature} className="flex items-start gap-2">
+                            <Check className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                            <span className="text-sm">{feature}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      <Button
+                        onClick={() => window.open(pkg.partner_affiliate_url, '_blank', 'noopener')}
+                        className="w-full"
+                        variant={pkg.is_featured ? 'default' : 'outline'}
+                      >
+                        Get Started with {pkg.partner_name}
+                      </Button>
+                    </GlassPanel>
+                  </motion.div>
+                ))}
+
+                {(!distributionPackages || distributionPackages.length === 0) && !loadingDistribution && (
+                  <div className="col-span-3 text-center py-12">
+                    <Globe className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold mb-2">Distribution partners coming soon</h3>
+                    <p className="text-muted-foreground">We're finalizing partnerships to bring you the best distribution rates.</p>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+
+            {/* BEAT LICENSING TAB */}
+            <TabsContent value="beats" className="mt-8">
+              <div className="mb-8 text-center">
+                <h2 className="text-3xl font-bold mb-2">Beat Licensing Tiers</h2>
+                <p className="text-lg text-muted-foreground">Transparent licensing for producers and artists. 70/30 revenue split — producers keep 70%.</p>
+              </div>
+              <div className="grid md:grid-cols-3 gap-6">
+                {[
+                  {
+                    name: 'Lease License',
+                    icon: FileCheck,
+                    price: '$29–$99',
+                    unit: '/beat',
+                    description: 'Non-exclusive rights for independent releases, demos, and mixtapes.',
+                    features: [
+                      'MP3 + WAV delivery',
+                      'Up to 500,000 streams',
+                      'Non-exclusive — beat stays in catalog',
+                      'Distribute on all platforms',
+                      'Instant download after purchase',
+                    ],
+                    highlighted: false,
+                  },
+                  {
+                    name: 'Premium License',
+                    icon: Sparkles,
+                    price: '$149–$499',
+                    unit: '/beat',
+                    description: 'Enhanced rights with tracked-out stems for serious releases.',
+                    features: [
+                      'WAV + stems delivery',
+                      'Up to 2,000,000 streams',
+                      'Non-exclusive with stem access',
+                      'Full commercial use',
+                      'Priority support from producer',
+                      'Radio & sync licensing included',
+                    ],
+                    highlighted: true,
+                  },
+                  {
+                    name: 'Exclusive License',
+                    icon: Lock,
+                    price: '$500–$5,000+',
+                    unit: '/beat',
+                    description: 'Full ownership transfer. The beat is removed from the marketplace permanently.',
+                    features: [
+                      'Full stems + project files',
+                      'Unlimited streams & sales',
+                      'Beat removed from marketplace',
+                      'Full commercial & sync rights',
+                      'Negotiate directly with producer',
+                      'Custom contract included',
+                    ],
+                    highlighted: false,
+                  }
+                ].map((tier, i) => {
+                  const TierIcon = tier.icon;
+                  return (
+                    <motion.div
+                      key={tier.name}
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.1, duration: 0.6 }}
+                    >
+                      <GlassPanel
+                        hoverable
+                        glow={tier.highlighted}
+                        accent={tier.highlighted ? 'rgba(168,85,247,0.4)' : undefined}
+                        className={`relative h-full flex flex-col ${tier.highlighted ? 'ring-2 ring-primary/50' : ''}`}
+                      >
+                        {tier.highlighted && (
+                          <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-medium z-20">
+                            Most Popular
+                          </div>
+                        )}
+
+                        <div className="text-center mb-6">
+                          <TierIcon className="w-8 h-8 text-primary mx-auto mb-3" />
+                          <h3 className="text-2xl font-bold mb-2">{tier.name}</h3>
+                          <p className="text-muted-foreground text-sm mb-4">{tier.description}</p>
+                          <div className="mb-2">
+                            <span className="text-4xl font-bold">{tier.price}</span>
+                            <span className="text-muted-foreground">{tier.unit}</span>
+                          </div>
+                        </div>
+
+                        <div className="space-y-3 mb-6 flex-1">
+                          {tier.features.map((feature) => (
+                            <div key={feature} className="flex items-start gap-2">
+                              <Check className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                              <span className="text-sm">{feature}</span>
+                            </div>
+                          ))}
+                        </div>
+
+                        <Button
+                          onClick={() => navigate('/marketplace')}
+                          className="w-full"
+                          variant={tier.highlighted ? 'default' : 'outline'}
+                        >
+                          Browse Beats
+                        </Button>
+                      </GlassPanel>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </TabsContent>
           </Tabs>
+
+          {/* MixxCoinz Callout */}
+          <motion.div
+            className="mb-12"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <GlassPanel accent="rgba(245,158,11,0.25)" glow>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-amber-500/15 flex items-center justify-center flex-shrink-0">
+                  <Coins className="w-6 h-6 text-amber-400" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-bold text-lg mb-1">Earn MixxCoinz on Every Purchase</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Every dollar spent earns MixxCoinz — our platform currency. Climb engagement tiers for up to 15% off future purchases. Coinz are yours permanently.{' '}
+                    <Link to="/economy" className="text-primary hover:text-primary/80 font-medium underline underline-offset-2">
+                      Learn about the MixxCoinz economy →
+                    </Link>
+                  </p>
+                </div>
+              </div>
+            </GlassPanel>
+          </motion.div>
 
           <div className="mt-12">
             <TrustBadges />

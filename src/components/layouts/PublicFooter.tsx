@@ -13,6 +13,8 @@ const FOOTER_SECTIONS = [
       { label: 'How It Works', path: '/how-it-works' },
       { label: 'Pricing', path: '/pricing' },
       { label: 'Showcase', path: '/showcase' },
+      { label: 'Economy', path: '/economy' },
+      { label: 'Marketplace', path: '/marketplace' },
       { label: 'FAQ', path: '/faq' },
     ],
   },
