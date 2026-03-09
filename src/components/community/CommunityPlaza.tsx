@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { motion } from 'framer-motion';
-import GlobalHeader from '@/components/GlobalHeader';
+import Navigation from '@/components/Navigation';
 
 interface CommunityPlazaProps {
   backgroundAsset: string;
@@ -10,7 +10,7 @@ interface CommunityPlazaProps {
 export const CommunityPlaza = ({ backgroundAsset, children }: CommunityPlazaProps) => {
   return (
     <div className="min-h-screen bg-background relative">
-      <GlobalHeader />
+      <Navigation />
       
       {/* Full-screen background */}
       <div className="fixed inset-0 -z-10">
