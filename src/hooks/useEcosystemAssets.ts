@@ -1,15 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-// Static fallback imports
-import artistPainFallback from '@/assets/ecosystem/artist-pain.jpg';
-import engineerPainFallback from '@/assets/ecosystem/engineer-pain.jpg';
-import producerPainFallback from '@/assets/ecosystem/producer-pain.jpg';
-import fanDisconnectFallback from '@/assets/ecosystem/fan-disconnect.jpg';
-import connectionFallback from '@/assets/ecosystem/connection.jpg';
-import cycleFallback from '@/assets/ecosystem/cycle.jpg';
-import ctaPortalsFallback from '@/assets/ecosystem/cta-portals.jpg';
-
 export type EcosystemSceneId = 
   | 'artist_pain' 
   | 'engineer_pain' 
@@ -34,24 +25,17 @@ const SCENE_CONTEXTS: Record<EcosystemSceneId, string> = {
   cta: 'ecosystem_cta',
 };
 
-const STATIC_FALLBACKS: Record<EcosystemSceneId, string> = {
-  artist_pain: artistPainFallback,
-  engineer_pain: engineerPainFallback,
-  producer_pain: producerPainFallback,
-  fan_disconnect: fanDisconnectFallback,
-  connection: connectionFallback,
-  ecosystem: cycleFallback,
-  cta: ctaPortalsFallback,
-};
-
 const VIDEO_EXTS = ['.mp4', '.webm', '.mov'];
 
 function isVideoUrl(url: string): boolean {
   return VIDEO_EXTS.some((ext) => url.toLowerCase().includes(ext));
 }
 
+// Empty fallback — scenes use gradient fallbacks via fallbackGradient prop
+const EMPTY_ASSET: EcosystemAsset = { url: '', isVideo: false };
+
 export function useEcosystemAssets() {
-  const [dbAssets, setDbAssets] = useState<Record<string, { url: string; isVideo: boolean }>>({});
+  const [dbAssets, setDbAssets] = useState<Record<string, EcosystemAsset>>({});
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -65,7 +49,7 @@ export function useEcosystemAssets() {
           .eq('is_active', true);
 
         if (!error && data) {
-          const map: Record<string, { url: string; isVideo: boolean }> = {};
+          const map: Record<string, EcosystemAsset> = {};
           data.forEach((a) => {
             if (a.asset_context) {
               map[a.asset_context] = {
@@ -87,10 +71,7 @@ export function useEcosystemAssets() {
   const assets = useMemo(() => {
     const result = {} as Record<EcosystemSceneId, EcosystemAsset>;
     for (const [scene, context] of Object.entries(SCENE_CONTEXTS)) {
-      const db = dbAssets[context];
-      result[scene as EcosystemSceneId] = db
-        ? { url: db.url, isVideo: db.isVideo }
-        : { url: STATIC_FALLBACKS[scene as EcosystemSceneId], isVideo: false };
+      result[scene as EcosystemSceneId] = dbAssets[context] || EMPTY_ASSET;
     }
     return result;
   }, [dbAssets]);
