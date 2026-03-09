@@ -82,7 +82,7 @@ export function EcosystemSceneBackground({ asset, tint, fallbackGradient }: Prop
       {tint && (
         <div className={`absolute inset-0 bg-gradient-to-t ${tint} to-transparent opacity-40`} />
       )}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/10" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
     </div>
   );
 }
