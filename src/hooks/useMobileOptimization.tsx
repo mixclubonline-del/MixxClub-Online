@@ -66,9 +66,11 @@ export const useMobileOptimization = (config: MobileOptimizationConfig = {}) => 
                          ImpactStyle.Medium;
       Haptics.impact({ style: impactStyle });
     } else if (navigator.vibrate) {
-      // Fallback to vibration API
-      const duration = style === 'light' ? 10 : style === 'heavy' ? 50 : 25;
-      navigator.vibrate(duration);
+      // Fallback to vibration API — guarded with try-catch for pre-interaction blocks
+      try {
+        const duration = style === 'light' ? 10 : style === 'heavy' ? 50 : 25;
+        navigator.vibrate(duration);
+      } catch { /* blocked before user interaction — safe to ignore */ }
     }
   };
 

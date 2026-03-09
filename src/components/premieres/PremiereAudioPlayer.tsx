@@ -61,7 +61,7 @@ export default function PremiereAudioPlayer({
           backend: 'WebAudio',
         });
 
-        wavesurferRef.current.load(data.signedUrl);
+        wavesurferRef.current.load(resolvedUrl);
 
         wavesurferRef.current.on('ready', () => {
           setIsLoading(false);
