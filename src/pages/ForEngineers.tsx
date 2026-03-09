@@ -1,7 +1,6 @@
 import { SEOHead } from '@/components/SEOHead';
 import { PublicFooter } from '@/components/layouts/PublicFooter';
 import {
-  Video,
   Zap,
   DollarSign,
   Users,
@@ -11,7 +10,9 @@ import {
   ArrowRight,
   Sliders,
   Briefcase,
-  BarChart3
+  BarChart3,
+  Compass,
+  ShieldCheck
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { LandingPortal } from "@/components/landing/LandingPortal";
