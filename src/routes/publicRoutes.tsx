@@ -30,6 +30,8 @@ import Waitlist from "@/pages/Waitlist";
 import Press from "@/pages/Press";
 import ForArtists from "@/pages/ForArtists";
 import ForEngineers from "@/pages/ForEngineers";
+import ForProducers from "@/pages/ForProducers";
+import ForFans from "@/pages/ForFans";
 import Premieres from "@/pages/Premieres";
 import Community from "@/pages/Community";
 import LivePage from "@/pages/LivePage";
