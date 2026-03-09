@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { Radio, Filter, TrendingUp } from 'lucide-react';
+import { SEOHead } from '@/components/SEOHead';
+import Navigation from '@/components/Navigation';
+import { PublicFooter } from '@/components/layouts/PublicFooter';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
