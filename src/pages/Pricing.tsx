@@ -65,9 +65,9 @@ export default function Pricing() {
   return (
     <>
       <SEOHead
-        title="Pricing - Professional Mixing & Mastering Packages"
-        description="Transparent pricing for professional audio mixing and mastering services. Choose from multiple tiers starting at $99 for mixing and $29 for mastering."
-        keywords="mixing prices, mastering cost, audio engineering rates, mixing packages, mastering packages, professional mixing pricing"
+        title="Pricing - Mixing, Mastering, Distribution & Beat Licensing"
+        description="Transparent pricing for mixing, mastering, distribution, and beat licensing. Creator plans, per-project rates, and MixxCoinz rewards on every purchase."
+        keywords="mixing prices, mastering cost, audio engineering rates, music distribution pricing, beat licensing, MixxCoinz, mixing packages, mastering packages"
         schema={generateProductSchema({
           name: "Professional Mix Package",
           description: "Most popular mixing package with advanced processing and priority support",
