@@ -1,7 +1,6 @@
 import { SEOHead } from '@/components/SEOHead';
 import { PublicFooter } from '@/components/layouts/PublicFooter';
 import {
-  Video,
   Zap,
   DollarSign,
   Users,
@@ -11,7 +10,9 @@ import {
   ArrowRight,
   Sliders,
   Briefcase,
-  BarChart3
+  BarChart3,
+  Compass,
+  ShieldCheck
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { LandingPortal } from "@/components/landing/LandingPortal";
@@ -112,13 +113,39 @@ export default function ForEngineers() {
       icon: Award,
       title: "Growth Academy",
       subtitle: "Level Up Your Skills",
-      description: "Access mentorship, courses, and coaching to improve your craft and business acumen. Set goals, track progress, and unlock your full potential.",
+      description: "Access mentorship, courses, and coaching to improve your craft and business acumen. Earn verified certifications that build client trust and unlock premium tiers.",
       stats: [
         { label: "Courses", value: "50+" },
         { label: "Mentors", value: "Verified" },
         { label: "Certifications", value: "Industry" }
       ],
-      techDetails: ["Skill Tracking", "Goal Setting", "Peer Coaching", "Certifications"]
+      techDetails: ["Skill Tracking", "Goal Setting", "Verified Reviews", "Certifications"]
+    },
+    {
+      image: engineerClientPipeline,
+      icon: ShieldCheck,
+      title: "Verified Certifications",
+      subtitle: "Industry-Recognized Credentials",
+      description: "Earn certifications in mixing, mastering, and audio production. Display verified skill badges on your profile to build trust with potential clients.",
+      stats: [
+        { label: "Cert Paths", value: "8" },
+        { label: "Skill Badges", value: "25+" },
+        { label: "Client Trust", value: "+60%" }
+      ],
+      techDetails: ["Skill Assessment", "Badge Display", "Client Trust Signals", "Portfolio Verified"]
+    },
+    {
+      image: engineerOpportunities,
+      icon: Compass,
+      title: "DAW & Platform Integrations",
+      subtitle: "Connect Your Workflow",
+      description: "Integrate with Pro Tools, Logic Pro, Ableton, and streaming platforms. Import sessions, sync projects, and deliver masters directly to distribution.",
+      stats: [
+        { label: "DAWs", value: "6+" },
+        { label: "Platforms", value: "150+" },
+        { label: "Sync", value: "Real-Time" }
+      ],
+      techDetails: ["Pro Tools", "Logic Pro", "Ableton Live", "Streaming Platforms"]
     }
   ];
 
@@ -144,7 +171,7 @@ export default function ForEngineers() {
       <PortalHero
         badge={{ icon: <Sliders className="w-4 h-4" />, text: "For Engineers" }}
         title="Your Skills Deserve to Be Paid"
-        subtitle="Transform your audio expertise into a thriving business with 10 revenue streams and automatic client matching."
+        subtitle="Transform your audio expertise into a thriving business with 10 revenue streams, verified certifications, and automatic client matching."
         stats={stats}
         primaryAction={{
           text: "Start Earning Today",

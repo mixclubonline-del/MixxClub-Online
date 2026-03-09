@@ -16,7 +16,9 @@ import {
     ArrowRight,
     Ticket,
     MessageCircle,
-    Bell
+    Bell,
+    Coins,
+    Wallet
 } from "lucide-react";
 import { LandingPortal } from "@/components/landing/LandingPortal";
 import { PortalHero } from "@/components/landing/PortalHero";
@@ -101,14 +103,14 @@ const ForFans = () => {
             image: artistDelivery,
             icon: Gift,
             stepNumber: 5,
-            title: "Earn Rewards",
-            description: "Your engagement = rewards. Stream, share, attend events, and refer friends to earn points redeemable for merch, tickets, and exclusive experiences.",
+            title: "Earn MixxCoinz",
+            description: "Your engagement = MixxCoinz. Stream, share, attend events, and refer friends to earn our platform currency — redeemable for merch, tickets, and exclusive experiences.",
             stats: [
-                { label: "Reward Types", value: "20+" },
+                { label: "Earn Methods", value: "20+" },
                 { label: "Redemption", value: "Instant" },
                 { label: "Perks", value: "Exclusive" }
             ],
-            techDetails: ["Stream Rewards", "Share Bonuses", "Event Points", "Referral Credits"]
+            techDetails: ["Stream Rewards", "Share Bonuses", "Event Coinz", "Referral Credits"]
         },
         {
             image: artistReleaseGrowth,
@@ -177,6 +179,19 @@ const ForFans = () => {
                 { label: "Leaderboard", value: "Global" }
             ],
             techDetails: ["Badge Collection", "NFT Moments", "Fan Leaderboard", "Milestone Rewards"]
+        },
+        {
+            image: artistCrmDashboard,
+            icon: Wallet,
+            title: "MixxCoinz Wallet",
+            subtitle: "Your Engagement Currency",
+            description: "Track your MixxCoinz balance, earning history, and spending power. Every stream, share, and referral adds to your wallet — spend on merch, exclusives, and experiences.",
+            stats: [
+                { label: "Earn Methods", value: "20+" },
+                { label: "Spend On", value: "Merch & More" },
+                { label: "Tiers", value: "5 Levels" }
+            ],
+            techDetails: ["Earned Balance", "Spending Destinations", "Tier Progress", "Transaction History"]
         }
     ];
 

@@ -13,7 +13,9 @@ import {
   Crown,
   Star,
   Trophy,
-  Play
+  Play,
+  Coins,
+  Radio
 } from "lucide-react";
 import { LandingPortal } from "@/components/landing/LandingPortal";
 import { PortalHero } from "@/components/landing/PortalHero";
@@ -175,7 +177,33 @@ const ForArtists = () => {
         { label: "Rewards", value: "Exclusive" },
         { label: "Network", value: "10,000+" }
       ],
-      techDetails: ["Achievement System", "XP Progression", "Artist Network", "Exclusive Events"]
+      techDetails: ["Achievement System", "XP Progression", "MixxCoinz Economy", "Premieres"]
+    },
+    {
+      image: artistCrmDashboard,
+      icon: Coins,
+      title: "MixxCoinz Rewards",
+      subtitle: "Own Your Engagement",
+      description: "Every stream, session, and milestone earns MixxCoinz — our platform currency. Spend on services, unlock tier discounts up to 15%, and cash out at 200:1.",
+      stats: [
+        { label: "Earn Rate", value: "Every Action" },
+        { label: "Max Discount", value: "15%" },
+        { label: "Cashout", value: "200:1" }
+      ],
+      techDetails: ["Earned & Purchased", "Tier Discounts", "Cashout to USD", "Permanent Ownership"]
+    },
+    {
+      image: artistCrmSessions,
+      icon: Radio,
+      title: "Premieres & First Listens",
+      subtitle: "Exclusive Early Access",
+      description: "Drop new tracks to your most loyal fans first. Premieres build hype, reward Day 1 supporters, and drive engagement before the public release.",
+      stats: [
+        { label: "Early Access", value: "48h" },
+        { label: "Fan Reactions", value: "Real-Time" },
+        { label: "Hype Score", value: "AI" }
+      ],
+      techDetails: ["Timed Exclusives", "Fan Backing", "Hype Analytics", "Pre-Save Integration"]
     }
   ];
 
@@ -208,7 +236,7 @@ const ForArtists = () => {
       <PortalHero
         badge={{ icon: <Music className="w-4 h-4" />, text: "For Artists" }}
         title="Turn Bedroom Beats Into Billboard Bangers"
-        subtitle="Professional mixing, AI-powered mastering, and real-time collaboration with world-class engineers."
+        subtitle="Professional mixing, AI-powered mastering, real-time collaboration, and MixxCoinz rewards with world-class engineers."
         stats={stats}
         primaryAction={{
           text: "Start Your Journey Free",
