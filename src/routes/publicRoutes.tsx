@@ -4,6 +4,15 @@ import { Route, Navigate } from "react-router-dom";
 // Lazy-loaded QuickStart
 const QuickStart = React.lazy(() => import("@/pages/QuickStart"));
 
+// Lazy-loaded showcase/service pages for public access
+const Services = React.lazy(() => import("@/pages/Services"));
+const MixingShowcase = React.lazy(() => import("@/pages/MixingShowcase"));
+const MasteringShowcase = React.lazy(() => import("@/pages/MasteringShowcase"));
+const AIMastering = React.lazy(() => import("@/pages/AIMastering"));
+const DistributionHub = React.lazy(() => import("@/pages/DistributionHub"));
+const Showcase = React.lazy(() => import("@/pages/Showcase"));
+const BeatMarketplace = React.lazy(() => import("@/pages/BeatMarketplace"));
+
 // Public/Marketing pages - static imports for critical routes
 import Auth from "@/pages/Auth";
 import AuthCallback from "@/pages/AuthCallback";
@@ -55,6 +64,18 @@ export const publicRoutes = (
     <Route path="/for-artists" element={<ForArtists />} />
     <Route path="/for-engineers" element={<ForEngineers />} />
     
+    {/* Studio & Services — Public showcase (unauthenticated access) */}
+    <Route path={ROUTES.SERVICES} element={<React.Suspense fallback={<div className="min-h-screen bg-background" />}><Services /></React.Suspense>} />
+    <Route path={ROUTES.SERVICES_MIXING} element={<React.Suspense fallback={<div className="min-h-screen bg-background" />}><MixingShowcase /></React.Suspense>} />
+    <Route path={ROUTES.SERVICES_MASTERING} element={<React.Suspense fallback={<div className="min-h-screen bg-background" />}><MasteringShowcase /></React.Suspense>} />
+    <Route path={ROUTES.SERVICES_AI_MASTERING} element={<React.Suspense fallback={<div className="min-h-screen bg-background" />}><AIMastering /></React.Suspense>} />
+    <Route path={ROUTES.SERVICES_DISTRIBUTION} element={<React.Suspense fallback={<div className="min-h-screen bg-background" />}><DistributionHub /></React.Suspense>} />
+    <Route path={ROUTES.SHOWCASE} element={<React.Suspense fallback={<div className="min-h-screen bg-background" />}><Showcase /></React.Suspense>} />
+    
+    {/* Marketplace — Public showcase */}
+    <Route path={ROUTES.MARKETPLACE} element={<React.Suspense fallback={<div className="min-h-screen bg-background" />}><BeatMarketplace /></React.Suspense>} />
+    <Route path={ROUTES.BEATS} element={<React.Suspense fallback={<div className="min-h-screen bg-background" />}><BeatMarketplace /></React.Suspense>} />
+
     {/* Mixxclub platform routes - authenticated */}
     <Route path="/premieres" element={<Premieres />} />
     <Route path="/community" element={<Community />} />
