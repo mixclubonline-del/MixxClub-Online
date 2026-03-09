@@ -206,7 +206,7 @@ export function PricingCalculator({ mixingPackages, masteringPackages, addons }:
             {/* Tier Discount */}
             <div>
               <Label className="text-sm font-semibold mb-3 flex items-center gap-2">
-                <Coins className="w-4 h-4 text-amber-400" />
+                <Coins className="w-4 h-4 text-accent" />
                 MixxCoinz Tier Discount
               </Label>
               <div className="flex flex-wrap gap-2">
