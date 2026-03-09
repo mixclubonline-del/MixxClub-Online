@@ -16,7 +16,9 @@ import {
     ArrowRight,
     Ticket,
     MessageCircle,
-    Bell
+    Bell,
+    Coins,
+    Wallet
 } from "lucide-react";
 import { LandingPortal } from "@/components/landing/LandingPortal";
 import { PortalHero } from "@/components/landing/PortalHero";
