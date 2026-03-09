@@ -20,7 +20,7 @@ export function PickPathScene({ asset }: Props) {
         asset={asset}
         fallbackGradient="bg-gradient-to-br from-gray-950 via-purple-950/40 to-black"
       />
-      <div className="absolute inset-0 flex flex-col items-center justify-center px-6">
+      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6">
         <motion.p
           className="text-2xl sm:text-4xl font-bold text-white text-center mb-10"
           initial={{ opacity: 0, y: -20 }}

@@ -13,7 +13,7 @@ export function ArtistPainScene({ asset }: Props) {
         tint="from-purple-900/50 via-purple-900/20"
         fallbackGradient="bg-gradient-to-br from-purple-950 via-purple-900/80 to-black"
       />
-      <div className="absolute inset-0 flex flex-col items-center justify-end pb-24 sm:pb-32 px-6">
+      <div className="absolute inset-0 z-10 flex flex-col items-center justify-end pb-24 sm:pb-32 px-6">
         <motion.p
           className="text-3xl sm:text-5xl lg:text-6xl font-bold text-white text-center leading-tight max-w-3xl"
           initial={{ opacity: 0, y: 30 }}

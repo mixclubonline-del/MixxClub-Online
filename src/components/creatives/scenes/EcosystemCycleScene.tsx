@@ -12,7 +12,7 @@ export function EcosystemCycleScene({ asset }: Props) {
         asset={asset}
         fallbackGradient="bg-gradient-to-br from-indigo-950 via-purple-900/60 to-cyan-950"
       />
-      <div className="absolute inset-0 flex flex-col items-center justify-end pb-24 sm:pb-32 px-6">
+      <div className="absolute inset-0 z-10 flex flex-col items-center justify-end pb-24 sm:pb-32 px-6">
         <motion.div
           className="text-center"
           initial={{ opacity: 0, y: 20 }}
