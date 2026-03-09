@@ -41,6 +41,7 @@ import PrimeBeatForge from "@/pages/PrimeBeatForge";
 import PublicProfile from "@/pages/PublicProfile";
 import MixClubHome from "@/pages/MixClubHome";
 import PromoFunnel from "@/pages/PromoFunnel";
+const ForCreatives = React.lazy(() => import("@/pages/ForCreatives"));
 import { ROUTES } from "@/config/routes";
 
 export const publicRoutes = (
