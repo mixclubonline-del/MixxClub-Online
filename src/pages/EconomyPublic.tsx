@@ -1,10 +1,11 @@
-import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import {
   Coins, Zap, ShieldCheck, Crown, Music, Headphones, Mic2, Heart,
   ArrowRight, Sparkles, Lock, Gift, TrendingUp, Star, Award, Users
 } from 'lucide-react';
+import { SEOHead } from '@/components/SEOHead';
+import Navigation from '@/components/Navigation';
 import { MixxCoin3D } from '@/components/economy/MixxCoin3D';
 import { MixxCoin } from '@/components/economy/MixxCoin';
 import { ScrollRevealSection } from '@/components/landing/ScrollRevealSection';
