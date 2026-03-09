@@ -3,6 +3,7 @@ import { Route, Navigate } from "react-router-dom";
 
 // Lazy-loaded QuickStart
 const QuickStart = React.lazy(() => import("@/pages/QuickStart"));
+const EconomyPublic = React.lazy(() => import("@/pages/EconomyPublic"));
 
 // Lazy-loaded showcase/service pages for public access
 const Services = React.lazy(() => import("@/pages/Services"));
