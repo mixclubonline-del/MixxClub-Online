@@ -227,6 +227,25 @@ export default {
           "0%": { transform: "translateY(16px)", opacity: "0" },
           "100%": { transform: "translateY(0)", opacity: "1" },
         },
+        
+        // Fog / Atmosphere
+        "fog-drift": {
+          "0%": { transform: "translateX(-100%) skewX(-5deg)" },
+          "100%": { transform: "translateX(100%) skewX(5deg)" },
+        },
+        "fog-drift-reverse": {
+          "0%": { transform: "translateX(100%) skewX(5deg)" },
+          "100%": { transform: "translateX(-100%) skewX(-5deg)" },
+        },
+        "fog-drift-slow": {
+          "0%": { transform: "translateX(-80%)", opacity: "0.3" },
+          "50%": { opacity: "0.5" },
+          "100%": { transform: "translateX(80%)", opacity: "0.3" },
+        },
+        "portal-glow-pulse": {
+          "0%, 100%": { boxShadow: "0 0 15px var(--portal-color), inset 0 0 15px var(--portal-color)" },
+          "50%": { boxShadow: "0 0 35px var(--portal-color), inset 0 0 25px var(--portal-color)" },
+        },
       },
       animation: {
         // UI Interactions - 150-250ms for instant feedback
