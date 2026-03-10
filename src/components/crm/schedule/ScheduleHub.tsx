@@ -183,9 +183,7 @@ export const ScheduleHub = () => {
       {/* Calendar Grid */}
       <GlassPanel glow accent="rgba(59, 130, 246, 0.3)" padding="p-4">
         {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-          </div>
+          <HubSkeleton variant="cards" count={6} />
         ) : (
           <>
             {/* Day-of-week headers */}
