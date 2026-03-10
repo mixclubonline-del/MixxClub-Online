@@ -79,23 +79,7 @@ export const ProducerCatalogHub = () => {
     return <HubSkeleton variant="cards" count={4} />;
   }
 
-  if (beats.length === 0 && !searchQuery) {
-    return (
-      <>
-        <CharacterEmptyState
-          type="catalog"
-          characterId="rell"
-          title="Your Beat Catalog"
-          actionLabel="Upload Your First Beat"
-          onAction={() => setUploadModalOpen(true)}
-        />
-        <BeatUploadModal
-          open={uploadModalOpen}
-          onOpenChange={setUploadModalOpen}
-        />
-      </>
-    );
-  }
+  const showEmptyCatalog = beats.length === 0 && !searchQuery && catalogMode === 'catalog';
 
   const renderBeatGrid = (beatList: ProducerBeat[], showPublish = false, showArchive = false, showDelete = true) => {
     if (beatList.length === 0) {
@@ -175,7 +159,19 @@ export const ProducerCatalogHub = () => {
       {catalogMode === 'promos' && <PromoCodeManager />}
       {catalogMode === 'featured' && <FeaturedRotation />}
 
-      {catalogMode === 'catalog' && (
+      {catalogMode === 'catalog' && showEmptyCatalog && (
+        <>
+          <CharacterEmptyState
+            type="catalog"
+            characterId="rell"
+            title="Your Beat Catalog"
+            actionLabel="Upload Your First Beat"
+            onAction={() => setUploadModalOpen(true)}
+          />
+        </>
+      )}
+
+      {catalogMode === 'catalog' && !showEmptyCatalog && (
         <>
           {/* Header with Upload Button */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
