@@ -24,9 +24,9 @@ export function SceneBackground({ asset, fallbackGradient, children }: Props) {
   const showImage = hasUrl && !asset.isVideo && imgLoaded && !imgFailed;
 
   return (
-    <div className="absolute inset-0 w-full h-full overflow-hidden">
+    <div style={{ position: 'fixed', inset: 0, width: '100vw', height: '100vh', overflow: 'hidden' }}>
       {/* Gradient fallback */}
-      <div className={`absolute inset-0 ${fallbackGradient}`} style={{ zIndex: 1 }} />
+      <div className={fallbackGradient} style={{ position: 'absolute', inset: 0 }} />
 
       {/* Video layer */}
       {asset.isVideo && hasUrl && (
@@ -37,8 +37,7 @@ export function SceneBackground({ asset, fallbackGradient, children }: Props) {
           loop
           muted
           playsInline
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{ zIndex: 2 }}
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 2 }}
         />
       )}
 
@@ -46,19 +45,21 @@ export function SceneBackground({ asset, fallbackGradient, children }: Props) {
       {hasUrl && !asset.isVideo && (
         <>
           <div
-            className="absolute inset-0 transition-opacity duration-700"
             style={{
+              position: 'absolute',
+              inset: 0,
               backgroundImage: `url(${asset.url})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               opacity: showImage ? 1 : 0,
+              transition: 'opacity 700ms',
               zIndex: 2,
             }}
           />
           <img
             src={asset.url}
             alt=""
-            className="hidden"
+            style={{ display: 'none' }}
             onLoad={() => setImgLoaded(true)}
             onError={() => setImgFailed(true)}
           />
@@ -67,12 +68,16 @@ export function SceneBackground({ asset, fallbackGradient, children }: Props) {
 
       {/* Dark overlay for text readability */}
       <div
-        className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-black/10"
-        style={{ zIndex: 3 }}
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'linear-gradient(to top, rgba(0,0,0,0.6), rgba(0,0,0,0.2), rgba(0,0,0,0.1))',
+          zIndex: 3,
+        }}
       />
 
       {/* Content */}
-      <div className="absolute inset-0" style={{ zIndex: 10 }}>
+      <div style={{ position: 'absolute', inset: 0, zIndex: 10 }}>
         {children}
       </div>
     </div>
