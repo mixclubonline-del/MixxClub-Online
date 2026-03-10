@@ -264,7 +264,6 @@ export default function EngineerProfile() {
                         <div>
                           <p className="font-medium text-sm group-hover:text-primary transition-colors">{p.title}</p>
                           <p className="text-xs text-muted-foreground">
-                            {p.service_type && <span className="capitalize">{p.service_type} • </span>}
                             {new Date(p.created_at).toLocaleDateString()}
                           </p>
                         </div>

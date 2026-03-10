@@ -21,6 +21,7 @@ import AudioUpload from "@/pages/AudioUpload";
 import EngineerDirectory from "@/pages/EngineerDirectory";
 import EngineerProfile from "@/pages/EngineerProfile";
 import ComingSoon from "@/pages/ComingSoon";
+const BattleTournaments = React.lazy(() => import("@/pages/BattleTournaments"));
 import DistributionHub from "@/pages/DistributionHub";
 import OrderSuccess from "@/pages/OrderSuccess";
 import Checkout from "@/pages/Checkout";
