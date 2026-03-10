@@ -322,7 +322,6 @@ async function createUserSubscription(
       tableName = 'user_mastering_subscriptions';
       break;
     case 'subscription':
-      // Handle platform subscriptions
       tableName = 'user_subscriptions';
       break;
     default:
@@ -330,6 +329,62 @@ async function createUserSubscription(
       return;
   }
 
+  // Store stripe_customer_id on profile for invoice.paid lookups
+  if (session.customer) {
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .update({ stripe_customer_id: session.customer })
+      .eq('id', userId);
+
+    if (profileError) {
+      console.warn('[STRIPE-WEBHOOK] Could not update profile stripe_customer_id:', profileError);
+    }
+  }
+
+  // For platform subscriptions, resolve tier and plan_id from metadata
+  if (packageType === 'subscription') {
+    const planName = session.metadata?.plan_name;
+    const planId = session.metadata?.plan_id || packageId;
+
+    // Look up plan from subscription_plans table for authoritative tier
+    let resolvedTier = planName || 'pro';
+    if (planId) {
+      const { data: plan } = await supabase
+        .from('subscription_plans')
+        .select('plan_name')
+        .eq('id', planId)
+        .single();
+
+      if (plan) {
+        resolvedTier = plan.plan_name;
+      }
+    }
+
+    const { error } = await supabase
+      .from(tableName)
+      .upsert({
+        user_id: userId,
+        plan_id: planId,
+        package_id: packageId,
+        stripe_customer_id: session.customer,
+        stripe_subscription_id: session.subscription,
+        status: 'active',
+        tier: resolvedTier,
+        tracks_used: 0,
+        created_at: new Date().toISOString(),
+      }, {
+        onConflict: 'user_id'
+      });
+
+    if (error) {
+      console.error(`[STRIPE-WEBHOOK] Error creating subscription:`, error);
+    } else {
+      console.log(`[STRIPE-WEBHOOK] Subscription created: tier=${resolvedTier} for user ${userId}`);
+    }
+    return;
+  }
+
+  // Non-subscription package types
   const { error } = await supabase
     .from(tableName)
     .upsert({

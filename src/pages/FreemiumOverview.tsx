@@ -152,7 +152,7 @@ export default function FreemiumOverview() {
                         {currentSubscription && currentSubscription.tier !== 'free' && (
                             <div className="inline-flex items-center gap-2 bg-green-500/20 text-green-700 px-4 py-2 rounded-full mb-4">
                                 <CheckCircle2 className="w-5 h-5" />
-                                <span>You're currently on the <strong>{currentPlan?.name}</strong> plan</span>
+                                <span>You're currently on the <strong>{currentPlan?.tier}</strong> plan</span>
                             </div>
                         )}
                     </div>

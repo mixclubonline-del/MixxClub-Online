@@ -1,5 +1,11 @@
 project_id = "wmhwiwjxzpnnzckxezcu"
 
+[functions.check-subscription]
+verify_jwt = false
+
+[functions.customer-portal]
+verify_jwt = false
+
 [functions.orchestrate-promo-campaign]
 verify_jwt = false
 
