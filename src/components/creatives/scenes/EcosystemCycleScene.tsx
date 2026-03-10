@@ -9,10 +9,10 @@ export function EcosystemCycleScene({ asset }: Props) {
     <SceneBackground asset={asset} fallbackGradient="bg-gradient-to-br from-indigo-800 via-purple-800 to-cyan-900">
       <div className="absolute inset-0 flex flex-col items-center justify-end pb-24 sm:pb-32 px-6">
         <div className="text-center">
-          <p className="text-2xl sm:text-4xl lg:text-5xl font-bold text-white">
+          <p className="text-2xl sm:text-4xl lg:text-5xl font-bold text-white" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.8)' }}>
             You keep <span className="text-primary">70%</span>. Period.
           </p>
-          <p className="text-base sm:text-xl text-white/60 mt-4 max-w-lg mx-auto">
+          <p className="text-base sm:text-xl text-white/60 mt-4 max-w-lg mx-auto" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.6)' }}>
             Every transaction feeds the ecosystem. Artists, engineers, producers, fans — connected.
           </p>
         </div>
