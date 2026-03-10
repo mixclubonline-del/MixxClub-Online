@@ -66,12 +66,7 @@ export const AIMatchRecommendations: React.FC<AIMatchRecommendationsProps> = ({ 
   );
 
   if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-        <p className="text-muted-foreground">Finding your perfect matches...</p>
-      </div>
-    );
+    return <HubSkeleton variant="cards" count={4} />;
   }
 
   if (filteredMatches.length === 0) {
