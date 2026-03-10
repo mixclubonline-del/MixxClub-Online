@@ -159,7 +159,19 @@ export const ProducerCatalogHub = () => {
       {catalogMode === 'promos' && <PromoCodeManager />}
       {catalogMode === 'featured' && <FeaturedRotation />}
 
-      {catalogMode === 'catalog' && (
+      {catalogMode === 'catalog' && showEmptyCatalog && (
+        <>
+          <CharacterEmptyState
+            type="catalog"
+            characterId="rell"
+            title="Your Beat Catalog"
+            actionLabel="Upload Your First Beat"
+            onAction={() => setUploadModalOpen(true)}
+          />
+        </>
+      )}
+
+      {catalogMode === 'catalog' && !showEmptyCatalog && (
         <>
           {/* Header with Upload Button */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
