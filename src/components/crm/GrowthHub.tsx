@@ -24,6 +24,8 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
+import { useUserProjects } from '@/hooks/useUserProjects';
+import { useUserEarnings } from '@/hooks/useUserEarnings';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
