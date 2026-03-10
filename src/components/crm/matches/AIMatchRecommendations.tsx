@@ -74,14 +74,8 @@ export const AIMatchRecommendations: React.FC<AIMatchRecommendationsProps> = ({ 
       <EmptyState
         icon={Sparkles}
         title="No matches found"
-        description="Try adjusting your filters or updating your profile"
+        description="Try adjusting your search or upload a track to get personalized recommendations"
       />
-    );
-  }
-        <p className="text-muted-foreground">
-          Try adjusting your search or upload a track to get personalized recommendations
-        </p>
-      </div>
     );
   }
 
