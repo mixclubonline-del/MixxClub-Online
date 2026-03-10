@@ -131,7 +131,7 @@ export const ClientsHub: React.FC<ClientsHubProps> = ({ userType = 'artist' }) =
             </motion.div>
           </AnimatePresence>
         </Tabs>
-      </GlassPanel>
+      </GlassPanel>}
 
       {/* Add Client Dialog */}
       <AddClientDialog

@@ -274,9 +274,7 @@ export const ScheduleHub = () => {
 
         <div className="mt-4">
           {isLoading ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-            </div>
+            <HubSkeleton variant="list" count={3} />
           ) : upcomingEvents.length === 0 ? (
             <EmptyState
               icon={Calendar}
