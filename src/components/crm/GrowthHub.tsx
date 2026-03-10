@@ -24,6 +24,8 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
+import { useUserProjects } from '@/hooks/useUserProjects';
+import { useUserEarnings } from '@/hooks/useUserEarnings';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -51,93 +53,78 @@ export const GrowthHub: React.FC<GrowthHubProps> = ({ userType = 'artist' }) => 
     const { user } = useAuth();
     const navigate = useNavigate();
 
-    // Fetch real growth data from multiple Supabase tables
-    const { data: growthData, isLoading } = useQuery({
-        queryKey: ['growth-hub-data', user?.id, userType],
+    // Shared cached hooks — deduplicated across CRM hubs
+    const role = userType === 'engineer' ? 'engineer' : 'artist';
+    const { data: projects = [], isLoading: projectsLoading } = useUserProjects(user?.id, role);
+    const { data: earningsData, isLoading: earningsLoading } = useUserEarnings(user?.id);
+
+    // Growth-specific queries (achievements, partnerships, profile)
+    const { data: growthExtra, isLoading: extraLoading } = useQuery({
+        queryKey: ['growth-hub-extra', user?.id],
         queryFn: async () => {
             if (!user?.id) return null;
 
-            // 1. Achievements
-            const { data: achievements } = await supabase
-                .from('achievements')
-                .select('*')
-                .eq('user_id', user.id)
-                .order('earned_at', { ascending: false });
-
-            // 2. Projects
-            const projectQuery = userType === 'engineer'
-                ? supabase.from('projects').select('id, status, created_at, updated_at').eq('engineer_id', user.id)
-                : supabase.from('projects').select('id, status, created_at, updated_at').eq('client_id', user.id);
-            const { data: projects } = await projectQuery;
-
-            // 3. Earnings (for engineers & producers)
-            const { data: earnings } = await supabase
-                .from('engineer_earnings')
-                .select('total_amount, bonus_amount, status, created_at')
-                .eq('engineer_id', user.id);
-
-            // 4. Marketplace sales (for producers)
-            const { data: sales } = await supabase
-                .from('marketplace_purchases')
-                .select('purchase_amount, created_at')
-                .eq('seller_id', user.id);
-
-            // 5. Partnerships
-            const { data: partnerships } = await supabase
-                .from('partnerships')
-                .select('id, status')
-                .or(`artist_id.eq.${user.id},engineer_id.eq.${user.id}`);
-
-            // 6. Profile for follower count
-            const { data: profile } = await supabase
-                .from('profiles')
-                .select('follower_count, created_at')
-                .eq('id', user.id)
-                .single();
-
-            // Compute XP from real activity
-            const totalProjects = projects?.length || 0;
-            const completedProjects = projects?.filter(p => p.status === 'completed').length || 0;
-            const activeProjects = projects?.filter(p => p.status === 'in_progress').length || 0;
-            const achievementCount = achievements?.length || 0;
-            const totalEarnings = earnings?.reduce((s, e) => s + Number(e.total_amount || 0), 0) || 0;
-            const totalSales = sales?.reduce((s, p) => s + Number(p.purchase_amount || 0), 0) || 0;
-            const partnershipCount = partnerships?.filter(p => p.status === 'active').length || 0;
-            const followerCount = profile?.follower_count || 0;
-
-            // XP formula: 50/project + 25/achievement + 10/partnership + 1 per $10 earned + 1 per 5 followers
-            const xp = (completedProjects * 50) + (achievementCount * 25) + (partnershipCount * 10)
-                + Math.floor((totalEarnings + totalSales) / 10) + Math.floor(followerCount / 5);
-
-            // Time on platform
-            const joinDate = profile?.created_at ? new Date(profile.created_at) : new Date();
-            const daysOnPlatform = Math.floor((Date.now() - joinDate.getTime()) / (1000 * 60 * 60 * 24));
-
-            // Recent activity (last 30 days)
-            const thirtyDaysAgo = new Date();
-            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-            const recentProjects = projects?.filter(p =>
-                new Date(p.created_at) >= thirtyDaysAgo
-            ).length || 0;
+            const [achievementsRes, partnershipsRes, profileRes] = await Promise.all([
+                supabase.from('achievements').select('*').eq('user_id', user.id)
+                    .order('earned_at', { ascending: false }),
+                supabase.from('partnerships').select('id, status')
+                    .or(`artist_id.eq.${user.id},engineer_id.eq.${user.id}`),
+                supabase.from('profiles').select('follower_count, created_at')
+                    .eq('id', user.id).single(),
+            ]);
 
             return {
-                xp,
-                totalProjects,
-                completedProjects,
-                activeProjects,
-                achievementCount,
-                achievements: achievements || [],
-                totalEarnings,
-                totalSales,
-                partnershipCount,
-                followerCount,
-                daysOnPlatform,
-                recentProjects,
+                achievements: achievementsRes.data || [],
+                partnerships: partnershipsRes.data || [],
+                profile: profileRes.data,
             };
         },
         enabled: !!user?.id,
-        staleTime: 60000,
+        staleTime: 60_000,
     });
+
+    const isLoading = projectsLoading || earningsLoading || extraLoading;
+
+    // Derive growthData from shared hooks + growth-specific extras
+    const growthData = (() => {
+        if (!growthExtra) return null;
+
+        const totalProjects = projects.length;
+        const completedProjects = projects.filter((p: any) => p.status === 'completed').length;
+        const activeProjects = projects.filter((p: any) => p.status === 'in_progress').length;
+        const achievementCount = growthExtra.achievements.length;
+        const totalEarnings = earningsData?.totalEarnings || 0;
+        const totalSales = earningsData?.totalSales || 0;
+        const partnershipCount = growthExtra.partnerships.filter((p: any) => p.status === 'active').length;
+        const followerCount = growthExtra.profile?.follower_count || 0;
+
+        const xp = (completedProjects * 50) + (achievementCount * 25) + (partnershipCount * 10)
+            + Math.floor((totalEarnings + totalSales) / 10) + Math.floor(followerCount / 5);
+
+        const joinDate = growthExtra.profile?.created_at ? new Date(growthExtra.profile.created_at) : new Date();
+        const daysOnPlatform = Math.floor((Date.now() - joinDate.getTime()) / (1000 * 60 * 60 * 24));
+
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        const recentProjects = projects.filter((p: any) =>
+            new Date(p.created_at) >= thirtyDaysAgo
+        ).length;
+
+        return {
+            xp,
+            totalProjects,
+            completedProjects,
+            activeProjects,
+            achievementCount,
+            achievements: growthExtra.achievements,
+            totalEarnings,
+            totalSales,
+            partnershipCount,
+            followerCount,
+            daysOnPlatform,
+            recentProjects,
+        };
+    })();
 
     if (isLoading) {
         return (

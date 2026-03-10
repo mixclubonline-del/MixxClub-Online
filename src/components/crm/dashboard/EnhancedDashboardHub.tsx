@@ -1,6 +1,9 @@
-import { useState, useEffect } from 'react';
+import React from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { useUserProjects } from '@/hooks/useUserProjects';
+import { useUserEarnings } from '@/hooks/useUserEarnings';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -103,112 +106,90 @@ interface EnhancedDashboardHubProps {
 export const EnhancedDashboardHub = ({ userType }: EnhancedDashboardHubProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [recentActivity, setRecentActivity] = useState<any[]>([]);
 
   const { data: artistUnlockables } = useArtistUnlockables();
   const { data: engineerUnlockables } = useEngineerUnlockables();
   const personalUnlockables = userType === 'artist' ? artistUnlockables : engineerUnlockables;
   const accent = ROLE_ACCENTS[userType];
 
-  useEffect(() => {
-    if (user) {
-      fetchDashboardData();
-    }
-  }, [user]);
+  // Shared cached hooks — deduplicated across CRM hubs
+  const role = userType === 'artist' ? 'artist' : 'engineer';
+  const { data: projects = [], isLoading: projectsLoading } = useUserProjects(user?.id, role);
+  const { data: earningsData, isLoading: earningsLoading } = useUserEarnings(user?.id);
 
-  const fetchDashboardData = async () => {
-    try {
-      setLoading(true);
+  // Dashboard-specific queries (achievements, audit logs, jobs)
+  const { data: dashboardExtra, isLoading: extraLoading } = useQuery({
+    queryKey: ['dashboard-extra', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return { achievements: [], activity: [], jobCount: 0 };
 
-      const projectQuery = userType === 'artist'
-        ? supabase.from('projects').select('*').eq('client_id', user?.id)
-        : supabase.from('projects').select('*').eq('engineer_id', user?.id);
+      const [achievementsRes, activityRes, jobsRes] = await Promise.all([
+        supabase.from('achievements').select('*').eq('user_id', user.id),
+        supabase.from('audit_logs').select('*').eq('user_id', user.id)
+          .order('created_at', { ascending: false }).limit(5),
+        supabase.from('job_postings').select('id').eq('status', 'open'),
+      ]);
 
-      const { data: projects } = await projectQuery;
+      return {
+        achievements: achievementsRes.data || [],
+        activity: activityRes.data || [],
+        jobCount: jobsRes.data?.length || 0,
+      };
+    },
+    enabled: !!user?.id,
+    staleTime: 60_000,
+  });
 
-      const { data: earnings } = await supabase
-        .from('engineer_earnings')
-        .select('*')
-        .eq('engineer_id', user?.id);
+  const loading = projectsLoading || earningsLoading || extraLoading;
 
-      const { data: marketplaceSales } = await supabase
-        .from('marketplace_purchases')
-        .select('purchase_amount')
-        .eq('seller_id', user?.id);
+  // Derive metrics from shared hook data
+  const totalSessions = projects.length;
+  const completedSessions = projects.filter((p: any) => p.status === 'completed').length;
+  const completionRate = totalSessions > 0 ? (completedSessions / totalSessions) * 100 : 0;
+  const activeProjects = projects.filter((p: any) => p.status === 'in_progress').length;
 
-      const { data: achievements } = await supabase
-        .from('achievements')
-        .select('*')
-        .eq('user_id', user?.id);
+  const totalEarnings = earningsData?.totalEarnings || 0;
+  const marketplaceRevenue = earningsData?.totalSales || 0;
+  const achievements = dashboardExtra?.achievements || [];
+  const recentActivity = dashboardExtra?.activity || [];
+  const jobCount = dashboardExtra?.jobCount || 0;
 
-      const { data: activity } = await supabase
-        .from('audit_logs')
-        .select('*')
-        .eq('user_id', user?.id)
-        .order('created_at', { ascending: false })
-        .limit(5);
-
-      setRecentActivity(activity || []);
-
-      const totalSessions = projects?.length || 0;
-      const completedSessions = projects?.filter(p => p.status === 'completed').length || 0;
-      const completionRate = totalSessions > 0 ? (completedSessions / totalSessions) * 100 : 0;
-      const activeProjects = projects?.filter(p => p.status === 'in_progress').length || 0;
-
-      const totalEarnings = earnings?.reduce((sum, e) => sum + Number(e.total_amount || 0), 0) || 0;
-      const marketplaceRevenue = marketplaceSales?.reduce((sum, s) => sum + Number(s.purchase_amount || 0), 0) || 0;
-
-      const { data: jobs } = await supabase
-        .from('job_postings')
-        .select('id')
-        .eq('status', 'open');
-
-      setMetrics({
-        careerMomentum: {
-          totalSessions,
-          completionRate,
-          growthTrend: 15,
-          activeProjects
-        },
-        revenue: {
-          total: totalEarnings + marketplaceRevenue,
-          streams: {
-            subscriptions: totalEarnings * 0.4,
-            referrals: totalEarnings * 0.1,
-            marketplace: marketplaceRevenue,
-            services: totalEarnings * 0.2,
-            trackSales: 0,
-            courses: 0,
-            partnerships: totalEarnings * 0.1,
-            promotions: 0,
-            enterprise: 0,
-            other: totalEarnings * 0.2
-          },
-          monthlyGrowth: 12
-        },
-        aiInsights: {
-          recommendations: [
-            `You've completed ${completionRate.toFixed(0)}% of your projects - ${completionRate < 70 ? 'focus on finishing active work' : 'great job!'}`,
-            `${jobs?.length || 0} new opportunities available in your genre`,
-            achievements?.length ? `Unlock your next badge by completing 2 more projects` : 'Complete your first project to earn badges'
-          ],
-          priorityActions: [
-            activeProjects > 0 ? 'Review active project milestones' : 'Browse new opportunities',
-            'Update your profile to attract more matches',
-            'Check unread messages from collaborators'
-          ],
-          opportunities: jobs?.length || 0
-        }
-      });
-
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-      toast.error('Failed to load dashboard metrics');
-    } finally {
-      setLoading(false);
-    }
+  const metrics: DashboardMetrics = {
+    careerMomentum: {
+      totalSessions,
+      completionRate,
+      growthTrend: 15,
+      activeProjects,
+    },
+    revenue: {
+      total: totalEarnings + marketplaceRevenue,
+      streams: {
+        subscriptions: totalEarnings * 0.4,
+        referrals: totalEarnings * 0.1,
+        marketplace: marketplaceRevenue,
+        services: totalEarnings * 0.2,
+        trackSales: 0,
+        courses: 0,
+        partnerships: totalEarnings * 0.1,
+        promotions: 0,
+        enterprise: 0,
+        other: totalEarnings * 0.2,
+      },
+      monthlyGrowth: 12,
+    },
+    aiInsights: {
+      recommendations: [
+        `You've completed ${completionRate.toFixed(0)}% of your projects - ${completionRate < 70 ? 'focus on finishing active work' : 'great job!'}`,
+        `${jobCount} new opportunities available in your genre`,
+        achievements.length ? `Unlock your next badge by completing 2 more projects` : 'Complete your first project to earn badges',
+      ],
+      priorityActions: [
+        activeProjects > 0 ? 'Review active project milestones' : 'Browse new opportunities',
+        'Update your profile to attract more matches',
+        'Check unread messages from collaborators',
+      ],
+      opportunities: jobCount,
+    },
   };
 
   if (loading) {
@@ -221,8 +202,6 @@ export const EnhancedDashboardHub = ({ userType }: EnhancedDashboardHubProps) =>
       </div>
     );
   }
-
-  if (!metrics) return null;
 
   const statCards = [
     { icon: Music, label: userType === 'artist' ? 'Sessions' : 'Projects', value: metrics.careerMomentum.totalSessions, sub: 'Total completed' },
@@ -272,7 +251,7 @@ export const EnhancedDashboardHub = ({ userType }: EnhancedDashboardHubProps) =>
           <p className="text-muted-foreground mt-1">Track your momentum, revenue, and growth</p>
         </div>
         <Button
-          onClick={fetchDashboardData}
+          onClick={() => window.location.reload()}
           variant="outline"
           size="sm"
           className="backdrop-blur-sm border-white/10 bg-white/[0.04] hover:bg-white/[0.08]"
