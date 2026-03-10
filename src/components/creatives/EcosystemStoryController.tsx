@@ -88,7 +88,7 @@ export function EcosystemStoryController({ assets, isLoading }: Props) {
       onPointerUp={onPointerUp}
     >
       {/* Scene layer — no AnimatePresence, direct render for reliability */}
-      <div className="absolute inset-0 w-full h-full">
+      <div className="absolute inset-0 w-full h-full relative">
         {sceneComponents[SCENES[idx]]}
       </div>
 
