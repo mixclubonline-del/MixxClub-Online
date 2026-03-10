@@ -277,6 +277,12 @@ export default {
         // Notifications - Fast Attention (1-1.5s)
         "pulse-ring": "pulse-ring 1.2s cubic-bezier(0.16, 1, 0.3, 1) infinite",
         "slide-up-fade": "slide-up-fade 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+        
+        // Fog / Atmosphere
+        "fog-drift": "fog-drift 18s linear infinite",
+        "fog-drift-reverse": "fog-drift-reverse 22s linear infinite",
+        "fog-drift-slow": "fog-drift-slow 28s ease-in-out infinite alternate",
+        "portal-glow-pulse": "portal-glow-pulse 3.5s ease-in-out infinite",
       },
     },
   },
