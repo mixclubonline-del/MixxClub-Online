@@ -1,5 +1,11 @@
+/**
+ * NotificationsHub — Real-time notification center with GlassPanel design tokens.
+ * 
+ * Queries the notifications table with real-time subscription,
+ * category filtering, and glassmorphic styling.
+ */
+
 import { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -21,6 +27,15 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { formatDistanceToNow } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { GlassPanel, HubHeader } from '../design';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface Notification {
   id: string;
@@ -76,61 +91,62 @@ const NotificationItem = ({ notification, onMarkRead, onDelete }: NotificationIt
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 20 }}
-      className={`group p-3 rounded-lg border transition-all ${
-        notification.is_read 
-          ? 'bg-card/50 border-border/30' 
-          : 'bg-primary/5 border-primary/20'
-      }`}
     >
-      <div className="flex gap-3">
-        <div className={`p-2 rounded-full shrink-0 ${colorClass}`}>
-          <Icon className="w-4 h-4" />
-        </div>
-        
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2">
-            <h4 className={`text-sm font-medium ${notification.is_read ? 'text-muted-foreground' : ''}`}>
-              {notification.title}
-            </h4>
-            {!notification.is_read && (
-              <Badge className="bg-primary text-primary-foreground text-xs shrink-0">
-                New
-              </Badge>
-            )}
+      <GlassPanel
+        padding="p-3"
+        hoverable
+        accent={notification.is_read ? undefined : 'rgba(168, 85, 247, 0.3)'}
+      >
+        <div className="flex gap-3">
+          <div className={`p-2 rounded-full shrink-0 ${colorClass}`}>
+            <Icon className="w-4 h-4" />
           </div>
           
-          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-            {notification.message}
-          </p>
-          
-          <div className="flex items-center justify-between mt-2">
-            <span className="text-xs text-muted-foreground">
-              {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
-            </span>
-            
-            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-2">
+              <h4 className={`text-sm font-medium ${notification.is_read ? 'text-muted-foreground' : ''}`}>
+                {notification.title}
+              </h4>
               {!notification.is_read && (
+                <Badge className="bg-primary text-primary-foreground text-xs shrink-0">
+                  New
+                </Badge>
+              )}
+            </div>
+            
+            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+              {notification.message}
+            </p>
+            
+            <div className="flex items-center justify-between mt-2">
+              <span className="text-xs text-muted-foreground">
+                {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
+              </span>
+              
+              <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                {!notification.is_read && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 px-2"
+                    onClick={() => onMarkRead(notification.id)}
+                  >
+                    <CheckCheck className="w-3 h-3" />
+                  </Button>
+                )}
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-6 px-2"
-                  onClick={() => onMarkRead(notification.id)}
+                  className="h-6 px-2 text-destructive hover:text-destructive"
+                  onClick={() => onDelete(notification.id)}
                 >
-                  <CheckCheck className="w-3 h-3" />
+                  <Trash2 className="w-3 h-3" />
                 </Button>
-              )}
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-6 px-2 text-destructive hover:text-destructive"
-                onClick={() => onDelete(notification.id)}
-              >
-                <Trash2 className="w-3 h-3" />
-              </Button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </GlassPanel>
     </motion.div>
   );
 };
@@ -138,6 +154,7 @@ const NotificationItem = ({ notification, onMarkRead, onDelete }: NotificationIt
 export const NotificationsHub = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<NotificationCategory>('all');
@@ -269,18 +286,13 @@ export const NotificationsHub = () => {
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
   return (
-    <Card className="h-full">
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Bell className="w-5 h-5 text-primary" />
-            Notifications
-            {unreadCount > 0 && (
-              <Badge className="bg-primary text-primary-foreground">
-                {unreadCount}
-              </Badge>
-            )}
-          </CardTitle>
+    <div className="space-y-6">
+      <HubHeader
+        icon={<Bell className="h-5 w-5 text-primary" />}
+        title="Notifications"
+        subtitle="Stay updated on partnerships, payments, and project activity"
+        accent="rgba(168, 85, 247, 0.5)"
+        action={
           <div className="flex gap-2">
             <Button
               variant="ghost"
@@ -291,44 +303,63 @@ export const NotificationsHub = () => {
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             </Button>
             {unreadCount > 0 && (
-              <Button variant="outline" size="sm" onClick={markAllAsRead}>
+              <Button variant="outline" size="sm" onClick={markAllAsRead} className="border-white/10 hover:bg-white/5">
                 <CheckCheck className="w-4 h-4 mr-2" />
                 Mark all read
               </Button>
             )}
           </div>
-        </div>
-      </CardHeader>
-      
-      <CardContent className="p-0">
+        }
+      />
+
+      {unreadCount > 0 && (
+        <Badge className="bg-primary text-primary-foreground">
+          {unreadCount} unread
+        </Badge>
+      )}
+
+      <GlassPanel padding="p-0" glow accent="rgba(168, 85, 247, 0.3)">
         <Tabs value={activeCategory} onValueChange={(v) => setActiveCategory(v as NotificationCategory)}>
-          <div className="px-4 border-b border-border">
-            <TabsList className="h-10 bg-transparent w-full justify-start gap-2 p-0">
-              {Object.entries(categoryConfig).map(([key, config]) => {
-                const Icon = config.icon;
-                const count = key === 'all' 
-                  ? notifications.length
-                  : notifications.filter(n => 
-                      config.types.some(t => n.type.includes(t) || n.type === t)
-                    ).length;
-                
-                return (
-                  <TabsTrigger
-                    key={key}
-                    value={key}
-                    className="data-[state=active]:bg-primary/10 gap-1.5 px-3"
-                  >
-                    <Icon className="w-4 h-4" />
-                    <span className="hidden sm:inline">{config.label}</span>
-                    {count > 0 && (
-                      <Badge variant="secondary" className="h-5 px-1.5 text-xs">
-                        {count}
-                      </Badge>
-                    )}
-                  </TabsTrigger>
-                );
-              })}
-            </TabsList>
+          <div className="px-4 pt-4">
+            {isMobile ? (
+              <Select value={activeCategory} onValueChange={(v) => setActiveCategory(v as NotificationCategory)}>
+                <SelectTrigger className="w-full bg-white/5 border-white/10">
+                  <SelectValue placeholder="Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(categoryConfig).map(([key, config]) => (
+                    <SelectItem key={key} value={key}>{config.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <TabsList className="bg-white/5 border border-white/8 w-full justify-start gap-2">
+                {Object.entries(categoryConfig).map(([key, config]) => {
+                  const Icon = config.icon;
+                  const count = key === 'all' 
+                    ? notifications.length
+                    : notifications.filter(n => 
+                        config.types.some(t => n.type.includes(t) || n.type === t)
+                      ).length;
+                  
+                  return (
+                    <TabsTrigger
+                      key={key}
+                      value={key}
+                      className="data-[state=active]:bg-primary/10 gap-1.5 px-3"
+                    >
+                      <Icon className="w-4 h-4" />
+                      {config.label}
+                      {count > 0 && (
+                        <Badge variant="secondary" className="h-5 px-1.5 text-xs">
+                          {count}
+                        </Badge>
+                      )}
+                    </TabsTrigger>
+                  );
+                })}
+              </TabsList>
+            )}
           </div>
 
           <TabsContent value={activeCategory} className="m-0">
@@ -362,7 +393,7 @@ export const NotificationsHub = () => {
             </ScrollArea>
           </TabsContent>
         </Tabs>
-      </CardContent>
-    </Card>
+      </GlassPanel>
+    </div>
   );
 };
