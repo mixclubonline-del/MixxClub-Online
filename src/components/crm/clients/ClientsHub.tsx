@@ -18,7 +18,7 @@ import { ClientInsights } from './ClientInsights';
 import { AddClientDialog } from './AddClientDialog';
 import { useCRMClients } from '@/hooks/useCRMClients';
 import { useCRMDeals } from '@/hooks/useCRMDeals';
-import { GlassPanel, HubHeader } from '../design';
+import { GlassPanel, HubHeader, HubSkeleton, EmptyState } from '../design';
 
 interface ClientsHubProps {
   userType?: 'artist' | 'engineer';
