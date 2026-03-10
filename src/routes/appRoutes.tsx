@@ -194,7 +194,7 @@ export const appRoutes = (
       <Route path="/notifications" element={<Notifications />} />
 
       {/* Features */}
-      <Route path="/battle-tournaments" element={<ComingSoon />} />
+      <Route path="/battle-tournaments" element={<BattleTournaments />} />
       <Route path="/my-certifications" element={<MyCertifications />} />
       <Route path="/tutorials" element={<Tutorials />} />
       <Route path="/marketplace" element={<Marketplace />} />

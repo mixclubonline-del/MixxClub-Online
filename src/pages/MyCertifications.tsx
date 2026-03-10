@@ -188,12 +188,91 @@ export default function MyCertifications() {
     }
   };
 
-  const handleDownloadCert = (certId: string, title: string) => {
-    // In production, this would generate and download a PDF certificate
-    toast({
-      title: 'Certificate generating...',
-      description: `Your ${title} certificate is being prepared`,
-    });
+  const handleDownloadCert = async (certId: string, title: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({ title: 'Sign in required', variant: 'destructive' });
+        return;
+      }
+
+      // Fetch certificate from database
+      const { data: cert, error } = await supabase
+        .from('certificates')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('course_id', certId)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (!cert) {
+        toast({ title: 'Certificate not found', description: 'Complete the course to earn your certificate.', variant: 'destructive' });
+        return;
+      }
+
+      // Generate PDF using jsPDF
+      const { default: jsPDF } = await import('jspdf');
+      const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const centerX = pageWidth / 2;
+
+      doc.setFillColor(248, 250, 252);
+      doc.rect(0, 0, pageWidth, pageHeight, 'F');
+
+      doc.setDrawColor(99, 102, 241);
+      doc.setLineWidth(2);
+      doc.rect(10, 10, pageWidth - 20, pageHeight - 20);
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(40);
+      doc.setTextColor(30, 41, 59);
+      doc.text('CERTIFICATE', centerX, 60, { align: 'center' });
+
+      doc.setFontSize(16);
+      doc.setTextColor(100, 116, 139);
+      doc.text('OF COMPLETION', centerX, 75, { align: 'center' });
+
+      doc.setFontSize(14);
+      doc.setTextColor(71, 85, 105);
+      doc.text('This certifies that', centerX, 100, { align: 'center' });
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(28);
+      doc.setTextColor(99, 102, 241);
+      const userName = user.user_metadata?.full_name || user.email || 'Student';
+      doc.text(userName, centerX, 120, { align: 'center' });
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(14);
+      doc.setTextColor(71, 85, 105);
+      doc.text('Has successfully completed the course', centerX, 140, { align: 'center' });
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(24);
+      doc.setTextColor(30, 41, 59);
+      doc.text(title, centerX, 160, { align: 'center' });
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(12);
+      doc.setTextColor(100, 116, 139);
+      doc.text(`Completed on: ${new Date(cert.issued_at).toLocaleDateString()}`, centerX, 190, { align: 'center' });
+      doc.text(`Certificate ID: ${cert.certificate_number}`, centerX, 200, { align: 'center' });
+
+      doc.setFontSize(10);
+      doc.setTextColor(148, 163, 184);
+      doc.text('Mixxclub Online', 20, 280);
+      doc.text('Professional Audio Education', pageWidth - 20, 280, { align: 'right' });
+
+      doc.save(`Certificate_${cert.certificate_number}.pdf`);
+
+      toast({ title: 'Certificate downloaded!', description: `${title} certificate saved as PDF.` });
+    } catch (error: any) {
+      console.error('Certificate download error:', error);
+      toast({ title: 'Download failed', description: error.message || 'Could not generate certificate', variant: 'destructive' });
+    }
   };
 
   const enrolledCerts = CERTIFICATIONS.filter((c) => c.id in enrollments);
