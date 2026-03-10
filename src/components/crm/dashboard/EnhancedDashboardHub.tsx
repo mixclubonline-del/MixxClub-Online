@@ -251,7 +251,7 @@ export const EnhancedDashboardHub = ({ userType }: EnhancedDashboardHubProps) =>
           <p className="text-muted-foreground mt-1">Track your momentum, revenue, and growth</p>
         </div>
         <Button
-          onClick={fetchDashboardData}
+          onClick={() => window.location.reload()}
           variant="outline"
           size="sm"
           className="backdrop-blur-sm border-white/10 bg-white/[0.04] hover:bg-white/[0.08]"
