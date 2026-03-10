@@ -3,7 +3,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Check, X, MessageSquare, Clock, Music, Loader2 } from 'lucide-react';
+import { Check, X, MessageSquare, Clock, Music } from 'lucide-react';
+import { HubSkeleton } from '../design';
 import { useMatchesAPI } from '@/hooks/useMatchesAPI';
 import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
@@ -27,12 +28,7 @@ export const MatchRequests: React.FC<MatchRequestsProps> = ({ userType }) => {
   };
 
   if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-        <p className="text-muted-foreground">Loading requests...</p>
-      </div>
-    );
+    return <HubSkeleton variant="list" count={3} />;
   }
 
   const pendingIncoming = incomingRequests.filter(r => r.status === 'pending');

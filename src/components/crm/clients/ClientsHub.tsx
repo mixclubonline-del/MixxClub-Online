@@ -18,7 +18,7 @@ import { ClientInsights } from './ClientInsights';
 import { AddClientDialog } from './AddClientDialog';
 import { useCRMClients } from '@/hooks/useCRMClients';
 import { useCRMDeals } from '@/hooks/useCRMDeals';
-import { GlassPanel, HubHeader } from '../design';
+import { GlassPanel, HubHeader, HubSkeleton, EmptyState } from '../design';
 
 interface ClientsHubProps {
   userType?: 'artist' | 'engineer';
@@ -78,8 +78,11 @@ export const ClientsHub: React.FC<ClientsHubProps> = ({ userType = 'artist' }) =
         </div>
       </GlassPanel>
 
+      {/* Loading State */}
+      {clientsLoading && <HubSkeleton variant="list" count={6} />}
+
       {/* Tabs */}
-      <GlassPanel padding="p-5" glow accent={accentColor}>
+      {!clientsLoading && <GlassPanel padding="p-5" glow accent={accentColor}>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid bg-white/5 border border-white/8">
             {tabs.map((tab) => (
@@ -128,7 +131,7 @@ export const ClientsHub: React.FC<ClientsHubProps> = ({ userType = 'artist' }) =
             </motion.div>
           </AnimatePresence>
         </Tabs>
-      </GlassPanel>
+      </GlassPanel>}
 
       {/* Add Client Dialog */}
       <AddClientDialog

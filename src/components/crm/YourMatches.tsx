@@ -3,7 +3,8 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Star, Loader2, Heart, MessageCircle, Sparkles, RefreshCw, History, Info } from 'lucide-react';
+import { Star, Heart, MessageCircle, Sparkles, RefreshCw, History, Info } from 'lucide-react';
+import { HubSkeleton } from './design';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -242,12 +243,7 @@ export const YourMatches = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12">
-        <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
-        <p className="text-lg font-medium">Loading your matches...</p>
-      </div>
-    );
+    return <HubSkeleton variant="cards" count={4} />;
   }
 
   const activeMatches = matches.filter(m => m.status !== 'rejected');

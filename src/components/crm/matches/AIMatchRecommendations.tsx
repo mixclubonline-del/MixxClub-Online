@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
-import { Sparkles, MessageSquare, Heart, Star, Music, Headphones, Loader2 } from 'lucide-react';
+import { Sparkles, MessageSquare, Heart, Star, Music, Headphones } from 'lucide-react';
+import { HubSkeleton, EmptyState } from '../design';
 import { useMatchesAPI } from '@/hooks/useMatchesAPI';
 import { useAuth } from '@/hooks/useAuth';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -65,23 +66,16 @@ export const AIMatchRecommendations: React.FC<AIMatchRecommendationsProps> = ({ 
   );
 
   if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-        <p className="text-muted-foreground">Finding your perfect matches...</p>
-      </div>
-    );
+    return <HubSkeleton variant="cards" count={4} />;
   }
 
   if (filteredMatches.length === 0) {
     return (
-      <div className="text-center py-12">
-        <Sparkles className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-foreground mb-2">No matches found</h3>
-        <p className="text-muted-foreground">
-          Try adjusting your search or upload a track to get personalized recommendations
-        </p>
-      </div>
+      <EmptyState
+        icon={Sparkles}
+        title="No matches found"
+        description="Try adjusting your search or upload a track to get personalized recommendations"
+      />
     );
   }
 

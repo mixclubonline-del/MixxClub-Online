@@ -21,7 +21,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { GlassPanel, HubHeader, EmptyState } from '../design';
+import { GlassPanel, HubHeader, HubSkeleton, EmptyState } from '../design';
 import {
   format,
   startOfMonth,
@@ -183,9 +183,7 @@ export const ScheduleHub = () => {
       {/* Calendar Grid */}
       <GlassPanel glow accent="rgba(59, 130, 246, 0.3)" padding="p-4">
         {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-          </div>
+          <HubSkeleton variant="cards" count={6} />
         ) : (
           <>
             {/* Day-of-week headers */}
@@ -276,9 +274,7 @@ export const ScheduleHub = () => {
 
         <div className="mt-4">
           {isLoading ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-            </div>
+            <HubSkeleton variant="list" count={3} />
           ) : upcomingEvents.length === 0 ? (
             <EmptyState
               icon={Calendar}
