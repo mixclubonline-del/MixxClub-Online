@@ -79,23 +79,7 @@ export const ProducerCatalogHub = () => {
     return <HubSkeleton variant="cards" count={4} />;
   }
 
-  if (beats.length === 0 && !searchQuery) {
-    return (
-      <>
-        <CharacterEmptyState
-          type="catalog"
-          characterId="rell"
-          title="Your Beat Catalog"
-          actionLabel="Upload Your First Beat"
-          onAction={() => setUploadModalOpen(true)}
-        />
-        <BeatUploadModal
-          open={uploadModalOpen}
-          onOpenChange={setUploadModalOpen}
-        />
-      </>
-    );
-  }
+  const showEmptyCatalog = beats.length === 0 && !searchQuery && catalogMode === 'catalog';
 
   const renderBeatGrid = (beatList: ProducerBeat[], showPublish = false, showArchive = false, showDelete = true) => {
     if (beatList.length === 0) {
