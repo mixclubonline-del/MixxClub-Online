@@ -243,12 +243,7 @@ export const YourMatches = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12">
-        <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
-        <p className="text-lg font-medium">Loading your matches...</p>
-      </div>
-    );
+    return <HubSkeleton variant="cards" count={4} />;
   }
 
   const activeMatches = matches.filter(m => m.status !== 'rejected');

@@ -71,9 +71,13 @@ export const AIMatchRecommendations: React.FC<AIMatchRecommendationsProps> = ({ 
 
   if (filteredMatches.length === 0) {
     return (
-      <div className="text-center py-12">
-        <Sparkles className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-foreground mb-2">No matches found</h3>
+      <EmptyState
+        icon={Sparkles}
+        title="No matches found"
+        description="Try adjusting your filters or updating your profile"
+      />
+    );
+  }
         <p className="text-muted-foreground">
           Try adjusting your search or upload a track to get personalized recommendations
         </p>
