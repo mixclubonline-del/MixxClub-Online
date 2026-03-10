@@ -1,44 +1,37 @@
 
 
-# Replace Ecosystem Flow Icons with Character Avatars & Fix Animation Alignment
+# Immersive CTA Portal Scene — Pick Your Path
 
-## What Changes
+## Concept
 
-### 1. Replace Lucide Icons with Character Avatars
+Replace the current flat colored cards with an immersive "warehouse portal" scene. The generated CTA background image already shows four glowing doorways in a dark warehouse — we lean into that by making each doorway a clickable hotspot overlaid on the image, with animated fog drifting across the scene and a colored glow pulse on hover.
 
-Swap the generic icon circles for each role's canonical character portrait:
+## What changes
 
-| Role | Current Icon | New Avatar | Character |
-|------|-------------|------------|-----------|
-| Producer | Disc3 (generic) | `/assets/characters/rell-portrait.png` | Rell |
-| Artist | Music (generic) | `/assets/characters/jax-portrait.png` | Jax |
-| Engineer | Headphones (generic) | `/assets/prime-pointing.jpg` | Prime |
-| Fan | Heart (generic) | `/assets/characters/nova-portrait.png` | Nova |
+### 1. Animated fog layer (CSS-only)
+Add 2-3 semi-transparent fog/smoke divs that drift horizontally using CSS `@keyframes`, layered between the background image and the interactive content. No canvas, no JS — just `translateX` animation on blurred white gradients at low opacity.
 
-Each node circle will render a cropped character portrait (`object-cover` in a `rounded-full` container) instead of a Lucide SVG icon, using the character's canonical `accentColor` for the border and glow.
+### 2. Replace colored cards with transparent portal hotspots
+Instead of four solid gradient rectangles, render four transparent clickable zones positioned over the doorway areas of the background image. Each zone:
+- Is a tall `Link` with a subtle colored border glow matching its role color
+- On hover: intensifies the glow (box-shadow pulse), scales slightly, and shows a label + role description
+- Default state: just the role name floating at the bottom of each portal area
 
-### 2. Fix Animation Alignment
+### 3. Layout
+- 4 columns on desktop, 2x2 grid on mobile
+- Each portal is `aspect-[2/3]` with a glassmorphic/transparent background (`bg-white/5 backdrop-blur-sm`)
+- Colored glow ring on hover (`shadow-[0_0_30px_var(--color)]`)
 
-The current architecture renders SVG paths in an `<svg viewBox="-200 -200 400 400">` but places role nodes as absolutely-positioned `<div>` elements using percentage math. This creates subtle coordinate drift between the animated particle endpoints and the node positions.
+### 4. Fog keyframes in `tailwind.config.ts`
+```
+fogDrift: "0%: translateX(-100%), 100%: translateX(100%)"
+fogDriftReverse: "0%: translateX(100%), 100%: translateX(-100%)"
+```
 
-**Fix**: Move everything into the same SVG coordinate space. Render the role nodes (now with character avatars) as SVG `<foreignObject>` elements at the exact polar coordinates, eliminating the dual-coordinate-system mismatch. This ensures animated particles travel directly to/from the avatar circles.
+## Files modified
+- `src/components/creatives/scenes/PickPathScene.tsx` — full rewrite with fog + portal hotspots
+- `tailwind.config.ts` — add `fogDrift` keyframe + animation
 
-### 3. Technical Details
-
-**File**: `src/components/journey/EcosystemFlow.tsx`
-
-- Import `getCharacter` and `CharacterId` from `@/config/characters`
-- Update the `nodes` array to include `characterId` instead of `icon`:
-  ```
-  { id: "producer", label: "Rell", sublabel: "Producer", characterId: "rell", ... }
-  { id: "artist", label: "Jax", sublabel: "Artist", characterId: "jax", ... }
-  { id: "engineer", label: "Prime", sublabel: "Engineer", characterId: "prime", ... }
-  { id: "fan", label: "Nova", sublabel: "Fan", characterId: "nova", ... }
-  ```
-- Replace the role node `<div>` elements with `<foreignObject>` inside the same SVG, positioned at exact polar coordinates
-- Each avatar renders as a `<img>` inside a styled circle container with the character's accent color border and glow
-- Display the character name as the primary label and the role as a smaller sublabel beneath
-- Remove Lucide icon imports (Music, Headphones, Disc3, Heart) since they are no longer used
-
-**No new dependencies.** Uses existing character config and avatar assets already in the project.
+## No other changes needed
+The `SceneBackground` component already renders the warehouse/portals background image. The fog and interactive portals layer on top.
 
