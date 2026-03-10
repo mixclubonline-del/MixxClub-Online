@@ -266,73 +266,47 @@ export const useSubscriptionStore = create<SubscriptionStore>((set, get) => ({
         return limit === 0 ? 0 : (used / limit) * 100;
     },
 
-    upgradeTier: async (newTier) => {
-        const { currentSubscription } = get();
-        if (!currentSubscription) return;
-
+    upgradeTier: async (_newTier) => {
+        // Upgrades/downgrades are handled via Stripe Customer Portal
         try {
-            const response = await fetch('/api/subscriptions/upgrade', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    userId: currentSubscription.userId,
-                    newTier,
-                }),
-            });
-
-            if (!response.ok) throw new Error('Upgrade failed');
-
-            const updatedSubscription = await response.json();
-            set({ currentSubscription: updatedSubscription });
+            const { supabase } = await import('@/integrations/supabase/client');
+            const { data, error } = await supabase.functions.invoke('customer-portal');
+            if (error) throw error;
+            if (data?.url) {
+                window.open(data.url, '_blank');
+            }
         } catch (error) {
-            console.error('Failed to upgrade subscription:', error);
+            console.error('Failed to open subscription management:', error);
             throw error;
         }
     },
 
-    downgradeTier: async (newTier) => {
-        const { currentSubscription } = get();
-        if (!currentSubscription) return;
-
+    downgradeTier: async (_newTier) => {
+        // Downgrades are handled via Stripe Customer Portal
         try {
-            const response = await fetch('/api/subscriptions/downgrade', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    userId: currentSubscription.userId,
-                    newTier,
-                }),
-            });
-
-            if (!response.ok) throw new Error('Downgrade failed');
-
-            const updatedSubscription = await response.json();
-            set({ currentSubscription: updatedSubscription });
+            const { supabase } = await import('@/integrations/supabase/client');
+            const { data, error } = await supabase.functions.invoke('customer-portal');
+            if (error) throw error;
+            if (data?.url) {
+                window.open(data.url, '_blank');
+            }
         } catch (error) {
-            console.error('Failed to downgrade subscription:', error);
+            console.error('Failed to open subscription management:', error);
             throw error;
         }
     },
 
     cancelSubscription: async () => {
-        const { currentSubscription } = get();
-        if (!currentSubscription) return;
-
+        // Cancellations are handled via Stripe Customer Portal
         try {
-            const response = await fetch('/api/subscriptions/cancel', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    userId: currentSubscription.userId,
-                }),
-            });
-
-            if (!response.ok) throw new Error('Cancellation failed');
-
-            const updatedSubscription = await response.json();
-            set({ currentSubscription: updatedSubscription });
+            const { supabase } = await import('@/integrations/supabase/client');
+            const { data, error } = await supabase.functions.invoke('customer-portal');
+            if (error) throw error;
+            if (data?.url) {
+                window.open(data.url, '_blank');
+            }
         } catch (error) {
-            console.error('Failed to cancel subscription:', error);
+            console.error('Failed to open subscription management:', error);
             throw error;
         }
     },
