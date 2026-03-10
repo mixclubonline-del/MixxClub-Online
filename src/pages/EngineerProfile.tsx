@@ -65,7 +65,7 @@ export default function EngineerProfile() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('projects')
-        .select('id, title, status, created_at, service_type')
+        .select('id, title, status, created_at')
         .eq('engineer_id', userId!)
         .eq('status', 'completed')
         .order('created_at', { ascending: false })
