@@ -87,7 +87,7 @@ export function useEngineerMatchingAPI() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [canUseFeature, getFeatureUsage, tier, refreshUsage]);
 
   /**
    * Hire an engineer - creates partnership and project records
