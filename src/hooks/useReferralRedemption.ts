@@ -84,13 +84,7 @@ export function useReferralRedemption() {
               });
           }
 
-          // Update new user's profile with referred_by
-          await supabase
-            .from('profiles')
-            .update({ referred_by: refCode })
-            .eq('id', newUserId);
-
-          // Award coinz to referrer via RPC
+          // Note: referred_by tracking is handled via the referrals table record
           await (supabase.rpc as any)('earn_coinz', {
             p_user_id: refCode,
             p_amount: REFERRER_REWARD,

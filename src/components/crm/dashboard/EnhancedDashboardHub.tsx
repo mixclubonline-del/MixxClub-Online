@@ -4,6 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useUserProjects } from '@/hooks/useUserProjects';
 import { useUserEarnings } from '@/hooks/useUserEarnings';
 import { useQuery } from '@tanstack/react-query';
+import { useSubscriptionManagement } from '@/hooks/useSubscriptionManagement';
+import { useUsageEnforcement } from '@/hooks/useUsageEnforcement';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -24,7 +26,8 @@ import {
   Radio,
   BookOpen,
   Gift,
-  Share2
+  Share2,
+  Crown
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
