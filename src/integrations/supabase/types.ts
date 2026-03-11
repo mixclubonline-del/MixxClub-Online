@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      ab_tests: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          test_name: string
+          updated_at: string
+          variants: Json
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          test_name: string
+          updated_at?: string
+          variants?: Json
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          test_name?: string
+          updated_at?: string
+          variants?: Json
+        }
+        Relationships: []
+      }
       achievement_definitions: {
         Row: {
           achievement_type: string
