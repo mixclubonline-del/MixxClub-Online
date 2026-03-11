@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import mixclubLogo from '@/assets/mixxclub-3d-logo.png';
 import { useUsageEnforcement } from '@/hooks/useUsageEnforcement';
+import { UsageLimitBanner } from '@/components/ui/UsageLimitBanner';
 
 interface UploadedFile {
   id: string;
