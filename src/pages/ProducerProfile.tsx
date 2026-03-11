@@ -130,10 +130,10 @@ export default function ProducerProfile() {
 
   // ── Audio helpers ──
   const getBeatAudioUrl = (beat: any) => {
-    const url = beat.preview_url || beat.audio_url || beat.file_url;
+    const url = beat.preview_url || beat.audio_url;
     if (!url) return null;
     if (url.startsWith('http')) return url;
-    return null; // Storage paths need signing — handled in toggle
+    return null;
   };
 
   const toggleBeat = async (beatId: string, beat: any) => {
