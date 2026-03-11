@@ -3711,6 +3711,36 @@ export type Database = {
           },
         ]
       }
+      launch_metrics: {
+        Row: {
+          created_at: string | null
+          id: string
+          metric_date: string
+          payments_completed: number | null
+          projects_created: number | null
+          revenue_daily: number | null
+          signups: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          metric_date: string
+          payments_completed?: number | null
+          projects_created?: number | null
+          revenue_daily?: number | null
+          signups?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          metric_date?: string
+          payments_completed?: number | null
+          projects_created?: number | null
+          revenue_daily?: number | null
+          signups?: number | null
+        }
+        Relationships: []
+      }
       lesson_completions: {
         Row: {
           completed_at: string
@@ -5581,40 +5611,70 @@ export type Database = {
       payments: {
         Row: {
           amount: number
+          completed_at: string | null
           created_at: string
           currency: string | null
           id: string
           metadata: Json | null
+          package_id: string | null
+          package_type: string | null
           payment_method: string | null
+          payment_type: string | null
           project_id: string | null
+          refund_amount: number | null
+          refund_reason: string | null
+          refunded_at: string | null
           status: string | null
+          stripe_checkout_session_id: string | null
+          stripe_customer_id: string | null
           stripe_payment_id: string | null
+          stripe_payment_intent_id: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           amount: number
+          completed_at?: string | null
           created_at?: string
           currency?: string | null
           id?: string
           metadata?: Json | null
+          package_id?: string | null
+          package_type?: string | null
           payment_method?: string | null
+          payment_type?: string | null
           project_id?: string | null
+          refund_amount?: number | null
+          refund_reason?: string | null
+          refunded_at?: string | null
           status?: string | null
+          stripe_checkout_session_id?: string | null
+          stripe_customer_id?: string | null
           stripe_payment_id?: string | null
+          stripe_payment_intent_id?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           amount?: number
+          completed_at?: string | null
           created_at?: string
           currency?: string | null
           id?: string
           metadata?: Json | null
+          package_id?: string | null
+          package_type?: string | null
           payment_method?: string | null
+          payment_type?: string | null
           project_id?: string | null
+          refund_amount?: number | null
+          refund_reason?: string | null
+          refunded_at?: string | null
           status?: string | null
+          stripe_checkout_session_id?: string | null
+          stripe_customer_id?: string | null
           stripe_payment_id?: string | null
+          stripe_payment_intent_id?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -5677,6 +5737,7 @@ export type Database = {
         Row: {
           amount: number
           currency: string | null
+          engineer_id: string | null
           id: string
           notes: string | null
           payment_details: Json | null
@@ -5684,11 +5745,13 @@ export type Database = {
           processed_at: string | null
           requested_at: string
           status: string | null
+          stripe_transfer_id: string | null
           user_id: string
         }
         Insert: {
           amount: number
           currency?: string | null
+          engineer_id?: string | null
           id?: string
           notes?: string | null
           payment_details?: Json | null
@@ -5696,11 +5759,13 @@ export type Database = {
           processed_at?: string | null
           requested_at?: string
           status?: string | null
+          stripe_transfer_id?: string | null
           user_id: string
         }
         Update: {
           amount?: number
           currency?: string | null
+          engineer_id?: string | null
           id?: string
           notes?: string | null
           payment_details?: Json | null
@@ -5708,6 +5773,7 @@ export type Database = {
           processed_at?: string | null
           requested_at?: string
           status?: string | null
+          stripe_transfer_id?: string | null
           user_id?: string
         }
         Relationships: []
@@ -6258,6 +6324,7 @@ export type Database = {
           status_emoji: string | null
           status_text: string | null
           stripe_connect_account_id: string | null
+          stripe_customer_id: string | null
           tagline: string | null
           total_xp: number | null
           updated_at: string
@@ -6294,6 +6361,7 @@ export type Database = {
           status_emoji?: string | null
           status_text?: string | null
           stripe_connect_account_id?: string | null
+          stripe_customer_id?: string | null
           tagline?: string | null
           total_xp?: number | null
           updated_at?: string
@@ -6330,6 +6398,7 @@ export type Database = {
           status_emoji?: string | null
           status_text?: string | null
           stripe_connect_account_id?: string | null
+          stripe_customer_id?: string | null
           tagline?: string | null
           total_xp?: number | null
           updated_at?: string
