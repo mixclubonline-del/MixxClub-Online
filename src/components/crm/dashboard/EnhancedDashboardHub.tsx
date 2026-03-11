@@ -1,4 +1,5 @@
 import React from 'react';
+import { UsageLimitBanner } from '@/components/ui/UsageLimitBanner';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserProjects } from '@/hooks/useUserProjects';
