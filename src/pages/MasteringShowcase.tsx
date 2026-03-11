@@ -16,6 +16,7 @@ import { ServiceRoomView } from "@/components/services/ServiceRoomView";
 import { ShowcaseFeature } from "@/components/services/ShowcaseFeature";
 import { MasteringPackages } from "@/components/mastering/MasteringPackages";
 import { MasteringChatbot } from "@/components/MasteringChatbot";
+import { MasteringPipeline } from "@/components/studio/MasteringPipeline";
 import { Badge } from "@/components/ui/badge";
 import masteringRoomBg from "@/assets/service-mastering-room.jpg";
 
@@ -240,6 +241,15 @@ const MasteringShowcase = () => {
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Upload a track and get instant professional feedback plus a before/after comparison
             </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mb-16"
+          >
+            <MasteringPipeline />
           </motion.div>
 
           <motion.div
