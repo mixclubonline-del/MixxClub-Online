@@ -195,7 +195,7 @@ export default function ProducerProfile() {
   const beatsCount = beats?.length ?? 0;
   const totalSales = producerStats?.total_sales ?? 0;
   const totalRevenueCents = producerStats?.total_revenue_cents ?? 0;
-  const avgRating = producerStats?.average_rating ?? 0;
+  const avgRating = producerStats?.avg_rating ?? 0;
   const memberSince = new Date(profile.created_at).getFullYear();
   const yearsActive = new Date().getFullYear() - memberSince;
 
