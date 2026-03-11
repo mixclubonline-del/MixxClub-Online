@@ -1,4 +1,5 @@
 import React from 'react';
+import { UsageLimitBanner } from '@/components/ui/UsageLimitBanner';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserProjects } from '@/hooks/useUserProjects';
@@ -331,6 +332,15 @@ export const EnhancedDashboardHub = ({ userType }: EnhancedDashboardHubProps) =>
           )}
         </div>
       </motion.div>
+
+      {/* Per-feature usage banners — only appear when approaching/at limits */}
+      <div className="space-y-3">
+        <UsageLimitBanner feature="projects" />
+        <UsageLimitBanner feature="audio_uploads" />
+        <UsageLimitBanner feature="ai_matching" />
+        <UsageLimitBanner feature="collaborations" />
+        <UsageLimitBanner feature="storage_mb" label="Storage (MB)" />
+      </div>
 
       {/* Recommended Content for New Users */}
       {isNewUser && (
