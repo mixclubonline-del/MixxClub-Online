@@ -72,17 +72,23 @@ export function useSeasonLeaderboard(seasonId: string | undefined) {
       if (!seasonId) return [];
       const { data, error } = await supabase
         .from('battle_season_entries')
-        .select(`
-          *,
-          profile:profiles!battle_season_entries_user_id_fkey(id, full_name, avatar_url, username)
-        `)
+        .select('*')
         .eq('season_id', seasonId)
         .order('points', { ascending: false })
         .limit(50);
       if (error) throw error;
+      
+      // Fetch profiles for all entries
+      const userIds = (data || []).map(d => d.user_id);
+      const { data: profiles } = userIds.length > 0
+        ? await supabase.from('profiles').select('id, full_name, avatar_url, username').in('id', userIds)
+        : { data: [] };
+      const profileMap = new Map((profiles || []).map(p => [p.id, p]));
+      
       return (data || []).map(d => ({
         ...d,
         trophies: (d.trophies as unknown as BattleSeasonEntry['trophies']) || [],
+        profile: profileMap.get(d.user_id) || undefined,
       })) as BattleSeasonEntry[];
     },
     enabled: !!seasonId,

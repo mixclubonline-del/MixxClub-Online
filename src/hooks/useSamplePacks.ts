@@ -58,15 +58,15 @@ export function useSamplePacks() {
       if (!user?.id) throw new Error('Not authenticated');
       const { data, error } = await supabase
         .from('sample_packs')
-        .insert({
+        .insert([{
           producer_id: user.id,
           title: input.title,
           description: input.description || null,
           cover_url: input.cover_url || null,
           price_cents: input.price_cents,
-          items: input.items as unknown as Record<string, unknown>,
+          items: JSON.parse(JSON.stringify(input.items)),
           status: 'draft',
-        })
+        }])
         .select()
         .single();
       if (error) throw error;
