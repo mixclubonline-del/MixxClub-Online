@@ -4,9 +4,12 @@
  * 9 tabs with lazy-loaded components for optimal code splitting.
  */
 
-import { lazy, Suspense } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { lazy, Suspense, useEffect } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useAdminPreview } from '@/stores/useAdminPreview';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import { useFanStats } from '@/hooks/useFanStats';
 import { CRMPortal } from '@/components/crm/CRMPortal';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
