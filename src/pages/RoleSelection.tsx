@@ -61,7 +61,7 @@ const roleOptions: RoleOption[] = [
 
 const RoleSelection = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, refreshRoles } = useAuth();
   const { getContributionMessage } = useUnlockContribution();
   const [selectedRole, setSelectedRole] = useState<AppRole | null>(null);
   const [hoveredRole, setHoveredRole] = useState<AppRole | null>(null);
