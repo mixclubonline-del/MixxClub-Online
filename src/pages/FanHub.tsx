@@ -1,46 +1,36 @@
 /**
  * FanHub — The fully realized Fan CRM dashboard.
  * 
- * 9 tabs delivering every promise from the ForFans landing page:
- * 1. Feed (Discover) — AI-curated artist discovery
- * 2. Day 1s — Early artist support with OG proof
- * 3. Communities — Artist circles, listening parties, taste groups
- * 4. Drops — Release calendar, alerts, exclusive content
- * 5. Connect — Tiered DMs, creative voting, meet & greets
- * 6. Missions — Streaks, challenges, referrals (existing)
- * 7. Wallet — MixxCoinz balance, tiers, transactions (existing)
- * 8. Trophies — Achievement wall, badges, leaderboard
- * 9. Curator — Promotion requests, premiere slots, earnings (existing)
+ * 9 tabs with lazy-loaded components for optimal code splitting.
  */
 
+import { lazy, Suspense } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useFanStats } from '@/hooks/useFanStats';
 import { CRMPortal } from '@/components/crm/CRMPortal';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { HubSkeleton } from '@/components/crm/design';
 import {
   Heart,
   Star,
   Coins,
   Compass,
   Sparkles,
-  Users,
-  Bell,
-  MessageCircle,
-  Trophy,
-  Headphones,
-  Zap,
 } from 'lucide-react';
-import { FanFeedHub } from '@/components/crm/fan/FanFeedHub';
-import { FanDay1sHub } from '@/components/crm/fan/FanDay1sHub';
-import { FanCommunitiesHub } from '@/components/crm/fan/FanCommunitiesHub';
-import { FanDropsHub } from '@/components/crm/fan/FanDropsHub';
-import { FanConnectHub } from '@/components/crm/fan/FanConnectHub';
-import { FanMissionsHub } from '@/components/crm/fan/FanMissionsHub';
-import { FanWalletHub } from '@/components/crm/fan/FanWalletHub';
-import { FanTrophiesHub } from '@/components/crm/fan/FanTrophiesHub';
-import { FanCuratorHub } from '@/components/crm/fan/FanCuratorHub';
 import { isStarterHub } from '@/config/starterFeatures';
 import { FeatureGated } from '@/components/backend/FeatureGated';
+
+// Lazy-loaded fan hub components
+const FanFeedHub = lazy(() => import('@/components/crm/fan/FanFeedHub').then(m => ({ default: m.FanFeedHub })));
+const FanDay1sHub = lazy(() => import('@/components/crm/fan/FanDay1sHub').then(m => ({ default: m.FanDay1sHub })));
+const FanCommunitiesHub = lazy(() => import('@/components/crm/fan/FanCommunitiesHub').then(m => ({ default: m.FanCommunitiesHub })));
+const FanDropsHub = lazy(() => import('@/components/crm/fan/FanDropsHub').then(m => ({ default: m.FanDropsHub })));
+const FanConnectHub = lazy(() => import('@/components/crm/fan/FanConnectHub').then(m => ({ default: m.FanConnectHub })));
+const FanMissionsHub = lazy(() => import('@/components/crm/fan/FanMissionsHub').then(m => ({ default: m.FanMissionsHub })));
+const FanWalletHub = lazy(() => import('@/components/crm/fan/FanWalletHub').then(m => ({ default: m.FanWalletHub })));
+const FanTrophiesHub = lazy(() => import('@/components/crm/fan/FanTrophiesHub').then(m => ({ default: m.FanTrophiesHub })));
+const FanCuratorHub = lazy(() => import('@/components/crm/fan/FanCuratorHub').then(m => ({ default: m.FanCuratorHub })));
 
 const FanHub = () => {
   const { user } = useAuth();
@@ -59,7 +49,6 @@ const FanHub = () => {
     tagline: `${currentTier.charAt(0).toUpperCase() + currentTier.slice(1)} • ${streakMultiplier}x streak multiplier`,
   };
 
-  // Real stats from useFanStats — no zeros, no mocks
   const headerStats = [
     {
       icon: <Star className="w-4 h-4" />,
@@ -137,16 +126,20 @@ const FanHub = () => {
   };
 
   return (
-    <CRMPortal
-      userType="fan"
-      profile={profile}
-      stats={headerStats}
-      quickActions={quickActions}
-      activeTab={activeTab}
-      onTabChange={handleTabChange}
-    >
-      {renderContent()}
-    </CRMPortal>
+    <ErrorBoundary>
+      <CRMPortal
+        userType="fan"
+        profile={profile}
+        stats={headerStats}
+        quickActions={quickActions}
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+      >
+        <Suspense fallback={<HubSkeleton variant="cards" count={4} />}>
+          {renderContent()}
+        </Suspense>
+      </CRMPortal>
+    </ErrorBoundary>
   );
 };
 

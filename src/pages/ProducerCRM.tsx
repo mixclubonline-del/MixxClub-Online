@@ -22,6 +22,8 @@ import { AIMasteringService } from '@/components/mastering/AIMasteringService';
 // Producer-specific hubs
 import { ProducerDashboardHub } from '@/components/crm/producer/ProducerDashboardHub';
 import { HubSkeleton } from '@/components/crm/design';
+import { ProducerCRMSlideshow } from '@/components/crm/ProducerCRMSlideshow';
+import { ProducerAssistantIntro } from '@/components/crm/ProducerAssistantIntro';
 
 // Lazy-loaded hub components for code splitting
 const ProducerCatalogHub = lazy(() => import('@/components/crm/producer/ProducerCatalogHub').then(m => ({ default: m.ProducerCatalogHub })));
@@ -70,6 +72,8 @@ const ProducerCRM = () => {
   const [salesCount, setSalesCount] = useState(0);
   const [collabCount, setCollabCount] = useState(0);
   const [showGoLive, setShowGoLive] = useState(false);
+  const [showSlideshow, setShowSlideshow] = useState(false);
+  const [showAssistantIntro, setShowAssistantIntro] = useState(false);
 
   const handleTabChange = (tab: string) => {
     setSearchParams({ tab });
@@ -77,13 +81,51 @@ const ProducerCRM = () => {
 
   useEffect(() => {
     if (user) {
+      // Check if slideshow has been seen
+      const slideshowSeen = localStorage.getItem(`producer_crm_slideshow_seen_${user.id}`);
+      const introSeen = localStorage.getItem(`producer_assistant_intro_seen_${user.id}`);
+
+      if (!slideshowSeen) {
+        setShowSlideshow(true);
+      } else if (!introSeen) {
+        setShowAssistantIntro(true);
+      }
+
       fetchData();
     }
   }, [user]);
 
+  const handleSlideshowComplete = () => {
+    if (user) localStorage.setItem(`producer_crm_slideshow_seen_${user.id}`, 'true');
+    setShowSlideshow(false);
+    setShowAssistantIntro(true);
+  };
+
+  const handleSlideshowSkip = () => {
+    if (user) localStorage.setItem(`producer_crm_slideshow_seen_${user.id}`, 'true');
+    setShowSlideshow(false);
+    setShowAssistantIntro(true);
+  };
+
+  const handleAssistantIntroClose = () => {
+    if (user) localStorage.setItem(`producer_assistant_intro_seen_${user.id}`, 'true');
+    setShowAssistantIntro(false);
+    navigate('/producer-crm?tab=dashboard');
+  };
+
+  const handleAssistantNavigate = (tab: string) => {
+    if (user) localStorage.setItem(`producer_assistant_intro_seen_${user.id}`, 'true');
+    setShowAssistantIntro(false);
+    navigate(`/producer-crm?tab=${tab}`);
+  };
+
+  const handleOpenChatbot = () => {
+    if (user) localStorage.setItem(`producer_assistant_intro_seen_${user.id}`, 'true');
+    setShowAssistantIntro(false);
+  };
+
   const fetchData = async () => {
     try {
-      // Fetch real profile
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
@@ -93,14 +135,12 @@ const ProducerCRM = () => {
       if (profileError) throw profileError;
       setProfile(profileData);
 
-      // Fetch beat count from projects (producer-created)
       const { data: beats } = await supabase
         .from('projects')
         .select('id')
         .eq('client_id', user?.id);
       setBeatCount(beats?.length || 0);
 
-      // Fetch partnerships count
       const { data: partnerships } = await supabase
         .from('partnerships')
         .select('id')
@@ -108,7 +148,6 @@ const ProducerCRM = () => {
         .eq('status', 'active');
       setCollabCount(partnerships?.length || 0);
 
-      // Fetch completed projects as sales proxy
       const { data: completedProjects } = await supabase
         .from('projects')
         .select('id')
@@ -122,13 +161,31 @@ const ProducerCRM = () => {
     }
   };
 
+  if (showSlideshow) {
+    return (
+      <ProducerCRMSlideshow
+        onComplete={handleSlideshowComplete}
+        onSkip={handleSlideshowSkip}
+      />
+    );
+  }
+
+  if (showAssistantIntro) {
+    return (
+      <ProducerAssistantIntro
+        open={showAssistantIntro}
+        onClose={handleAssistantIntroClose}
+        onNavigate={handleAssistantNavigate}
+        onOpenChatbot={handleOpenChatbot}
+      />
+    );
+  }
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading your dashboard...</p>
-        </div>
+      <div className="min-h-screen p-6 md:p-10 space-y-6">
+        <HubSkeleton variant="stats" count={4} />
+        <HubSkeleton variant="tabs" count={5} />
       </div>
     );
   }
@@ -237,7 +294,9 @@ const ProducerCRM = () => {
         activeTab={activeTab}
         onTabChange={handleTabChange}
       >
-        {renderContent()}
+        <Suspense fallback={<HubSkeleton variant="cards" count={4} />}>
+          {renderContent()}
+        </Suspense>
       </CRMPortal>
       <ProducerGoLiveModal open={showGoLive} onOpenChange={setShowGoLive} />
     </ErrorBoundary>
