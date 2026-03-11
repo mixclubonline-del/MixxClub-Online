@@ -305,6 +305,14 @@ export const NotificationsHub = () => {
             <Button
               variant="ghost"
               size="sm"
+              onClick={() => setShowPrefs(!showPrefs)}
+              className={showPrefs ? 'bg-white/10' : ''}
+            >
+              <Settings className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={fetchNotifications}
               disabled={loading}
             >
