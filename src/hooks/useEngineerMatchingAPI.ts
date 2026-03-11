@@ -183,6 +183,7 @@ export function useEngineerMatchingAPI() {
       });
 
       toast.success('Engineer hired successfully!');
+      await refreshUsage();
 
       return {
         partnershipId,
@@ -196,7 +197,7 @@ export function useEngineerMatchingAPI() {
     } finally {
       setHiring(false);
     }
-  }, []);
+  }, [canUseFeature, getFeatureUsage, refreshUsage, tier]);
 
   /**
    * Clear current matches
