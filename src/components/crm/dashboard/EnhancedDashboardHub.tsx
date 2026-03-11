@@ -332,6 +332,15 @@ export const EnhancedDashboardHub = ({ userType }: EnhancedDashboardHubProps) =>
         </div>
       </motion.div>
 
+      {/* Per-feature usage banners — only appear when approaching/at limits */}
+      <div className="space-y-3">
+        <UsageLimitBanner feature="projects" />
+        <UsageLimitBanner feature="audio_uploads" />
+        <UsageLimitBanner feature="ai_matching" />
+        <UsageLimitBanner feature="collaborations" />
+        <UsageLimitBanner feature="storage_mb" label="Storage (MB)" />
+      </div>
+
       {/* Recommended Content for New Users */}
       {isNewUser && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
