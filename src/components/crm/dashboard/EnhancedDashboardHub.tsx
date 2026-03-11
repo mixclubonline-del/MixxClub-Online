@@ -4,6 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useUserProjects } from '@/hooks/useUserProjects';
 import { useUserEarnings } from '@/hooks/useUserEarnings';
 import { useQuery } from '@tanstack/react-query';
+import { useSubscriptionManagement } from '@/hooks/useSubscriptionManagement';
+import { useUsageEnforcement } from '@/hooks/useUsageEnforcement';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -24,7 +26,8 @@ import {
   Radio,
   BookOpen,
   Gift,
-  Share2
+  Share2,
+  Crown
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -106,6 +109,9 @@ interface EnhancedDashboardHubProps {
 export const EnhancedDashboardHub = ({ userType }: EnhancedDashboardHubProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  const { currentPlan } = useSubscriptionManagement();
+  const { tier, overallUsage, getFeatureUsage } = useUsageEnforcement();
 
   const { data: artistUnlockables } = useArtistUnlockables();
   const { data: engineerUnlockables } = useEngineerUnlockables();
@@ -259,6 +265,71 @@ export const EnhancedDashboardHub = ({ userType }: EnhancedDashboardHubProps) =>
           <Zap className="w-4 h-4 mr-2" />
           Refresh
         </Button>
+      </motion.div>
+
+      {/* Subscription Status Badge */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <div
+          className="relative rounded-xl p-4 overflow-hidden flex items-center gap-4"
+          style={{
+            background: 'rgba(255,255,255,0.02)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            border: '1px solid rgba(255,255,255,0.06)',
+          }}
+        >
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'hsl(var(--primary) / 0.15)' }}>
+            <Crown className="w-5 h-5 text-primary" />
+          </div>
+
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-sm font-semibold text-foreground capitalize">{tier} Plan</span>
+              {currentPlan?.subscribed && (
+                <Badge variant="secondary" className="text-[10px] bg-emerald-500/20 text-emerald-400 border-emerald-500/30">
+                  Active
+                </Badge>
+              )}
+              {!currentPlan?.subscribed && (
+                <Badge variant="secondary" className="text-[10px] bg-muted text-muted-foreground">
+                  Free
+                </Badge>
+              )}
+            </div>
+            {tier === 'free' || tier === 'starter' ? (
+              <div className="flex items-center gap-3">
+                <Progress value={overallUsage.percentage} className="h-1.5 flex-1 max-w-[200px]" />
+                <span className="text-xs text-muted-foreground">{Math.round(overallUsage.percentage)}% used</span>
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">Unlimited access</p>
+            )}
+          </div>
+
+          {tier === 'free' ? (
+            <Button
+              onClick={() => navigate('/pricing')}
+              size="sm"
+              className="flex-shrink-0"
+            >
+              Upgrade
+              <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+            </Button>
+          ) : (
+            <Button
+              onClick={() => navigate('/freemium')}
+              variant="outline"
+              size="sm"
+              className="flex-shrink-0 backdrop-blur-sm border-white/10 bg-white/[0.04] hover:bg-white/[0.08]"
+            >
+              Manage Plan
+            </Button>
+          )}
+        </div>
       </motion.div>
 
       {/* Recommended Content for New Users */}

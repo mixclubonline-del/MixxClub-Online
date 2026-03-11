@@ -1,56 +1,44 @@
 
 
-# Phase 5: Revenue Hardening & Referral Activation
+# CRM Phase 4 Complete — Remaining Roadmap
 
-With the Stripe payment chain (checkout → webhook → subscription verification) now live, and stub pages built out, the next logical phases close the remaining roadmap gaps: **referral verification + reward processing** and **usage enforcement**.
+## Completed ✅
 
-## What's Left (from roadmap)
+### Phase 1 — Design Tokens
+- GlassPanel, HubHeader, StaggeredList, HubSkeleton, EmptyState created
+- ActiveWorkHub, StoreHub, ClientsHub migrated
 
-1. **Referral code verification + reward processing** — signup flow doesn't read `?ref=` param, so referral codes are generated but never redeemed
-2. **Usage enforcement middleware** — `FeatureGated` checks community milestones but doesn't enforce subscription-tier usage limits (tracks/month, storage, etc.)
-3. **FeatureGated → Upgrade button wiring** — the "Upgrade Now" button in the subscription lock overlay doesn't navigate anywhere
+### Phase 2 — Critical Features  
+- NotificationsHub upgraded to GlassPanel/HubHeader + mobile Select dropdown
+- ScheduleHub upgraded to GlassPanel/HubHeader/EmptyState + mobile responsive
+- RevenueHub upgraded to GlassPanel/HubHeader + mobile Select dropdown
+- CommunityHub already mobile responsive (useIsMobile + Select)
+- MatchesHub already mobile responsive (useIsMobile)
+- CommunityStats already responsive (grid-cols-2 md:3 lg:6)
+- All 3 CRM pages (Artist/Engineer/Producer) already have notifications + schedule wired
 
-## Implementation Plan
+### EcosystemFlow Character Avatars
+- Already implemented with foreignObject SVG alignment
 
-### Step 1: Referral Verification on Signup
-- Update the auth/signup page to read `?ref=` query param from the URL
-- On successful signup, look up the referral code in the `referrals` table
-- If found, set `referred_user_id` to the new user's ID, update status to `'completed'`
-- Award coinz to both referrer (100) and new user (50) via existing `useMixxWallet.earnCoinz`
-- Store `referred_by` on the new user's profile for tracking
+### Phase 3 — UX Polish ✅
+- HubSkeleton + EmptyState standardized across ~10 hubs
+- CommunityHub, SessionsHub, CollectiveAnalytics, ClientsHub, ScheduleHub migrated to design tokens
+- Match components (AIMatchRecommendations, MatchRequests, YourMatches) standardized
+- File version timeline verified functional
 
-**Files**: `src/pages/Auth.tsx` (or signup component), `src/hooks/useReferralSystem.ts`
+### Phase 4 — Advanced ✅
+- `useUserProjects` and `useUserEarnings` shared hooks created and adopted by EnhancedDashboardHub + GrowthHub
+- Producer License Builder + Promo Codes + Featured Rotation built and wired into ProducerCatalogHub
+- React.lazy() implemented for all 3 CRM pages (non-dashboard hubs)
 
-### Step 2: Usage Enforcement Hook
-- Create `useUsageEnforcement` hook that:
-  - Reads current subscription tier from `useSubscriptionManagement`
-  - Reads usage counts from `user_subscriptions.usage_current`
-  - Exposes `canUseFeature(feature)` and `trackUsage(feature)` methods
-  - Returns `{ withinLimits, usagePercent, limitReached }` state
-- Integrate into key action points: project creation, audio upload, AI matching requests
+## Remaining
 
-**Files**: `src/hooks/useUsageEnforcement.ts` (new), integrate into `useProjectCreation`, audio upload flow
+### Revenue Backend
+- Stripe API + Database + Webhooks (subscriptions)
+- Referral code verification + reward processing
+- Usage enforcement middleware (freemium limits)
 
-### Step 3: Wire FeatureGated Upgrade Button
-- In `FeatureGated.tsx`, make the "Upgrade Now" button navigate to `/pricing` using `useNavigate`
-- Add the current feature name as a query param so the pricing page can highlight the relevant tier
-
-**Files**: `src/components/backend/FeatureGated.tsx`
-
-### Step 4: Subscription Status on Dashboard
-- Add a compact subscription badge to `EnhancedDashboardHub` showing current tier + usage bar
-- Link to `/freemium` for plan management
-- Show "Upgrade" CTA for free-tier users
-
-**Files**: `src/components/crm/dashboard/EnhancedDashboardHub.tsx`
-
-## Dependency Order
-
-```text
-Step 1 (Referral Verification) ──┐
-Step 2 (Usage Enforcement)  ─────┼── Step 4 (Dashboard Badge)
-Step 3 (Upgrade Button Wire) ────┘
-```
-
-Steps 1–3 are independent and can be built in parallel. Step 4 depends on Step 2.
-
+### Stub Pages
+- `/engineer/:userId` — Full engineer profiles
+- `/my-certifications` — Certification system
+- `/battle-tournaments` — Tournament brackets
