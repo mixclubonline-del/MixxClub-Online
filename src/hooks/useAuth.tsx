@@ -14,6 +14,7 @@ interface AuthContextType {
   setActiveRole: (role: AppRole) => void;
   isHybridUser: boolean;
   signOut: () => Promise<void>;
+  refreshRoles: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
