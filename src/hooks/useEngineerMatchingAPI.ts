@@ -77,6 +77,7 @@ export function useEngineerMatchingAPI() {
 
       const matchResults: EngineerMatch[] = data?.matches || [];
       setMatches(matchResults);
+      await refreshUsage();
       return matchResults;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to find matching engineers';
