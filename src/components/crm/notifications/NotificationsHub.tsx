@@ -50,7 +50,7 @@ interface Notification {
   metadata?: Record<string, unknown>;
 }
 
-type NotificationCategory = 'all' | 'partnerships' | 'payments' | 'projects' | 'messages';
+type NotificationCategory = 'all' | 'partnerships' | 'payments' | 'projects' | 'messages' | 'health';
 
 const categoryConfig: Record<NotificationCategory, { icon: React.ElementType; label: string; types: string[] }> = {
   all: { icon: Bell, label: 'All', types: [] },
@@ -58,6 +58,7 @@ const categoryConfig: Record<NotificationCategory, { icon: React.ElementType; la
   payments: { icon: DollarSign, label: 'Payments', types: ['payment_received', 'payment_pending', 'payout_completed'] },
   projects: { icon: Music, label: 'Projects', types: ['project_update', 'project_completed', 'milestone_reached'] },
   messages: { icon: MessageSquare, label: 'Messages', types: ['new_message', 'message_reply'] },
+  health: { icon: AlertTriangle, label: 'Health', types: ['health_warning', 'health_critical'] },
 };
 
 const getNotificationIcon = (type: string) => {
