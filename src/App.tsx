@@ -7,8 +7,10 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { PWAInstallPrompt } from "@/components/mobile/PWAInstallPrompt";
+import { PWAUpdatePrompt } from "@/components/mobile/PWAUpdatePrompt";
 import { MobileRouteGuard } from "@/components/mobile/MobileRouteGuard";
 import { OfflineIndicator } from "@/components/mobile/OfflineIndicator";
+import { SyncIndicator } from "@/components/mobile/SyncIndicator";
 
 import { TabletSideNav } from "@/components/mobile/TabletSideNav";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -58,6 +60,19 @@ const DesktopOnlyComponents = () => {
     <>
       <PrimeConsole />
       <PrimeStatusBar />
+    </>
+  );
+};
+
+// Mobile-only overlays — sync indicator + PWA update prompt
+const MobileOnlyOverlays = () => {
+  const { isMobile } = useMobileDetect();
+  if (!isMobile) return null;
+
+  return (
+    <>
+      <SyncIndicator />
+      <PWAUpdatePrompt />
     </>
   );
 };
@@ -148,6 +163,7 @@ const App = () => {
                           <GlobalInteractions />
                           <GlobalKeyboardShortcuts />
                           <MobileOptimizations />
+                          <MobileOnlyOverlays />
                           <DesktopOnlyComponents />
                           <AuthGatedOverlays />
                           <PerformanceMonitor />

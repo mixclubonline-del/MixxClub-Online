@@ -1,51 +1,64 @@
 
 
-# Mobile App Polish — PWA & Offline Hardening
+# CRM Phase 4 Complete — Remaining Roadmap
 
-## Current State Assessment
+## Completed ✅
 
-The mobile infrastructure is extensive: PWA manifest, Capacitor config, haptics, push notifications, offline indicator, background sync, CRM offline queue, bottom nav, splash screen, pull-to-refresh, and swipe navigation all exist. However several components are **built but not wired**:
+### Phase 1 — Design Tokens
+- GlassPanel, HubHeader, StaggeredList, HubSkeleton, EmptyState created
+- ActiveWorkHub, StoreHub, ClientsHub migrated
 
-1. **`SyncIndicator`** — fully built but never mounted in `App.tsx`
-2. **No PWA Update Prompt** — `vite-plugin-pwa` is configured with `registerType: 'prompt'` but no UI handles the `onNeedRefresh` event, so users never see update notifications
-3. **`PWAInstallPrompt`** dismissal is session-only (useState) — reappears on every visit
-4. **No iOS install guidance** — iOS doesn't fire `beforeinstallprompt`, so iPhone users never see install instructions
-5. **`useCRMOffline`** queue exists but is not connected to actual CRM mutation hooks
+### Phase 2 — Critical Features  
+- NotificationsHub upgraded to GlassPanel/HubHeader + mobile Select dropdown
+- ScheduleHub upgraded to GlassPanel/HubHeader/EmptyState + mobile responsive
+- RevenueHub upgraded to GlassPanel/HubHeader + mobile Select dropdown
+- CommunityHub already mobile responsive (useIsMobile + Select)
+- MatchesHub already mobile responsive (useIsMobile)
+- CommunityStats already responsive (grid-cols-2 md:3 lg:6)
+- All 3 CRM pages (Artist/Engineer/Producer) already have notifications + schedule wired
 
-## Changes
+### EcosystemFlow Character Avatars
+- Already implemented with foreignObject SVG alignment
 
-### 1. Create `src/components/mobile/PWAUpdatePrompt.tsx` (~50 lines)
-Uses `useRegisterSW` from `vite-plugin-pwa/react` to detect waiting service worker. Shows a toast-style banner: "A new version is available" with "Update Now" button that calls `updateServiceWorker(true)`. Positioned above bottom nav with proper z-index.
+### Phase 3 — UX Polish ✅
+- HubSkeleton + EmptyState standardized across ~10 hubs
+- CommunityHub, SessionsHub, CollectiveAnalytics, ClientsHub, ScheduleHub migrated to design tokens
+- Match components (AIMatchRecommendations, MatchRequests, YourMatches) standardized
+- File version timeline verified functional
 
-### 2. Update `src/components/mobile/PWAInstallPrompt.tsx` (~15 lines changed)
-- Persist dismissal in `localStorage` with 7-day expiry (don't nag daily)
-- Add iOS-specific guidance: detect iOS + non-standalone → show "Tap Share → Add to Home Screen" instruction instead of the install button
+### Phase 4 — Advanced ✅
+- `useUserProjects` and `useUserEarnings` shared hooks created and adopted by EnhancedDashboardHub + GrowthHub
+- Producer License Builder + Promo Codes + Featured Rotation built and wired into ProducerCatalogHub
+- React.lazy() implemented for all 3 CRM pages (non-dashboard hubs)
 
-### 3. Mount `SyncIndicator` and `PWAUpdatePrompt` in `App.tsx` (~5 lines)
-- Import and render `SyncIndicator` and `PWAUpdatePrompt` inside `AppContent`, alongside existing `OfflineIndicator`
-- Only render on mobile via `useMobileDetect`
+### Phase 5 — Usage Enforcement ✅
+- `useUsageEnforcement` hook: centralized tier-aware limit checking (free/starter/pro/studio)
+- `UsageLimitBanner` component: 4 severity states (normal/warning/urgent/blocked), 2 variants (banner/inline), tier badges, upgrade CTAs
+- Dashboard integration: per-feature banners for projects, audio uploads, AI matching, storage, collaborations
+- Enforcement guards wired into: CreateProjectModal, AudioUpload, useEngineerMatchingAPI, usePartnershipEarnings, useProducerPartnerships
+- 20+ unit tests covering all thresholds, variants, visibility rules, CTAs, and edge cases
+- Integration-level tests for `useUsageEnforcement` hook (tier fallback, canUseFeature, getFeatureUsage)
 
-### 4. Enhance `OfflineIndicator.tsx` (~20 lines changed)
-- Add pending sync count from `useBackgroundSync` — show "3 changes pending" alongside the offline message
-- Position-aware: shift up when mobile bottom nav is visible (bottom-20 instead of top-16) to avoid overlap
-- Add manual "Sync Now" button when back online with pending items
+### Phase 6 — Stripe Revenue Backend ✅
+- Schema alignment: 10 columns added to `payments`, `stripe_customer_id` on `profiles`, `engineer_id`+`stripe_transfer_id` on `payout_requests`
+- `launch_metrics` table created with admin-only RLS for revenue prediction engine
+- `aggregate_payment_to_metrics` trigger auto-increments daily revenue/payment counts
+- Webhook handlers added: `charge.refunded` (auto-reverse earnings), `invoice.payment_failed` (flag subscription + notify), `charge.dispute.created` (critical alert to all admins)
+- Backfilled `payout_requests.engineer_id` from existing `user_id`
 
-### 5. Wire `useCRMOffline` into CRM data hooks (~30 lines across 2 files)
-In `src/hooks/useCRMClients.ts` and `src/hooks/useCRMDeals.ts`:
-- Wrap mutation calls: if offline, queue via `useCRMOffline.queueAction` instead of direct Supabase write
-- On query, fall back to `getCachedData` when offline
-- Cache successful query results via `cacheData`
+### Phase 7 — Full Site Audit ✅
+- Auth-to-dashboard flow audited: magic link, email+password, OAuth all route correctly through AuthCallback → role check → onboarding → CRM
+- Engineer profile page (/engineer/:userId) verified fully functional with real data from profiles + engineer_profiles + engineer_reviews + projects
+- Battle Tournaments page verified fully functional with real data from battle_tournaments table
+- My Certifications page verified fully functional with milestone overlay at 250 community members
+- Mobile QA pass on revenue path (home → pricing → checkout): pricing cards stack cleanly, CTAs visible
+- Fixed: PathfinderBeacon mobile positioning (bottom-24 on phones to clear mobile nav, full-width card on small screens)
+- Fixed: AuthSocialProof ticker text truncation on narrow viewports (added truncate + shrink-0)
+- Fixed: Homepage floating nav pill overflow on 375px screens (added max-w constraint)
 
-## Files Summary
+## Status: Launch Ready 🚀
 
-| File | Action |
-|------|--------|
-| `src/components/mobile/PWAUpdatePrompt.tsx` | Create — SW update notification UI |
-| `src/components/mobile/PWAInstallPrompt.tsx` | Edit — localStorage dismissal + iOS guidance |
-| `src/App.tsx` | Edit — mount SyncIndicator + PWAUpdatePrompt |
-| `src/components/mobile/OfflineIndicator.tsx` | Edit — pending count + position fix + sync button |
-| `src/hooks/useCRMClients.ts` | Edit — wire offline queue + cache |
-| `src/hooks/useCRMDeals.ts` | Edit — wire offline queue + cache |
-
-No database changes needed.
-
+All previously listed stub pages are now fully functional:
+- `/engineer/:userId` — Full engineer profiles with portfolio, reviews, rates, equipment
+- `/my-certifications` — Certification system with milestone unlock overlay
+- `/battle-tournaments` — Tournament browser with tabs, join flow, status badges
