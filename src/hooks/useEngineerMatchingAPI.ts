@@ -6,6 +6,7 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useUsageEnforcement } from '@/hooks/useUsageEnforcement';
 
 export interface MatchCriteria {
   budgetRange: string;  // 'under-50' | '50-100' | '100-300' | '300-500' | '500+'
@@ -38,11 +39,22 @@ export function useEngineerMatchingAPI() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hiring, setHiring] = useState(false);
+  const { canUseFeature, getFeatureUsage, refreshUsage, tier } = useUsageEnforcement();
+
+  const matchingUsage = getFeatureUsage('ai_matching');
 
   /**
    * Find matching engineers based on project criteria
    */
   const findMatches = useCallback(async (criteria: MatchCriteria): Promise<EngineerMatch[]> => {
+    if (!canUseFeature('ai_matching')) {
+      const usage = getFeatureUsage('ai_matching');
+      toast.error(`AI matching limit reached (${usage.current}/${usage.limit}) on your ${tier} plan. Upgrade for more.`, {
+        action: { label: 'Upgrade', onClick: () => window.location.href = '/pricing?feature=ai_matching' },
+      });
+      return [];
+    }
+
     setLoading(true);
     setError(null);
 
@@ -65,6 +77,7 @@ export function useEngineerMatchingAPI() {
 
       const matchResults: EngineerMatch[] = data?.matches || [];
       setMatches(matchResults);
+      await refreshUsage();
       return matchResults;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to find matching engineers';
@@ -74,7 +87,7 @@ export function useEngineerMatchingAPI() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [canUseFeature, getFeatureUsage, tier, refreshUsage]);
 
   /**
    * Hire an engineer - creates partnership and project records
@@ -191,5 +204,6 @@ export function useEngineerMatchingAPI() {
     findMatches,
     hireEngineer,
     clearMatches,
+    matchingUsage,
   };
 }
