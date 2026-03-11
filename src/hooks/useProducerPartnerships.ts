@@ -20,6 +20,7 @@ interface UseProducerPartnershipsResult {
 
 export const useProducerPartnerships = (): UseProducerPartnershipsResult => {
   const { user } = useAuth();
+  const { canUseFeature, getFeatureUsage, refreshUsage, tier } = useUsageEnforcement();
   const [partnerships, setPartnerships] = useState<ProducerPartnership[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
