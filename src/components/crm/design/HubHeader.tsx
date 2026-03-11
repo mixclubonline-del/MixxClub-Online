@@ -23,7 +23,7 @@ export interface HubHeaderProps {
   className?: string;
 }
 
-export const HubHeader: React.FC<HubHeaderProps> = ({
+export const HubHeader: React.FC<HubHeaderProps> = React.memo(({
   icon,
   title,
   subtitle,
