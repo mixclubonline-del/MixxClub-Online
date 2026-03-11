@@ -298,34 +298,8 @@ export default function AudioUpload() {
         )}
 
         {/* Limit Reached Banner */}
-        {isAuthenticated && uploadUsage.limitReached && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
-          >
-            <Card className="p-6 border-destructive/50 bg-destructive/10">
-              <div className="flex items-start gap-4">
-                <div className="p-3 rounded-full bg-destructive/20 shrink-0">
-                  <AlertTriangle className="w-6 h-6 text-destructive" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-bold text-destructive">Upload limit reached</h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    You've used all {uploadUsage.limit} uploads on your <span className="font-medium capitalize">{tier}</span> plan.
-                    Upgrade to continue uploading.
-                  </p>
-                  <div className="mt-2">
-                    <Progress value={100} className="h-1.5" />
-                  </div>
-                </div>
-                <Button onClick={() => navigate('/pricing?feature=audio_uploads')}>
-                  <ArrowUpRight className="w-4 h-4 mr-2" />
-                  Upgrade
-                </Button>
-              </div>
-            </Card>
-          </motion.div>
+        {isAuthenticated && (
+          <UsageLimitBanner feature="audio_uploads" variant="banner" showAlways className="mb-8" />
         )}
 
         {/* Upload Zone - Only show when authenticated and not at limit */}
