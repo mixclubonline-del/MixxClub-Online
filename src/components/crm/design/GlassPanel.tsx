@@ -26,7 +26,7 @@ export interface GlassPanelProps {
     children: ReactNode;
 }
 
-export const GlassPanel: React.FC<GlassPanelProps> = ({
+export const GlassPanel: React.FC<GlassPanelProps> = React.memo(({
     accent,
     glow = false,
     hoverable = false,
