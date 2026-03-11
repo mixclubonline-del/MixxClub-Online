@@ -96,11 +96,11 @@ export const AuthSocialProof = ({ className }: AuthSocialProofProps) => {
             className="absolute inset-0 flex items-center justify-center px-4 gap-2"
           >
             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            <span className="text-sm text-white/80">
+            <span className="text-sm text-white/80 truncate">
               <span className="font-medium text-white">{recentActivities[currentActivityIndex].name}</span>{' '}
               {recentActivities[currentActivityIndex].action}
             </span>
-            <span className="text-xs text-white/40">{recentActivities[currentActivityIndex].time}</span>
+            <span className="text-xs text-white/40 shrink-0">{recentActivities[currentActivityIndex].time}</span>
           </motion.div>
         </AnimatePresence>
       </motion.div>

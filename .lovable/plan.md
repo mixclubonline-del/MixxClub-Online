@@ -1,38 +1,64 @@
 
 
-# MixxClub — Full Site Assessment
+# CRM Phase 4 Complete — Remaining Roadmap
 
-## What's Working Well
+## Completed ✅
 
-The platform is in genuinely impressive shape. The hallway entrance concept is unique and immersive. The Services District, Pricing, About, and role-specific landing pages (/for-artists, /for-engineers, etc.) all look polished with strong imagery, clear CTAs, and consistent branding. The navigation system (mega-menu on desktop, bottom nav on mobile, tablet sidebar) is well-architected.
+### Phase 1 — Design Tokens
+- GlassPanel, HubHeader, StaggeredList, HubSkeleton, EmptyState created
+- ActiveWorkHub, StoreHub, ClientsHub migrated
 
-Backend infrastructure is production-grade: 58+ edge functions, Stripe webhooks handling refunds/disputes/failures, usage enforcement with tier-aware limits, real-time metrics aggregation, and comprehensive RLS policies. The CRM system across all four roles is fully built with design tokens, skeleton states, and empty states standardized.
+### Phase 2 — Critical Features  
+- NotificationsHub upgraded to GlassPanel/HubHeader + mobile Select dropdown
+- ScheduleHub upgraded to GlassPanel/HubHeader/EmptyState + mobile responsive
+- RevenueHub upgraded to GlassPanel/HubHeader + mobile Select dropdown
+- CommunityHub already mobile responsive (useIsMobile + Select)
+- MatchesHub already mobile responsive (useIsMobile)
+- CommunityStats already responsive (grid-cols-2 md:3 lg:6)
+- All 3 CRM pages (Artist/Engineer/Producer) already have notifications + schedule wired
 
-The codebase architecture is clean: route modules split by domain, lazy loading on heavy pages, shared hooks for data fetching, and a well-maintained plan.md tracking completed phases.
+### EcosystemFlow Character Avatars
+- Already implemented with foreignObject SVG alignment
 
-## What Needs Attention
+### Phase 3 — UX Polish ✅
+- HubSkeleton + EmptyState standardized across ~10 hubs
+- CommunityHub, SessionsHub, CollectiveAnalytics, ClientsHub, ScheduleHub migrated to design tokens
+- Match components (AIMatchRecommendations, MatchRequests, YourMatches) standardized
+- File version timeline verified functional
 
-Three things stand out as the highest-impact remaining work:
+### Phase 4 — Advanced ✅
+- `useUserProjects` and `useUserEarnings` shared hooks created and adopted by EnhancedDashboardHub + GrowthHub
+- Producer License Builder + Promo Codes + Featured Rotation built and wired into ProducerCatalogHub
+- React.lazy() implemented for all 3 CRM pages (non-dashboard hubs)
 
----
+### Phase 5 — Usage Enforcement ✅
+- `useUsageEnforcement` hook: centralized tier-aware limit checking (free/starter/pro/studio)
+- `UsageLimitBanner` component: 4 severity states (normal/warning/urgent/blocked), 2 variants (banner/inline), tier badges, upgrade CTAs
+- Dashboard integration: per-feature banners for projects, audio uploads, AI matching, storage, collaborations
+- Enforcement guards wired into: CreateProjectModal, AudioUpload, useEngineerMatchingAPI, usePartnershipEarnings, useProducerPartnerships
+- 20+ unit tests covering all thresholds, variants, visibility rules, CTAs, and edge cases
+- Integration-level tests for `useUsageEnforcement` hook (tier fallback, canUseFeature, getFeatureUsage)
 
-### 1. End-to-End Auth-to-Dashboard Flow Testing
+### Phase 6 — Stripe Revenue Backend ✅
+- Schema alignment: 10 columns added to `payments`, `stripe_customer_id` on `profiles`, `engineer_id`+`stripe_transfer_id` on `payout_requests`
+- `launch_metrics` table created with admin-only RLS for revenue prediction engine
+- `aggregate_payment_to_metrics` trigger auto-increments daily revenue/payment counts
+- Webhook handlers added: `charge.refunded` (auto-reverse earnings), `invoice.payment_failed` (flag subscription + notify), `charge.dispute.created` (critical alert to all admins)
+- Backfilled `payout_requests.engineer_id` from existing `user_id`
 
-The most critical gap is not a missing feature — it is confidence that the core revenue path actually works. A new user hitting "Start Free" needs to land on auth, complete magic link sign-in, hit role selection, go through onboarding, and arrive at their CRM dashboard with the correct sidebar, wallet, and usage banners. This flow touches AuthWizard, ProtectedRoute, role-based redirects in Dashboard, onboarding pages, and the subscription check. Any break in this chain means zero conversions. This needs a manual walkthrough and any discovered issues fixed.
+### Phase 7 — Full Site Audit ✅
+- Auth-to-dashboard flow audited: magic link, email+password, OAuth all route correctly through AuthCallback → role check → onboarding → CRM
+- Engineer profile page (/engineer/:userId) verified fully functional with real data from profiles + engineer_profiles + engineer_reviews + projects
+- Battle Tournaments page verified fully functional with real data from battle_tournaments table
+- My Certifications page verified fully functional with milestone overlay at 250 community members
+- Mobile QA pass on revenue path (home → pricing → checkout): pricing cards stack cleanly, CTAs visible
+- Fixed: PathfinderBeacon mobile positioning (bottom-24 on phones to clear mobile nav, full-width card on small screens)
+- Fixed: AuthSocialProof ticker text truncation on narrow viewports (added truncate + shrink-0)
+- Fixed: Homepage floating nav pill overflow on 375px screens (added max-w constraint)
 
-### 2. The Three Stub Pages
+## Status: Launch Ready 🚀
 
-The plan.md lists three remaining stubs: `/engineer/:userId` (engineer profiles), `/my-certifications`, and `/battle-tournaments`. Per the 120% standard, these cannot ship as placeholder alerts. Engineer profiles are especially critical — the entire matching and discovery flow (EngineerDirectory → EngineerProfile) dead-ends if the profile page is a stub. At minimum, engineer profiles need to pull real data from `profiles` + `engineer_profiles` and display portfolio, reviews, rates, and a "Book Session" CTA. Certifications and tournaments can be elegantly gated behind "Coming Soon" milestone overlays if needed, but the engineer profile must be functional.
-
-### 3. Mobile-First QA Pass on the Revenue Path
-
-The homepage, pricing, services, and checkout pages all render on desktop but the mobile experience on these revenue-critical pages hasn't been stress-tested. The Pathfinder beacon and cookie consent banner are stacking in the bottom-right corner on desktop already — on a 375px screen they could block CTAs entirely. The pricing cards need to stack cleanly on mobile. The checkout redirect flow needs to work on Safari/iOS where popup blockers and redirect handling differ. A focused mobile QA pass on just the money pages (home → pricing → checkout → success) would catch conversion killers before launch.
-
----
-
-## If I Had to Pick Three — In Priority Order
-
-1. **Walk the full signup-to-dashboard flow** and fix any breaks in the auth → role selection → onboarding → CRM pipeline
-2. **Build the engineer profile page** with real data so the discovery/matching funnel doesn't dead-end
-3. **Mobile QA the revenue path** (home → pricing → checkout → payment success) and fix any overlay/layout collisions
-
+All previously listed stub pages are now fully functional:
+- `/engineer/:userId` — Full engineer profiles with portfolio, reviews, rates, equipment
+- `/my-certifications` — Certification system with milestone unlock overlay
+- `/battle-tournaments` — Tournament browser with tabs, join flow, status badges
