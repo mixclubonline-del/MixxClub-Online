@@ -1,44 +1,25 @@
 
 
-# CRM Phase 4 Complete — Remaining Roadmap
+# Wire useUsageEnforcement into Project Creation & Audio Upload
 
-## Completed ✅
+The `useUsageEnforcement` hook already exists with full tier-limit logic, `canUseFeature()`, `getFeatureUsage()`, and `refreshUsage()`. It just needs to be wired into the two action points.
 
-### Phase 1 — Design Tokens
-- GlassPanel, HubHeader, StaggeredList, HubSkeleton, EmptyState created
-- ActiveWorkHub, StoreHub, ClientsHub migrated
+## Changes
 
-### Phase 2 — Critical Features  
-- NotificationsHub upgraded to GlassPanel/HubHeader + mobile Select dropdown
-- ScheduleHub upgraded to GlassPanel/HubHeader/EmptyState + mobile responsive
-- RevenueHub upgraded to GlassPanel/HubHeader + mobile Select dropdown
-- CommunityHub already mobile responsive (useIsMobile + Select)
-- MatchesHub already mobile responsive (useIsMobile)
-- CommunityStats already responsive (grid-cols-2 md:3 lg:6)
-- All 3 CRM pages (Artist/Engineer/Producer) already have notifications + schedule wired
+### 1. `src/components/crm/projects/CreateProjectModal.tsx`
+- Import `useUsageEnforcement`
+- Before the form renders, check `canUseFeature('projects')` -- if limit reached, show an upgrade banner instead of the form with usage stats and a link to `/pricing`
+- In `handleSubmit`, add a guard: if `!canUseFeature('projects')`, show a toast and return early
+- After successful creation, call `refreshUsage()`
+- Show usage indicator near the submit button (e.g., "2/3 projects used")
 
-### EcosystemFlow Character Avatars
-- Already implemented with foreignObject SVG alignment
+### 2. `src/pages/AudioUpload.tsx`
+- Import `useUsageEnforcement`
+- In `handleFiles`, before uploading, check `canUseFeature('audio_uploads')` -- if limit reached, show a toast with upgrade prompt and return early
+- Also check if the number of files being uploaded would exceed the remaining limit, and cap or block accordingly
+- After successful upload, call `refreshUsage()`
+- Show a usage badge in the upload area header (e.g., "8/10 uploads used" for free tier)
 
-### Phase 3 — UX Polish ✅
-- HubSkeleton + EmptyState standardized across ~10 hubs
-- CommunityHub, SessionsHub, CollectiveAnalytics, ClientsHub, ScheduleHub migrated to design tokens
-- Match components (AIMatchRecommendations, MatchRequests, YourMatches) standardized
-- File version timeline verified functional
+### 3. No changes to `useUsageEnforcement.ts` itself
+The hook is already complete with all needed methods.
 
-### Phase 4 — Advanced ✅
-- `useUserProjects` and `useUserEarnings` shared hooks created and adopted by EnhancedDashboardHub + GrowthHub
-- Producer License Builder + Promo Codes + Featured Rotation built and wired into ProducerCatalogHub
-- React.lazy() implemented for all 3 CRM pages (non-dashboard hubs)
-
-## Remaining
-
-### Revenue Backend
-- Stripe API + Database + Webhooks (subscriptions)
-- Referral code verification + reward processing
-- Usage enforcement middleware (freemium limits)
-
-### Stub Pages
-- `/engineer/:userId` — Full engineer profiles
-- `/my-certifications` — Certification system
-- `/battle-tournaments` — Tournament brackets
