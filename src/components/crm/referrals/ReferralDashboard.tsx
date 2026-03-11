@@ -115,7 +115,7 @@ const ReferralDashboard: React.FC = () => {
   }, [referralHistory]);
 
   if (isLoading) {
-    return <HubSkeleton rows={4} />;
+    return <HubSkeleton variant="tabs" count={4} />;
   }
 
   if (!isPartner) {
