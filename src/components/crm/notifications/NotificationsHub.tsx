@@ -19,6 +19,7 @@ import {
   Music,
   MessageSquare,
   AlertCircle,
+  AlertTriangle,
   Loader2,
   RefreshCw
 } from 'lucide-react';
@@ -49,7 +50,7 @@ interface Notification {
   metadata?: Record<string, unknown>;
 }
 
-type NotificationCategory = 'all' | 'partnerships' | 'payments' | 'projects' | 'messages';
+type NotificationCategory = 'all' | 'partnerships' | 'payments' | 'projects' | 'messages' | 'health';
 
 const categoryConfig: Record<NotificationCategory, { icon: React.ElementType; label: string; types: string[] }> = {
   all: { icon: Bell, label: 'All', types: [] },
@@ -57,9 +58,11 @@ const categoryConfig: Record<NotificationCategory, { icon: React.ElementType; la
   payments: { icon: DollarSign, label: 'Payments', types: ['payment_received', 'payment_pending', 'payout_completed'] },
   projects: { icon: Music, label: 'Projects', types: ['project_update', 'project_completed', 'milestone_reached'] },
   messages: { icon: MessageSquare, label: 'Messages', types: ['new_message', 'message_reply'] },
+  health: { icon: AlertTriangle, label: 'Health', types: ['health_warning', 'health_critical'] },
 };
 
 const getNotificationIcon = (type: string) => {
+  if (type.includes('health_critical') || type.includes('health_warning')) return AlertTriangle;
   if (type.includes('partner') || type.includes('collaboration')) return Users;
   if (type.includes('payment') || type.includes('payout') || type.includes('revenue')) return DollarSign;
   if (type.includes('project') || type.includes('milestone')) return Music;
@@ -68,6 +71,8 @@ const getNotificationIcon = (type: string) => {
 };
 
 const getNotificationColor = (type: string) => {
+  if (type.includes('health_critical')) return 'text-red-500 bg-red-500/10';
+  if (type.includes('health_warning')) return 'text-amber-500 bg-amber-500/10';
   if (type.includes('partner') || type.includes('collaboration')) return 'text-blue-500 bg-blue-500/10';
   if (type.includes('payment') || type.includes('payout') || type.includes('revenue')) return 'text-green-500 bg-green-500/10';
   if (type.includes('project') || type.includes('milestone')) return 'text-purple-500 bg-purple-500/10';

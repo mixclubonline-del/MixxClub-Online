@@ -1,6 +1,7 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { usePartnershipNotifications } from '@/hooks/usePartnershipNotifications';
 import { supabase } from '@/integrations/supabase/client';
 import { CRMPortal } from '@/components/crm/CRMPortal';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -63,6 +64,7 @@ interface DbProfile {
 
 const ProducerCRM = () => {
   const { user } = useAuth();
+  usePartnershipNotifications(user?.id);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'dashboard';

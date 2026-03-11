@@ -19,6 +19,7 @@ interface EngineerProject extends DbProject {
   audio_files: { count: number }[];
 }
 import { useAuth } from '@/hooks/useAuth';
+import { usePartnershipNotifications } from '@/hooks/usePartnershipNotifications';
 import { useAdminPreview } from '@/stores/useAdminPreview';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -69,6 +70,7 @@ const TriPartnershipView = lazy(() => import('@/components/crm/partnerships/TriP
 
 const EngineerCRM = () => {
   const { user } = useAuth();
+  usePartnershipNotifications(user?.id);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const currentTab = searchParams.get('tab') || 'dashboard';

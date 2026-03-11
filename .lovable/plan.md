@@ -1,71 +1,64 @@
 
 
-# Push Notifications System — Partnership Event Notifications
+# CRM Phase 4 Complete — Remaining Roadmap
 
-## Overview
+## Completed ✅
 
-Wire real-time partnership events (milestone completion, payment received, health score warning) into the existing notification infrastructure. The `send-push-notification` edge function and `NotificationsHub` UI already exist — this phase connects partnership database changes to them via a new hook and database triggers.
+### Phase 1 — Design Tokens
+- GlassPanel, HubHeader, StaggeredList, HubSkeleton, EmptyState created
+- ActiveWorkHub, StoreHub, ClientsHub migrated
 
-## Current State
+### Phase 2 — Critical Features  
+- NotificationsHub upgraded to GlassPanel/HubHeader + mobile Select dropdown
+- ScheduleHub upgraded to GlassPanel/HubHeader/EmptyState + mobile responsive
+- RevenueHub upgraded to GlassPanel/HubHeader + mobile Select dropdown
+- CommunityHub already mobile responsive (useIsMobile + Select)
+- MatchesHub already mobile responsive (useIsMobile)
+- CommunityStats already responsive (grid-cols-2 md:3 lg:6)
+- All 3 CRM pages (Artist/Engineer/Producer) already have notifications + schedule wired
 
-- **`send-push-notification`** edge function: fully built with FCM push, email via Resend, and DB notification insert
-- **`NotificationsHub`**: real-time subscription on `notifications` table with category filtering (partnerships, payments, projects, messages)
-- **`useCrossHubSync`**: listens to hubEventBus events but does NOT write to the `notifications` table
-- **Missing**: No database triggers or client-side logic that creates notification rows when partnership events occur (milestone hit, payment completed, health drop)
+### EcosystemFlow Character Avatars
+- Already implemented with foreignObject SVG alignment
 
-## Changes
+### Phase 3 — UX Polish ✅
+- HubSkeleton + EmptyState standardized across ~10 hubs
+- CommunityHub, SessionsHub, CollectiveAnalytics, ClientsHub, ScheduleHub migrated to design tokens
+- Match components (AIMatchRecommendations, MatchRequests, YourMatches) standardized
+- File version timeline verified functional
 
-### 1. Database Migration — Partnership Event Triggers
+### Phase 4 — Advanced ✅
+- `useUserProjects` and `useUserEarnings` shared hooks created and adopted by EnhancedDashboardHub + GrowthHub
+- Producer License Builder + Promo Codes + Featured Rotation built and wired into ProducerCatalogHub
+- React.lazy() implemented for all 3 CRM pages (non-dashboard hubs)
 
-Create 3 triggers that auto-insert notification rows:
+### Phase 5 — Usage Enforcement ✅
+- `useUsageEnforcement` hook: centralized tier-aware limit checking (free/starter/pro/studio)
+- `UsageLimitBanner` component: 4 severity states (normal/warning/urgent/blocked), 2 variants (banner/inline), tier badges, upgrade CTAs
+- Dashboard integration: per-feature banners for projects, audio uploads, AI matching, storage, collaborations
+- Enforcement guards wired into: CreateProjectModal, AudioUpload, useEngineerMatchingAPI, usePartnershipEarnings, useProducerPartnerships
+- 20+ unit tests covering all thresholds, variants, visibility rules, CTAs, and edge cases
+- Integration-level tests for `useUsageEnforcement` hook (tier fallback, canUseFeature, getFeatureUsage)
 
-**a. Milestone completed trigger** — on `collaborative_projects` milestone columns or a milestone tracker update, insert a notification for both partners when a project milestone is reached.
+### Phase 6 — Stripe Revenue Backend ✅
+- Schema alignment: 10 columns added to `payments`, `stripe_customer_id` on `profiles`, `engineer_id`+`stripe_transfer_id` on `payout_requests`
+- `launch_metrics` table created with admin-only RLS for revenue prediction engine
+- `aggregate_payment_to_metrics` trigger auto-increments daily revenue/payment counts
+- Webhook handlers added: `charge.refunded` (auto-reverse earnings), `invoice.payment_failed` (flag subscription + notify), `charge.dispute.created` (critical alert to all admins)
+- Backfilled `payout_requests.engineer_id` from existing `user_id`
 
-**b. Revenue split completed trigger** — on `revenue_splits` status change to `completed`, notify the payee with amount and project details.
+### Phase 7 — Full Site Audit ✅
+- Auth-to-dashboard flow audited: magic link, email+password, OAuth all route correctly through AuthCallback → role check → onboarding → CRM
+- Engineer profile page (/engineer/:userId) verified fully functional with real data from profiles + engineer_profiles + engineer_reviews + projects
+- Battle Tournaments page verified fully functional with real data from battle_tournaments table
+- My Certifications page verified fully functional with milestone overlay at 250 community members
+- Mobile QA pass on revenue path (home → pricing → checkout): pricing cards stack cleanly, CTAs visible
+- Fixed: PathfinderBeacon mobile positioning (bottom-24 on phones to clear mobile nav, full-width card on small screens)
+- Fixed: AuthSocialProof ticker text truncation on narrow viewports (added truncate + shrink-0)
+- Fixed: Homepage floating nav pill overflow on 375px screens (added max-w constraint)
 
-**c. Partnership health warning trigger** — on `partnership_health` update, if `health_score` drops below 60, insert a warning notification for both partners.
+## Status: Launch Ready 🚀
 
-All triggers use `SECURITY DEFINER` with `search_path = 'public'` and call the existing `create_notification()` function.
-
-### 2. New Hook: `src/hooks/usePartnershipNotifications.ts` (~80 lines)
-
-Client-side hook that:
-- Subscribes to Supabase Realtime on `collaborative_projects`, `revenue_splits`, and `partnership_health` tables filtered by user
-- On relevant changes, publishes to `hubEventBus` (e.g., `milestone:completed`, `revenue:received`)
-- Fires `sonner` toast with action button linking to the relevant project/partnership
-- Optionally calls `send-push-notification` edge function for high-priority events (payment received, health critical)
-
-### 3. Wire Hook into CRM Layouts
-
-Import `usePartnershipNotifications(user?.id)` in:
-- `src/pages/ArtistCRM.tsx`
-- `src/pages/ProducerCRM.tsx`  
-- `src/pages/EngineerCRM.tsx`
-
-Single line addition in each file — the hook self-manages subscriptions.
-
-### 4. Enhance `NotificationsHub` Category Config (~10 lines)
-
-Add a `health` category to `categoryConfig`:
-```
-health: { icon: AlertTriangle, label: 'Health', types: ['health_warning', 'health_critical'] }
-```
-
-Add health-specific icon/color mapping to `getNotificationIcon` and `getNotificationColor`.
-
-### 5. Update `useCrossHubSync.ts` (~15 lines)
-
-Wire the existing `milestone:completed` and `revenue:received` hub event handlers to call `send-push-notification` edge function for the partner user (the one who didn't trigger the event), ensuring push + email delivery.
-
-## Files Summary
-
-| File | Action |
-|------|--------|
-| Database migration | Create 3 partnership notification triggers |
-| `src/hooks/usePartnershipNotifications.ts` | Create — real-time partnership event listener |
-| `src/pages/ArtistCRM.tsx` | Edit — add hook call |
-| `src/pages/ProducerCRM.tsx` | Edit — add hook call |
-| `src/pages/EngineerCRM.tsx` | Edit — add hook call |
-| `src/components/crm/notifications/NotificationsHub.tsx` | Edit — add health category |
-| `src/hooks/useCrossHubSync.ts` | Edit — wire push notifications for partner events |
-
+All previously listed stub pages are now fully functional:
+- `/engineer/:userId` — Full engineer profiles with portfolio, reviews, rates, equipment
+- `/my-certifications` — Certification system with milestone unlock overlay
+- `/battle-tournaments` — Tournament browser with tabs, join flow, status badges
