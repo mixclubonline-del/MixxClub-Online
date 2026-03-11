@@ -347,3 +347,9 @@ verify_jwt = false
 
 [functions.verify-stripe-session]
 verify_jwt = false
+
+[functions.daily-digest]
+verify_jwt = false
+
+[functions.trigger-daily-digest]
+verify_jwt = false
