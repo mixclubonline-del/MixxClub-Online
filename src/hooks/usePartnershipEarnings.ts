@@ -269,8 +269,18 @@ export const usePartnershipEarnings = (): UsePartnershipEarningsResult => {
     }
   }, [user?.id, fetchPartnerships, fetchProjects, fetchRevenueSplits, fetchPaymentLinks, fetchMetrics, fetchHealthScores]);
 
+  const { canUseFeature, getFeatureUsage, refreshUsage, tier } = useUsageEnforcement();
+
   const createPartnership = useCallback(async (data: { partnerId: string; userSplit: number; userType: 'artist' | 'engineer' }): Promise<DbPartnership | null> => {
     if (!user?.id) return null;
+
+    if (!canUseFeature('collaborations')) {
+      const usage = getFeatureUsage('collaborations');
+      toast.error(`Collaboration limit reached (${usage.current}/${usage.limit}) on your ${tier} plan. Upgrade for more.`, {
+        action: { label: 'Upgrade', onClick: () => window.location.href = '/pricing?feature=collaborations' },
+      });
+      return null;
+    }
 
     try {
       const insertData = data.userType === 'artist'
