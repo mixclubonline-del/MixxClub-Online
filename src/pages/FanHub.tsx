@@ -4,9 +4,12 @@
  * 9 tabs with lazy-loaded components for optimal code splitting.
  */
 
-import { lazy, Suspense } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { lazy, Suspense, useEffect } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useAdminPreview } from '@/stores/useAdminPreview';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import { useFanStats } from '@/hooks/useFanStats';
 import { CRMPortal } from '@/components/crm/CRMPortal';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -34,9 +37,32 @@ const FanCuratorHub = lazy(() => import('@/components/crm/fan/FanCuratorHub').th
 
 const FanHub = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const { stats, currentTier, streakMultiplier } = useFanStats();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'feed';
+  const { isPreviewMode } = useAdminPreview();
+
+  useEffect(() => {
+    const checkAccess = async () => {
+      if (!user) return;
+
+      if (!isPreviewMode) {
+        const { data: isAdmin } = await supabase.rpc('has_role', {
+          _user_id: user.id,
+          _role: 'admin'
+        });
+
+        if (isAdmin) {
+          toast.error('Please use the Admin Panel');
+          navigate('/admin');
+          return;
+        }
+      }
+    };
+
+    checkAccess();
+  }, [user, navigate, isPreviewMode]);
 
   const handleTabChange = (tab: string) => {
     setSearchParams({ tab });
