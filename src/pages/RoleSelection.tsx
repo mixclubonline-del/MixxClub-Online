@@ -121,6 +121,9 @@ const RoleSelection = () => {
       const contribution = getContributionMessage('user_count', 'Your signup');
       attributionToasts.userJoined(contribution);
 
+      // Refresh auth context so Dashboard/AppLayout has the correct role
+      await refreshRoles();
+
       toast.success(`Welcome to Mixxclub as a ${role}!`);
 
       // Navigate to role-specific onboarding
