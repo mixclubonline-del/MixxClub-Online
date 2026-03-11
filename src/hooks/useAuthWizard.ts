@@ -70,7 +70,21 @@ export function useAuthWizard() {
 
     if (!isMountedRef.current) return;
 
-    const roles: string[] = userRoles?.map(r => r.role as string) || [];
+    let roles: string[] = userRoles?.map(r => r.role as string) || [];
+
+    // If no roles in DB but metadata has a role (new signup), insert it
+    if (roles.length === 0) {
+      const { data: { user } } = await supabase.auth.getUser();
+      const metadataRole = user?.user_metadata?.role;
+      if (metadataRole && ['producer', 'artist', 'engineer', 'fan'].includes(metadataRole)) {
+        await supabase
+          .from('user_roles')
+          .insert({ user_id: userId, role: metadataRole })
+          .select();
+        roles = [metadataRole];
+      }
+    }
+
     if (roles.length === 0) {
       navigate('/select-role');
       return;

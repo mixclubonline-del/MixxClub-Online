@@ -46,7 +46,7 @@ const steps: WizardStep[] = [
 export function ArtistOnboardingWizard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user } = useAuth();
+  const { user, refreshRoles } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
@@ -149,6 +149,9 @@ export function ArtistOnboardingWizard() {
         p_action_type: 'onboarding_complete',
         p_action_description: 'Completed artist onboarding'
       });
+
+      // Refresh auth context so CRM dashboard has correct role
+      await refreshRoles();
 
       toast.success('Welcome to MIXXCLUB! 🎉', {
         description: '+100 XP earned for completing your profile!'

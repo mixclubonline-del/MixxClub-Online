@@ -52,7 +52,7 @@ const steps: WizardStep[] = [
 export function EngineerOnboardingWizard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user } = useAuth();
+  const { user, refreshRoles } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
@@ -172,6 +172,8 @@ export function EngineerOnboardingWizard() {
         p_action_type: 'engineer_onboarding_complete',
         p_action_description: 'Completed engineer onboarding'
       });
+
+      await refreshRoles();
 
       toast.success('Welcome to the MIXXCLUB Engineer Network! 🎛️', {
         description: '+150 XP earned! Your profile is now live.'

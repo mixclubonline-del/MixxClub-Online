@@ -14,6 +14,7 @@ interface AuthContextType {
   setActiveRole: (role: AppRole) => void;
   isHybridUser: boolean;
   signOut: () => Promise<void>;
+  refreshRoles: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -87,6 +88,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setActiveRole: () => { },
           isHybridUser: true,
           signOut: async () => { window.location.href = '/auth'; },
+          refreshRoles: async () => { },
         }}
       >
         {children}
@@ -177,6 +179,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  /** Re-fetch roles from the database (call after role insertion) */
+  const refreshRoles = async () => {
+    if (!user) return;
+    const result = await resolveRoles(user.id);
+    if (isMounted.current) applyRoles(result);
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
     setUser(null);
@@ -198,6 +207,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setActiveRole: handleSetActiveRole,
         isHybridUser,
         signOut,
+        refreshRoles,
       }}
     >
       {children}

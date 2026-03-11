@@ -61,7 +61,7 @@ const roleOptions: RoleOption[] = [
 
 const RoleSelection = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, refreshRoles } = useAuth();
   const { getContributionMessage } = useUnlockContribution();
   const [selectedRole, setSelectedRole] = useState<AppRole | null>(null);
   const [hoveredRole, setHoveredRole] = useState<AppRole | null>(null);
@@ -120,6 +120,9 @@ const RoleSelection = () => {
       // Show attribution toast
       const contribution = getContributionMessage('user_count', 'Your signup');
       attributionToasts.userJoined(contribution);
+
+      // Refresh auth context so Dashboard/AppLayout has the correct role
+      await refreshRoles();
 
       toast.success(`Welcome to Mixxclub as a ${role}!`);
 

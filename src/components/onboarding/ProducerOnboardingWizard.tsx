@@ -46,7 +46,7 @@ const steps: WizardStep[] = [
 export function ProducerOnboardingWizard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user } = useAuth();
+  const { user, refreshRoles } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
@@ -148,6 +148,8 @@ export function ProducerOnboardingWizard() {
         p_action_type: 'onboarding_complete',
         p_action_description: 'Completed producer onboarding'
       });
+
+      await refreshRoles();
 
       toast.success('Welcome to MIXXCLUB! 🎹', {
         description: '+125 XP earned for completing your profile!'
