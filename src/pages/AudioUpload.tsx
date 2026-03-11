@@ -9,9 +9,10 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   Upload, Music, Check, Trash2, Play, Pause, 
-  ArrowLeft, Copy, ExternalLink, Loader2, FileAudio, LogIn, Sparkles, Users
+  ArrowLeft, Copy, ExternalLink, Loader2, FileAudio, LogIn, Sparkles, Users, AlertTriangle, ArrowUpRight
 } from 'lucide-react';
 import mixclubLogo from '@/assets/mixxclub-3d-logo.png';
+import { useUsageEnforcement } from '@/hooks/useUsageEnforcement';
 
 interface UploadedFile {
   id: string;
@@ -32,6 +33,8 @@ export default function AudioUpload() {
   const [creatingDemo, setCreatingDemo] = useState(false);
   
   const navigate = useNavigate();
+  const { canUseFeature, getFeatureUsage, refreshUsage, tier } = useUsageEnforcement();
+  const uploadUsage = getFeatureUsage('audio_uploads');
 
   // Check auth state on mount
   useEffect(() => {
@@ -58,7 +61,6 @@ export default function AudioUpload() {
 
       if (error) throw error;
 
-      // Sign in with the temporary credentials
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password
@@ -125,6 +127,25 @@ export default function AudioUpload() {
       return;
     }
 
+    // Usage limit check
+    if (!canUseFeature('audio_uploads')) {
+      toast.error(`Upload limit reached on your ${tier} plan. Upgrade to upload more.`, {
+        action: {
+          label: 'Upgrade',
+          onClick: () => navigate('/pricing?feature=audio_uploads'),
+        },
+      });
+      return;
+    }
+
+    // Check if batch exceeds remaining quota
+    if (!uploadUsage.isUnlimited && audioFiles.length > uploadUsage.remaining) {
+      toast.error(
+        `You can only upload ${uploadUsage.remaining} more file(s) on your ${tier} plan. You selected ${audioFiles.length}.`
+      );
+      return;
+    }
+
     setUploading(true);
     setUploadProgress(0);
 
@@ -139,6 +160,7 @@ export default function AudioUpload() {
       }
 
       setUploadedFiles(prev => [...prev, ...uploaded]);
+      await refreshUsage();
       toast.success(`${uploaded.length} file(s) uploaded successfully!`);
     } catch (error) {
       console.error('Upload error:', error);
@@ -153,7 +175,7 @@ export default function AudioUpload() {
     e.preventDefault();
     setIsDragging(false);
     handleFiles(e.dataTransfer.files);
-  }, []);
+  }, [canUseFeature, uploadUsage.remaining]);
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -219,9 +241,20 @@ export default function AudioUpload() {
               <p className="text-xs text-muted-foreground">Upload music files to Mixxclub</p>
             </div>
           </div>
-          <Badge variant="outline" className="border-primary/50 text-primary">
-            <Music className="w-3 h-3 mr-1" /> Audio Manager
-          </Badge>
+          <div className="flex items-center gap-2">
+            {/* Usage badge */}
+            {isAuthenticated && !uploadUsage.isUnlimited && (
+              <Badge
+                variant={uploadUsage.limitReached ? 'destructive' : 'outline'}
+                className={uploadUsage.limitReached ? '' : 'border-primary/50 text-primary'}
+              >
+                {uploadUsage.current}/{uploadUsage.limit} uploads
+              </Badge>
+            )}
+            <Badge variant="outline" className="border-primary/50 text-primary">
+              <Music className="w-3 h-3 mr-1" /> Audio Manager
+            </Badge>
+          </div>
         </div>
       </header>
 
@@ -264,12 +297,54 @@ export default function AudioUpload() {
           </motion.div>
         )}
 
-        {/* Upload Zone - Only show when authenticated */}
-        {isAuthenticated && (
+        {/* Limit Reached Banner */}
+        {isAuthenticated && uploadUsage.limitReached && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8"
+          >
+            <Card className="p-6 border-destructive/50 bg-destructive/10">
+              <div className="flex items-start gap-4">
+                <div className="p-3 rounded-full bg-destructive/20 shrink-0">
+                  <AlertTriangle className="w-6 h-6 text-destructive" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-bold text-destructive">Upload limit reached</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    You've used all {uploadUsage.limit} uploads on your <span className="font-medium capitalize">{tier}</span> plan.
+                    Upgrade to continue uploading.
+                  </p>
+                  <div className="mt-2">
+                    <Progress value={100} className="h-1.5" />
+                  </div>
+                </div>
+                <Button onClick={() => navigate('/pricing?feature=audio_uploads')}>
+                  <ArrowUpRight className="w-4 h-4 mr-2" />
+                  Upgrade
+                </Button>
+              </div>
+            </Card>
+          </motion.div>
+        )}
+
+        {/* Upload Zone - Only show when authenticated and not at limit */}
+        {isAuthenticated && !uploadUsage.limitReached && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
+            {/* Usage progress bar above drop zone */}
+            {!uploadUsage.isUnlimited && (
+              <div className="mb-4 space-y-1.5">
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>{uploadUsage.current}/{uploadUsage.limit} uploads used</span>
+                  <span>{uploadUsage.remaining} remaining</span>
+                </div>
+                <Progress value={uploadUsage.percentage} className="h-1.5" />
+              </div>
+            )}
+
             <Card
               className={`p-12 border-2 border-dashed transition-all duration-300 cursor-pointer ${
                 isDragging 
