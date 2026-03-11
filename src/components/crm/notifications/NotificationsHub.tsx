@@ -334,6 +334,27 @@ export const NotificationsHub = () => {
         </Badge>
       )}
 
+      {/* Notification Preferences Panel */}
+      <AnimatePresence>
+        {showPrefs && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <GlassPanel padding="p-4" glow accent="rgba(168, 85, 247, 0.2)">
+              <div className="flex items-center gap-2 mb-4">
+                <Settings className="w-4 h-4 text-primary" />
+                <h3 className="text-sm font-semibold">Notification Preferences</h3>
+              </div>
+              <NotificationPrefsPanel />
+            </GlassPanel>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <GlassPanel padding="p-0" glow accent="rgba(168, 85, 247, 0.3)">
         <Tabs value={activeCategory} onValueChange={(v) => setActiveCategory(v as NotificationCategory)}>
           <div className="px-4 pt-4">
