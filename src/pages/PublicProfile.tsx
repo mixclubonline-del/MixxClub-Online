@@ -21,9 +21,11 @@ import {
   Users,
   ArrowLeft,
   Loader2,
-  Sparkles
+  Sparkles,
+  ArrowRight,
 } from "lucide-react";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 export default function PublicProfile() {
   const { username } = useParams<{ username: string }>();
@@ -129,6 +131,41 @@ export default function PublicProfile() {
           onMessage={handleMessage}
           onHire={handleHire}
         />
+
+        {/* Role-Specific Profile Banner */}
+        {profile.role === 'engineer' && (
+          <div className="max-w-4xl mx-auto px-4 mt-4">
+            <Link to={`/engineer/${profile.id}`} className="glass-mid rounded-xl p-4 flex items-center justify-between hover:shadow-[0_4px_24px_hsl(var(--primary)/0.12)] hover:-translate-y-0.5 transition-all group block">
+              <div>
+                <p className="text-sm font-semibold">View Full Studio Profile</p>
+                <p className="text-xs text-muted-foreground">See equipment, samples, reviews, and book a session</p>
+              </div>
+              <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+            </Link>
+          </div>
+        )}
+        {profile.role === 'artist' && (
+          <div className="max-w-4xl mx-auto px-4 mt-4">
+            <Link to={`/artist/${profile.id}`} className="glass-mid rounded-xl p-4 flex items-center justify-between hover:shadow-[0_4px_24px_hsl(270_70%_50%/0.12)] hover:-translate-y-0.5 transition-all group block">
+              <div>
+                <p className="text-sm font-semibold">View Artist Showcase</p>
+                <p className="text-xs text-muted-foreground">Explore discography, projects, and propose a collaboration</p>
+              </div>
+              <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-[hsl(270_70%_60%)] transition-colors" />
+            </Link>
+          </div>
+        )}
+        {profile.role === 'producer' && (
+          <div className="max-w-4xl mx-auto px-4 mt-4">
+            <Link to={`/producer/${profile.id}`} className="glass-mid rounded-xl p-4 flex items-center justify-between hover:shadow-[0_4px_24px_hsl(38_90%_50%/0.12)] hover:-translate-y-0.5 transition-all group block">
+              <div>
+                <p className="text-sm font-semibold">View Beat Catalog</p>
+                <p className="text-xs text-muted-foreground">Browse beats, listen to previews, and request custom beats</p>
+              </div>
+              <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-[hsl(38_90%_55%)] transition-colors" />
+            </Link>
+          </div>
+        )}
 
         {/* Content */}
         <div className="max-w-4xl mx-auto px-4 mt-8">

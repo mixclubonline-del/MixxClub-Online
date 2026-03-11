@@ -20,6 +20,8 @@ import NotificationPreferences from "@/pages/NotificationPreferences";
 import AudioUpload from "@/pages/AudioUpload";
 import EngineerDirectory from "@/pages/EngineerDirectory";
 import EngineerProfile from "@/pages/EngineerProfile";
+const ArtistProfile = React.lazy(() => import("@/pages/ArtistProfile"));
+const ProducerProfile = React.lazy(() => import("@/pages/ProducerProfile"));
 import ComingSoon from "@/pages/ComingSoon";
 const BattleTournaments = React.lazy(() => import("@/pages/BattleTournaments"));
 import DistributionHub from "@/pages/DistributionHub";
@@ -174,6 +176,8 @@ export const appRoutes = (
       {/* Engineers */}
       <Route path="/engineers" element={<EngineerDirectory />} />
       <Route path="/engineer/:userId" element={<EngineerProfile />} />
+      <Route path="/artist/:userId" element={<ArtistProfile />} />
+      <Route path="/producer/:userId" element={<ProducerProfile />} />
 
       {/* Tools & Features */}
       <Route path="/upload" element={<AudioUpload />} />
