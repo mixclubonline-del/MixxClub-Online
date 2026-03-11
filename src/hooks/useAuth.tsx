@@ -177,6 +177,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  /** Re-fetch roles from the database (call after role insertion) */
+  const refreshRoles = async () => {
+    if (!user) return;
+    const result = await resolveRoles(user.id);
+    if (isMounted.current) applyRoles(result);
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
     setUser(null);
