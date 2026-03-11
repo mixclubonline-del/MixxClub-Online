@@ -6,6 +6,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Lock, ArrowRight, Users } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useBackendSubscription } from '@/hooks/useBackendSubscription';
 import { useCommunityMilestones } from '@/hooks/useCommunityMilestones';
 import { Progress } from '@/components/ui/progress';
