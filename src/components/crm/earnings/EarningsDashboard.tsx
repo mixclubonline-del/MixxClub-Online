@@ -1,23 +1,38 @@
-import { useState } from 'react';
 import { usePartnershipEarnings } from '@/hooks/usePartnershipEarnings';
 import { EarningsStats } from './EarningsStats';
 import { PartnershipList } from './PartnershipList';
 import { RevenueChart } from './RevenueChart';
 import { NewPartnershipDialog } from './NewPartnershipDialog';
-import { ProjectBoard, CreateProjectModal } from '../projects';
+import { ProjectsHub } from '../projects';
 import { NotificationsHub } from '../notifications';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DollarSign, Kanban, Bell } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useState } from 'react';
 
 interface EarningsDashboardProps {
   userType: 'artist' | 'engineer';
 }
 
+const TAB_OPTIONS = [
+  { value: 'earnings', label: 'Earnings', icon: DollarSign },
+  { value: 'projects', label: 'Project Board', icon: Kanban },
+  { value: 'notifications', label: 'Notifications', icon: Bell },
+] as const;
+
 export const EarningsDashboard = ({ userType }: EarningsDashboardProps) => {
-  const [createProjectOpen, setCreateProjectOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('earnings');
+  const isMobile = useIsMobile();
 
   const {
     summary,
@@ -77,49 +92,74 @@ export const EarningsDashboard = ({ userType }: EarningsDashboardProps) => {
       {/* Stats Overview */}
       <EarningsStats summary={summary} />
 
-      {/* Tabs for different views */}
-      <Tabs defaultValue="earnings" className="space-y-4">
-        <TabsList className="bg-muted/50">
-          <TabsTrigger value="earnings" className="gap-2">
-            <DollarSign className="w-4 h-4" />
-            Earnings
-          </TabsTrigger>
-          <TabsTrigger value="projects" className="gap-2">
-            <Kanban className="w-4 h-4" />
-            Project Board
-          </TabsTrigger>
-          <TabsTrigger value="notifications" className="gap-2">
-            <Bell className="w-4 h-4" />
-            Notifications
-          </TabsTrigger>
-        </TabsList>
+      {/* Tabs — mobile uses Select dropdown */}
+      {isMobile ? (
+        <>
+          <Select value={activeTab} onValueChange={setActiveTab}>
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {TAB_OPTIONS.map(opt => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-        <TabsContent value="earnings" className="space-y-6">
-          {/* Revenue Chart */}
-          <RevenueChart revenueSplits={revenueSplits} />
+          <div className="mt-4">
+            {activeTab === 'earnings' && (
+              <div className="space-y-6">
+                <RevenueChart revenueSplits={revenueSplits} />
+                <PartnershipList
+                  partnerships={partnerships}
+                  projects={projects}
+                  healthScores={healthScores}
+                  userType={userType}
+                  onAcceptPartnership={acceptPartnership}
+                />
+              </div>
+            )}
+            {activeTab === 'projects' && (
+              <ProjectsHub userRole={userType} />
+            )}
+            {activeTab === 'notifications' && (
+              <NotificationsHub />
+            )}
+          </div>
+        </>
+      ) : (
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+          <TabsList className="bg-muted/50">
+            {TAB_OPTIONS.map(opt => (
+              <TabsTrigger key={opt.value} value={opt.value} className="gap-2">
+                <opt.icon className="w-4 h-4" />
+                {opt.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
 
-          {/* Partnership List */}
-          <PartnershipList
-            partnerships={partnerships}
-            projects={projects}
-            healthScores={healthScores}
-            userType={userType}
-            onAcceptPartnership={acceptPartnership}
-          />
-        </TabsContent>
+          <TabsContent value="earnings" className="space-y-6">
+            <RevenueChart revenueSplits={revenueSplits} />
+            <PartnershipList
+              partnerships={partnerships}
+              projects={projects}
+              healthScores={healthScores}
+              userType={userType}
+              onAcceptPartnership={acceptPartnership}
+            />
+          </TabsContent>
 
-        <TabsContent value="projects">
-          <ProjectBoard onCreateProject={() => setCreateProjectOpen(true)} />
-          <CreateProjectModal
-            open={createProjectOpen}
-            onOpenChange={setCreateProjectOpen}
-          />
-        </TabsContent>
+          <TabsContent value="projects">
+            <ProjectsHub userRole={userType} />
+          </TabsContent>
 
-        <TabsContent value="notifications">
-          <NotificationsHub />
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="notifications">
+            <NotificationsHub />
+          </TabsContent>
+        </Tabs>
+      )}
     </div>
   );
 };

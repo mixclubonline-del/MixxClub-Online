@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -14,34 +13,35 @@ import {
   Calendar
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { usePartnershipEarnings } from '@/hooks/usePartnershipEarnings';
+import { useProjectsHub } from '@/hooks/useProjectsHub';
 import { formatDistanceToNow } from 'date-fns';
-import type { Database } from '@/integrations/supabase/types';
+import { GlassPanel } from '../design';
+import { toast } from 'sonner';
+import type { Project } from '@/hooks/useProjectsHub';
 
-type DbCollaborativeProject = Database['public']['Tables']['collaborative_projects']['Row'];
-
-type ProjectStatus = 'planning' | 'in_progress' | 'review' | 'completed' | 'released';
+type ProjectStatus = 'planning' | 'in_progress' | 'review' | 'completed';
 
 interface ProjectColumn {
   id: ProjectStatus;
   title: string;
   icon: React.ElementType;
-  color: string;
+  accentVar: string;
 }
 
 const columns: ProjectColumn[] = [
-  { id: 'planning', title: 'Planning', icon: Clock, color: 'bg-muted' },
-  { id: 'in_progress', title: 'In Progress', icon: PlayCircle, color: 'bg-primary/20' },
-  { id: 'review', title: 'Review', icon: AlertCircle, color: 'bg-warning/20' },
-  { id: 'completed', title: 'Completed', icon: CheckCircle2, color: 'bg-success/20' },
+  { id: 'planning', title: 'Planning', icon: Clock, accentVar: 'rgba(156,163,175,0.35)' },
+  { id: 'in_progress', title: 'In Progress', icon: PlayCircle, accentVar: 'rgba(99,102,241,0.35)' },
+  { id: 'review', title: 'Review', icon: AlertCircle, accentVar: 'rgba(234,179,8,0.35)' },
+  { id: 'completed', title: 'Completed', icon: CheckCircle2, accentVar: 'rgba(34,197,94,0.35)' },
 ];
 
 interface ProjectCardProps {
-  project: DbCollaborativeProject;
+  project: Project;
   onMove: (projectId: string, newStatus: ProjectStatus) => void;
+  isUpdating: boolean;
 }
 
-const ProjectCard = ({ project, onMove }: ProjectCardProps) => {
+const ProjectCard = ({ project, onMove, isUpdating }: ProjectCardProps) => {
   const getTypeIcon = (type: string | null) => {
     switch (type) {
       case 'single': return '🎵';
@@ -101,6 +101,7 @@ const ProjectCard = ({ project, onMove }: ProjectCardProps) => {
                   variant="ghost"
                   size="sm"
                   className="h-6 px-2 text-xs"
+                  disabled={isUpdating}
                   onClick={() => onMove(project.id, col.id)}
                 >
                   <col.icon className="w-3 h-3 mr-1" />
@@ -120,43 +121,31 @@ interface ProjectBoardProps {
 }
 
 export const ProjectBoard = ({ onCreateProject }: ProjectBoardProps) => {
-  const { projects, loading, fetchProjects } = usePartnershipEarnings();
-  const [localProjects, setLocalProjects] = useState<DbCollaborativeProject[]>([]);
-
-  useEffect(() => {
-    setLocalProjects(projects);
-  }, [projects]);
+  const { projects, isLoading, updateStatus, isUpdating } = useProjectsHub();
 
   const handleMoveProject = async (projectId: string, newStatus: ProjectStatus) => {
-    // Optimistic update
-    setLocalProjects(prev => 
-      prev.map(p => p.id === projectId ? { ...p, status: newStatus } : p)
-    );
-
-    // TODO: Implement actual status update via Supabase
-    // For now, just refresh after a delay to simulate
-    setTimeout(() => {
-      fetchProjects();
-    }, 500);
+    try {
+      await updateStatus(projectId, newStatus);
+    } catch {
+      toast.error('Failed to move project');
+    }
   };
 
   const getProjectsByStatus = (status: ProjectStatus) => 
-    localProjects.filter(p => p.status === status);
+    projects.filter(p => p.status === status);
 
-  if (loading && localProjects.length === 0) {
+  if (isLoading && projects.length === 0) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {columns.map(col => (
-          <Card key={col.id} className="animate-pulse">
-            <CardHeader className="pb-3">
+          <GlassPanel key={col.id} accent={col.accentVar}>
+            <div className="animate-pulse space-y-3">
               <div className="h-5 bg-muted rounded w-24" />
-            </CardHeader>
-            <CardContent className="space-y-3">
               {[1, 2].map(i => (
-                <div key={i} className="h-24 bg-muted rounded" />
+                <div key={i} className="h-24 bg-muted/50 rounded" />
               ))}
-            </CardContent>
-          </Card>
+            </div>
+          </GlassPanel>
         ))}
       </div>
     );
@@ -168,7 +157,7 @@ export const ProjectBoard = ({ onCreateProject }: ProjectBoardProps) => {
         <div className="flex items-center gap-2">
           <Music className="w-5 h-5 text-primary" />
           <h3 className="text-lg font-semibold">Project Board</h3>
-          <Badge variant="outline">{localProjects.length} projects</Badge>
+          <Badge variant="outline">{projects.length} projects</Badge>
         </div>
         {onCreateProject && (
           <Button onClick={onCreateProject} size="sm">
@@ -184,38 +173,35 @@ export const ProjectBoard = ({ onCreateProject }: ProjectBoardProps) => {
           const Icon = column.icon;
           
           return (
-            <Card key={column.id} className={`${column.color} border-none`}>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <Icon className="w-4 h-4" />
-                  {column.title}
-                  <Badge variant="secondary" className="ml-auto">
-                    {columnProjects.length}
-                  </Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-2">
-                <ScrollArea className="h-[400px]">
-                  <div className="space-y-2 pr-2">
-                    <AnimatePresence mode="popLayout">
-                      {columnProjects.map(project => (
-                        <ProjectCard
-                          key={project.id}
-                          project={project}
-                          onMove={handleMoveProject}
-                        />
-                      ))}
-                    </AnimatePresence>
-                    
-                    {columnProjects.length === 0 && (
-                      <div className="text-center py-8 text-muted-foreground text-sm">
-                        No projects in {column.title.toLowerCase()}
-                      </div>
-                    )}
-                  </div>
-                </ScrollArea>
-              </CardContent>
-            </Card>
+            <GlassPanel key={column.id} accent={column.accentVar} glow>
+              <div className="flex items-center gap-2 mb-3">
+                <Icon className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm font-medium">{column.title}</span>
+                <Badge variant="secondary" className="ml-auto text-xs">
+                  {columnProjects.length}
+                </Badge>
+              </div>
+              <ScrollArea className="h-[400px]">
+                <div className="space-y-2 pr-2">
+                  <AnimatePresence mode="popLayout">
+                    {columnProjects.map(project => (
+                      <ProjectCard
+                        key={project.id}
+                        project={project}
+                        onMove={handleMoveProject}
+                        isUpdating={isUpdating}
+                      />
+                    ))}
+                  </AnimatePresence>
+                  
+                  {columnProjects.length === 0 && (
+                    <div className="text-center py-8 text-muted-foreground text-sm">
+                      No projects in {column.title.toLowerCase()}
+                    </div>
+                  )}
+                </div>
+              </ScrollArea>
+            </GlassPanel>
           );
         })}
       </div>
