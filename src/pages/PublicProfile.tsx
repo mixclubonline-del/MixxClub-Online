@@ -166,6 +166,17 @@ export default function PublicProfile() {
             </Link>
           </div>
         )}
+        {profile.role === 'fan' && (
+          <div className="max-w-4xl mx-auto px-4 mt-4">
+            <Link to={`/fan/${profile.id}`} className="glass-mid rounded-xl p-4 flex items-center justify-between hover:shadow-[0_4px_24px_hsl(330_80%_55%/0.12)] hover:-translate-y-0.5 transition-all group block">
+              <div>
+                <p className="text-sm font-semibold">View Supporter Profile</p>
+                <p className="text-xs text-muted-foreground">See Day 1 badges, supporter stats, and community activity</p>
+              </div>
+              <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-[hsl(330_80%_60%)] transition-colors" />
+            </Link>
+          </div>
+        )}
 
         {/* Content */}
         <div className="max-w-4xl mx-auto px-4 mt-8">

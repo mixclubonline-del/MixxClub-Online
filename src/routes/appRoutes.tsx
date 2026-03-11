@@ -179,6 +179,7 @@ export const appRoutes = (
       <Route path="/engineer/:userId" element={<EngineerProfile />} />
       <Route path="/artist/:userId" element={<ArtistProfile />} />
       <Route path="/producer/:userId" element={<ProducerProfile />} />
+      <Route path="/fan/:userId" element={<FanProfile />} />
 
       {/* Tools & Features */}
       <Route path="/upload" element={<AudioUpload />} />
