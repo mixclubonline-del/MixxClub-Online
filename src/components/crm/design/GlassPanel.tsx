@@ -88,4 +88,6 @@ export const GlassPanel: React.FC<GlassPanelProps> = React.memo(({
             <div className="relative z-10">{children}</div>
         </Component>
     );
-};
+});
+
+GlassPanel.displayName = 'GlassPanel';

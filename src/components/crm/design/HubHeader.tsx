@@ -59,4 +59,6 @@ export const HubHeader: React.FC<HubHeaderProps> = React.memo(({
       {action && <div>{action}</div>}
     </motion.div>
   );
-};
+});
+
+HubHeader.displayName = 'HubHeader';
