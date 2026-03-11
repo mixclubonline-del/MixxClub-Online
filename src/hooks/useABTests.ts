@@ -1,3 +1,9 @@
+/**
+ * useABTests — Re-exports ABProvider context for admin use.
+ * @deprecated Use useABContext from ABProvider directly.
+ */
+import { useABContext } from '@/components/marketing/ABProvider';
+
 export interface ABTestVariant {
   id: string;
   test_name: string;
@@ -12,14 +18,15 @@ export interface ABTestVariant {
 }
 
 export const useABTests = () => {
+  const { tests, isLoading } = useABContext();
   return {
-    variants: [],
-    isLoading: false,
+    variants: tests,
+    isLoading,
     createVariant: async () => {},
     updateVariant: async () => {},
     deleteVariant: async () => {},
     trackImpression: async () => {},
     trackConversion: async () => {},
-    declareWinner: async () => {}
+    declareWinner: async () => {},
   };
 };

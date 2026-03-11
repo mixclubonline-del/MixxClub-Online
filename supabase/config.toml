@@ -192,6 +192,9 @@ verify_jwt = false
 [functions.generate-financial-insights]
 verify_jwt = false
 
+[functions.generate-og-image]
+verify_jwt = false
+
 [functions.generate-image-gemini]
 verify_jwt = false
 

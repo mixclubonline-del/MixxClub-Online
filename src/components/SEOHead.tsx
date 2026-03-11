@@ -27,6 +27,14 @@ const SITE_NAME = "MIXXCLUB";
 const BASE_URL = "https://mixxclub.lovable.app";
 const DEFAULT_OG_IMAGE = `${BASE_URL}/og-default.jpg`;
 
+/**
+ * Build a dynamic OG image URL via the generate-og-image edge function.
+ * Usage: buildOgImageUrl('beat', beatId) → full URL for social cards.
+ */
+export function buildOgImageUrl(type: 'beat' | 'engineer' | 'battle', id: string): string {
+  return `${import.meta.env.VITE_SUPABASE_URL || ''}/functions/v1/generate-og-image?type=${type}&id=${id}`;
+}
+
 // Organization schema — always present on every page
 const ORG_SCHEMA = {
   "@context": "https://schema.org",
