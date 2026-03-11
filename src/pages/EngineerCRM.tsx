@@ -450,7 +450,9 @@ const EngineerCRM = () => {
         activeTab={currentTab}
         onTabChange={handleTabChange}
       >
-        {renderContent()}
+        <Suspense fallback={<HubSkeleton variant="cards" count={4} />}>
+          {renderContent()}
+        </Suspense>
       </CRMPortal>
       <EngineerCRMChatbot />
     </ErrorBoundary>
