@@ -307,6 +307,7 @@ export const usePartnershipEarnings = (): UsePartnershipEarningsResult => {
 
       if (createError) throw createError;
       await fetchPartnerships();
+      await refreshUsage();
       return newPartnership;
     } catch (err) {
       console.error('Error creating partnership:', err);
