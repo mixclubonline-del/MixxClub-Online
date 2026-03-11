@@ -32,6 +32,7 @@ export const FeatureGated: React.FC<FeatureGatedProps> = ({
     communityGated = false,
     communityMilestoneKey,
 }) => {
+    const navigate = useNavigate();
     const { subscription } = useBackendSubscription(userId);
     const [hasAccess, setHasAccess] = useState(false);
     const [loading, setLoading] = useState(true);
