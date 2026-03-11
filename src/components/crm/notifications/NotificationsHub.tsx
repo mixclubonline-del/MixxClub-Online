@@ -21,7 +21,8 @@ import {
   AlertCircle,
   AlertTriangle,
   Loader2,
-  RefreshCw
+  RefreshCw,
+  Settings,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
@@ -37,6 +38,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { NotificationPrefsPanel } from './NotificationPrefsPanel';
 
 interface Notification {
   id: string;
@@ -163,6 +165,7 @@ export const NotificationsHub = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<NotificationCategory>('all');
+  const [showPrefs, setShowPrefs] = useState(false);
 
   const fetchNotifications = useCallback(async () => {
     if (!user?.id) return;
@@ -302,6 +305,14 @@ export const NotificationsHub = () => {
             <Button
               variant="ghost"
               size="sm"
+              onClick={() => setShowPrefs(!showPrefs)}
+              className={showPrefs ? 'bg-white/10' : ''}
+            >
+              <Settings className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={fetchNotifications}
               disabled={loading}
             >
@@ -322,6 +333,27 @@ export const NotificationsHub = () => {
           {unreadCount} unread
         </Badge>
       )}
+
+      {/* Notification Preferences Panel */}
+      <AnimatePresence>
+        {showPrefs && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <GlassPanel padding="p-4" glow accent="rgba(168, 85, 247, 0.2)">
+              <div className="flex items-center gap-2 mb-4">
+                <Settings className="w-4 h-4 text-primary" />
+                <h3 className="text-sm font-semibold">Notification Preferences</h3>
+              </div>
+              <NotificationPrefsPanel />
+            </GlassPanel>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <GlassPanel padding="p-0" glow accent="rgba(168, 85, 247, 0.3)">
         <Tabs value={activeCategory} onValueChange={(v) => setActiveCategory(v as NotificationCategory)}>

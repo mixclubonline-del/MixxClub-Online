@@ -5220,37 +5220,88 @@ export type Database = {
           collaboration_updates: boolean | null
           created_at: string | null
           email_notifications: boolean | null
+          health_email: boolean
+          health_in_app: boolean
+          health_push: boolean
           id: string
+          marketing_email: boolean
+          messages_email: boolean
+          messages_in_app: boolean
+          messages_push: boolean
+          partnerships_email: boolean
+          partnerships_in_app: boolean
+          partnerships_push: boolean
           payment_updates: boolean | null
+          payments_email: boolean
+          payments_in_app: boolean
+          payments_push: boolean
           project_updates: boolean | null
+          projects_email: boolean
+          projects_in_app: boolean
+          projects_push: boolean
           session_invitations: boolean | null
           system_notifications: boolean | null
           updated_at: string | null
           user_id: string
+          weekly_digest_email: boolean
         }
         Insert: {
           collaboration_updates?: boolean | null
           created_at?: string | null
           email_notifications?: boolean | null
+          health_email?: boolean
+          health_in_app?: boolean
+          health_push?: boolean
           id?: string
+          marketing_email?: boolean
+          messages_email?: boolean
+          messages_in_app?: boolean
+          messages_push?: boolean
+          partnerships_email?: boolean
+          partnerships_in_app?: boolean
+          partnerships_push?: boolean
           payment_updates?: boolean | null
+          payments_email?: boolean
+          payments_in_app?: boolean
+          payments_push?: boolean
           project_updates?: boolean | null
+          projects_email?: boolean
+          projects_in_app?: boolean
+          projects_push?: boolean
           session_invitations?: boolean | null
           system_notifications?: boolean | null
           updated_at?: string | null
           user_id: string
+          weekly_digest_email?: boolean
         }
         Update: {
           collaboration_updates?: boolean | null
           created_at?: string | null
           email_notifications?: boolean | null
+          health_email?: boolean
+          health_in_app?: boolean
+          health_push?: boolean
           id?: string
+          marketing_email?: boolean
+          messages_email?: boolean
+          messages_in_app?: boolean
+          messages_push?: boolean
+          partnerships_email?: boolean
+          partnerships_in_app?: boolean
+          partnerships_push?: boolean
           payment_updates?: boolean | null
+          payments_email?: boolean
+          payments_in_app?: boolean
+          payments_push?: boolean
           project_updates?: boolean | null
+          projects_email?: boolean
+          projects_in_app?: boolean
+          projects_push?: boolean
           session_invitations?: boolean | null
           system_notifications?: boolean | null
           updated_at?: string | null
           user_id?: string
+          weekly_digest_email?: boolean
         }
         Relationships: []
       }
