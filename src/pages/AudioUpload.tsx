@@ -309,15 +309,7 @@ export default function AudioUpload() {
             animate={{ opacity: 1, y: 0 }}
           >
             {/* Usage progress bar above drop zone */}
-            {!uploadUsage.isUnlimited && (
-              <div className="mb-4 space-y-1.5">
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>{uploadUsage.current}/{uploadUsage.limit} uploads used</span>
-                  <span>{uploadUsage.remaining} remaining</span>
-                </div>
-                <Progress value={uploadUsage.percentage} className="h-1.5" />
-              </div>
-            )}
+            <UsageLimitBanner feature="audio_uploads" variant="inline" showAlways className="mb-4" />
 
             <Card
               className={`p-12 border-2 border-dashed transition-all duration-300 cursor-pointer ${

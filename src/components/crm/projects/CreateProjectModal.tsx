@@ -201,15 +201,7 @@ export const CreateProjectModal = ({ open, onOpenChange, partnershipId }: Create
             </div>
 
             {/* Usage indicator */}
-            {!projectUsage.isUnlimited && (
-              <div className="space-y-1.5 pt-1">
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>{projectUsage.current}/{projectUsage.limit} projects used</span>
-                  <span>{projectUsage.remaining} remaining</span>
-                </div>
-                <Progress value={projectUsage.percentage} className="h-1.5" />
-              </div>
-            )}
+            <UsageLimitBanner feature="projects" variant="inline" showAlways className="pt-1" />
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
