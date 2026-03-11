@@ -14,11 +14,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Disc3, Eye, Archive, Plus, Search, SlidersHorizontal, FileText, Tag, Star } from 'lucide-react';
+import { Disc3, Eye, Archive, Plus, Search, SlidersHorizontal, FileText, Tag, Star, BarChart3, Package } from 'lucide-react';
 import { GlassPanel, HubHeader, HubSkeleton } from '../design';
 import { LicenseBuilder } from './LicenseBuilder';
 import { PromoCodeManager } from './PromoCodeManager';
 import { FeaturedRotation } from './FeaturedRotation';
+import { BeatAnalytics } from '@/components/producer/BeatAnalytics';
+import { SamplePackBuilder } from '@/components/producer/SamplePackBuilder';
 
 type SortOption = 'newest' | 'oldest' | 'plays' | 'price';
 
