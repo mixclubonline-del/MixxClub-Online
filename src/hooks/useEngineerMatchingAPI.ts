@@ -204,5 +204,6 @@ export function useEngineerMatchingAPI() {
     findMatches,
     hireEngineer,
     clearMatches,
+    matchingUsage,
   };
 }
