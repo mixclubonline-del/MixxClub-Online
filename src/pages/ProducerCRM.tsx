@@ -80,8 +80,26 @@ const ProducerCRM = () => {
     setSearchParams({ tab });
   };
 
+  const { isPreviewMode } = useAdminPreview();
+
   useEffect(() => {
-    if (user) {
+    const checkAccess = async () => {
+      if (!user) return;
+
+      // Check if user is admin - admins should use admin panel (unless previewing)
+      if (!isPreviewMode) {
+        const { data: isAdmin } = await supabase.rpc('has_role', {
+          _user_id: user.id,
+          _role: 'admin'
+        });
+
+        if (isAdmin) {
+          toast.error('Please use the Admin Panel');
+          navigate('/admin');
+          return;
+        }
+      }
+
       // Check if slideshow has been seen
       const slideshowSeen = localStorage.getItem(`producer_crm_slideshow_seen_${user.id}`);
       const introSeen = localStorage.getItem(`producer_assistant_intro_seen_${user.id}`);
@@ -93,8 +111,10 @@ const ProducerCRM = () => {
       }
 
       fetchData();
-    }
-  }, [user]);
+    };
+
+    checkAccess();
+  }, [user, navigate, isPreviewMode]);
 
   const handleSlideshowComplete = () => {
     if (user) localStorage.setItem(`producer_crm_slideshow_seen_${user.id}`, 'true');
