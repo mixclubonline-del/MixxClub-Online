@@ -32,7 +32,7 @@ export const PathfinderBeacon = () => {
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.8 }}
-          className="fixed bottom-6 right-6 z-[55]"
+          className="fixed bottom-24 sm:bottom-6 right-4 sm:right-6 z-[55]"
         >
           <button
             onClick={goToStep}
