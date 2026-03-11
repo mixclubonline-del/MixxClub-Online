@@ -112,7 +112,10 @@ export const FeatureGated: React.FC<FeatureGatedProps> = ({
                             <p className="text-sm text-muted-foreground mb-4">
                                 Upgrade to {requiredTier ? `${requiredTier.toUpperCase()}` : 'a higher tier'} to access {feature.replace(/_/g, ' ')}.
                             </p>
-                            <button className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium transition-colors">
+                            <button
+                                onClick={() => navigate(`/pricing?feature=${encodeURIComponent(feature)}&required=${encodeURIComponent(requiredTier || '')}`)}
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium transition-colors"
+                            >
                                 Upgrade Now
                                 <ArrowRight className="w-4 h-4" />
                             </button>
