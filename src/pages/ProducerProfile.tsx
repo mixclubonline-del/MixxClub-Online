@@ -142,7 +142,7 @@ export default function ProducerProfile() {
       setPlayingTrackId(null);
       return;
     }
-    let url = beat.preview_url || beat.audio_url || beat.file_url;
+    let url = beat.preview_url || beat.audio_url;
     if (!url) return;
     if (!url.startsWith('http')) {
       const { data } = await supabase.storage.from('audio-files').createSignedUrl(url, 3600);
