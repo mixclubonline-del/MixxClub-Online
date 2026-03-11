@@ -844,7 +844,184 @@ async function handleCoinzPurchase(
     });
   } catch (notifError) {
     console.warn('[STRIPE-WEBHOOK] Notification error:', notifError);
+}
+
+/**
+ * Handle charge.refunded — sync refunds initiated from Stripe dashboard
+ * Marks payment as refunded and reverses engineer earnings
+ */
+async function handleChargeRefunded(
+  supabase: SupabaseAdmin,
+  charge: Stripe.Charge
+) {
+  console.log('[STRIPE-WEBHOOK] Charge refunded:', charge.id);
+
+  const paymentIntentId = charge.payment_intent as string;
+  if (!paymentIntentId) return;
+
+  // Find payment by payment_intent
+  const { data: payment } = await supabase
+    .from('payments')
+    .select('id, status, amount')
+    .eq('stripe_payment_intent_id', paymentIntentId)
+    .single();
+
+  if (!payment) {
+    console.warn('[STRIPE-WEBHOOK] No payment found for refunded charge:', paymentIntentId);
+    return;
   }
+
+  if (payment.status === 'refunded') {
+    console.log('[STRIPE-WEBHOOK] Payment already marked refunded, skipping');
+    return;
+  }
+
+  const refundedAmount = (charge.amount_refunded || 0) / 100;
+
+  // Update payment status
+  await supabase
+    .from('payments')
+    .update({
+      status: 'refunded',
+      refund_amount: refundedAmount,
+      refunded_at: new Date().toISOString(),
+    })
+    .eq('id', payment.id);
+
+  // Reverse engineer earnings linked to this payment
+  const { data: payouts } = await supabase
+    .from('engineer_payouts')
+    .select('id, engineer_id')
+    .eq('payment_id', payment.id)
+    .neq('status', 'refunded');
+
+  if (payouts && payouts.length > 0) {
+    for (const payout of payouts) {
+      await supabase
+        .from('engineer_payouts')
+        .update({ status: 'refunded' })
+        .eq('id', payout.id);
+
+      // Notify engineer
+      await supabase.rpc('create_notification', {
+        p_user_id: payout.engineer_id,
+        p_title: 'Payment Refunded',
+        p_message: `A payment of $${refundedAmount.toFixed(2)} was refunded. Your payout has been reversed.`,
+        p_type: 'payout_refunded',
+      });
+    }
+  }
+
+  // Log audit event
+  await supabase.from('audit_logs').insert({
+    action: 'stripe_refund_synced',
+    table_name: 'payments',
+    record_id: payment.id,
+    new_data: { refund_amount: refundedAmount, charge_id: charge.id },
+  });
+
+  console.log(`[STRIPE-WEBHOOK] Refund synced: $${refundedAmount} for payment ${payment.id}`);
+}
+
+/**
+ * Handle invoice.payment_failed — flag subscription and notify user
+ */
+async function handleInvoicePaymentFailed(
+  supabase: SupabaseAdmin,
+  invoice: Stripe.Invoice
+) {
+  console.log('[STRIPE-WEBHOOK] Invoice payment failed:', invoice.id);
+
+  const customerId = invoice.customer as string;
+  if (!customerId) return;
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('stripe_customer_id', customerId)
+    .single();
+
+  if (!profile) {
+    console.warn('[STRIPE-WEBHOOK] No profile for customer:', customerId);
+    return;
+  }
+
+  // Mark subscription as past_due
+  if (invoice.subscription) {
+    await supabase
+      .from('user_subscriptions')
+      .update({
+        status: 'past_due',
+        updated_at: new Date().toISOString(),
+      })
+      .eq('user_id', profile.id);
+  }
+
+  // Notify user
+  await supabase.rpc('create_notification', {
+    p_user_id: profile.id,
+    p_title: 'Payment Failed',
+    p_message: 'Your subscription payment failed. Please update your payment method to avoid service interruption.',
+    p_type: 'payment_failed',
+  });
+
+  // Log security event for admin visibility
+  await supabase.from('admin_security_events').insert({
+    event_type: 'payment_failed',
+    severity: 'medium',
+    description: `Invoice payment failed for user ${profile.id}`,
+    user_id: profile.id,
+    details: { invoice_id: invoice.id, customer_id: customerId },
+  });
+
+  console.log('[STRIPE-WEBHOOK] Payment failure handled for user:', profile.id);
+}
+
+/**
+ * Handle charge.dispute.created — log dispute and alert admins
+ */
+async function handleDisputeCreated(
+  supabase: SupabaseAdmin,
+  dispute: Stripe.Dispute
+) {
+  console.log('[STRIPE-WEBHOOK] Dispute created:', dispute.id);
+
+  const chargeId = typeof dispute.charge === 'string' ? dispute.charge : dispute.charge?.id;
+  const amount = (dispute.amount || 0) / 100;
+
+  // Log as critical security event
+  await supabase.from('admin_security_events').insert({
+    event_type: 'stripe_dispute',
+    severity: 'critical',
+    description: `Stripe dispute created for $${amount.toFixed(2)}`,
+    details: {
+      dispute_id: dispute.id,
+      charge_id: chargeId,
+      amount,
+      reason: dispute.reason,
+      status: dispute.status,
+    },
+  });
+
+  // Notify all admins
+  const { data: admins } = await supabase
+    .from('user_roles')
+    .select('user_id')
+    .eq('role', 'admin');
+
+  if (admins) {
+    for (const admin of admins) {
+      await supabase.rpc('create_notification', {
+        p_user_id: admin.user_id,
+        p_title: '⚠️ Stripe Dispute Created',
+        p_message: `A dispute for $${amount.toFixed(2)} has been filed. Reason: ${dispute.reason}. Immediate action required.`,
+        p_type: 'dispute_alert',
+      });
+    }
+  }
+
+  console.log('[STRIPE-WEBHOOK] Dispute alert sent to admins');
+}
 
   console.log('[STRIPE-WEBHOOK] Coinz purchase complete');
 }
