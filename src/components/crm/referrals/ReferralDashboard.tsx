@@ -240,14 +240,14 @@ const ReferralDashboard: React.FC = () => {
                   </span>
                   {nextTier && (
                     <span className="text-muted-foreground">
-                      {TIER_CONFIG[nextTier]?.icon} {TIER_CONFIG[nextTier]?.name}
+                      {nextTier.benefits.icon} {nextTier.name}
                     </span>
                   )}
                 </div>
                 <Progress value={tierProgress} className="h-2" />
                 <p className="text-xs text-muted-foreground">
                   {nextTier
-                    ? `${stats.totalReferrals} referrals · ${Math.round(tierProgress)}% to ${TIER_CONFIG[nextTier]?.name}`
+                    ? `${stats.totalReferrals} referrals · ${Math.round(tierProgress)}% to ${nextTier.name}`
                     : 'Maximum tier reached!'}
                 </p>
               </div>
