@@ -24,7 +24,9 @@ export const PathfinderBeacon = () => {
     goToStep,
   } = usePathfinder();
 
-  if (!isReady || !isActive || !currentStep) return null;
+  // Never render on revenue-critical pages — overlays block purchase flow
+  const isRevenuePath = REVENUE_ROUTES.some(r => location.pathname.startsWith(r));
+  if (!isReady || !isActive || !currentStep || isRevenuePath) return null;
 
   // On immersive routes show beacon only when user is NOT at the step's target;
   // when they arrive at the step's target, show the full card even on immersive routes.

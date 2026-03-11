@@ -243,8 +243,8 @@ export const appRoutes = (
     <Route path="/onboarding/producer" element={<ProtectedRoute><ProducerOnboarding /></ProtectedRoute>} />
     <Route path="/onboarding/fan" element={<ProtectedRoute><FanOnboarding /></ProtectedRoute>} />
     <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
-    <Route path="/payment-success" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />
-    <Route path="/payment-canceled" element={<ProtectedRoute><PaymentCanceled /></ProtectedRoute>} />
+    <Route path="/payment-success" element={<PaymentSuccess />} />
+    <Route path="/payment-canceled" element={<PaymentCanceled />} />
     <Route path="/broadcast/:streamId" element={<ProtectedRoute><BroadcastPage /></ProtectedRoute>} />
 
     {/* Enterprise demo (public) */}
