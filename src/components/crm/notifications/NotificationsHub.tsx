@@ -165,6 +165,7 @@ export const NotificationsHub = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<NotificationCategory>('all');
+  const [showPrefs, setShowPrefs] = useState(false);
 
   const fetchNotifications = useCallback(async () => {
     if (!user?.id) return;
