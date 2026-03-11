@@ -2,8 +2,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Compass, X } from 'lucide-react';
 import { usePathfinder } from '@/hooks/usePathfinder';
 import { PathfinderStepCard } from './PathfinderStep';
+import { useLocation } from 'react-router-dom';
+
+/** Routes where the beacon must never appear — it blocks purchase CTAs */
+const REVENUE_ROUTES = ['/pricing', '/checkout', '/payment-success', '/payment-canceled'];
 
 export const PathfinderBeacon = () => {
+  const location = useLocation();
   const {
     isActive,
     isReady,
@@ -19,7 +24,9 @@ export const PathfinderBeacon = () => {
     goToStep,
   } = usePathfinder();
 
-  if (!isReady || !isActive || !currentStep) return null;
+  // Never render on revenue-critical pages — overlays block purchase flow
+  const isRevenuePath = REVENUE_ROUTES.some(r => location.pathname.startsWith(r));
+  if (!isReady || !isActive || !currentStep || isRevenuePath) return null;
 
   // On immersive routes show beacon only when user is NOT at the step's target;
   // when they arrive at the step's target, show the full card even on immersive routes.
