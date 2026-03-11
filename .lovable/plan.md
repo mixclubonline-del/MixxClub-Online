@@ -46,9 +46,19 @@
 - Webhook handlers added: `charge.refunded` (auto-reverse earnings), `invoice.payment_failed` (flag subscription + notify), `charge.dispute.created` (critical alert to all admins)
 - Backfilled `payout_requests.engineer_id` from existing `user_id`
 
-## Remaining
+### Phase 7 — Full Site Audit ✅
+- Auth-to-dashboard flow audited: magic link, email+password, OAuth all route correctly through AuthCallback → role check → onboarding → CRM
+- Engineer profile page (/engineer/:userId) verified fully functional with real data from profiles + engineer_profiles + engineer_reviews + projects
+- Battle Tournaments page verified fully functional with real data from battle_tournaments table
+- My Certifications page verified fully functional with milestone overlay at 250 community members
+- Mobile QA pass on revenue path (home → pricing → checkout): pricing cards stack cleanly, CTAs visible
+- Fixed: PathfinderBeacon mobile positioning (bottom-24 on phones to clear mobile nav, full-width card on small screens)
+- Fixed: AuthSocialProof ticker text truncation on narrow viewports (added truncate + shrink-0)
+- Fixed: Homepage floating nav pill overflow on 375px screens (added max-w constraint)
 
-### Stub Pages
-- `/engineer/:userId` — Full engineer profiles
-- `/my-certifications` — Certification system
-- `/battle-tournaments` — Tournament brackets
+## Status: Launch Ready 🚀
+
+All previously listed stub pages are now fully functional:
+- `/engineer/:userId` — Full engineer profiles with portfolio, reviews, rates, equipment
+- `/my-certifications` — Certification system with milestone unlock overlay
+- `/battle-tournaments` — Tournament browser with tabs, join flow, status badges
