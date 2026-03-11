@@ -78,6 +78,14 @@ export const useProducerPartnerships = (): UseProducerPartnershipsResult => {
   const createPartnership = useCallback(async (data: CreateProducerPartnershipInput): Promise<ProducerPartnership | null> => {
     if (!user?.id) return null;
 
+    if (!canUseFeature('collaborations')) {
+      const usage = getFeatureUsage('collaborations');
+      toast.error(`Collaboration limit reached (${usage.current}/${usage.limit}) on your ${tier} plan. Upgrade for more.`, {
+        action: { label: 'Upgrade', onClick: () => window.location.href = '/pricing?feature=collaborations' },
+      });
+      return null;
+    }
+
     try {
       const artistPercentage = 100 - data.producer_percentage;
 
