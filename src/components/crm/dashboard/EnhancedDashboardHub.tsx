@@ -110,6 +110,9 @@ export const EnhancedDashboardHub = ({ userType }: EnhancedDashboardHubProps) =>
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  const { currentPlan } = useSubscriptionManagement();
+  const { tier, overallUsage, getFeatureUsage } = useUsageEnforcement();
+
   const { data: artistUnlockables } = useArtistUnlockables();
   const { data: engineerUnlockables } = useEngineerUnlockables();
   const personalUnlockables = userType === 'artist' ? artistUnlockables : engineerUnlockables;
