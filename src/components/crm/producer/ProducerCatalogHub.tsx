@@ -162,6 +162,8 @@ export const ProducerCatalogHub = () => {
       {catalogMode === 'licenses' && <LicenseBuilder />}
       {catalogMode === 'promos' && <PromoCodeManager />}
       {catalogMode === 'featured' && <FeaturedRotation />}
+      {catalogMode === 'analytics' && <BeatAnalytics />}
+      {catalogMode === 'packs' && <SamplePackBuilder />}
 
       {catalogMode === 'catalog' && showEmptyCatalog && (
         <>
