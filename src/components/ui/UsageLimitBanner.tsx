@@ -155,8 +155,8 @@ export const UsageLimitBanner: React.FC<UsageLimitBannerProps> = ({
         <div className={cn(
           'p-2 rounded-lg shrink-0',
           severity === 'blocked' ? 'bg-destructive/20' :
-          severity === 'urgent' ? 'bg-orange-500/15' :
-          severity === 'warning' ? 'bg-amber-500/15' :
+          severity === 'urgent' ? 'bg-destructive/15' :
+          severity === 'warning' ? 'bg-accent/30' :
           'bg-muted/50',
         )}>
           <Icon className={cn('w-5 h-5', config.iconClass)} />
