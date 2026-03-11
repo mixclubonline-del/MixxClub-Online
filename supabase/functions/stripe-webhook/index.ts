@@ -77,6 +77,18 @@ serve(async (req) => {
         await handleTransferCreated(supabase, event.data.object as Stripe.Transfer);
         break;
 
+      case 'charge.refunded':
+        await handleChargeRefunded(supabase, event.data.object as Stripe.Charge);
+        break;
+
+      case 'invoice.payment_failed':
+        await handleInvoicePaymentFailed(supabase, event.data.object as Stripe.Invoice);
+        break;
+
+      case 'charge.dispute.created':
+        await handleDisputeCreated(supabase, event.data.object as Stripe.Dispute);
+        break;
+
       default:
         console.log(`[STRIPE-WEBHOOK] Unhandled event type: ${event.type}`);
     }
