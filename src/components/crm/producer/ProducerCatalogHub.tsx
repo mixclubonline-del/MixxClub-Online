@@ -138,7 +138,7 @@ export const ProducerCatalogHub = () => {
 
       <GlassPanel padding="p-1">
         <div className="flex gap-1">
-          {(['catalog', 'licenses', 'promos', 'featured'] as const).map((mode) => (
+          {(['catalog', 'licenses', 'promos', 'featured', 'analytics', 'packs'] as const).map((mode) => (
             <button
               key={mode}
               onClick={() => setCatalogMode(mode)}
@@ -151,6 +151,8 @@ export const ProducerCatalogHub = () => {
               {mode === 'licenses' && <FileText className="h-4 w-4" />}
               {mode === 'promos' && <Tag className="h-4 w-4" />}
               {mode === 'featured' && <Star className="h-4 w-4" />}
+              {mode === 'analytics' && <BarChart3 className="h-4 w-4" />}
+              {mode === 'packs' && <Package className="h-4 w-4" />}
               {mode.charAt(0).toUpperCase() + mode.slice(1)}
             </button>
           ))}
