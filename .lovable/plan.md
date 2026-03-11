@@ -39,11 +39,14 @@
 - 20+ unit tests covering all thresholds, variants, visibility rules, CTAs, and edge cases
 - Integration-level tests for `useUsageEnforcement` hook (tier fallback, canUseFeature, getFeatureUsage)
 
-## Remaining
+### Phase 6 — Stripe Revenue Backend ✅
+- Schema alignment: 10 columns added to `payments`, `stripe_customer_id` on `profiles`, `engineer_id`+`stripe_transfer_id` on `payout_requests`
+- `launch_metrics` table created with admin-only RLS for revenue prediction engine
+- `aggregate_payment_to_metrics` trigger auto-increments daily revenue/payment counts
+- Webhook handlers added: `charge.refunded` (auto-reverse earnings), `invoice.payment_failed` (flag subscription + notify), `charge.dispute.created` (critical alert to all admins)
+- Backfilled `payout_requests.engineer_id` from existing `user_id`
 
-### Revenue Backend
-- Stripe API + Database + Webhooks (subscriptions)
-- Referral code verification + reward processing
+## Remaining
 
 ### Stub Pages
 - `/engineer/:userId` — Full engineer profiles
