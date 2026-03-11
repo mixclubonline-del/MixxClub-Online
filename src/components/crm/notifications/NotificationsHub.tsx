@@ -62,6 +62,7 @@ const categoryConfig: Record<NotificationCategory, { icon: React.ElementType; la
 };
 
 const getNotificationIcon = (type: string) => {
+  if (type.includes('health_critical') || type.includes('health_warning')) return AlertTriangle;
   if (type.includes('partner') || type.includes('collaboration')) return Users;
   if (type.includes('payment') || type.includes('payout') || type.includes('revenue')) return DollarSign;
   if (type.includes('project') || type.includes('milestone')) return Music;
@@ -70,6 +71,8 @@ const getNotificationIcon = (type: string) => {
 };
 
 const getNotificationColor = (type: string) => {
+  if (type.includes('health_critical')) return 'text-red-500 bg-red-500/10';
+  if (type.includes('health_warning')) return 'text-amber-500 bg-amber-500/10';
   if (type.includes('partner') || type.includes('collaboration')) return 'text-blue-500 bg-blue-500/10';
   if (type.includes('payment') || type.includes('payout') || type.includes('revenue')) return 'text-green-500 bg-green-500/10';
   if (type.includes('project') || type.includes('milestone')) return 'text-purple-500 bg-purple-500/10';

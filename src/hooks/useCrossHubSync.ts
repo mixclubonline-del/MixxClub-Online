@@ -70,7 +70,7 @@ export function useCrossHubSync() {
     }
   }, [user?.id]);
 
-  // When a milestone is paid, update revenue tracking
+  // When a milestone is paid, update revenue tracking and send push notification
   const handleMilestonePayment = useCallback(async (event: HubEvent<{ milestone_id: string; amount: number; project_id: string }>) => {
     if (!user?.id) return;
 
@@ -80,7 +80,7 @@ export function useCrossHubSync() {
       // Update project total revenue
       const { data: project } = await supabase
         .from('collaborative_projects')
-        .select('total_revenue')
+        .select('total_revenue, partnership_id, title')
         .eq('id', project_id)
         .single();
 
@@ -92,6 +92,33 @@ export function useCrossHubSync() {
             updated_at: new Date().toISOString()
           })
           .eq('id', project_id);
+
+        // Send push notification to partner(s) for payment event
+        if (project.partnership_id) {
+          const { data: partnership } = await supabase
+            .from('partnerships')
+            .select('artist_id, engineer_id, producer_id')
+            .eq('id', project.partnership_id)
+            .single();
+
+          if (partnership) {
+            const partnerIds = [partnership.artist_id, partnership.engineer_id, partnership.producer_id]
+              .filter((id): id is string => !!id && id !== user.id);
+
+            for (const partnerId of partnerIds) {
+              await supabase.functions.invoke('send-push-notification', {
+                body: {
+                  type: 'payment_released',
+                  sessionId: project_id,
+                  sessionTitle: project.title || 'Partnership Project',
+                  fromUser: user.id,
+                  amount,
+                  userId: partnerId,
+                },
+              }).catch(err => console.error('[CrossHubSync] Push notification failed:', err));
+            }
+          }
+        }
 
         console.log(`[CrossHubSync] Milestone paid - project revenue updated`);
       }

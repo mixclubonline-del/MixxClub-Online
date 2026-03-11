@@ -64,6 +64,7 @@ interface DbProfile {
 
 const ProducerCRM = () => {
   const { user } = useAuth();
+  usePartnershipNotifications(user?.id);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'dashboard';

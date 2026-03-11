@@ -70,6 +70,7 @@ const TriPartnershipView = lazy(() => import('@/components/crm/partnerships/TriP
 
 const ArtistCRM = () => {
   const { user } = useAuth();
+  usePartnershipNotifications(user?.id);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const currentTab = searchParams.get('tab') || 'dashboard';
