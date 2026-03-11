@@ -65,16 +65,25 @@ export function useUsageEnforcement() {
     queryFn: async (): Promise<Record<string, number>> => {
       if (!user?.id) return {};
 
-      const [projectsRes, audioRes, matchingRes] = await Promise.all([
+      const [projectsRes, audioRes, matchingRes, storageMbRes] = await Promise.all([
         supabase.from('projects').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
         supabase.from('audio_files').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
         supabase.from('ai_collaboration_matches').select('id', { count: 'exact', head: true }).eq('artist_id', user.id),
+        supabase.from('audio_files').select('file_size').eq('user_id', user.id),
       ]);
+
+      // Sum file sizes in bytes, convert to MB
+      const totalBytes = (storageMbRes.data || []).reduce(
+        (sum: number, f: { file_size: number | null }) => sum + (f.file_size || 0),
+        0,
+      );
+      const storageMb = Math.round(totalBytes / (1024 * 1024));
 
       return {
         projects: projectsRes.count || 0,
         audio_uploads: audioRes.count || 0,
         ai_matching: matchingRes.count || 0,
+        storage_mb: storageMb,
       };
     },
     enabled: !!user?.id,
