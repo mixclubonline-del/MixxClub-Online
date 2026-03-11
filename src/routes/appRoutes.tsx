@@ -22,6 +22,7 @@ import EngineerDirectory from "@/pages/EngineerDirectory";
 import EngineerProfile from "@/pages/EngineerProfile";
 const ArtistProfile = React.lazy(() => import("@/pages/ArtistProfile"));
 const ProducerProfile = React.lazy(() => import("@/pages/ProducerProfile"));
+const FanProfile = React.lazy(() => import("@/pages/FanProfile"));
 import ComingSoon from "@/pages/ComingSoon";
 const BattleTournaments = React.lazy(() => import("@/pages/BattleTournaments"));
 import DistributionHub from "@/pages/DistributionHub";
