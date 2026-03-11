@@ -206,6 +206,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setActiveRole: handleSetActiveRole,
         isHybridUser,
         signOut,
+        refreshRoles,
       }}
     >
       {children}
