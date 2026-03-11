@@ -88,6 +88,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setActiveRole: () => { },
           isHybridUser: true,
           signOut: async () => { window.location.href = '/auth'; },
+          refreshRoles: async () => { },
         }}
       >
         {children}
