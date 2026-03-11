@@ -102,6 +102,16 @@ export function useEngineerMatchingAPI() {
   ): Promise<HireResult | null> => {
     setHiring(true);
 
+    // Check collaborations limit before creating new partnership
+    if (!canUseFeature('collaborations')) {
+      const usage = getFeatureUsage('collaborations');
+      toast.error(`Collaboration limit reached (${usage.current}/${usage.limit}) on your ${tier} plan. Upgrade for more.`, {
+        action: { label: 'Upgrade', onClick: () => window.location.href = '/pricing?feature=collaborations' },
+      });
+      setHiring(false);
+      return null;
+    }
+
     try {
       // Get current user
       const { data: { user }, error: userError } = await supabase.auth.getUser();
@@ -173,6 +183,7 @@ export function useEngineerMatchingAPI() {
       });
 
       toast.success('Engineer hired successfully!');
+      await refreshUsage();
 
       return {
         partnershipId,
@@ -186,7 +197,7 @@ export function useEngineerMatchingAPI() {
     } finally {
       setHiring(false);
     }
-  }, []);
+  }, [canUseFeature, getFeatureUsage, refreshUsage, tier]);
 
   /**
    * Clear current matches

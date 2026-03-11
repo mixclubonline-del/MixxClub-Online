@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useUsageEnforcement } from './useUsageEnforcement';
+import { toast } from 'sonner';
 import type { Database } from '@/integrations/supabase/types';
 import { uuid } from '@/lib/uuid';
 
@@ -267,8 +269,18 @@ export const usePartnershipEarnings = (): UsePartnershipEarningsResult => {
     }
   }, [user?.id, fetchPartnerships, fetchProjects, fetchRevenueSplits, fetchPaymentLinks, fetchMetrics, fetchHealthScores]);
 
+  const { canUseFeature, getFeatureUsage, refreshUsage, tier } = useUsageEnforcement();
+
   const createPartnership = useCallback(async (data: { partnerId: string; userSplit: number; userType: 'artist' | 'engineer' }): Promise<DbPartnership | null> => {
     if (!user?.id) return null;
+
+    if (!canUseFeature('collaborations')) {
+      const usage = getFeatureUsage('collaborations');
+      toast.error(`Collaboration limit reached (${usage.current}/${usage.limit}) on your ${tier} plan. Upgrade for more.`, {
+        action: { label: 'Upgrade', onClick: () => window.location.href = '/pricing?feature=collaborations' },
+      });
+      return null;
+    }
 
     try {
       const insertData = data.userType === 'artist'
@@ -295,13 +307,14 @@ export const usePartnershipEarnings = (): UsePartnershipEarningsResult => {
 
       if (createError) throw createError;
       await fetchPartnerships();
+      await refreshUsage();
       return newPartnership;
     } catch (err) {
       console.error('Error creating partnership:', err);
       setError(err instanceof Error ? err.message : 'Failed to create partnership');
       return null;
     }
-  }, [user?.id, fetchPartnerships]);
+  }, [user?.id, fetchPartnerships, canUseFeature, getFeatureUsage, refreshUsage, tier]);
 
   const acceptPartnership = useCallback(async (partnershipId: string): Promise<boolean> => {
     try {

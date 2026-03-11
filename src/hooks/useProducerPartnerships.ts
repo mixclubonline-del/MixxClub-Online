@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useUsageEnforcement } from './useUsageEnforcement';
+import { toast } from 'sonner';
 import type { ProducerPartnership, CreateProducerPartnershipInput } from '@/types/producer-partnership';
 
 interface UseProducerPartnershipsResult {
@@ -18,6 +20,7 @@ interface UseProducerPartnershipsResult {
 
 export const useProducerPartnerships = (): UseProducerPartnershipsResult => {
   const { user } = useAuth();
+  const { canUseFeature, getFeatureUsage, refreshUsage, tier } = useUsageEnforcement();
   const [partnerships, setPartnerships] = useState<ProducerPartnership[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -75,6 +78,14 @@ export const useProducerPartnerships = (): UseProducerPartnershipsResult => {
   const createPartnership = useCallback(async (data: CreateProducerPartnershipInput): Promise<ProducerPartnership | null> => {
     if (!user?.id) return null;
 
+    if (!canUseFeature('collaborations')) {
+      const usage = getFeatureUsage('collaborations');
+      toast.error(`Collaboration limit reached (${usage.current}/${usage.limit}) on your ${tier} plan. Upgrade for more.`, {
+        action: { label: 'Upgrade', onClick: () => window.location.href = '/pricing?feature=collaborations' },
+      });
+      return null;
+    }
+
     try {
       const artistPercentage = 100 - data.producer_percentage;
 
@@ -96,7 +107,7 @@ export const useProducerPartnerships = (): UseProducerPartnershipsResult => {
       if (createError) throw createError;
 
       await fetchPartnerships();
-      
+      await refreshUsage();
       return {
         ...newPartnership,
         partnership_type: 'producer_artist',
@@ -110,7 +121,7 @@ export const useProducerPartnerships = (): UseProducerPartnershipsResult => {
       setError(err instanceof Error ? err.message : 'Failed to create partnership');
       return null;
     }
-  }, [user?.id, fetchPartnerships]);
+  }, [user?.id, fetchPartnerships, canUseFeature, getFeatureUsage, refreshUsage, tier]);
 
   const acceptPartnership = useCallback(async (partnershipId: string): Promise<boolean> => {
     try {
