@@ -150,6 +150,9 @@ export function ArtistOnboardingWizard() {
         p_action_description: 'Completed artist onboarding'
       });
 
+      // Refresh auth context so CRM dashboard has correct role
+      await refreshRoles();
+
       toast.success('Welcome to MIXXCLUB! 🎉', {
         description: '+100 XP earned for completing your profile!'
       });
