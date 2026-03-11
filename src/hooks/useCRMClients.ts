@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import { useCRMOffline } from '@/hooks/useCRMOffline';
 import type { Json } from '@/integrations/supabase/types';
 
 export interface CRMClient {
@@ -57,12 +58,23 @@ export function useCRMClients() {
   const [tags, setTags] = useState<CRMTag[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { isOnline, queueAction, cacheData, getCachedData } = useCRMOffline();
 
   const fetchClients = useCallback(async () => {
     if (!user?.id) return;
     
     try {
       setLoading(true);
+
+      if (!isOnline) {
+        const cached = getCachedData<CRMClient[]>(`crm_clients_${user.id}`);
+        if (cached) {
+          setClients(cached);
+          setLoading(false);
+          return;
+        }
+      }
+
       const { data, error: fetchError } = await supabase
         .from('crm_clients')
         .select('*')
@@ -70,14 +82,22 @@ export function useCRMClients() {
         .order('created_at', { ascending: false });
 
       if (fetchError) throw fetchError;
-      setClients((data as CRMClient[]) || []);
+      const result = (data as CRMClient[]) || [];
+      setClients(result);
+      cacheData(`crm_clients_${user.id}`, result);
     } catch (err) {
       console.error('Error fetching clients:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch clients');
+      // Fallback to cache on network error
+      const cached = getCachedData<CRMClient[]>(`crm_clients_${user.id}`);
+      if (cached) {
+        setClients(cached);
+      } else {
+        setError(err instanceof Error ? err.message : 'Failed to fetch clients');
+      }
     } finally {
       setLoading(false);
     }
-  }, [user?.id]);
+  }, [user?.id, isOnline, cacheData, getCachedData]);
 
   const fetchTags = useCallback(async () => {
     if (!user?.id) return;
@@ -99,22 +119,30 @@ export function useCRMClients() {
   const createClient = useCallback(async (input: CreateClientInput): Promise<CRMClient | null> => {
     if (!user?.id) return null;
 
+    const payload = {
+      user_id: user.id,
+      name: input.name,
+      email: input.email || null,
+      phone: input.phone || null,
+      company: input.company || null,
+      client_type: input.client_type || 'other',
+      source: input.source || 'platform',
+      status: input.status || 'active',
+      avatar_url: input.avatar_url || null,
+      client_user_id: input.client_user_id || null,
+      metadata: input.metadata || {},
+    };
+
+    if (!isOnline) {
+      queueAction('insert', 'crm_clients', payload);
+      toast.info('Client saved offline — will sync when back online');
+      return null;
+    }
+
     try {
       const { data, error: createError } = await supabase
         .from('crm_clients')
-        .insert({
-          user_id: user.id,
-          name: input.name,
-          email: input.email || null,
-          phone: input.phone || null,
-          company: input.company || null,
-          client_type: input.client_type || 'other',
-          source: input.source || 'platform',
-          status: input.status || 'active',
-          avatar_url: input.avatar_url || null,
-          client_user_id: input.client_user_id || null,
-          metadata: input.metadata || {},
-        })
+        .insert(payload)
         .select()
         .single();
 
@@ -129,13 +157,20 @@ export function useCRMClients() {
       toast.error('Failed to create client');
       return null;
     }
-  }, [user?.id]);
+  }, [user?.id, isOnline, queueAction]);
 
   const updateClient = useCallback(async (input: UpdateClientInput): Promise<CRMClient | null> => {
     if (!user?.id) return null;
 
+    const { id, ...updates } = input;
+
+    if (!isOnline) {
+      queueAction('update', 'crm_clients', { id, ...updates, updated_at: new Date().toISOString() });
+      toast.info('Update saved offline — will sync when back online');
+      return null;
+    }
+
     try {
-      const { id, ...updates } = input;
       const { data, error: updateError } = await supabase
         .from('crm_clients')
         .update({ ...updates, updated_at: new Date().toISOString() })
@@ -155,10 +190,17 @@ export function useCRMClients() {
       toast.error('Failed to update client');
       return null;
     }
-  }, [user?.id]);
+  }, [user?.id, isOnline, queueAction]);
 
   const deleteClient = useCallback(async (clientId: string): Promise<boolean> => {
     if (!user?.id) return false;
+
+    if (!isOnline) {
+      queueAction('delete', 'crm_clients', { id: clientId });
+      setClients(prev => prev.filter(c => c.id !== clientId));
+      toast.info('Delete saved offline — will sync when back online');
+      return true;
+    }
 
     try {
       const { error: deleteError } = await supabase
@@ -177,7 +219,7 @@ export function useCRMClients() {
       toast.error('Failed to delete client');
       return false;
     }
-  }, [user?.id]);
+  }, [user?.id, isOnline, queueAction]);
 
   const createTag = useCallback(async (name: string, color: string = '#6366f1'): Promise<CRMTag | null> => {
     if (!user?.id) return null;

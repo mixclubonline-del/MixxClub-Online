@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import { useCRMOffline } from '@/hooks/useCRMOffline';
 import type { Json } from '@/integrations/supabase/types';
 
 export type DealStage = 'lead' | 'contacted' | 'proposal' | 'negotiation' | 'won' | 'lost';
@@ -64,12 +65,25 @@ export function useCRMDeals(clientId?: string) {
   const [deals, setDeals] = useState<CRMDeal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { isOnline, queueAction, cacheData, getCachedData } = useCRMOffline();
+
+  const cacheKey = clientId ? `crm_deals_${user?.id}_${clientId}` : `crm_deals_${user?.id}`;
 
   const fetchDeals = useCallback(async () => {
     if (!user?.id) return;
     
     try {
       setLoading(true);
+
+      if (!isOnline) {
+        const cached = getCachedData<CRMDeal[]>(cacheKey);
+        if (cached) {
+          setDeals(cached);
+          setLoading(false);
+          return;
+        }
+      }
+
       let query = supabase
         .from('crm_deals')
         .select(`
@@ -86,35 +100,50 @@ export function useCRMDeals(clientId?: string) {
       const { data, error: fetchError } = await query;
 
       if (fetchError) throw fetchError;
-      setDeals((data as CRMDeal[]) || []);
+      const result = (data as CRMDeal[]) || [];
+      setDeals(result);
+      cacheData(cacheKey, result);
     } catch (err) {
       console.error('Error fetching deals:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch deals');
+      const cached = getCachedData<CRMDeal[]>(cacheKey);
+      if (cached) {
+        setDeals(cached);
+      } else {
+        setError(err instanceof Error ? err.message : 'Failed to fetch deals');
+      }
     } finally {
       setLoading(false);
     }
-  }, [user?.id, clientId]);
+  }, [user?.id, clientId, isOnline, cacheKey, cacheData, getCachedData]);
 
   const createDeal = useCallback(async (input: CreateDealInput): Promise<CRMDeal | null> => {
     if (!user?.id) return null;
 
+    const stageInfo = DEAL_STAGES.find(s => s.value === (input.stage || 'lead'));
+    const payload = {
+      user_id: user.id,
+      client_id: input.client_id,
+      title: input.title,
+      description: input.description || null,
+      value: input.value || 0,
+      currency: input.currency || 'USD',
+      stage: input.stage || 'lead',
+      probability: input.probability ?? stageInfo?.probability ?? 10,
+      expected_close_date: input.expected_close_date || null,
+      project_id: input.project_id || null,
+      metadata: input.metadata || {},
+    };
+
+    if (!isOnline) {
+      queueAction('insert', 'crm_deals', payload);
+      toast.info('Deal saved offline — will sync when back online');
+      return null;
+    }
+
     try {
-      const stageInfo = DEAL_STAGES.find(s => s.value === (input.stage || 'lead'));
       const { data, error: createError } = await supabase
         .from('crm_deals')
-        .insert({
-          user_id: user.id,
-          client_id: input.client_id,
-          title: input.title,
-          description: input.description || null,
-          value: input.value || 0,
-          currency: input.currency || 'USD',
-          stage: input.stage || 'lead',
-          probability: input.probability ?? stageInfo?.probability ?? 10,
-          expected_close_date: input.expected_close_date || null,
-          project_id: input.project_id || null,
-          metadata: input.metadata || {},
-        })
+        .insert(payload)
         .select(`
           *,
           client:crm_clients(id, name, email, avatar_url)
@@ -132,25 +161,33 @@ export function useCRMDeals(clientId?: string) {
       toast.error('Failed to create deal');
       return null;
     }
-  }, [user?.id]);
+  }, [user?.id, isOnline, queueAction]);
 
   const updateDeal = useCallback(async (input: UpdateDealInput): Promise<CRMDeal | null> => {
     if (!user?.id) return null;
 
-    try {
-      const { id, ...updates } = input;
-      
-      // If stage is changing to won/lost, set the appropriate timestamp
-      const additionalUpdates: Record<string, unknown> = {};
-      if (updates.stage === 'won') {
-        additionalUpdates.won_at = new Date().toISOString();
-        additionalUpdates.closed_at = new Date().toISOString();
-        additionalUpdates.probability = 100;
-      } else if (updates.stage === 'lost') {
-        additionalUpdates.closed_at = new Date().toISOString();
-        additionalUpdates.probability = 0;
-      }
+    const { id, ...updates } = input;
+    
+    // If stage is changing to won/lost, set the appropriate timestamp
+    const additionalUpdates: Record<string, unknown> = {};
+    if (updates.stage === 'won') {
+      additionalUpdates.won_at = new Date().toISOString();
+      additionalUpdates.closed_at = new Date().toISOString();
+      additionalUpdates.probability = 100;
+    } else if (updates.stage === 'lost') {
+      additionalUpdates.closed_at = new Date().toISOString();
+      additionalUpdates.probability = 0;
+    }
 
+    const fullUpdate = { id, ...updates, ...additionalUpdates, updated_at: new Date().toISOString() };
+
+    if (!isOnline) {
+      queueAction('update', 'crm_deals', fullUpdate);
+      toast.info('Update saved offline — will sync when back online');
+      return null;
+    }
+
+    try {
       const { data, error: updateError } = await supabase
         .from('crm_deals')
         .update({ 
@@ -177,7 +214,7 @@ export function useCRMDeals(clientId?: string) {
       toast.error('Failed to update deal');
       return null;
     }
-  }, [user?.id]);
+  }, [user?.id, isOnline, queueAction]);
 
   const updateDealStage = useCallback(async (dealId: string, newStage: DealStage): Promise<boolean> => {
     const stageInfo = DEAL_STAGES.find(s => s.value === newStage);
@@ -191,6 +228,13 @@ export function useCRMDeals(clientId?: string) {
 
   const deleteDeal = useCallback(async (dealId: string): Promise<boolean> => {
     if (!user?.id) return false;
+
+    if (!isOnline) {
+      queueAction('delete', 'crm_deals', { id: dealId });
+      setDeals(prev => prev.filter(d => d.id !== dealId));
+      toast.info('Delete saved offline — will sync when back online');
+      return true;
+    }
 
     try {
       const { error: deleteError } = await supabase
@@ -209,7 +253,7 @@ export function useCRMDeals(clientId?: string) {
       toast.error('Failed to delete deal');
       return false;
     }
-  }, [user?.id]);
+  }, [user?.id, isOnline, queueAction]);
 
   // Pipeline analytics
   const getPipelineStats = useCallback(() => {
