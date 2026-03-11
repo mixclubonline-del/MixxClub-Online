@@ -6,6 +6,7 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useUsageEnforcement } from '@/hooks/useUsageEnforcement';
 
 export interface MatchCriteria {
   budgetRange: string;  // 'under-50' | '50-100' | '100-300' | '300-500' | '500+'
