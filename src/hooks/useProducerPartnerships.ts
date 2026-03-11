@@ -107,7 +107,7 @@ export const useProducerPartnerships = (): UseProducerPartnershipsResult => {
       if (createError) throw createError;
 
       await fetchPartnerships();
-      
+      await refreshUsage();
       return {
         ...newPartnership,
         partnership_type: 'producer_artist',
