@@ -808,6 +808,92 @@ export type Database = {
         }
         Relationships: []
       }
+      battle_season_entries: {
+        Row: {
+          created_at: string
+          draws: number
+          id: string
+          losses: number
+          points: number
+          rank: number | null
+          season_id: string
+          trophies: Json | null
+          user_id: string
+          wins: number
+        }
+        Insert: {
+          created_at?: string
+          draws?: number
+          id?: string
+          losses?: number
+          points?: number
+          rank?: number | null
+          season_id: string
+          trophies?: Json | null
+          user_id: string
+          wins?: number
+        }
+        Update: {
+          created_at?: string
+          draws?: number
+          id?: string
+          losses?: number
+          points?: number
+          rank?: number | null
+          season_id?: string
+          trophies?: Json | null
+          user_id?: string
+          wins?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "battle_season_entries_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "battle_seasons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      battle_seasons: {
+        Row: {
+          created_at: string
+          description: string | null
+          end_date: string | null
+          id: string
+          name: string
+          prize_pool_cents: number | null
+          rules: Json | null
+          season_number: number
+          start_date: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          name: string
+          prize_pool_cents?: number | null
+          rules?: Json | null
+          season_number: number
+          start_date: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          name?: string
+          prize_pool_cents?: number | null
+          rules?: Json | null
+          season_number?: number
+          start_date?: string
+          status?: string
+        }
+        Relationships: []
+      }
       battle_tournaments: {
         Row: {
           created_at: string
@@ -7340,6 +7426,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      sample_packs: {
+        Row: {
+          cover_url: string | null
+          created_at: string
+          description: string | null
+          download_count: number
+          id: string
+          items: Json
+          price_cents: number
+          producer_id: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          download_count?: number
+          id?: string
+          items?: Json
+          price_cents?: number
+          producer_id: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          download_count?: number
+          id?: string
+          items?: Json
+          price_cents?: number
+          producer_id?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       saved_jobs: {
         Row: {

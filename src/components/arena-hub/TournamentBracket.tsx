@@ -3,9 +3,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Trophy, Calendar, DollarSign, Users } from 'lucide-react';
+import { Trophy, Calendar, DollarSign, Users, Swords } from 'lucide-react';
+import { useCurrentSeason } from '@/hooks/useBattleSeasons';
 
 export default function TournamentBracket() {
+  const { data: currentSeason } = useCurrentSeason();
+
   const { data: tournaments, isLoading } = useQuery({
     queryKey: ['active-tournaments'],
     queryFn: async () => {
@@ -41,6 +44,15 @@ export default function TournamentBracket() {
           <Trophy className="w-5 h-5 text-yellow-500" />
           Active Tournaments
         </CardTitle>
+        {currentSeason && (
+          <div className="flex items-center gap-2 mt-1">
+            <Swords className="w-4 h-4 text-red-400" />
+            <span className="text-sm text-muted-foreground">
+              {currentSeason.name} · Season {currentSeason.season_number}
+            </span>
+            <Badge variant="outline" className="text-xs">{currentSeason.status}</Badge>
+          </div>
+        )}
       </CardHeader>
       <CardContent className="space-y-4">
         {tournaments?.length === 0 ? (

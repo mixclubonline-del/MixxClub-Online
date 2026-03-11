@@ -14,18 +14,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Disc3, Eye, Archive, Plus, Search, SlidersHorizontal, FileText, Tag, Star } from 'lucide-react';
+import { Disc3, Eye, Archive, Plus, Search, SlidersHorizontal, FileText, Tag, Star, BarChart3, Package } from 'lucide-react';
 import { GlassPanel, HubHeader, HubSkeleton } from '../design';
 import { LicenseBuilder } from './LicenseBuilder';
 import { PromoCodeManager } from './PromoCodeManager';
 import { FeaturedRotation } from './FeaturedRotation';
+import { BeatAnalytics } from '@/components/producer/BeatAnalytics';
+import { SamplePackBuilder } from '@/components/producer/SamplePackBuilder';
 
 type SortOption = 'newest' | 'oldest' | 'plays' | 'price';
 
 export const ProducerCatalogHub = () => {
   const { beats, publishedBeats, draftBeats, archivedBeats, isLoading, publishBeat, archiveBeat, deleteBeat } = useProducerBeats();
 
-  const [catalogMode, setCatalogMode] = useState<'catalog' | 'licenses' | 'promos' | 'featured'>('catalog');
+  const [catalogMode, setCatalogMode] = useState<'catalog' | 'licenses' | 'promos' | 'featured' | 'analytics' | 'packs'>('catalog');
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [editingBeat, setEditingBeat] = useState<ProducerBeat | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -136,7 +138,7 @@ export const ProducerCatalogHub = () => {
 
       <GlassPanel padding="p-1">
         <div className="flex gap-1">
-          {(['catalog', 'licenses', 'promos', 'featured'] as const).map((mode) => (
+          {(['catalog', 'licenses', 'promos', 'featured', 'analytics', 'packs'] as const).map((mode) => (
             <button
               key={mode}
               onClick={() => setCatalogMode(mode)}
@@ -149,6 +151,8 @@ export const ProducerCatalogHub = () => {
               {mode === 'licenses' && <FileText className="h-4 w-4" />}
               {mode === 'promos' && <Tag className="h-4 w-4" />}
               {mode === 'featured' && <Star className="h-4 w-4" />}
+              {mode === 'analytics' && <BarChart3 className="h-4 w-4" />}
+              {mode === 'packs' && <Package className="h-4 w-4" />}
               {mode.charAt(0).toUpperCase() + mode.slice(1)}
             </button>
           ))}
@@ -158,6 +162,8 @@ export const ProducerCatalogHub = () => {
       {catalogMode === 'licenses' && <LicenseBuilder />}
       {catalogMode === 'promos' && <PromoCodeManager />}
       {catalogMode === 'featured' && <FeaturedRotation />}
+      {catalogMode === 'analytics' && <BeatAnalytics />}
+      {catalogMode === 'packs' && <SamplePackBuilder />}
 
       {catalogMode === 'catalog' && showEmptyCatalog && (
         <>
