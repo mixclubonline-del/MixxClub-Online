@@ -16,6 +16,7 @@ import { ServiceRoomView } from "@/components/services/ServiceRoomView";
 import { ShowcaseFeature } from "@/components/services/ShowcaseFeature";
 import { MasteringPackages } from "@/components/mastering/MasteringPackages";
 import { MasteringChatbot } from "@/components/MasteringChatbot";
+import { MasteringPipeline } from "@/components/studio/MasteringPipeline";
 import { Badge } from "@/components/ui/badge";
 import masteringRoomBg from "@/assets/service-mastering-room.jpg";
 
