@@ -203,10 +203,6 @@ export default function ProducerProfile() {
   const licenseTypes = new Set<string>();
   beats?.forEach(b => {
     if (b.license_type) licenseTypes.add(b.license_type);
-    const meta = b.metadata as Record<string, any> | null;
-    if (meta?.license_types && Array.isArray(meta.license_types)) {
-      meta.license_types.forEach((lt: string) => licenseTypes.add(lt));
-    }
   });
 
   return (
