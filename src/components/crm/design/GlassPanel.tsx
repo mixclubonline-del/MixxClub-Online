@@ -26,7 +26,7 @@ export interface GlassPanelProps {
     children: ReactNode;
 }
 
-export const GlassPanel: React.FC<GlassPanelProps> = ({
+export const GlassPanel: React.FC<GlassPanelProps> = React.memo(({
     accent,
     glow = false,
     hoverable = false,
@@ -88,4 +88,6 @@ export const GlassPanel: React.FC<GlassPanelProps> = ({
             <div className="relative z-10">{children}</div>
         </Component>
     );
-};
+});
+
+GlassPanel.displayName = 'GlassPanel';
