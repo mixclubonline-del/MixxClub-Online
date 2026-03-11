@@ -31,12 +31,19 @@
 - Producer License Builder + Promo Codes + Featured Rotation built and wired into ProducerCatalogHub
 - React.lazy() implemented for all 3 CRM pages (non-dashboard hubs)
 
+### Phase 5 — Usage Enforcement ✅
+- `useUsageEnforcement` hook: centralized tier-aware limit checking (free/starter/pro/studio)
+- `UsageLimitBanner` component: 4 severity states (normal/warning/urgent/blocked), 2 variants (banner/inline), tier badges, upgrade CTAs
+- Dashboard integration: per-feature banners for projects, audio uploads, AI matching, storage, collaborations
+- Enforcement guards wired into: CreateProjectModal, AudioUpload, useEngineerMatchingAPI, usePartnershipEarnings, useProducerPartnerships
+- 20+ unit tests covering all thresholds, variants, visibility rules, CTAs, and edge cases
+- Integration-level tests for `useUsageEnforcement` hook (tier fallback, canUseFeature, getFeatureUsage)
+
 ## Remaining
 
 ### Revenue Backend
 - Stripe API + Database + Webhooks (subscriptions)
 - Referral code verification + reward processing
-- Usage enforcement middleware (freemium limits)
 
 ### Stub Pages
 - `/engineer/:userId` — Full engineer profiles
