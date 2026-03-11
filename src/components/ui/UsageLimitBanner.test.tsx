@@ -244,4 +244,55 @@ describe('UsageLimitBanner', () => {
       expect(screen.getByText('Almost at limit')).toBeInTheDocument();
     });
   });
+
+  // ── Edge-case stress tests ──────────────────────────────────────────
+
+  describe('edge cases', () => {
+    it('zero limit (0/0) shows blocked state', () => {
+      setUsage('projects', 0, 0);
+      // 0/0 → percentage capped at 100 via NaN guard, limitReached = true
+      mockUsageData['projects']!.percentage = 100;
+      mockUsageData['projects']!.limitReached = true;
+      render(<UsageLimitBanner feature="projects" variant="banner" showAlways />);
+      expect(screen.getByText('Limit reached')).toBeInTheDocument();
+    });
+
+    it('exact 70% boundary triggers warning', () => {
+      setUsage('projects', 7, 10); // exactly 70%
+      render(<UsageLimitBanner feature="projects" variant="banner" showAlways />);
+      expect(screen.getByText('Approaching limit')).toBeInTheDocument();
+      expect(screen.getByText('Upgrade')).toBeInTheDocument();
+    });
+
+    it('exact 90% boundary triggers urgent', () => {
+      setUsage('projects', 9, 10); // exactly 90%
+      render(<UsageLimitBanner feature="projects" variant="banner" showAlways />);
+      expect(screen.getByText('Almost at limit')).toBeInTheDocument();
+      expect(screen.getByText('Upgrade')).toBeInTheDocument();
+    });
+
+    it('unknown feature key renders gracefully', () => {
+      setUsage('unknown_feature_x', 5, 10);
+      render(<UsageLimitBanner feature="unknown_feature_x" variant="banner" showAlways />);
+      expect(screen.getByText(/5 of 10 unknown feature x used/i)).toBeInTheDocument();
+    });
+
+    it('renders multiple banners independently', () => {
+      setUsage('projects', 3, 3);       // blocked
+      setUsage('audio_uploads', 8, 10); // warning
+      setUsage('ai_matching', 1, 10);   // normal
+
+      const { container } = render(
+        <div>
+          <UsageLimitBanner feature="projects" variant="banner" showAlways />
+          <UsageLimitBanner feature="audio_uploads" variant="banner" showAlways />
+          <UsageLimitBanner feature="ai_matching" variant="banner" showAlways />
+        </div>
+      );
+
+      expect(screen.getByText('Limit reached')).toBeInTheDocument();
+      expect(screen.getByText('Approaching limit')).toBeInTheDocument();
+      expect(screen.getByText(/1 of 10 ai matching used/i)).toBeInTheDocument();
+    });
+  });
 });

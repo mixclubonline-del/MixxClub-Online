@@ -1,6 +1,10 @@
 /**
- * Hook for live backend engineer matching via match-engineers Edge Function
- * Replaces static demo data with real API calls
+ * useEngineerMatchingAPI — Live backend engineer matching via
+ * match-engineers Edge Function. Replaces static demo data with real API calls.
+ *
+ * Usage enforcement guards:
+ * - hireEngineer checks canUseFeature('collaborations') before creating partnership
+ * - Calls refreshUsage() after successful hire
  */
 
 import { useState, useCallback } from 'react';

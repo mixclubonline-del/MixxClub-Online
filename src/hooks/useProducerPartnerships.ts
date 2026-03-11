@@ -1,3 +1,11 @@
+/**
+ * useProducerPartnerships — CRUD for producer-specific partnerships,
+ * including pending requests and active collaborations.
+ *
+ * Collaboration limit guard: createPartnership checks canUseFeature('collaborations')
+ * before inserting and calls refreshUsage() on success.
+ */
+
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';

@@ -1,3 +1,11 @@
+/**
+ * usePartnershipEarnings — Manages partnership CRUD, revenue splits,
+ * collaborative projects, and earnings aggregation.
+ *
+ * Collaboration limit guard: createPartnership checks canUseFeature('collaborations')
+ * before inserting a new partnership row and calls refreshUsage() on success.
+ */
+
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
