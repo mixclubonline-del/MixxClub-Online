@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import mixclubLogo from '@/assets/mixxclub-3d-logo.png';
 import { useUsageEnforcement } from '@/hooks/useUsageEnforcement';
+import { UsageLimitBanner } from '@/components/ui/UsageLimitBanner';
 
 interface UploadedFile {
   id: string;
@@ -298,34 +299,8 @@ export default function AudioUpload() {
         )}
 
         {/* Limit Reached Banner */}
-        {isAuthenticated && uploadUsage.limitReached && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
-          >
-            <Card className="p-6 border-destructive/50 bg-destructive/10">
-              <div className="flex items-start gap-4">
-                <div className="p-3 rounded-full bg-destructive/20 shrink-0">
-                  <AlertTriangle className="w-6 h-6 text-destructive" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-bold text-destructive">Upload limit reached</h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    You've used all {uploadUsage.limit} uploads on your <span className="font-medium capitalize">{tier}</span> plan.
-                    Upgrade to continue uploading.
-                  </p>
-                  <div className="mt-2">
-                    <Progress value={100} className="h-1.5" />
-                  </div>
-                </div>
-                <Button onClick={() => navigate('/pricing?feature=audio_uploads')}>
-                  <ArrowUpRight className="w-4 h-4 mr-2" />
-                  Upgrade
-                </Button>
-              </div>
-            </Card>
-          </motion.div>
+        {isAuthenticated && (
+          <UsageLimitBanner feature="audio_uploads" variant="banner" showAlways className="mb-8" />
         )}
 
         {/* Upload Zone - Only show when authenticated and not at limit */}
@@ -335,15 +310,7 @@ export default function AudioUpload() {
             animate={{ opacity: 1, y: 0 }}
           >
             {/* Usage progress bar above drop zone */}
-            {!uploadUsage.isUnlimited && (
-              <div className="mb-4 space-y-1.5">
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>{uploadUsage.current}/{uploadUsage.limit} uploads used</span>
-                  <span>{uploadUsage.remaining} remaining</span>
-                </div>
-                <Progress value={uploadUsage.percentage} className="h-1.5" />
-              </div>
-            )}
+            <UsageLimitBanner feature="audio_uploads" variant="inline" showAlways className="mb-4" />
 
             <Card
               className={`p-12 border-2 border-dashed transition-all duration-300 cursor-pointer ${

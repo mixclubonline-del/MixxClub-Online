@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { UsageLimitBanner } from '@/components/ui/UsageLimitBanner';
 import {
   Dialog,
   DialogContent,
@@ -124,30 +125,12 @@ export const CreateProjectModal = ({ open, onOpenChange, partnershipId }: Create
         </DialogHeader>
 
         {/* Limit Reached Banner */}
-        {projectUsage.limitReached && (
-          <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4 space-y-3">
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
-              <div>
-                <p className="font-semibold text-destructive">Project limit reached</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  You've used all {projectUsage.limit} projects on your <span className="font-medium capitalize">{tier}</span> plan.
-                  Upgrade to unlock more.
-                </p>
-              </div>
-            </div>
-            <Button
-              className="w-full"
-              onClick={() => {
-                onOpenChange(false);
-                navigate('/pricing?feature=projects');
-              }}
-            >
-              <ArrowUpRight className="w-4 h-4 mr-2" />
-              Upgrade Plan
-            </Button>
-          </div>
-        )}
+        <UsageLimitBanner
+          feature="projects"
+          variant="banner"
+          showAlways
+          onUpgradeClick={() => onOpenChange(false)}
+        />
 
         {/* Form — hidden when limit reached */}
         {!projectUsage.limitReached && (
@@ -219,15 +202,7 @@ export const CreateProjectModal = ({ open, onOpenChange, partnershipId }: Create
             </div>
 
             {/* Usage indicator */}
-            {!projectUsage.isUnlimited && (
-              <div className="space-y-1.5 pt-1">
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>{projectUsage.current}/{projectUsage.limit} projects used</span>
-                  <span>{projectUsage.remaining} remaining</span>
-                </div>
-                <Progress value={projectUsage.percentage} className="h-1.5" />
-              </div>
-            )}
+            <UsageLimitBanner feature="projects" variant="inline" showAlways className="pt-1" />
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>

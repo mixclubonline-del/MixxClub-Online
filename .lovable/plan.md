@@ -1,36 +1,44 @@
 
 
-# Reusable Usage Limit Warning Banner
+# CRM Phase 4 Complete — Remaining Roadmap
 
-## Component: `src/components/ui/UsageLimitBanner.tsx`
+## Completed ✅
 
-A single reusable component that accepts a feature key and renders contextual usage info with tier badge, progress bar, and upgrade CTA.
+### Phase 1 — Design Tokens
+- GlassPanel, HubHeader, StaggeredList, HubSkeleton, EmptyState created
+- ActiveWorkHub, StoreHub, ClientsHub migrated
 
-**Props:**
-- `feature: string` — key from `useUsageEnforcement` (e.g. `'projects'`, `'audio_uploads'`, `'ai_matching'`)
-- `label?: string` — human-readable feature name (defaults to formatted feature key)
-- `variant?: 'inline' | 'banner'` — compact inline or full-width banner style
-- `showAlways?: boolean` — if false (default), only shows when usage > 70%
+### Phase 2 — Critical Features  
+- NotificationsHub upgraded to GlassPanel/HubHeader + mobile Select dropdown
+- ScheduleHub upgraded to GlassPanel/HubHeader/EmptyState + mobile responsive
+- RevenueHub upgraded to GlassPanel/HubHeader + mobile Select dropdown
+- CommunityHub already mobile responsive (useIsMobile + Select)
+- MatchesHub already mobile responsive (useIsMobile)
+- CommunityStats already responsive (grid-cols-2 md:3 lg:6)
+- All 3 CRM pages (Artist/Engineer/Producer) already have notifications + schedule wired
 
-**Behavior:**
-- Uses `useUsageEnforcement` internally to get `tier`, `getFeatureUsage(feature)`
-- Shows nothing if `showAlways=false` and usage < 70%
-- At 70-89%: amber/warning style with "approaching limit" message
-- At 90-99%: orange/urgent style
-- At 100%: red/blocked style with "limit reached" message
-- Unlimited features show nothing
-- Upgrade button navigates to `/pricing?feature={feature}`
-- Displays: tier badge, usage fraction (e.g. "8/10"), progress bar, remaining count
+### EcosystemFlow Character Avatars
+- Already implemented with foreignObject SVG alignment
 
-## Integration
+### Phase 3 — UX Polish ✅
+- HubSkeleton + EmptyState standardized across ~10 hubs
+- CommunityHub, SessionsHub, CollectiveAnalytics, ClientsHub, ScheduleHub migrated to design tokens
+- Match components (AIMatchRecommendations, MatchRequests, YourMatches) standardized
+- File version timeline verified functional
 
-Replace the inline limit-reached blocks in:
-1. **`CreateProjectModal.tsx`** — replace the ~20-line inline warning block with `<UsageLimitBanner feature="projects" variant="banner" showAlways />`
-2. **`AudioUpload.tsx`** — replace the inline limit banner with `<UsageLimitBanner feature="audio_uploads" variant="banner" showAlways />`
-3. **`useEngineerMatchingAPI.ts`** — no UI change (toast-only), but export `matchingUsage` so consuming components can render `<UsageLimitBanner feature="ai_matching" />` if desired
+### Phase 4 — Advanced ✅
+- `useUserProjects` and `useUserEarnings` shared hooks created and adopted by EnhancedDashboardHub + GrowthHub
+- Producer License Builder + Promo Codes + Featured Rotation built and wired into ProducerCatalogHub
+- React.lazy() implemented for all 3 CRM pages (non-dashboard hubs)
 
-## Design Tokens
-- Uses glassmorphic card styling consistent with `GlassPanel` pattern
-- Amber/orange/red gradient backgrounds matching the existing `FeatureGated` lock overlay aesthetic
-- Progress bar reuses `<Progress />` component
+## Remaining
 
+### Revenue Backend
+- Stripe API + Database + Webhooks (subscriptions)
+- Referral code verification + reward processing
+- Usage enforcement middleware (freemium limits)
+
+### Stub Pages
+- `/engineer/:userId` — Full engineer profiles
+- `/my-certifications` — Certification system
+- `/battle-tournaments` — Tournament brackets
