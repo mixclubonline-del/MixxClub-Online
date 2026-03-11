@@ -2,8 +2,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Compass, X } from 'lucide-react';
 import { usePathfinder } from '@/hooks/usePathfinder';
 import { PathfinderStepCard } from './PathfinderStep';
+import { useLocation } from 'react-router-dom';
+
+/** Routes where the beacon must never appear — it blocks purchase CTAs */
+const REVENUE_ROUTES = ['/pricing', '/checkout', '/payment-success', '/payment-canceled'];
 
 export const PathfinderBeacon = () => {
+  const location = useLocation();
   const {
     isActive,
     isReady,
