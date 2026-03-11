@@ -314,7 +314,7 @@ export const usePartnershipEarnings = (): UsePartnershipEarningsResult => {
       setError(err instanceof Error ? err.message : 'Failed to create partnership');
       return null;
     }
-  }, [user?.id, fetchPartnerships]);
+  }, [user?.id, fetchPartnerships, canUseFeature, getFeatureUsage, refreshUsage, tier]);
 
   const acceptPartnership = useCallback(async (partnershipId: string): Promise<boolean> => {
     try {
