@@ -173,6 +173,8 @@ export function EngineerOnboardingWizard() {
         p_action_description: 'Completed engineer onboarding'
       });
 
+      await refreshRoles();
+
       toast.success('Welcome to the MIXXCLUB Engineer Network! 🎛️', {
         description: '+150 XP earned! Your profile is now live.'
       });

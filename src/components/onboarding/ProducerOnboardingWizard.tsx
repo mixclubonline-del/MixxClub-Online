@@ -149,6 +149,8 @@ export function ProducerOnboardingWizard() {
         p_action_description: 'Completed producer onboarding'
       });
 
+      await refreshRoles();
+
       toast.success('Welcome to MIXXCLUB! 🎹', {
         description: '+125 XP earned for completing your profile!'
       });

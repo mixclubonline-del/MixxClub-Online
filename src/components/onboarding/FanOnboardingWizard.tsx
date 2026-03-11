@@ -127,11 +127,13 @@
          p_action_type: 'onboarding_complete',
          p_action_description: 'Completed fan onboarding'
        });
- 
+
+       await refreshRoles();
+
        toast.success('Welcome to MIXXCLUB! 💜', {
          description: '+50 XP earned for joining the community!'
        });
- 
+
        setIsCompleting(true);
      } catch (error) {
        console.error('Error completing onboarding:', error);
