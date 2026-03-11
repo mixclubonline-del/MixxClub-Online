@@ -11,7 +11,8 @@ import {
   BarChart3, 
   Search,
   Filter,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Kanban
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ProjectBoard } from './ProjectBoard';
@@ -21,6 +22,8 @@ import { ProjectAnalytics } from './ProjectAnalytics';
 import { CreateProjectModal } from './CreateProjectModal';
 import { ProjectDetailPanel } from './ProjectDetailPanel';
 import { useProjectsHub } from '@/hooks/useProjectsHub';
+import { GlassPanel, HubHeader } from '../design';
+import { useIsMobile } from '@/hooks/use-mobile';
 import {
   Select,
   SelectContent,
@@ -33,6 +36,13 @@ interface ProjectsHubProps {
   userRole: 'artist' | 'engineer';
 }
 
+const VIEW_OPTIONS = [
+  { value: 'board', label: 'Board', icon: LayoutGrid },
+  { value: 'list', label: 'List', icon: List },
+  { value: 'timeline', label: 'Timeline', icon: Calendar },
+  { value: 'analytics', label: 'Analytics', icon: BarChart3 },
+] as const;
+
 export const ProjectsHub = ({ userRole }: ProjectsHubProps) => {
   const [activeView, setActiveView] = useState<'board' | 'list' | 'timeline' | 'analytics'>('board');
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -40,6 +50,8 @@ export const ProjectsHub = ({ userRole }: ProjectsHubProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [priorityFilter, setPriorityFilter] = useState<string>('all');
+  const [partnerFilter, setPartnerFilter] = useState<string>('all');
+  const isMobile = useIsMobile();
 
   const {
     projects,
@@ -48,12 +60,35 @@ export const ProjectsHub = ({ userRole }: ProjectsHubProps) => {
     refetch 
   } = useProjectsHub();
 
+  // Extract unique partners for filter dropdown
+  const partnerOptions = Array.from(
+    new Map(
+      projects
+        .filter(p => p.partnership)
+        .map(p => {
+          const partner = userRole === 'artist'
+            ? p.partnership?.engineer
+            : p.partnership?.artist;
+          const partnerId = userRole === 'artist'
+            ? p.partnership?.engineer_id
+            : p.partnership?.artist_id;
+          return [partnerId, partner?.full_name || 'Unknown'] as [string, string];
+        })
+    ).entries()
+  ).map(([, [id, name]]) => ({ id, name }));
+
   const filteredProjects = projects.filter(project => {
     const matchesSearch = project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       project.description?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'all' || project.status === statusFilter;
     const matchesPriority = priorityFilter === 'all' || project.priority === priorityFilter;
-    return matchesSearch && matchesStatus && matchesPriority;
+    const matchesPartner = partnerFilter === 'all' || (() => {
+      const partnerId = userRole === 'artist'
+        ? project.partnership?.engineer_id
+        : project.partnership?.artist_id;
+      return partnerId === partnerFilter;
+    })();
+    return matchesSearch && matchesStatus && matchesPriority && matchesPartner;
   });
 
   const handleProjectClick = (projectId: string) => {
@@ -67,60 +102,42 @@ export const ProjectsHub = ({ userRole }: ProjectsHubProps) => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold">Projects Hub</h2>
-          <p className="text-muted-foreground">
-            Manage your {userRole === 'artist' ? 'music projects' : 'client projects'}
-          </p>
-        </div>
-        <Button onClick={() => setShowCreateModal(true)} className="gap-2">
-          <Plus className="w-4 h-4" />
-          New Project
-        </Button>
-      </div>
+      <HubHeader
+        icon={<Kanban className="w-5 h-5 text-primary" />}
+        title="Projects Hub"
+        subtitle={`Manage your ${userRole === 'artist' ? 'music projects' : 'client projects'}`}
+        action={
+          <Button onClick={() => setShowCreateModal(true)} size="sm" className="gap-2">
+            <Plus className="w-4 h-4" />
+            New Project
+          </Button>
+        }
+      />
 
       {/* Stats Summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-card border rounded-lg p-4"
-        >
-          <div className="text-2xl font-bold">{stats.total}</div>
-          <div className="text-sm text-muted-foreground">Total Projects</div>
-        </motion.div>
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="bg-primary/10 border border-primary/20 rounded-lg p-4"
-        >
-          <div className="text-2xl font-bold text-primary">{stats.inProgress}</div>
-          <div className="text-sm text-muted-foreground">In Progress</div>
-        </motion.div>
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-warning/10 border border-warning/20 rounded-lg p-4"
-        >
-          <div className="text-2xl font-bold text-warning">{stats.review}</div>
-          <div className="text-sm text-muted-foreground">In Review</div>
-        </motion.div>
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="bg-success/10 border border-success/20 rounded-lg p-4"
-        >
-          <div className="text-2xl font-bold text-success">{stats.completed}</div>
-          <div className="text-sm text-muted-foreground">Completed</div>
-        </motion.div>
+        {[
+          { label: 'Total Projects', value: stats.total, accent: undefined, delay: 0 },
+          { label: 'In Progress', value: stats.inProgress, accent: 'rgba(99,102,241,0.35)', delay: 0.1 },
+          { label: 'In Review', value: stats.review, accent: 'rgba(234,179,8,0.35)', delay: 0.2 },
+          { label: 'Completed', value: stats.completed, accent: 'rgba(34,197,94,0.35)', delay: 0.3 },
+        ].map((stat, i) => (
+          <motion.div
+            key={stat.label}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: stat.delay }}
+          >
+            <GlassPanel accent={stat.accent} padding="p-4">
+              <div className="text-2xl font-bold">{stat.value}</div>
+              <div className="text-sm text-muted-foreground">{stat.label}</div>
+            </GlassPanel>
+          </motion.div>
+        ))}
       </div>
 
       {/* Filters & Search */}
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
@@ -131,7 +148,7 @@ export const ProjectsHub = ({ userRole }: ProjectsHubProps) => {
           />
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[140px]">
+          <SelectTrigger className="w-full sm:w-[140px]">
             <Filter className="w-4 h-4 mr-2" />
             <SelectValue placeholder="Status" />
           </SelectTrigger>
@@ -144,7 +161,7 @@ export const ProjectsHub = ({ userRole }: ProjectsHubProps) => {
           </SelectContent>
         </Select>
         <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-          <SelectTrigger className="w-[140px]">
+          <SelectTrigger className="w-full sm:w-[140px]">
             <SlidersHorizontal className="w-4 h-4 mr-2" />
             <SelectValue placeholder="Priority" />
           </SelectTrigger>
@@ -156,65 +173,75 @@ export const ProjectsHub = ({ userRole }: ProjectsHubProps) => {
             <SelectItem value="low">Low</SelectItem>
           </SelectContent>
         </Select>
+        {partnerOptions.length > 0 && (
+          <Select value={partnerFilter} onValueChange={setPartnerFilter}>
+            <SelectTrigger className="w-full sm:w-[160px]">
+              <SelectValue placeholder="Partner" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Partners</SelectItem>
+              {partnerOptions.map(p => (
+                <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
       </div>
 
-      {/* View Tabs */}
-      <Tabs value={activeView} onValueChange={(v) => setActiveView(v as typeof activeView)}>
-        <TabsList className="grid grid-cols-4 w-full max-w-md">
-          <TabsTrigger value="board" className="gap-2">
-            <LayoutGrid className="w-4 h-4" />
-            <span className="hidden sm:inline">Board</span>
-          </TabsTrigger>
-          <TabsTrigger value="list" className="gap-2">
-            <List className="w-4 h-4" />
-            <span className="hidden sm:inline">List</span>
-          </TabsTrigger>
-          <TabsTrigger value="timeline" className="gap-2">
-            <Calendar className="w-4 h-4" />
-            <span className="hidden sm:inline">Timeline</span>
-          </TabsTrigger>
-          <TabsTrigger value="analytics" className="gap-2">
-            <BarChart3 className="w-4 h-4" />
-            <span className="hidden sm:inline">Analytics</span>
-          </TabsTrigger>
-        </TabsList>
+      {/* View Tabs — mobile uses Select dropdown */}
+      {isMobile ? (
+        <Select value={activeView} onValueChange={(v) => setActiveView(v as typeof activeView)}>
+          <SelectTrigger className="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {VIEW_OPTIONS.map(opt => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      ) : (
+        <Tabs value={activeView} onValueChange={(v) => setActiveView(v as typeof activeView)}>
+          <TabsList className="grid grid-cols-4 w-full max-w-md bg-muted/50">
+            {VIEW_OPTIONS.map(opt => (
+              <TabsTrigger key={opt.value} value={opt.value} className="gap-2">
+                <opt.icon className="w-4 h-4" />
+                {opt.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+      )}
 
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeView}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-            className="mt-6"
-          >
-            <TabsContent value="board" className="mt-0">
-              <ProjectBoard 
-                onCreateProject={() => setShowCreateModal(true)} 
-              />
-            </TabsContent>
-
-            <TabsContent value="list" className="mt-0">
-              <ProjectsList 
-                projects={filteredProjects}
-                loading={loading}
-                onProjectClick={handleProjectClick}
-              />
-            </TabsContent>
-
-            <TabsContent value="timeline" className="mt-0">
-              <ProjectTimeline 
-                projects={filteredProjects}
-                loading={loading}
-              />
-            </TabsContent>
-
-            <TabsContent value="analytics" className="mt-0">
-              <ProjectAnalytics projects={projects} />
-            </TabsContent>
-          </motion.div>
-        </AnimatePresence>
-      </Tabs>
+      {/* View Content */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeView}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.2 }}
+        >
+          {activeView === 'board' && (
+            <ProjectBoard onCreateProject={() => setShowCreateModal(true)} />
+          )}
+          {activeView === 'list' && (
+            <ProjectsList
+              projects={filteredProjects}
+              loading={loading}
+              onProjectClick={handleProjectClick}
+            />
+          )}
+          {activeView === 'timeline' && (
+            <ProjectTimeline projects={filteredProjects} loading={loading} />
+          )}
+          {activeView === 'analytics' && (
+            <ProjectAnalytics projects={projects} />
+          )}
+        </motion.div>
+      </AnimatePresence>
 
       {/* Create Project Modal */}
       <CreateProjectModal
