@@ -13,6 +13,7 @@ interface ArtistProject extends DbProject {
   engineer: { full_name: string | null; avatar_url: string | null } | null;
 }
 import { useAuth } from '@/hooks/useAuth';
+import { usePartnershipNotifications } from '@/hooks/usePartnershipNotifications';
 import { useAdminPreview } from '@/stores/useAdminPreview';
 import { useServiceAccess } from '@/hooks/useServiceAccess';
 import { Card } from '@/components/ui/card';
