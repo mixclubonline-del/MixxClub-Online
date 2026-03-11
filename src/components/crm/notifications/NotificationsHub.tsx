@@ -19,6 +19,7 @@ import {
   Music,
   MessageSquare,
   AlertCircle,
+  AlertTriangle,
   Loader2,
   RefreshCw
 } from 'lucide-react';
