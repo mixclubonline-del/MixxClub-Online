@@ -39,11 +39,22 @@ export function useEngineerMatchingAPI() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hiring, setHiring] = useState(false);
+  const { canUseFeature, getFeatureUsage, refreshUsage, tier } = useUsageEnforcement();
+
+  const matchingUsage = getFeatureUsage('ai_matching');
 
   /**
    * Find matching engineers based on project criteria
    */
   const findMatches = useCallback(async (criteria: MatchCriteria): Promise<EngineerMatch[]> => {
+    if (!canUseFeature('ai_matching')) {
+      const usage = getFeatureUsage('ai_matching');
+      toast.error(`AI matching limit reached (${usage.current}/${usage.limit}) on your ${tier} plan. Upgrade for more.`, {
+        action: { label: 'Upgrade', onClick: () => window.location.href = '/pricing?feature=ai_matching' },
+      });
+      return [];
+    }
+
     setLoading(true);
     setError(null);
 
