@@ -21,7 +21,8 @@ import {
   AlertCircle,
   AlertTriangle,
   Loader2,
-  RefreshCw
+  RefreshCw,
+  Settings,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
@@ -37,6 +38,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { NotificationPrefsPanel } from './NotificationPrefsPanel';
 
 interface Notification {
   id: string;
