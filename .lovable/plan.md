@@ -1,64 +1,58 @@
 
 
-# CRM Phase 4 Complete — Remaining Roadmap
+# Fan Public Profile Page — `/fan/:userId`
 
-## Completed ✅
+## Overview
 
-### Phase 1 — Design Tokens
-- GlassPanel, HubHeader, StaggeredList, HubSkeleton, EmptyState created
-- ActiveWorkHub, StoreHub, ClientsHub migrated
+Create a cinematic public profile page for Fan users, consistent with the existing Artist, Producer, and Engineer profile pages. The page showcases supporter stats, Day 1 badges, community activity, and tier progression.
 
-### Phase 2 — Critical Features  
-- NotificationsHub upgraded to GlassPanel/HubHeader + mobile Select dropdown
-- ScheduleHub upgraded to GlassPanel/HubHeader/EmptyState + mobile responsive
-- RevenueHub upgraded to GlassPanel/HubHeader + mobile Select dropdown
-- CommunityHub already mobile responsive (useIsMobile + Select)
-- MatchesHub already mobile responsive (useIsMobile)
-- CommunityStats already responsive (grid-cols-2 md:3 lg:6)
-- All 3 CRM pages (Artist/Engineer/Producer) already have notifications + schedule wired
+## Data Sources (already exist)
 
-### EcosystemFlow Character Avatars
-- Already implemented with foreignObject SVG alignment
+- **`profiles`** table — avatar, name, username, bio, location, member since
+- **`fan_stats`** table — total_votes, total_comments, artists_supported, day1_badges, mixxcoinz_earned, engagement_streak, current_tier
+- **`artist_day1s`** table — Day 1 artist records with recognition tiers and milestones
+- **`user_activity`** table — public activity feed
 
-### Phase 3 — UX Polish ✅
-- HubSkeleton + EmptyState standardized across ~10 hubs
-- CommunityHub, SessionsHub, CollectiveAnalytics, ClientsHub, ScheduleHub migrated to design tokens
-- Match components (AIMatchRecommendations, MatchRequests, YourMatches) standardized
-- File version timeline verified functional
+## New File: `src/pages/FanProfile.tsx`
 
-### Phase 4 — Advanced ✅
-- `useUserProjects` and `useUserEarnings` shared hooks created and adopted by EnhancedDashboardHub + GrowthHub
-- Producer License Builder + Promo Codes + Featured Rotation built and wired into ProducerCatalogHub
-- React.lazy() implemented for all 3 CRM pages (non-dashboard hubs)
+Mirrors `ProducerProfile.tsx` structure (~400 lines):
 
-### Phase 5 — Usage Enforcement ✅
-- `useUsageEnforcement` hook: centralized tier-aware limit checking (free/starter/pro/studio)
-- `UsageLimitBanner` component: 4 severity states (normal/warning/urgent/blocked), 2 variants (banner/inline), tier badges, upgrade CTAs
-- Dashboard integration: per-feature banners for projects, audio uploads, AI matching, storage, collaborations
-- Enforcement guards wired into: CreateProjectModal, AudioUpload, useEngineerMatchingAPI, usePartnershipEarnings, useProducerPartnerships
-- 20+ unit tests covering all thresholds, variants, visibility rules, CTAs, and edge cases
-- Integration-level tests for `useUsageEnforcement` hook (tier fallback, canUseFeature, getFeatureUsage)
+**Cinematic Hero** — Pink/magenta ambient orbs (fan accent color). Large avatar with gradient ring, display name, tier badge (Newcomer/Supporter/Advocate/Champion/Legend), location, bio.
 
-### Phase 6 — Stripe Revenue Backend ✅
-- Schema alignment: 10 columns added to `payments`, `stripe_customer_id` on `profiles`, `engineer_id`+`stripe_transfer_id` on `payout_requests`
-- `launch_metrics` table created with admin-only RLS for revenue prediction engine
-- `aggregate_payment_to_metrics` trigger auto-increments daily revenue/payment counts
-- Webhook handlers added: `charge.refunded` (auto-reverse earnings), `invoice.payment_failed` (flag subscription + notify), `charge.dispute.created` (critical alert to all admins)
-- Backfilled `payout_requests.engineer_id` from existing `user_id`
+**Stats Bar** — 4 glassmorphic cards:
+- Artists Supported (from `fan_stats.artists_supported`)
+- Day 1 Badges (from `fan_stats.day1_badges`)
+- MixxCoinz Earned (from `fan_stats.mixxcoinz_earned`)
+- Engagement Streak (from `fan_stats.engagement_streak`)
 
-### Phase 7 — Full Site Audit ✅
-- Auth-to-dashboard flow audited: magic link, email+password, OAuth all route correctly through AuthCallback → role check → onboarding → CRM
-- Engineer profile page (/engineer/:userId) verified fully functional with real data from profiles + engineer_profiles + engineer_reviews + projects
-- Battle Tournaments page verified fully functional with real data from battle_tournaments table
-- My Certifications page verified fully functional with milestone overlay at 250 community members
-- Mobile QA pass on revenue path (home → pricing → checkout): pricing cards stack cleanly, CTAs visible
-- Fixed: PathfinderBeacon mobile positioning (bottom-24 on phones to clear mobile nav, full-width card on small screens)
-- Fixed: AuthSocialProof ticker text truncation on narrow viewports (added truncate + shrink-0)
-- Fixed: Homepage floating nav pill overflow on 375px screens (added max-w constraint)
+**Day 1 Collection** — Grid of artists the fan backed early (query `artist_day1s` where `fan_id = userId`), showing artist avatar, name, recognition tier badge, and milestone indicators (1K, 10K, Verified).
 
-## Status: Launch Ready 🚀
+**Community Activity** — Recent public `user_activity` entries with icon mapping and relative timestamps (reuse `ProfileActivityFeed` component pattern).
 
-All previously listed stub pages are now fully functional:
-- `/engineer/:userId` — Full engineer profiles with portfolio, reviews, rates, equipment
-- `/my-certifications` — Certification system with milestone unlock overlay
-- `/battle-tournaments` — Tournament browser with tabs, join flow, status badges
+**Loading/404 states** — Skeleton loading and "Fan Not Found" empty state, matching Producer profile pattern.
+
+## Route Registration: `src/routes/appRoutes.tsx`
+
+- Lazy import `FanProfile`
+- Add route: `<Route path="/fan/:userId" element={<FanProfile />} />`
+- Place alongside existing `/artist/:userId`, `/producer/:userId`, `/engineer/:userId`
+
+## Data Queries (all client-side, no migrations needed)
+
+1. Profile: `supabase.from('profiles').select('*').eq('id', userId)`
+2. Fan stats: `supabase.from('fan_stats').select('*').eq('user_id', userId)`
+3. Day 1 artists: `supabase.from('artist_day1s').select('*, profiles!artist_day1s_artist_id_fkey(...)').eq('fan_id', userId).order('created_at', { ascending: false }).limit(12)`
+4. Activity: `supabase.from('user_activity').select('*').eq('user_id', userId).eq('is_public', true).order('created_at', { ascending: false }).limit(10)`
+
+## Update PublicProfile Banner
+
+In `src/pages/PublicProfile.tsx`, add a fan-role detection banner (pink accent) linking to `/fan/:userId`, consistent with the existing artist/producer/engineer role banners.
+
+## Files Summary
+
+| File | Action |
+|------|--------|
+| `src/pages/FanProfile.tsx` | Create — cinematic fan profile page |
+| `src/routes/appRoutes.tsx` | Edit — add `/fan/:userId` route |
+| `src/pages/PublicProfile.tsx` | Edit — add fan role banner |
+
