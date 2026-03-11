@@ -27,7 +27,7 @@ type SortOption = 'newest' | 'oldest' | 'plays' | 'price';
 export const ProducerCatalogHub = () => {
   const { beats, publishedBeats, draftBeats, archivedBeats, isLoading, publishBeat, archiveBeat, deleteBeat } = useProducerBeats();
 
-  const [catalogMode, setCatalogMode] = useState<'catalog' | 'licenses' | 'promos' | 'featured'>('catalog');
+  const [catalogMode, setCatalogMode] = useState<'catalog' | 'licenses' | 'promos' | 'featured' | 'analytics' | 'packs'>('catalog');
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [editingBeat, setEditingBeat] = useState<ProducerBeat | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
