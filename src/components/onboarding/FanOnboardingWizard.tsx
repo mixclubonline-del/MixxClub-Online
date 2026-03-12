@@ -116,6 +116,7 @@
             full_name: displayName,
             username: username,
             bio: `Music lover on MIXXCLUB`,
+            avatar_url: avatarUrl || null,
             genre_specialties: selectedGenres,
             role: 'fan',
             onboarding_completed: true,
