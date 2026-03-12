@@ -16,6 +16,7 @@ import { OnboardingPortal } from './OnboardingPortal';
 import { OnboardingWaypoints } from './OnboardingWaypoints';
 import { OnboardingPanel } from './OnboardingPanel';
 import { OnboardingCharacterGuide } from '@/components/characters';
+import { AvatarUploadStep } from './AvatarUploadStep';
 import engineerPathImage from '@/assets/onboarding-engineer-path.jpg';
 
 const SPECIALTIES = [
