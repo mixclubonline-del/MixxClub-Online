@@ -10,6 +10,7 @@ export function DeckShell() {
   const [direction, setDirection] = useState(1);
   const [scale, setScale] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showNotes, setShowNotes] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const goTo = useCallback((index: number) => {
