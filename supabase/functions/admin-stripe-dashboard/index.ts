@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { getCorsHeaders } from '../_shared/cors.ts';
 import { requireAdmin, authErrorResponse } from '../_shared/auth.ts';
+import { safeErrorResponse } from '../_shared/error-handler.ts';
 
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
