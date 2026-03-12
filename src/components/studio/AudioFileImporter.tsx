@@ -31,15 +31,7 @@ export const AudioFileImporter = () => {
       const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
 
       // Generate multi-resolution waveform data using client-side generation
-      console.log('[AudioImporter] 📊 Generating multi-resolution waveform...');
       const waveformData = WaveformGenerator.generateMultiResolution(audioBuffer);
-      console.log('[AudioImporter] ✅ Waveform generated:', {
-        peaks: waveformData.peaks.length,
-        multiResolution: !!waveformData.multiResolution,
-        low: waveformData.multiResolution?.low.length,
-        medium: waveformData.multiResolution?.medium.length,
-        high: waveformData.multiResolution?.high.length,
-      });
 
       // Create track with real audio data and waveform
       const trackId = `track-${Date.now()}`;
