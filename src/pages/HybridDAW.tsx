@@ -416,7 +416,7 @@ const HybridDAW = () => {
     }
 
     try {
-      console.log('[HybridDAW] 🔊 Step 1: Decoding audio...');
+      // Decode audio using audioEngine context to avoid mismatch
 
       // 1. Decode audio using audioEngine context to avoid mismatch
       await audioEngine.resume();
