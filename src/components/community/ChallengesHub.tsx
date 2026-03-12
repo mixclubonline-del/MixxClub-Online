@@ -20,7 +20,15 @@ import {
   type Challenge,
 } from '@/hooks/useChallenges';
 import { useAuth } from '@/hooks/useAuth';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export const ChallengesHub: React.FC = () => {
   const [tab, setTab] = useState('active');
