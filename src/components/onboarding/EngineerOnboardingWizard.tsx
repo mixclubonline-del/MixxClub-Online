@@ -391,7 +391,7 @@ export function EngineerOnboardingWizard() {
           </div>
         )}
 
-        {currentStep === 2 && (
+        {currentStep === 3 && (
           <div className="space-y-6">
             <div className="text-center mb-4">
               <h2 className="text-2xl font-bold mb-1">Set Your Rates</h2>
