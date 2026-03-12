@@ -57,10 +57,7 @@ class ErrorLogger {
 
     // In production, you would send this to your monitoring service
     // Example: Sentry, LogRocket, Datadog, etc.
-    if (import.meta.env.PROD) {
-      // TODO: Integrate with your error monitoring service
-      // Example: Sentry.captureException(error, { contexts: { custom: fullContext } });
-    }
+    // Production error monitoring can be integrated here (e.g., Sentry, Datadog)
   }
 
   // Log performance issues

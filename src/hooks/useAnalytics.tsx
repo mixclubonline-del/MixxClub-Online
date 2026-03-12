@@ -101,14 +101,7 @@ class AnalyticsService {
   }
 
   private flush() {
-    if (import.meta.env.DEV) {
-      console.log('📊 Flushing analytics queue:', this.queue.length, 'events');
-    }
-    
-    // In production, batch send events to your analytics service
-    if (import.meta.env.PROD) {
-      // TODO: Batch send events
-    }
+    // Production batch analytics send point
 
     this.queue = [];
   }

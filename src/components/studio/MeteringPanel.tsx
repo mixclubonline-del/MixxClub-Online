@@ -150,8 +150,7 @@ export const MeteringPanel: React.FC<MeteringPanelProps> = ({
     ctx.lineTo(canvas.width, centerY);
     ctx.stroke();
 
-    // Simulated stereo points
-    // TODO: Calculate from actual stereo audio
+    // Stereo field visualization (simulated for v1)
     const points = 100;
     ctx.fillStyle = 'hsla(var(--studio-accent), 0.6)';
     

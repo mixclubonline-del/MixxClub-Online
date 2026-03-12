@@ -50,7 +50,7 @@ export const useSessionCleanup = (sessionId: string | null) => {
           })
           .eq('id', sessionId);
         
-        console.log('[SessionCleanup] Session ended - no active participants');
+        
       }
     };
 

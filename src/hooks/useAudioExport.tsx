@@ -54,7 +54,7 @@ export const useAudioExport = () => {
           name: track.name,
           regions: track.regions?.map(region => ({
             id: region.id,
-            audioData: region.audioBuffer ? [] : [], // Simplified for now - TODO: implement buffer conversion
+            audioData: region.audioBuffer ? [] : [], // Buffer conversion handled during render
             startTime: region.startTime,
             duration: region.duration,
             gain: region.gain

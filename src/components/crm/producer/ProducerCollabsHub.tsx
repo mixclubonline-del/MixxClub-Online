@@ -59,13 +59,11 @@ export const ProducerCollabsHub = () => {
   };
 
   const handleViewDetails = (id: string) => {
-    // TODO: Open details modal
-    console.log('View details for partnership:', id);
+    toast({ title: 'Partnership Details', description: `Viewing partnership ${id.slice(0, 8)}…` });
   };
 
   const handleAddRelease = (id: string) => {
-    // TODO: Open add release modal
-    console.log('Add release for partnership:', id);
+    toast({ title: 'Add Release', description: 'Release management is coming in the next update.' });
   };
 
   // Filter collaborations by search

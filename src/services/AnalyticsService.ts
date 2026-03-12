@@ -21,11 +21,9 @@ export class AnalyticsService {
       timestamp: event.timestamp || new Date(),
     };
 
-    // Log to console (in production, send to analytics service)
-    console.log('[Analytics]', eventData);
-
-    // TODO: Integrate with analytics provider (Google Analytics, Mixpanel, etc.)
-    // Example: gtag('event', event.eventName, { ...event.properties, account_id: accountId });
+    if (import.meta.env.DEV) {
+      console.debug('[Analytics]', eventData);
+    }
   }
 
   /**
@@ -65,9 +63,9 @@ export class AnalyticsService {
    * Identify user/account
    */
   static identify(accountId: string, traits: Record<string, any>): void {
-    console.log('[Analytics] Identify:', accountId, traits);
-    // TODO: Integrate with analytics provider
-    // Example: analytics.identify(accountId, traits);
+    if (import.meta.env.DEV) {
+      console.debug('[Analytics] Identify:', accountId, traits);
+    }
   }
 
   /**

@@ -63,7 +63,6 @@ export const StudioTransport = () => {
       setPlaying(false);
     } else {
       // Play from current position
-      console.log('[Transport] Starting playback from', currentTime.toFixed(3), 'seconds');
       await audioEngine.resume();
       await playTracks(tracks, currentTime);
       setPlaying(true);

@@ -91,7 +91,6 @@ export function useBackgroundRemoval() {
       }
 
       outputCtx.putImageData(outputImageData, 0, 0);
-      console.log("Background removed successfully");
 
       return new Promise((resolve, reject) => {
         outputCanvas.toBlob(

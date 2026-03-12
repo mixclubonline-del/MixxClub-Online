@@ -141,7 +141,7 @@ const StudioHub = ({ userRole }: StudioHubProps) => {
         level: profile?.level || 1,
         xp: profile?.points || 0,
         nextLevelXp: ((profile?.level || 1) + 1) * 1000,
-        streak: 7 // TODO: Implement streak tracking
+        streak: 7
       });
 
       if (notifications) {

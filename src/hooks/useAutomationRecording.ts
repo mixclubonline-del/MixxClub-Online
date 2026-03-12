@@ -60,9 +60,7 @@ export const useAutomationRecording = () => {
       return;
     }
 
-    // TODO: Commit automation points to track
-    // This will be integrated with the automation lane system
-    console.log('Recorded automation points:', recordingPoints.current);
+    // Automation points recorded — will be committed when automation lanes are wired
     
     setIsRecording(false);
     setRecordMode('off');

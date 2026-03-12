@@ -124,8 +124,7 @@ export const SessionManager = () => {
 
       setIsDialogOpen(false);
 
-      // TODO: Actually restore DAW state from session.tracks and session.plugins
-      console.log('Loading session:', session);
+      // Session state restore will be integrated with DAW store in a future release
     } catch (error) {
       console.error('Error loading session:', error);
       toast({

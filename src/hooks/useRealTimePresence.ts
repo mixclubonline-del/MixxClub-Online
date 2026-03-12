@@ -60,7 +60,6 @@ export const useRealTimePresence = (channelName: string) => {
             onlineAt: new Date().toISOString(),
           });
 
-          console.log('[Presence] Subscribed to channel:', channelName);
         }
       });
 
@@ -68,7 +67,6 @@ export const useRealTimePresence = (channelName: string) => {
 
     return () => {
       presenceChannel.unsubscribe();
-      console.log('[Presence] Unsubscribed from channel:', channelName);
     };
   }, [channelName, user]);
 

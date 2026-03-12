@@ -167,7 +167,16 @@ export const CommissionTracker: React.FC = () => {
     }, [commissions]);
 
     const handleMarkPaid = async (commissionId: string) => {
-        console.log('Mark commission paid:', commissionId);
+        try {
+            const { error } = await supabase
+                .from('beat_royalties')
+                .update({ status: 'paid', paid_at: new Date().toISOString() })
+                .eq('id', commissionId);
+            if (error) throw error;
+            toast({ title: 'Commission marked as paid' });
+        } catch {
+            toast({ title: 'Failed to update commission', variant: 'destructive' });
+        }
     };
 
     return (

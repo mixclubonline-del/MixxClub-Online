@@ -17,7 +17,7 @@ export const SplashScreen = ({ onComplete, duration = 2500 }: SplashScreenProps)
         await Haptics.impact({ style: ImpactStyle.Medium });
       } catch (error) {
         // Haptics not available (desktop or unsupported device)
-        console.log('Haptics not available');
+        // Haptics not available on this device
       }
       
       setIsVisible(false);
