@@ -28,6 +28,7 @@ export function DeckShell() {
       if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
       if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
       if (e.key === 'Escape' && isFullscreen) document.exitFullscreen?.();
+      if (e.key === 'n' || e.key === 'N') { e.preventDefault(); setShowNotes(s => !s); }
       if (e.key === 'f' || e.key === 'F') {
         e.preventDefault();
         if (!document.fullscreenElement) {
