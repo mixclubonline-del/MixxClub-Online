@@ -100,6 +100,10 @@ export const CommunityHub: React.FC<CommunityHubProps> = ({ userType }) => {
                     <Trophy className="h-4 w-4" />
                     Leaderboard
                   </TabsTrigger>
+                  <TabsTrigger value="fans" className="flex items-center gap-2">
+                    <Heart className="h-4 w-4" />
+                    Fan Hub
+                  </TabsTrigger>
                 </TabsList>
               )}
             </div>
