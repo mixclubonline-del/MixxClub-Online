@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useGlobalPlayer } from '@/contexts/GlobalPlayerContext';
 import { Button } from '@/components/ui/button';
 import { X, Cookie, Settings } from 'lucide-react';
 import {
