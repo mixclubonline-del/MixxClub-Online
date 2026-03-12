@@ -73,7 +73,7 @@ export function ProducerOnboardingWizard() {
         .from('profiles')
         .select('onboarding_completed, username')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
       if (profile?.onboarding_completed || profile?.username) {
         navigate('/producer-crm');
