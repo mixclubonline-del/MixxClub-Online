@@ -132,7 +132,7 @@ export function useAdminChat(options: AdminChatOptions = {}) {
       role,
       content,
       tool_actions: toolActions && toolActions.length > 0 ? JSON.parse(JSON.stringify(toolActions)) : null,
-    });
+    }]);
   }, []);
 
   // ── Auto-generate title from first user message ──
