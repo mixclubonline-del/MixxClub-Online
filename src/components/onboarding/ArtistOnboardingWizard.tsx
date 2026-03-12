@@ -130,7 +130,8 @@ export function ArtistOnboardingWizard() {
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({
+        .upsert({
+          id: user.id,
           full_name: fullName,
           username: username,
           bio: bio || `${artistName ? `${artistName} - ` : ''}Artist on MIXXCLUB`,
@@ -138,8 +139,7 @@ export function ArtistOnboardingWizard() {
           role: 'artist',
           onboarding_completed: true,
           onboarding_completed_at: new Date().toISOString()
-        })
-        .eq('id', user.id);
+        }, { onConflict: 'id' });
 
       if (error) throw error;
 

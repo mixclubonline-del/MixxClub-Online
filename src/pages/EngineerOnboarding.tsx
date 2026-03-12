@@ -1,5 +1,10 @@
 import { EngineerOnboardingWizard } from "@/components/onboarding/EngineerOnboardingWizard";
+import { WelcomeGate } from "@/components/onboarding/WelcomeGate";
 
 export default function EngineerOnboarding() {
-  return <EngineerOnboardingWizard />;
+  return (
+    <WelcomeGate role="engineer">
+      <EngineerOnboardingWizard />
+    </WelcomeGate>
+  );
 }

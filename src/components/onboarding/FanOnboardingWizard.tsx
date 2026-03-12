@@ -106,20 +106,20 @@
      
      setIsSubmitting(true);
      try {
-       const { error } = await supabase
-         .from('profiles')
-         .update({
-           full_name: displayName,
-           username: username,
-           bio: `Music lover on MIXXCLUB`,
-           genre_specialties: selectedGenres,
-           role: 'fan',
-           onboarding_completed: true,
-           onboarding_completed_at: new Date().toISOString()
-         })
-         .eq('id', user.id);
- 
-       if (error) throw error;
+        const { error } = await supabase
+          .from('profiles')
+          .upsert({
+            id: user.id,
+            full_name: displayName,
+            username: username,
+            bio: `Music lover on MIXXCLUB`,
+            genre_specialties: selectedGenres,
+            role: 'fan',
+            onboarding_completed: true,
+            onboarding_completed_at: new Date().toISOString()
+          }, { onConflict: 'id' });
+  
+        if (error) throw error;
  
        await supabase.rpc('award_points', {
          p_user_id: user.id,

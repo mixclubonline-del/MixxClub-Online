@@ -19,39 +19,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// ─── Dev Auth Bypass ───────────────────────────────────────────────────
-// Only allow bypass in development and explicit debug contexts (never production)
-const PREVIEW_TOKEN_BYPASS = (() => {
-  if (!import.meta.env.DEV || typeof window === 'undefined') return false;
-
-  const params = new URLSearchParams(window.location.search);
-  const hasPreviewToken = params.has('__lovable_token');
-  const path = window.location.pathname;
-  const isOnboardingPath = path.startsWith('/onboarding/') || path === '/select-role';
-
-  return hasPreviewToken && isOnboardingPath;
-})();
-
-const DEV_AUTH_BYPASS = import.meta.env.DEV && (
-  import.meta.env.VITE_DEV_AUTH_BYPASS === 'true' || PREVIEW_TOKEN_BYPASS
-);
-
-const DEV_MOCK_USER = {
-  id: '00000000-0000-4000-8000-000000000000',
-  email: 'dev@mixxclub.local',
-  app_metadata: {},
-  user_metadata: { full_name: 'Dev User' },
-  aud: 'authenticated',
-  created_at: new Date().toISOString(),
-} as unknown as User;
-
-const DEV_MOCK_SESSION = {
-  access_token: 'dev-bypass-token',
-  refresh_token: 'dev-bypass-refresh',
-  expires_in: 999999,
-  token_type: 'bearer',
-  user: DEV_MOCK_USER,
-} as unknown as Session;
 // ────────────────────────────────────────────────────────────────────────
 
 /** Resolve roles from user_roles table and return derived state */
