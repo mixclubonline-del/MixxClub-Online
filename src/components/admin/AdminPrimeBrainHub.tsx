@@ -6,6 +6,7 @@
  * - Chat Console: streaming SSE with tool-calling indicators
  * - Tool Action Cards: inline results from Dream Engine, Promo Studio, metrics
  * - Quick Intelligence: expanded agentic prompts + memory panel
+ * - Conversation History: persistent chat sessions with sidebar navigation
  */
 
 import { useState, useRef, useEffect } from 'react';
@@ -20,6 +21,7 @@ import {
   Shield, Zap, Trash2, ChevronRight, Bot, User,
   Ticket, Activity, X, Paintbrush, Megaphone,
   BarChart3, Database, StopCircle, Image as ImageIcon,
+  MessageSquarePlus, History, Clock,
 } from 'lucide-react';
 import { useAdminChat, type ChatMessage, type ToolAction } from '@/hooks/useAdminChat';
 import { useWaitlistStats } from '@/hooks/useWaitlist';
@@ -27,6 +29,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useIsMobile } from '@/hooks/use-mobile';
 import mixclubLogo from '@/assets/mixxclub-3d-logo.png';
 import DOMPurify from 'dompurify';
+import { formatDistanceToNow } from 'date-fns';
 
 // ── Tool icon map ──
 const TOOL_ICONS: Record<string, typeof Brain> = {
@@ -73,7 +76,6 @@ function ToolActionCard({ action }: { action: ToolAction }) {
   const label = action.tool.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
   const parsed = action.parsedResult;
 
-  // Check if it's a Dream Engine generation with a URL
   const imageUrl = parsed?.url || parsed?.publicUrl || parsed?.public_url;
   const isSuccess = parsed?.success !== false;
 
@@ -89,14 +91,12 @@ function ToolActionCard({ action }: { action: ToolAction }) {
         </Badge>
       </div>
 
-      {/* Image preview for Dream Engine */}
       {imageUrl && typeof imageUrl === 'string' && (
         <div className="rounded-lg overflow-hidden mb-2 border border-border/20">
           <img src={imageUrl} alt="Generated asset" className="w-full max-h-48 object-cover" />
         </div>
       )}
 
-      {/* Metrics summary for platform queries */}
       {action.tool === 'query_platform_metrics' && parsed && (
         <div className="grid grid-cols-2 gap-1.5 text-[10px]">
           {Object.entries(parsed).filter(([, v]) => typeof v !== 'object').map(([key, val]) => (
@@ -108,12 +108,10 @@ function ToolActionCard({ action }: { action: ToolAction }) {
         </div>
       )}
 
-      {/* Memory confirmation */}
       {action.tool === 'save_memory' && parsed?.saved && (
         <p className="text-[10px] text-green-400">✓ Saved to memory: {String(parsed.key)}</p>
       )}
 
-      {/* Memory recall */}
       {action.tool === 'recall_memory' && Array.isArray(parsed?.memories) && (
         <div className="space-y-1 max-h-32 overflow-y-auto">
           {(parsed.memories as Array<{ category: string; key: string; value: unknown }>).slice(0, 5).map((m, i) => (
@@ -181,7 +179,6 @@ function ChatBubble({ message }: { message: ChatMessage }) {
       </div>
 
       <div className={`max-w-[85%] ${isUser ? 'text-right' : ''}`}>
-        {/* Tool action cards */}
         {!isUser && message.toolActions && message.toolActions.length > 0 && (
           <div className="mb-2 space-y-1">
             {message.toolActions.map((action, i) => (
@@ -190,12 +187,10 @@ function ChatBubble({ message }: { message: ChatMessage }) {
           </div>
         )}
 
-        {/* Tooling indicator */}
         {message.isTooling && !message.content && (
           <ToolingIndicator tools={message.toolActions?.map(t => t.tool) || []} />
         )}
 
-        {/* Message content */}
         {(message.content || message.isPending) && (
           <div className={`inline-block px-4 py-3 rounded-2xl text-sm leading-relaxed
             ${isUser
@@ -237,10 +232,15 @@ export const AdminPrimeBrainHub = () => {
   const isMobile = useIsMobile();
   const [inputValue, setInputValue] = useState('');
   const [showQuickPanel, setShowQuickPanel] = useState(!isMobile);
+  const [showHistory, setShowHistory] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { messages, isStreaming, activeTools, sendMessage, clearMessages, cancelStream, quickPrompts } = useAdminChat();
+  const {
+    messages, isStreaming, activeTools, sendMessage, clearMessages, cancelStream, quickPrompts,
+    conversationId, conversationTitle, conversations, isLoadingConversations,
+    loadConversation, newConversation,
+  } = useAdminChat();
   const { data: waitlistStats } = useWaitlistStats();
 
   // Platform pulse metrics
@@ -298,6 +298,16 @@ export const AdminPrimeBrainHub = () => {
       e.preventDefault();
       handleSend();
     }
+  };
+
+  const handleLoadConversation = (convId: string) => {
+    loadConversation(convId);
+    setShowHistory(false);
+  };
+
+  const handleNewConversation = () => {
+    newConversation();
+    setShowHistory(false);
   };
 
   const pulseMetrics = [
@@ -358,16 +368,34 @@ export const AdminPrimeBrainHub = () => {
         {/* Chat Console */}
         <Card className="bg-background/50 backdrop-blur-sm border-border/50 flex flex-col" style={{ height: isMobile ? '60vh' : '65vh' }}>
           <CardHeader className="py-3 px-4 border-b border-border/30 flex-row items-center justify-between">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <Brain className="w-4 h-4 text-purple-500" />
-              Chat Console
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              <Brain className="w-4 h-4 text-purple-500 shrink-0" />
+              <span className="text-sm font-semibold truncate">{conversationTitle}</span>
               {activeTools.length > 0 && (
-                <Badge className="bg-primary/10 text-primary border-primary/20 text-[9px] animate-pulse">
+                <Badge className="bg-primary/10 text-primary border-primary/20 text-[9px] animate-pulse shrink-0">
                   Using tools...
                 </Badge>
               )}
-            </CardTitle>
-            <div className="flex items-center gap-1.5">
+            </div>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowHistory(!showHistory)}
+                className="h-7 text-xs gap-1"
+              >
+                <History className="w-3 h-3" />
+                {!isMobile && 'History'}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleNewConversation}
+                className="h-7 text-xs gap-1 text-primary"
+              >
+                <MessageSquarePlus className="w-3 h-3" />
+                {!isMobile && 'New'}
+              </Button>
               {isStreaming && (
                 <Button variant="ghost" size="sm" onClick={cancelStream} className="h-7 text-xs gap-1 text-red-400">
                   <StopCircle className="w-3 h-3" /> Stop
@@ -378,15 +406,61 @@ export const AdminPrimeBrainHub = () => {
                   <Zap className="w-3 h-3" /> Quick
                 </Button>
               )}
-              {messages.length > 0 && (
-                <Button variant="ghost" size="sm" onClick={clearMessages} className="h-7 text-xs gap-1 text-muted-foreground">
-                  <Trash2 className="w-3 h-3" /> Clear
-                </Button>
-              )}
             </div>
           </CardHeader>
 
-          <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
+          <CardContent className="flex-1 flex flex-col p-0 overflow-hidden relative">
+            {/* ── Conversation History Dropdown ── */}
+            <AnimatePresence>
+              {showHistory && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="absolute inset-x-0 top-0 z-20 bg-background/95 backdrop-blur-xl border-b border-border/30 shadow-lg max-h-[50%] flex flex-col"
+                >
+                  <div className="flex items-center justify-between px-4 py-2 border-b border-border/20">
+                    <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Conversations</span>
+                    <Button variant="ghost" size="icon" onClick={() => setShowHistory(false)} className="h-6 w-6">
+                      <X className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                  <ScrollArea className="flex-1">
+                    <div className="p-2 space-y-1">
+                      {isLoadingConversations ? (
+                        <p className="text-xs text-muted-foreground text-center py-4">Loading...</p>
+                      ) : conversations.length === 0 ? (
+                        <p className="text-xs text-muted-foreground text-center py-4">No conversations yet</p>
+                      ) : (
+                        conversations.map(conv => (
+                          <button
+                            key={conv.id}
+                            onClick={() => handleLoadConversation(conv.id)}
+                            className={`w-full text-left px-3 py-2.5 rounded-xl transition-all flex items-start gap-2.5 group
+                              ${conv.id === conversationId
+                                ? 'bg-primary/10 border border-primary/30'
+                                : 'bg-muted/10 border border-transparent hover:border-border/30 hover:bg-muted/20'
+                              }`}
+                          >
+                            <Brain className={`w-3.5 h-3.5 mt-0.5 shrink-0 ${conv.id === conversationId ? 'text-primary' : 'text-muted-foreground'}`} />
+                            <div className="min-w-0 flex-1">
+                              <p className={`text-xs font-medium truncate ${conv.id === conversationId ? 'text-primary' : 'text-foreground'}`}>
+                                {conv.title}
+                              </p>
+                              <p className="text-[10px] text-muted-foreground flex items-center gap-1 mt-0.5">
+                                <Clock className="w-2.5 h-2.5" />
+                                {formatDistanceToNow(new Date(conv.updated_at), { addSuffix: true })}
+                              </p>
+                            </div>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </ScrollArea>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
               {messages.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-center px-6">
