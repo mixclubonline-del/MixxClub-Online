@@ -112,6 +112,13 @@ export default function QuickStart() {
   const stepIndex = step === 'role' ? 0 : step === 'credentials' ? 1 : 2;
 
   return (
+    <>
+    <SEOHead
+      title="Quick Start"
+      description="Get started on Mixxclub in 60 seconds. Choose your role, create your account, and jump into the music ecosystem."
+      keywords="get started, sign up, music platform, artists, engineers, producers"
+      noindex
+    />
     <div className="min-h-[100svh] relative flex items-center justify-center p-4 overflow-hidden">
       {/* Atmospheric background */}
       <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.12)_0%,hsl(0_0%_4%)_60%,hsl(0_0%_2%)_100%)]" />
