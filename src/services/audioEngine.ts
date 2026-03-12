@@ -120,7 +120,7 @@ class AudioEngine {
     this.transportPausedAt = this.currentTime;
     this.transportState = 'paused';
     
-    console.log('[AudioEngine] ⏸ Transport PAUSE at', this.transportPausedAt.toFixed(3), 's');
+    console.debug('[AudioEngine] ⏸ Transport PAUSE at', this.transportPausedAt.toFixed(3), 's');
   }
   
   /**
