@@ -117,7 +117,7 @@ export const useWebRTC = ({ sessionId, userId, onRemoteStream, onScreenShareStre
 
   // Handle received offer
   const handleOffer = useCallback(async (peerId: string, offer: RTCSessionDescriptionInit) => {
-    console.log(`[WebRTC] Handling offer from ${peerId}`);
+    console.debug(`[WebRTC] Handling offer from ${peerId}`);
     const pc = createPeerConnection(peerId);
     
     try {
