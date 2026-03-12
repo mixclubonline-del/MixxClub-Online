@@ -549,12 +549,12 @@ class AudioEngine {
         tracksScheduled++;
       }
       
-      console.log(`[AudioEngine] 🎚️ Scheduled ${tracksScheduled} tracks for offline render`);
+      console.debug(`[AudioEngine] Scheduled ${tracksScheduled} tracks for offline render`);
       
       // Render
       const renderedBuffer = await offlineCtx.startRendering();
       
-      console.log(`[AudioEngine] ✅ Offline render complete: ${renderedBuffer.duration.toFixed(2)}s`);
+      console.debug(`[AudioEngine] Offline render complete: ${renderedBuffer.duration.toFixed(2)}s`);
       
       return renderedBuffer;
       
