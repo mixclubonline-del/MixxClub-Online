@@ -57,7 +57,7 @@ export const useCollaboration = ({
       wsRef.current = ws;
 
       ws.onopen = () => {
-        console.log('Connected to collaboration server');
+        console.debug('Connected to collaboration server');
         setIsConnected(true);
         setConnectionStatus('connected');
         reconnectAttempts.current = 0;
