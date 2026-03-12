@@ -77,7 +77,7 @@ export function CookieConsent() {
   return (
     <>
       {/* Compact toast-style banner - highest z-index to never be overlapped */}
-      <div className="fixed bottom-20 sm:bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-sm z-[90] animate-in slide-in-from-bottom-4 duration-300">
+      <div className="fixed bottom-20 sm:bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-sm z-[100] animate-in slide-in-from-bottom-4 duration-300">
         <div className="bg-background border rounded-lg shadow-lg p-3">
           <div className="flex items-center gap-3">
             <Cookie className="h-4 w-4 text-primary flex-shrink-0" />

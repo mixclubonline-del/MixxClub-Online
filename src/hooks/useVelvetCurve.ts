@@ -71,7 +71,7 @@ export const useVelvetCurve = (): UseVelvetCurveReturn => {
       }
       processorRef.current?.destroy();
       analyzerRef.current?.destroy();
-      console.log('[VelvetCurve] Cleaned up');
+      console.debug('[VelvetCurve] Cleaned up');
     };
   }, []);
   
