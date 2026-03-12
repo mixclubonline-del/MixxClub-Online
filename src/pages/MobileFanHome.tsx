@@ -13,6 +13,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/mobile/PullToRefreshIndicator';
+import { MobileFanHomeSkeleton } from '@/components/mobile/MobileFanHomeSkeleton';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -97,8 +98,11 @@ export default function MobileFanHome() {
     staleTime: 60_000,
   });
 
-  if (!user) {
-    return null;
+  if (!user) return null;
+
+  // Show skeleton while primary data loads
+  if (streamsLoading && challengesLoading && marketLoading) {
+    return <MobileFanHomeSkeleton />;
   }
 
   const streakDays = stats?.engagement_streak || 0;

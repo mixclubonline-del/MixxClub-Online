@@ -11,6 +11,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/mobile/PullToRefreshIndicator';
+import { MobileProHomeSkeleton } from '@/components/mobile/MobileProHomeSkeleton';
 import { useUserEarnings } from '@/hooks/useUserEarnings';
 import { useUserProjects } from '@/hooks/useUserProjects';
 import {
@@ -99,8 +100,11 @@ export default function MobileProHome() {
     }
   }, [acceptedApps.length]);
 
-  if (!user) {
-    return null;
+  if (!user) return null;
+
+  // Show skeleton while primary data loads
+  if (earningsLoading && sessionsLoading) {
+    return <MobileProHomeSkeleton />;
   }
 
   return (
