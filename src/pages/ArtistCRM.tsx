@@ -31,7 +31,6 @@ import { JobApplicationManager } from '@/components/crm/JobApplicationManager';
 import { JobPostingForm } from '@/components/JobPostingForm';
 import { PackagesShop } from '@/components/crm/PackagesShop';
 import { RecommendedEngineers } from '@/components/crm/RecommendedEngineers';
-import { AIMatchingEngine } from '@/components/ai/AIMatchingEngine';
 import { MusicalProfile } from '@/components/crm/MusicalProfile';
 
 
