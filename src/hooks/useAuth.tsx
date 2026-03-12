@@ -54,15 +54,14 @@ async function resolveRoles(userId: string): Promise<{
 }
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const isBypass = DEV_AUTH_BYPASS;
-
-  const [user, setUser] = useState<User | null>(isBypass ? DEV_MOCK_USER : null);
-  const [session, setSession] = useState<Session | null>(isBypass ? DEV_MOCK_SESSION : null);
-  const [loading, setLoading] = useState(!isBypass);
-  const [userRole, setUserRole] = useState<AppRole | null>(isBypass ? 'producer' : null);
-  const [userRoles, setUserRoles] = useState<AppRole[]>(isBypass ? ['producer', 'engineer', 'artist'] : []);
-  const [activeRole, setActiveRoleState] = useState<AppRole | null>(isBypass ? 'producer' : null);
-  const [isHybridUser, setIsHybridUser] = useState(isBypass);
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [userRole, setUserRole] = useState<AppRole | null>(null);
+  const [userRoles, setUserRoles] = useState<AppRole[]>([]);
+  const [activeRole, setActiveRoleState] = useState<AppRole | null>(null);
+  const [isHybridUser, setIsHybridUser] = useState(false);
+  const isMounted = useRef(true);
   const isMounted = useRef(true);
 
   /** Apply resolved role state */
