@@ -62,7 +62,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [activeRole, setActiveRoleState] = useState<AppRole | null>(null);
   const [isHybridUser, setIsHybridUser] = useState(false);
   const isMounted = useRef(true);
-  const isMounted = useRef(true);
 
   /** Apply resolved role state */
   const applyRoles = (result: Awaited<ReturnType<typeof resolveRoles>>) => {
