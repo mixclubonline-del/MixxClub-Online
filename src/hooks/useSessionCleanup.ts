@@ -21,7 +21,7 @@ export const useSessionCleanup = (sessionId: string | null) => {
 
     // Cleanup function
     const cleanup = async () => {
-      console.log('[SessionCleanup] Cleaning up session:', sessionId);
+      
       
       // Mark participant as inactive
       await supabase
