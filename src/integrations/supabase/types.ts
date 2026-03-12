@@ -7983,6 +7983,48 @@ export type Database = {
           },
         ]
       }
+      session_templates: {
+        Row: {
+          checklist: Json
+          created_at: string
+          created_by: string | null
+          default_settings: Json
+          description: string | null
+          icon: string | null
+          id: string
+          is_system: boolean
+          name: string
+          session_type: string
+          updated_at: string
+        }
+        Insert: {
+          checklist?: Json
+          created_at?: string
+          created_by?: string | null
+          default_settings?: Json
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_system?: boolean
+          name: string
+          session_type?: string
+          updated_at?: string
+        }
+        Update: {
+          checklist?: Json
+          created_at?: string
+          created_by?: string | null
+          default_settings?: Json
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_system?: boolean
+          name?: string
+          session_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       social_shares: {
         Row: {
           content_id: string | null
