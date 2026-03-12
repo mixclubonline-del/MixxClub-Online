@@ -127,11 +127,11 @@ export function useAdminChat(options: AdminChatOptions = {}) {
     content: string,
     toolActions?: ToolAction[]
   ) => {
-    await supabase.from('admin_chat_messages').insert({
+    await supabase.from('admin_chat_messages').insert([{
       conversation_id: convId,
       role,
       content,
-      tool_actions: toolActions && toolActions.length > 0 ? toolActions as unknown as Record<string, unknown>[] : null,
+      tool_actions: toolActions && toolActions.length > 0 ? JSON.parse(JSON.stringify(toolActions)) : null,
     });
   }, []);
 
