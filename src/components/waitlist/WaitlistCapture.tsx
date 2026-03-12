@@ -48,6 +48,11 @@ export function WaitlistCapture({ embedded, className }: WaitlistCaptureProps) {
     const [position, setPosition] = useState<number | null>(null);
     const [hasInviteCode, setHasInviteCode] = useState(false);
     const [copied, setCopied] = useState(false);
+    const [referralCode, setReferralCode] = useState<string | null>(null);
+
+    // Check for referral in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const referredBy = urlParams.get('ref') || null;
 
     const signup = useWaitlistSignup();
     const { data: stats } = useWaitlistStats();
