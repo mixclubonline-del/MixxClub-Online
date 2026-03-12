@@ -75,18 +75,7 @@ export const AudioFileImporter = () => {
         throw new Error('Track missing regions!');
       }
 
-      console.log('[AudioImporter] ✅ Track validated:', {
-        id: trackId,
-        name: newTrack.name,
-        hasBuffer: !!newTrack.audioBuffer,
-        waveformData: typeof newTrack.waveformData,
-        regionCount: newTrack.regions.length,
-      });
-
-      console.log('[AudioImporter] 📤 Adding track to store...');
       addTrack(newTrack);
-      console.log('[AudioImporter] ✅ Track added to store successfully');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
       toast({
         title: '✅ Track Imported!',

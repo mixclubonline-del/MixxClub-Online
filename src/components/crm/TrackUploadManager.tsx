@@ -215,7 +215,7 @@ export const TrackUploadManager = ({ projectId, onUploadComplete }: TrackUploadM
       // Add comment if provided
       if (comment && userId) {
         // Comments can be added to a future session if needed
-        console.log('Comment saved:', comment);
+        // Comment saved for session
       }
 
       toast.success('Track uploaded successfully! +25 points');

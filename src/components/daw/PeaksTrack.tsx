@@ -60,7 +60,7 @@ export const PeaksTrack = memo(({
         let waveformData = track.waveformData;
         
         if (!waveformData || !('multiResolution' in waveformData)) {
-          console.log('[PeaksTrack] Generating multi-resolution waveform for', track.name);
+          console.debug('[PeaksTrack] Generating multi-resolution waveform for', track.name);
           waveformData = WaveformGenerator.generateMultiResolution(track.audioBuffer!);
         }
 

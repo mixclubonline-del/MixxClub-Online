@@ -79,7 +79,7 @@ export const PluginManager: React.FC<PluginManagerProps> = ({ isOpen, onClose })
       <MixxPort 
         isOpen={activePluginWindows['mixx-port'] || false} 
         onClose={() => handleClosePluginWindow('mixx-port')}
-        onAudioLoaded={(file, analysis) => console.log('Audio loaded:', file, analysis)}
+        onAudioLoaded={(file, analysis) => { /* Audio loaded callback */ }}
       />
       <MixxEQ 
         isOpen={activePluginWindows['mixx-eq'] || false} 
