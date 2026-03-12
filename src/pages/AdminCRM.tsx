@@ -18,6 +18,8 @@ import { AdminCommunityHub } from '@/components/admin/AdminCommunityHub';
 import { AdminAssetsHub } from '@/components/admin/AdminAssetsHub';
 import { AdminSystemHub } from '@/components/admin/AdminSystemHub';
 import { AdminPrimeBrainHub } from '@/components/admin/AdminPrimeBrainHub';
+import { AdminAnalyticsDashboard } from '@/components/admin/AdminAnalyticsDashboard';
+import { BrandingManager } from '@/components/admin/BrandingManager';
 import { lazy, Suspense } from 'react';
 const PromoStudio = lazy(() => import('@/pages/PromoStudio'));
 
@@ -178,6 +180,10 @@ const AdminCRM = () => {
         return <AdminPrimeBrainHub />;
       case 'promo':
         return <Suspense fallback={null}><PromoStudio /></Suspense>;
+      case 'analytics':
+        return <AdminAnalyticsDashboard />;
+      case 'branding':
+        return <BrandingManager />;
       default:
         return <AdminDashboardHub />;
     }

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, Plus, Users, MessageSquare, Trophy, Flame, Sparkles, Radio } from 'lucide-react';
+import { Search, Plus, Users, MessageSquare, Trophy, Flame, Sparkles, Radio, Heart } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
   Select,
@@ -19,6 +19,8 @@ import { CommunityChallenges } from './CommunityChallenges';
 import { ReferralWidget } from './ReferralWidget';
 import { LiveFeed } from '@/components/live/LiveFeed';
 import { WhoToFollowWidget } from '@/components/social/WhoToFollowWidget';
+import { FanEngagementHub } from '@/components/community/FanEngagementHub';
+import { ChallengesHub } from '@/components/community/ChallengesHub';
 
 interface CommunityHubProps {
   userType: 'artist' | 'engineer';
@@ -73,6 +75,7 @@ export const CommunityHub: React.FC<CommunityHubProps> = ({ userType }) => {
                     <SelectItem value="networking">Networking</SelectItem>
                     <SelectItem value="challenges">Challenges</SelectItem>
                     <SelectItem value="leaderboard">Leaderboard</SelectItem>
+                    <SelectItem value="fans">Fan Hub</SelectItem>
                   </SelectContent>
                 </Select>
               ) : (
@@ -97,6 +100,10 @@ export const CommunityHub: React.FC<CommunityHubProps> = ({ userType }) => {
                     <Trophy className="h-4 w-4" />
                     Leaderboard
                   </TabsTrigger>
+                  <TabsTrigger value="fans" className="flex items-center gap-2">
+                    <Heart className="h-4 w-4" />
+                    Fan Hub
+                  </TabsTrigger>
                 </TabsList>
               )}
             </div>
@@ -114,11 +121,15 @@ export const CommunityHub: React.FC<CommunityHubProps> = ({ userType }) => {
             </TabsContent>
             
             <TabsContent value="challenges" className="mt-0">
-              <CommunityChallenges />
+              <ChallengesHub />
             </TabsContent>
             
             <TabsContent value="leaderboard" className="mt-0">
               <CommunityLeaderboard userType={userType} />
+            </TabsContent>
+
+            <TabsContent value="fans" className="mt-0">
+              <FanEngagementHub />
             </TabsContent>
           </Tabs>
         </div>
