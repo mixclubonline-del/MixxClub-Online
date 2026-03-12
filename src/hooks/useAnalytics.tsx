@@ -32,10 +32,7 @@ class AnalyticsService {
     }
 
     // In production, send to your analytics service
-    if (import.meta.env.PROD) {
-      // TODO: Integrate with analytics service (e.g., Google Analytics, Mixpanel, Amplitude)
-      // Example: window.gtag?.('event', eventName, properties);
-    }
+    // Production analytics integration point
   }
 
   pageView(path: string, properties?: Record<string, any>) {
