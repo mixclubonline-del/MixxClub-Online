@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
 import { 
-  User, Settings, DollarSign, AtSign, Loader2, Check, X
+  User, Settings, DollarSign, AtSign, Loader2, Check, X, Camera
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -16,6 +16,7 @@ import { OnboardingPortal } from './OnboardingPortal';
 import { OnboardingWaypoints } from './OnboardingWaypoints';
 import { OnboardingPanel } from './OnboardingPanel';
 import { OnboardingCharacterGuide } from '@/components/characters';
+import { AvatarUploadStep } from './AvatarUploadStep';
 import engineerPathImage from '@/assets/onboarding-engineer-path.jpg';
 
 const SPECIALTIES = [
@@ -45,6 +46,7 @@ interface WizardStep {
 
 const steps: WizardStep[] = [
   { id: 'profile', title: 'Profile', description: 'Professional details', icon: User },
+  { id: 'avatar', title: 'Photo', description: 'Profile picture', icon: Camera },
   { id: 'skills', title: 'Skills', description: 'Specializations', icon: Settings },
   { id: 'rates', title: 'Rates', description: 'Set pricing', icon: DollarSign },
 ];
@@ -68,6 +70,7 @@ export function EngineerOnboardingWizard() {
   const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>([]);
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const [hourlyRate, setHourlyRate] = useState(100);
+  const [avatarUrl, setAvatarUrl] = useState<string>('');
 
   // Username validation
   const { username, setUsername, isChecking, isAvailable, error: usernameError, isValid: isUsernameValid } = useUsernameValidation();
@@ -111,8 +114,9 @@ export function EngineerOnboardingWizard() {
   const canProceed = () => {
     switch (currentStep) {
       case 0: return fullName.trim().length > 0 && bio.trim().length > 20 && isUsernameValid;
-      case 1: return selectedSpecialties.length > 0 && selectedGenres.length > 0;
-      case 2: return hourlyRate >= 25;
+      case 1: return true; // Avatar is optional
+      case 2: return selectedSpecialties.length > 0 && selectedGenres.length > 0;
+      case 3: return hourlyRate >= 25;
       default: return true;
     }
   };
@@ -143,6 +147,7 @@ export function EngineerOnboardingWizard() {
           full_name: fullName,
           username: username,
           bio: bio,
+          avatar_url: avatarUrl || null,
           role: 'engineer',
           onboarding_completed: true,
           onboarding_completed_at: new Date().toISOString()
@@ -323,7 +328,17 @@ export function EngineerOnboardingWizard() {
           </div>
         )}
 
-        {currentStep === 1 && (
+        {currentStep === 1 && user && (
+          <AvatarUploadStep
+            userId={user.id}
+            currentUrl={avatarUrl || null}
+            onUploaded={setAvatarUrl}
+            accentColor="hsl(var(--accent))"
+            roleName="Engineer"
+          />
+        )}
+
+        {currentStep === 2 && (
           <div className="space-y-5">
             <div className="text-center mb-4">
               <h2 className="text-2xl font-bold mb-1">Your Expertise</h2>
@@ -376,7 +391,7 @@ export function EngineerOnboardingWizard() {
           </div>
         )}
 
-        {currentStep === 2 && (
+        {currentStep === 3 && (
           <div className="space-y-6">
             <div className="text-center mb-4">
               <h2 className="text-2xl font-bold mb-1">Set Your Rates</h2>

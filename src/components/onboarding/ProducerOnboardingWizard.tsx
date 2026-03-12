@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import {
   User, Music, CheckCircle, Sparkles, Disc3, DollarSign, Zap,
-  AtSign, Loader2, Check, X
+  AtSign, Loader2, Check, X, Camera
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -16,6 +16,7 @@ import { OnboardingPortal } from './OnboardingPortal';
 import { OnboardingWaypoints } from './OnboardingWaypoints';
 import { OnboardingPanel } from './OnboardingPanel';
 import { OnboardingCharacterGuide } from '@/components/characters';
+import { AvatarUploadStep } from './AvatarUploadStep';
 import producerPathImage from '@/assets/onboarding-engineer-path.jpg'; // Reuse engineer path for now
 
 const GENRES = [
@@ -39,6 +40,7 @@ interface WizardStep {
 
 const steps: WizardStep[] = [
   { id: 'profile', title: 'Profile', description: 'Tell us about yourself', icon: User },
+  { id: 'avatar', title: 'Photo', description: 'Profile picture', icon: Camera },
   { id: 'style', title: 'Style', description: 'What genres do you produce?', icon: Music },
   { id: 'goals', title: 'Goals', description: 'What brings you here?', icon: CheckCircle },
 ];
@@ -60,6 +62,7 @@ export function ProducerOnboardingWizard() {
   const [bio, setBio] = useState('');
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
+  const [avatarUrl, setAvatarUrl] = useState<string>('');
 
   // Username validation
   const { username, setUsername, isChecking, isAvailable, error: usernameError, isValid: isUsernameValid } = useUsernameValidation();
@@ -102,8 +105,9 @@ export function ProducerOnboardingWizard() {
   const canProceed = () => {
     switch (currentStep) {
       case 0: return fullName.trim().length > 0 && isUsernameValid;
-      case 1: return selectedGenres.length > 0;
-      case 2: return selectedGoals.length > 0;
+      case 1: return true; // Avatar optional
+      case 2: return selectedGenres.length > 0;
+      case 3: return selectedGoals.length > 0;
       default: return true;
     }
   };
@@ -134,6 +138,7 @@ export function ProducerOnboardingWizard() {
           full_name: fullName,
           username: username,
           bio: bio || `${producerName ? `${producerName} - ` : ''}Producer on MIXXCLUB`,
+          avatar_url: avatarUrl || null,
           genre_specialties: selectedGenres,
           role: 'producer',
           onboarding_completed: true,
@@ -280,7 +285,17 @@ export function ProducerOnboardingWizard() {
           </div>
         )}
 
-        {currentStep === 1 && (
+        {currentStep === 1 && user && (
+          <AvatarUploadStep
+            userId={user.id}
+            currentUrl={avatarUrl || null}
+            onUploaded={setAvatarUrl}
+            accentColor="hsl(45 90% 50%)"
+            roleName="Producer"
+          />
+        )}
+
+        {currentStep === 2 && (
           <div className="space-y-6">
             <div className="text-center mb-6">
               <h2 className="text-2xl font-bold mb-1">What's Your Production Style?</h2>
@@ -311,7 +326,7 @@ export function ProducerOnboardingWizard() {
           </div>
         )}
 
-        {currentStep === 2 && (
+        {currentStep === 3 && (
           <div className="space-y-6">
             <div className="text-center mb-6">
               <h2 className="text-2xl font-bold mb-1">What's Your Goal?</h2>

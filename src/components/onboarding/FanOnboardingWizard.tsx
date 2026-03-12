@@ -4,7 +4,7 @@
  import { Badge } from '@/components/ui/badge';
  import { 
    User, Music, Heart, Sparkles,
-   AtSign, Loader2, Check, X
+   AtSign, Loader2, Check, X, Camera
  } from 'lucide-react';
  import { useAuth } from '@/hooks/useAuth';
  import { supabase } from '@/integrations/supabase/client';
@@ -15,6 +15,7 @@
  import { OnboardingWaypoints } from './OnboardingWaypoints';
  import { OnboardingPanel } from './OnboardingPanel';
  import { OnboardingCharacterGuide } from '@/components/characters';
+ import { AvatarUploadStep } from './AvatarUploadStep';
  import fanPathImage from '@/assets/onboarding-artist-path.jpg'; // Reuse artist path for now
  
  const GENRES = [
@@ -31,6 +32,7 @@
  
  const steps: WizardStep[] = [
    { id: 'profile', title: 'Profile', description: 'Tell us about yourself', icon: User },
+   { id: 'avatar', title: 'Photo', description: 'Profile picture', icon: Camera },
    { id: 'interests', title: 'Interests', description: 'What music do you love?', icon: Music },
  ];
  
@@ -48,6 +50,7 @@
    // Form state
    const [displayName, setDisplayName] = useState(nameFromUrl || '');
    const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
+   const [avatarUrl, setAvatarUrl] = useState<string>('');
    
    // Username validation
    const { username, setUsername, isChecking, isAvailable, error: usernameError, isValid: isUsernameValid } = useUsernameValidation();
@@ -82,7 +85,8 @@
    const canProceed = () => {
      switch (currentStep) {
        case 0: return displayName.trim().length > 0 && isUsernameValid;
-       case 1: return selectedGenres.length > 0;
+       case 1: return true; // Avatar optional
+       case 2: return selectedGenres.length > 0;
        default: return true;
      }
    };
@@ -113,6 +117,7 @@
             full_name: displayName,
             username: username,
             bio: `Music lover on MIXXCLUB`,
+            avatar_url: avatarUrl || null,
             genre_specialties: selectedGenres,
             role: 'fan',
             onboarding_completed: true,
@@ -236,7 +241,17 @@
            </div>
          )}
  
-         {currentStep === 1 && (
+         {currentStep === 1 && user && (
+           <AvatarUploadStep
+             userId={user.id}
+             currentUrl={avatarUrl || null}
+             onUploaded={setAvatarUrl}
+             accentColor="hsl(330 80% 60%)"
+             roleName="Fan"
+           />
+         )}
+
+         {currentStep === 2 && (
            <div className="space-y-6">
              <div className="text-center mb-6">
                <h2 className="text-2xl font-bold mb-1">What Music Do You Love?</h2>
