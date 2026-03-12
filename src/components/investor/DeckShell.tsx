@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { SlideRenderer } from './SlideRenderer';
 import { DeckControls } from './DeckControls';
+import { PresenterNotesPanel } from './PresenterNotesPanel';
 
 const TOTAL_SLIDES = 12;
 
