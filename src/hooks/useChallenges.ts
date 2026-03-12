@@ -54,7 +54,22 @@ export function useChallengeSubmissions(challengeId: string) {
         .eq('challenge_id', challengeId)
         .order('vote_count', { ascending: false });
       if (error) throw error;
-      return (data || []) as ChallengeSubmission[];
+
+      // Fetch profiles for submitters
+      const userIds = (data || []).map((d: any) => d.user_id);
+      let profileMap = new Map<string, any>();
+      if (userIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('id, full_name, avatar_url')
+          .in('id', userIds);
+        profileMap = new Map((profiles || []).map(p => [p.id, p]));
+      }
+
+      return (data || []).map((d: any) => ({
+        ...d,
+        profile: profileMap.get(d.user_id) || undefined,
+      })) as ChallengeSubmission[];
     },
     enabled: !!challengeId,
   });
