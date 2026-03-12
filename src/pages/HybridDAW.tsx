@@ -216,7 +216,7 @@ const HybridDAW = () => {
     const initAudio = async () => {
       try {
         audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-        console.log('Audio Context initialized');
+        console.debug('Audio Context initialized');
       } catch (error) {
         console.error('Failed to initialize audio context:', error);
         toast({
