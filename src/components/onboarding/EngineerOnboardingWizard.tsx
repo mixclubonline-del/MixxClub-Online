@@ -147,6 +147,7 @@ export function EngineerOnboardingWizard() {
           full_name: fullName,
           username: username,
           bio: bio,
+          avatar_url: avatarUrl || null,
           role: 'engineer',
           onboarding_completed: true,
           onboarding_completed_at: new Date().toISOString()
