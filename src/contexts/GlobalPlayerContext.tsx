@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
 
+export type MediaType = 'audio' | 'video' | 'live';
+
 export interface Track {
   id: string;
   title: string;
@@ -9,6 +11,9 @@ export interface Track {
   artworkUrl?: string;
   duration: number;
   genre?: string;
+  mediaType?: MediaType;
+  videoUrl?: string;
+  streamUrl?: string;
 }
 
 interface PlayerState {

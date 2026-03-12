@@ -69,8 +69,7 @@ const AuthGatedOverlays = () => {
   return (
     <>
       <TutorialOverlay />
-      <GlobalAudioPlayer />
-      <GlobalMusicPlayer />
+      <UniversalMediaPlayer />
       <GlobalPrimeChat />
     </>
   );
