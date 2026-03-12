@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/select';
 import { useLaunchCampaignStats, useInviteWaves, useCreateInviteWave, useSendInviteWave, useLaunchChecklist } from '@/hooks/useLaunchCampaign';
 import { useLaunchMode, useUpdateConfig } from '@/hooks/usePlatformConfig';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 const WAVE_PLAYBOOK = [

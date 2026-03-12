@@ -197,6 +197,8 @@ const AdminCRM = () => {
         return <AdminPartnershipsHub />;
       case 'broadcast':
         return <AdminBroadcastHub />;
+      case 'launch':
+        return <AdminLaunchHub />;
       default:
         return <AdminDashboardHub />;
     }
