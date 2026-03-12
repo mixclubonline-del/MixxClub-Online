@@ -1,135 +1,73 @@
 
 
+## Elevate the `/go` Funnel — Show Mixxclub + Culture-Authentic Imagery
 
-# CRM Phase 4 Complete — Remaining Roadmap
-
-## Completed ✅
-
-### Phase 1 — Design Tokens
-- GlassPanel, HubHeader, StaggeredList, HubSkeleton, EmptyState created
-- ActiveWorkHub, StoreHub, ClientsHub migrated
-
-### Phase 2 — Critical Features  
-- NotificationsHub upgraded to GlassPanel/HubHeader + mobile Select dropdown
-- ScheduleHub upgraded to GlassPanel/HubHeader/EmptyState + mobile responsive
-- RevenueHub upgraded to GlassPanel/HubHeader + mobile Select dropdown
-- CommunityHub already mobile responsive (useIsMobile + Select)
-- MatchesHub already mobile responsive (useIsMobile)
-- CommunityStats already responsive (grid-cols-2 md:3 lg:6)
-- All 3 CRM pages (Artist/Engineer/Producer) already have notifications + schedule wired
-
-### EcosystemFlow Character Avatars
-- Already implemented with foreignObject SVG alignment
-
-### Phase 3 — UX Polish ✅
-- HubSkeleton + EmptyState standardized across ~10 hubs
-- CommunityHub, SessionsHub, CollectiveAnalytics, ClientsHub, ScheduleHub migrated to design tokens
-- Match components (AIMatchRecommendations, MatchRequests, YourMatches) standardized
-- File version timeline verified functional
-
-### Phase 4 — Advanced ✅
-- `useUserProjects` and `useUserEarnings` shared hooks created and adopted by EnhancedDashboardHub + GrowthHub
-- Producer License Builder + Promo Codes + Featured Rotation built and wired into ProducerCatalogHub
-- React.lazy() implemented for all 3 CRM pages (non-dashboard hubs)
-
-### Phase 5 — Usage Enforcement ✅
-- `useUsageEnforcement` hook: centralized tier-aware limit checking (free/starter/pro/studio)
-- `UsageLimitBanner` component: 4 severity states (normal/warning/urgent/blocked), 2 variants (banner/inline), tier badges, upgrade CTAs
-- Dashboard integration: per-feature banners for projects, audio uploads, AI matching, storage, collaborations
-- Enforcement guards wired into: CreateProjectModal, AudioUpload, useEngineerMatchingAPI, usePartnershipEarnings, useProducerPartnerships
-- 20+ unit tests covering all thresholds, variants, visibility rules, CTAs, and edge cases
-- Integration-level tests for `useUsageEnforcement` hook (tier fallback, canUseFeature, getFeatureUsage)
-
-### Phase 6 — Stripe Revenue Backend ✅
-- Schema alignment: 10 columns added to `payments`, `stripe_customer_id` on `profiles`, `engineer_id`+`stripe_transfer_id` on `payout_requests`
-- `launch_metrics` table created with admin-only RLS for revenue prediction engine
-- `aggregate_payment_to_metrics` trigger auto-increments daily revenue/payment counts
-- Webhook handlers added: `charge.refunded` (auto-reverse earnings), `invoice.payment_failed` (flag subscription + notify), `charge.dispute.created` (critical alert to all admins)
-- Backfilled `payout_requests.engineer_id` from existing `user_id`
-
-### Phase 7 — Full Site Audit ✅
-- Auth-to-dashboard flow audited: magic link, email+password, OAuth all route correctly through AuthCallback → role check → onboarding → CRM
-- Engineer profile page (/engineer/:userId) verified fully functional with real data from profiles + engineer_profiles + engineer_reviews + projects
-- Battle Tournaments page verified fully functional with real data from battle_tournaments table
-- My Certifications page verified fully functional with milestone overlay at 250 community members
-- Mobile QA pass on revenue path (home → pricing → checkout): pricing cards stack cleanly, CTAs visible
-- Fixed: PathfinderBeacon mobile positioning (bottom-24 on phones to clear mobile nav, full-width card on small screens)
-- Fixed: AuthSocialProof ticker text truncation on narrow viewports (added truncate + shrink-0)
-- Fixed: Homepage floating nav pill overflow on 375px screens (added max-w constraint)
-
-### Mobile & PWA Hardening ✅
-- PWA update prompt (service worker refresh notification)
-- PWA install prompt with localStorage 7-day persistence + iOS guidance
-- Offline indicator with pending sync count + manual Sync Now button
-- CRM offline queue wired into useCRMClients + useCRMDeals
-
-### CRM Notification Preferences ✅
-- notification_preferences table extended with 17 category×channel columns
-- NotificationPrefsPanel with matrix toggle UI
-- Integrated into NotificationsHub settings
-
-### Daily Digest ✅
-- daily-digest edge function: batches unread notifications, sends branded HTML via Resend
-- trigger-daily-digest cron function scheduled at 8 AM UTC daily
-- Respects weekly_digest_email preference toggle
+Two moves: (1) replace the weakest scene (ProofScene with its fake stats) with a **Product Showcase** that puts Mixxclub on screen and shows what separates it, and (2) generate hip-hop culture-authentic AI imagery for every scene background.
 
 ---
 
-## Phase 8 — Growth · Scale · Create · Connect
+### 1. Replace ProofScene → "This Is Mixxclub" Scene
 
-### 8A: Growth & Marketing (Ship First)
+The current ProofScene has fake vanity stats (10,000+ projects, 500+ engineers, 98% satisfaction) and a made-up testimonial. It's the weakest link. Replace it with a scene that **shows the product**.
 
-| # | Task | Files | Effort |
-|---|------|-------|--------|
-| 1 | **Referral Dashboard** — visualize referral tree, pending/completed commissions, share links with OG image preview | New: `src/components/crm/referrals/ReferralDashboard.tsx`, Edit: partner CRM pages | M |
-| 2 | **SEO Hardening** — dynamic `<SEOHead>` per route with JSON-LD (Organization, Product, FAQ schemas), canonical tags, Open Graph images for /pricing /go /economy | Edit: SEOHead, route components | S |
-| 3 | **Social Share Cards** — generate dynamic OG images for beat listings, engineer profiles, battle results using edge function + Satori | New: `supabase/functions/generate-og-image/index.ts` | M |
-| 4 | **Landing A/B Framework** — lightweight variant system using `funnel_events` to track conversion by variant, admin toggle | New: `src/hooks/useABVariant.ts`, `src/components/marketing/ABProvider.tsx` | S |
-| 5 | **Analytics Dashboard (Admin)** — funnel visualization, conversion rates, cohort retention chart, revenue per channel | New: `src/components/admin/AnalyticsDashboard.tsx` | L |
+**New `ProofScene.tsx` — "This Is Mixxclub"**
 
-### 8B: Enterprise & Scaling
+- Mixxclub 3D logo at top (the `mixxclub-3d-logo.png` asset), animated entrance
+- Headline: **"This is Mixxclub."**
+- Feature showcase — 4 key differentiators as animated cards/pills with icons:
+  - **AI Mastering** — "Velvet Curve masters your track in seconds, genre-aware"
+  - **Engineer Matching** — "Connect with real engineers who get your sound"
+  - **MixxCoinz Economy** — "Earn, spend, unlock — built for creators"
+  - **Prime AI** — "Your personal A&R, mixing coach, and career guide"
+- Each card fades in staggered (0.3s apart), with icon + short description
+- Closing line: **"Everything independent artists need. Nothing they don't."**
 
-| # | Task | Files | Effort |
-|---|------|-------|--------|
-| 1 | **API Rate Limiter v2** — sliding window per-user rate limiting with Redis-like pattern in Postgres, enforcement in edge functions | Edit: `_shared/rate-limiter.ts`, migration | M |
-| 2 | **Performance Optimization** — React.memo critical components, virtualized lists for large datasets (notifications, beat catalog), image lazy loading audit | Edit: multiple hub components | M |
-| 3 | **White-Label Config Table** — `platform_config` table for branding overrides (logo, colors, domain), resolved at app init | New: migration, `usePlatformConfig` hook | M |
-| 4 | **Bulk Operations** — batch approve/reject projects, bulk payout processing, CSV export for admin tables | Edit: admin components | M |
-| 5 | **CDN & Asset Pipeline** — storage bucket policies for public assets, signed URL generation for premium content, cache headers | Edit: storage config, edge functions | S |
+Scene order stays the same — `proof` ID stays, just the component content changes. Arc becomes:
 
-### 8C: Creator Tools
-
-| # | Task | Files | Effort |
-|---|------|-------|--------|
-| 1 | **AI Mastering Pipeline v2** — chain: upload → analyze → apply preset → preview → download, using Lovable AI for analysis + recommendations | Edit: `advanced-mastering` edge function, new UI components | L |
-| 2 | **Stem Separation UI** — upload track → separate vocals/drums/bass/other → download individual stems, powered by existing `stem-separation` edge function | New: `src/components/studio/StemSeparator.tsx` | M |
-| 3 | **Beat Marketplace Enhancements** — waveform previews on cards, instant purchase flow, license comparison modal, producer analytics | Edit: ProducerCatalogHub, beat components | M |
-| 4 | **Sample Pack Builder** — bundle beats + stems + loops into downloadable packs with pricing tiers | New: migration + UI + edge function | L |
-| 5 | **Collaboration Templates** — pre-configured session setups (vocal recording, mixing review, mastering approval) with auto-generated checklists | New: `src/components/sessions/SessionTemplates.tsx` | S |
-
-### 8D: Community & Social
-
-| # | Task | Files | Effort |
-|---|------|-------|--------|
-| 1 | **Live Stream Integration** — go-live button in sessions, viewer count, real-time chat sidebar, gift animations using existing `live_streams` + `stream_gifts` tables | New: `src/components/live/LiveStreamView.tsx` | L |
-| 2 | **Battle League Seasons** — seasonal brackets, leaderboard reset, trophy case on profiles, season pass with exclusive rewards | Edit: battle components, new migration for `battle_seasons` | L |
-| 3 | **Fan Engagement Hub** — Day 1 badge showcase, artist milestone timeline, fan leaderboard per artist, engagement streak rewards | New: `src/components/community/FanEngagementHub.tsx` | M |
-| 4 | **Enhanced Chat** — threaded replies, emoji reactions, file sharing in DMs, read receipts using existing `messages` table | Edit: messaging components | M |
-| 5 | **Community Challenges** — weekly/monthly creative challenges (remix contest, beat battle, mixing challenge) with voting + prizes | New: migration + `src/components/community/ChallengesHub.tsx` | L |
-
-### Execution Order (recommended)
-
-```
-Sprint 1 (8A.1-2 + 8B.1-2):  Referral Dashboard, SEO, Rate Limiter, Performance
-Sprint 2 (8A.3-4 + 8C.1-2):  OG Images, A/B Framework, AI Mastering v2, Stem Sep UI
-Sprint 3 (8C.3-4 + 8D.1-2):  Beat Marketplace, Sample Packs, Live Streams, Battle Seasons
-Sprint 4 (8D.3-5 + 8A.5 + 8B.3-5): Fan Hub, Chat, Challenges, Analytics, White-Label, Bulk Ops
+```text
+1. Hook     → "87% never get mixed"
+2. Answer   → "The system is broken"
+3. Proof    → "This is Mixxclub" (PRODUCT SHOWCASE)
+4. Culture  → "For Us. By Us."
+5. TryIt    → "Hear the difference"
+6. CTA      → Sign up
 ```
 
-### Acceptance Criteria
-- Every feature uses GlassPanel/HubHeader design tokens — no raw colors
-- All new tables have RLS policies
-- Mobile-first responsive at 375px
-- Zero placeholder copy (Zero Placeholder Clause)
-- Edge functions use `_shared/cors.ts` + `_shared/auth.ts`
-- Performance: no new component >50KB unbundled
+### 2. AI-Generated Hip-Hop Culture Scene Backgrounds
+
+Create an edge function `generate-promo-imagery` that generates scene-specific backgrounds using Gemini image generation and saves them to `brand_assets` with the correct `asset_context` keys (`promo_hook`, `promo_answer`, `promo_proof`, `promo_culture`, `promo_tryit`, `promo_cta`).
+
+Prompts will follow the culture doctrine: 50%+ African American, 25%+ Hispanic/Latino, streetwear, real studio/urban settings. Each scene gets a mood-matched prompt:
+
+- **Hook**: Dark, moody — artist alone in bedroom studio, unreleased tracks on screen
+- **Answer**: Broken system — artist frustrated at laptop, bills/rejection letters aesthetic
+- **Proof (Product)**: Futuristic — glowing Mixxclub-style UI on screen, studio with tech
+- **Culture**: Community — diverse group of creatives in studio, collaboration energy
+- **TryIt**: Before/after — engineer at mixing console, waveforms on monitors
+- **CTA**: Aspirational — artist on stage or in professional studio, success moment
+
+Add an admin trigger button in the existing brand asset management flow, or a standalone admin action. The `usePromoAssets` hook already picks up `brand_assets` by context key — no frontend wiring needed for display.
+
+### 3. Static Fallbacks
+
+Use existing `src/assets/promo/` images as immediate fallbacks in `SceneBackground` so scenes aren't bare while AI images generate:
+- Hook: `studio-console-hero.jpg`
+- Answer: `mixing-console-close.jpg`
+- Proof: `daw-interface-hero.jpg`
+- Culture: `collaboration-hero.jpg`
+- TryIt: `mastering-before-after.jpg`
+- CTA: `journey-cta-join.jpg`
+
+Update each scene component to import its fallback and pass it to `SceneBackground` when `asset.url` is null.
+
+### Files
+
+1. **`src/components/promo/scenes/ProofScene.tsx`** — Complete rewrite as "This Is Mixxclub" product showcase
+2. **`src/components/promo/scenes/HookScene.tsx`** — Add static fallback image
+3. **`src/components/promo/scenes/AnswerScene.tsx`** — Add static fallback image
+4. **`src/components/promo/scenes/CultureScene.tsx`** — Add static fallback image
+5. **`src/components/promo/scenes/TryItScene.tsx`** — Add static fallback image
+6. **`src/components/promo/scenes/SignupScene.tsx`** — Add static fallback image
+7. **`src/components/promo/scenes/SceneBackground.tsx`** — Accept `fallback` prop for static image when no dynamic asset
+8. **`supabase/functions/generate-promo-imagery/index.ts`** — Edge function to generate all 6 scene backgrounds via Gemini and save to `brand_assets`
+
