@@ -1,3 +1,4 @@
+// Cinematic urban+studio backgrounds v2
 import { useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, Sparkles, Music, ArrowRight, Volume2, Headphones, Loader2 } from 'lucide-react';
