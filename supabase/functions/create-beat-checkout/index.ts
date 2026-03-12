@@ -43,15 +43,15 @@
        throw new Error('Unauthorized');
      }
  
-     const token = authHeader.replace('Bearer ', '');
-     const { data: claims, error: claimsError } = await supabaseClient.auth.getClaims(token);
-     
-     if (claimsError || !claims?.claims) {
-       throw new Error('Unauthorized');
-     }
- 
-     const userId = claims.claims.sub;
-     const userEmail = claims.claims.email as string;
+      const token = authHeader.replace('Bearer ', '');
+      const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
+      
+      if (userError || !userData.user) {
+        throw new Error('Unauthorized');
+      }
+  
+      const userId = userData.user.id;
+      const userEmail = userData.user.email as string;
  
      console.log('[CREATE-BEAT-CHECKOUT] User authenticated:', userId);
  
