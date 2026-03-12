@@ -58,6 +58,20 @@ export function WaitlistCapture({ embedded, className }: WaitlistCaptureProps) {
     const { data: stats } = useWaitlistStats();
     const validateCode = useValidateInviteCode();
 
+    // Fetch launch date from platform config
+    const fromAny = (table: string) => (supabase.from as any)(table);
+    const { data: launchDate } = useQuery({
+        queryKey: ['platform-config', 'launch_date'],
+        queryFn: async () => {
+            const { data } = await fromAny('platform_config')
+                .select('value')
+                .eq('key', 'launch_date')
+                .maybeSingle();
+            return (data as any)?.value as string | null ?? null;
+        },
+        staleTime: 5 * 60 * 1000,
+    });
+
     const handleCodeValidation = async () => {
         if (!inviteCode.trim()) return;
         const result = await validateCode.mutateAsync(inviteCode);
@@ -73,10 +87,19 @@ export function WaitlistCapture({ embedded, className }: WaitlistCaptureProps) {
                 ...formData,
                 role_interest: selectedRole as WaitlistFormData['role_interest'],
                 invite_code: codeValidation?.valid ? inviteCode : undefined,
+                referral_source: referredBy ? `ref:${referredBy}` : formData.referral_source,
             });
 
             setPosition(result.position);
             setHasInviteCode(result.hasInviteCode);
+            // Fetch the referral code for this signup
+            if (result.position) {
+                const { data: signupData } = await fromAny('waitlist_signups')
+                    .select('referral_code')
+                    .eq('position', result.position)
+                    .maybeSingle();
+                if (signupData) setReferralCode((signupData as any).referral_code);
+            }
             setSubmitted(true);
         } catch {
             // Error handled by hook
