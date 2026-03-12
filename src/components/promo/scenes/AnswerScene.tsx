@@ -6,7 +6,12 @@ interface Props {
   asset: { url: string | null; isVideo: boolean };
 }
 
-const STEPS = ['Upload', 'Get Mixed', 'Release'];
+const PAIN_POINTS = [
+  { stat: '$1,200', desc: 'average cost of a single professional mix' },
+  { stat: '3 weeks', desc: 'typical turnaround from most engineers' },
+  { stat: '0 feedback', desc: 'until you get the final file back' },
+  { stat: '72%', desc: 'of artists release unfinished music' },
+];
 
 export function AnswerScene({ asset }: Props) {
   return (
@@ -17,29 +22,41 @@ export function AnswerScene({ asset }: Props) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.7 }}
-          className="rounded-2xl bg-black/60 backdrop-blur-md border border-white/10 p-8 space-y-8"
+          className="rounded-2xl bg-black/60 backdrop-blur-md border border-white/10 p-8 space-y-6"
         >
-          <p className="text-3xl sm:text-4xl font-black uppercase leading-tight text-white tracking-tight">
-            Mixxclub connects you with real engineers who mix your sound.{' '}
-            <span className="text-primary">For real.</span>
+          <p className="text-2xl sm:text-3xl font-black uppercase leading-tight text-white tracking-tight">
+            The system is{' '}
+            <span className="text-primary">broken.</span>
           </p>
 
-          <div className="flex items-center justify-center gap-4">
-            {STEPS.map((label, i) => (
-              <motion.span
-                key={label}
+          <div className="space-y-3">
+            {PAIN_POINTS.map(({ stat, desc }, i) => (
+              <motion.div
+                key={stat}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.6 + i * 0.25, duration: 0.5 }}
-                className="text-sm sm:text-base font-bold uppercase text-white/90 tracking-widest"
+                transition={{ delay: 0.5 + i * 0.3, duration: 0.5 }}
+                className="flex items-center gap-3 rounded-xl bg-white/5 border border-white/10 p-3 text-left"
               >
-                {label}
-                {i < STEPS.length - 1 && (
-                  <span className="ml-4 text-primary">→</span>
-                )}
-              </motion.span>
+                <span className="shrink-0 text-xl sm:text-2xl font-black text-primary min-w-[80px]">
+                  {stat}
+                </span>
+                <span className="text-xs sm:text-sm text-white/60 leading-snug">
+                  {desc}
+                </span>
+              </motion.div>
             ))}
           </div>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 2.0, duration: 0.6 }}
+            className="text-sm font-bold text-white/80"
+          >
+            Mixxclub was built to{' '}
+            <span className="text-primary">fix this.</span>
+          </motion.p>
         </motion.div>
       </div>
     </div>
