@@ -22,9 +22,7 @@ export const AudioFileImporter = () => {
     setIsImporting(true);
 
     try {
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('[AudioImporter] 🎵 Starting import:', file.name);
-      console.log('[AudioImporter] File size:', (file.size / 1024 / 1024).toFixed(2), 'MB');
+      console.debug('[AudioImporter] Starting import:', file.name);
       
       // Decode audio and generate waveform
       const audioContext = new AudioContext();
