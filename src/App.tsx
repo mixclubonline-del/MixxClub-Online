@@ -62,15 +62,15 @@ const MobileOnlyOverlays = () => {
   );
 };
 
-// Auth-gated overlays — only shown to logged-in users
+// Global overlays — player is available for all users; chat/tutorial remain auth-gated
 const AuthGatedOverlays = () => {
   const { user } = useAuth();
-  if (!user) return null;
+
   return (
     <>
-      <TutorialOverlay />
+      {user && <TutorialOverlay />}
       <UniversalMediaPlayer />
-      <GlobalPrimeChat />
+      {user && <GlobalPrimeChat />}
     </>
   );
 };
