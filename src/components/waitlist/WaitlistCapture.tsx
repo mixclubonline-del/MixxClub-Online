@@ -20,6 +20,10 @@ import {
 } from 'lucide-react';
 import { useWaitlistSignup, useWaitlistStats, type WaitlistFormData } from '@/hooks/useWaitlist';
 import { useValidateInviteCode } from '@/hooks/useInviteCodes';
+import { WaitlistCountdown } from '@/components/waitlist/WaitlistCountdown';
+import { ReferralTracker } from '@/components/waitlist/ReferralTracker';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import mixxclubLogo from '@/assets/mixxclub-3d-logo.png';
 
 interface WaitlistCaptureProps {
