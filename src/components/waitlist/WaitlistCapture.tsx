@@ -181,33 +181,37 @@ export function WaitlistCapture({ embedded, className }: WaitlistCaptureProps) {
                             }
                         </motion.p>
 
-                        {/* Share section */}
-                        <motion.div
-                            className="space-y-3"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.8 }}
-                        >
-                            <p className="text-sm text-muted-foreground flex items-center justify-center gap-2">
-                                <Share2 className="w-4 h-4" />
-                                Share with your people
-                            </p>
-                            <div className="flex items-center gap-2 max-w-sm mx-auto">
-                                <Input
-                                    value={shareUrl}
-                                    readOnly
-                                    className="bg-muted/30 border-border/50 text-xs"
-                                />
-                                <Button
-                                    variant="outline"
-                                    size="icon"
-                                    onClick={handleCopy}
-                                    className="shrink-0"
-                                >
-                                    {copied ? <Check className="w-4 h-4 text-primary" /> : <Copy className="w-4 h-4" />}
-                                </Button>
-                            </div>
-                        </motion.div>
+                        {/* Referral Tracker or Share */}
+                        {referralCode ? (
+                            <ReferralTracker referralCode={referralCode} position={position} />
+                        ) : (
+                            <motion.div
+                                className="space-y-3"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.8 }}
+                            >
+                                <p className="text-sm text-muted-foreground flex items-center justify-center gap-2">
+                                    <Share2 className="w-4 h-4" />
+                                    Share with your people
+                                </p>
+                                <div className="flex items-center gap-2 max-w-sm mx-auto">
+                                    <Input
+                                        value={shareUrl}
+                                        readOnly
+                                        className="bg-muted/30 border-border/50 text-xs"
+                                    />
+                                    <Button
+                                        variant="outline"
+                                        size="icon"
+                                        onClick={handleCopy}
+                                        className="shrink-0"
+                                    >
+                                        {copied ? <Check className="w-4 h-4 text-primary" /> : <Copy className="w-4 h-4" />}
+                                    </Button>
+                                </div>
+                            </motion.div>
+                        )}
                     </div>
                 </div>
             </motion.div>
