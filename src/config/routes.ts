@@ -56,6 +56,7 @@ export const ROUTES = {
   ADMIN: '/admin',
   PROMO_STUDIO: '/promo-studio',
   FINANCIAL_PROJECTIONS: '/financial-projections',
+  INVESTOR_DECK: '/investor-deck',
 
   // Onboarding
   SELECT_ROLE: '/select-role',

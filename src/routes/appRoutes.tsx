@@ -256,6 +256,9 @@ export const appRoutes = (
     <Route path="/payment-canceled" element={<PaymentCanceled />} />
     <Route path="/broadcast/:streamId" element={<ProtectedRoute><BroadcastPage /></ProtectedRoute>} />
 
+    {/* Investor Deck (admin-only, full-screen, no app layout) */}
+    <Route path="/investor-deck" element={<AdminRoute><React.Suspense fallback={null}><InvestorDeck /></React.Suspense></AdminRoute>} />
+
     {/* Enterprise demo (public) */}
     <Route path="/enterprise-demo" element={<EnterpriseDemo />} />
 
