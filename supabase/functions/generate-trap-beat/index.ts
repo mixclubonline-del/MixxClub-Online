@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import Replicate from "https://esm.sh/replicate@0.25.2";
 import { requireAuth, authErrorResponse } from '../_shared/auth.ts';
+import { safeErrorResponse } from '../_shared/error-handler.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
