@@ -108,7 +108,7 @@ export const useWebRTC = ({ sessionId, userId, onRemoteStream, onScreenShareStre
     };
 
     pc.onconnectionstatechange = () => {
-      console.log(`[WebRTC] Connection state with ${peerId}: ${pc.connectionState}`);
+      console.debug(`[WebRTC] Connection state with ${peerId}: ${pc.connectionState}`);
     };
 
     peerConnections.current.set(peerId, pc);
