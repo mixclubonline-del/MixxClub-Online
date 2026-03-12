@@ -9,8 +9,10 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useFanStats } from '@/hooks/useFanStats';
 import { useMixxWallet } from '@/hooks/useMixxWallet';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
+import { PullToRefreshIndicator } from '@/components/mobile/PullToRefreshIndicator';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -21,6 +23,7 @@ import {
   Loader2, Sparkles,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useCallback } from 'react';
 
 // ─── Time-of-day greeting ─────────────────────────────────────
 function getFanGreeting(name: string): string {
@@ -35,8 +38,15 @@ function getFanGreeting(name: string): string {
 export default function MobileFanHome() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { stats, currentTier, isLoading: statsLoading } = useFanStats();
   const { totalBalance } = useMixxWallet();
+
+  const handleRefresh = useCallback(async () => {
+    await queryClient.invalidateQueries();
+  }, [queryClient]);
+
+  const { pullDistance, isRefreshing, isReady, handlers } = usePullToRefresh({ onRefresh: handleRefresh });
 
   const firstName = (user as any)?.user_metadata?.full_name?.split(' ')[0]
     || user?.email?.split('@')[0]
@@ -94,7 +104,11 @@ export default function MobileFanHome() {
   const streakDays = stats?.engagement_streak || 0;
 
   return (
-    <div className="min-h-screen bg-background pb-24 overflow-y-auto touch-manipulation">
+    <div
+      className="min-h-screen bg-background pb-24 overflow-y-auto touch-manipulation"
+      {...handlers}
+    >
+      <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} isReady={isReady} />
       <div className="px-4 py-5 space-y-6">
 
         {/* ─── Greeting + Stats Row ─── */}

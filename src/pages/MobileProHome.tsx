@@ -8,6 +8,9 @@
 
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useQueryClient } from '@tanstack/react-query';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
+import { PullToRefreshIndicator } from '@/components/mobile/PullToRefreshIndicator';
 import { useUserEarnings } from '@/hooks/useUserEarnings';
 import { useUserProjects } from '@/hooks/useUserProjects';
 import {
@@ -29,7 +32,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 
 // ─── Time-of-day greeting ─────────────────────────────────────
 function getGreeting(name: string): string {
@@ -53,7 +56,14 @@ function getRoleBadge(role: string) {
 export default function MobileProHome() {
   const { user, activeRole } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const hasConfettied = useRef(false);
+
+  const handleRefresh = useCallback(async () => {
+    await queryClient.invalidateQueries();
+  }, [queryClient]);
+
+  const { pullDistance, isRefreshing, isReady, handlers } = usePullToRefresh({ onRefresh: handleRefresh });
 
   const role = activeRole || 'artist';
   const firstName = (user as any)?.user_metadata?.full_name?.split(' ')[0]
@@ -94,7 +104,11 @@ export default function MobileProHome() {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-24 overflow-y-auto touch-manipulation">
+    <div
+      className="min-h-screen bg-background pb-24 overflow-y-auto touch-manipulation"
+      {...handlers}
+    >
+      <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} isReady={isReady} />
       <div className="px-4 py-5 space-y-5">
 
         {/* ─── Greeting ─── */}
