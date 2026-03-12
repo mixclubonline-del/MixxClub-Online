@@ -114,8 +114,9 @@ export function EngineerOnboardingWizard() {
   const canProceed = () => {
     switch (currentStep) {
       case 0: return fullName.trim().length > 0 && bio.trim().length > 20 && isUsernameValid;
-      case 1: return selectedSpecialties.length > 0 && selectedGenres.length > 0;
-      case 2: return hourlyRate >= 25;
+      case 1: return true; // Avatar is optional
+      case 2: return selectedSpecialties.length > 0 && selectedGenres.length > 0;
+      case 3: return hourlyRate >= 25;
       default: return true;
     }
   };
