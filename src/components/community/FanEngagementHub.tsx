@@ -11,7 +11,15 @@ import { MyDay1Artists } from '@/components/day1/MyDay1Artists';
 import { useFanStats, calculateTier, getStreakMultiplier, isStreakActive } from '@/hooks/useFanStats';
 import { useDay1Status } from '@/hooks/useDay1Status';
 import { useAuth } from '@/hooks/useAuth';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 const TIER_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
   newcomer: { label: 'Newcomer', color: 'bg-muted text-muted-foreground', icon: <Star className="h-3 w-3" /> },
@@ -24,6 +32,7 @@ const TIER_CONFIG: Record<string, { label: string; color: string; icon: React.Re
 export const FanEngagementHub: React.FC = () => {
   const [activeTab, setActiveTab] = useState('day1');
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   const { stats, isLoading: statsLoading, currentTier } = useFanStats();
   const { myDay1Artists, isLoadingMyArtists, stats: day1Stats } = useDay1Status();
 
@@ -79,17 +88,30 @@ export const FanEngagementHub: React.FC = () => {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="w-full justify-start">
-          <TabsTrigger value="day1" className="flex items-center gap-1.5">
-            <Heart className="h-4 w-4" /> Day 1 Showcase
-          </TabsTrigger>
-          <TabsTrigger value="milestones" className="flex items-center gap-1.5">
-            <TrendingUp className="h-4 w-4" /> Milestones
-          </TabsTrigger>
-          <TabsTrigger value="streaks" className="flex items-center gap-1.5">
-            <Flame className="h-4 w-4" /> Streaks
-          </TabsTrigger>
-        </TabsList>
+        {isMobile ? (
+          <Select value={activeTab} onValueChange={setActiveTab}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select view" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="day1">Day 1 Showcase</SelectItem>
+              <SelectItem value="milestones">Milestones</SelectItem>
+              <SelectItem value="streaks">Streaks</SelectItem>
+            </SelectContent>
+          </Select>
+        ) : (
+          <TabsList className="w-full justify-start">
+            <TabsTrigger value="day1" className="flex items-center gap-1.5">
+              <Heart className="h-4 w-4" /> Day 1 Showcase
+            </TabsTrigger>
+            <TabsTrigger value="milestones" className="flex items-center gap-1.5">
+              <TrendingUp className="h-4 w-4" /> Milestones
+            </TabsTrigger>
+            <TabsTrigger value="streaks" className="flex items-center gap-1.5">
+              <Flame className="h-4 w-4" /> Streaks
+            </TabsTrigger>
+          </TabsList>
+        )}
 
         <TabsContent value="day1" className="mt-4">
           <MyDay1Artists limit={12} />

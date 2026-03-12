@@ -260,7 +260,7 @@ export const FanFeedHub = () => {
         </div>
 
         <Tabs value={feedTab} onValueChange={setFeedTab} className="space-y-4">
-          <TabsList className="grid grid-cols-4 w-full max-w-lg">
+          <TabsList className="grid grid-cols-2 sm:grid-cols-4 w-full max-w-lg">
             <TabsTrigger value="underground" className="text-xs gap-1">
               <Star className="w-3 h-3" />
               Underground

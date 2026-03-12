@@ -20,7 +20,15 @@ import {
   type Challenge,
 } from '@/hooks/useChallenges';
 import { useAuth } from '@/hooks/useAuth';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export const ChallengesHub: React.FC = () => {
   const [tab, setTab] = useState('active');
@@ -35,19 +43,43 @@ export const ChallengesHub: React.FC = () => {
   }
 
   return (
+    <MobileChallengesView tab={tab} setTab={setTab} active={active} upcoming={upcoming} past={past} />
+  );
+};
+
+function MobileChallengesView({ tab, setTab, active, upcoming, past }: {
+  tab: string; setTab: (v: string) => void;
+  active: Challenge[]; upcoming: Challenge[]; past: Challenge[];
+}) {
+  const isMobile = useIsMobile();
+
+  return (
     <div className="space-y-4">
       <Tabs value={tab} onValueChange={setTab}>
-        <TabsList>
-          <TabsTrigger value="active" className="flex items-center gap-1.5">
-            <Flame className="h-4 w-4" /> Active ({active.length})
-          </TabsTrigger>
-          <TabsTrigger value="upcoming" className="flex items-center gap-1.5">
-            <Clock className="h-4 w-4" /> Upcoming ({upcoming.length})
-          </TabsTrigger>
-          <TabsTrigger value="past" className="flex items-center gap-1.5">
-            <Trophy className="h-4 w-4" /> Past ({past.length})
-          </TabsTrigger>
-        </TabsList>
+        {isMobile ? (
+          <Select value={tab} onValueChange={setTab}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select view" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="active">Active ({active.length})</SelectItem>
+              <SelectItem value="upcoming">Upcoming ({upcoming.length})</SelectItem>
+              <SelectItem value="past">Past ({past.length})</SelectItem>
+            </SelectContent>
+          </Select>
+        ) : (
+          <TabsList>
+            <TabsTrigger value="active" className="flex items-center gap-1.5">
+              <Flame className="h-4 w-4" /> Active ({active.length})
+            </TabsTrigger>
+            <TabsTrigger value="upcoming" className="flex items-center gap-1.5">
+              <Clock className="h-4 w-4" /> Upcoming ({upcoming.length})
+            </TabsTrigger>
+            <TabsTrigger value="past" className="flex items-center gap-1.5">
+              <Trophy className="h-4 w-4" /> Past ({past.length})
+            </TabsTrigger>
+          </TabsList>
+        )}
 
         <TabsContent value="active" className="mt-4 space-y-4">
           {active.length === 0 ? (
