@@ -513,14 +513,11 @@ const HybridDAW = () => {
           });
         }
       } else {
-        console.log('[HybridDAW] 🎉 Import complete!');
         toast({
           title: "✅ Track Added to Timeline!",
           description: `${importedFile.fileName} • ${audioBuffer.duration.toFixed(1)}s • Multi-resolution waveform`,
         });
       }
-
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
     } catch (error) {
       console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');

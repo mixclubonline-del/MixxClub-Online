@@ -104,7 +104,7 @@ export function useReferralRedemption() {
             p_reference_id: refCode,
           });
 
-          console.log('[Referral] Successfully processed referral', { referrer: refCode, referee: newUserId });
+          console.debug('[Referral] Successfully processed referral', { referrer: refCode, referee: newUserId });
         } catch (err) {
           console.error('[Referral] Failed to process referral:', err);
         }
