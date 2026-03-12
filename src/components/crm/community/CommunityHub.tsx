@@ -121,11 +121,15 @@ export const CommunityHub: React.FC<CommunityHubProps> = ({ userType }) => {
             </TabsContent>
             
             <TabsContent value="challenges" className="mt-0">
-              <CommunityChallenges />
+              <ChallengesHub />
             </TabsContent>
             
             <TabsContent value="leaderboard" className="mt-0">
               <CommunityLeaderboard userType={userType} />
+            </TabsContent>
+
+            <TabsContent value="fans" className="mt-0">
+              <FanEngagementHub />
             </TabsContent>
           </Tabs>
         </div>

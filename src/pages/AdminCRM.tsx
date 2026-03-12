@@ -180,6 +180,10 @@ const AdminCRM = () => {
         return <AdminPrimeBrainHub />;
       case 'promo':
         return <Suspense fallback={null}><PromoStudio /></Suspense>;
+      case 'analytics':
+        return <AdminAnalyticsDashboard />;
+      case 'branding':
+        return <BrandingManager />;
       default:
         return <AdminDashboardHub />;
     }
