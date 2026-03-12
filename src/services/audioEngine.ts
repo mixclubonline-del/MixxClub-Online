@@ -574,7 +574,7 @@ class AudioEngine {
     const preset = GENRE_PRESETS[genre];
     if (preset) {
       this.master.velvetCurve.applySettings(preset);
-      console.log(`[AudioEngine] 🎨 Master genre set to: ${genre}`);
+      console.debug(`[AudioEngine] Master genre set to: ${genre}`);
     }
   }
 
