@@ -31,6 +31,7 @@ import {
   Shield,
   Megaphone,
   BarChart3,
+  Flame,
   type LucideIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -147,6 +148,7 @@ const ROLE_HUB_DEFINITIONS: Record<string, HubDefinition[]> = {
     { id: 'system', label: 'System', icon: Target, description: 'Seeding & security' },
     { id: 'prime', label: 'Prime Brain', icon: Brain, description: 'AI command center' },
     { id: 'promo', label: 'Promo Studio', icon: Rocket, description: 'Campaign engine' },
+    { id: 'launch', label: 'Launch', icon: Flame, description: 'First 100 war room' },
   ],
 };
 

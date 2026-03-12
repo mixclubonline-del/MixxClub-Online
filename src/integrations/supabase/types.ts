@@ -3725,6 +3725,45 @@ export type Database = {
         }
         Relationships: []
       }
+      invite_waves: {
+        Row: {
+          actual_sent: number
+          created_at: string
+          id: string
+          role_filter: string | null
+          sent_at: string | null
+          sent_by: string | null
+          status: string
+          target_count: number
+          wave_label: string
+          wave_number: number
+        }
+        Insert: {
+          actual_sent?: number
+          created_at?: string
+          id?: string
+          role_filter?: string | null
+          sent_at?: string | null
+          sent_by?: string | null
+          status?: string
+          target_count: number
+          wave_label: string
+          wave_number?: number
+        }
+        Update: {
+          actual_sent?: number
+          created_at?: string
+          id?: string
+          role_filter?: string | null
+          sent_at?: string | null
+          sent_by?: string | null
+          status?: string
+          target_count?: number
+          wave_label?: string
+          wave_number?: number
+        }
+        Relationships: []
+      }
       job_applications: {
         Row: {
           applicant_id: string
@@ -9699,6 +9738,7 @@ export type Database = {
           email: string
           id: string
           referral_code: string | null
+          referred_by: string | null
           role: string
           source: string | null
         }
@@ -9707,6 +9747,7 @@ export type Database = {
           email: string
           id?: string
           referral_code?: string | null
+          referred_by?: string | null
           role: string
           source?: string | null
         }
@@ -9715,6 +9756,7 @@ export type Database = {
           email?: string
           id?: string
           referral_code?: string | null
+          referred_by?: string | null
           role?: string
           source?: string | null
         }

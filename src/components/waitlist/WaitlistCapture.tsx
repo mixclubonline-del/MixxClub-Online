@@ -20,6 +20,10 @@ import {
 } from 'lucide-react';
 import { useWaitlistSignup, useWaitlistStats, type WaitlistFormData } from '@/hooks/useWaitlist';
 import { useValidateInviteCode } from '@/hooks/useInviteCodes';
+import { WaitlistCountdown } from '@/components/waitlist/WaitlistCountdown';
+import { ReferralTracker } from '@/components/waitlist/ReferralTracker';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import mixxclubLogo from '@/assets/mixxclub-3d-logo.png';
 
 interface WaitlistCaptureProps {
@@ -44,10 +48,29 @@ export function WaitlistCapture({ embedded, className }: WaitlistCaptureProps) {
     const [position, setPosition] = useState<number | null>(null);
     const [hasInviteCode, setHasInviteCode] = useState(false);
     const [copied, setCopied] = useState(false);
+    const [referralCode, setReferralCode] = useState<string | null>(null);
+
+    // Check for referral in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const referredBy = urlParams.get('ref') || null;
 
     const signup = useWaitlistSignup();
     const { data: stats } = useWaitlistStats();
     const validateCode = useValidateInviteCode();
+
+    // Fetch launch date from platform config
+    const fromAny = (table: string) => (supabase.from as any)(table);
+    const { data: launchDate } = useQuery({
+        queryKey: ['platform-config', 'launch_date'],
+        queryFn: async () => {
+            const { data } = await fromAny('platform_config')
+                .select('value')
+                .eq('key', 'launch_date')
+                .maybeSingle();
+            return (data as any)?.value as string | null ?? null;
+        },
+        staleTime: 5 * 60 * 1000,
+    });
 
     const handleCodeValidation = async () => {
         if (!inviteCode.trim()) return;
@@ -64,10 +87,19 @@ export function WaitlistCapture({ embedded, className }: WaitlistCaptureProps) {
                 ...formData,
                 role_interest: selectedRole as WaitlistFormData['role_interest'],
                 invite_code: codeValidation?.valid ? inviteCode : undefined,
+                referral_source: referredBy ? `ref:${referredBy}` : formData.referral_source,
             });
 
             setPosition(result.position);
             setHasInviteCode(result.hasInviteCode);
+            // Fetch the referral code for this signup
+            if (result.position) {
+                const { data: signupData } = await fromAny('waitlist_signups')
+                    .select('referral_code')
+                    .eq('position', result.position)
+                    .maybeSingle();
+                if (signupData) setReferralCode((signupData as any).referral_code);
+            }
             setSubmitted(true);
         } catch {
             // Error handled by hook
@@ -149,33 +181,37 @@ export function WaitlistCapture({ embedded, className }: WaitlistCaptureProps) {
                             }
                         </motion.p>
 
-                        {/* Share section */}
-                        <motion.div
-                            className="space-y-3"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.8 }}
-                        >
-                            <p className="text-sm text-muted-foreground flex items-center justify-center gap-2">
-                                <Share2 className="w-4 h-4" />
-                                Share with your people
-                            </p>
-                            <div className="flex items-center gap-2 max-w-sm mx-auto">
-                                <Input
-                                    value={shareUrl}
-                                    readOnly
-                                    className="bg-muted/30 border-border/50 text-xs"
-                                />
-                                <Button
-                                    variant="outline"
-                                    size="icon"
-                                    onClick={handleCopy}
-                                    className="shrink-0"
-                                >
-                                    {copied ? <Check className="w-4 h-4 text-primary" /> : <Copy className="w-4 h-4" />}
-                                </Button>
-                            </div>
-                        </motion.div>
+                        {/* Referral Tracker or Share */}
+                        {referralCode ? (
+                            <ReferralTracker referralCode={referralCode} position={position} />
+                        ) : (
+                            <motion.div
+                                className="space-y-3"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.8 }}
+                            >
+                                <p className="text-sm text-muted-foreground flex items-center justify-center gap-2">
+                                    <Share2 className="w-4 h-4" />
+                                    Share with your people
+                                </p>
+                                <div className="flex items-center gap-2 max-w-sm mx-auto">
+                                    <Input
+                                        value={shareUrl}
+                                        readOnly
+                                        className="bg-muted/30 border-border/50 text-xs"
+                                    />
+                                    <Button
+                                        variant="outline"
+                                        size="icon"
+                                        onClick={handleCopy}
+                                        className="shrink-0"
+                                    >
+                                        {copied ? <Check className="w-4 h-4 text-primary" /> : <Copy className="w-4 h-4" />}
+                                    </Button>
+                                </div>
+                            </motion.div>
+                        )}
                     </div>
                 </div>
             </motion.div>
@@ -377,22 +413,26 @@ export function WaitlistCapture({ embedded, className }: WaitlistCaptureProps) {
                         </Button>
                     </form>
 
-                    {/* Social proof */}
-                    {stats && stats.totalSignups > 0 && (
-                        <motion.div
-                            className="mt-6 text-center"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.5 }}
-                        >
-                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted/30 border border-border/30">
-                                <Users className="w-3.5 h-3.5 text-primary" />
-                                <span className="text-xs text-muted-foreground">
-                                    <span className="text-foreground font-semibold">{stats.totalSignups.toLocaleString()}</span> creators already signed up
-                                </span>
-                            </div>
-                        </motion.div>
-                    )}
+                    {/* Countdown + Social proof */}
+                    <div className="mt-6 space-y-4">
+                        <WaitlistCountdown launchDate={launchDate} />
+
+                        {stats && stats.totalSignups > 0 && (
+                            <motion.div
+                                className="text-center"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.5 }}
+                            >
+                                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted/30 border border-border/30">
+                                    <Users className="w-3.5 h-3.5 text-primary" />
+                                    <span className="text-xs text-muted-foreground">
+                                        <span className="text-foreground font-semibold">{stats.totalSignups.toLocaleString()}</span> creators already signed up
+                                    </span>
+                                </div>
+                            </motion.div>
+                        )}
+                    </div>
                 </div>
             </div>
         </motion.div>

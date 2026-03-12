@@ -44,6 +44,7 @@ export function useWaitlistSignup() {
                     email: data.email.toLowerCase().trim(), full_name: data.full_name || null,
                     role_interest: data.role_interest || null, social_handle: data.social_handle || null,
                     referral_source: data.referral_source || null, invite_code_used: inviteCodeUsed,
+                    referred_by: data.referral_source?.startsWith('ref:') ? data.referral_source.replace('ref:', '') : null,
                     status: inviteCodeUsed ? 'invited' : 'waiting',
                     invited_at: inviteCodeUsed ? new Date().toISOString() : null,
                 }).select('position').single();
