@@ -66,19 +66,13 @@ class ErrorLogger {
   // Log performance issues
   logPerformance(metric: string, value: number, context: Partial<ErrorContext> = {}) {
     if (import.meta.env.DEV) {
-      console.log(`⚡ Performance: ${metric} = ${value}ms`, context);
-    }
-
-    // In production, send to analytics
-    if (import.meta.env.PROD) {
-      // TODO: Send to analytics service
+      console.debug(`⚡ Performance: ${metric} = ${value}ms`, context);
     }
   }
 
-  // Log user actions for debugging
   logAction(action: string, data: any = {}) {
     if (import.meta.env.DEV) {
-      console.log(`🎯 Action: ${action}`, data);
+      console.debug(`🎯 Action: ${action}`, data);
     }
   }
 }
