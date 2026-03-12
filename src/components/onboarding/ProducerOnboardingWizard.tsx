@@ -284,7 +284,17 @@ export function ProducerOnboardingWizard() {
           </div>
         )}
 
-        {currentStep === 1 && (
+        {currentStep === 1 && user && (
+          <AvatarUploadStep
+            userId={user.id}
+            currentUrl={avatarUrl || null}
+            onUploaded={setAvatarUrl}
+            accentColor="hsl(45 90% 50%)"
+            roleName="Producer"
+          />
+        )}
+
+        {currentStep === 2 && (
           <div className="space-y-6">
             <div className="text-center mb-6">
               <h2 className="text-2xl font-bold mb-1">What's Your Production Style?</h2>
