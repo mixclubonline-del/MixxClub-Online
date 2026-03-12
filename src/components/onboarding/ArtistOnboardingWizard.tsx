@@ -16,6 +16,7 @@ import { OnboardingPortal } from './OnboardingPortal';
 import { OnboardingWaypoints } from './OnboardingWaypoints';
 import { OnboardingPanel } from './OnboardingPanel';
 import { OnboardingCharacterGuide } from '@/components/characters';
+import { AvatarUploadStep } from './AvatarUploadStep';
 import artistPathImage from '@/assets/onboarding-artist-path.jpg';
 
 const GENRES = [
