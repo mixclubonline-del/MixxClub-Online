@@ -228,7 +228,7 @@ export const appRoutes = (
       <Route path="/freemium" element={<FreemiumOverview />} />
       <Route path="/matching" element={<MatchingDashboard />} />
       <Route path="/partner-program" element={<PartnerProgram />} />
-      <Route path="/sitemap" element={<Sitemap />} />
+      
 
       {/* Public Profiles */}
       <Route path="/u/:username" element={<PublicProfile />} />
