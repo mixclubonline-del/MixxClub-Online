@@ -24,6 +24,7 @@ const DISMISS_DURATION_DAYS = 30; // Remember dismissal for 30 days
 export function CookieConsent() {
   const [showBanner, setShowBanner] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const { currentTrack } = useGlobalPlayer();
   const [preferences, setPreferences] = useState<CookiePreferences>({
     necessary: true,
     analytics: false,
