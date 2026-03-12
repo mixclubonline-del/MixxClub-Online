@@ -7,25 +7,40 @@ import { useAuth } from '@/hooks/useAuth';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useMobileDetect } from '@/hooks/useMobileDetect';
 import { MobileEnhancedNav } from '@/components/mobile/MobileEnhancedNav';
+import { MobileProNav } from '@/components/mobile/MobileProNav';
+import { MobileFanNav } from '@/components/mobile/MobileFanNav';
 import { TabletLayout } from './TabletLayout';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
 
 interface AppLayoutProps {
   children: ReactNode;
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
-  const { user } = useAuth();
+  const { user, activeRole } = useAuth();
   const isMobile = useIsMobile();
   const { deviceType } = useMobileDetect();
+  const location = useLocation();
 
-  // On phone, use mobile navigation
+  // On phone, use role-split mobile navigation
   if (deviceType === 'phone') {
+    const isFan = activeRole === 'fan';
     return (
       <>
-        <MobileEnhancedNav />
-        <main className="pb-20">
-          {children}
-        </main>
+        {isFan ? <MobileFanNav /> : <MobileProNav />}
+        <AnimatePresence mode="wait">
+          <motion.main
+            key={location.pathname}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+            className="pb-20"
+          >
+            {children}
+          </motion.main>
+        </AnimatePresence>
       </>
     );
   }
