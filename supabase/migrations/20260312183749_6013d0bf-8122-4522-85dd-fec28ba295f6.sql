@@ -1,0 +1,1 @@
+UPDATE public.brand_assets SET is_active = false WHERE asset_context IN ('promo_hook', 'promo_answer', 'promo_proof', 'promo_tryit', 'promo_culture', 'promo_cta');
