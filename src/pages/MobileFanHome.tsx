@@ -104,7 +104,11 @@ export default function MobileFanHome() {
   const streakDays = stats?.engagement_streak || 0;
 
   return (
-    <div className="min-h-screen bg-background pb-24 overflow-y-auto touch-manipulation">
+    <div
+      className="min-h-screen bg-background pb-24 overflow-y-auto touch-manipulation"
+      {...handlers}
+    >
+      <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} isReady={isReady} />
       <div className="px-4 py-5 space-y-6">
 
         {/* ─── Greeting + Stats Row ─── */}
