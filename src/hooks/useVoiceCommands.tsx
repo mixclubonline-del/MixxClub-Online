@@ -98,7 +98,6 @@ export const useVoiceCommands = (sessionId: string, userId: string) => {
     }
 
     // Voice command logging disabled (table not implemented yet)
-    console.log('Voice command:', { commandType, parameters, commandText });
 
     // Execute the command
     if (commandType !== 'unknown') {

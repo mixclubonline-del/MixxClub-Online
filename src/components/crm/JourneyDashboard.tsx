@@ -152,7 +152,7 @@ export const JourneyDashboard = ({ onNavigate }: JourneyDashboardProps) => {
                 <JourneyProgress 
                   journeyType={journey.journey_type}
                   onStepAction={(stepId) => {
-                    console.log('Step action:', stepId);
+                    // Step action handler
                   }}
                 />
               </motion.div>

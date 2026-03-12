@@ -108,7 +108,7 @@ class AudioEngine {
     this.transportStartTime = when - this.transportPausedAt;
     this.transportState = 'playing';
     
-    console.log('[AudioEngine] ▶️ Transport START from', this.transportPausedAt.toFixed(3), 's');
+    console.debug('[AudioEngine] ▶️ Transport START from', this.transportPausedAt.toFixed(3), 's');
   }
   
   /**
@@ -120,7 +120,7 @@ class AudioEngine {
     this.transportPausedAt = this.currentTime;
     this.transportState = 'paused';
     
-    console.log('[AudioEngine] ⏸ Transport PAUSE at', this.transportPausedAt.toFixed(3), 's');
+    console.debug('[AudioEngine] ⏸ Transport PAUSE at', this.transportPausedAt.toFixed(3), 's');
   }
   
   /**
@@ -130,7 +130,7 @@ class AudioEngine {
     this.transportPausedAt = 0;
     this.transportState = 'stopped';
     
-    console.log('[AudioEngine] ⏹ Transport STOP');
+    console.debug('[AudioEngine] ⏹ Transport STOP');
   }
   
   /**
@@ -142,7 +142,7 @@ class AudioEngine {
       this.transportStartTime = this.ctx.currentTime - this.transportPausedAt;
     }
     
-    console.log('[AudioEngine] ⏩ Transport SEEK to', time.toFixed(3), 's');
+    console.debug('[AudioEngine] ⏩ Transport SEEK to', time.toFixed(3), 's');
   }
 
   private workletsLoaded: boolean = false;
@@ -458,17 +458,16 @@ class AudioEngine {
   /** Initialize AudioWorklet modules for professional-grade audio processing */
   async initWorklets() {
     if (this.workletsLoaded) {
-      console.log('[AudioEngine] ✅ Worklets already loaded');
+      console.debug('[AudioEngine] Worklets already loaded');
       return;
     }
 
     try {
-      console.log('[AudioEngine] 🔧 Loading AudioWorklet modules...');
+      console.debug('[AudioEngine] Loading AudioWorklet modules...');
       await this.ctx.audioWorklet.addModule('/worklets/daw-mixer-processor.js');
       await this.ctx.audioWorklet.addModule('/worklets/daw-meter-processor.js');
       this.workletsLoaded = true;
-      console.log('[AudioEngine] ✅ AudioWorklets loaded successfully');
-      console.log('[AudioEngine] 🎵 Audio processing now running on dedicated audio thread');
+      console.debug('[AudioEngine] AudioWorklets loaded successfully');
     } catch (error) {
       console.error('[AudioEngine] ❌ Failed to load AudioWorklets:', error);
       console.warn('[AudioEngine] ⚠️ Falling back to main thread audio processing');
@@ -501,7 +500,7 @@ class AudioEngine {
     const sampleRate = 48000;
     const length = Math.ceil(durationSec * sampleRate);
     
-    console.log(`[AudioEngine] 🎬 Starting offline render: ${durationSec.toFixed(2)}s @ ${sampleRate}Hz`);
+    console.debug(`[AudioEngine] Starting offline render: ${durationSec.toFixed(2)}s @ ${sampleRate}Hz`);
     
     try {
       const offlineCtx = new OfflineAudioContext(2, length, sampleRate);
@@ -550,12 +549,12 @@ class AudioEngine {
         tracksScheduled++;
       }
       
-      console.log(`[AudioEngine] 🎚️ Scheduled ${tracksScheduled} tracks for offline render`);
+      console.debug(`[AudioEngine] Scheduled ${tracksScheduled} tracks for offline render`);
       
       // Render
       const renderedBuffer = await offlineCtx.startRendering();
       
-      console.log(`[AudioEngine] ✅ Offline render complete: ${renderedBuffer.duration.toFixed(2)}s`);
+      console.debug(`[AudioEngine] Offline render complete: ${renderedBuffer.duration.toFixed(2)}s`);
       
       return renderedBuffer;
       
@@ -575,7 +574,7 @@ class AudioEngine {
     const preset = GENRE_PRESETS[genre];
     if (preset) {
       this.master.velvetCurve.applySettings(preset);
-      console.log(`[AudioEngine] 🎨 Master genre set to: ${genre}`);
+      console.debug(`[AudioEngine] Master genre set to: ${genre}`);
     }
   }
 

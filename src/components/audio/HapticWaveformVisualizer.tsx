@@ -85,7 +85,7 @@ export const HapticWaveformVisualizer = ({
       
       setLastHapticTime(now);
     } catch (error) {
-      console.log('Haptics not available');
+      // Haptics not available on this platform
     }
   };
 
@@ -143,7 +143,7 @@ export const HapticWaveformVisualizer = ({
         try {
           await Haptics.impact({ style: ImpactStyle.Medium });
         } catch (error) {
-          console.log('Haptics not available');
+          // Haptics not available on this platform
         }
       }
     }
@@ -153,7 +153,7 @@ export const HapticWaveformVisualizer = ({
     try {
       await Haptics.impact({ style: ImpactStyle.Heavy });
     } catch (error) {
-      console.log('Haptics not available');
+      // Haptics not available on this platform
     }
   };
 

@@ -179,7 +179,7 @@ const CollaborationWorkspace: React.FC<CollaborationWorkspaceProps> = ({
     sessionId,
     userId: user?.id || '',
     onRemoteStream: (stream, peerId) => {
-      console.log('[Workspace] Received remote stream from:', peerId);
+      console.debug('[Workspace] Received remote stream from:', peerId);
       setRemoteStreams(prev => new Map(prev).set(peerId, stream));
       
       // Add stream to audio mixer for real audio routing

@@ -47,7 +47,7 @@ export const useWebRTC = ({ sessionId, userId, onRemoteStream, onScreenShareStre
     }
     
     try {
-      console.log(`[WebRTC] Sending ${message.type} to ${message.to}`);
+      console.debug(`[WebRTC] Sending ${message.type} to ${message.to}`);
       await signalingChannel.current.send({
         type: 'broadcast',
         event: 'signaling',
@@ -64,20 +64,20 @@ export const useWebRTC = ({ sessionId, userId, onRemoteStream, onScreenShareStre
       return peerConnections.current.get(peerId)!;
     }
 
-    console.log(`[WebRTC] Creating peer connection for ${peerId}`);
+    console.debug(`[WebRTC] Creating peer connection for ${peerId}`);
     const pc = new RTCPeerConnection(configuration);
 
     // Add local tracks if available
     if (localStream) {
       localStream.getTracks().forEach(track => {
-        console.log(`[WebRTC] Adding local track: ${track.kind}`);
+        console.debug(`[WebRTC] Adding local track: ${track.kind}`);
         pc.addTrack(track, localStream);
       });
     }
 
     // Handle incoming remote stream
     pc.ontrack = (event) => {
-      console.log(`[WebRTC] Received remote track from ${peerId}: ${event.track.kind}`);
+      console.debug(`[WebRTC] Received remote track from ${peerId}: ${event.track.kind}`);
       if (event.streams[0]) {
         onRemoteStream?.(event.streams[0], peerId);
       }
@@ -86,7 +86,7 @@ export const useWebRTC = ({ sessionId, userId, onRemoteStream, onScreenShareStre
     // Handle ICE candidates
     pc.onicecandidate = (event) => {
       if (event.candidate) {
-        console.log(`[WebRTC] Sending ICE candidate to ${peerId}`);
+        console.debug(`[WebRTC] Sending ICE candidate to ${peerId}`);
         sendSignalingMessage({
           type: 'ice-candidate',
           candidate: event.candidate.toJSON(),
@@ -98,7 +98,7 @@ export const useWebRTC = ({ sessionId, userId, onRemoteStream, onScreenShareStre
     };
 
     pc.oniceconnectionstatechange = () => {
-      console.log(`[WebRTC] ICE connection state with ${peerId}: ${pc.iceConnectionState}`);
+      console.debug(`[WebRTC] ICE connection state with ${peerId}: ${pc.iceConnectionState}`);
       if (pc.iceConnectionState === 'connected') {
         setConnectedPeers(prev => [...new Set([...prev, peerId])]);
       } else if (pc.iceConnectionState === 'disconnected' || pc.iceConnectionState === 'failed') {
@@ -108,7 +108,7 @@ export const useWebRTC = ({ sessionId, userId, onRemoteStream, onScreenShareStre
     };
 
     pc.onconnectionstatechange = () => {
-      console.log(`[WebRTC] Connection state with ${peerId}: ${pc.connectionState}`);
+      console.debug(`[WebRTC] Connection state with ${peerId}: ${pc.connectionState}`);
     };
 
     peerConnections.current.set(peerId, pc);
@@ -117,7 +117,7 @@ export const useWebRTC = ({ sessionId, userId, onRemoteStream, onScreenShareStre
 
   // Handle received offer
   const handleOffer = useCallback(async (peerId: string, offer: RTCSessionDescriptionInit) => {
-    console.log(`[WebRTC] Handling offer from ${peerId}`);
+    console.debug(`[WebRTC] Handling offer from ${peerId}`);
     const pc = createPeerConnection(peerId);
     
     try {
@@ -147,7 +147,7 @@ export const useWebRTC = ({ sessionId, userId, onRemoteStream, onScreenShareStre
 
   // Handle received answer
   const handleAnswer = useCallback(async (peerId: string, answer: RTCSessionDescriptionInit) => {
-    console.log(`[WebRTC] Handling answer from ${peerId}`);
+    console.debug(`[WebRTC] Handling answer from ${peerId}`);
     const pc = peerConnections.current.get(peerId);
     if (pc && pc.signalingState === 'have-local-offer') {
       try {
@@ -186,7 +186,7 @@ export const useWebRTC = ({ sessionId, userId, onRemoteStream, onScreenShareStre
   useEffect(() => {
     if (!sessionId || !userId) return;
 
-    console.log(`[WebRTC] Setting up signaling channel for session ${sessionId}`);
+    console.debug(`[WebRTC] Setting up signaling channel for session ${sessionId}`);
     
     const channel = supabase.channel(`webrtc:${sessionId}`)
       .on('broadcast', { event: 'signaling' }, async ({ payload }) => {
@@ -197,7 +197,7 @@ export const useWebRTC = ({ sessionId, userId, onRemoteStream, onScreenShareStre
         // Don't process our own messages
         if (message.from === userId) return;
         
-        console.log(`[WebRTC] Received ${message.type} from ${message.from}`);
+        console.debug(`[WebRTC] Received ${message.type} from ${message.from}`);
         
         switch (message.type) {
           case 'offer':
@@ -224,13 +224,13 @@ export const useWebRTC = ({ sessionId, userId, onRemoteStream, onScreenShareStre
         }
       })
       .subscribe((status) => {
-        console.log(`[WebRTC] Signaling channel status: ${status}`);
+        console.debug(`[WebRTC] Signaling channel status: ${status}`);
       });
 
     signalingChannel.current = channel;
 
     return () => {
-      console.log('[WebRTC] Cleaning up signaling channel');
+      console.debug('[WebRTC] Cleaning up signaling channel');
       supabase.removeChannel(channel);
       signalingChannel.current = null;
     };
@@ -239,7 +239,7 @@ export const useWebRTC = ({ sessionId, userId, onRemoteStream, onScreenShareStre
   // Initialize local media stream
   const startLocalStream = useCallback(async (options: { audio: boolean; video: boolean }) => {
     try {
-      console.log('[WebRTC] Starting local stream with options:', options);
+      console.debug('[WebRTC] Starting local stream with options:', options);
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: options.audio ? {
           echoCancellation: true,

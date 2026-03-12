@@ -21,10 +21,7 @@ class AnalyticsService {
 
     this.queue.push(event);
 
-    // Log in development
-    if (import.meta.env.DEV) {
-      console.log('📊 Analytics Event:', event);
-    }
+    // Production analytics integration point
 
     // Flush queue if it gets too large
     if (this.queue.length >= this.MAX_QUEUE_SIZE) {

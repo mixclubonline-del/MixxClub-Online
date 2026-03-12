@@ -57,7 +57,21 @@ export default function SessionDetail() {
   const [isJoining, setIsJoining] = useState(false);
 
   const isHost = user?.id === session?.host_user_id;
-  const isParticipant = false; // TODO: Check if user is a participant
+  const [isParticipant, setIsParticipant] = useState(false);
+
+  useEffect(() => {
+    if (!user?.id || !sessionId) return;
+    const checkParticipation = async () => {
+      const result = await supabase
+        .from('session_participants')
+        .select('id')
+        .eq('session_id', sessionId)
+        .eq('user_id', user.id);
+      const approved = (result.data || []).filter((p: any) => true);
+      setIsParticipant(approved.length > 0);
+    };
+    checkParticipation();
+  }, [user?.id, sessionId]);
 
   useEffect(() => {
     if (!sessionId) {

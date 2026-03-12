@@ -57,7 +57,7 @@ export const useCollaboration = ({
       wsRef.current = ws;
 
       ws.onopen = () => {
-        console.log('Connected to collaboration server');
+        console.debug('Connected to collaboration server');
         setIsConnected(true);
         setConnectionStatus('connected');
         reconnectAttempts.current = 0;
@@ -140,7 +140,7 @@ export const useCollaboration = ({
       };
 
       ws.onclose = (event) => {
-        console.log('Disconnected from collaboration server', event.code, event.reason);
+        console.debug('Disconnected from collaboration server', event.code, event.reason);
         setIsConnected(false);
         setConnectionStatus('disconnected');
         setParticipants([]);

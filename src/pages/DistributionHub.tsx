@@ -65,7 +65,7 @@ const DistributionHub = () => {
 
   const handleDistribute = (affiliateUrl: string, partnerName: string, track?: ExportedTrack) => {
     // Track the click
-    console.log(`Distribution click: ${partnerName}`, track?.id);
+    // Distribution click tracked
     
     // Mark track as distributed if provided
     if (track) {

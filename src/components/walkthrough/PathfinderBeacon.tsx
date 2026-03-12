@@ -24,9 +24,10 @@ export const PathfinderBeacon = () => {
     goToStep,
   } = usePathfinder();
 
-  // Never render on revenue-critical pages — overlays block purchase flow
+  // Never render on revenue-critical pages or when cookie consent hasn't been addressed
   const isRevenuePath = REVENUE_ROUTES.some(r => location.pathname.startsWith(r));
-  if (!isReady || !isActive || !currentStep || isRevenuePath) return null;
+  const cookieConsentHandled = Boolean(localStorage.getItem('cookieConsent') || localStorage.getItem('cookieConsentDismissedAt'));
+  if (!isReady || !isActive || !currentStep || isRevenuePath || !cookieConsentHandled) return null;
 
   // On immersive routes show beacon only when user is NOT at the step's target;
   // when they arrive at the step's target, show the full card even on immersive routes.

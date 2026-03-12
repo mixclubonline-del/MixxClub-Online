@@ -63,7 +63,7 @@ export const useVelvetCurve = (): UseVelvetCurveReturn => {
     // Note: In production, this would wire into the master chain
     // For now, we'll use it standalone and connect manually if needed
     
-    console.log('[VelvetCurve] Initialized');
+    console.debug('[VelvetCurve] Initialized');
     
     return () => {
       if (animationRef.current) {
@@ -71,7 +71,7 @@ export const useVelvetCurve = (): UseVelvetCurveReturn => {
       }
       processorRef.current?.destroy();
       analyzerRef.current?.destroy();
-      console.log('[VelvetCurve] Cleaned up');
+      console.debug('[VelvetCurve] Cleaned up');
     };
   }, []);
   

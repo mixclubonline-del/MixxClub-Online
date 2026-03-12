@@ -11,7 +11,7 @@ interface OnlineUsersData {
 
 /**
  * Query profiles with recent activity (last 15 minutes)
- * Follows Live Data First doctrine - no Math.random() simulation
+ * Single batched query instead of 3 separate HEAD requests
  */
 export const useOnlineUsers = (): OnlineUsersData => {
   const { data, isLoading, error } = useQuery({
@@ -19,40 +19,24 @@ export const useOnlineUsers = (): OnlineUsersData => {
     queryFn: async () => {
       const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
 
-      // Get total online users
-      const { count: totalCount, error: totalError } = await supabase
+      // Single query: fetch role for all active users, then count client-side
+      const { data: activeUsers, error: fetchError } = await supabase
         .from('profiles')
-        .select('id', { count: 'exact', head: true })
+        .select('role')
         .gte('last_active_at', fifteenMinutesAgo);
 
-      if (totalError) throw totalError;
+      if (fetchError) throw fetchError;
 
-      // Get online engineers
-      const { count: engineerCount, error: engineerError } = await supabase
-        .from('profiles')
-        .select('id', { count: 'exact', head: true })
-        .eq('role', 'engineer')
-        .gte('last_active_at', fifteenMinutesAgo);
-
-      if (engineerError) throw engineerError;
-
-      // Get online artists
-      const { count: artistCount, error: artistError } = await supabase
-        .from('profiles')
-        .select('id', { count: 'exact', head: true })
-        .eq('role', 'artist')
-        .gte('last_active_at', fifteenMinutesAgo);
-
-      if (artistError) throw artistError;
-
+      const list = activeUsers || [];
       return {
-        totalOnline: totalCount || 0,
-        onlineEngineers: engineerCount || 0,
-        onlineArtists: artistCount || 0,
+        totalOnline: list.length,
+        onlineEngineers: list.filter(u => u.role === 'engineer').length,
+        onlineArtists: list.filter(u => u.role === 'artist').length,
       };
     },
-    staleTime: 30000, // 30 seconds
-    refetchInterval: 60000, // Refetch every minute
+    staleTime: 60000,
+    refetchInterval: 120000,
+    refetchOnWindowFocus: false,
   });
 
   return {

@@ -194,7 +194,7 @@ export const PayoutUI: React.FC = () => {
     };
 
     const handleRetryPayout = async (payoutId: string) => {
-        console.log('Retry payout:', payoutId);
+        // Retry logic will be wired to backend
     };
 
     return (
@@ -380,7 +380,7 @@ export const PayoutUI: React.FC = () => {
                                                     key={payout.id}
                                                     payout={payout}
                                                     onRetry={() => handleRetryPayout(payout.id)}
-                                                    onView={() => console.log('View payout:', payout.id)}
+                                                    onView={() => { /* View payout detail */ }}
                                                     isLoading={payoutLoading}
                                                 />
                                             ))}

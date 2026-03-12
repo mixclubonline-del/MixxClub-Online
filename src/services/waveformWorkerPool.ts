@@ -40,7 +40,7 @@ class WaveformWorkerPool {
       this.workers.push(worker);
     }
     
-    console.log(`[WaveformPool] ✅ Initialized ${this.workerCount} workers`);
+    console.debug(`[WaveformPool] Initialized ${this.workerCount} workers`);
   }
 
   private handleWorkerMessage(data: any) {
@@ -163,7 +163,7 @@ class WaveformWorkerPool {
     this.workers = [];
     this.activeJobs.clear();
     this.queue = [];
-    console.log('[WaveformPool] ✅ Workers terminated');
+    console.debug('[WaveformPool] Workers terminated');
   }
 }
 

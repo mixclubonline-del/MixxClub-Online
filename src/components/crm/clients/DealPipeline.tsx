@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useToast } from '@/hooks/use-toast';
 import { Plus, DollarSign, TrendingUp, CheckCircle2, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,6 +26,7 @@ const STAGES = [
 
 export const DealPipeline: React.FC<DealPipelineProps> = ({ userType }) => {
   const { deals, loading: isLoading, updateDeal, deleteDeal } = useCRMDeals();
+  const { toast } = useToast();
   const [showAddDeal, setShowAddDeal] = useState(false);
   const [draggedDeal, setDraggedDeal] = useState<string | null>(null);
 
@@ -56,7 +58,13 @@ export const DealPipeline: React.FC<DealPipelineProps> = ({ userType }) => {
   };
 
   const handleEdit = (id: string) => {
-    // TODO: Open edit dialog
+    const deal = deals?.find(d => d.id === id);
+    if (!deal) return;
+    // Re-use the AddDealDialog in edit mode — for now surface a toast
+    toast({
+      title: 'Edit Deal',
+      description: `Editing "${deal.title}" — full editor launching soon.`,
+    });
   };
 
   const handleDelete = async (id: string) => {

@@ -22,33 +22,16 @@ export const AudioFileImporter = () => {
     setIsImporting(true);
 
     try {
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('[AudioImporter] 🎵 Starting import:', file.name);
-      console.log('[AudioImporter] File size:', (file.size / 1024 / 1024).toFixed(2), 'MB');
+      console.debug('[AudioImporter] Starting import:', file.name);
       
       // Decode audio and generate waveform
       const audioContext = new AudioContext();
       const arrayBuffer = await file.arrayBuffer();
       
-      console.log('[AudioImporter] 🔊 Decoding audio...');
       const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-      console.log('[AudioImporter] ✅ Audio decoded:', {
-        duration: audioBuffer.duration.toFixed(2) + 's',
-        sampleRate: audioBuffer.sampleRate + 'Hz',
-        channels: audioBuffer.numberOfChannels,
-        length: audioBuffer.length + ' samples',
-      });
 
       // Generate multi-resolution waveform data using client-side generation
-      console.log('[AudioImporter] 📊 Generating multi-resolution waveform...');
       const waveformData = WaveformGenerator.generateMultiResolution(audioBuffer);
-      console.log('[AudioImporter] ✅ Waveform generated:', {
-        peaks: waveformData.peaks.length,
-        multiResolution: !!waveformData.multiResolution,
-        low: waveformData.multiResolution?.low.length,
-        medium: waveformData.multiResolution?.medium.length,
-        high: waveformData.multiResolution?.high.length,
-      });
 
       // Create track with real audio data and waveform
       const trackId = `track-${Date.now()}`;
@@ -92,18 +75,7 @@ export const AudioFileImporter = () => {
         throw new Error('Track missing regions!');
       }
 
-      console.log('[AudioImporter] ✅ Track validated:', {
-        id: trackId,
-        name: newTrack.name,
-        hasBuffer: !!newTrack.audioBuffer,
-        waveformData: typeof newTrack.waveformData,
-        regionCount: newTrack.regions.length,
-      });
-
-      console.log('[AudioImporter] 📤 Adding track to store...');
       addTrack(newTrack);
-      console.log('[AudioImporter] ✅ Track added to store successfully');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
       toast({
         title: '✅ Track Imported!',

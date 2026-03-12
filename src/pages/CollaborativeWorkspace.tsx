@@ -77,7 +77,7 @@ export default function CollaborativeWorkspace() {
   });
 
   function handleCollaborationMessage(message: any) {
-    console.log('Collaboration message:', message);
+    console.debug('Collaboration message:', message);
 
     switch (message.type) {
       case 'playback_state':

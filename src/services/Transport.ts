@@ -87,7 +87,7 @@ export class Transport {
     this.startedAt = when - this.pausedAt;
     this.state = 'playing';
 
-    console.log('[Transport] ▶️ START from', this.pausedAt.toFixed(3), 's');
+    console.debug('[Transport] START from', this.pausedAt.toFixed(3), 's');
 
     // Notify all listeners
     this.listeners.forEach(listener => {
@@ -108,7 +108,7 @@ export class Transport {
     this.pausedAt = now - this.startedAt;
     this.state = 'paused';
 
-    console.log('[Transport] ⏸️ PAUSE at', this.pausedAt.toFixed(3), 's');
+    console.debug('[Transport] PAUSE at', this.pausedAt.toFixed(3), 's');
 
     // Notify all listeners
     this.listeners.forEach(listener => {
@@ -127,7 +127,7 @@ export class Transport {
     this.pausedAt = 0;
     this.startedAt = 0;
 
-    console.log('[Transport] ⏹️ STOP');
+    console.debug('[Transport] STOP');
 
     if (wasPlaying) {
       this.listeners.forEach(listener => {
@@ -147,7 +147,7 @@ export class Transport {
     // Clamp to valid range
     time = Math.max(0, time);
     
-    console.log('[Transport] ⏩ SEEK to', time.toFixed(3), 's (was playing:', wasPlaying, ')');
+    console.debug('[Transport] SEEK to', time.toFixed(3), 's (was playing:', wasPlaying, ')');
 
     if (wasPlaying) {
       // If playing, restart from new position

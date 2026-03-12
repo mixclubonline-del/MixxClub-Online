@@ -216,7 +216,7 @@ const HybridDAW = () => {
     const initAudio = async () => {
       try {
         audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-        console.log('Audio Context initialized');
+        console.debug('Audio Context initialized');
       } catch (error) {
         console.error('Failed to initialize audio context:', error);
         toast({
@@ -300,14 +300,11 @@ const HybridDAW = () => {
         // Decode audio and generate waveform using audioEngine context
         if (audioContextRef.current) {
           try {
-            console.log('[Recording] Decoding recorded audio...');
             await audioEngine.resume();
             const arrayBuffer = await blob.arrayBuffer();
             const audioBuffer = await audioEngine.ctx.decodeAudioData(arrayBuffer);
 
             const waveformData = await WaveformGenerator.generateMultiResolutionAsync(audioBuffer);
-
-            console.log('[Recording] Multi-resolution waveform generated (async)');
 
             // Stable IDs for region
             const regionId = `region-${Date.now()}`;
@@ -408,16 +405,6 @@ const HybridDAW = () => {
 
   // Handle imported audio file with automatic BPM detection
   const handleImportedAudio = async (importedFile: any) => {
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('[HybridDAW] 🎵 handleImportedAudio called');
-    console.log('[HybridDAW] Imported file:', {
-      fileName: importedFile.fileName,
-      fileSize: importedFile.fileSize,
-      duration: importedFile.duration,
-      hasBlob: !!importedFile.blob,
-      hasUrl: !!importedFile.url,
-    });
-
     if (!audioContextRef.current) {
       console.error('[HybridDAW] ❌ No audio context!');
       toast({
@@ -429,7 +416,7 @@ const HybridDAW = () => {
     }
 
     try {
-      console.log('[HybridDAW] 🔊 Step 1: Decoding audio...');
+      // Decode audio using audioEngine context to avoid mismatch
 
       // 1. Decode audio using audioEngine context to avoid mismatch
       await audioEngine.resume();
@@ -438,18 +425,10 @@ const HybridDAW = () => {
         ? await importedFile.blob.arrayBuffer()
         : await (await fetch(importedFile.url)).arrayBuffer();
 
-      console.log('[HybridDAW] ArrayBuffer size:', (dataBuffer.byteLength / 1024 / 1024).toFixed(2), 'MB');
-
       const audioBuffer = await audioEngine.ctx.decodeAudioData(dataBuffer.slice(0));
-      console.log('[HybridDAW] ✅ Audio decoded:', {
-        duration: audioBuffer.duration.toFixed(2) + 's',
-        channels: audioBuffer.numberOfChannels,
-        sampleRate: audioBuffer.sampleRate + 'Hz',
-        length: audioBuffer.length + ' samples',
-      });
 
       // 2. Generate multi-resolution waveform using Web Worker (PHASE 6)
-      console.log('[HybridDAW] 📊 Step 2: Generating multi-resolution waveform (async)...');
+      // Generate multi-resolution waveform using Web Worker (PHASE 6)
 
       let waveformData;
       try {
@@ -470,14 +449,11 @@ const HybridDAW = () => {
         high: waveformData.multiResolution?.high.length + ' peaks (detail)',
       });
 
-      // 3. Use stable IDs to avoid drift between track/region
-      console.log('[HybridDAW] 🏷️ Step 3: Creating track with stable IDs...');
+      // Create track with stable IDs
       const trackId = `track-${Date.now()}`;
       const regionId = `region-${Date.now()}`;
-      console.log('[HybridDAW] Generated IDs:', { trackId, regionId });
 
-      // 4. Create track with ALL audio data
-      console.log('[HybridDAW] 🎨 Step 4: Building track object...');
+      // Build track object
       const newTrack: Track = {
         id: trackId,
         name: importedFile.fileName,
@@ -515,20 +491,8 @@ const HybridDAW = () => {
         throw new Error('❌ Track missing regions after creation!');
       }
 
-      console.log('[HybridDAW] ✅ Track validation passed:', {
-        hasAudioBuffer: !!newTrack.audioBuffer,
-        waveformData: typeof newTrack.waveformData,
-        regionCount: newTrack.regions.length,
-        regionHasBuffer: !!newTrack.regions[0].audioBuffer,
-      });
-
-      console.log('[HybridDAW] 📤 Step 5: Adding track to state...');
-      const currentTrackCount = tracks.length;
       addTrack(newTrack);
-      console.log('[HybridDAW] ✅ Track added to state (was', currentTrackCount, 'tracks, now should be', currentTrackCount + 1, ')');
-
       setShowImportDialog(false);
-      console.log('[HybridDAW] ✅ Import dialog closed');
 
       // If analysis is available, update session BPM and time signature
       if (importedFile.analysis) {
@@ -536,7 +500,6 @@ const HybridDAW = () => {
 
         if (confidence > 0.6 && recommendations.sessionBpm) {
           setBpm(recommendations.sessionBpm);
-          console.log('[HybridDAW] 🎼 BPM updated to:', recommendations.sessionBpm);
 
           toast({
             title: "✅ Session Updated!",
@@ -550,14 +513,11 @@ const HybridDAW = () => {
           });
         }
       } else {
-        console.log('[HybridDAW] 🎉 Import complete!');
         toast({
           title: "✅ Track Added to Timeline!",
           description: `${importedFile.fileName} • ${audioBuffer.duration.toFixed(1)}s • Multi-resolution waveform`,
         });
       }
-
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
     } catch (error) {
       console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
