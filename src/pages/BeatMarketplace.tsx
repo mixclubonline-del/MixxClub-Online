@@ -76,8 +76,13 @@
    ).length;
  
    return (
-     <AppLayout>
-       <div className="container py-6 space-y-6">
+    <AppLayout>
+      <SEOHead
+        title="Beat Store"
+        description="Discover and license beats from talented producers on Mixxclub. Browse Hip Hop, Trap, R&B, Pop, Drill beats and more."
+        keywords="beats, beat store, buy beats, hip hop beats, trap beats, music production"
+      />
+      <div className="container py-6 space-y-6">
          {/* Header */}
          <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
            <div>

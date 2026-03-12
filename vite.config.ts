@@ -108,6 +108,7 @@ export default defineConfig(({ mode }) => ({
           'chart-vendor': ['recharts'],
           'form-vendor': ['react-hook-form', 'zod', '@hookform/resolvers'],
           'three-vendor': ['three', '@react-three/fiber', '@react-three/drei'],
+          'motion-vendor': ['framer-motion'],
           'audio-vendor': ['wavesurfer.js', 'peaks.js', 'waveform-data'],
           'ai-vendor': ['@huggingface/transformers'],
         },
