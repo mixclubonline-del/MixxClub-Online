@@ -64,7 +64,7 @@ export const useWebRTC = ({ sessionId, userId, onRemoteStream, onScreenShareStre
       return peerConnections.current.get(peerId)!;
     }
 
-    console.log(`[WebRTC] Creating peer connection for ${peerId}`);
+    console.debug(`[WebRTC] Creating peer connection for ${peerId}`);
     const pc = new RTCPeerConnection(configuration);
 
     // Add local tracks if available
