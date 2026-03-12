@@ -55,6 +55,7 @@ export const ROUTES = {
   FAN_HUB: '/fan-hub',
   ADMIN: '/admin',
   PROMO_STUDIO: '/promo-studio',
+  FINANCIAL_PROJECTIONS: '/financial-projections',
 
   // Onboarding
   SELECT_ROLE: '/select-role',

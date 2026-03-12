@@ -93,6 +93,7 @@ const PublicProfile = React.lazy(() => import("@/pages/PublicProfile"));
 
 // Promo Studio
 const PromoStudio = React.lazy(() => import("@/pages/PromoStudio"));
+const FinancialProjections = React.lazy(() => import("@/pages/FinancialProjections"));
 
 // Onboarding pages
 const RoleSelection = React.lazy(() => import("@/pages/RoleSelection"));
@@ -125,6 +126,7 @@ export const appRoutes = (
       <Route path="/fan-hub" element={<FanHub />} />
       <Route path="/admin" element={<AdminRoute><AdminCRM /></AdminRoute>} />
       <Route path="/promo-studio" element={<AdminRoute><React.Suspense fallback={null}><PromoStudio /></React.Suspense></AdminRoute>} />
+      <Route path="/financial-projections" element={<AdminRoute><React.Suspense fallback={null}><FinancialProjections /></React.Suspense></AdminRoute>} />
 
       {/* Legacy onboarding redirects → canonical standalone routes */}
       <Route path="/artist-onboarding" element={<Navigate to="/onboarding/artist" replace />} />
