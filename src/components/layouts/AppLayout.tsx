@@ -14,6 +14,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
 import { useMobileSwipeNav } from '@/hooks/useMobileSwipeNav';
 import { ROUTES } from '@/config/routes';
+import { AppOnboarding } from '@/components/mobile/AppOnboarding';
 
 interface AppLayoutProps {
   children: ReactNode;
