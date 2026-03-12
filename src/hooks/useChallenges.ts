@@ -92,9 +92,15 @@ export function useSubmitChallenge() {
       if (error) throw error;
 
       // Increment submission count
-      await fromAny('community_challenges')
-        .update({ submission_count: supabase.rpc ? undefined : undefined })
-        .eq('id', params.challengeId);
+      const { data: current } = await fromAny('community_challenges')
+        .select('submission_count')
+        .eq('id', params.challengeId)
+        .single();
+      if (current) {
+        await fromAny('community_challenges')
+          .update({ submission_count: (current as any).submission_count + 1 })
+          .eq('id', params.challengeId);
+      }
     },
     onSuccess: (_, params) => {
       queryClient.invalidateQueries({ queryKey: ['challenge-submissions', params.challengeId] });
