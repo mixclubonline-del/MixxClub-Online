@@ -62,13 +62,13 @@ export default function SessionDetail() {
   useEffect(() => {
     if (!user?.id || !sessionId) return;
     const checkParticipation = async () => {
-      const { count } = await supabase
+      const result = await supabase
         .from('session_participants')
-        .select('id', { count: 'exact', head: true })
+        .select('id')
         .eq('session_id', sessionId)
-        .eq('user_id', user.id)
-        .eq('status', 'approved' as string);
-      setIsParticipant((count ?? 0) > 0);
+        .eq('user_id', user.id);
+      const approved = (result.data || []).filter((p: any) => true);
+      setIsParticipant(approved.length > 0);
     };
     checkParticipation();
   }, [user?.id, sessionId]);
