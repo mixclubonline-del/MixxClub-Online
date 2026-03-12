@@ -38,8 +38,15 @@ function getFanGreeting(name: string): string {
 export default function MobileFanHome() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { stats, currentTier, isLoading: statsLoading } = useFanStats();
   const { totalBalance } = useMixxWallet();
+
+  const handleRefresh = useCallback(async () => {
+    await queryClient.invalidateQueries();
+  }, [queryClient]);
+
+  const { pullDistance, isRefreshing, isReady, handlers } = usePullToRefresh({ onRefresh: handleRefresh });
 
   const firstName = (user as any)?.user_metadata?.full_name?.split(' ')[0]
     || user?.email?.split('@')[0]
