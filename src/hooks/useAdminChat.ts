@@ -1,11 +1,12 @@
 /**
- * useAdminChat — Agentic Admin AI Chat with SSE Streaming + Tool Status
+ * useAdminChat — Agentic Admin AI Chat with SSE Streaming + Tool Status + Persistent Conversations
  *
  * Manages conversation state, streams responses from admin-chat-enhanced,
- * handles tool execution status events, and manages persistent memory.
+ * handles tool execution status events, manages persistent memory,
+ * and persists all conversations to the database across sessions.
  */
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
@@ -26,6 +27,13 @@ export interface ChatMessage {
   isPending?: boolean;
   isTooling?: boolean;
   toolActions?: ToolAction[];
+}
+
+export interface ConversationSummary {
+  id: string;
+  title: string;
+  updated_at: string;
+  created_at: string;
 }
 
 interface AdminChatOptions {
@@ -52,10 +60,150 @@ export function useAdminChat(options: AdminChatOptions = {}) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
   const [activeTools, setActiveTools] = useState<string[]>([]);
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [conversations, setConversations] = useState<ConversationSummary[]>([]);
+  const [conversationTitle, setConversationTitle] = useState('New Conversation');
+  const [isLoadingConversations, setIsLoadingConversations] = useState(true);
   const abortRef = useRef<AbortController | null>(null);
+  const initRef = useRef(false);
+
+  // ── Load conversation list ──
+  const fetchConversations = useCallback(async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('admin_conversations')
+      .select('id, title, updated_at, created_at')
+      .eq('user_id', user.id)
+      .order('updated_at', { ascending: false })
+      .limit(20);
+    if (data) setConversations(data);
+  }, [user]);
+
+  // ── Load messages for a conversation ──
+  const loadConversation = useCallback(async (convId: string) => {
+    const { data } = await supabase
+      .from('admin_chat_messages')
+      .select('id, role, content, tool_actions, created_at')
+      .eq('conversation_id', convId)
+      .order('created_at', { ascending: true });
+
+    if (data) {
+      const loaded: ChatMessage[] = data.map(m => ({
+        id: m.id,
+        role: m.role as 'user' | 'assistant',
+        content: m.content,
+        timestamp: new Date(m.created_at).getTime(),
+        toolActions: m.tool_actions as ToolAction[] | undefined,
+      }));
+      setMessages(loaded);
+    }
+
+    // Get title
+    const conv = conversations.find(c => c.id === convId);
+    setConversationTitle(conv?.title || 'New Conversation');
+    setConversationId(convId);
+  }, [conversations]);
+
+  // ── Create new conversation ──
+  const newConversation = useCallback(async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('admin_conversations')
+      .insert({ user_id: user.id, title: 'New Conversation' })
+      .select('id, title, updated_at, created_at')
+      .single();
+    if (data) {
+      setConversationId(data.id);
+      setConversationTitle('New Conversation');
+      setMessages([]);
+      setConversations(prev => [data, ...prev]);
+    }
+  }, [user]);
+
+  // ── Persist a message to DB ──
+  const persistMessage = useCallback(async (
+    convId: string,
+    role: 'user' | 'assistant',
+    content: string,
+    toolActions?: ToolAction[]
+  ) => {
+    await supabase.from('admin_chat_messages').insert({
+      conversation_id: convId,
+      role,
+      content,
+      tool_actions: toolActions && toolActions.length > 0 ? toolActions as unknown as Record<string, unknown>[] : null,
+    });
+  }, []);
+
+  // ── Auto-generate title from first user message ──
+  const maybeSetTitle = useCallback(async (convId: string, firstMessage: string) => {
+    const title = firstMessage.slice(0, 60) + (firstMessage.length > 60 ? '...' : '');
+    await supabase
+      .from('admin_conversations')
+      .update({ title })
+      .eq('id', convId);
+    setConversationTitle(title);
+    setConversations(prev =>
+      prev.map(c => c.id === convId ? { ...c, title } : c)
+    );
+  }, []);
+
+  // ── Init: load most recent conversation or create one ──
+  useEffect(() => {
+    if (!user || initRef.current) return;
+    initRef.current = true;
+
+    const init = async () => {
+      setIsLoadingConversations(true);
+      const { data } = await supabase
+        .from('admin_conversations')
+        .select('id, title, updated_at, created_at')
+        .eq('user_id', user.id)
+        .order('updated_at', { ascending: false })
+        .limit(20);
+
+      if (data && data.length > 0) {
+        setConversations(data);
+        // Load the most recent conversation
+        const latest = data[0];
+        setConversationId(latest.id);
+        setConversationTitle(latest.title);
+
+        const { data: msgs } = await supabase
+          .from('admin_chat_messages')
+          .select('id, role, content, tool_actions, created_at')
+          .eq('conversation_id', latest.id)
+          .order('created_at', { ascending: true });
+
+        if (msgs) {
+          setMessages(msgs.map(m => ({
+            id: m.id,
+            role: m.role as 'user' | 'assistant',
+            content: m.content,
+            timestamp: new Date(m.created_at).getTime(),
+            toolActions: m.tool_actions as ToolAction[] | undefined,
+          })));
+        }
+      } else {
+        // Create first conversation
+        const { data: newConv } = await supabase
+          .from('admin_conversations')
+          .insert({ user_id: user.id, title: 'New Conversation' })
+          .select('id, title, updated_at, created_at')
+          .single();
+        if (newConv) {
+          setConversationId(newConv.id);
+          setConversationTitle('New Conversation');
+          setConversations([newConv]);
+        }
+      }
+      setIsLoadingConversations(false);
+    };
+    init();
+  }, [user]);
 
   const sendMessage = useCallback(async (content: string) => {
-    if (!user || !content.trim() || isStreaming) return;
+    if (!user || !content.trim() || isStreaming || !conversationId) return;
 
     const userMessage: ChatMessage = {
       id: uuid(),
@@ -77,6 +225,15 @@ export function useAdminChat(options: AdminChatOptions = {}) {
     setMessages(prev => [...prev, userMessage, pendingMessage]);
     setIsStreaming(true);
     setActiveTools([]);
+
+    // Persist user message
+    persistMessage(conversationId, 'user', content.trim());
+
+    // Auto-title on first message
+    const isFirstMessage = messages.filter(m => m.role === 'user').length === 0;
+    if (isFirstMessage) {
+      maybeSetTitle(conversationId, content.trim());
+    }
 
     const controller = new AbortController();
     abortRef.current = controller;
@@ -159,7 +316,6 @@ export function useAdminChat(options: AdminChatOptions = {}) {
               };
               collectedTools.push(toolAction);
 
-              // Show tooling state
               setActiveTools(prev => [...prev, parsed.tool]);
               setMessages(prev =>
                 prev.map(m =>
@@ -184,7 +340,6 @@ export function useAdminChat(options: AdminChatOptions = {}) {
               );
             }
           } catch {
-            // Incomplete JSON — put back
             textBuffer = line + '\n' + textBuffer;
             break;
           }
@@ -207,21 +362,27 @@ export function useAdminChat(options: AdminChatOptions = {}) {
         }
       }
 
+      const finalContent = assistantContent || '(No response)';
+      const finalTools = collectedTools.length > 0 ? collectedTools : undefined;
+
       // Finalize message
       setMessages(prev =>
         prev.map(m =>
           m.id === pendingId
             ? {
               ...m,
-              content: assistantContent || '(No response)',
+              content: finalContent,
               isPending: false,
               isTooling: false,
-              toolActions: collectedTools.length > 0 ? collectedTools : undefined,
+              toolActions: finalTools,
               timestamp: Date.now(),
             }
             : m
         )
       );
+
+      // Persist assistant message
+      persistMessage(conversationId, 'assistant', finalContent, finalTools);
     } catch (error) {
       if ((error as Error).name === 'AbortError') return;
 
@@ -239,11 +400,11 @@ export function useAdminChat(options: AdminChatOptions = {}) {
       setActiveTools([]);
       abortRef.current = null;
     }
-  }, [user, messages, isStreaming, options.context]);
+  }, [user, messages, isStreaming, options.context, conversationId, persistMessage, maybeSetTitle]);
 
   const clearMessages = useCallback(() => {
-    setMessages([]);
-  }, []);
+    newConversation();
+  }, [newConversation]);
 
   const cancelStream = useCallback(() => {
     abortRef.current?.abort();
@@ -259,5 +420,13 @@ export function useAdminChat(options: AdminChatOptions = {}) {
     clearMessages,
     cancelStream,
     quickPrompts: QUICK_PROMPTS,
+    // Conversation management
+    conversationId,
+    conversationTitle,
+    conversations,
+    isLoadingConversations,
+    loadConversation,
+    newConversation,
+    refreshConversations: fetchConversations,
   };
 }
