@@ -1,4 +1,4 @@
-// Cinematic urban+studio backgrounds v2
+// Funnel backgrounds v3 — real culture photography
 import { motion } from 'framer-motion';
 import { SceneBackground } from './SceneBackground';
 import funnelHookBg from '@/assets/promo/funnel-hook-bg.jpg';
