@@ -70,6 +70,7 @@ export function EngineerOnboardingWizard() {
   const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>([]);
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const [hourlyRate, setHourlyRate] = useState(100);
+  const [avatarUrl, setAvatarUrl] = useState<string>('');
 
   // Username validation
   const { username, setUsername, isChecking, isAvailable, error: usernameError, isValid: isUsernameValid } = useUsernameValidation();
