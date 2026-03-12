@@ -230,7 +230,7 @@ export const useWebRTC = ({ sessionId, userId, onRemoteStream, onScreenShareStre
     signalingChannel.current = channel;
 
     return () => {
-      console.log('[WebRTC] Cleaning up signaling channel');
+      console.debug('[WebRTC] Cleaning up signaling channel');
       supabase.removeChannel(channel);
       signalingChannel.current = null;
     };
