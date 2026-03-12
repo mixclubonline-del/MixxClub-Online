@@ -8,9 +8,10 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useMobileDetect } from '@/hooks/useMobileDetect';
 import { MobileProNav } from '@/components/mobile/MobileProNav';
 import { MobileFanNav } from '@/components/mobile/MobileFanNav';
+import { MobileTopBar } from '@/components/mobile/MobileTopBar';
 import { TabletLayout } from './TabletLayout';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useMobileSwipeNav } from '@/hooks/useMobileSwipeNav';
 import { ROUTES } from '@/config/routes';
 
