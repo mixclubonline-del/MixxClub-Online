@@ -40,7 +40,7 @@ class WaveformWorkerPool {
       this.workers.push(worker);
     }
     
-    console.log(`[WaveformPool] ✅ Initialized ${this.workerCount} workers`);
+    console.debug(`[WaveformPool] Initialized ${this.workerCount} workers`);
   }
 
   private handleWorkerMessage(data: any) {
