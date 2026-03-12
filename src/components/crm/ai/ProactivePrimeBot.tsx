@@ -43,6 +43,7 @@ interface ProactivePrimeBotProps {
 
 export const ProactivePrimeBot = ({ userType, onNavigate }: ProactivePrimeBotProps) => {
   const { user } = useAuth();
+  const { isPhone } = useBreakpoint();
   const [insights, setInsights] = useState<ProactiveInsight[]>([]);
   const [currentInsight, setCurrentInsight] = useState<ProactiveInsight | null>(null);
   const [isVisible, setIsVisible] = useState(false);
