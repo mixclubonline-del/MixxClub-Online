@@ -176,6 +176,12 @@ export default function MerchStore() {
   );
 
   return (
+    <>
+    <SEOHead
+      title="Merch Store"
+      description="Official Mixxclub merchandise. Apparel, accessories, and limited-edition drops from your favorite artists and producers."
+      keywords="mixxclub merch, music merch, artist merchandise, streetwear, music apparel"
+    />
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
         <div>
