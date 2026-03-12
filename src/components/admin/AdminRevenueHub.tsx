@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   DollarSign, TrendingUp, CreditCard, ArrowUpRight, AlertTriangle,
-  RefreshCw, Shield, BarChart3, Users, Loader2, ArrowDownRight, Receipt
+  RefreshCw, Shield, BarChart3, Users, Loader2, ArrowDownRight, Receipt, Zap
 } from 'lucide-react';
+import { AdminStripeCommandCenter } from './AdminStripeCommandCenter';
 import { format, subDays, startOfDay } from 'date-fns';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
