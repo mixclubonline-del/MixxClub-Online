@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { SlideRenderer } from './SlideRenderer';
 import { DeckControls } from './DeckControls';
+import { PresenterNotesPanel } from './PresenterNotesPanel';
 
 const TOTAL_SLIDES = 12;
 
@@ -9,6 +10,7 @@ export function DeckShell() {
   const [direction, setDirection] = useState(1);
   const [scale, setScale] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showNotes, setShowNotes] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const goTo = useCallback((index: number) => {
@@ -26,6 +28,7 @@ export function DeckShell() {
       if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
       if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
       if (e.key === 'Escape' && isFullscreen) document.exitFullscreen?.();
+      if (e.key === 'n' || e.key === 'N') { e.preventDefault(); setShowNotes(s => !s); }
       if (e.key === 'f' || e.key === 'F') {
         e.preventDefault();
         if (!document.fullscreenElement) {
@@ -93,6 +96,13 @@ export function DeckShell() {
           <div className="w-1/3 h-full cursor-e-resize" onClick={next} />
         </div>
       </div>
+
+      {/* Notes panel */}
+      <PresenterNotesPanel
+        slideIndex={currentSlide}
+        isOpen={showNotes}
+        onToggle={() => setShowNotes(s => !s)}
+      />
 
       {/* Controls */}
       <DeckControls
