@@ -48,11 +48,11 @@ serve(async (req) => {
       .single();
 
     if (paymentError || !payment) {
-      throw new Error('Payment not found');
+      throw new AppError('Payment not found', 404);
     }
 
     if (payment.status === 'refunded') {
-      throw new Error('Payment already refunded');
+      throw new AppError('Payment already refunded', 400);
     }
 
     const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
