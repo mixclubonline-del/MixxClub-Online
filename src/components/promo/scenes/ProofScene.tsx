@@ -1,4 +1,4 @@
-// Cinematic urban+studio backgrounds v2
+// Funnel backgrounds v3 — real culture photography
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SceneBackground } from './SceneBackground';
