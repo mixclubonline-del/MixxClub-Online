@@ -143,7 +143,7 @@ export const HapticWaveformVisualizer = ({
         try {
           await Haptics.impact({ style: ImpactStyle.Medium });
         } catch (error) {
-          console.log('Haptics not available');
+          // Haptics not available on this platform
         }
       }
     }
