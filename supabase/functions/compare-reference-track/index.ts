@@ -136,11 +136,7 @@ Return as JSON: {
     return new Response(JSON.stringify({ comparison }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
-  } catch (error: any) {
-    console.error('Error in compare-reference-track:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+  } catch (error) {
+    return safeErrorResponse(error, corsHeaders);
   }
 });

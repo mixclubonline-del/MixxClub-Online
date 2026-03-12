@@ -103,25 +103,6 @@ serve(async (req) => {
       }
     );
   } catch (error) {
-    console.error("Error creating add-on payment:", error);
-    
-    if (error instanceof z.ZodError) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid input', details: error.errors }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
-      );
-    }
-    
-    if (error instanceof Error && error.message === 'Service not found') {
-      return new Response(
-        JSON.stringify({ error: 'Service not found' }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 404 }
-      );
-    }
-    
-    return new Response(
-      JSON.stringify({ error: 'Payment processing failed' }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
-    );
+    return safeErrorResponse(error, corsHeaders);
   }
 });

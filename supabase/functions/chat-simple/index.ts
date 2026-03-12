@@ -82,15 +82,6 @@ Always structure responses with:
       }
     );
   } catch (error) {
-    console.error("Chat error:", error);
-    return new Response(
-      JSON.stringify({
-        error: error instanceof Error ? error.message : "Unknown error"
-      }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
-    );
+    return safeErrorResponse(error, corsHeaders);
   }
 });
