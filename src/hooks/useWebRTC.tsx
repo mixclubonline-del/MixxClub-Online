@@ -98,7 +98,7 @@ export const useWebRTC = ({ sessionId, userId, onRemoteStream, onScreenShareStre
     };
 
     pc.oniceconnectionstatechange = () => {
-      console.log(`[WebRTC] ICE connection state with ${peerId}: ${pc.iceConnectionState}`);
+      console.debug(`[WebRTC] ICE connection state with ${peerId}: ${pc.iceConnectionState}`);
       if (pc.iceConnectionState === 'connected') {
         setConnectedPeers(prev => [...new Set([...prev, peerId])]);
       } else if (pc.iceConnectionState === 'disconnected' || pc.iceConnectionState === 'failed') {
