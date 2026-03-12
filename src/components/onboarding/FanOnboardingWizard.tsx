@@ -31,6 +31,7 @@
  
  const steps: WizardStep[] = [
    { id: 'profile', title: 'Profile', description: 'Tell us about yourself', icon: User },
+   { id: 'avatar', title: 'Photo', description: 'Profile picture', icon: Camera },
    { id: 'interests', title: 'Interests', description: 'What music do you love?', icon: Music },
  ];
  
