@@ -81,7 +81,7 @@ export function EngineerOnboardingWizard() {
         .from('profiles')
         .select('onboarding_completed, username')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
       
       if (profile?.onboarding_completed || profile?.username) {
         // Already completed, redirect to CRM
@@ -138,15 +138,15 @@ export function EngineerOnboardingWizard() {
     try {
       const { error: profileError } = await supabase
         .from('profiles')
-        .update({
+        .upsert({
+          id: user.id,
           full_name: fullName,
           username: username,
           bio: bio,
           role: 'engineer',
           onboarding_completed: true,
           onboarding_completed_at: new Date().toISOString()
-        })
-        .eq('id', user.id);
+        }, { onConflict: 'id' });
 
       if (profileError) throw profileError;
 

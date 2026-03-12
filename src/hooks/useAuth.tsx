@@ -19,39 +19,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// ─── Dev Auth Bypass ───────────────────────────────────────────────────
-// Only allow bypass in development and explicit debug contexts (never production)
-const PREVIEW_TOKEN_BYPASS = (() => {
-  if (!import.meta.env.DEV || typeof window === 'undefined') return false;
-
-  const params = new URLSearchParams(window.location.search);
-  const hasPreviewToken = params.has('__lovable_token');
-  const path = window.location.pathname;
-  const isOnboardingPath = path.startsWith('/onboarding/') || path === '/select-role';
-
-  return hasPreviewToken && isOnboardingPath;
-})();
-
-const DEV_AUTH_BYPASS = import.meta.env.DEV && (
-  import.meta.env.VITE_DEV_AUTH_BYPASS === 'true' || PREVIEW_TOKEN_BYPASS
-);
-
-const DEV_MOCK_USER = {
-  id: '00000000-0000-4000-8000-000000000000',
-  email: 'dev@mixxclub.local',
-  app_metadata: {},
-  user_metadata: { full_name: 'Dev User' },
-  aud: 'authenticated',
-  created_at: new Date().toISOString(),
-} as unknown as User;
-
-const DEV_MOCK_SESSION = {
-  access_token: 'dev-bypass-token',
-  refresh_token: 'dev-bypass-refresh',
-  expires_in: 999999,
-  token_type: 'bearer',
-  user: DEV_MOCK_USER,
-} as unknown as Session;
 // ────────────────────────────────────────────────────────────────────────
 
 /** Resolve roles from user_roles table and return derived state */
@@ -87,15 +54,13 @@ async function resolveRoles(userId: string): Promise<{
 }
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const isBypass = DEV_AUTH_BYPASS;
-
-  const [user, setUser] = useState<User | null>(isBypass ? DEV_MOCK_USER : null);
-  const [session, setSession] = useState<Session | null>(isBypass ? DEV_MOCK_SESSION : null);
-  const [loading, setLoading] = useState(!isBypass);
-  const [userRole, setUserRole] = useState<AppRole | null>(isBypass ? 'producer' : null);
-  const [userRoles, setUserRoles] = useState<AppRole[]>(isBypass ? ['producer', 'engineer', 'artist'] : []);
-  const [activeRole, setActiveRoleState] = useState<AppRole | null>(isBypass ? 'producer' : null);
-  const [isHybridUser, setIsHybridUser] = useState(isBypass);
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [userRole, setUserRole] = useState<AppRole | null>(null);
+  const [userRoles, setUserRoles] = useState<AppRole[]>([]);
+  const [activeRole, setActiveRoleState] = useState<AppRole | null>(null);
+  const [isHybridUser, setIsHybridUser] = useState(false);
   const isMounted = useRef(true);
 
   /** Apply resolved role state */
@@ -116,13 +81,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     isMounted.current = true;
-
-    if (isBypass) {
-      setLoading(false);
-      return () => {
-        isMounted.current = false;
-      };
-    }
 
     // 1. Listener for ONGOING auth changes (after initial load)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -170,10 +128,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       isMounted.current = false;
       subscription.unsubscribe();
     };
-  }, [isBypass]);
+  }, []);
 
   const handleSetActiveRole = (role: AppRole) => {
-    if (isBypass) return;
     if (userRoles.includes(role)) {
       setActiveRoleState(role);
       setUserRole(role);
@@ -182,17 +139,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   /** Re-fetch roles from the database (call after role insertion) */
   const refreshRoles = async () => {
-    if (isBypass || !user) return;
+    if (!user) return;
     const result = await resolveRoles(user.id);
     if (isMounted.current) applyRoles(result);
   };
 
   const signOut = async () => {
-    if (isBypass) {
-      window.location.href = '/auth';
-      return;
-    }
-
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);

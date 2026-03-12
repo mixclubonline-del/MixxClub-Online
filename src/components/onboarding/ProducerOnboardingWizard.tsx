@@ -73,7 +73,7 @@ export function ProducerOnboardingWizard() {
         .from('profiles')
         .select('onboarding_completed, username')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
       if (profile?.onboarding_completed || profile?.username) {
         navigate('/producer-crm');
@@ -129,7 +129,8 @@ export function ProducerOnboardingWizard() {
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({
+        .upsert({
+          id: user.id,
           full_name: fullName,
           username: username,
           bio: bio || `${producerName ? `${producerName} - ` : ''}Producer on MIXXCLUB`,
@@ -137,8 +138,7 @@ export function ProducerOnboardingWizard() {
           role: 'producer',
           onboarding_completed: true,
           onboarding_completed_at: new Date().toISOString()
-        })
-        .eq('id', user.id);
+        }, { onConflict: 'id' });
 
       if (error) throw error;
 
