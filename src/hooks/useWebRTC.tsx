@@ -77,7 +77,7 @@ export const useWebRTC = ({ sessionId, userId, onRemoteStream, onScreenShareStre
 
     // Handle incoming remote stream
     pc.ontrack = (event) => {
-      console.log(`[WebRTC] Received remote track from ${peerId}: ${event.track.kind}`);
+      console.debug(`[WebRTC] Received remote track from ${peerId}: ${event.track.kind}`);
       if (event.streams[0]) {
         onRemoteStream?.(event.streams[0], peerId);
       }
