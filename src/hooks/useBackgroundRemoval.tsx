@@ -64,12 +64,8 @@ export function useBackgroundRemoval() {
       if (!ctx) throw new Error("Could not get canvas context");
 
       const wasResized = resizeImageIfNeeded(canvas, ctx, imageElement);
-      console.log(
-        `Image ${wasResized ? "was" : "was not"} resized. Final dimensions: ${canvas.width}x${canvas.height}`
-      );
 
       const imageData = canvas.toDataURL("image/jpeg", 0.8);
-      console.log("Processing with segmentation model...");
 
       const result = await segmenter(imageData);
 
