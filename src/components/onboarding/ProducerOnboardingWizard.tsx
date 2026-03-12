@@ -61,6 +61,7 @@ export function ProducerOnboardingWizard() {
   const [bio, setBio] = useState('');
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
+  const [avatarUrl, setAvatarUrl] = useState<string>('');
 
   // Username validation
   const { username, setUsername, isChecking, isAvailable, error: usernameError, isValid: isUsernameValid } = useUsernameValidation();
