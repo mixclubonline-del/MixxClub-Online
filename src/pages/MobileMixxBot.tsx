@@ -1,8 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
-import { MobileEnhancedNav } from '@/components/mobile/MobileEnhancedNav';
 import { EnhancedMobileMixxBot } from '@/components/mobile/EnhancedMobileMixxBot';
 
 export default function MobileMixxBot() {
@@ -30,7 +28,6 @@ export default function MobileMixxBot() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <MobileEnhancedNav />
       <div className="flex-1 overflow-auto touch-manipulation">
         <EnhancedMobileMixxBot />
       </div>
