@@ -38,7 +38,7 @@ const SessionCommandCenter = lazy(() => import('@/components/crm/sessions/Sessio
 const ActiveWorkHub = lazy(() => import('@/components/crm/ActiveWorkHub').then(m => ({ default: m.ActiveWorkHub })));
 const MessagingHub = lazy(() => import('@/components/crm/messaging/MessagingHub').then(m => ({ default: m.MessagingHub })));
 const CollaborativeEarnings = lazy(() => import('@/components/crm/CollaborativeEarnings').then(m => ({ default: m.CollaborativeEarnings })));
-const CommunityHub = lazy(() => import('@/components/crm/CommunityHub').then(m => ({ default: m.CommunityHub })));
+const CommunityHub = lazy(() => import('@/components/crm/community').then(m => ({ default: m.CommunityHub })));
 const GrowthHub = lazy(() => import('@/components/crm/GrowthHub').then(m => ({ default: m.GrowthHub })));
 const BrandHub = lazy(() => import('@/components/crm/BrandHub').then(m => ({ default: m.BrandHub })));
 const RevenueHub = lazy(() => import('@/components/crm/RevenueHub').then(m => ({ default: m.RevenueHub })));

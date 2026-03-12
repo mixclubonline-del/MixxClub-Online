@@ -50,11 +50,26 @@ export function useChallengeSubmissions(challengeId: string) {
     queryKey: ['challenge-submissions', challengeId],
     queryFn: async () => {
       const { data, error } = await fromAny('challenge_submissions')
-        .select('*, profile:profiles!challenge_submissions_user_id_fkey(full_name, avatar_url)')
+        .select('*')
         .eq('challenge_id', challengeId)
         .order('vote_count', { ascending: false });
       if (error) throw error;
-      return (data || []) as ChallengeSubmission[];
+
+      // Fetch profiles for submitters
+      const userIds = (data || []).map((d: any) => d.user_id);
+      let profileMap = new Map<string, any>();
+      if (userIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('id, full_name, avatar_url')
+          .in('id', userIds);
+        profileMap = new Map((profiles || []).map(p => [p.id, p]));
+      }
+
+      return (data || []).map((d: any) => ({
+        ...d,
+        profile: profileMap.get(d.user_id) || undefined,
+      })) as ChallengeSubmission[];
     },
     enabled: !!challengeId,
   });
@@ -77,9 +92,15 @@ export function useSubmitChallenge() {
       if (error) throw error;
 
       // Increment submission count
-      await fromAny('community_challenges')
-        .update({ submission_count: supabase.rpc ? undefined : undefined })
-        .eq('id', params.challengeId);
+      const { data: current } = await fromAny('community_challenges')
+        .select('submission_count')
+        .eq('id', params.challengeId)
+        .single();
+      if (current) {
+        await fromAny('community_challenges')
+          .update({ submission_count: (current as any).submission_count + 1 })
+          .eq('id', params.challengeId);
+      }
     },
     onSuccess: (_, params) => {
       queryClient.invalidateQueries({ queryKey: ['challenge-submissions', params.challengeId] });

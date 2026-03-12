@@ -11,7 +11,7 @@ import {
 import { motion } from 'framer-motion';
 
 interface NetworkingSectionProps {
-  userType: 'artist' | 'engineer';
+  userType: 'artist' | 'engineer' | 'producer';
   searchQuery: string;
 }
 

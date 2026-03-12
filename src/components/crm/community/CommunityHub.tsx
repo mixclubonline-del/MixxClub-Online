@@ -23,7 +23,7 @@ import { FanEngagementHub } from '@/components/community/FanEngagementHub';
 import { ChallengesHub } from '@/components/community/ChallengesHub';
 
 interface CommunityHubProps {
-  userType: 'artist' | 'engineer';
+  userType: 'artist' | 'engineer' | 'producer';
 }
 
 export const CommunityHub: React.FC<CommunityHubProps> = ({ userType }) => {

@@ -6063,6 +6063,27 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_config: {
+        Row: {
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json | null
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json | null
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json | null
+        }
+        Relationships: []
+      }
       playlist_tracks: {
         Row: {
           added_at: string | null
