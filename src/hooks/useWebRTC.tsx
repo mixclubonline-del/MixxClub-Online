@@ -70,7 +70,7 @@ export const useWebRTC = ({ sessionId, userId, onRemoteStream, onScreenShareStre
     // Add local tracks if available
     if (localStream) {
       localStream.getTracks().forEach(track => {
-        console.log(`[WebRTC] Adding local track: ${track.kind}`);
+        console.debug(`[WebRTC] Adding local track: ${track.kind}`);
         pc.addTrack(track, localStream);
       });
     }
