@@ -11,7 +11,7 @@ import {
   Award,
   Brain,
 } from "lucide-react";
-import { Helmet } from "react-helmet-async";
+import { SEOHead } from "@/components/SEOHead";
 import { ServiceRoomView } from "@/components/services/ServiceRoomView";
 import { ShowcaseFeature } from "@/components/services/ShowcaseFeature";
 import { MasteringPackages } from "@/components/mastering/MasteringPackages";
