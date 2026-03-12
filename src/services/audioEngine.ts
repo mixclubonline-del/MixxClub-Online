@@ -142,7 +142,7 @@ class AudioEngine {
       this.transportStartTime = this.ctx.currentTime - this.transportPausedAt;
     }
     
-    console.log('[AudioEngine] ⏩ Transport SEEK to', time.toFixed(3), 's');
+    console.debug('[AudioEngine] ⏩ Transport SEEK to', time.toFixed(3), 's');
   }
 
   private workletsLoaded: boolean = false;
