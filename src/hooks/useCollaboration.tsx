@@ -140,7 +140,7 @@ export const useCollaboration = ({
       };
 
       ws.onclose = (event) => {
-        console.log('Disconnected from collaboration server', event.code, event.reason);
+        console.debug('Disconnected from collaboration server', event.code, event.reason);
         setIsConnected(false);
         setConnectionStatus('disconnected');
         setParticipants([]);

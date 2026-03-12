@@ -49,7 +49,7 @@ export const useExecutionTime = (fn: () => void, dependencies: any[], label: str
     const end = performance.now();
     
     if (import.meta.env.DEV) {
-      console.log(`⏱️ ${label}: ${(end - start).toFixed(2)}ms`);
+      console.debug(`⏱️ ${label}: ${(end - start).toFixed(2)}ms`);
     }
   }, dependencies);
 };
