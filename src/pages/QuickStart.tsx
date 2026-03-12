@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { SEOHead } from '@/components/SEOHead';
 import { useNavigate } from 'react-router-dom';
 import { Disc3, Mic2, Headphones, Heart, Upload, UserCircle, Users, Loader2, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
