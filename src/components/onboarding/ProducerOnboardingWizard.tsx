@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import {
   User, Music, CheckCircle, Sparkles, Disc3, DollarSign, Zap,
-  AtSign, Loader2, Check, X
+  AtSign, Loader2, Check, X, Camera
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
