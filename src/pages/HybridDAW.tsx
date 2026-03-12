@@ -405,16 +405,6 @@ const HybridDAW = () => {
 
   // Handle imported audio file with automatic BPM detection
   const handleImportedAudio = async (importedFile: any) => {
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('[HybridDAW] 🎵 handleImportedAudio called');
-    console.log('[HybridDAW] Imported file:', {
-      fileName: importedFile.fileName,
-      fileSize: importedFile.fileSize,
-      duration: importedFile.duration,
-      hasBlob: !!importedFile.blob,
-      hasUrl: !!importedFile.url,
-    });
-
     if (!audioContextRef.current) {
       console.error('[HybridDAW] ❌ No audio context!');
       toast({
