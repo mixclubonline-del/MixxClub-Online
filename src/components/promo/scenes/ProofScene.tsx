@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion';
-import { Sparkles, Users, Coins, Brain } from 'lucide-react';
+import { Sparkles, Users, Brain } from 'lucide-react';
 import { SceneBackground } from './SceneBackground';
 import funnelProofBg from '@/assets/promo/funnel-proof-bg.jpg';
+import mixxcoinzHero from '@/assets/promo/mixxcoinz-hero.png';
 
 interface Props {
   asset: { url: string | null; isVideo: boolean };
