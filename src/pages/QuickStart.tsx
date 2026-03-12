@@ -323,5 +323,6 @@ export default function QuickStart() {
         )}
       </div>
     </div>
+    </>
   );
 }
