@@ -500,7 +500,6 @@ const HybridDAW = () => {
 
         if (confidence > 0.6 && recommendations.sessionBpm) {
           setBpm(recommendations.sessionBpm);
-          console.log('[HybridDAW] 🎼 BPM updated to:', recommendations.sessionBpm);
 
           toast({
             title: "✅ Session Updated!",
