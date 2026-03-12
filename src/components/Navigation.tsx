@@ -315,6 +315,8 @@ const Navigation = () => {
 
           {/* Mobile Menu Button */}
           <button
+            aria-label="Toggle menu"
+            aria-expanded={isOpen}
             className="md:hidden p-2 rounded-lg hover:bg-primary/10 transition-all duration-300"
             onClick={() => setIsOpen(!isOpen)}
           >
