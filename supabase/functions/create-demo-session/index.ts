@@ -5,8 +5,11 @@ import { createLogger } from '../_shared/logger.ts';
 const logger = createLogger('create-demo-session');
 
 interface DemoSessionRequest {
-  role: 'client' | 'engineer' | 'admin';
+  role: 'client' | 'engineer';
 }
+
+// Only allow non-admin demo roles
+const ALLOWED_DEMO_ROLES = ['client', 'engineer'] as const;
 
 Deno.serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
@@ -21,8 +24,12 @@ Deno.serve(async (req) => {
 
     const { role }: DemoSessionRequest = await req.json();
 
-    if (!['client', 'engineer', 'admin'].includes(role)) {
-      throw new Error('Invalid role specified');
+    // SECURITY: Only allow client and engineer roles — never admin
+    if (!ALLOWED_DEMO_ROLES.includes(role as typeof ALLOWED_DEMO_ROLES[number])) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid role. Only "client" and "engineer" are allowed for demo sessions.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // Create Supabase admin client
@@ -51,7 +58,7 @@ Deno.serve(async (req) => {
       password: tempPassword,
       email_confirm: true,
       user_metadata: {
-        full_name: role === 'admin' ? 'Demo Admin' : role === 'engineer' ? 'Demo Engineer' : 'Demo Artist',
+        full_name: role === 'engineer' ? 'Demo Engineer' : 'Demo Artist',
         is_demo: true,
         demo_role: role,
         expires_at: new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString(), // 4 hours
@@ -69,8 +76,8 @@ Deno.serve(async (req) => {
 
     logger.info('Demo user created', { userId: authData.user.id });
 
-    // Set up profile - map role to valid profile role
-    const profileRole = role === 'admin' ? 'artist' : role === 'client' ? 'artist' : role;
+    // Set up profile - map role to valid profile role (never admin)
+    const profileRole = role === 'client' ? 'artist' : role;
     
     // Wait a moment for the profile trigger to create the profile
     await new Promise(resolve => setTimeout(resolve, 500));
@@ -85,7 +92,6 @@ Deno.serve(async (req) => {
 
     if (profileError) {
       logger.warn('Profile update failed', profileError);
-      // Try to insert if update failed (profile might not exist yet)
       const { error: insertError } = await supabaseAdmin
         .from('profiles')
         .insert({
@@ -99,8 +105,8 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Add role to user_roles table - use valid enum values
-    const userRole = role === 'admin' ? 'admin' : role === 'client' ? 'artist' : role;
+    // Add role to user_roles table — NEVER admin
+    const userRole = role === 'client' ? 'artist' : role;
     const { error: roleError } = await supabaseAdmin
       .from('user_roles')
       .insert({ 

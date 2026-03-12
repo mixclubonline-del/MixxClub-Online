@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { requireAdmin, authErrorResponse } from '../_shared/auth.ts';
 
 /**
  * orchestrate-promo-campaign
@@ -145,6 +146,15 @@ Deno.serve(async (req: Request) => {
             },
         });
     }
+
+    const corsHeaders = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+        'Content-Type': 'application/json',
+    };
+
+    const auth = await requireAdmin(req);
+    if ('error' in auth) return authErrorResponse(auth, corsHeaders);
 
     try {
         const supabase = createClient(supabaseUrl, supabaseServiceKey);
