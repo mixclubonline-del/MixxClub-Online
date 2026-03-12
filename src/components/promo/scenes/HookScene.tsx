@@ -15,13 +15,19 @@ export function HookScene({ asset }: Props) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.8 }}
-          className="rounded-2xl bg-black/60 backdrop-blur-md border border-white/10 p-8"
+          className="rounded-2xl bg-black/60 backdrop-blur-md border border-white/10 p-8 space-y-6"
         >
           <p className="text-4xl sm:text-5xl font-black uppercase leading-tight text-white tracking-tight">
-            87% of independent artists{' '}
-            <span className="text-primary">never</span> get their music
-            professionally mixed.
+            <span className="text-primary">87%</span> of your music will never leave your hard drive.
           </p>
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.8, duration: 0.7 }}
+            className="text-lg sm:text-xl font-medium text-white/70 italic"
+          >
+            Not because it's bad.
+          </motion.p>
         </motion.div>
       </div>
       <motion.img
