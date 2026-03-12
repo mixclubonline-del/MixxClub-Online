@@ -23,6 +23,7 @@ import {
   Loader2, Sparkles,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useCallback } from 'react';
 
 // ─── Time-of-day greeting ─────────────────────────────────────
 function getFanGreeting(name: string): string {
