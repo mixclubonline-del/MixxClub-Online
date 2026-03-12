@@ -14,6 +14,8 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
+    <>
+    <SEOHead title="Page Not Found" description="The page you're looking for doesn't exist on Mixxclub." noindex />
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background">
       {/* Ambient glow — primary top-left */}
       <motion.div
