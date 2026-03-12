@@ -131,7 +131,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const handleSetActiveRole = (role: AppRole) => {
-    if (isBypass) return;
     if (userRoles.includes(role)) {
       setActiveRoleState(role);
       setUserRole(role);
