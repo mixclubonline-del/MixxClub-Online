@@ -224,7 +224,7 @@ export const useWebRTC = ({ sessionId, userId, onRemoteStream, onScreenShareStre
         }
       })
       .subscribe((status) => {
-        console.log(`[WebRTC] Signaling channel status: ${status}`);
+        console.debug(`[WebRTC] Signaling channel status: ${status}`);
       });
 
     signalingChannel.current = channel;
