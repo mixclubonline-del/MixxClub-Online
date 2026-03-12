@@ -56,7 +56,14 @@ function getRoleBadge(role: string) {
 export default function MobileProHome() {
   const { user, activeRole } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const hasConfettied = useRef(false);
+
+  const handleRefresh = useCallback(async () => {
+    await queryClient.invalidateQueries();
+  }, [queryClient]);
+
+  const { pullDistance, isRefreshing, isReady, handlers } = usePullToRefresh({ onRefresh: handleRefresh });
 
   const role = activeRole || 'artist';
   const firstName = (user as any)?.user_metadata?.full_name?.split(' ')[0]
