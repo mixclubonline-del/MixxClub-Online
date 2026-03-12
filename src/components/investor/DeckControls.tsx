@@ -1,4 +1,6 @@
-import { Maximize, Minimize, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState } from 'react';
+import { Maximize, Minimize, ChevronLeft, ChevronRight, Download, Loader2 } from 'lucide-react';
+import { exportDeckToPDF } from './exportDeckPDF';
 
 interface Props {
   currentSlide: number;
@@ -14,6 +16,24 @@ const SLIDE_LABELS = [
 ];
 
 export function DeckControls({ currentSlide, totalSlides, onGoTo, onToggleFullscreen, isFullscreen }: Props) {
+  const [exporting, setExporting] = useState(false);
+  const [progress, setProgress] = useState('');
+
+  const handleExport = async () => {
+    setExporting(true);
+    setProgress('Preparing...');
+    try {
+      await exportDeckToPDF((current, total) => {
+        setProgress(`Slide ${current}/${total}`);
+      });
+    } catch (err) {
+      console.error('PDF export failed:', err);
+    } finally {
+      setExporting(false);
+      setProgress('');
+    }
+  };
+
   return (
     <div className="h-16 bg-[hsl(262,30%,3%)] border-t border-border/20 flex items-center px-4 gap-3">
       {/* Prev */}
@@ -54,6 +74,26 @@ export function DeckControls({ currentSlide, totalSlides, onGoTo, onToggleFullsc
         className="p-2 rounded-lg hover:bg-primary/10 disabled:opacity-30 text-foreground transition-colors"
       >
         <ChevronRight className="w-5 h-5" />
+      </button>
+
+      {/* PDF Export */}
+      <button
+        onClick={handleExport}
+        disabled={exporting}
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-primary/10 disabled:opacity-60 text-foreground transition-colors text-xs font-medium"
+        title="Export deck as PDF"
+      >
+        {exporting ? (
+          <>
+            <Loader2 className="w-4 h-4 animate-spin" />
+            <span className="text-muted-foreground">{progress}</span>
+          </>
+        ) : (
+          <>
+            <Download className="w-4 h-4" />
+            PDF
+          </>
+        )}
       </button>
 
       {/* Fullscreen */}
