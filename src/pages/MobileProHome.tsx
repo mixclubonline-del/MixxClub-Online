@@ -100,8 +100,11 @@ export default function MobileProHome() {
     }
   }, [acceptedApps.length]);
 
-  if (!user) {
-    return null;
+  if (!user) return null;
+
+  // Show skeleton while primary data loads
+  if (earningsLoading && sessionsLoading) {
+    return <MobileProHomeSkeleton />;
   }
 
   return (
