@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createLogger } from "../_shared/logger.ts";
 import { checkRateLimit, rateLimitHeaders } from "../_shared/rate-limit.ts";
+import { requireAuth, authErrorResponse } from '../_shared/auth.ts';
 
 const logger = createLogger("generate-image-gemini");
 
@@ -14,8 +15,11 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const auth = await requireAuth(req);
+  if ('error' in auth) return authErrorResponse(auth, corsHeaders);
+
   try {
-    // Rate limiting for public endpoint
+    // Rate limiting per user
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const clientIP = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';

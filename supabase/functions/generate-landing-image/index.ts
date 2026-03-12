@@ -28,6 +28,9 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const auth = await requireAuth(req);
+  if ('error' in auth) return authErrorResponse(auth, corsHeaders);
+
   try {
     const { prompt, context } = await req.json();
     

@@ -20,6 +20,9 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const auth = await requireAuth(req);
+  if ('error' in auth) return authErrorResponse(auth, corsHeaders);
+
   try {
     const body = await req.json();
     const { waveformData, userId, audioFileId, audioUrl, generateServerSide = false,
