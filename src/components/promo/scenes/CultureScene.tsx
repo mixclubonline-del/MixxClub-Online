@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { SceneBackground } from './SceneBackground';
+import funnelCultureBg from '@/assets/promo/funnel-culture-bg.jpg';
 
 interface Props {
   asset: { url: string | null; isVideo: boolean };
@@ -14,7 +15,7 @@ const MANIFESTO_LINES = [
 export function CultureScene({ asset }: Props) {
   return (
     <div className="relative w-full min-h-screen flex flex-col items-center justify-center">
-      <SceneBackground asset={asset} />
+      <SceneBackground asset={asset} fallbackSrc={funnelCultureBg} />
       <div className="relative z-10 px-6 text-center max-w-lg">
         <div className="rounded-2xl bg-black/60 backdrop-blur-md border border-white/10 p-8 space-y-8">
           {/* Headline */}

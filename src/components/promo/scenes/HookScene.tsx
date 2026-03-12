@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { SceneBackground } from './SceneBackground';
+import funnelHookBg from '@/assets/promo/funnel-hook-bg.jpg';
 
 interface Props {
   asset: { url: string | null; isVideo: boolean };
@@ -8,7 +9,7 @@ interface Props {
 export function HookScene({ asset }: Props) {
   return (
     <div className="relative w-full min-h-screen flex flex-col items-center justify-center">
-      <SceneBackground asset={asset} />
+      <SceneBackground asset={asset} fallbackSrc={funnelHookBg} />
       <div className="relative z-10 px-6 text-center max-w-lg">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

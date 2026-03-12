@@ -2,6 +2,7 @@ import { useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, Sparkles, Music, ArrowRight, Volume2, Headphones, Loader2 } from 'lucide-react';
 import { SceneBackground } from './SceneBackground';
+import funnelTryitBg from '@/assets/promo/funnel-tryit-bg.jpg';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
@@ -154,7 +155,7 @@ export function TryItScene({ asset, trackStep, onAdvance }: Props) {
 
   return (
     <div className="relative w-full min-h-screen flex flex-col items-center justify-center">
-      <SceneBackground asset={asset} />
+      <SceneBackground asset={asset} fallbackSrc={funnelTryitBg} />
       <div className="relative z-10 px-4 w-full max-w-md mx-auto">
         <div className="rounded-2xl bg-black/70 backdrop-blur-xl border border-white/10 p-6 space-y-5">
           {/* Header */}
