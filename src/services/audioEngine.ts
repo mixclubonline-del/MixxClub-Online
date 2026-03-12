@@ -108,7 +108,7 @@ class AudioEngine {
     this.transportStartTime = when - this.transportPausedAt;
     this.transportState = 'playing';
     
-    console.log('[AudioEngine] ▶️ Transport START from', this.transportPausedAt.toFixed(3), 's');
+    console.debug('[AudioEngine] ▶️ Transport START from', this.transportPausedAt.toFixed(3), 's');
   }
   
   /**
