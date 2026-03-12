@@ -8,6 +8,9 @@
 
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useQueryClient } from '@tanstack/react-query';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
+import { PullToRefreshIndicator } from '@/components/mobile/PullToRefreshIndicator';
 import { useUserEarnings } from '@/hooks/useUserEarnings';
 import { useUserProjects } from '@/hooks/useUserProjects';
 import {
