@@ -40,14 +40,9 @@ export const useRealTimePresence = (channelName: string) => {
         });
         
         setOnlineUsers(users);
-        console.log('[Presence] Synced users:', users.length);
       })
-      .on('presence', { event: 'join' }, ({ newPresences }) => {
-        console.log('[Presence] User joined:', newPresences);
-      })
-      .on('presence', { event: 'leave' }, ({ leftPresences }) => {
-        console.log('[Presence] User left:', leftPresences);
-      })
+      .on('presence', { event: 'join' }, () => {})
+      .on('presence', { event: 'leave' }, () => {})
       .subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
           // Fetch user profile
