@@ -16,8 +16,6 @@ import { TabletSideNav } from "@/components/mobile/TabletSideNav";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { usePageTracking } from "@/hooks/useAnalytics";
 import { PrimeProvider } from "@/contexts/PrimeContext";
-import PrimeConsole from "@/components/prime/PrimeConsole";
-import PrimeStatusBar from "@/components/prime/PrimeStatusBar";
 import { useMobileDetect } from "@/hooks/useMobileDetect";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
