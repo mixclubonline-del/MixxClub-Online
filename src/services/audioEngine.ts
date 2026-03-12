@@ -500,7 +500,7 @@ class AudioEngine {
     const sampleRate = 48000;
     const length = Math.ceil(durationSec * sampleRate);
     
-    console.log(`[AudioEngine] 🎬 Starting offline render: ${durationSec.toFixed(2)}s @ ${sampleRate}Hz`);
+    console.debug(`[AudioEngine] Starting offline render: ${durationSec.toFixed(2)}s @ ${sampleRate}Hz`);
     
     try {
       const offlineCtx = new OfflineAudioContext(2, length, sampleRate);
