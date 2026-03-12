@@ -4,7 +4,7 @@
  import { Badge } from '@/components/ui/badge';
  import { 
    User, Music, Heart, Sparkles,
-   AtSign, Loader2, Check, X
+   AtSign, Loader2, Check, X, Camera
  } from 'lucide-react';
  import { useAuth } from '@/hooks/useAuth';
  import { supabase } from '@/integrations/supabase/client';
