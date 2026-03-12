@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { SceneBackground } from './SceneBackground';
+import funnelAnswerBg from '@/assets/promo/funnel-answer-bg.jpg';
 
 interface Props {
   asset: { url: string | null; isVideo: boolean };
@@ -10,7 +11,7 @@ const STEPS = ['Upload', 'Get Mixed', 'Release'];
 export function AnswerScene({ asset }: Props) {
   return (
     <div className="relative w-full min-h-screen flex flex-col items-center justify-center">
-      <SceneBackground asset={asset} />
+      <SceneBackground asset={asset} fallbackSrc={funnelAnswerBg} />
       <div className="relative z-10 px-6 text-center max-w-lg">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

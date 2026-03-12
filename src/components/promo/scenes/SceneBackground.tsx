@@ -2,10 +2,11 @@ import { useRef, useEffect } from 'react';
 
 interface Props {
   asset: { url: string | null; isVideo: boolean };
+  fallbackSrc?: string;
   kenBurns?: boolean;
 }
 
-export function SceneBackground({ asset, kenBurns = true }: Props) {
+export function SceneBackground({ asset, fallbackSrc, kenBurns = true }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -15,6 +16,8 @@ export function SceneBackground({ asset, kenBurns = true }: Props) {
   const kenBurnsClass = kenBurns
     ? 'animate-[kenBurns_20s_ease-in-out_infinite_alternate]'
     : '';
+
+  const imgSrc = asset.url || fallbackSrc;
 
   return (
     <>
@@ -28,9 +31,9 @@ export function SceneBackground({ asset, kenBurns = true }: Props) {
           playsInline
           className="absolute inset-0 w-full h-full object-cover"
         />
-      ) : asset.url ? (
+      ) : imgSrc ? (
         <img
-          src={asset.url}
+          src={imgSrc}
           alt=""
           className={`absolute inset-0 w-full h-full object-cover ${kenBurnsClass}`}
         />
