@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { AnimatedBrandLogo } from "@/components/brand/AnimatedBrandLogo";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { SEOHead } from "@/components/SEOHead";
 
 const NotFound = () => {
   const location = useLocation();
