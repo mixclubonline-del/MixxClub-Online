@@ -101,7 +101,7 @@ export const MobileFanNav = () => {
                 <motion.div
                   animate={{
                     scale: isPressed ? 0.9 : 1,
-                    backgroundColor: isActive ? 'hsl(330 80% 60% / 0.15)' : 'transparent',
+                    backgroundColor: isActive ? 'hsl(var(--destructive) / 0.15)' : 'transparent',
                   }}
                   transition={{ duration: 0.1 }}
                   className={cn("relative p-2.5 rounded-xl", isActive && "bg-pink-500/15")}
