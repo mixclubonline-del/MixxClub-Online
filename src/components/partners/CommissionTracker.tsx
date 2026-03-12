@@ -110,6 +110,7 @@ const CommissionRow: React.FC<CommissionRowProps> = ({ commission, onMarkPaid, i
 };
 
 export const CommissionTracker: React.FC = () => {
+    const { toast } = useToast();
     const { partners } = usePartnerManagement();
     const { getPartnerCommissions, loading: commissionLoading } = useCommissionTracking();
     const [selectedPartnerId, setSelectedPartnerId] = useState<string>('');
