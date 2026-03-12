@@ -80,6 +80,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   if (deviceType === 'phone') {
     return (
       <>
+        <MobileTopBar />
         {isFan ? <MobileFanNav /> : <MobileProNav />}
         <div
           onTouchStart={onTouchStart}
