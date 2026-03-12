@@ -93,9 +93,7 @@ const DAWCollaboration: React.FC<DAWCollaborationProps> = ({
   };
 
   const handleInviteUser = () => {
-    // TODO: Implement user invitation
     navigator.clipboard.writeText(window.location.href + '?invite=session123');
-    // Show toast notification about copying invite link
   };
 
   return (

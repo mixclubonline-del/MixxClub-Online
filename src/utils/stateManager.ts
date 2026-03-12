@@ -71,7 +71,7 @@ class StateManager {
 
       // Check age if maxAge specified
       if (maxAge && Date.now() - parsed.timestamp > maxAge) {
-        console.log(`State expired for ${key}`);
+        
         this.clearState(key);
         return null;
       }

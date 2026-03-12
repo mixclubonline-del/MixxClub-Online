@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { 
   CheckCircle2, 
   Download, 
@@ -35,6 +37,91 @@ interface VerificationResponse {
   };
 }
 
+function generateInvoicePDF(payment: PaymentDetails, customerEmail: string | null): jsPDF {
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.getWidth();
+
+  // Header
+  doc.setFontSize(24);
+  doc.setFont('helvetica', 'bold');
+  doc.text('MIXXCLUB', 14, 25);
+
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(100);
+  doc.text('Audio Engineering & Music Services', 14, 32);
+  doc.text('billing@mixxclubonline.com', 14, 37);
+
+  // Invoice title
+  doc.setFontSize(18);
+  doc.setTextColor(0);
+  doc.setFont('helvetica', 'bold');
+  doc.text('INVOICE', pageWidth - 14, 25, { align: 'right' });
+
+  const invoiceNum = `INV-${(payment.id || 'UNKNOWN').substring(0, 8).toUpperCase()}`;
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(100);
+  doc.text(invoiceNum, pageWidth - 14, 32, { align: 'right' });
+  doc.text(new Date(payment.completedAt).toLocaleDateString(), pageWidth - 14, 37, { align: 'right' });
+
+  // Divider
+  doc.setDrawColor(200);
+  doc.line(14, 44, pageWidth - 14, 44);
+
+  // Bill To
+  doc.setFontSize(10);
+  doc.setTextColor(100);
+  doc.text('BILL TO', 14, 54);
+  doc.setTextColor(0);
+  doc.setFont('helvetica', 'normal');
+  doc.text(customerEmail || 'Customer', 14, 60);
+
+  // Table
+  autoTable(doc, {
+    startY: 72,
+    head: [['Description', 'Qty', 'Price', 'Total']],
+    body: [
+      [
+        payment.packageName || 'Audio Engineering Services',
+        '1',
+        `$${payment.amount.toFixed(2)}`,
+        `$${payment.amount.toFixed(2)}`,
+      ],
+    ],
+    foot: [['', '', 'Total', `$${payment.amount.toFixed(2)} ${payment.currency}`]],
+    theme: 'striped',
+    headStyles: { fillColor: [30, 30, 30], textColor: 255, fontStyle: 'bold' },
+    footStyles: { fillColor: [245, 245, 245], textColor: [0, 0, 0], fontStyle: 'bold' },
+    styles: { fontSize: 10 },
+    columnStyles: {
+      0: { cellWidth: 'auto' },
+      1: { cellWidth: 25, halign: 'center' },
+      2: { cellWidth: 35, halign: 'right' },
+      3: { cellWidth: 40, halign: 'right' },
+    },
+  });
+
+  const finalY = (doc as any).lastAutoTable?.finalY || 120;
+
+  // Payment info
+  doc.setFontSize(9);
+  doc.setTextColor(100);
+  doc.text('Payment Status: Completed', 14, finalY + 14);
+  if (payment.id) {
+    doc.text(`Transaction ID: ${payment.id}`, 14, finalY + 20);
+  }
+  doc.text(`Type: ${payment.packageType}`, 14, finalY + 26);
+
+  // Footer
+  doc.setFontSize(9);
+  doc.setTextColor(130);
+  doc.text('Thank you for your business!', pageWidth / 2, finalY + 42, { align: 'center' });
+  doc.text('Payment processed securely via Stripe.', pageWidth / 2, finalY + 48, { align: 'center' });
+
+  return doc;
+}
+
 export default function PaymentSuccess() {
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get('session_id');
@@ -61,7 +148,6 @@ export default function PaymentSuccess() {
 
         setVerification(data);
 
-        // Trigger confetti on successful payment
         if (data?.success) {
           confetti({
             particleCount: 100,
@@ -89,23 +175,9 @@ export default function PaymentSuccess() {
 
     setDownloadingInvoice(true);
     try {
-      const { data, error } = await supabase.functions.invoke('generate-invoice', {
-        body: { paymentId: verification.payment.id }
-      });
-
-      if (error) throw error;
-
-      // Create blob and download
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `invoice-${verification.payment.id}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
+      const doc = generateInvoicePDF(verification.payment, verification.customer?.email || null);
+      const invoiceNum = verification.payment.id.substring(0, 8).toUpperCase();
+      doc.save(`MixxClub-Invoice-${invoiceNum}.pdf`);
       toast.success('Invoice downloaded');
     } catch (err) {
       console.error('Invoice download error:', err);

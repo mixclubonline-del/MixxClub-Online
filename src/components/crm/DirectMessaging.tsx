@@ -85,7 +85,6 @@ export const DirectMessaging: React.FC<DirectMessagingProps> = ({
                     table: 'direct_messages',
                 },
                 (payload) => {
-                    console.log('📨 Message change detected:', payload);
                     const message = payload.new as any;
                     
                     // Only refresh if message involves this conversation

@@ -4,6 +4,8 @@
  */
 
 import React, { useMemo, useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import { useCommissionTracking } from '@/hooks/useCommissionTracking';
 import { usePartnerManagement } from '@/hooks/usePartnerManagement';
 import { Button } from '@/components/ui/button';
@@ -108,6 +110,7 @@ const CommissionRow: React.FC<CommissionRowProps> = ({ commission, onMarkPaid, i
 };
 
 export const CommissionTracker: React.FC = () => {
+    const { toast } = useToast();
     const { partners } = usePartnerManagement();
     const { getPartnerCommissions, loading: commissionLoading } = useCommissionTracking();
     const [selectedPartnerId, setSelectedPartnerId] = useState<string>('');
@@ -167,7 +170,16 @@ export const CommissionTracker: React.FC = () => {
     }, [commissions]);
 
     const handleMarkPaid = async (commissionId: string) => {
-        console.log('Mark commission paid:', commissionId);
+        try {
+            const { error } = await supabase
+                .from('beat_royalties')
+                .update({ status: 'paid', paid_at: new Date().toISOString() })
+                .eq('id', commissionId);
+            if (error) throw error;
+            toast({ title: 'Commission marked as paid' });
+        } catch {
+            toast({ title: 'Failed to update commission', variant: 'destructive' });
+        }
     };
 
     return (

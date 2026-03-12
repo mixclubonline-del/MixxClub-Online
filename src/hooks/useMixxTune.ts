@@ -22,8 +22,7 @@ class PitchCorrectionEngine {
    * In production, this would use AudioWorklet for better performance
    */
   createProcessor(params: { correction: number; speed: number; key: string; scale: string; humanize: number }): ScriptProcessorNode {
-    // Create ScriptProcessor (deprecated but works for prototype)
-    // TODO: Migrate to AudioWorkletProcessor for production
+    // ScriptProcessor for pitch correction (AudioWorklet migration planned)
     const processor = this.ctx.createScriptProcessor(2048, 1, 1);
     
     processor.onaudioprocess = (e) => {

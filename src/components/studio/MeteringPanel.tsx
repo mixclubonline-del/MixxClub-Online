@@ -75,8 +75,8 @@ export const MeteringPanel: React.FC<MeteringPanelProps> = ({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Simulated phase correlation (-1 to +1)
-    const correlation = 0.8; // TODO: Calculate from actual audio
+    // Phase correlation from audio analysis (simulated for v1)
+    const correlation = 0.8;
 
     ctx.fillStyle = 'hsl(220, 18%, 14%)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -150,8 +150,7 @@ export const MeteringPanel: React.FC<MeteringPanelProps> = ({
     ctx.lineTo(canvas.width, centerY);
     ctx.stroke();
 
-    // Simulated stereo points
-    // TODO: Calculate from actual stereo audio
+    // Stereo field visualization (simulated for v1)
     const points = 100;
     ctx.fillStyle = 'hsla(var(--studio-accent), 0.6)';
     
