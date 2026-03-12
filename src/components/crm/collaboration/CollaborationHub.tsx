@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
@@ -21,9 +22,11 @@ import {
   Mic,
   Globe,
   Lock,
-  Clock
+  Clock,
+  ClipboardList
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { SessionTemplates } from '@/components/sessions/SessionTemplates';
 
 interface CollaborationSession {
   id: string;
@@ -202,81 +205,110 @@ export const CollaborationHub = ({
                 New Session
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-w-2xl">
               <DialogHeader>
                 <DialogTitle>Create Collaboration Session</DialogTitle>
               </DialogHeader>
-              <div className="space-y-4 pt-4">
-                <div className="space-y-2">
-                  <Label htmlFor="title">Session Title</Label>
-                  <Input
-                    id="title"
-                    placeholder="e.g., Mix Review - Track 5"
-                    value={newSession.title}
-                    onChange={(e) => setNewSession(prev => ({ ...prev, title: e.target.value }))}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description (optional)</Label>
-                  <Input
-                    id="description"
-                    placeholder="What will you be working on?"
-                    value={newSession.description}
-                    onChange={(e) => setNewSession(prev => ({ ...prev, description: e.target.value }))}
-                  />
-                </div>
+              <Tabs defaultValue="manual" className="mt-2">
+                <TabsList className="w-full">
+                  <TabsTrigger value="manual" className="flex-1">Manual Setup</TabsTrigger>
+                  <TabsTrigger value="templates" className="flex-1 flex items-center gap-1.5">
+                    <ClipboardList className="h-3.5 w-3.5" /> From Template
+                  </TabsTrigger>
+                </TabsList>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Visibility</Label>
-                    <Select 
-                      value={newSession.visibility}
-                      onValueChange={(value) => setNewSession(prev => ({ ...prev, visibility: value }))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="private">
-                          <div className="flex items-center gap-2">
-                            <Lock className="h-4 w-4" />
-                            Private
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="public">
-                          <div className="flex items-center gap-2">
-                            <Globe className="h-4 w-4" />
-                            Public
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
+                <TabsContent value="manual">
+                  <div className="space-y-4 pt-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="title">Session Title</Label>
+                      <Input
+                        id="title"
+                        placeholder="e.g., Mix Review - Track 5"
+                        value={newSession.title}
+                        onChange={(e) => setNewSession(prev => ({ ...prev, title: e.target.value }))}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="description">Description (optional)</Label>
+                      <Input
+                        id="description"
+                        placeholder="What will you be working on?"
+                        value={newSession.description}
+                        onChange={(e) => setNewSession(prev => ({ ...prev, description: e.target.value }))}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Visibility</Label>
+                        <Select 
+                          value={newSession.visibility}
+                          onValueChange={(value) => setNewSession(prev => ({ ...prev, visibility: value }))}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="private">
+                              <div className="flex items-center gap-2">
+                                <Lock className="h-4 w-4" />
+                                Private
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="public">
+                              <div className="flex items-center gap-2">
+                                <Globe className="h-4 w-4" />
+                                Public
+                              </div>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Session Type</Label>
+                        <Select 
+                          value={newSession.session_type}
+                          onValueChange={(value) => setNewSession(prev => ({ ...prev, session_type: value }))}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="mixing">Mixing</SelectItem>
+                            <SelectItem value="mastering">Mastering</SelectItem>
+                            <SelectItem value="review">Review</SelectItem>
+                            <SelectItem value="video">Video Call</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <Button onClick={createSession} className="w-full">
+                      Create Session
+                    </Button>
                   </div>
+                </TabsContent>
 
-                  <div className="space-y-2">
-                    <Label>Session Type</Label>
-                    <Select 
-                      value={newSession.session_type}
-                      onValueChange={(value) => setNewSession(prev => ({ ...prev, session_type: value }))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="mixing">Mixing</SelectItem>
-                        <SelectItem value="mastering">Mastering</SelectItem>
-                        <SelectItem value="review">Review</SelectItem>
-                        <SelectItem value="video">Video Call</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <Button onClick={createSession} className="w-full">
-                  Create Session
-                </Button>
-              </div>
+                <TabsContent value="templates">
+                  <ScrollArea className="max-h-[400px] mt-2">
+                    <SessionTemplates
+                      onApplyTemplate={(template) => {
+                        const settings = template.default_settings || {};
+                        setNewSession({
+                          title: template.name,
+                          description: template.description || '',
+                          visibility: settings.visibility || 'private',
+                          session_type: template.session_type,
+                          max_participants: settings.max_participants || 5,
+                        });
+                        toast.success(`Template "${template.name}" applied — review and create your session`);
+                      }}
+                    />
+                  </ScrollArea>
+                </TabsContent>
+              </Tabs>
             </DialogContent>
           </Dialog>
 
