@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
@@ -21,9 +22,11 @@ import {
   Mic,
   Globe,
   Lock,
-  Clock
+  Clock,
+  ClipboardList
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { SessionTemplates } from '@/components/sessions/SessionTemplates';
 
 interface CollaborationSession {
   id: string;
