@@ -47,16 +47,8 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
-  } catch (error: any) {
-    console.error('AI Processing Error:', error);
-    return new Response(JSON.stringify({
-      success: false,
-      error: error?.message || 'Processing failed',
-      timestamp: Date.now()
-    }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+  } catch (error) {
+    return safeErrorResponse(error, corsHeaders);
   }
 });
 

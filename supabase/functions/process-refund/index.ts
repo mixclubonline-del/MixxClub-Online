@@ -123,13 +123,6 @@ serve(async (req) => {
       }
     );
   } catch (error) {
-    console.error('Error processing refund:', error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 500,
-      }
-    );
+    return safeErrorResponse(error, corsHeaders);
   }
 });

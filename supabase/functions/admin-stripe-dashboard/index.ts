@@ -192,11 +192,7 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
-  } catch (error: any) {
-    console.error('[admin-stripe-dashboard] Error:', error);
-    return new Response(
-      JSON.stringify({ error: error.message || 'Internal error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+  } catch (error) {
+    return safeErrorResponse(error, corsHeaders);
   }
 });

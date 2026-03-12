@@ -282,17 +282,7 @@ Always provide detailed technical analysis with specific recommendations for imp
     );
 
   } catch (error) {
-    console.error('Advanced mastering error:', error);
-    return new Response(
-      JSON.stringify({
-        error: error instanceof Error ? error.message : 'Unknown error occurred',
-        service: 'Advanced AI Mastering Suite'
-      }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
+    return safeErrorResponse(error, corsHeaders);
   }
 });
 
