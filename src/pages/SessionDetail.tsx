@@ -67,7 +67,7 @@ export default function SessionDetail() {
         .select('id', { count: 'exact', head: true })
         .eq('session_id', sessionId)
         .eq('user_id', user.id)
-        .eq('status', 'approved');
+        .eq('status', 'approved' as string);
       setIsParticipant((count ?? 0) > 0);
     };
     checkParticipation();
