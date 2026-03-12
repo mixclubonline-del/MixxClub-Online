@@ -94,6 +94,7 @@ const PublicProfile = React.lazy(() => import("@/pages/PublicProfile"));
 // Promo Studio
 const PromoStudio = React.lazy(() => import("@/pages/PromoStudio"));
 const FinancialProjections = React.lazy(() => import("@/pages/FinancialProjections"));
+const InvestorDeck = React.lazy(() => import("@/pages/InvestorDeck"));
 
 // Onboarding pages
 const RoleSelection = React.lazy(() => import("@/pages/RoleSelection"));
@@ -254,6 +255,9 @@ export const appRoutes = (
     <Route path="/payment-success" element={<PaymentSuccess />} />
     <Route path="/payment-canceled" element={<PaymentCanceled />} />
     <Route path="/broadcast/:streamId" element={<ProtectedRoute><BroadcastPage /></ProtectedRoute>} />
+
+    {/* Investor Deck (admin-only, full-screen, no app layout) */}
+    <Route path="/investor-deck" element={<AdminRoute><React.Suspense fallback={null}><InvestorDeck /></React.Suspense></AdminRoute>} />
 
     {/* Enterprise demo (public) */}
     <Route path="/enterprise-demo" element={<EnterpriseDemo />} />
