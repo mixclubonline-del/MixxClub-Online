@@ -50,7 +50,7 @@ export function useChallengeSubmissions(challengeId: string) {
     queryKey: ['challenge-submissions', challengeId],
     queryFn: async () => {
       const { data, error } = await fromAny('challenge_submissions')
-        .select('*, profile:profiles!challenge_submissions_user_id_fkey(full_name, avatar_url)')
+        .select('*')
         .eq('challenge_id', challengeId)
         .order('vote_count', { ascending: false });
       if (error) throw error;
