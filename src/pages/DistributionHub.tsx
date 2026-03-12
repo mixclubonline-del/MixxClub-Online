@@ -333,6 +333,7 @@ const DistributionHub = () => {
         </div>
       </section>
     </div>
+    </>
   );
 };
 

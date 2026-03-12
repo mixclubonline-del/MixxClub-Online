@@ -147,7 +147,7 @@ const MixingShowcase = () => {
         title="Professional Mixing Studio"
         description="Professional collaborative mixing with real engineers and AI-powered insights. Three-way artist-AI-engineer collaboration for the perfect mix."
         keywords="mixing service, professional mixing, AI mixing, audio engineer, stem mixing, music production"
-      </Helmet>
+      />
 
       <ServiceRoomView
         backgroundAsset={mixingRoomBg}
