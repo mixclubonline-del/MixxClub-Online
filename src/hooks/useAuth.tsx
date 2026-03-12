@@ -145,11 +145,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signOut = async () => {
-    if (isBypass) {
-      window.location.href = '/auth';
-      return;
-    }
-
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
