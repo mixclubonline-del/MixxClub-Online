@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, Plus, Users, MessageSquare, Trophy, Flame, Sparkles, Radio } from 'lucide-react';
+import { Search, Plus, Users, MessageSquare, Trophy, Flame, Sparkles, Radio, Heart } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
   Select,
@@ -19,6 +19,8 @@ import { CommunityChallenges } from './CommunityChallenges';
 import { ReferralWidget } from './ReferralWidget';
 import { LiveFeed } from '@/components/live/LiveFeed';
 import { WhoToFollowWidget } from '@/components/social/WhoToFollowWidget';
+import { FanEngagementHub } from '@/components/community/FanEngagementHub';
+import { ChallengesHub } from '@/components/community/ChallengesHub';
 
 interface CommunityHubProps {
   userType: 'artist' | 'engineer';
