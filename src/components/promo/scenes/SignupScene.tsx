@@ -181,7 +181,7 @@ export function SignupScene({ asset, trackStep }: Props) {
 
           <Button type="submit" disabled={loading} className="w-full h-11 font-bold uppercase tracking-wider">
             {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-            {authMode === 'signup' ? 'Join Mixxclub' : 'Sign In'}
+            {authMode === 'signup' ? 'Join the First 100' : 'Sign In'}
           </Button>
         </motion.form>
 
