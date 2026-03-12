@@ -95,7 +95,7 @@ export const MobileFanNav = () => {
                 whileTap={{ scale: 0.92 }}
                 className={cn(
                   "relative flex flex-col items-center justify-center flex-1 py-2 gap-0.5",
-                  isActive ? "text-pink-500" : "text-muted-foreground"
+                  isActive ? "text-destructive" : "text-muted-foreground"
                 )}
               >
                 <motion.div
