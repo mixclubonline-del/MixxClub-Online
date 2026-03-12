@@ -86,7 +86,7 @@ export const useWebRTC = ({ sessionId, userId, onRemoteStream, onScreenShareStre
     // Handle ICE candidates
     pc.onicecandidate = (event) => {
       if (event.candidate) {
-        console.log(`[WebRTC] Sending ICE candidate to ${peerId}`);
+        console.debug(`[WebRTC] Sending ICE candidate to ${peerId}`);
         sendSignalingMessage({
           type: 'ice-candidate',
           candidate: event.candidate.toJSON(),
