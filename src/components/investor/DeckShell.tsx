@@ -83,7 +83,7 @@ export function DeckShell() {
             transformOrigin: 'center center',
           }}
         >
-          <SlideRenderer slideIndex={currentSlide} />
+          <SlideRenderer slideIndex={currentSlide} direction={direction} />
         </div>
 
         {/* Click zones for navigation */}

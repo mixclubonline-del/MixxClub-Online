@@ -1,3 +1,4 @@
+import { motion, AnimatePresence } from 'framer-motion';
 import { TitleSlide } from './slides/TitleSlide';
 import { ProblemSlide } from './slides/ProblemSlide';
 import { SolutionSlide } from './slides/SolutionSlide';
@@ -28,13 +29,42 @@ const SLIDES = [
 
 interface Props {
   slideIndex: number;
+  direction: number;
 }
 
-export function SlideRenderer({ slideIndex }: Props) {
+const variants = {
+  enter: (dir: number) => ({
+    x: dir * 60,
+    opacity: 0,
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+  },
+  exit: (dir: number) => ({
+    x: dir * -60,
+    opacity: 0,
+  }),
+};
+
+export function SlideRenderer({ slideIndex, direction }: Props) {
   const SlideComponent = SLIDES[slideIndex] || TitleSlide;
   return (
     <div className="w-[1920px] h-[1080px] bg-[hsl(262,30%,4%)] overflow-hidden relative">
-      <SlideComponent />
+      <AnimatePresence mode="wait" custom={direction}>
+        <motion.div
+          key={slideIndex}
+          custom={direction}
+          variants={variants}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={{ duration: 0.35, ease: 'easeOut' }}
+          className="w-full h-full"
+        >
+          <SlideComponent />
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }
