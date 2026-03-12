@@ -280,6 +280,7 @@ export const AdminRevenueHub = () => {
           <TabsTrigger value="transactions" className="gap-1.5"><CreditCard className="w-4 h-4" /> Transactions</TabsTrigger>
           <TabsTrigger value="payouts" className="gap-1.5"><Users className="w-4 h-4" /> Payouts</TabsTrigger>
           <TabsTrigger value="reconciliation" className="gap-1.5"><Shield className="w-4 h-4" /> Reconciliation</TabsTrigger>
+          <TabsTrigger value="stripe" className="gap-1.5"><Zap className="w-4 h-4" /> Stripe</TabsTrigger>
         </TabsList>
 
         {/* Overview Tab */}
