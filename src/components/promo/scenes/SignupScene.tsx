@@ -8,6 +8,7 @@ import { lovable } from '@/integrations/lovable';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { SceneBackground } from './SceneBackground';
+import funnelCtaBg from '@/assets/promo/funnel-cta-bg.jpg';
 
 type AppRole = 'producer' | 'artist' | 'engineer' | 'fan';
 type AuthMode = 'signup' | 'login';
