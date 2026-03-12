@@ -579,6 +579,11 @@ export const AdminRevenueHub = () => {
             </Card>
           )}
         </TabsContent>
+
+        {/* Stripe Command Center Tab */}
+        <TabsContent value="stripe" className="space-y-6">
+          <AdminStripeCommandCenter />
+        </TabsContent>
       </Tabs>
     </div>
   );
