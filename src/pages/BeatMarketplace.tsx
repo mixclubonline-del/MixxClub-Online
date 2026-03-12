@@ -1,4 +1,5 @@
  import { useState, useRef, useEffect } from 'react';
+ import { SEOHead } from '@/components/SEOHead';
  import { AppLayout } from '@/components/layouts/AppLayout';
  import { Card, CardContent } from '@/components/ui/card';
  import { Input } from '@/components/ui/input';
