@@ -92,7 +92,7 @@ export default function MobileFanHome() {
     return null;
   }
 
-  const streakDays = stats?.current_streak || 0;
+  const streakDays = stats?.engagement_streak || 0;
 
   return (
     <div className="min-h-screen bg-background pb-24 overflow-y-auto touch-manipulation">

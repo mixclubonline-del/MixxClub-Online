@@ -151,6 +151,8 @@ export const ROUTES = {
   MOBILE_HOME: '/mobile-home',
   MOBILE_LANDING: '/mobile-landing',
   MOBILE_MIXXBOT: '/mobile-mixxbot',
+  MOBILE_PRO: '/mobile-pro',
+  MOBILE_FAN: '/mobile-fan',
 } as const;
 
 // ─── Dynamic route helpers ───────────────────────────────────

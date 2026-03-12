@@ -1,7 +1,4 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MobileEnhancedNav } from '@/components/mobile/MobileEnhancedNav';
-import { MobileOnboardingWizard } from '@/components/mobile/MobileOnboardingWizard';
 import { PullToRefresh } from '@/components/mobile/PullToRefresh';
 import Hero from '@/components/Hero';
 import Services from '@/components/Services';
@@ -10,9 +7,9 @@ import { Testimonials } from '@/components/Testimonials';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useMobileOptimization } from '@/hooks/useMobileOptimization';
+import { ROUTES } from '@/config/routes';
 
 const MobileLanding = () => {
-  const [showWizard, setShowWizard] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
   const { triggerHaptic } = useMobileOptimization({ enableHaptics: true });
@@ -25,28 +22,26 @@ const MobileLanding = () => {
   const handleGetStarted = () => {
     triggerHaptic('light');
     if (user) {
-      setShowWizard(true);
+      navigate(ROUTES.CHOOSE_PATH);
     } else {
-      navigate('/auth');
+      navigate(ROUTES.AUTH);
     }
   };
 
   const handleSignIn = () => {
     triggerHaptic('light');
-    navigate('/auth');
+    navigate(ROUTES.AUTH);
   };
 
   return (
     <div className="min-h-screen pb-32 overflow-y-auto touch-manipulation">
-      <MobileEnhancedNav />
-      
       <PullToRefresh onRefresh={handleRefresh}>
         <div className="container mx-auto px-4 py-8 space-y-16 pb-safe">
-        <Hero />
-        <Services />
-        <HowItWorks />
-        <Testimonials />
-      </div>
+          <Hero />
+          <Services />
+          <HowItWorks />
+          <Testimonials />
+        </div>
       </PullToRefresh>
 
       {/* Fixed Bottom CTAs */}
@@ -68,17 +63,12 @@ const MobileLanding = () => {
           <Button 
             variant="outline"
             className="h-12"
-            onClick={() => { const a = document.createElement('a'); a.href = '/engineer-onboarding'; a.click(); }}
+            onClick={() => navigate('/engineer-onboarding')}
           >
             ⚡ Join as Engineer
           </Button>
         </div>
       </div>
-
-      <MobileOnboardingWizard 
-        open={showWizard} 
-        onOpenChange={setShowWizard} 
-      />
     </div>
   );
 };

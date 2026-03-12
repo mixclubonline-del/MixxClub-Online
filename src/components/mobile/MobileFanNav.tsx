@@ -121,7 +121,7 @@ export const MobileFanNav = () => {
                       initial={{ opacity: 0, scaleX: 0 }}
                       animate={{ opacity: 1, scaleX: 1 }}
                       exit={{ opacity: 0, scaleX: 0 }}
-                      className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-pink-500 rounded-full"
+                      className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-destructive rounded-full"
                       transition={{ type: "spring", stiffness: 400, damping: 25 }}
                     />
                   )}
