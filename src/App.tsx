@@ -44,21 +44,9 @@ import { UnlockCelebrationProvider } from "@/components/unlock/UnlockCelebration
 import { publicRoutes, appRoutes, mobileRoutes, cityRoutes } from "@/routes";
 import NotFound from "@/pages/NotFound";
 
-// Desktop-only components wrapper (Prime Console/Status only)
+// Desktop-only components wrapper (reserved for future use)
 const DesktopOnlyComponents = () => {
-  const { deviceType } = useMobileDetect();
-  const { user } = useAuth();
-
-  if (deviceType !== "desktop" || !user) {
-    return null;
-  }
-
-  return (
-    <>
-      <PrimeConsole />
-      <PrimeStatusBar />
-    </>
-  );
+  return null;
 };
 
 // Mobile-only overlays — sync indicator + PWA update prompt
