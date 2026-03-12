@@ -181,7 +181,7 @@ export function useAdminChat(options: AdminChatOptions = {}) {
             role: m.role as 'user' | 'assistant',
             content: m.content,
             timestamp: new Date(m.created_at).getTime(),
-            toolActions: m.tool_actions as ToolAction[] | undefined,
+            toolActions: m.tool_actions as unknown as ToolAction[] | undefined,
           })));
         }
       } else {
