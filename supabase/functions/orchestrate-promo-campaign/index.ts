@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { requireAdmin, authErrorResponse } from '../_shared/auth.ts';
 
 /**
  * orchestrate-promo-campaign
