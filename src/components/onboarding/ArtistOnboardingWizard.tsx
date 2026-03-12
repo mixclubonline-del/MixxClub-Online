@@ -106,8 +106,9 @@ export function ArtistOnboardingWizard() {
   const canProceed = () => {
     switch (currentStep) {
       case 0: return fullName.trim().length > 0 && isUsernameValid;
-      case 1: return selectedGenres.length > 0;
-      case 2: return selectedGoals.length > 0;
+      case 1: return true; // Avatar optional
+      case 2: return selectedGenres.length > 0;
+      case 3: return selectedGoals.length > 0;
       default: return true;
     }
   };
