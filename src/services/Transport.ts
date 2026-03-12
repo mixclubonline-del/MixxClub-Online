@@ -108,7 +108,7 @@ export class Transport {
     this.pausedAt = now - this.startedAt;
     this.state = 'paused';
 
-    console.log('[Transport] ⏸️ PAUSE at', this.pausedAt.toFixed(3), 's');
+    console.debug('[Transport] PAUSE at', this.pausedAt.toFixed(3), 's');
 
     // Notify all listeners
     this.listeners.forEach(listener => {
