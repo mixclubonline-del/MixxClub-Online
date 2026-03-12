@@ -6404,6 +6404,36 @@ export type Database = {
         }
         Relationships: []
       }
+      prime_memory: {
+        Row: {
+          category: string
+          created_at: string | null
+          id: string
+          key: string
+          updated_at: string | null
+          user_id: string
+          value: Json
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          id?: string
+          key: string
+          updated_at?: string | null
+          user_id: string
+          value?: Json
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          id?: string
+          key?: string
+          updated_at?: string | null
+          user_id?: string
+          value?: Json
+        }
+        Relationships: []
+      }
       prime_persona_config: {
         Row: {
           content_pillars: Json | null
