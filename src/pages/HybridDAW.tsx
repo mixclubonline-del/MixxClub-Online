@@ -428,7 +428,7 @@ const HybridDAW = () => {
       const audioBuffer = await audioEngine.ctx.decodeAudioData(dataBuffer.slice(0));
 
       // 2. Generate multi-resolution waveform using Web Worker (PHASE 6)
-      console.log('[HybridDAW] 📊 Step 2: Generating multi-resolution waveform (async)...');
+      // Generate multi-resolution waveform using Web Worker (PHASE 6)
 
       let waveformData;
       try {
