@@ -96,13 +96,6 @@ When suggesting actions, be clear about the next steps.`;
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
     });
   } catch (error) {
-    logger.error("Copilot chat error", error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
-    );
+    return safeErrorResponse(error, corsHeaders);
   }
 });
