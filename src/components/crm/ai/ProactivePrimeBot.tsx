@@ -403,7 +403,11 @@ export const ProactivePrimeBot = ({ userType, onNavigate }: ProactivePrimeBotPro
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 50, scale: 0.9 }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          className="fixed bottom-24 right-6 z-50 max-w-sm"
+          className={
+            isPhone
+              ? "relative w-full max-w-sm mx-auto mb-4"
+              : "fixed bottom-24 right-6 z-50 max-w-sm"
+          }
         >
           <Card
             className="backdrop-blur-xl border shadow-2xl overflow-hidden"
