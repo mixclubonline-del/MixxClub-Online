@@ -26,6 +26,7 @@ const STAGES = [
 
 export const DealPipeline: React.FC<DealPipelineProps> = ({ userType }) => {
   const { deals, loading: isLoading, updateDeal, deleteDeal } = useCRMDeals();
+  const { toast } = useToast();
   const [showAddDeal, setShowAddDeal] = useState(false);
   const [draggedDeal, setDraggedDeal] = useState<string | null>(null);
 

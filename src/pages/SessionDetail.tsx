@@ -59,7 +59,6 @@ export default function SessionDetail() {
   const isHost = user?.id === session?.host_user_id;
   const [isParticipant, setIsParticipant] = useState(false);
 
-  // Check if current user is an approved participant
   useEffect(() => {
     if (!user?.id || !sessionId) return;
     const checkParticipation = async () => {
