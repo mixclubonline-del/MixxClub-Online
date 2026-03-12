@@ -80,7 +80,7 @@ export const MobileFanNav = () => {
                   >
                     <Icon className="h-6 w-6 text-primary-foreground" />
                   </motion.div>
-                  <span className="text-[10px] font-semibold mt-1 text-pink-500">{tab.label}</span>
+                  <span className="text-[10px] font-semibold mt-1 text-destructive">{tab.label}</span>
                 </motion.button>
               );
             }
