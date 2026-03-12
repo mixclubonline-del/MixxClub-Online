@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AccountSettings } from '@/components/settings/AccountSettings';
 import { NotificationSettings } from '@/components/settings/NotificationSettings';
 import { PrivacySettings } from '@/components/settings/PrivacySettings';
+import { SubscriptionSettings } from '@/components/settings/SubscriptionSettings';
 
 export default function Settings() {
   const navigate = useNavigate();
@@ -27,12 +28,17 @@ export default function Settings() {
             <p className="text-muted-foreground mt-2">Manage your account preferences and privacy</p>
           </div>
 
-          <Tabs defaultValue="account" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+          <Tabs defaultValue="subscription" className="w-full">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="subscription">Subscription</TabsTrigger>
               <TabsTrigger value="account">Account</TabsTrigger>
               <TabsTrigger value="notifications">Notifications</TabsTrigger>
               <TabsTrigger value="privacy">Privacy</TabsTrigger>
             </TabsList>
+            
+            <TabsContent value="subscription" className="mt-6">
+              <SubscriptionSettings />
+            </TabsContent>
             
             <TabsContent value="account" className="mt-6">
               <AccountSettings />
