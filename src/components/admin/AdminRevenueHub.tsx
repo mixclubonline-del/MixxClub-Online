@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   DollarSign, TrendingUp, CreditCard, ArrowUpRight, AlertTriangle,
-  RefreshCw, Shield, BarChart3, Users, Loader2, ArrowDownRight, Receipt
+  RefreshCw, Shield, BarChart3, Users, Loader2, ArrowDownRight, Receipt, Zap
 } from 'lucide-react';
+import { AdminStripeCommandCenter } from './AdminStripeCommandCenter';
 import { format, subDays, startOfDay } from 'date-fns';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -279,6 +280,7 @@ export const AdminRevenueHub = () => {
           <TabsTrigger value="transactions" className="gap-1.5"><CreditCard className="w-4 h-4" /> Transactions</TabsTrigger>
           <TabsTrigger value="payouts" className="gap-1.5"><Users className="w-4 h-4" /> Payouts</TabsTrigger>
           <TabsTrigger value="reconciliation" className="gap-1.5"><Shield className="w-4 h-4" /> Reconciliation</TabsTrigger>
+          <TabsTrigger value="stripe" className="gap-1.5"><Zap className="w-4 h-4" /> Stripe</TabsTrigger>
         </TabsList>
 
         {/* Overview Tab */}
@@ -576,6 +578,11 @@ export const AdminRevenueHub = () => {
               </CardContent>
             </Card>
           )}
+        </TabsContent>
+
+        {/* Stripe Command Center Tab */}
+        <TabsContent value="stripe" className="space-y-6">
+          <AdminStripeCommandCenter />
         </TabsContent>
       </Tabs>
     </div>
