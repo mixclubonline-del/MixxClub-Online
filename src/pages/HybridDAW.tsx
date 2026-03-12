@@ -425,15 +425,7 @@ const HybridDAW = () => {
         ? await importedFile.blob.arrayBuffer()
         : await (await fetch(importedFile.url)).arrayBuffer();
 
-      console.log('[HybridDAW] ArrayBuffer size:', (dataBuffer.byteLength / 1024 / 1024).toFixed(2), 'MB');
-
       const audioBuffer = await audioEngine.ctx.decodeAudioData(dataBuffer.slice(0));
-      console.log('[HybridDAW] ✅ Audio decoded:', {
-        duration: audioBuffer.duration.toFixed(2) + 's',
-        channels: audioBuffer.numberOfChannels,
-        sampleRate: audioBuffer.sampleRate + 'Hz',
-        length: audioBuffer.length + ' samples',
-      });
 
       // 2. Generate multi-resolution waveform using Web Worker (PHASE 6)
       console.log('[HybridDAW] 📊 Step 2: Generating multi-resolution waveform (async)...');
