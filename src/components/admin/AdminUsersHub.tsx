@@ -20,6 +20,7 @@ export const AdminUsersHub = () => {
   const [page, setPage] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchUsers();
