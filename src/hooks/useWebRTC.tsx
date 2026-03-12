@@ -186,7 +186,7 @@ export const useWebRTC = ({ sessionId, userId, onRemoteStream, onScreenShareStre
   useEffect(() => {
     if (!sessionId || !userId) return;
 
-    console.log(`[WebRTC] Setting up signaling channel for session ${sessionId}`);
+    console.debug(`[WebRTC] Setting up signaling channel for session ${sessionId}`);
     
     const channel = supabase.channel(`webrtc:${sessionId}`)
       .on('broadcast', { event: 'signaling' }, async ({ payload }) => {
