@@ -46,6 +46,7 @@ interface WizardStep {
 
 const steps: WizardStep[] = [
   { id: 'profile', title: 'Profile', description: 'Professional details', icon: User },
+  { id: 'avatar', title: 'Photo', description: 'Profile picture', icon: Camera },
   { id: 'skills', title: 'Skills', description: 'Specializations', icon: Settings },
   { id: 'rates', title: 'Rates', description: 'Set pricing', icon: DollarSign },
 ];
