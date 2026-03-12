@@ -5,6 +5,7 @@ import { SceneBackground } from './SceneBackground';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
+import { lovable } from '@/integrations/lovable/index';
 import { velvetMaster, measureLUFS } from '@/lib/velvetMaster';
 import { audioBufferToWav } from '@/lib/audioExport';
 import { WaveformComparison } from '@/components/promo/WaveformComparison';

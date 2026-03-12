@@ -8,7 +8,7 @@ import { TryItScene } from './scenes/TryItScene';
 import { CultureScene } from './scenes/CultureScene';
 import { SignupScene } from './scenes/SignupScene';
 
-const SCENES: PromoSceneId[] = ['hook', 'answer', 'proof', 'tryit', 'culture', 'cta'];
+const SCENES: PromoSceneId[] = ['hook', 'answer', 'proof', 'culture', 'tryit', 'cta'];
 const AUTO_MS = 8000;
 
 interface Props {
