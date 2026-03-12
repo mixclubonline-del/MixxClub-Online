@@ -20,8 +20,21 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // ─── Dev Auth Bypass ───────────────────────────────────────────────────
-// Only allow dev bypass in actual development mode AND when explicitly enabled
-const DEV_AUTH_BYPASS = import.meta.env.DEV && import.meta.env.VITE_DEV_AUTH_BYPASS === 'true';
+// Only allow bypass in development and explicit debug contexts (never production)
+const PREVIEW_TOKEN_BYPASS = (() => {
+  if (!import.meta.env.DEV || typeof window === 'undefined') return false;
+
+  const params = new URLSearchParams(window.location.search);
+  const hasPreviewToken = params.has('__lovable_token');
+  const path = window.location.pathname;
+  const isOnboardingPath = path.startsWith('/onboarding/') || path === '/select-role';
+
+  return hasPreviewToken && isOnboardingPath;
+})();
+
+const DEV_AUTH_BYPASS = import.meta.env.DEV && (
+  import.meta.env.VITE_DEV_AUTH_BYPASS === 'true' || PREVIEW_TOKEN_BYPASS
+);
 
 const DEV_MOCK_USER = {
   id: '00000000-0000-4000-8000-000000000000',
