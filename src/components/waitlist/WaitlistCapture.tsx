@@ -413,22 +413,26 @@ export function WaitlistCapture({ embedded, className }: WaitlistCaptureProps) {
                         </Button>
                     </form>
 
-                    {/* Social proof */}
-                    {stats && stats.totalSignups > 0 && (
-                        <motion.div
-                            className="mt-6 text-center"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.5 }}
-                        >
-                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted/30 border border-border/30">
-                                <Users className="w-3.5 h-3.5 text-primary" />
-                                <span className="text-xs text-muted-foreground">
-                                    <span className="text-foreground font-semibold">{stats.totalSignups.toLocaleString()}</span> creators already signed up
-                                </span>
-                            </div>
-                        </motion.div>
-                    )}
+                    {/* Countdown + Social proof */}
+                    <div className="mt-6 space-y-4">
+                        <WaitlistCountdown launchDate={launchDate} />
+
+                        {stats && stats.totalSignups > 0 && (
+                            <motion.div
+                                className="text-center"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.5 }}
+                            >
+                                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted/30 border border-border/30">
+                                    <Users className="w-3.5 h-3.5 text-primary" />
+                                    <span className="text-xs text-muted-foreground">
+                                        <span className="text-foreground font-semibold">{stats.totalSignups.toLocaleString()}</span> creators already signed up
+                                    </span>
+                                </div>
+                            </motion.div>
+                        )}
+                    </div>
                 </div>
             </div>
         </motion.div>
