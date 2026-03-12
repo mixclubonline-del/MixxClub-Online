@@ -93,6 +93,7 @@ const PublicProfile = React.lazy(() => import("@/pages/PublicProfile"));
 
 // Promo Studio
 const PromoStudio = React.lazy(() => import("@/pages/PromoStudio"));
+const FinancialProjections = React.lazy(() => import("@/pages/FinancialProjections"));
 
 // Onboarding pages
 const RoleSelection = React.lazy(() => import("@/pages/RoleSelection"));
