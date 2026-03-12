@@ -47,12 +47,12 @@ export default function MobileFanHome() {
     queryKey: ['mobile-live-streams'],
     queryFn: async () => {
       const { data } = await supabase
-        .from('live_streams')
+        .from('live_streams' as any)
         .select('*, profiles:user_id(full_name, avatar_url)')
         .eq('status', 'live')
         .order('viewer_count', { ascending: false })
         .limit(6);
-      return data || [];
+      return (data as any[]) || [];
     },
     staleTime: 30_000,
   });
