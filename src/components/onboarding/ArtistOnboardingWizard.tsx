@@ -139,6 +139,7 @@ export function ArtistOnboardingWizard() {
           full_name: fullName,
           username: username,
           bio: bio || `${artistName ? `${artistName} - ` : ''}Artist on MIXXCLUB`,
+          avatar_url: avatarUrl || null,
           genre_specialties: selectedGenres,
           role: 'artist',
           onboarding_completed: true,
