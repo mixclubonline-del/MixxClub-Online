@@ -11,7 +11,15 @@ import { MyDay1Artists } from '@/components/day1/MyDay1Artists';
 import { useFanStats, calculateTier, getStreakMultiplier, isStreakActive } from '@/hooks/useFanStats';
 import { useDay1Status } from '@/hooks/useDay1Status';
 import { useAuth } from '@/hooks/useAuth';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 const TIER_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
   newcomer: { label: 'Newcomer', color: 'bg-muted text-muted-foreground', icon: <Star className="h-3 w-3" /> },
