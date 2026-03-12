@@ -1,4 +1,4 @@
-import { Helmet } from 'react-helmet-async';
+import { SEOHead } from '@/components/SEOHead';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef, useState } from 'react';
 import { 
