@@ -13,6 +13,14 @@ export const PageTransition = ({ children }: PageTransitionProps) => {
   useEffect(() => {
     if (location.pathname !== displayLocation.pathname) {
       setTransitionStage('fade-out');
+
+      // Fallback: force transition complete if transitionEnd doesn't fire
+      const fallback = setTimeout(() => {
+        setTransitionStage('fade-in');
+        setDisplayLocation(location);
+      }, 400);
+
+      return () => clearTimeout(fallback);
     }
   }, [location, displayLocation]);
 
