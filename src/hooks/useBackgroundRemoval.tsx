@@ -51,8 +51,6 @@ export function useBackgroundRemoval() {
   const removeBackground = async (file: File): Promise<Blob> => {
     setIsProcessing(true);
     try {
-      console.log("Starting background removal...");
-      
       const segmenter = await pipeline(
         "image-segmentation",
         "Xenova/segformer-b0-finetuned-ade-512-512",
