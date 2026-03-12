@@ -62,7 +62,7 @@ export function ProofScene({ asset }: Props) {
 
           {/* Feature cards */}
           <div className="space-y-3">
-            {FEATURES.map(({ icon: Icon, title, desc }, i) => (
+            {FEATURES.map(({ icon: Icon, image, title, desc }, i) => (
               <motion.div
                 key={title}
                 initial={{ opacity: 0, x: -24 }}
@@ -70,8 +70,12 @@ export function ProofScene({ asset }: Props) {
                 transition={{ delay: 0.5 + i * 0.2, duration: 0.5 }}
                 className="flex items-start gap-3 rounded-xl bg-white/5 border border-white/10 p-3"
               >
-                <div className="shrink-0 w-9 h-9 rounded-lg bg-primary/20 flex items-center justify-center">
-                  <Icon className="w-4 h-4 text-primary" />
+                <div className="shrink-0 w-9 h-9 rounded-lg bg-primary/20 flex items-center justify-center overflow-hidden">
+                  {image ? (
+                    <img src={image} alt={title} className="w-full h-full object-cover" />
+                  ) : Icon ? (
+                    <Icon className="w-4 h-4 text-primary" />
+                  ) : null}
                 </div>
                 <div>
                   <p className="text-sm font-bold text-white">{title}</p>
