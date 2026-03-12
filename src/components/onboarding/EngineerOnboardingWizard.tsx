@@ -328,7 +328,17 @@ export function EngineerOnboardingWizard() {
           </div>
         )}
 
-        {currentStep === 1 && (
+        {currentStep === 1 && user && (
+          <AvatarUploadStep
+            userId={user.id}
+            currentUrl={avatarUrl || null}
+            onUploaded={setAvatarUrl}
+            accentColor="hsl(var(--accent))"
+            roleName="Engineer"
+          />
+        )}
+
+        {currentStep === 2 && (
           <div className="space-y-5">
             <div className="text-center mb-4">
               <h2 className="text-2xl font-bold mb-1">Your Expertise</h2>
