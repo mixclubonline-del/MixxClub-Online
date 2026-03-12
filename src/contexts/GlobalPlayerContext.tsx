@@ -99,19 +99,6 @@ export const GlobalPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ 
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
     audio.addEventListener('ended', handleEnded);
 
-    // DEV: Auto-load test track so the Universal Media Player is visible for testing
-    if (import.meta.env.DEV) {
-      const testTrack: Track = {
-        id: 'dev-test-1',
-        title: 'PRIME - CHECK 1',
-        artist: 'Prime',
-        audioUrl: '/audio/PRIME_-_CHECK_1.mp3',
-        duration: 180,
-        mediaType: 'audio',
-      };
-      audio.src = testTrack.audioUrl;
-      setState(prev => ({ ...prev, currentTrack: testTrack }));
-    }
     
     return () => {
       audio.removeEventListener('timeupdate', handleTimeUpdate);
