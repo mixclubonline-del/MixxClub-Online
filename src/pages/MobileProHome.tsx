@@ -90,7 +90,6 @@ export default function MobileProHome() {
   }, [acceptedApps.length]);
 
   if (!user) {
-    navigate('/auth');
     return null;
   }
 
