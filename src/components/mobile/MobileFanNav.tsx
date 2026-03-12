@@ -104,7 +104,7 @@ export const MobileFanNav = () => {
                     backgroundColor: isActive ? 'hsl(var(--destructive) / 0.15)' : 'transparent',
                   }}
                   transition={{ duration: 0.1 }}
-                  className={cn("relative p-2.5 rounded-xl", isActive && "bg-pink-500/15")}
+                  className={cn("relative p-2.5 rounded-xl", isActive && "bg-destructive/15")}
                 >
                   <Icon className="h-5 w-5" strokeWidth={isActive ? 2.5 : 2} />
                 </motion.div>
