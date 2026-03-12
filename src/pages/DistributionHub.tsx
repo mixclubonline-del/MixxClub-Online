@@ -1,3 +1,4 @@
+import { SEOHead } from "@/components/SEOHead";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, ExternalLink, Music, Headphones, Globe, Star, Zap, Shield, FileAudio, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
