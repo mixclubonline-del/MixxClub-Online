@@ -73,7 +73,7 @@ const EnterpriseDemo = React.lazy(() => import("@/pages/EnterpriseDemo"));
 const DreamEngine = React.lazy(() => import("@/pages/DreamEngine"));
 const FreemiumOverview = React.lazy(() => import("@/pages/FreemiumOverview"));
 const MatchingDashboard = React.lazy(() => import("@/pages/MatchingDashboard"));
-const Sitemap = React.lazy(() => import("@/pages/Sitemap"));
+
 const PartnerProgram = React.lazy(() => import("@/pages/PartnerProgram"));
 const Economy = React.lazy(() => import("@/pages/Economy"));
 const ProducerCRM = React.lazy(() => import("@/pages/ProducerCRM"));
@@ -228,7 +228,7 @@ export const appRoutes = (
       <Route path="/freemium" element={<FreemiumOverview />} />
       <Route path="/matching" element={<MatchingDashboard />} />
       <Route path="/partner-program" element={<PartnerProgram />} />
-      <Route path="/sitemap" element={<Sitemap />} />
+      
 
       {/* Public Profiles */}
       <Route path="/u/:username" element={<PublicProfile />} />

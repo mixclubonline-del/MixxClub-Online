@@ -1,11 +1,46 @@
 import React from "react";
 import { Route, Navigate } from "react-router-dom";
+import { ROUTES } from "@/config/routes";
 
-// Lazy-loaded QuickStart
+// Critical landing page — static import (above the fold)
+import MixClubHome from "@/pages/MixClubHome";
+
+// Lazy loading wrapper
+const Suspend = ({ children }: { children: React.ReactNode }) => (
+  <React.Suspense fallback={<div className="min-h-screen bg-background" />}>
+    {children}
+  </React.Suspense>
+);
+
+// All other public pages — lazy loaded
+const Auth = React.lazy(() => import("@/pages/Auth"));
+const AuthCallback = React.lazy(() => import("@/pages/AuthCallback"));
+const DemoLogin = React.lazy(() => import("@/pages/DemoLogin"));
+const InsiderDemo = React.lazy(() => import("@/pages/InsiderDemo"));
+const Install = React.lazy(() => import("@/pages/Install"));
+const HowItWorks = React.lazy(() => import("@/pages/HowItWorks"));
+const FAQ = React.lazy(() => import("@/pages/FAQ"));
+const Terms = React.lazy(() => import("@/pages/Terms"));
+const Privacy = React.lazy(() => import("@/pages/Privacy"));
+const Pricing = React.lazy(() => import("@/pages/Pricing"));
+const Contact = React.lazy(() => import("@/pages/Contact"));
+const About = React.lazy(() => import("@/pages/About"));
+const Waitlist = React.lazy(() => import("@/pages/Waitlist"));
+const Press = React.lazy(() => import("@/pages/Press"));
+const ForArtists = React.lazy(() => import("@/pages/ForArtists"));
+const ForEngineers = React.lazy(() => import("@/pages/ForEngineers"));
+const ForProducers = React.lazy(() => import("@/pages/ForProducers"));
+const ForFans = React.lazy(() => import("@/pages/ForFans"));
+const ForCreatives = React.lazy(() => import("@/pages/ForCreatives"));
+const Premieres = React.lazy(() => import("@/pages/Premieres"));
+const Community = React.lazy(() => import("@/pages/Community"));
+const LivePage = React.lazy(() => import("@/pages/LivePage"));
+const Achievements = React.lazy(() => import("@/pages/Achievements"));
+const PrimeBeatForge = React.lazy(() => import("@/pages/PrimeBeatForge"));
+const PublicProfile = React.lazy(() => import("@/pages/PublicProfile"));
+const PromoFunnel = React.lazy(() => import("@/pages/PromoFunnel"));
 const QuickStart = React.lazy(() => import("@/pages/QuickStart"));
 const EconomyPublic = React.lazy(() => import("@/pages/EconomyPublic"));
-
-// Lazy-loaded showcase/service pages for public access
 const Services = React.lazy(() => import("@/pages/Services"));
 const MixingShowcase = React.lazy(() => import("@/pages/MixingShowcase"));
 const MasteringShowcase = React.lazy(() => import("@/pages/MasteringShowcase"));
@@ -14,83 +49,53 @@ const DistributionHub = React.lazy(() => import("@/pages/DistributionHub"));
 const Showcase = React.lazy(() => import("@/pages/Showcase"));
 const BeatMarketplace = React.lazy(() => import("@/pages/BeatMarketplace"));
 
-// Public/Marketing pages - static imports for critical routes
-import Auth from "@/pages/Auth";
-import AuthCallback from "@/pages/AuthCallback";
-import DemoLogin from "@/pages/DemoLogin";
-import InsiderDemo from "@/pages/InsiderDemo";
-import Install from "@/pages/Install";
-import HowItWorks from "@/pages/HowItWorks";
-import FAQ from "@/pages/FAQ";
-import Terms from "@/pages/Terms";
-import Privacy from "@/pages/Privacy";
-import Pricing from "@/pages/Pricing";
-import Contact from "@/pages/Contact";
-import About from "@/pages/About";
-import Waitlist from "@/pages/Waitlist";
-import Press from "@/pages/Press";
-import ForArtists from "@/pages/ForArtists";
-import ForEngineers from "@/pages/ForEngineers";
-import ForProducers from "@/pages/ForProducers";
-import ForFans from "@/pages/ForFans";
-import Premieres from "@/pages/Premieres";
-import Community from "@/pages/Community";
-import LivePage from "@/pages/LivePage";
-import Achievements from "@/pages/Achievements";
-import PrimeBeatForge from "@/pages/PrimeBeatForge";
-import PublicProfile from "@/pages/PublicProfile";
-import MixClubHome from "@/pages/MixClubHome";
-import PromoFunnel from "@/pages/PromoFunnel";
-const ForCreatives = React.lazy(() => import("@/pages/ForCreatives"));
-import { ROUTES } from "@/config/routes";
-
 export const publicRoutes = (
   <>
     {/* Marketing / Public Routes */}
     <Route path="/" element={<MixClubHome />} />
-    <Route path={ROUTES.PROMO_FUNNEL} element={<PromoFunnel />} />
-    <Route path={ROUTES.AUTH} element={<Auth />} />
-    <Route path={ROUTES.AUTH_CALLBACK} element={<AuthCallback />} />
-    <Route path="/demo-login" element={<DemoLogin />} />
-    <Route path="/insider-demo" element={<InsiderDemo />} />
-    <Route path="/start" element={<React.Suspense fallback={<div className="min-h-screen bg-background" />}><QuickStart /></React.Suspense>} />
-    <Route path="/install" element={<Install />} />
+    <Route path={ROUTES.PROMO_FUNNEL} element={<Suspend><PromoFunnel /></Suspend>} />
+    <Route path={ROUTES.AUTH} element={<Suspend><Auth /></Suspend>} />
+    <Route path={ROUTES.AUTH_CALLBACK} element={<Suspend><AuthCallback /></Suspend>} />
+    <Route path="/demo-login" element={<Suspend><DemoLogin /></Suspend>} />
+    <Route path="/insider-demo" element={<Suspend><InsiderDemo /></Suspend>} />
+    <Route path="/start" element={<Suspend><QuickStart /></Suspend>} />
+    <Route path="/install" element={<Suspend><Install /></Suspend>} />
     
-    <Route path="/home" element={<HowItWorks />} />
+    <Route path="/home" element={<Suspend><HowItWorks /></Suspend>} />
     <Route path={ROUTES.HOW_IT_WORKS} element={<Navigate to="/home" replace />} />
-    <Route path="/faq" element={<FAQ />} />
-    <Route path="/terms" element={<Terms />} />
-    <Route path="/privacy" element={<Privacy />} />
-    <Route path="/pricing" element={<Pricing />} />
-    <Route path="/contact" element={<Contact />} />
-    <Route path="/about" element={<About />} />
-    <Route path="/waitlist" element={<Waitlist />} />
-    <Route path="/press" element={<Press />} />
-    <Route path="/for-artists" element={<ForArtists />} />
-    <Route path="/for-engineers" element={<ForEngineers />} />
-    <Route path="/for-producers" element={<ForProducers />} />
-    <Route path="/for-fans" element={<ForFans />} />
-    <Route path={ROUTES.FOR_CREATIVES} element={<React.Suspense fallback={<div className="min-h-screen bg-background" />}><ForCreatives /></React.Suspense>} />
+    <Route path="/faq" element={<Suspend><FAQ /></Suspend>} />
+    <Route path="/terms" element={<Suspend><Terms /></Suspend>} />
+    <Route path="/privacy" element={<Suspend><Privacy /></Suspend>} />
+    <Route path="/pricing" element={<Suspend><Pricing /></Suspend>} />
+    <Route path="/contact" element={<Suspend><Contact /></Suspend>} />
+    <Route path="/about" element={<Suspend><About /></Suspend>} />
+    <Route path="/waitlist" element={<Suspend><Waitlist /></Suspend>} />
+    <Route path="/press" element={<Suspend><Press /></Suspend>} />
+    <Route path="/for-artists" element={<Suspend><ForArtists /></Suspend>} />
+    <Route path="/for-engineers" element={<Suspend><ForEngineers /></Suspend>} />
+    <Route path="/for-producers" element={<Suspend><ForProducers /></Suspend>} />
+    <Route path="/for-fans" element={<Suspend><ForFans /></Suspend>} />
+    <Route path={ROUTES.FOR_CREATIVES} element={<Suspend><ForCreatives /></Suspend>} />
     
-    {/* Studio & Services — Public showcase (unauthenticated access) */}
-    <Route path={ROUTES.SERVICES} element={<React.Suspense fallback={<div className="min-h-screen bg-background" />}><Services /></React.Suspense>} />
-    <Route path={ROUTES.SERVICES_MIXING} element={<React.Suspense fallback={<div className="min-h-screen bg-background" />}><MixingShowcase /></React.Suspense>} />
-    <Route path={ROUTES.SERVICES_MASTERING} element={<React.Suspense fallback={<div className="min-h-screen bg-background" />}><MasteringShowcase /></React.Suspense>} />
-    <Route path={ROUTES.SERVICES_AI_MASTERING} element={<React.Suspense fallback={<div className="min-h-screen bg-background" />}><AIMastering /></React.Suspense>} />
-    <Route path={ROUTES.SERVICES_DISTRIBUTION} element={<React.Suspense fallback={<div className="min-h-screen bg-background" />}><DistributionHub /></React.Suspense>} />
-    <Route path={ROUTES.SHOWCASE} element={<React.Suspense fallback={<div className="min-h-screen bg-background" />}><Showcase /></React.Suspense>} />
+    {/* Studio & Services — Public showcase */}
+    <Route path={ROUTES.SERVICES} element={<Suspend><Services /></Suspend>} />
+    <Route path={ROUTES.SERVICES_MIXING} element={<Suspend><MixingShowcase /></Suspend>} />
+    <Route path={ROUTES.SERVICES_MASTERING} element={<Suspend><MasteringShowcase /></Suspend>} />
+    <Route path={ROUTES.SERVICES_AI_MASTERING} element={<Suspend><AIMastering /></Suspend>} />
+    <Route path={ROUTES.SERVICES_DISTRIBUTION} element={<Suspend><DistributionHub /></Suspend>} />
+    <Route path={ROUTES.SHOWCASE} element={<Suspend><Showcase /></Suspend>} />
     
     {/* Marketplace — Public showcase */}
-    <Route path={ROUTES.MARKETPLACE} element={<React.Suspense fallback={<div className="min-h-screen bg-background" />}><BeatMarketplace /></React.Suspense>} />
-    <Route path={ROUTES.BEATS} element={<React.Suspense fallback={<div className="min-h-screen bg-background" />}><BeatMarketplace /></React.Suspense>} />
+    <Route path={ROUTES.MARKETPLACE} element={<Suspend><BeatMarketplace /></Suspend>} />
+    <Route path={ROUTES.BEATS} element={<Suspend><BeatMarketplace /></Suspend>} />
 
     {/* Mixxclub platform routes - public */}
-    <Route path="/premieres" element={<Premieres />} />
-    <Route path="/community" element={<Community />} />
-    <Route path="/live" element={<LivePage />} />
-    <Route path="/achievements" element={<Achievements />} />
-    <Route path="/beat-forge" element={<PrimeBeatForge />} />
-    <Route path={ROUTES.ECONOMY} element={<React.Suspense fallback={<div className="min-h-screen bg-background" />}><EconomyPublic /></React.Suspense>} />
-    <Route path="/u/:username" element={<PublicProfile />} />
+    <Route path="/premieres" element={<Suspend><Premieres /></Suspend>} />
+    <Route path="/community" element={<Suspend><Community /></Suspend>} />
+    <Route path="/live" element={<Suspend><LivePage /></Suspend>} />
+    <Route path="/achievements" element={<Suspend><Achievements /></Suspend>} />
+    <Route path="/beat-forge" element={<Suspend><PrimeBeatForge /></Suspend>} />
+    <Route path={ROUTES.ECONOMY} element={<Suspend><EconomyPublic /></Suspend>} />
+    <Route path="/u/:username" element={<Suspend><PublicProfile /></Suspend>} />
   </>
 );

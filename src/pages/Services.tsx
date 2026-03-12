@@ -1,4 +1,4 @@
-import { Helmet } from 'react-helmet-async';
+import { SEOHead } from '@/components/SEOHead';
 import { motion } from 'framer-motion';
 import { Music, Sparkles, Radio, Brain, Sliders } from 'lucide-react';
 import { ServicesDistrict } from '@/components/services/ServicesDistrict';
@@ -53,13 +53,11 @@ export default function Services() {
 
   return (
     <>
-      <Helmet>
-        <title>Services District — Mixxclub Online</title>
-        <meta 
-          name="description" 
-          content="Professional audio services: mixing, mastering, AI mastering, and distribution. Transform your sound from bedroom to billboard." 
-        />
-      </Helmet>
+      <SEOHead
+        title="Services District"
+        description="Professional audio services: mixing, mastering, AI mastering, and distribution. Transform your sound from bedroom to billboard."
+        keywords="mixing services, mastering services, AI mastering, music distribution, audio engineering"
+      />
 
       <ServicesDistrict backgroundAsset={servicesLobby}>
         {/* Hero section with welcome */}

@@ -2,97 +2,163 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://mixxclub.lovable.app/</loc>
-    <lastmod>2026-02-14</lastmod>
+    <lastmod>2026-03-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://mixxclub.lovable.app/pricing</loc>
-    <lastmod>2026-02-14</lastmod>
+    <lastmod>2026-03-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://mixxclub.lovable.app/how-it-works</loc>
-    <lastmod>2026-02-14</lastmod>
+    <loc>https://mixxclub.lovable.app/home</loc>
+    <lastmod>2026-03-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://mixxclub.lovable.app/for-creatives</loc>
+    <lastmod>2026-03-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://mixxclub.lovable.app/showcase</loc>
+    <lastmod>2026-03-12</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mixxclub.lovable.app/services</loc>
+    <lastmod>2026-03-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://mixxclub.lovable.app/showcase</loc>
-    <lastmod>2026-02-14</lastmod>
+    <loc>https://mixxclub.lovable.app/services/mixing</loc>
+    <lastmod>2026-03-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mixxclub.lovable.app/services/mastering</loc>
+    <lastmod>2026-03-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mixxclub.lovable.app/services/ai-mastering</loc>
+    <lastmod>2026-03-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mixxclub.lovable.app/beats</loc>
+    <lastmod>2026-03-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://mixxclub.lovable.app/for-artists</loc>
-    <lastmod>2026-02-14</lastmod>
+    <lastmod>2026-03-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://mixxclub.lovable.app/for-engineers</loc>
-    <lastmod>2026-02-14</lastmod>
+    <lastmod>2026-03-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://mixxclub.lovable.app/for-producers</loc>
-    <lastmod>2026-02-14</lastmod>
+    <lastmod>2026-03-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://mixxclub.lovable.app/for-fans</loc>
-    <lastmod>2026-02-14</lastmod>
+    <lastmod>2026-03-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://mixxclub.lovable.app/choose-path</loc>
-    <lastmod>2026-02-14</lastmod>
-    <changefreq>monthly</changefreq>
+    <loc>https://mixxclub.lovable.app/community</loc>
+    <lastmod>2026-03-12</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mixxclub.lovable.app/premieres</loc>
+    <lastmod>2026-03-12</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mixxclub.lovable.app/achievements</loc>
+    <lastmod>2026-03-12</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://mixxclub.lovable.app/about</loc>
-    <lastmod>2026-02-14</lastmod>
+    <lastmod>2026-03-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://mixxclub.lovable.app/contact</loc>
-    <lastmod>2026-02-14</lastmod>
+    <lastmod>2026-03-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://mixxclub.lovable.app/press</loc>
-    <lastmod>2026-02-14</lastmod>
+    <lastmod>2026-03-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://mixxclub.lovable.app/waitlist</loc>
+    <lastmod>2026-03-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://mixxclub.lovable.app/start</loc>
+    <lastmod>2026-03-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://mixxclub.lovable.app/economy</loc>
+    <lastmod>2026-03-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://mixxclub.lovable.app/faq</loc>
-    <lastmod>2026-02-14</lastmod>
+    <lastmod>2026-03-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://mixxclub.lovable.app/install</loc>
-    <lastmod>2026-02-14</lastmod>
+    <lastmod>2026-03-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://mixxclub.lovable.app/privacy</loc>
-    <lastmod>2026-02-14</lastmod>
+    <lastmod>2026-03-12</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://mixxclub.lovable.app/terms</loc>
-    <lastmod>2026-02-14</lastmod>
+    <lastmod>2026-03-12</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>

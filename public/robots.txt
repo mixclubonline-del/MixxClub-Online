@@ -12,3 +12,14 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /settings
+Disallow: /checkout
+Disallow: /auth
+Disallow: /onboarding/
+Disallow: /select-role
+Disallow: /payment-success
+Disallow: /payment-canceled
+
+Sitemap: https://mixxclub.lovable.app/sitemap.xml
