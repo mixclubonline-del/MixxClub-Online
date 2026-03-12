@@ -4,6 +4,8 @@
  */
 
 import React, { useMemo, useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import { useCommissionTracking } from '@/hooks/useCommissionTracking';
 import { usePartnerManagement } from '@/hooks/usePartnerManagement';
 import { Button } from '@/components/ui/button';
