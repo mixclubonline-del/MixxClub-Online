@@ -449,11 +449,9 @@ const HybridDAW = () => {
         high: waveformData.multiResolution?.high.length + ' peaks (detail)',
       });
 
-      // 3. Use stable IDs to avoid drift between track/region
-      console.log('[HybridDAW] 🏷️ Step 3: Creating track with stable IDs...');
+      // Create track with stable IDs
       const trackId = `track-${Date.now()}`;
       const regionId = `region-${Date.now()}`;
-      console.log('[HybridDAW] Generated IDs:', { trackId, regionId });
 
       // 4. Create track with ALL audio data
       console.log('[HybridDAW] 🎨 Step 4: Building track object...');
