@@ -137,12 +137,8 @@ export const useConnectionRecovery = ({
           .on('presence', { event: 'sync' }, () => {
             handleConnected();
           })
-          .on('presence', { event: 'join' }, ({ newPresences }) => {
-            console.log('User joined:', newPresences);
-          })
-          .on('presence', { event: 'leave' }, ({ leftPresences }) => {
-            console.log('User left:', leftPresences);
-          })
+          .on('presence', { event: 'join' }, () => {})
+          .on('presence', { event: 'leave' }, () => {})
           .subscribe(async (status) => {
             if (status === 'SUBSCRIBED') {
               await sendHeartbeat();
