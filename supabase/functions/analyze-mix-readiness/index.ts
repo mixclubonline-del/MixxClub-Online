@@ -109,11 +109,7 @@ Return as JSON: {
     return new Response(JSON.stringify({ analysis }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
-  } catch (error: any) {
-    console.error('Error in analyze-mix-readiness:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+  } catch (error) {
+    return safeErrorResponse(error, corsHeaders);
   }
 });
