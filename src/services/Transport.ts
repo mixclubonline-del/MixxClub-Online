@@ -147,7 +147,7 @@ export class Transport {
     // Clamp to valid range
     time = Math.max(0, time);
     
-    console.log('[Transport] ⏩ SEEK to', time.toFixed(3), 's (was playing:', wasPlaying, ')');
+    console.debug('[Transport] SEEK to', time.toFixed(3), 's (was playing:', wasPlaying, ')');
 
     if (wasPlaying) {
       // If playing, restart from new position

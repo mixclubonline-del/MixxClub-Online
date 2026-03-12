@@ -163,7 +163,7 @@ class WaveformWorkerPool {
     this.workers = [];
     this.activeJobs.clear();
     this.queue = [];
-    console.log('[WaveformPool] ✅ Workers terminated');
+    console.debug('[WaveformPool] Workers terminated');
   }
 }
 

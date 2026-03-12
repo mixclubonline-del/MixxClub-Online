@@ -64,8 +64,6 @@ export class TrackScheduler {
     const when = this.audioContext.currentTime;
     let scheduledCount = 0;
 
-    console.log('[TrackScheduler] 🎬 Scheduling from', offsetSec.toFixed(3), 's');
-
     for (const track of tracks) {
       const graph = this.trackGraphs.get(track.id);
       if (!graph) {
@@ -74,7 +72,6 @@ export class TrackScheduler {
       }
 
       const regions = track.regions || [];
-      console.log('[TrackScheduler] Track:', track.name, '| Regions:', regions.length);
 
       if (regions.length > 0) {
         // Schedule each region
@@ -90,7 +87,7 @@ export class TrackScheduler {
       }
     }
 
-    console.log('[TrackScheduler] ✅ Scheduled', scheduledCount, 'sources');
+    console.debug('[TrackScheduler] Scheduled', scheduledCount, 'sources');
     return scheduledCount;
   }
 
@@ -108,7 +105,6 @@ export class TrackScheduler {
 
     // Skip regions that end before playback offset
     if (regionEnd <= offsetSec) {
-      console.log(`  Region ${regionNum}: Skipped (ends at ${regionEnd.toFixed(2)}s, offset is ${offsetSec.toFixed(2)}s)`);
       return false;
     }
 
@@ -120,7 +116,6 @@ export class TrackScheduler {
     // Get buffer (prefer region, fallback to track graph buffer if attached)
     const buffer = region.audioBuffer || graph.bufferSource?.buffer || null;
     if (!buffer) {
-      console.log(`  Region ${regionNum}: ❌ No buffer available (region and track missing)`);
       return false;
     }
 
@@ -146,7 +141,6 @@ export class TrackScheduler {
       endTime: regionEnd,
     });
 
-    console.log(`  Region ${regionNum}: ✅ Scheduled | start:${region.startTime.toFixed(2)}s | offset:${offsetInBuffer.toFixed(2)}s | duration:${durationToPlay.toFixed(2)}s | scheduleTime:${scheduleTime.toFixed(2)}s`);
     return true;
   }
 
@@ -181,7 +175,6 @@ export class TrackScheduler {
       endTime: track.audioBuffer.duration,
     });
 
-    console.log('  Track: Using single buffer (legacy mode)');
     return true;
   }
 
@@ -189,8 +182,6 @@ export class TrackScheduler {
    * Stop all scheduled sources immediately
    */
   stopAll() {
-    console.log('[TrackScheduler] ⏸️ Stopping', this.scheduledSources.length, 'sources');
-    
     for (const scheduled of this.scheduledSources) {
       try {
         scheduled.source.stop();
@@ -208,7 +199,6 @@ export class TrackScheduler {
    */
   private clearAll() {
     if (this.scheduledSources.length > 0) {
-      console.log('[TrackScheduler] 🧹 Clearing', this.scheduledSources.length, 'old sources');
       this.stopAll();
     }
   }
@@ -220,7 +210,6 @@ export class TrackScheduler {
     const index = this.scheduledSources.findIndex(s => s.source === source);
     if (index > -1) {
       this.scheduledSources.splice(index, 1);
-      console.log('[TrackScheduler] Source auto-removed,', this.scheduledSources.length, 'remaining');
     }
   }
 
