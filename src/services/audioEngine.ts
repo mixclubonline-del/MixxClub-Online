@@ -458,17 +458,16 @@ class AudioEngine {
   /** Initialize AudioWorklet modules for professional-grade audio processing */
   async initWorklets() {
     if (this.workletsLoaded) {
-      console.log('[AudioEngine] ✅ Worklets already loaded');
+      console.debug('[AudioEngine] Worklets already loaded');
       return;
     }
 
     try {
-      console.log('[AudioEngine] 🔧 Loading AudioWorklet modules...');
+      console.debug('[AudioEngine] Loading AudioWorklet modules...');
       await this.ctx.audioWorklet.addModule('/worklets/daw-mixer-processor.js');
       await this.ctx.audioWorklet.addModule('/worklets/daw-meter-processor.js');
       this.workletsLoaded = true;
-      console.log('[AudioEngine] ✅ AudioWorklets loaded successfully');
-      console.log('[AudioEngine] 🎵 Audio processing now running on dedicated audio thread');
+      console.debug('[AudioEngine] AudioWorklets loaded successfully');
     } catch (error) {
       console.error('[AudioEngine] ❌ Failed to load AudioWorklets:', error);
       console.warn('[AudioEngine] ⚠️ Falling back to main thread audio processing');
