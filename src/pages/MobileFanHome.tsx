@@ -88,7 +88,6 @@ export default function MobileFanHome() {
   });
 
   if (!user) {
-    navigate('/auth');
     return null;
   }
 
