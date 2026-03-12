@@ -300,14 +300,11 @@ const HybridDAW = () => {
         // Decode audio and generate waveform using audioEngine context
         if (audioContextRef.current) {
           try {
-            console.log('[Recording] Decoding recorded audio...');
             await audioEngine.resume();
             const arrayBuffer = await blob.arrayBuffer();
             const audioBuffer = await audioEngine.ctx.decodeAudioData(arrayBuffer);
 
             const waveformData = await WaveformGenerator.generateMultiResolutionAsync(audioBuffer);
-
-            console.log('[Recording] Multi-resolution waveform generated (async)');
 
             // Stable IDs for region
             const regionId = `region-${Date.now()}`;
