@@ -139,7 +139,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   /** Re-fetch roles from the database (call after role insertion) */
   const refreshRoles = async () => {
-    if (isBypass || !user) return;
+    if (!user) return;
     const result = await resolveRoles(user.id);
     if (isMounted.current) applyRoles(result);
   };
