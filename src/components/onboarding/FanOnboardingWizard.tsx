@@ -57,11 +57,11 @@
      const checkOnboardingStatus = async () => {
        if (!user) return;
        
-       const { data: profile } = await supabase
-         .from('profiles')
-         .select('onboarding_completed, username')
-         .eq('id', user.id)
-         .single();
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('onboarding_completed, username')
+          .eq('id', user.id)
+          .maybeSingle();
        
        if (profile?.onboarding_completed || profile?.username) {
          navigate('/fan-hub');
