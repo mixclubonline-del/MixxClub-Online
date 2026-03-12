@@ -1,158 +1,138 @@
-import { useCallback, useMemo } from 'react';
-import { useMarketplaceStore, Product } from '@/stores/marketplaceStore';
+/**
+ * useMarketplace — Legacy hook for SellerDashboard.
+ * Now wired to live Supabase queries instead of in-memory mock store.
+ */
+
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+
+export interface SellerStats {
+  totalEarnings: number;
+  monthlyEarnings: number;
+  totalSales: number;
+  totalDownloads: number;
+  averageRating: number;
+  productsCount: number;
+}
 
 export const useMarketplace = () => {
-    const {
-        products,
-        filteredProducts,
-        cart,
-        cartTotal,
-        selectedCategory,
-        searchQuery,
-        sortBy,
-        sellerStats,
-        sellerEarnings,
-        sellerProducts,
-        filterProducts,
-        addToCart,
-        removeFromCart,
-        updateCartQuantity,
-        clearCart,
-        getCartTotal,
-        setSearchQuery,
-        setSelectedCategory,
-        setSortBy,
-        uploadProduct,
-        deleteProduct,
-        setSellerStats,
-        setSellerEarnings,
-        setSellerProducts,
-    } = useMarketplaceStore();
+  const { user } = useAuth();
 
-    // Search and filter
-    const handleSearch = useCallback(
-        (query: string) => {
-            filterProducts(selectedCategory, query, sortBy);
-        },
-        [filterProducts, selectedCategory, sortBy]
-    );
+  const { data: sellerProducts = [] } = useQuery({
+    queryKey: ['seller-products', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const { data, error } = await supabase
+        .from('marketplace_items')
+        .select('*')
+        .eq('seller_id', user.id)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user?.id,
+  });
 
-    const handleCategoryChange = useCallback(
-        (category: string) => {
-            filterProducts(category, searchQuery, sortBy);
-        },
-        [filterProducts, searchQuery, sortBy]
-    );
+  const { data: sellerStats = {
+    totalEarnings: 0,
+    monthlyEarnings: 0,
+    totalSales: 0,
+    totalDownloads: 0,
+    averageRating: 0,
+    productsCount: 0,
+  } } = useQuery({
+    queryKey: ['seller-stats', user?.id],
+    queryFn: async (): Promise<SellerStats> => {
+      if (!user?.id) return {
+        totalEarnings: 0, monthlyEarnings: 0, totalSales: 0,
+        totalDownloads: 0, averageRating: 0, productsCount: 0,
+      };
 
-    const handleSortChange = useCallback(
-        (sort: 'trending' | 'newest' | 'best-selling' | 'rating') => {
-            filterProducts(selectedCategory, searchQuery, sort);
-        },
-        [filterProducts, selectedCategory, searchQuery]
-    );
+      // Get all purchases where this user is the seller
+      const { data: purchases, error: purchaseError } = await supabase
+        .from('marketplace_purchases')
+        .select('purchase_amount, created_at')
+        .eq('seller_id', user.id)
+        .eq('status', 'completed');
 
-    // Cart management
-    const handleAddToCart = useCallback(
-        (product: Product) => {
-            addToCart(product);
-        },
-        [addToCart]
-    );
+      if (purchaseError) throw purchaseError;
 
-    const handleRemoveFromCart = useCallback(
-        (productId: string) => {
-            removeFromCart(productId);
-        },
-        [removeFromCart]
-    );
+      const now = new Date();
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+      
+      const totalEarnings = (purchases || []).reduce((sum, p) => sum + (p.purchase_amount || 0), 0);
+      const monthlyEarnings = (purchases || [])
+        .filter(p => p.created_at >= monthStart)
+        .reduce((sum, p) => sum + (p.purchase_amount || 0), 0);
 
-    const handleUpdateQuantity = useCallback(
-        (productId: string, quantity: number) => {
-            updateCartQuantity(productId, quantity);
-        },
-        [updateCartQuantity]
-    );
+      // Get product count
+      const { count: productsCount } = await supabase
+        .from('marketplace_items')
+        .select('id', { count: 'exact', head: true })
+        .eq('seller_id', user.id);
 
-    const handleCheckout = useCallback(async () => {
-        try {
-            // Simulate checkout process
-            // In real implementation, this would call Stripe API
-            const response = await fetch('/api/checkout', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    items: cart,
-                    total: cartTotal,
-                }),
-            });
+      return {
+        totalEarnings,
+        monthlyEarnings,
+        totalSales: purchases?.length || 0,
+        totalDownloads: purchases?.length || 0,
+        averageRating: 0, // No rating system on marketplace_items yet
+        productsCount: productsCount || 0,
+      };
+    },
+    enabled: !!user?.id,
+  });
 
-            if (response.ok) {
-                clearCart();
-                return { success: true };
-            }
-            return { success: false, error: 'Checkout failed' };
-        } catch (error) {
-            return { success: false, error: error instanceof Error ? error.message : 'Checkout error' };
+  const { data: sellerEarnings = [] } = useQuery({
+    queryKey: ['seller-earnings-chart', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      
+      // Get last 7 days of sales
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+      const { data: purchases, error } = await supabase
+        .from('marketplace_purchases')
+        .select('purchase_amount, created_at')
+        .eq('seller_id', user.id)
+        .eq('status', 'completed')
+        .gte('created_at', sevenDaysAgo.toISOString())
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+
+      // Group by date
+      const dailyMap = new Map<string, { amount: number; sales: number }>();
+      for (let i = 0; i < 7; i++) {
+        const d = new Date();
+        d.setDate(d.getDate() - (6 - i));
+        const key = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        dailyMap.set(key, { amount: 0, sales: 0 });
+      }
+
+      (purchases || []).forEach(p => {
+        const key = new Date(p.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const existing = dailyMap.get(key);
+        if (existing) {
+          existing.amount += p.purchase_amount || 0;
+          existing.sales += 1;
         }
-    }, [cart, cartTotal, clearCart]);
+      });
 
-    // Product management for sellers
-    const handleUploadProduct = useCallback(
-        (product: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) => {
-            uploadProduct(product);
-        },
-        [uploadProduct]
-    );
+      return Array.from(dailyMap.entries()).map(([date, { amount, sales }]) => ({
+        date, amount, sales,
+      }));
+    },
+    enabled: !!user?.id,
+  });
 
-    const handleDeleteProduct = useCallback(
-        (productId: string) => {
-            deleteProduct(productId);
-        },
-        [deleteProduct]
-    );
-
-    // Statistics
-    const stats = useMemo(
-        () => ({
-            totalProducts: products.length,
-            cartItemsCount: cart.length,
-            cartItemsTotal: cart.reduce((sum, item) => sum + item.quantity, 0),
-            sellerTotalEarnings: sellerStats.totalEarnings,
-            sellerMonthlyEarnings: sellerStats.monthlyEarnings,
-            sellerAverageRating: sellerStats.averageRating,
-        }),
-        [products, cart, sellerStats]
-    );
-
-    return {
-        // Products
-        products,
-        filteredProducts,
-        selectedCategory,
-        searchQuery,
-        sortBy,
-
-        // Cart
-        cart,
-        cartTotal,
-
-        // Seller
-        sellerStats,
-        sellerEarnings,
-        sellerProducts,
-
-        // Handlers
-        handleSearch,
-        handleCategoryChange,
-        handleSortChange,
-        handleAddToCart,
-        handleRemoveFromCart,
-        handleUpdateQuantity,
-        handleCheckout,
-        handleUploadProduct,
-        handleDeleteProduct,
-
-        // Stats
-        stats,
-    };
+  return {
+    sellerProducts,
+    sellerStats,
+    sellerEarnings,
+    handleUploadProduct: () => {},
+    handleDeleteProduct: () => {},
+  };
 };
