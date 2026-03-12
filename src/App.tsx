@@ -16,8 +16,6 @@ import { TabletSideNav } from "@/components/mobile/TabletSideNav";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { usePageTracking } from "@/hooks/useAnalytics";
 import { PrimeProvider } from "@/contexts/PrimeContext";
-import PrimeConsole from "@/components/prime/PrimeConsole";
-import PrimeStatusBar from "@/components/prime/PrimeStatusBar";
 import { useMobileDetect } from "@/hooks/useMobileDetect";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
@@ -26,9 +24,8 @@ import { useSplashScreen } from "@/hooks/useSplashScreen";
 import { TutorialProvider } from "@/contexts/TutorialContext";
 import { TutorialOverlay } from "@/components/tutorial/TutorialOverlay";
 import { TutorialLauncher } from "@/components/tutorial/TutorialLauncher";
-import { GlobalAudioPlayer } from "@/components/audio/GlobalAudioPlayer";
 import { GlobalPlayerProvider } from "@/contexts/GlobalPlayerContext";
-import GlobalMusicPlayer from "@/components/player/GlobalMusicPlayer";
+import { UniversalMediaPlayer } from "@/components/player/UniversalMediaPlayer";
 import { GlobalPrimeChat } from "@/components/prime/GlobalPrimeChat";
 import { PageTransition } from "@/components/layouts/PageTransition";
 import { DashboardSkeleton } from "@/components/ui/loading-skeleton";
@@ -47,21 +44,9 @@ import { UnlockCelebrationProvider } from "@/components/unlock/UnlockCelebration
 import { publicRoutes, appRoutes, mobileRoutes, cityRoutes } from "@/routes";
 import NotFound from "@/pages/NotFound";
 
-// Desktop-only components wrapper (Prime Console/Status only)
+// Desktop-only components wrapper (reserved for future use)
 const DesktopOnlyComponents = () => {
-  const { deviceType } = useMobileDetect();
-  const { user } = useAuth();
-
-  if (deviceType !== "desktop" || !user) {
-    return null;
-  }
-
-  return (
-    <>
-      <PrimeConsole />
-      <PrimeStatusBar />
-    </>
-  );
+  return null;
 };
 
 // Mobile-only overlays — sync indicator + PWA update prompt
@@ -84,8 +69,7 @@ const AuthGatedOverlays = () => {
   return (
     <>
       <TutorialOverlay />
-      <GlobalAudioPlayer />
-      <GlobalMusicPlayer />
+      <UniversalMediaPlayer />
       <GlobalPrimeChat />
     </>
   );
