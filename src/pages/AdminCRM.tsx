@@ -24,6 +24,7 @@ import { AdminSupportInbox } from '@/components/admin/AdminSupportInbox';
 import { AdminAuditLogViewer } from '@/components/admin/AdminAuditLogViewer';
 import { AdminPartnershipsHub } from '@/components/admin/AdminPartnershipsHub';
 import { AdminBroadcastHub } from '@/components/admin/AdminBroadcastHub';
+import { AdminLaunchHub } from '@/components/admin/AdminLaunchHub';
 import { lazy, Suspense } from 'react';
 const PromoStudio = lazy(() => import('@/pages/PromoStudio'));
 
