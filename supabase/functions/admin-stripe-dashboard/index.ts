@@ -24,9 +24,17 @@ serve(async (req) => {
 
     const stripe = new Stripe(stripeKey, { apiVersion: '2023-10-16' });
 
-    // POST = quick actions
-    if (req.method === 'POST') {
-      const { action, ...params } = await req.json();
+    // Parse body safely (supabase.functions.invoke always sends POST)
+    let body: Record<string, any> = {};
+    try {
+      const text = await req.text();
+      if (text) body = JSON.parse(text);
+    } catch { /* empty body = dashboard fetch */ }
+
+    const action = body.action;
+
+    if (action) {
+      const params = body;
 
       if (action === 'refund') {
         const { payment_intent_id, amount, reason } = params;
