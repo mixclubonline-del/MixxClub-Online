@@ -20,7 +20,8 @@ const FEATURES = [
     desc: 'Connect with real engineers who get your sound. Not algorithms — people.',
   },
   {
-    icon: Coins,
+    icon: null,
+    image: mixxcoinzHero,
     title: 'MixxCoinz Economy',
     desc: 'Earn, spend, unlock — a creator economy built for artists, not advertisers.',
   },
