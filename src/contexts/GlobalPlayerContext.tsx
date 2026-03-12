@@ -336,6 +336,11 @@ export const GlobalPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ 
     toggleQueue,
   };
 
+  // Expose player to window for dev/testing
+  useEffect(() => {
+    (window as any).__PLAYER__ = value;
+  });
+
   return (
     <GlobalPlayerContext.Provider value={value}>
       {children}
