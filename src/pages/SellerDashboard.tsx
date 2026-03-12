@@ -221,30 +221,30 @@ export const SellerDashboard = () => {
                                     <tr key={i} className="border-b border-slate-700 hover:bg-slate-700/30">
                                         <td className="py-3 px-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="text-3xl">{product.image}</div>
+                                                <div className="text-3xl">📦</div>
                                                 <div>
                                                     <p className="text-white font-medium line-clamp-1">
-                                                        {product.title}
+                                                        {product.item_name}
                                                     </p>
                                                     <p className="text-slate-400 text-sm">
-                                                        {product.category}
+                                                        {product.item_type}
                                                     </p>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="py-3 px-4 text-white">${product.price}</td>
-                                        <td className="py-3 px-4 text-white">142</td>
+                                        <td className="py-3 px-4 text-white">{product.sales_count || 0}</td>
                                         <td className="py-3 px-4 text-white">
-                                            {product.downloads.toLocaleString()}
+                                            {(product.sales_count || 0).toLocaleString()}
                                         </td>
                                         <td className="py-3 px-4">
                                             <div className="flex items-center gap-1">
                                                 <span className="text-yellow-400">★</span>
-                                                <span className="text-white">{product.rating.toFixed(1)}</span>
+                                                <span className="text-white">—</span>
                                             </div>
                                         </td>
                                         <td className="py-3 px-4 text-white font-bold">
-                                            ${(product.price * 142 * 0.7).toLocaleString('en-US', {
+                                            ${((product.price || 0) * (product.sales_count || 0) * 0.7).toLocaleString('en-US', {
                                                 maximumFractionDigits: 2,
                                             })}
                                         </td>
