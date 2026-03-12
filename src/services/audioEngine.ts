@@ -130,7 +130,7 @@ class AudioEngine {
     this.transportPausedAt = 0;
     this.transportState = 'stopped';
     
-    console.log('[AudioEngine] ⏹ Transport STOP');
+    console.debug('[AudioEngine] ⏹ Transport STOP');
   }
   
   /**
