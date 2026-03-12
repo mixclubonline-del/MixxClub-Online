@@ -85,7 +85,7 @@ export const HapticWaveformVisualizer = ({
       
       setLastHapticTime(now);
     } catch (error) {
-      console.log('Haptics not available');
+      // Haptics not available on this platform
     }
   };
 
