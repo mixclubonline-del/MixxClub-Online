@@ -49,6 +49,7 @@
    // Form state
    const [displayName, setDisplayName] = useState(nameFromUrl || '');
    const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
+   const [avatarUrl, setAvatarUrl] = useState<string>('');
    
    // Username validation
    const { username, setUsername, isChecking, isAvailable, error: usernameError, isValid: isUsernameValid } = useUsernameValidation();
