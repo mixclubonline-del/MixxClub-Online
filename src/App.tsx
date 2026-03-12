@@ -87,6 +87,7 @@ const AppContent = () => {
       <PageTransition>
         <MobileRouteGuard />
         <OfflineIndicator />
+        <main id="main-content">
         <React.Suspense fallback={<DashboardSkeleton />}>
           <Routes>
             {/* Domain-specific route modules */}
