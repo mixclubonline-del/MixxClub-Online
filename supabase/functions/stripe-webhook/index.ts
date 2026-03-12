@@ -1025,6 +1025,3 @@ async function handleDisputeCreated(
 
   console.log('[STRIPE-WEBHOOK] Dispute alert sent to admins');
 }
-
-  console.log('[STRIPE-WEBHOOK] Coinz purchase complete');
-}
