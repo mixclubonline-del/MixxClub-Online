@@ -56,7 +56,13 @@ export const DealPipeline: React.FC<DealPipelineProps> = ({ userType }) => {
   };
 
   const handleEdit = (id: string) => {
-    // TODO: Open edit dialog
+    const deal = deals?.find(d => d.id === id);
+    if (!deal) return;
+    // Re-use the AddDealDialog in edit mode — for now surface a toast
+    toast({
+      title: 'Edit Deal',
+      description: `Editing "${deal.title}" — full editor launching soon.`,
+    });
   };
 
   const handleDelete = async (id: string) => {
