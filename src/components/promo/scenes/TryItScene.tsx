@@ -167,10 +167,10 @@ export function TryItScene({ asset, trackStep, onAdvance }: Props) {
               <Sparkles className="w-3 h-3" /> LIVE DEMO
             </motion.div>
             <h2 className="text-xl font-bold text-white">
-              Don't take our word for it.
+              Hear the difference.
             </h2>
             <p className="text-sm text-white/60">
-              Upload a track. Hear it mastered. No sign-up required.
+              Drop a track. Get it mastered. No signup. No catch.
             </p>
           </div>
 
