@@ -15,12 +15,12 @@ export const usePerformanceMonitor = (componentName: string) => {
     const mountTime = Date.now() - mountTimeRef.current;
     
     if (import.meta.env.DEV) {
-      console.log(`⚡ ${componentName} mounted in ${mountTime}ms`);
+      console.debug(`⚡ ${componentName} mounted in ${mountTime}ms`);
     }
 
     return () => {
       if (import.meta.env.DEV) {
-        console.log(`⚡ ${componentName} unmounted after ${renderCountRef.current} renders`);
+        console.debug(`⚡ ${componentName} unmounted after ${renderCountRef.current} renders`);
       }
     };
   }, [componentName]);
