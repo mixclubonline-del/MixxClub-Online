@@ -127,7 +127,7 @@ export class Transport {
     this.pausedAt = 0;
     this.startedAt = 0;
 
-    console.log('[Transport] ⏹️ STOP');
+    console.debug('[Transport] STOP');
 
     if (wasPlaying) {
       this.listeners.forEach(listener => {
