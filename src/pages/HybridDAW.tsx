@@ -491,20 +491,8 @@ const HybridDAW = () => {
         throw new Error('❌ Track missing regions after creation!');
       }
 
-      console.log('[HybridDAW] ✅ Track validation passed:', {
-        hasAudioBuffer: !!newTrack.audioBuffer,
-        waveformData: typeof newTrack.waveformData,
-        regionCount: newTrack.regions.length,
-        regionHasBuffer: !!newTrack.regions[0].audioBuffer,
-      });
-
-      console.log('[HybridDAW] 📤 Step 5: Adding track to state...');
-      const currentTrackCount = tracks.length;
       addTrack(newTrack);
-      console.log('[HybridDAW] ✅ Track added to state (was', currentTrackCount, 'tracks, now should be', currentTrackCount + 1, ')');
-
       setShowImportDialog(false);
-      console.log('[HybridDAW] ✅ Import dialog closed');
 
       // If analysis is available, update session BPM and time signature
       if (importedFile.analysis) {
