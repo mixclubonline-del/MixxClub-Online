@@ -128,7 +128,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       isMounted.current = false;
       subscription.unsubscribe();
     };
-  }, [isBypass]);
+  }, []);
 
   const handleSetActiveRole = (role: AppRole) => {
     if (isBypass) return;
