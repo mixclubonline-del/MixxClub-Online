@@ -81,6 +81,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   if (deviceType === 'phone') {
     return (
       <>
+        <AppOnboarding />
         <MobileTopBar />
         {isFan ? <MobileFanNav /> : <MobileProNav />}
         <div
