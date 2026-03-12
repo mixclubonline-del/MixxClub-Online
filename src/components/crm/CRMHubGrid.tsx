@@ -27,6 +27,10 @@ import {
   Calendar,
   Brain,
   Rocket,
+  Inbox,
+  Shield,
+  Megaphone,
+  BarChart3,
   type LucideIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
