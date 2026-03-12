@@ -161,12 +161,12 @@ export const AdminUsersHub = () => {
               <Card key={user.id} className="bg-background/50 backdrop-blur-sm border-border/50">
                 <CardContent className="p-4">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 cursor-pointer" onClick={() => setSelectedUserId(user.id)}>
                       <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-sm font-bold text-primary shrink-0">
                         {user.full_name?.charAt(0) || '?'}
                       </div>
                       <div>
-                        <p className="font-medium text-foreground">{user.full_name || 'Unnamed User'}</p>
+                        <p className="font-medium text-foreground hover:text-primary transition-colors">{user.full_name || 'Unnamed User'}</p>
                         <p className="text-xs text-muted-foreground">{user.email || user.id.slice(0, 8)}</p>
                         <p className="text-xs text-muted-foreground">
                           Joined {format(new Date(user.created_at), 'MMM d, yyyy')}
@@ -175,6 +175,15 @@ export const AdminUsersHub = () => {
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        onClick={() => setSelectedUserId(user.id)}
+                        title="View user details"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                      </Button>
                       {roles.map((role) => (
                         <Badge
                           key={role}
@@ -207,6 +216,9 @@ export const AdminUsersHub = () => {
           })}
         </div>
       )}
+
+      {/* User Detail Slide-Over */}
+      <AdminUserDetail userId={selectedUserId} onClose={() => setSelectedUserId(null)} />
     </div>
   );
 };
