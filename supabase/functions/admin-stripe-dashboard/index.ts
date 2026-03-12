@@ -83,13 +83,32 @@ serve(async (req) => {
       stripe.balance.retrieve(),
       stripe.charges.list({ limit: 25, expand: ['data.customer'] }),
       stripe.disputes.list({ limit: 20 }),
-      stripe.subscriptions.list({ limit: 100, status: 'active', expand: ['data.items.data.price.product'] }),
+      stripe.subscriptions.list({ limit: 100, status: 'active', expand: ['data.items.data.price'] }),
       stripe.payouts.list({ limit: 10 }),
     ]);
 
-    // Calculate subscription metrics
+    // Calculate subscription metrics — resolve product names separately
     let mrr = 0;
     const tierBreakdown: Record<string, { count: number; revenue: number }> = {};
+    const productIds = new Set<string>();
+
+    for (const sub of subscriptions.data) {
+      const item = sub.items.data[0];
+      if (!item?.price) continue;
+      const prodRef = item.price.product;
+      if (typeof prodRef === 'string') productIds.add(prodRef);
+    }
+
+    // Batch-fetch product names (max ~100, well within limits)
+    const productNames: Record<string, string> = {};
+    await Promise.all(
+      Array.from(productIds).map(async (pid) => {
+        try {
+          const prod = await stripe.products.retrieve(pid);
+          productNames[pid] = prod.name || 'Unknown';
+        } catch { productNames[pid] = 'Unknown'; }
+      })
+    );
 
     for (const sub of subscriptions.data) {
       const item = sub.items.data[0];
@@ -99,10 +118,10 @@ serve(async (req) => {
         : (item.price.unit_amount || 0);
       mrr += monthlyAmount;
 
-      const product = item.price.product;
-      const tierName = typeof product === 'object' && product !== null && 'name' in product
-        ? (product as any).name
-        : 'Unknown';
+      const prodRef = item.price.product;
+      const tierName = typeof prodRef === 'string'
+        ? (productNames[prodRef] || 'Unknown')
+        : (typeof prodRef === 'object' && prodRef !== null && 'name' in prodRef ? (prodRef as any).name : 'Unknown');
       if (!tierBreakdown[tierName]) tierBreakdown[tierName] = { count: 0, revenue: 0 };
       tierBreakdown[tierName].count += 1;
       tierBreakdown[tierName].revenue += monthlyAmount;
