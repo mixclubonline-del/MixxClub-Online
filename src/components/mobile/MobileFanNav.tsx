@@ -73,12 +73,12 @@ export const MobileFanNav = () => {
                     transition={{ duration: 0.1 }}
                     className={cn(
                       "w-14 h-14 rounded-2xl flex items-center justify-center",
-                      "bg-gradient-to-br from-pink-500 via-fuchsia-500 to-purple-500",
-                      "shadow-lg shadow-pink-500/30",
-                      "border border-pink-400/40"
+                      "bg-gradient-to-br from-destructive via-accent to-primary",
+                      "shadow-lg shadow-destructive/30",
+                      "border border-destructive/40"
                     )}
                   >
-                    <Icon className="h-6 w-6 text-white" />
+                    <Icon className="h-6 w-6 text-primary-foreground" />
                   </motion.div>
                   <span className="text-[10px] font-semibold mt-1 text-pink-500">{tab.label}</span>
                 </motion.button>
