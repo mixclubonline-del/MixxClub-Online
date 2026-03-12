@@ -32,6 +32,7 @@ const TIER_CONFIG: Record<string, { label: string; color: string; icon: React.Re
 export const FanEngagementHub: React.FC = () => {
   const [activeTab, setActiveTab] = useState('day1');
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   const { stats, isLoading: statsLoading, currentTier } = useFanStats();
   const { myDay1Artists, isLoadingMyArtists, stats: day1Stats } = useDay1Status();
 
