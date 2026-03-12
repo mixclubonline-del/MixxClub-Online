@@ -75,6 +75,7 @@ export const CommunityHub: React.FC<CommunityHubProps> = ({ userType }) => {
                     <SelectItem value="networking">Networking</SelectItem>
                     <SelectItem value="challenges">Challenges</SelectItem>
                     <SelectItem value="leaderboard">Leaderboard</SelectItem>
+                    <SelectItem value="fans">Fan Hub</SelectItem>
                   </SelectContent>
                 </Select>
               ) : (
