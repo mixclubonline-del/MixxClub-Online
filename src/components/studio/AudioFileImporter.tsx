@@ -28,14 +28,7 @@ export const AudioFileImporter = () => {
       const audioContext = new AudioContext();
       const arrayBuffer = await file.arrayBuffer();
       
-      console.log('[AudioImporter] 🔊 Decoding audio...');
       const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-      console.log('[AudioImporter] ✅ Audio decoded:', {
-        duration: audioBuffer.duration.toFixed(2) + 's',
-        sampleRate: audioBuffer.sampleRate + 'Hz',
-        channels: audioBuffer.numberOfChannels,
-        length: audioBuffer.length + ' samples',
-      });
 
       // Generate multi-resolution waveform data using client-side generation
       console.log('[AudioImporter] 📊 Generating multi-resolution waveform...');
