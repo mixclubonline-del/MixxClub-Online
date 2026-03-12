@@ -97,6 +97,13 @@ export function DeckShell() {
         </div>
       </div>
 
+      {/* Notes panel */}
+      <PresenterNotesPanel
+        slideIndex={currentSlide}
+        isOpen={showNotes}
+        onToggle={() => setShowNotes(s => !s)}
+      />
+
       {/* Controls */}
       <DeckControls
         currentSlide={currentSlide}
