@@ -239,7 +239,7 @@ export const useWebRTC = ({ sessionId, userId, onRemoteStream, onScreenShareStre
   // Initialize local media stream
   const startLocalStream = useCallback(async (options: { audio: boolean; video: boolean }) => {
     try {
-      console.log('[WebRTC] Starting local stream with options:', options);
+      console.debug('[WebRTC] Starting local stream with options:', options);
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: options.audio ? {
           echoCancellation: true,
