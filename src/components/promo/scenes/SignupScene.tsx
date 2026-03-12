@@ -1,3 +1,4 @@
+// Cinematic urban+studio backgrounds v2
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';

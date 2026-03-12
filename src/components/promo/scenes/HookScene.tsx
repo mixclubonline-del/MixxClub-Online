@@ -1,3 +1,4 @@
+// Cinematic urban+studio backgrounds v2
 import { motion } from 'framer-motion';
 import { SceneBackground } from './SceneBackground';
 import funnelHookBg from '@/assets/promo/funnel-hook-bg.jpg';

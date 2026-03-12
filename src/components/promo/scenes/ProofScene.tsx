@@ -1,3 +1,4 @@
+// Cinematic urban+studio backgrounds v2
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SceneBackground } from './SceneBackground';
