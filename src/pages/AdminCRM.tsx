@@ -188,6 +188,14 @@ const AdminCRM = () => {
         return <AdminAnalyticsDashboard />;
       case 'branding':
         return <BrandingManager />;
+      case 'support':
+        return <AdminSupportInbox />;
+      case 'audit':
+        return <AdminAuditLogViewer />;
+      case 'partnerships':
+        return <AdminPartnershipsHub />;
+      case 'broadcast':
+        return <AdminBroadcastHub />;
       default:
         return <AdminDashboardHub />;
     }
