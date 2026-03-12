@@ -240,7 +240,17 @@
            </div>
          )}
  
-         {currentStep === 1 && (
+         {currentStep === 1 && user && (
+           <AvatarUploadStep
+             userId={user.id}
+             currentUrl={avatarUrl || null}
+             onUploaded={setAvatarUrl}
+             accentColor="hsl(330 80% 60%)"
+             roleName="Fan"
+           />
+         )}
+
+         {currentStep === 2 && (
            <div className="space-y-6">
              <div className="text-center mb-6">
                <h2 className="text-2xl font-bold mb-1">What Music Do You Love?</h2>
