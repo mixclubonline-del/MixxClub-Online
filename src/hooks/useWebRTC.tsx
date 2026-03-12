@@ -197,7 +197,7 @@ export const useWebRTC = ({ sessionId, userId, onRemoteStream, onScreenShareStre
         // Don't process our own messages
         if (message.from === userId) return;
         
-        console.log(`[WebRTC] Received ${message.type} from ${message.from}`);
+        console.debug(`[WebRTC] Received ${message.type} from ${message.from}`);
         
         switch (message.type) {
           case 'offer':
