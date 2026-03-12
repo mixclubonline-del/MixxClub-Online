@@ -5,9 +5,10 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, ChevronLeft, ChevronRight, UserPlus, Shield } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, UserPlus, Shield, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import { AdminUserDetail } from './AdminUserDetail';
 
 const ROLES = ['artist', 'engineer', 'producer', 'fan', 'admin'] as const;
 const PAGE_SIZE = 20;
