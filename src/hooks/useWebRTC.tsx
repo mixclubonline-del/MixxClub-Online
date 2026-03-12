@@ -47,7 +47,7 @@ export const useWebRTC = ({ sessionId, userId, onRemoteStream, onScreenShareStre
     }
     
     try {
-      console.log(`[WebRTC] Sending ${message.type} to ${message.to}`);
+      console.debug(`[WebRTC] Sending ${message.type} to ${message.to}`);
       await signalingChannel.current.send({
         type: 'broadcast',
         event: 'signaling',
