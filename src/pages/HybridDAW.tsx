@@ -453,8 +453,7 @@ const HybridDAW = () => {
       const trackId = `track-${Date.now()}`;
       const regionId = `region-${Date.now()}`;
 
-      // 4. Create track with ALL audio data
-      console.log('[HybridDAW] 🎨 Step 4: Building track object...');
+      // Build track object
       const newTrack: Track = {
         id: trackId,
         name: importedFile.fileName,
