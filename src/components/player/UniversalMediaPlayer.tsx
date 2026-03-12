@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useGlobalPlayer } from '@/contexts/GlobalPlayerContext';
 import { isFullImmersiveRoute } from '@/config/immersiveRoutes';
-import { useLiveActivity } from '@/hooks/useLiveActivity';
+import { usePlayerTicker } from '@/hooks/usePlayerTicker';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { Z_INDEX } from '@/lib/z-index';
 import {
@@ -25,7 +25,7 @@ const formatTime = (seconds: number) => {
 export const UniversalMediaPlayer: React.FC = () => {
   const location = useLocation();
   const { isPhone } = useBreakpoint();
-  const { activities } = useLiveActivity();
+  const { items: tickerItems } = usePlayerTicker();
   const {
     currentTrack,
     isPlaying,
@@ -64,6 +64,9 @@ export const UniversalMediaPlayer: React.FC = () => {
 
   const mediaIcon = mediaType === 'video' ? Video : mediaType === 'live' ? Radio : Music2;
   const MediaIcon = mediaIcon;
+
+  // Double items for seamless infinite scroll
+  const tickerDuplicates = tickerItems.length > 0 ? [...tickerItems, ...tickerItems] : [];
 
   return (
     <>
@@ -188,6 +191,23 @@ export const UniversalMediaPlayer: React.FC = () => {
           </Button>
         </div>
 
+        {/* Scrolling ticker — always visible in compact pill */}
+        {tickerItems.length > 0 && !isExpanded && (
+          <div className="overflow-hidden border-t border-border/20 px-2.5 py-1.5">
+            <div className="ticker-scroll flex gap-6 whitespace-nowrap">
+              {tickerDuplicates.map((item, i) => (
+                <span key={`${item.id}-${i}`} className="inline-flex items-center gap-1.5 text-[10px] shrink-0">
+                  <span className="font-medium text-primary/90">{item.label}</span>
+                  <span className="text-muted-foreground">{item.title}</span>
+                  {item.detail && (
+                    <span className="text-muted-foreground/60">· {item.detail}</span>
+                  )}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Expanded area */}
         <AnimatePresence>
           {isExpanded && (
@@ -296,21 +316,23 @@ export const UniversalMediaPlayer: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Live activity ticker — "Now on Mixxclub" */}
-                {activities.length > 0 && (
+                {/* Live activity ticker — "Now on Mixxclub" (expanded view) */}
+                {tickerItems.length > 0 && (
                   <div className="border-t border-border/30 pt-2">
                     <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5 font-mono">
                       Now on Mixxclub
                     </p>
-                    <div className="space-y-1 max-h-16 overflow-hidden">
-                      {activities.slice(0, 3).map((a) => (
-                        <div key={a.id} className="flex items-center gap-2 text-xs">
+                    <div className="space-y-1.5 max-h-24 overflow-y-auto hide-scrollbar">
+                      {tickerItems.map((item) => (
+                        <div key={item.id} className="flex items-center gap-2 text-xs">
                           <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0 animate-pulse" />
-                          <span className="text-muted-foreground truncate">
-                            <span className="text-foreground font-medium">{a.user}</span>{' '}
-                            {a.action}
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-primary/10 text-primary text-[9px] font-semibold shrink-0">
+                            {item.label}
                           </span>
-                          <span className="text-muted-foreground/60 ml-auto shrink-0 text-[10px]">{a.time}</span>
+                          <span className="text-foreground font-medium truncate">{item.title}</span>
+                          {item.detail && (
+                            <span className="text-muted-foreground/60 ml-auto shrink-0 text-[10px]">{item.detail}</span>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -321,6 +343,20 @@ export const UniversalMediaPlayer: React.FC = () => {
           )}
         </AnimatePresence>
       </motion.div>
+
+      {/* Ticker marquee animation */}
+      <style>{`
+        @keyframes ticker-marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .ticker-scroll {
+          animation: ticker-marquee 20s linear infinite;
+        }
+        .ticker-scroll:hover {
+          animation-play-state: paused;
+        }
+      `}</style>
     </>
   );
 };
