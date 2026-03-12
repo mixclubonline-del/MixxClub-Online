@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { requireAuth, authErrorResponse } from '../_shared/auth.ts';
+import { safeErrorResponse } from '../_shared/error-handler.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -109,12 +110,7 @@ serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
-  } catch (error: unknown) {
-    console.error("Error in generate-video-gemini:", error);
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    return new Response(
-      JSON.stringify({ error: errorMessage, success: false }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+  } catch (error) {
+    return safeErrorResponse(error, corsHeaders);
   }
 });

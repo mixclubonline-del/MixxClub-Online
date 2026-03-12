@@ -1,6 +1,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 import { getCorsHeaders } from '../_shared/cors.ts';
+import { safeErrorResponse } from '../_shared/error-handler.ts';
 
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
@@ -56,11 +57,7 @@ serve(async (req) => {
     return new Response(JSON.stringify({ success: true, message: 'Account deleted successfully' }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
-  } catch (error: any) {
-    console.error('Deletion error:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 400,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+  } catch (error) {
+    return safeErrorResponse(error, corsHeaders);
   }
 });

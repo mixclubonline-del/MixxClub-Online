@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
 import { getCorsHeaders } from '../_shared/cors.ts';
+import { safeErrorResponse, AppError } from '../_shared/error-handler.ts';
 
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
@@ -47,11 +48,11 @@ serve(async (req) => {
       .single();
 
     if (paymentError || !payment) {
-      throw new Error('Payment not found');
+      throw new AppError('Payment not found', 404);
     }
 
     if (payment.status === 'refunded') {
-      throw new Error('Payment already refunded');
+      throw new AppError('Payment already refunded', 400);
     }
 
     const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
@@ -122,13 +123,6 @@ serve(async (req) => {
       }
     );
   } catch (error) {
-    console.error('Error processing refund:', error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 500,
-      }
-    );
+    return safeErrorResponse(error, corsHeaders);
   }
 });

@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createLogger } from "../_shared/logger.ts";
 import { checkRateLimit, rateLimitHeaders } from "../_shared/rate-limit.ts";
+import { safeErrorResponse } from "../_shared/error-handler.ts";
 
 const logger = createLogger("prime-speak");
 
@@ -94,14 +95,7 @@ serve(async (req) => {
     return await googleTTS(GOOGLE_AI_API_KEY!, text);
 
   } catch (error) {
-    logger.error("Prime speak error", error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }), 
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
-    );
+    return safeErrorResponse(error, corsHeaders);
   }
 });
 

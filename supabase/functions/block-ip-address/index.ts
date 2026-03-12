@@ -2,6 +2,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 import { getCorsHeaders } from '../_shared/cors.ts';
+import { safeErrorResponse } from '../_shared/error-handler.ts';
 
 const ipBlockSchema = z.object({
   ipAddress: z.string()
@@ -91,23 +92,7 @@ serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     );
-  } catch (error: any) {
-    console.error('Error in block-ip-address function:', error);
-    
-    if (error instanceof z.ZodError) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid input', details: error.errors }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-    
-    const isAuthError = error.message?.includes('Unauthorized') || error.message?.includes('Admin');
-    return new Response(
-      JSON.stringify({ error: isAuthError ? 'Access denied' : 'Operation failed' }),
-      { 
-        status: isAuthError ? 403 : 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      }
-    );
+  } catch (error) {
+    return safeErrorResponse(error, corsHeaders);
   }
 });
