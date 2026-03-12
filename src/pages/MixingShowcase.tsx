@@ -12,7 +12,7 @@ import {
   Share2,
   Headphones,
 } from "lucide-react";
-import { Helmet } from "react-helmet-async";
+import { SEOHead } from "@/components/SEOHead";
 import { ServiceRoomView } from "@/components/services/ServiceRoomView";
 import { ShowcaseFeature } from "@/components/services/ShowcaseFeature";
 import { MixingPackages } from "@/components/mixing/MixingPackages";
@@ -143,10 +143,11 @@ const MixingShowcase = () => {
 
   return (
     <>
-      <Helmet>
-        <title>Mixing Studio — Mixxclub Services</title>
-        <meta name="description" content="Professional collaborative mixing with real engineers and AI-powered insights. Three-way collaboration for the perfect mix." />
-      </Helmet>
+      <SEOHead
+        title="Professional Mixing Studio"
+        description="Professional collaborative mixing with real engineers and AI-powered insights. Three-way artist-AI-engineer collaboration for the perfect mix."
+        keywords="mixing service, professional mixing, AI mixing, audio engineer, stem mixing, music production"
+      />
 
       <ServiceRoomView
         backgroundAsset={mixingRoomBg}

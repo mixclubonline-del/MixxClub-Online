@@ -197,7 +197,7 @@ const Navigation = () => {
   const isActiveRoute = (path: string) => location.pathname === path;
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${scrolled
+    <nav aria-label="Main navigation" className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${scrolled
       ? 'glass-ultra border-b border-[hsl(var(--glass-border-strong))] shadow-glass-lg animate-glass-breathe'
       : 'glass-mid border-b border-[hsl(var(--glass-border))]'
       }`}>
@@ -231,7 +231,7 @@ const Navigation = () => {
               if ((link as any).isDropdown) {
                 return (
                   <div key={index} className="relative group">
-                    <button className="relative text-foreground hover:text-primary transition-all duration-300 font-medium flex items-center gap-1">
+                    <button aria-haspopup="true" className="relative text-foreground hover:text-primary transition-all duration-300 font-medium flex items-center gap-1">
                       {link.label}
                       <svg className="w-4 h-4 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -315,6 +315,8 @@ const Navigation = () => {
 
           {/* Mobile Menu Button */}
           <button
+            aria-label="Toggle menu"
+            aria-expanded={isOpen}
             className="md:hidden p-2 rounded-lg hover:bg-primary/10 transition-all duration-300"
             onClick={() => setIsOpen(!isOpen)}
           >

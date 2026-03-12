@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { SEOHead } from '@/components/SEOHead';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -184,6 +185,12 @@ export default function Enterprise() {
   };
 
   return (
+    <>
+    <SEOHead
+      title="Enterprise Solutions"
+      description="Mixxclub enterprise plans for labels, studios, and universities. Team collaboration, contract management, analytics dashboards, and white-label solutions."
+      keywords="enterprise music platform, label management, studio solution, music business, team collaboration, white-label audio"
+    />
     <div className="min-h-screen bg-gradient-to-b from-background via-muted/20 to-background">
       <Navigation />
       
@@ -509,5 +516,6 @@ export default function Enterprise() {
         </div>
       </footer>
     </div>
+    </>
   );
 }

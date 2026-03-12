@@ -43,7 +43,11 @@ const ORG_SCHEMA = {
   alternateName: "MIXXCLUB",
   url: BASE_URL,
   logo: `${BASE_URL}/mixxclub-logo.png`,
-  sameAs: [],
+  sameAs: [
+    "https://twitter.com/mixxclub",
+    "https://instagram.com/mixxclub",
+    "https://facebook.com/mixxclub",
+  ],
   description:
     "AI-powered audio engineering platform connecting artists with professional engineers. Mixing, mastering, beat marketplace, and creator tools.",
   contactPoint: {

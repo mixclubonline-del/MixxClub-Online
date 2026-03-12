@@ -1,125 +1,135 @@
 
 
-# SEO Super Optimization — Final Pass
 
-## Audit Findings
+# CRM Phase 4 Complete — Remaining Roadmap
 
-### 1. Pages Missing SEOHead (using raw Helmet or nothing)
-These public-facing pages lack the standardized SEOHead component, meaning they're missing canonical URLs, OG tags, Twitter cards, and structured data:
-- **Showcase.tsx** — uses raw `<Helmet>` instead of SEOHead
-- **MixingShowcase.tsx** — uses raw `<Helmet>`
-- **MasteringShowcase.tsx** — uses raw `<Helmet>`
-- **BattleTournaments.tsx** — uses raw `<Helmet>`
-- **Enterprise.tsx** — no SEO tags at all
-- **DistributionHub.tsx** — no SEO tags at all
-- **NotFound.tsx** — no SEO tags (should have `noindex`)
-- **DreamEngine.tsx** — no SEO tags
-- **MerchStore.tsx** — no SEO tags
+## Completed ✅
 
-### 2. Sitemap Gaps
-Public routes that exist but are missing from `sitemap.xml`:
-- `/live` (LivePage)
-- `/beat-forge` (PrimeBeatForge)
-- `/how-it-works` (redirects to /home, fine to omit)
-- `/services/distribution` (DistributionHub)
+### Phase 1 — Design Tokens
+- GlassPanel, HubHeader, StaggeredList, HubSkeleton, EmptyState created
+- ActiveWorkHub, StoreHub, ClientsHub migrated
 
-### 3. Accessibility (a11y) Issues
-- **Navigation.tsx**: No `aria-label` on `<nav>`, no `aria-label` on mobile menu toggle button, no `aria-expanded` on mobile toggle, dropdown buttons missing `aria-haspopup` and `aria-expanded`
-- **155 empty alt="" attributes** on decorative images — most are background/decorative (acceptable with `role="presentation"`), but some are content images that need real alt text (cover art, product images, user content)
-- **No skip-to-content link** — keyboard users have to tab through the entire nav on every page
+### Phase 2 — Critical Features  
+- NotificationsHub upgraded to GlassPanel/HubHeader + mobile Select dropdown
+- ScheduleHub upgraded to GlassPanel/HubHeader/EmptyState + mobile responsive
+- RevenueHub upgraded to GlassPanel/HubHeader + mobile Select dropdown
+- CommunityHub already mobile responsive (useIsMobile + Select)
+- MatchesHub already mobile responsive (useIsMobile)
+- CommunityStats already responsive (grid-cols-2 md:3 lg:6)
+- All 3 CRM pages (Artist/Engineer/Producer) already have notifications + schedule wired
 
-### 4. SEOHead Component Gaps
-- `sameAs` array is empty in `ORG_SCHEMA` — social links should be populated
-- Missing `hreflang` tag (single-language site, but explicit `<link rel="alternate" hreflang="en">` helps)
+### EcosystemFlow Character Avatars
+- Already implemented with foreignObject SVG alignment
 
-### 5. index.html Gaps
-- `<html lang="en">` is set (good)
-- OG title/description missing from static `index.html` head (only set dynamically via Helmet — crawlers that don't execute JS will see empty OG tags)
+### Phase 3 — UX Polish ✅
+- HubSkeleton + EmptyState standardized across ~10 hubs
+- CommunityHub, SessionsHub, CollectiveAnalytics, ClientsHub, ScheduleHub migrated to design tokens
+- Match components (AIMatchRecommendations, MatchRequests, YourMatches) standardized
+- File version timeline verified functional
 
----
+### Phase 4 — Advanced ✅
+- `useUserProjects` and `useUserEarnings` shared hooks created and adopted by EnhancedDashboardHub + GrowthHub
+- Producer License Builder + Promo Codes + Featured Rotation built and wired into ProducerCatalogHub
+- React.lazy() implemented for all 3 CRM pages (non-dashboard hubs)
 
-## Plan
+### Phase 5 — Usage Enforcement ✅
+- `useUsageEnforcement` hook: centralized tier-aware limit checking (free/starter/pro/studio)
+- `UsageLimitBanner` component: 4 severity states (normal/warning/urgent/blocked), 2 variants (banner/inline), tier badges, upgrade CTAs
+- Dashboard integration: per-feature banners for projects, audio uploads, AI matching, storage, collaborations
+- Enforcement guards wired into: CreateProjectModal, AudioUpload, useEngineerMatchingAPI, usePartnershipEarnings, useProducerPartnerships
+- 20+ unit tests covering all thresholds, variants, visibility rules, CTAs, and edge cases
+- Integration-level tests for `useUsageEnforcement` hook (tier fallback, canUseFeature, getFeatureUsage)
 
-### Task 1: Add SEOHead to all public pages missing it
-Convert ~9 pages from raw Helmet (or none) to the standardized SEOHead component with proper title, description, keywords, canonical URL, and `noindex` where appropriate (NotFound, DreamEngine).
+### Phase 6 — Stripe Revenue Backend ✅
+- Schema alignment: 10 columns added to `payments`, `stripe_customer_id` on `profiles`, `engineer_id`+`stripe_transfer_id` on `payout_requests`
+- `launch_metrics` table created with admin-only RLS for revenue prediction engine
+- `aggregate_payment_to_metrics` trigger auto-increments daily revenue/payment counts
+- Webhook handlers added: `charge.refunded` (auto-reverse earnings), `invoice.payment_failed` (flag subscription + notify), `charge.dispute.created` (critical alert to all admins)
+- Backfilled `payout_requests.engineer_id` from existing `user_id`
 
-### Task 2: Update sitemap.xml
-Add missing public routes: `/live`, `/beat-forge`, `/services/distribution`. Set appropriate priority and changefreq.
+### Phase 7 — Full Site Audit ✅
+- Auth-to-dashboard flow audited: magic link, email+password, OAuth all route correctly through AuthCallback → role check → onboarding → CRM
+- Engineer profile page (/engineer/:userId) verified fully functional with real data from profiles + engineer_profiles + engineer_reviews + projects
+- Battle Tournaments page verified fully functional with real data from battle_tournaments table
+- My Certifications page verified fully functional with milestone overlay at 250 community members
+- Mobile QA pass on revenue path (home → pricing → checkout): pricing cards stack cleanly, CTAs visible
+- Fixed: PathfinderBeacon mobile positioning (bottom-24 on phones to clear mobile nav, full-width card on small screens)
+- Fixed: AuthSocialProof ticker text truncation on narrow viewports (added truncate + shrink-0)
+- Fixed: Homepage floating nav pill overflow on 375px screens (added max-w constraint)
 
-### Task 3: Navigation accessibility
-- Add `aria-label="Main navigation"` to `<nav>`
-- Add `aria-label="Toggle menu"`, `aria-expanded={isOpen}` to mobile menu button
-- Add `aria-haspopup="true"` and `aria-expanded` to dropdown trigger buttons
-- Add a skip-to-content link (`<a href="#main-content" class="sr-only focus:not-sr-only">Skip to content</a>`) and corresponding `id="main-content"` on the main content area in App.tsx
+### Mobile & PWA Hardening ✅
+- PWA update prompt (service worker refresh notification)
+- PWA install prompt with localStorage 7-day persistence + iOS guidance
+- Offline indicator with pending sync count + manual Sync Now button
+- CRM offline queue wired into useCRMClients + useCRMDeals
 
-### Task 4: Populate ORG_SCHEMA sameAs
-Fill in the actual social media URLs in SEOHead.tsx `ORG_SCHEMA.sameAs` array (Instagram, Twitter/X, etc.) instead of leaving it empty.
+### CRM Notification Preferences ✅
+- notification_preferences table extended with 17 category×channel columns
+- NotificationPrefsPanel with matrix toggle UI
+- Integrated into NotificationsHub settings
 
-### Task 5: Static fallback meta tags in index.html
-Add `og:title` and `og:description` content
-
-<lov-plan>
-
-# SEO Super Optimization — Final Pass
-
-## Audit Findings
-
-### 1. Pages Missing SEOHead (using raw Helmet or nothing)
-These public-facing pages lack the standardized SEOHead component, meaning they're missing canonical URLs, OG tags, Twitter cards, and structured data:
-- **Showcase.tsx** — uses raw `<Helmet>` instead of SEOHead
-- **MixingShowcase.tsx** — uses raw `<Helmet>`
-- **MasteringShowcase.tsx** — uses raw `<Helmet>`
-- **BattleTournaments.tsx** — uses raw `<Helmet>`
-- **Enterprise.tsx** — no SEO tags at all
-- **DistributionHub.tsx** — no SEO tags at all
-- **NotFound.tsx** — no SEO tags (should have `noindex`)
-- **DreamEngine.tsx** — no SEO tags
-- **MerchStore.tsx** — no SEO tags
-
-### 2. Sitemap Gaps
-Public routes missing from `sitemap.xml`:
-- `/live`
-- `/beat-forge`
-- `/services/distribution`
-
-### 3. Accessibility (a11y) Issues
-- **Navigation.tsx**: Zero `aria-label` attributes. No `aria-expanded` on mobile toggle. Dropdown buttons missing `aria-haspopup`.
-- **155 empty `alt=""` on images** — most are decorative backgrounds (fine), but storefront product images, cover art, and drop banners need real alt text
-- **No skip-to-content link** — keyboard users must tab through full nav on every page
-
-### 4. SEOHead Component Gaps
-- `sameAs` array is empty in `ORG_SCHEMA` — should have real social URLs
-- Static `index.html` has empty `og:title` and `og:description` (crawlers that don't run JS see nothing)
+### Daily Digest ✅
+- daily-digest edge function: batches unread notifications, sends branded HTML via Resend
+- trigger-daily-digest cron function scheduled at 8 AM UTC daily
+- Respects weekly_digest_email preference toggle
 
 ---
 
-## Plan
+## Phase 8 — Growth · Scale · Create · Connect
 
-### Task 1: Add SEOHead to 9 public pages
-Replace raw `<Helmet>` or add SEOHead to: Showcase, MixingShowcase, MasteringShowcase, BattleTournaments, Enterprise, DistributionHub, NotFound (`noindex`), DreamEngine (`noindex`), MerchStore. Each gets a unique title, description, and keywords.
+### 8A: Growth & Marketing (Ship First)
 
-### Task 2: Update sitemap.xml
-Add `/live`, `/beat-forge`, `/services/distribution` with appropriate priority values.
+| # | Task | Files | Effort |
+|---|------|-------|--------|
+| 1 | **Referral Dashboard** — visualize referral tree, pending/completed commissions, share links with OG image preview | New: `src/components/crm/referrals/ReferralDashboard.tsx`, Edit: partner CRM pages | M |
+| 2 | **SEO Hardening** — dynamic `<SEOHead>` per route with JSON-LD (Organization, Product, FAQ schemas), canonical tags, Open Graph images for /pricing /go /economy | Edit: SEOHead, route components | S |
+| 3 | **Social Share Cards** — generate dynamic OG images for beat listings, engineer profiles, battle results using edge function + Satori | New: `supabase/functions/generate-og-image/index.ts` | M |
+| 4 | **Landing A/B Framework** — lightweight variant system using `funnel_events` to track conversion by variant, admin toggle | New: `src/hooks/useABVariant.ts`, `src/components/marketing/ABProvider.tsx` | S |
+| 5 | **Analytics Dashboard (Admin)** — funnel visualization, conversion rates, cohort retention chart, revenue per channel | New: `src/components/admin/AnalyticsDashboard.tsx` | L |
 
-### Task 3: Navigation accessibility hardening
-- `aria-label="Main navigation"` on `<nav>`
-- `aria-label="Toggle menu"` + `aria-expanded={isOpen}` on mobile hamburger button
-- `aria-haspopup="true"` on dropdown trigger buttons
-- Add a **skip-to-content link** as the first child of `<body>`/root: `<a href="#main-content" className="sr-only focus:not-sr-only ...">Skip to content</a>` and add `id="main-content"` to the main content wrapper in App.tsx
+### 8B: Enterprise & Scaling
 
-### Task 4: Populate ORG_SCHEMA social links
-Fill `sameAs` in SEOHead.tsx with the real social URLs (Twitter, Instagram, Facebook from seo-schema.ts).
+| # | Task | Files | Effort |
+|---|------|-------|--------|
+| 1 | **API Rate Limiter v2** — sliding window per-user rate limiting with Redis-like pattern in Postgres, enforcement in edge functions | Edit: `_shared/rate-limiter.ts`, migration | M |
+| 2 | **Performance Optimization** — React.memo critical components, virtualized lists for large datasets (notifications, beat catalog), image lazy loading audit | Edit: multiple hub components | M |
+| 3 | **White-Label Config Table** — `platform_config` table for branding overrides (logo, colors, domain), resolved at app init | New: migration, `usePlatformConfig` hook | M |
+| 4 | **Bulk Operations** — batch approve/reject projects, bulk payout processing, CSV export for admin tables | Edit: admin components | M |
+| 5 | **CDN & Asset Pipeline** — storage bucket policies for public assets, signed URL generation for premium content, cache headers | Edit: storage config, edge functions | S |
 
-### Task 5: Static fallback meta in index.html
-Add content values to the existing empty `og:title` and `og:description` meta tags so non-JS crawlers see real content.
+### 8C: Creator Tools
 
-### Task 6: Content image alt text
-Update storefront/product components where `alt=""` is used on content images (cover art, merch images, drop banners) to use dynamic alt text from the data (e.g., `alt={product.name}` or `alt={release.title}`). Leave genuinely decorative backgrounds as `alt=""` with `role="presentation"`.
+| # | Task | Files | Effort |
+|---|------|-------|--------|
+| 1 | **AI Mastering Pipeline v2** — chain: upload → analyze → apply preset → preview → download, using Lovable AI for analysis + recommendations | Edit: `advanced-mastering` edge function, new UI components | L |
+| 2 | **Stem Separation UI** — upload track → separate vocals/drums/bass/other → download individual stems, powered by existing `stem-separation` edge function | New: `src/components/studio/StemSeparator.tsx` | M |
+| 3 | **Beat Marketplace Enhancements** — waveform previews on cards, instant purchase flow, license comparison modal, producer analytics | Edit: ProducerCatalogHub, beat components | M |
+| 4 | **Sample Pack Builder** — bundle beats + stems + loops into downloadable packs with pricing tiers | New: migration + UI + edge function | L |
+| 5 | **Collaboration Templates** — pre-configured session setups (vocal recording, mixing review, mastering approval) with auto-generated checklists | New: `src/components/sessions/SessionTemplates.tsx` | S |
 
----
+### 8D: Community & Social
 
-## Scope
-- ~12 files modified
-- No database changes
-- No breaking changes — purely additive SEO and a11y attributes
+| # | Task | Files | Effort |
+|---|------|-------|--------|
+| 1 | **Live Stream Integration** — go-live button in sessions, viewer count, real-time chat sidebar, gift animations using existing `live_streams` + `stream_gifts` tables | New: `src/components/live/LiveStreamView.tsx` | L |
+| 2 | **Battle League Seasons** — seasonal brackets, leaderboard reset, trophy case on profiles, season pass with exclusive rewards | Edit: battle components, new migration for `battle_seasons` | L |
+| 3 | **Fan Engagement Hub** — Day 1 badge showcase, artist milestone timeline, fan leaderboard per artist, engagement streak rewards | New: `src/components/community/FanEngagementHub.tsx` | M |
+| 4 | **Enhanced Chat** — threaded replies, emoji reactions, file sharing in DMs, read receipts using existing `messages` table | Edit: messaging components | M |
+| 5 | **Community Challenges** — weekly/monthly creative challenges (remix contest, beat battle, mixing challenge) with voting + prizes | New: migration + `src/components/community/ChallengesHub.tsx` | L |
 
+### Execution Order (recommended)
+
+```
+Sprint 1 (8A.1-2 + 8B.1-2):  Referral Dashboard, SEO, Rate Limiter, Performance
+Sprint 2 (8A.3-4 + 8C.1-2):  OG Images, A/B Framework, AI Mastering v2, Stem Sep UI
+Sprint 3 (8C.3-4 + 8D.1-2):  Beat Marketplace, Sample Packs, Live Streams, Battle Seasons
+Sprint 4 (8D.3-5 + 8A.5 + 8B.3-5): Fan Hub, Chat, Challenges, Analytics, White-Label, Bulk Ops
+```
+
+### Acceptance Criteria
+- Every feature uses GlassPanel/HubHeader design tokens — no raw colors
+- All new tables have RLS policies
+- Mobile-first responsive at 375px
+- Zero placeholder copy (Zero Placeholder Clause)
+- Edge functions use `_shared/cors.ts` + `_shared/auth.ts`
+- Performance: no new component >50KB unbundled

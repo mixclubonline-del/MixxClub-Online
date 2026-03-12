@@ -81,9 +81,13 @@ const AppContent = () => {
 
   return (
     <ImmersiveAppShell>
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:shadow-lg">
+        Skip to content
+      </a>
       <PageTransition>
         <MobileRouteGuard />
         <OfflineIndicator />
+        <main id="main-content">
         <React.Suspense fallback={<DashboardSkeleton />}>
           <Routes>
             {/* Domain-specific route modules */}
@@ -95,6 +99,7 @@ const AppContent = () => {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </React.Suspense>
+        </main>
         <PWAInstallPrompt />
       </PageTransition>
     </ImmersiveAppShell>

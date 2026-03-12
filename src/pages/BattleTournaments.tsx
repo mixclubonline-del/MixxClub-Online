@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Helmet } from 'react-helmet-async';
+import { SEOHead } from '@/components/SEOHead';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -140,10 +140,11 @@ export default function BattleTournaments() {
 
   return (
     <>
-      <Helmet>
-        <title>Battle Tournaments | Mixx Club</title>
-        <meta name="description" content="Compete in mixing and beat battle tournaments. Win prizes and climb the leaderboard." />
-      </Helmet>
+      <SEOHead
+        title="Battle Tournaments"
+        description="Compete in mixing and beat battle tournaments on Mixxclub. Win prizes, climb the leaderboard, and prove your skills against top producers."
+        keywords="beat battle, mixing tournament, music competition, producer battle, hip-hop contest"
+      />
 
       <div className="min-h-screen bg-background">
         <main className="container max-w-4xl mx-auto px-4 py-6">
