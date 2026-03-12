@@ -27,6 +27,10 @@ import {
   Calendar,
   Brain,
   Rocket,
+  Inbox,
+  Shield,
+  Megaphone,
+  BarChart3,
   type LucideIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -130,10 +134,15 @@ const ROLE_HUB_DEFINITIONS: Record<string, HubDefinition[]> = {
   admin: [
     { id: 'dashboard', label: 'Dashboard', icon: Home, description: 'Platform overview' },
     { id: 'users', label: 'Users', icon: Users, description: 'User management' },
+    { id: 'support', label: 'Support', icon: Inbox, description: 'Inbox & replies' },
     { id: 'sessions', label: 'Sessions', icon: Headphones, description: 'All sessions' },
     { id: 'revenue', label: 'Revenue', icon: TrendingUp, description: 'Payments & payouts' },
+    { id: 'partnerships', label: 'Partnerships', icon: Handshake, description: 'Health & splits' },
     { id: 'content', label: 'Content', icon: Briefcase, description: 'Files & beats' },
     { id: 'community', label: 'Community', icon: Users, description: 'Activity & battles' },
+    { id: 'broadcast', label: 'Broadcast', icon: Megaphone, description: 'Announcements' },
+    { id: 'audit', label: 'Audit Log', icon: Shield, description: 'Security timeline' },
+    { id: 'analytics', label: 'Analytics', icon: BarChart3, description: 'Funnels & cohorts' },
     { id: 'assets', label: 'Assets', icon: Star, description: 'Dream Engine assets' },
     { id: 'system', label: 'System', icon: Target, description: 'Seeding & security' },
     { id: 'prime', label: 'Prime Brain', icon: Brain, description: 'AI command center' },

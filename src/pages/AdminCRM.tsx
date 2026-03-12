@@ -20,6 +20,10 @@ import { AdminSystemHub } from '@/components/admin/AdminSystemHub';
 import { AdminPrimeBrainHub } from '@/components/admin/AdminPrimeBrainHub';
 import { AdminAnalyticsDashboard } from '@/components/admin/AdminAnalyticsDashboard';
 import { BrandingManager } from '@/components/admin/BrandingManager';
+import { AdminSupportInbox } from '@/components/admin/AdminSupportInbox';
+import { AdminAuditLogViewer } from '@/components/admin/AdminAuditLogViewer';
+import { AdminPartnershipsHub } from '@/components/admin/AdminPartnershipsHub';
+import { AdminBroadcastHub } from '@/components/admin/AdminBroadcastHub';
 import { lazy, Suspense } from 'react';
 const PromoStudio = lazy(() => import('@/pages/PromoStudio'));
 
@@ -184,6 +188,14 @@ const AdminCRM = () => {
         return <AdminAnalyticsDashboard />;
       case 'branding':
         return <BrandingManager />;
+      case 'support':
+        return <AdminSupportInbox />;
+      case 'audit':
+        return <AdminAuditLogViewer />;
+      case 'partnerships':
+        return <AdminPartnershipsHub />;
+      case 'broadcast':
+        return <AdminBroadcastHub />;
       default:
         return <AdminDashboardHub />;
     }
