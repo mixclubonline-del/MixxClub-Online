@@ -82,13 +82,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     isMounted.current = true;
 
-    if (isBypass) {
-      setLoading(false);
-      return () => {
-        isMounted.current = false;
-      };
-    }
-
     // 1. Listener for ONGOING auth changes (after initial load)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, newSession) => {
