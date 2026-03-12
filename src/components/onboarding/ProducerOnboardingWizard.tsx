@@ -137,6 +137,7 @@ export function ProducerOnboardingWizard() {
           full_name: fullName,
           username: username,
           bio: bio || `${producerName ? `${producerName} - ` : ''}Producer on MIXXCLUB`,
+          avatar_url: avatarUrl || null,
           genre_specialties: selectedGenres,
           role: 'producer',
           onboarding_completed: true,
