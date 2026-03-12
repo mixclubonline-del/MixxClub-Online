@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, TransitionEvent, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
 interface PageTransitionProps {
@@ -7,36 +7,48 @@ interface PageTransitionProps {
 
 export const PageTransition = ({ children }: PageTransitionProps) => {
   const location = useLocation();
-  const [displayLocation, setDisplayLocation] = useState(location);
   const [transitionStage, setTransitionStage] = useState<'fade-in' | 'fade-out'>('fade-in');
+  const previousPathRef = useRef(location.pathname);
+  const fallbackTimerRef = useRef<number | null>(null);
+
+  const clearFallback = () => {
+    if (fallbackTimerRef.current !== null) {
+      window.clearTimeout(fallbackTimerRef.current);
+      fallbackTimerRef.current = null;
+    }
+  };
 
   useEffect(() => {
-    if (location.pathname !== displayLocation.pathname) {
-      setTransitionStage('fade-out');
+    return () => clearFallback();
+  }, []);
 
-      // Fallback: force transition complete if transitionEnd doesn't fire
-      const fallback = setTimeout(() => {
-        setTransitionStage('fade-in');
-        setDisplayLocation(location);
-      }, 400);
+  useEffect(() => {
+    if (location.pathname === previousPathRef.current) return;
 
-      return () => clearTimeout(fallback);
-    }
-  }, [location, displayLocation]);
+    previousPathRef.current = location.pathname;
+    setTransitionStage('fade-out');
 
-  const onAnimationEnd = () => {
-    if (transitionStage === 'fade-out') {
+    // Hard fallback: never allow fade-out to persist
+    clearFallback();
+    fallbackTimerRef.current = window.setTimeout(() => {
       setTransitionStage('fade-in');
-      setDisplayLocation(location);
+    }, 350);
+  }, [location.pathname]);
+
+  const onAnimationEnd = (event: TransitionEvent<HTMLDivElement>) => {
+    if (
+      transitionStage === 'fade-out' &&
+      (event.propertyName === 'opacity' || event.propertyName === 'transform')
+    ) {
+      clearFallback();
+      setTransitionStage('fade-in');
     }
   };
 
   return (
     <div
       className={`h-full transition-all duration-300 ${
-        transitionStage === 'fade-out' 
-          ? 'opacity-0 scale-95' 
-          : 'opacity-100 scale-100'
+        transitionStage === 'fade-out' ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
       }`}
       onTransitionEnd={onAnimationEnd}
     >
