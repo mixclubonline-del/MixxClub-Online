@@ -844,6 +844,9 @@ async function handleCoinzPurchase(
     });
   } catch (notifError) {
     console.warn('[STRIPE-WEBHOOK] Notification error:', notifError);
+  }
+
+  console.log('[STRIPE-WEBHOOK] Coinz purchase complete');
 }
 
 /**
