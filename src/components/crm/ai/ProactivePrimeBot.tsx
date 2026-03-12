@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -42,6 +43,7 @@ interface ProactivePrimeBotProps {
 
 export const ProactivePrimeBot = ({ userType, onNavigate }: ProactivePrimeBotProps) => {
   const { user } = useAuth();
+  const { isPhone } = useBreakpoint();
   const [insights, setInsights] = useState<ProactiveInsight[]>([]);
   const [currentInsight, setCurrentInsight] = useState<ProactiveInsight | null>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -401,7 +403,11 @@ export const ProactivePrimeBot = ({ userType, onNavigate }: ProactivePrimeBotPro
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 50, scale: 0.9 }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          className="fixed bottom-24 right-6 z-50 max-w-sm"
+          className={
+            isPhone
+              ? "relative w-full max-w-sm mx-auto mb-4"
+              : "fixed bottom-24 right-6 z-50 max-w-sm"
+          }
         >
           <Card
             className="backdrop-blur-xl border shadow-2xl overflow-hidden"
