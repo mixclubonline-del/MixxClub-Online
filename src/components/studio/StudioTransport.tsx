@@ -58,7 +58,6 @@ export const StudioTransport = () => {
   const handlePlay = async () => {
     if (isPlaying) {
       // Pause
-      console.log('[Transport] Pausing playback');
       stopTracks(tracks);
       audioEngine.stopAllTracks();
       setPlaying(false);
