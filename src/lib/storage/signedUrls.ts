@@ -51,13 +51,14 @@ export async function createSignedUrls(
 /**
  * For public buckets, use public URL (showcase-audio, media-library)
  * For private buckets, use signed URL
+ * @deprecated Use getOptimizedUrl from assetPipeline.ts for new code
  */
 export function getStorageUrl(
   bucket: string,
   path: string,
   options?: { expiresIn?: number; forcePublic?: boolean }
 ): Promise<string | null> {
-  const publicBuckets = ['showcase-audio', 'media-library'];
+  const publicBuckets = ['showcase-audio', 'media-library', 'brand-assets'];
   
   if (options?.forcePublic || publicBuckets.includes(bucket)) {
     const { data } = supabase.storage.from(bucket).getPublicUrl(path);
@@ -68,3 +69,6 @@ export function getStorageUrl(
     ({ url }) => url
   );
 }
+
+// Re-export optimized pipeline for new consumers
+export { getOptimizedUrl, getOptimizedUrls, uploadFile, clearStorageCache } from './assetPipeline';
