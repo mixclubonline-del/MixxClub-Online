@@ -147,7 +147,7 @@ export const useWebRTC = ({ sessionId, userId, onRemoteStream, onScreenShareStre
 
   // Handle received answer
   const handleAnswer = useCallback(async (peerId: string, answer: RTCSessionDescriptionInit) => {
-    console.log(`[WebRTC] Handling answer from ${peerId}`);
+    console.debug(`[WebRTC] Handling answer from ${peerId}`);
     const pc = peerConnections.current.get(peerId);
     if (pc && pc.signalingState === 'have-local-offer') {
       try {
