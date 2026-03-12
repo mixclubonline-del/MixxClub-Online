@@ -128,9 +128,10 @@ const MasteringShowcase = () => {
 
   return (
     <>
-      <Helmet>
-        <title>Mastering Suite — Mixxclub Services</title>
-        <meta name="description" content="AI-powered mastering trained on 100,000+ professional masters. Get Grammy-quality results instantly." />
+      <SEOHead
+        title="AI Mastering Suite"
+        description="AI-powered mastering trained on 100,000+ professional masters. Get Grammy-quality results instantly with streaming-optimized loudness."
+        keywords="AI mastering, online mastering, audio mastering, LUFS, streaming mastering, music mastering service"
       </Helmet>
 
       <ServiceRoomView

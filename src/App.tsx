@@ -99,6 +99,7 @@ const AppContent = () => {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </React.Suspense>
+        </main>
         <PWAInstallPrompt />
       </PageTransition>
     </ImmersiveAppShell>

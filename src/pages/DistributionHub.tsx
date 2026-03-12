@@ -83,6 +83,12 @@ const DistributionHub = () => {
   };
 
   return (
+    <>
+    <SEOHead
+      title="Music Distribution Hub"
+      description="Distribute your music to Spotify, Apple Music, YouTube Music, Tidal, and 150+ platforms. Keep 100% of your royalties with Mixxclub distribution."
+      keywords="music distribution, Spotify distribution, Apple Music upload, digital distribution, independent artist, royalties"
+    />
     <div className="min-h-screen bg-background">
       {/* Ready to Distribute Section (for logged-in users with exports) */}
       {user && readyToDistribute.length > 0 && (

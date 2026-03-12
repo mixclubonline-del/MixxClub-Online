@@ -117,11 +117,11 @@ export default function Showcase() {
 
   return (
     <>
-      <Helmet>
-        <title>Mixxclub Technology — Professional DAW, AI Plugins, Real-Time Collaboration</title>
-        <meta name="description" content="Explore Mixxclub's revolutionary technology: LUFS metering, 6-band parametric EQ with AI suggestions, WebRTC collaboration, BPM/key detection, and AI mastering. From bedroom to billboard." />
-        <meta name="keywords" content="browser DAW, LUFS metering, parametric EQ, AI mastering, WebRTC music collaboration, BPM detection, hip-hop production" />
-      </Helmet>
+      <SEOHead
+        title="Technology Showcase"
+        description="Explore Mixxclub's revolutionary technology: LUFS metering, 6-band parametric EQ with AI suggestions, WebRTC collaboration, BPM/key detection, and AI mastering. From bedroom to billboard."
+        keywords="browser DAW, LUFS metering, parametric EQ, AI mastering, WebRTC music collaboration, BPM detection, hip-hop production"
+      />
 
       <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
         <Navigation />

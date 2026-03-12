@@ -74,6 +74,7 @@ const NotFound = () => {
         </motion.div>
       </motion.div>
     </div>
+    </>
   );
 };
 
