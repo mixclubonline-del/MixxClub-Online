@@ -97,15 +97,6 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Error generating trap beat:', error);
-    return new Response(
-      JSON.stringify({
-        error: error instanceof Error ? error.message : 'Unknown error'
-      }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
+    return safeErrorResponse(error, corsHeaders);
   }
 });

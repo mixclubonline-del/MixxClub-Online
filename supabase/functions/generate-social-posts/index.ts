@@ -90,11 +90,7 @@ Return as JSON: {"instagram": [variation1, variation2, variation3], "twitter": [
     return new Response(JSON.stringify({ posts }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
-  } catch (error: any) {
-    console.error('Error in generate-social-posts:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+  } catch (error) {
+    return safeErrorResponse(error, corsHeaders);
   }
 });
