@@ -291,6 +291,12 @@ export default function DreamEngine() {
   const filteredPresets = getFilteredPresets();
 
   return (
+    <>
+    <SEOHead
+      title="Dream Engine"
+      description="AI-powered visual asset generator for Mixxclub. Create cover art, social media content, and brand visuals with intelligent prompts."
+      noindex
+    />
     <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
       <header className="border-b border-border/50 bg-card/30 backdrop-blur-sm sticky top-0 z-50">
