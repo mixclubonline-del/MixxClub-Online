@@ -35,7 +35,6 @@ export function handleError(error: unknown, requestId?: string): { status: numbe
   }
   
   if (error instanceof Error) {
-    // Check for specific error patterns
     if (error.message.includes('rate limit') || error.message.includes('429')) {
       return {
         status: 429,
@@ -106,4 +105,93 @@ export function createResponse(
       ...additionalHeaders
     }
   });
+}
+
+/**
+ * Sanitized error response for edge functions.
+ * Maps known safe error patterns to user-friendly messages,
+ * masks all other errors as generic to prevent leaking internals.
+ * Full error details are always logged server-side.
+ */
+export function safeErrorResponse(
+  error: unknown,
+  corsHeaders: Record<string, string>
+): Response {
+  // Always log full error server-side for debugging
+  console.error('Edge function error:', error);
+
+  const headers = { ...corsHeaders, 'Content-Type': 'application/json' };
+
+  // AppError = intentional user-facing error — pass through as-is
+  if (error instanceof AppError) {
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      { status: error.statusCode, headers }
+    );
+  }
+
+  if (error instanceof Error) {
+    const msg = error.message.toLowerCase();
+
+    // Rate limit
+    if (msg.includes('rate limit') || msg.includes('429')) {
+      return new Response(
+        JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }),
+        { status: 429, headers }
+      );
+    }
+
+    // Authentication / authorization
+    if (msg.includes('unauthorized') || msg.includes('authentication required') || msg.includes('not authenticated')) {
+      return new Response(
+        JSON.stringify({ error: 'Authentication required' }),
+        { status: 401, headers }
+      );
+    }
+
+    if (msg.includes('admin access required') || msg.includes('forbidden') || msg.includes('access denied')) {
+      return new Response(
+        JSON.stringify({ error: 'Access denied' }),
+        { status: 403, headers }
+      );
+    }
+
+    // Not found
+    if (msg.includes('not found') || msg.includes('no rows')) {
+      return new Response(
+        JSON.stringify({ error: 'Resource not found' }),
+        { status: 404, headers }
+      );
+    }
+
+    // Validation / missing fields
+    if (msg.includes('missing required') || msg.includes('invalid') || msg.includes('validation')) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid request' }),
+        { status: 400, headers }
+      );
+    }
+
+    // Payment-specific safe messages
+    if (msg.includes('insufficient') || msg.includes('already refunded') || msg.includes('already processed')) {
+      return new Response(
+        JSON.stringify({ error: error.message }),
+        { status: 400, headers }
+      );
+    }
+
+    // API credit / billing
+    if (msg.includes('credits required') || msg.includes('402')) {
+      return new Response(
+        JSON.stringify({ error: 'Service credits required. Please check your account.' }),
+        { status: 402, headers }
+      );
+    }
+  }
+
+  // Default: mask all other errors
+  return new Response(
+    JSON.stringify({ error: 'An internal error occurred' }),
+    { status: 500, headers }
+  );
 }
