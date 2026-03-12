@@ -6,16 +6,19 @@ const TOTAL_SLIDES = 12;
 
 export function DeckShell() {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [direction, setDirection] = useState(1);
   const [scale, setScale] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const goTo = useCallback((index: number) => {
-    setCurrentSlide(Math.max(0, Math.min(TOTAL_SLIDES - 1, index)));
-  }, []);
+    const clamped = Math.max(0, Math.min(TOTAL_SLIDES - 1, index));
+    setDirection(clamped >= currentSlide ? 1 : -1);
+    setCurrentSlide(clamped);
+  }, [currentSlide]);
 
-  const next = useCallback(() => goTo(currentSlide + 1), [currentSlide, goTo]);
-  const prev = useCallback(() => goTo(currentSlide - 1), [currentSlide, goTo]);
+  const next = useCallback(() => { setDirection(1); goTo(currentSlide + 1); }, [currentSlide, goTo]);
+  const prev = useCallback(() => { setDirection(-1); goTo(currentSlide - 1); }, [currentSlide, goTo]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -80,7 +83,7 @@ export function DeckShell() {
             transformOrigin: 'center center',
           }}
         >
-          <SlideRenderer slideIndex={currentSlide} />
+          <SlideRenderer slideIndex={currentSlide} direction={direction} />
         </div>
 
         {/* Click zones for navigation */}
