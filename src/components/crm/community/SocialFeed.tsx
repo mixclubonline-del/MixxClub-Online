@@ -24,7 +24,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 
 interface SocialFeedProps {
-  userType: 'artist' | 'engineer';
+  userType: 'artist' | 'engineer' | 'producer';
   searchQuery: string;
 }
 

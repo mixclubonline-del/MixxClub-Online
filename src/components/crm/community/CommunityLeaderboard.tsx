@@ -12,7 +12,7 @@ import { Trophy, Crown, Medal, Award, TrendingUp, Flame, Zap } from 'lucide-reac
 import { motion } from 'framer-motion';
 
 interface CommunityLeaderboardProps {
-  userType: 'artist' | 'engineer';
+  userType: 'artist' | 'engineer' | 'producer';
 }
 
 interface LeaderboardEntry {

@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import { useCommunityStats } from '@/hooks/useCommunityStats';
 
 interface CommunityStatsProps {
-  userType: 'artist' | 'engineer';
+  userType: 'artist' | 'engineer' | 'producer';
 }
 
 export const CommunityStats: React.FC<CommunityStatsProps> = ({ userType }) => {
