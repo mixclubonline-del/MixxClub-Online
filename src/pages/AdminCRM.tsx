@@ -200,6 +200,8 @@ const AdminCRM = () => {
         return <AdminBroadcastHub />;
       case 'launch':
         return <AdminLaunchHub />;
+      case 'screenshots':
+        return <AdminScreenshotTool />;
       default:
         return <AdminDashboardHub />;
     }
