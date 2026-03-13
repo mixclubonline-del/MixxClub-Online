@@ -25,6 +25,7 @@ import { AdminAuditLogViewer } from '@/components/admin/AdminAuditLogViewer';
 import { AdminPartnershipsHub } from '@/components/admin/AdminPartnershipsHub';
 import { AdminBroadcastHub } from '@/components/admin/AdminBroadcastHub';
 import { AdminLaunchHub } from '@/components/admin/AdminLaunchHub';
+import { AdminScreenshotTool } from '@/components/admin/AdminScreenshotTool';
 import { lazy, Suspense } from 'react';
 const PromoStudio = lazy(() => import('@/pages/PromoStudio'));
 
@@ -199,6 +200,8 @@ const AdminCRM = () => {
         return <AdminBroadcastHub />;
       case 'launch':
         return <AdminLaunchHub />;
+      case 'screenshots':
+        return <AdminScreenshotTool />;
       default:
         return <AdminDashboardHub />;
     }
