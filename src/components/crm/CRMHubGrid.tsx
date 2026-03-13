@@ -150,6 +150,7 @@ const ROLE_HUB_DEFINITIONS: Record<string, HubDefinition[]> = {
     { id: 'prime', label: 'Prime Brain', icon: Brain, description: 'AI command center' },
     { id: 'promo', label: 'Promo Studio', icon: Rocket, description: 'Campaign engine' },
     { id: 'launch', label: 'Launch', icon: Flame, description: 'First 100 war room' },
+    { id: 'screenshots', label: 'Screenshots', icon: Camera, description: 'Route capture tool' },
   ],
 };
 
