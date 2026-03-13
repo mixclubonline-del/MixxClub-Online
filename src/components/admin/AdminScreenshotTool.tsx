@@ -2,11 +2,11 @@
  * AdminScreenshotTool — Captures screenshots of every platform route,
  * then exports them as a ZIP archive or a PDF lookbook.
  *
- * Uses same-origin iframes + html2canvas for capture.
+ * Uses window.open() popups for reliable same-origin capture with html2canvas.
  */
 
 import { useState, useRef, useCallback } from 'react';
-import { Camera, Download, FileText, Loader2, CheckCircle2, XCircle, Pause, Play } from 'lucide-react';
+import { Camera, Download, FileText, Loader2, CheckCircle2, XCircle, Pause, Play, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -53,7 +53,6 @@ export function AdminScreenshotTool() {
   const [viewportWidth, setViewportWidth] = useState(1920);
   const [viewportHeight, setViewportHeight] = useState(1080);
 
-  const iframeRef = useRef<HTMLIFrameElement>(null);
   const pauseRef = useRef(false);
   const cancelRef = useRef(false);
 
@@ -69,58 +68,67 @@ export function AdminScreenshotTool() {
   const selectAll = () => setSelectedRoutes(new Set(ALL_ROUTES.map((r) => r.key)));
   const selectNone = () => setSelectedRoutes(new Set());
 
-  const waitForIframeLoad = (iframe: HTMLIFrameElement, timeoutMs = 8000): Promise<void> => {
-    return new Promise((resolve) => {
+  const captureRoute = async (route: string): Promise<string> => {
+    const origin = window.location.origin;
+    const url = `${origin}${route}`;
+
+    // Open a popup window at the target route
+    const popup = window.open(
+      url,
+      'screenshot_capture',
+      `width=${viewportWidth},height=${viewportHeight},left=0,top=0,menubar=no,toolbar=no,location=no,status=no,scrollbars=no,resizable=no`
+    );
+
+    if (!popup) {
+      throw new Error('Popup blocked — please allow popups for this site and retry');
+    }
+
+    // Wait for the popup to finish loading
+    await new Promise<void>((resolve, reject) => {
       let resolved = false;
-      const done = () => {
+      const timeout = setTimeout(() => {
+        if (!resolved) { resolved = true; resolve(); }
+      }, 10000);
+
+      popup.addEventListener('load', () => {
         if (!resolved) {
           resolved = true;
+          clearTimeout(timeout);
           resolve();
         }
-      };
-      iframe.addEventListener('load', done, { once: true });
-      setTimeout(done, timeoutMs);
+      });
     });
-  };
 
-  const captureRoute = async (route: string): Promise<string> => {
-    const iframe = iframeRef.current;
-    if (!iframe) throw new Error('Iframe not available');
-
-    // Navigate iframe
-    iframe.src = route;
-    await waitForIframeLoad(iframe);
-
-    // Extra wait for charts/animations
-    await new Promise((r) => setTimeout(r, 1500));
+    // Extra wait for SPA hydration, charts, animations
+    await new Promise((r) => setTimeout(r, 3000));
 
     try {
-      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-      if (!iframeDoc?.body) throw new Error('Cannot access iframe document');
+      const doc = popup.document;
+      if (!doc?.body) throw new Error('Cannot access popup document');
 
-      const canvas = await html2canvas(iframeDoc.body, {
+      // Force the popup body to the exact viewport size
+      doc.documentElement.style.width = `${viewportWidth}px`;
+      doc.documentElement.style.height = `${viewportHeight}px`;
+      doc.documentElement.style.overflow = 'hidden';
+
+      const canvas = await html2canvas(doc.documentElement, {
         width: viewportWidth,
         height: viewportHeight,
         scale: 1,
         useCORS: true,
+        allowTaint: true,
         backgroundColor: '#0a0812',
         logging: false,
         windowWidth: viewportWidth,
         windowHeight: viewportHeight,
       });
 
-      return canvas.toDataURL('image/png');
-    } catch {
-      // Fallback: capture the iframe element itself
-      const canvas = await html2canvas(iframe, {
-        width: viewportWidth,
-        height: viewportHeight,
-        scale: 1,
-        useCORS: true,
-        backgroundColor: '#0a0812',
-        logging: false,
-      });
-      return canvas.toDataURL('image/png');
+      const dataUrl = canvas.toDataURL('image/png');
+      popup.close();
+      return dataUrl;
+    } catch (err) {
+      popup.close();
+      throw err;
     }
   };
 
@@ -143,6 +151,8 @@ export function AdminScreenshotTool() {
       status: 'pending',
     }));
     setCaptures(results);
+
+    let popupBlocked = false;
 
     for (let i = 0; i < routesToCapture.length; i++) {
       if (cancelRef.current) break;
@@ -169,18 +179,29 @@ export function AdminScreenshotTool() {
         );
       } catch (err: any) {
         console.error(`Failed to capture ${route.path}:`, err);
+        if (err.message?.includes('Popup blocked')) {
+          popupBlocked = true;
+          toast.error('Popups are blocked. Please allow popups for this site, then retry.');
+          break;
+        }
         setCaptures((prev) =>
           prev.map((c, idx) =>
             idx === i ? { ...c, status: 'error', error: err.message } : c
           )
         );
       }
+
+      // Small delay between captures to prevent resource exhaustion
+      await new Promise((r) => setTimeout(r, 500));
     }
 
     setProgress(100);
     setCurrentRoute('');
     setIsRunning(false);
-    toast.success(`Captured ${routesToCapture.length} routes`);
+    if (!popupBlocked) {
+      const doneCount = routesToCapture.length;
+      toast.success(`Capture complete — ${doneCount} routes processed`);
+    }
   }, [selectedRoutes, viewportWidth, viewportHeight]);
 
   const togglePause = () => {
@@ -297,6 +318,15 @@ export function AdminScreenshotTool() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
+          {/* Popup notice */}
+          <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-sm">
+            <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+            <span className="text-muted-foreground">
+              This tool opens a popup window to capture each route. Make sure popups are <strong>allowed</strong> for this site.
+              The popup will flash through each page — this is expected.
+            </span>
+          </div>
+
           {/* Viewport config */}
           <div className="flex items-center gap-4 flex-wrap">
             <div className="flex items-center gap-2">
@@ -439,7 +469,10 @@ export function AdminScreenshotTool() {
                             <span className="text-xs text-muted-foreground">Pending</span>
                           )}
                           {cap.status === 'error' && (
-                            <XCircle className="w-5 h-5 text-destructive" />
+                            <div className="text-center px-2">
+                              <XCircle className="w-5 h-5 text-destructive mx-auto" />
+                              <p className="text-[10px] text-destructive mt-1 truncate">{cap.error}</p>
+                            </div>
                           )}
                         </div>
                       )}
@@ -455,14 +488,6 @@ export function AdminScreenshotTool() {
           )}
         </CardContent>
       </Card>
-
-      {/* Hidden iframe for capture */}
-      <iframe
-        ref={iframeRef}
-        className="fixed -left-[9999px] top-0 border-none"
-        style={{ width: viewportWidth, height: viewportHeight }}
-        title="Screenshot capture"
-      />
     </div>
   );
 }
