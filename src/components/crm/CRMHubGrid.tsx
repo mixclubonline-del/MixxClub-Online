@@ -32,6 +32,7 @@ import {
   Megaphone,
   BarChart3,
   Flame,
+  Camera,
   type LucideIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
