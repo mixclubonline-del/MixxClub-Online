@@ -242,25 +242,72 @@ export function StudioHallway({ fullscreen = false, onEnter }: StudioHallwayProp
         </motion.div>
       )}
 
-      {/* Active session count removed — hallway ambient light level communicates this */}
-
-      {/* Floor Logo — Mixxclub infinity inlay perspective-foreshortened on the studio floor */}
+      {/* ═══ MARQUEE BRAND BLOCK — Club entrance signage ═══ */}
       {fullscreen && (
-        <div className="absolute bottom-44 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
+        <div className="absolute top-[12%] left-1/2 -translate-x-1/2 z-10 pointer-events-none flex flex-col items-center">
+          {/* Ambient glow behind the marquee */}
+          <motion.div
+            className="absolute -inset-12 rounded-full"
+            style={{
+              background: 'radial-gradient(ellipse at center, hsl(var(--primary) / 0.15) 0%, hsl(320 90% 60% / 0.08) 40%, hsl(190 100% 72% / 0.06) 70%, transparent 100%)',
+              filter: 'blur(40px)',
+            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: [0.5, 0.8, 0.5] }}
+            transition={{ delay: 0.8, duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+          />
+
+          {/* Logo — fades in with subtle scale */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3, duration: 0.8, ease: 'easeOut' }}
+          >
+            <MixxclubLogo variant="full" size="lg" animated={false} />
+          </motion.div>
+
+          {/* Tagline — etched-glass reveal */}
+          <motion.p
+            className="mt-3 text-sm md:text-base tracking-[0.25em] uppercase text-muted-foreground/50 font-medium"
+            style={{
+              textShadow: '0 0 20px hsl(var(--primary) / 0.2)',
+            }}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.3, duration: 0.7, ease: 'easeOut' }}
+          >
+            From Bedroom to Billboard
+          </motion.p>
+        </div>
+      )}
+
+      {/* ═══ FLOOR LOGO — Enhanced inlay with light sweep ═══ */}
+      {fullscreen && (
+        <div className="absolute bottom-44 left-1/2 -translate-x-1/2 z-10 pointer-events-none hidden md:block">
           <div
             style={{
               transform: 'perspective(500px) rotateX(60deg) scaleX(0.9)',
-              opacity: 0.13,
+              opacity: 0.2,
             }}
           >
-            <div
-              className="relative"
-              style={{
-                maskImage: 'linear-gradient(to bottom, transparent 0%, black 35%, black 100%)',
-                WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 35%, black 100%)',
-              }}
-            >
-              <MixxclubLogo variant="symbol-only" size="lg" animated={false} />
+            <div className="relative overflow-hidden">
+              <div
+                style={{
+                  maskImage: 'linear-gradient(to bottom, transparent 0%, black 35%, black 100%)',
+                  WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 35%, black 100%)',
+                }}
+              >
+                <MixxclubLogo variant="symbol-only" size="lg" animated={false} />
+              </div>
+              {/* Light sweep overlay */}
+              <motion.div
+                className="absolute inset-0"
+                style={{
+                  background: 'linear-gradient(105deg, transparent 40%, hsl(var(--primary) / 0.15) 50%, transparent 60%)',
+                }}
+                animate={{ x: ['-100%', '200%'] }}
+                transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut', repeatDelay: 2 }}
+              />
             </div>
           </div>
         </div>
