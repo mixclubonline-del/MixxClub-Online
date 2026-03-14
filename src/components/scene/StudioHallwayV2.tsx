@@ -4,6 +4,9 @@
  * Two doors split "MIXX | CLUB" — left door (Artists, warm orange),
  * right door (Engineers, cool cyan). Branding is baked into the
  * background image; overlays handle interactivity only.
+ * 
+ * Supports dynamic background assets via useDynamicHallwayAssets
+ * (video or image) with static fallback.
  */
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
@@ -15,9 +18,10 @@ import { useDepthLayer } from '@/hooks/useDepthLayer';
 import { useAuth } from '@/hooks/useAuth';
 import { DepthAwareHotspot } from './DepthAwareHotspot';
 import { useHallwayAmbience } from '@/hooks/useHallwayAmbience';
+import { useDynamicHallwayAssets } from '@/hooks/useDynamicHallwayAssets';
 import type { StudioRoom } from '@/types/scene';
 
-import hallwayDoubleDoor from '@/assets/hallway-double-door-base.jpg';
+import hallwayDoubleDoorFallback from '@/assets/hallway-double-door-base.jpg';
 
 // Side-wall hotspot positions (doors along the side walls, not center)
 const SIDE_DOOR_POSITIONS = [
@@ -49,8 +53,19 @@ export function StudioHallwayV2({ fullscreen = false, onEnter, trackConversion }
   const { currentLayer, isOnStage } = useDepthLayer();
   const [imageError, setImageError] = useState(false);
   const ambienceStartedRef = useRef(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Dynamic asset system — pulls from brand_assets DB, falls back to static import
+  const { getBackgroundUrl, isVideo: checkIsVideo, isLoading: assetsLoading } = useDynamicHallwayAssets();
 
   const { startAmbience } = useHallwayAmbience(studios, hoveredRoomId);
+
+  const hasActiveSessions = activeCount > 0;
+
+  // Resolve background: DB asset → static fallback
+  const dynamicUrl = getBackgroundUrl(hasActiveSessions);
+  const backgroundUrl = dynamicUrl || hallwayDoubleDoorFallback;
+  const backgroundIsVideo = dynamicUrl ? checkIsVideo(hasActiveSessions) : false;
 
   const ensureAmbience = useCallback(() => {
     if (!ambienceStartedRef.current) {
@@ -64,13 +79,18 @@ export function StudioHallwayV2({ fullscreen = false, onEnter, trackConversion }
     setHoveredRoomId(hovered ? roomId : null);
   }, [ensureAmbience]);
 
-  const hasActiveSessions = activeCount > 0;
-
   useEffect(() => {
     if (!fullscreen) return;
     const timer = setTimeout(() => setShowSkipHint(true), 3000);
     return () => clearTimeout(timer);
   }, [fullscreen]);
+
+  // Auto-play video backgrounds
+  useEffect(() => {
+    if (backgroundIsVideo && videoRef.current) {
+      videoRef.current.play().catch(() => {});
+    }
+  }, [backgroundIsVideo, backgroundUrl]);
 
   const userFeaturedRoomId = useMemo(() => {
     if (!user || !isOnStage) return null;
@@ -108,15 +128,33 @@ export function StudioHallwayV2({ fullscreen = false, onEnter, trackConversion }
       className={`relative w-full overflow-hidden ${fullscreen ? 'h-screen' : 'h-[70vh] min-h-[500px] max-h-[800px]'}`}
       aria-label="Studio hallway entrance"
     >
-      {/* Background — double-door hallway */}
+      {/* Background — dynamic video/image with static fallback */}
       <div className="absolute inset-0">
-        {imageError ? (
+        {imageError && !backgroundIsVideo ? (
           <div className="absolute inset-0 bg-gradient-to-br from-muted via-background to-muted">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.1),transparent_60%)]" />
           </div>
+        ) : backgroundIsVideo ? (
+          <motion.div
+            className="absolute inset-0"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1.2, ease: 'easeOut' }}
+          >
+            <video
+              ref={videoRef}
+              src={backgroundUrl}
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          </motion.div>
         ) : (
           <motion.img
-            src={hallwayDoubleDoor}
+            key={backgroundUrl}
+            src={backgroundUrl}
             alt=""
             className="absolute inset-0 w-full h-full object-cover"
             initial={{ opacity: 0 }}
@@ -141,119 +179,176 @@ export function StudioHallwayV2({ fullscreen = false, onEnter, trackConversion }
       )}
 
       {/* ═══ INTERACTIVE DOOR ZONES ═══ */}
+      {/* Absolute-positioned to align with background image doors */}
       {fullscreen && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
-          <div className="relative w-full max-w-4xl h-[60%] flex items-stretch justify-center gap-4 md:gap-8 px-4">
-            {/* LEFT DOOR — Artists */}
-            <motion.button
-              className="pointer-events-auto relative flex-1 max-w-[280px] rounded-2xl border border-transparent cursor-pointer overflow-hidden group"
+        <div className="absolute inset-0 z-10 pointer-events-none">
+          {/* LEFT DOOR — Artists */}
+          <motion.button
+            className="pointer-events-auto absolute rounded-2xl border border-transparent cursor-pointer overflow-hidden group"
+            style={{
+              left: '22%',
+              top: '20%',
+              width: '22%',
+              height: '55%',
+              background: hoveredDoor === 'left'
+                ? 'radial-gradient(ellipse at center, hsl(25 95% 55% / 0.15), transparent 70%)'
+                : 'transparent',
+            }}
+            onMouseEnter={() => { setHoveredDoor('left'); ensureAmbience(); }}
+            onMouseLeave={() => setHoveredDoor(null)}
+            onClick={() => handleDoorClick('left')}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            aria-label="Enter as an Artist"
+          >
+            {/* Edge glow */}
+            <motion.div
+              className="absolute inset-0 rounded-2xl"
               style={{
-                background: hoveredDoor === 'left'
-                  ? 'radial-gradient(ellipse at center, hsl(25 95% 55% / 0.15), transparent 70%)'
-                  : 'transparent',
+                boxShadow: '0 0 40px 8px hsl(25 95% 55% / 0.2), inset 0 0 30px hsl(25 95% 55% / 0.1)',
               }}
-              onMouseEnter={() => { setHoveredDoor('left'); ensureAmbience(); }}
-              onMouseLeave={() => setHoveredDoor(null)}
-              onClick={() => handleDoorClick('left')}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              aria-label="Enter as an Artist"
-            >
-              {/* Edge glow */}
-              <motion.div
-                className="absolute inset-0 rounded-2xl"
-                style={{
-                  boxShadow: '0 0 40px 8px hsl(25 95% 55% / 0.2), inset 0 0 30px hsl(25 95% 55% / 0.1)',
-                }}
-                animate={{
-                  opacity: hoveredDoor === 'left' ? 1 : 0.2,
-                }}
-                transition={{ duration: 0.4 }}
-              />
+              animate={{ opacity: hoveredDoor === 'left' ? 1 : 0.2 }}
+              transition={{ duration: 0.4 }}
+            />
 
-              {/* Label — reveals on hover */}
-              <AnimatePresence>
-                {hoveredDoor === 'left' && (
-                  <motion.div
-                    className="absolute inset-0 flex flex-col items-center justify-center gap-3"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <motion.div
-                      className="w-14 h-14 rounded-full bg-[hsl(25_95%_55%/0.2)] flex items-center justify-center backdrop-blur-sm border border-[hsl(25_95%_55%/0.3)]"
-                      animate={{ scale: [1, 1.1, 1] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                    >
-                      <Mic className="w-6 h-6 text-[hsl(25,95%,65%)]" />
-                    </motion.div>
-                    <span className="text-lg font-semibold tracking-wide text-[hsl(25,95%,75%)]">
-                      Artists
-                    </span>
-                    <span className="text-xs text-muted-foreground/70">
-                      Record · Collaborate · Release
-                    </span>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.button>
-
-            {/* RIGHT DOOR — Engineers */}
-            <motion.button
-              className="pointer-events-auto relative flex-1 max-w-[280px] rounded-2xl border border-transparent cursor-pointer overflow-hidden group"
+            {/* Door-crack light effect on hover */}
+            <motion.div
+              className="absolute top-0 bottom-0 w-[3px]"
               style={{
-                background: hoveredDoor === 'right'
-                  ? 'radial-gradient(ellipse at center, hsl(190 100% 55% / 0.15), transparent 70%)'
-                  : 'transparent',
+                right: 0,
+                background: 'linear-gradient(to bottom, transparent, hsl(25 95% 70% / 0.9), hsl(25 95% 55% / 0.6), transparent)',
               }}
-              onMouseEnter={() => { setHoveredDoor('right'); ensureAmbience(); }}
-              onMouseLeave={() => setHoveredDoor(null)}
-              onClick={() => handleDoorClick('right')}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              aria-label="Enter as an Engineer"
-            >
-              {/* Edge glow */}
-              <motion.div
-                className="absolute inset-0 rounded-2xl"
-                style={{
-                  boxShadow: '0 0 40px 8px hsl(190 100% 55% / 0.2), inset 0 0 30px hsl(190 100% 55% / 0.1)',
-                }}
-                animate={{
-                  opacity: hoveredDoor === 'right' ? 1 : 0.2,
-                }}
-                transition={{ duration: 0.4 }}
-              />
+              initial={{ scaleX: 0, opacity: 0 }}
+              animate={{
+                scaleX: hoveredDoor === 'left' ? 1 : 0,
+                opacity: hoveredDoor === 'left' ? 1 : 0,
+              }}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
+            />
+            {/* Spill light from crack */}
+            <motion.div
+              className="absolute top-[10%] bottom-[10%] w-[30px]"
+              style={{
+                right: 0,
+                background: 'linear-gradient(to left, hsl(25 95% 60% / 0.3), transparent)',
+                filter: 'blur(8px)',
+              }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: hoveredDoor === 'left' ? 1 : 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+            />
 
-              {/* Label — reveals on hover */}
-              <AnimatePresence>
-                {hoveredDoor === 'right' && (
+            {/* Label — reveals on hover */}
+            <AnimatePresence>
+              {hoveredDoor === 'left' && (
+                <motion.div
+                  className="absolute inset-0 flex flex-col items-center justify-center gap-3"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  transition={{ duration: 0.3 }}
+                >
                   <motion.div
-                    className="absolute inset-0 flex flex-col items-center justify-center gap-3"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    transition={{ duration: 0.3 }}
+                    className="w-14 h-14 rounded-full bg-[hsl(25_95%_55%/0.2)] flex items-center justify-center backdrop-blur-sm border border-[hsl(25_95%_55%/0.3)]"
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
                   >
-                    <motion.div
-                      className="w-14 h-14 rounded-full bg-[hsl(190_100%_55%/0.2)] flex items-center justify-center backdrop-blur-sm border border-[hsl(190_100%_55%/0.3)]"
-                      animate={{ scale: [1, 1.1, 1] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                    >
-                      <Headphones className="w-6 h-6 text-[hsl(190,100%,65%)]" />
-                    </motion.div>
-                    <span className="text-lg font-semibold tracking-wide text-[hsl(190,100%,75%)]">
-                      Engineers
-                    </span>
-                    <span className="text-xs text-muted-foreground/70">
-                      Mix · Master · Build Your Roster
-                    </span>
+                    <Mic className="w-6 h-6 text-[hsl(25,95%,65%)]" />
                   </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.button>
-          </div>
+                  <span className="text-lg font-semibold tracking-wide text-[hsl(25,95%,75%)]">
+                    Artists
+                  </span>
+                  <span className="text-xs text-muted-foreground/70">
+                    Record · Collaborate · Release
+                  </span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.button>
+
+          {/* RIGHT DOOR — Engineers */}
+          <motion.button
+            className="pointer-events-auto absolute rounded-2xl border border-transparent cursor-pointer overflow-hidden group"
+            style={{
+              right: '22%',
+              top: '20%',
+              width: '22%',
+              height: '55%',
+              background: hoveredDoor === 'right'
+                ? 'radial-gradient(ellipse at center, hsl(190 100% 55% / 0.15), transparent 70%)'
+                : 'transparent',
+            }}
+            onMouseEnter={() => { setHoveredDoor('right'); ensureAmbience(); }}
+            onMouseLeave={() => setHoveredDoor(null)}
+            onClick={() => handleDoorClick('right')}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            aria-label="Enter as an Engineer"
+          >
+            {/* Edge glow */}
+            <motion.div
+              className="absolute inset-0 rounded-2xl"
+              style={{
+                boxShadow: '0 0 40px 8px hsl(190 100% 55% / 0.2), inset 0 0 30px hsl(190 100% 55% / 0.1)',
+              }}
+              animate={{ opacity: hoveredDoor === 'right' ? 1 : 0.2 }}
+              transition={{ duration: 0.4 }}
+            />
+
+            {/* Door-crack light effect on hover */}
+            <motion.div
+              className="absolute top-0 bottom-0 w-[3px]"
+              style={{
+                left: 0,
+                background: 'linear-gradient(to bottom, transparent, hsl(190 100% 70% / 0.9), hsl(190 100% 55% / 0.6), transparent)',
+              }}
+              initial={{ scaleX: 0, opacity: 0 }}
+              animate={{
+                scaleX: hoveredDoor === 'right' ? 1 : 0,
+                opacity: hoveredDoor === 'right' ? 1 : 0,
+              }}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
+            />
+            {/* Spill light from crack */}
+            <motion.div
+              className="absolute top-[10%] bottom-[10%] w-[30px]"
+              style={{
+                left: 0,
+                background: 'linear-gradient(to right, hsl(190 100% 60% / 0.3), transparent)',
+                filter: 'blur(8px)',
+              }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: hoveredDoor === 'right' ? 1 : 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+            />
+
+            {/* Label — reveals on hover */}
+            <AnimatePresence>
+              {hoveredDoor === 'right' && (
+                <motion.div
+                  className="absolute inset-0 flex flex-col items-center justify-center gap-3"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <motion.div
+                    className="w-14 h-14 rounded-full bg-[hsl(190_100%_55%/0.2)] flex items-center justify-center backdrop-blur-sm border border-[hsl(190_100%_55%/0.3)]"
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    <Headphones className="w-6 h-6 text-[hsl(190,100%,65%)]" />
+                  </motion.div>
+                  <span className="text-lg font-semibold tracking-wide text-[hsl(190,100%,75%)]">
+                    Engineers
+                  </span>
+                  <span className="text-xs text-muted-foreground/70">
+                    Mix · Master · Build Your Roster
+                  </span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.button>
         </div>
       )}
 
