@@ -11,7 +11,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useSceneFlowStore } from '@/stores/sceneFlowStore';
 import { useChapterStore } from '@/stores/chapterStore';
 import { SceneStage } from '@/components/scene/SceneStage';
-import { StudioHallway } from '@/components/scene/StudioHallway';
+import { StudioHallwayAB } from '@/components/scene/StudioHallwayAB';
 import { InsiderDemoExperience } from '@/components/demo/InsiderDemoExperience';
 import { ClubScene } from '@/components/home/ClubScene';
 import { ChapterShell } from '@/components/storybook/ChapterShell';
@@ -182,7 +182,7 @@ function VerticalSceneFlow() {
       )}
 
       {scene === 'HALLWAY' && (
-        <StudioHallway fullscreen onEnter={handleEnterDemo} />
+        <StudioHallwayAB fullscreen onEnter={handleEnterDemo} />
       )}
 
       {scene === 'DEMO' && (
