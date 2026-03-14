@@ -433,10 +433,10 @@ export function StudioHallwayV2({ fullscreen = false, onEnter, trackConversion }
         </motion.div>
       )}
 
-      {/* Entry CTA area — below the doors */}
+      {/* Entry CTA area — centered between doors */}
       {fullscreen && onEnter && (
         <motion.div
-          className="absolute bottom-16 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center justify-center gap-4 w-full max-w-md"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center justify-center gap-4 w-full max-w-md"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.5 }}
