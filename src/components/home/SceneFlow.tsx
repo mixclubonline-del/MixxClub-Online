@@ -182,7 +182,7 @@ function VerticalSceneFlow() {
       )}
 
       {scene === 'HALLWAY' && (
-        <StudioHallway fullscreen onEnter={handleEnterDemo} />
+        <StudioHallwayAB fullscreen onEnter={handleEnterDemo} />
       )}
 
       {scene === 'DEMO' && (
