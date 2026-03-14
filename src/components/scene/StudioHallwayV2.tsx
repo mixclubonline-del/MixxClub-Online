@@ -436,7 +436,7 @@ export function StudioHallwayV2({ fullscreen = false, onEnter, trackConversion }
       {/* Entry CTA area — centered under "Choose your door" */}
       {fullscreen && onEnter && (
         <motion.div
-          className="absolute bottom-12 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center justify-center gap-4 w-full max-w-md px-4"
+          className="absolute bottom-12 left-[calc(50%-8px)] -translate-x-1/2 z-20 flex flex-col items-center justify-center gap-4 w-full max-w-md px-4"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.5 }}
