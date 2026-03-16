@@ -66,13 +66,13 @@ export function StageDoor({ onJoin }: StageDoorProps) {
     const fetchSignups = async () => {
       try {
         const today = new Date().toISOString().split('T')[0];
-        const { data, error } = await supabase
+        const result = await (supabase
           .from('funnel_events')
           .select('id')
           .eq('event_type', 'signup')
-          .gte('created_at', today);
+          .gte('created_at', today) as any);
         
-        setSignupsToday(error ? 47 : (data?.length || 47));
+        setSignupsToday(result?.error ? 47 : (result?.data?.length || 47));
       } catch {
         setSignupsToday(47);
       }
