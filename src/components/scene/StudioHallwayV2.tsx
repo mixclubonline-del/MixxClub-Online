@@ -191,8 +191,8 @@ export function StudioHallwayV2({ fullscreen = false, onEnter, trackConversion }
       )}
 
       {/* ═══ INTERACTIVE DOOR ZONES ═══ */}
-      {/* Absolute-positioned to align with background image doors */}
-      {fullscreen && (
+      {/* Desktop: absolute-positioned overlay hitboxes. Phone: visible tappable cards */}
+      {fullscreen && !isPhone && (
         <div className="absolute inset-0 z-10 pointer-events-none">
           {/* Door-opening flash overlay */}
           <AnimatePresence>
@@ -377,6 +377,72 @@ export function StudioHallwayV2({ fullscreen = false, onEnter, trackConversion }
             </AnimatePresence>
           </motion.button>
         </div>
+      )}
+
+      {/* ═══ MOBILE DOOR CARDS ═══ */}
+      {/* Visible, tappable glassmorphic cards on phone */}
+      {fullscreen && isPhone && (
+        <>
+          {/* Door-opening flash overlay */}
+          <AnimatePresence>
+            {openingDoor && (
+              <motion.div
+                className="absolute inset-0 z-50 bg-white pointer-events-none"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.9 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5, ease: 'easeIn' }}
+              />
+            )}
+          </AnimatePresence>
+
+          <motion.div
+            className="absolute bottom-44 left-1/2 -translate-x-1/2 z-10 flex gap-4 w-full max-w-sm px-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1, duration: 0.5 }}
+          >
+            {/* Artist Door Card */}
+            <motion.button
+              onClick={() => handleDoorClick('left')}
+              className="flex-1 flex flex-col items-center gap-2.5 py-5 px-3 rounded-2xl bg-background/20 backdrop-blur-xl border border-[hsl(25_95%_55%/0.3)] shadow-lg shadow-[hsl(25_95%_55%/0.1)]"
+              whileTap={{ scale: 0.95 }}
+              aria-label="Enter as an Artist"
+            >
+              <motion.div
+                className="w-12 h-12 rounded-full bg-[hsl(25_95%_55%/0.2)] flex items-center justify-center border border-[hsl(25_95%_55%/0.3)]"
+                animate={{ scale: [1, 1.08, 1] }}
+                transition={{ duration: 2.5, repeat: Infinity }}
+              >
+                <Mic className="w-5 h-5 text-[hsl(25,95%,65%)]" />
+              </motion.div>
+              <span className="text-sm font-semibold tracking-wide text-[hsl(25,95%,75%)]">Artists</span>
+              <span className="text-[10px] text-muted-foreground/60 leading-tight text-center">
+                Record · Collaborate · Release
+              </span>
+            </motion.button>
+
+            {/* Engineer Door Card */}
+            <motion.button
+              onClick={() => handleDoorClick('right')}
+              className="flex-1 flex flex-col items-center gap-2.5 py-5 px-3 rounded-2xl bg-background/20 backdrop-blur-xl border border-[hsl(190_100%_55%/0.3)] shadow-lg shadow-[hsl(190_100%_55%/0.1)]"
+              whileTap={{ scale: 0.95 }}
+              aria-label="Enter as an Engineer"
+            >
+              <motion.div
+                className="w-12 h-12 rounded-full bg-[hsl(190_100%_55%/0.2)] flex items-center justify-center border border-[hsl(190_100%_55%/0.3)]"
+                animate={{ scale: [1, 1.08, 1] }}
+                transition={{ duration: 2.5, repeat: Infinity }}
+              >
+                <Headphones className="w-5 h-5 text-[hsl(190,100%,65%)]" />
+              </motion.div>
+              <span className="text-sm font-semibold tracking-wide text-[hsl(190,100%,75%)]">Engineers</span>
+              <span className="text-[10px] text-muted-foreground/60 leading-tight text-center">
+                Mix · Master · Build Your Roster
+              </span>
+            </motion.button>
+          </motion.div>
+        </>
       )}
 
       {/* "Choose your door" hint — first-time visitors */}
