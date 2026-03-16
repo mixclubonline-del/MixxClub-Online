@@ -48,6 +48,7 @@ export function StudioHallwayV2({ fullscreen = false, onEnter, trackConversion }
   const [hoveredDoor, setHoveredDoor] = useState<'left' | 'right' | null>(null);
   const [openingDoor, setOpeningDoor] = useState<'left' | 'right' | null>(null);
   const { user } = useAuth();
+  const { isPhone } = useBreakpoint();
   const { isConnected } = useSceneSystemInit();
   const { studios, activeCount } = useStudios();
   const communityPulse = useCommunityPulse();
