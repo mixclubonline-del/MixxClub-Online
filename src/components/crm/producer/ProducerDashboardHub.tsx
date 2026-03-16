@@ -69,6 +69,9 @@ export const ProducerDashboardHub = () => {
 
   return (
     <div className="space-y-6">
+      {/* Stripe Connect Wizard for producers who haven't connected */}
+      {!stripeLoading && !canReceivePayouts && <StripeConnectWizard />}
+
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, idx) => (
