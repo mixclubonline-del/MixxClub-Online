@@ -305,17 +305,11 @@ async function processReferralCommission(
 
   // Create notification for referrer
   try {
-    await supabase.rpc('create_notification', {
+    await supabase.rpc('create_notification_checked', {
       p_user_id: referral.referrer_id,
       p_title: 'Referral Commission Earned!',
       p_message: `You earned $${commissionAmount.toFixed(2)} from a successful referral!`,
-      p_type: 'referral_commission',
-      p_metadata: {
-        referral_id: referral.id,
-        payment_id: params.paymentId,
-        commission_amount: commissionAmount,
-        commission_rate: commissionRate,
-      },
+      p_type: 'payment_received',
     });
   } catch (notifError) {
     console.error('[STRIPE-WEBHOOK] Error creating referral notification:', notifError);
@@ -621,9 +615,9 @@ async function handleSubscriptionCanceled(
 
     // Notify user
     try {
-      await supabase.rpc('create_notification', {
+      await supabase.rpc('create_notification_checked', {
         p_user_id: profile.id,
-        p_type: 'subscription_canceled',
+        p_type: 'payment',
         p_title: 'Subscription Canceled',
         p_message: 'Your subscription has been canceled. You will retain access until the end of your billing period.',
         p_action_url: '/pricing',
@@ -741,16 +735,11 @@ async function handleCourseEnrollment(
 
   // 4. Create notification for user
   try {
-    await supabase.rpc('create_notification', {
+    await supabase.rpc('create_notification_checked', {
       p_user_id: params.userId,
       p_title: 'Course Access Granted!',
       p_message: `You now have full access to "${course?.title || 'your course'}". Start learning today!`,
-      p_type: 'course_enrollment',
-      p_metadata: { 
-        course_id: params.courseId, 
-        enrollment_id: enrollment.id,
-        payment_id: params.paymentId,
-      },
+      p_type: 'payment_received',
     });
   } catch (notifError) {
     console.warn('[STRIPE-WEBHOOK] Notification error:', notifError);
@@ -901,11 +890,11 @@ async function handleCoinzPurchase(
 
   // Create notification
   try {
-    await supabase.rpc('create_notification', {
+    await supabase.rpc('create_notification_checked', {
       p_user_id: userId,
       p_title: '💰 MixxCoinz Added!',
       p_message: `${coinzAmount} MixxCoinz have been added to your wallet.`,
-      p_type: 'coinz_purchase',
+      p_type: 'payment_received',
     });
   } catch (notifError) {
     console.warn('[STRIPE-WEBHOOK] Notification error:', notifError);
@@ -971,11 +960,11 @@ async function handleChargeRefunded(
         .eq('id', payout.id);
 
       // Notify engineer
-      await supabase.rpc('create_notification', {
+      await supabase.rpc('create_notification_checked', {
         p_user_id: payout.engineer_id,
         p_title: 'Payment Refunded',
         p_message: `A payment of $${refundedAmount.toFixed(2)} was refunded. Your payout has been reversed.`,
-        p_type: 'payout_refunded',
+        p_type: 'payment',
       });
     }
   }
@@ -1026,11 +1015,11 @@ async function handleInvoicePaymentFailed(
   }
 
   // Notify user
-  await supabase.rpc('create_notification', {
+  await supabase.rpc('create_notification_checked', {
     p_user_id: profile.id,
     p_title: 'Payment Failed',
     p_message: 'Your subscription payment failed. Please update your payment method to avoid service interruption.',
-    p_type: 'payment_failed',
+    p_type: 'payment',
   });
 
   // Log security event for admin visibility
@@ -1079,11 +1068,11 @@ async function handleDisputeCreated(
 
   if (admins) {
     for (const admin of admins) {
-      await supabase.rpc('create_notification', {
+      await supabase.rpc('create_notification_checked', {
         p_user_id: admin.user_id,
         p_title: '⚠️ Stripe Dispute Created',
         p_message: `A dispute for $${amount.toFixed(2)} has been filed. Reason: ${dispute.reason}. Immediate action required.`,
-        p_type: 'dispute_alert',
+        p_type: 'payment',
       });
     }
   }

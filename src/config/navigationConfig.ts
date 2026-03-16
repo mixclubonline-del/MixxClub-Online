@@ -271,6 +271,13 @@ const navigationItems: NavItem[] = [
 
   // Settings
   {
+    label: 'Billing',
+    path: '/billing',
+    icon: Coins,
+    roles: ['artist', 'engineer', 'producer', 'fan'],
+    category: 'Account',
+  },
+  {
     label: 'Settings',
     path: '/settings',
     icon: Settings,

@@ -1,89 +1,135 @@
 
 
-# Payment & Revenue System — Audit Plan
 
-## Current State
+# CRM Phase 4 Complete — Remaining Roadmap
 
-The payment infrastructure is extensive:
-- **Stripe Checkout**: Unified `create-payment-checkout` for mastering/mixing/distribution/addon, separate `create-subscription-checkout` for platform plans, `create-beat-checkout` for beats, `create-coinz-checkout` for MixxCoinz, `create-course-checkout` for courses
-- **Webhook handler**: 1,092-line `stripe-webhook` handling checkout.completed, invoice.paid, subscription lifecycle, refunds, disputes, transfers
-- **Subscription management**: `check-subscription` edge function, `useSubscriptionManagement` hook with auto-refresh, customer portal integration
-- **Payouts**: Engineer payout pipeline via `process-engineer-payout` with Stripe Connect transfers
-- **Admin**: `AdminRevenueHub` with charts, reconciliation, CSV/JSON export, Stripe command center
-- **Success page**: `PaymentSuccess.tsx` with session verification, confetti, invoice PDF generation
+## Completed ✅
 
-## Gaps Found
+### Phase 1 — Design Tokens
+- GlassPanel, HubHeader, StaggeredList, HubSkeleton, EmptyState created
+- ActiveWorkHub, StoreHub, ClientsHub migrated
 
-| # | Issue | Impact |
-|---|-------|--------|
-| 1 | No user-facing payment history page — users can only see payments scattered across CRM hubs; no unified "My Payments" or "Billing" page | Users can't find receipts, track spending, or dispute charges |
-| 2 | `process-refund` edge function uses `transaction_id` column on payments, but the webhook stores `stripe_payment_intent_id` — field name mismatch means refunds from the admin UI will fail | Admin refunds are silently broken |
-| 3 | Subscription status stored in 3 places: `useSubscriptionManagement` (edge function), `useUserSubscription` (DB query), and `subscriptionStore` (Zustand) — none share state | Race conditions, stale tier display, triple Stripe API calls |
-| 4 | No retry logic for failed engineer payouts — `process-engineer-payout` marks as "failed" and moves on | Engineers lose money on transient Stripe errors |
-| 5 | Webhook `create_notification` calls use the old unwrapped function instead of `create_notification_checked` | Notifications ignore user preferences set in the previous phase |
-| 6 | No Stripe Connect onboarding status check — engineers see the "Set up payouts" button but no indication of whether their account is verified, pending, or has issues | Engineers don't know if they can receive money |
+### Phase 2 — Critical Features  
+- NotificationsHub upgraded to GlassPanel/HubHeader + mobile Select dropdown
+- ScheduleHub upgraded to GlassPanel/HubHeader/EmptyState + mobile responsive
+- RevenueHub upgraded to GlassPanel/HubHeader + mobile Select dropdown
+- CommunityHub already mobile responsive (useIsMobile + Select)
+- MatchesHub already mobile responsive (useIsMobile)
+- CommunityStats already responsive (grid-cols-2 md:3 lg:6)
+- All 3 CRM pages (Artist/Engineer/Producer) already have notifications + schedule wired
 
-## Plan
+### EcosystemFlow Character Avatars
+- Already implemented with foreignObject SVG alignment
 
-### 1. Create user-facing Billing page
-- Create `src/pages/Billing.tsx` — tabbed page with:
-  - **Subscription** tab: current plan, usage meters, upgrade/manage buttons (using existing `useSubscriptionManagement`)
-  - **Payment History** tab: paginated list from `payments` table filtered by current user, with status badges, amounts, dates, and "Download Invoice" per row (reuse PDF generator from PaymentSuccess)
-  - **Payout History** tab (engineers only): list from `engineer_payouts` filtered by current user, with transfer status
-- Add route to router, add "Billing" link to sidebar/settings
+### Phase 3 — UX Polish ✅
+- HubSkeleton + EmptyState standardized across ~10 hubs
+- CommunityHub, SessionsHub, CollectiveAnalytics, ClientsHub, ScheduleHub migrated to design tokens
+- Match components (AIMatchRecommendations, MatchRequests, YourMatches) standardized
+- File version timeline verified functional
 
-### 2. Fix refund field name mismatch
-- In `process-refund/index.ts`, change `payment.transaction_id` to `payment.stripe_payment_intent_id`
-- This is a one-line fix but critical — admin refunds currently throw "Missing payment intent"
+### Phase 4 — Advanced ✅
+- `useUserProjects` and `useUserEarnings` shared hooks created and adopted by EnhancedDashboardHub + GrowthHub
+- Producer License Builder + Promo Codes + Featured Rotation built and wired into ProducerCatalogHub
+- React.lazy() implemented for all 3 CRM pages (non-dashboard hubs)
 
-### 3. Consolidate subscription state
-- Remove `subscriptionStore.ts` Zustand store (320 lines of duplicated state)
-- Make `useSubscriptionManagement` the single source of truth — it already calls `check-subscription`, auto-refreshes, and listens to auth changes
-- Update any components importing from `subscriptionStore` to use `useSubscriptionManagement` instead
-- Keep `useUserSubscription` (DB-only query) as a lightweight fallback for components that only need the tier string
+### Phase 5 — Usage Enforcement ✅
+- `useUsageEnforcement` hook: centralized tier-aware limit checking (free/starter/pro/studio)
+- `UsageLimitBanner` component: 4 severity states (normal/warning/urgent/blocked), 2 variants (banner/inline), tier badges, upgrade CTAs
+- Dashboard integration: per-feature banners for projects, audio uploads, AI matching, storage, collaborations
+- Enforcement guards wired into: CreateProjectModal, AudioUpload, useEngineerMatchingAPI, usePartnershipEarnings, useProducerPartnerships
+- 20+ unit tests covering all thresholds, variants, visibility rules, CTAs, and edge cases
+- Integration-level tests for `useUsageEnforcement` hook (tier fallback, canUseFeature, getFeatureUsage)
 
-### 4. Add payout retry logic
-- In `process-engineer-payout`, when a transfer fails, set status to `retry_pending` instead of `failed` (for transient errors like network timeouts)
-- Add a `retry_count` column and `next_retry_at` timestamp to `engineer_payouts`
-- Cap retries at 3 — after that, set to `failed` and notify admin
-- The existing scheduled processor will pick up `retry_pending` payouts on next run
+### Phase 6 — Stripe Revenue Backend ✅
+- Schema alignment: 10 columns added to `payments`, `stripe_customer_id` on `profiles`, `engineer_id`+`stripe_transfer_id` on `payout_requests`
+- `launch_metrics` table created with admin-only RLS for revenue prediction engine
+- `aggregate_payment_to_metrics` trigger auto-increments daily revenue/payment counts
+- Webhook handlers added: `charge.refunded` (auto-reverse earnings), `invoice.payment_failed` (flag subscription + notify), `charge.dispute.created` (critical alert to all admins)
+- Backfilled `payout_requests.engineer_id` from existing `user_id`
 
-### 5. Update webhook notification calls
-- In `stripe-webhook/index.ts`, replace all `create_notification(` calls with `create_notification_checked(` so that delivery respects user preferences
-- Affects: subscription canceled, payment failed, coinz purchase, course enrollment, payout completed, referral commission, dispute alerts
+### Phase 7 — Full Site Audit ✅
+- Auth-to-dashboard flow audited: magic link, email+password, OAuth all route correctly through AuthCallback → role check → onboarding → CRM
+- Engineer profile page (/engineer/:userId) verified fully functional with real data from profiles + engineer_profiles + engineer_reviews + projects
+- Battle Tournaments page verified fully functional with real data from battle_tournaments table
+- My Certifications page verified fully functional with milestone overlay at 250 community members
+- Mobile QA pass on revenue path (home → pricing → checkout): pricing cards stack cleanly, CTAs visible
+- Fixed: PathfinderBeacon mobile positioning (bottom-24 on phones to clear mobile nav, full-width card on small screens)
+- Fixed: AuthSocialProof ticker text truncation on narrow viewports (added truncate + shrink-0)
+- Fixed: Homepage floating nav pill overflow on 375px screens (added max-w constraint)
 
-### 6. Add Stripe Connect status indicator
-- Create `useStripeConnectStatus` hook that calls `get-stripe-connect-status` edge function
-- Show a status badge in the Engineer CRM revenue tab: "Not Set Up" (red), "Pending Verification" (yellow), "Active" (green), "Issues" (red with details)
-- Add "Complete Setup" CTA for incomplete accounts that calls `setup-stripe-connect`
+### Mobile & PWA Hardening ✅
+- PWA update prompt (service worker refresh notification)
+- PWA install prompt with localStorage 7-day persistence + iOS guidance
+- Offline indicator with pending sync count + manual Sync Now button
+- CRM offline queue wired into useCRMClients + useCRMDeals
 
-## Execution Order
+### CRM Notification Preferences ✅
+- notification_preferences table extended with 17 category×channel columns
+- NotificationPrefsPanel with matrix toggle UI
+- Integrated into NotificationsHub settings
 
-```text
-1. Fix refund field mismatch     (critical bug, one-line fix)
-2. Update webhook notifications  (consistency with preferences system)
-3. Consolidate subscription state (cleanup, reduces confusion)
-4. Create Billing page           (major UX gap)
-5. Payout retry logic            (reliability improvement)
-6. Stripe Connect status         (engineer UX)
+### Daily Digest ✅
+- daily-digest edge function: batches unread notifications, sends branded HTML via Resend
+- trigger-daily-digest cron function scheduled at 8 AM UTC daily
+- Respects weekly_digest_email preference toggle
+
+---
+
+## Phase 8 — Growth · Scale · Create · Connect
+
+### 8A: Growth & Marketing (Ship First)
+
+| # | Task | Files | Effort |
+|---|------|-------|--------|
+| 1 | **Referral Dashboard** — visualize referral tree, pending/completed commissions, share links with OG image preview | New: `src/components/crm/referrals/ReferralDashboard.tsx`, Edit: partner CRM pages | M |
+| 2 | **SEO Hardening** — dynamic `<SEOHead>` per route with JSON-LD (Organization, Product, FAQ schemas), canonical tags, Open Graph images for /pricing /go /economy | Edit: SEOHead, route components | S |
+| 3 | **Social Share Cards** — generate dynamic OG images for beat listings, engineer profiles, battle results using edge function + Satori | New: `supabase/functions/generate-og-image/index.ts` | M |
+| 4 | **Landing A/B Framework** — lightweight variant system using `funnel_events` to track conversion by variant, admin toggle | New: `src/hooks/useABVariant.ts`, `src/components/marketing/ABProvider.tsx` | S |
+| 5 | **Analytics Dashboard (Admin)** — funnel visualization, conversion rates, cohort retention chart, revenue per channel | New: `src/components/admin/AnalyticsDashboard.tsx` | L |
+
+### 8B: Enterprise & Scaling
+
+| # | Task | Files | Effort |
+|---|------|-------|--------|
+| 1 | **API Rate Limiter v2** — sliding window per-user rate limiting with Redis-like pattern in Postgres, enforcement in edge functions | Edit: `_shared/rate-limiter.ts`, migration | M |
+| 2 | **Performance Optimization** — React.memo critical components, virtualized lists for large datasets (notifications, beat catalog), image lazy loading audit | Edit: multiple hub components | M |
+| 3 | **White-Label Config Table** — `platform_config` table for branding overrides (logo, colors, domain), resolved at app init | New: migration, `usePlatformConfig` hook | M |
+| 4 | **Bulk Operations** — batch approve/reject projects, bulk payout processing, CSV export for admin tables | Edit: admin components | M |
+| 5 | **CDN & Asset Pipeline** — storage bucket policies for public assets, signed URL generation for premium content, cache headers | Edit: storage config, edge functions | S |
+
+### 8C: Creator Tools
+
+| # | Task | Files | Effort |
+|---|------|-------|--------|
+| 1 | **AI Mastering Pipeline v2** — chain: upload → analyze → apply preset → preview → download, using Lovable AI for analysis + recommendations | Edit: `advanced-mastering` edge function, new UI components | L |
+| 2 | **Stem Separation UI** — upload track → separate vocals/drums/bass/other → download individual stems, powered by existing `stem-separation` edge function | New: `src/components/studio/StemSeparator.tsx` | M |
+| 3 | **Beat Marketplace Enhancements** — waveform previews on cards, instant purchase flow, license comparison modal, producer analytics | Edit: ProducerCatalogHub, beat components | M |
+| 4 | **Sample Pack Builder** — bundle beats + stems + loops into downloadable packs with pricing tiers | New: migration + UI + edge function | L |
+| 5 | **Collaboration Templates** — pre-configured session setups (vocal recording, mixing review, mastering approval) with auto-generated checklists | New: `src/components/sessions/SessionTemplates.tsx` | S |
+
+### 8D: Community & Social
+
+| # | Task | Files | Effort |
+|---|------|-------|--------|
+| 1 | **Live Stream Integration** — go-live button in sessions, viewer count, real-time chat sidebar, gift animations using existing `live_streams` + `stream_gifts` tables | New: `src/components/live/LiveStreamView.tsx` | L |
+| 2 | **Battle League Seasons** — seasonal brackets, leaderboard reset, trophy case on profiles, season pass with exclusive rewards | Edit: battle components, new migration for `battle_seasons` | L |
+| 3 | **Fan Engagement Hub** — Day 1 badge showcase, artist milestone timeline, fan leaderboard per artist, engagement streak rewards | New: `src/components/community/FanEngagementHub.tsx` | M |
+| 4 | **Enhanced Chat** — threaded replies, emoji reactions, file sharing in DMs, read receipts using existing `messages` table | Edit: messaging components | M |
+| 5 | **Community Challenges** — weekly/monthly creative challenges (remix contest, beat battle, mixing challenge) with voting + prizes | New: migration + `src/components/community/ChallengesHub.tsx` | L |
+
+### Execution Order (recommended)
+
+```
+Sprint 1 (8A.1-2 + 8B.1-2):  Referral Dashboard, SEO, Rate Limiter, Performance
+Sprint 2 (8A.3-4 + 8C.1-2):  OG Images, A/B Framework, AI Mastering v2, Stem Sep UI
+Sprint 3 (8C.3-4 + 8D.1-2):  Beat Marketplace, Sample Packs, Live Streams, Battle Seasons
+Sprint 4 (8D.3-5 + 8A.5 + 8B.3-5): Fan Hub, Chat, Challenges, Analytics, White-Label, Bulk Ops
 ```
 
-## Database Migration
-- Add `retry_count INTEGER DEFAULT 0` and `next_retry_at TIMESTAMPTZ` to `engineer_payouts`
-
-## Files Created
-- `src/pages/Billing.tsx`
-- `src/hooks/useStripeConnectStatus.ts`
-
-## Files Modified
-- `supabase/functions/process-refund/index.ts` — fix field name
-- `supabase/functions/stripe-webhook/index.ts` — use `create_notification_checked`
-- `supabase/functions/process-engineer-payout/index.ts` — retry logic
-- `src/routes/appRoutes.tsx` — add `/billing` route
-- `src/components/AppSidebar.tsx` — add Billing link
-- `src/components/crm/RevenueHub.tsx` — add Connect status indicator
-- Components importing `subscriptionStore` — migrate to `useSubscriptionManagement`
-
-## Files Deleted
-- `src/stores/subscriptionStore.ts` (replaced by existing hook)
-
+### Acceptance Criteria
+- Every feature uses GlassPanel/HubHeader design tokens — no raw colors
+- All new tables have RLS policies
+- Mobile-first responsive at 375px
+- Zero placeholder copy (Zero Placeholder Clause)
+- Edge functions use `_shared/cors.ts` + `_shared/auth.ts`
+- Performance: no new component >50KB unbundled

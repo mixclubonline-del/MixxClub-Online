@@ -48,7 +48,7 @@ serve(async (req) => {
       apiVersion: '2025-08-27.basil',
     });
 
-    // Get all pending payouts
+    // Get all pending or retryable payouts
     const { data: pendingPayouts, error: payoutsError } = await supabaseAdmin
       .from('engineer_payouts')
       .select(`
@@ -60,7 +60,7 @@ serve(async (req) => {
           email
         )
       `)
-      .eq('status', 'pending');
+      .or('status.eq.pending,and(status.eq.retry_pending,next_retry_at.lte.' + new Date().toISOString() + ')');
 
     if (payoutsError) {
       throw new Error(`Failed to fetch pending payouts: ${payoutsError.message}`);
@@ -131,9 +131,58 @@ serve(async (req) => {
 
       } catch (transferError) {
         console.error(`Transfer failed for payout ${payout.id}:`, transferError);
-        await supabaseAdmin.from('engineer_payouts').update({ status: 'failed' }).eq('id', payout.id);
-        results.failed++;
-        results.details.push({ id: payout.id, status: 'failed', message: transferError instanceof Error ? transferError.message : 'Unknown error' });
+        
+        const currentRetry = (payout.retry_count || 0) + 1;
+        const MAX_RETRIES = 3;
+        
+        if (currentRetry < MAX_RETRIES) {
+          // Schedule retry with exponential backoff (5min, 20min, 80min)
+          const backoffMs = Math.pow(4, currentRetry) * 5 * 60 * 1000;
+          const nextRetry = new Date(Date.now() + backoffMs).toISOString();
+          
+          await supabaseAdmin.from('engineer_payouts').update({
+            status: 'retry_pending',
+            retry_count: currentRetry,
+            next_retry_at: nextRetry,
+          }).eq('id', payout.id);
+          
+          results.failed++;
+          results.details.push({
+            id: payout.id,
+            status: 'retry_scheduled',
+            message: `Retry ${currentRetry}/${MAX_RETRIES} scheduled for ${nextRetry}`,
+          });
+        } else {
+          // Max retries exhausted — mark as failed and notify admin
+          await supabaseAdmin.from('engineer_payouts').update({
+            status: 'failed',
+            retry_count: currentRetry,
+          }).eq('id', payout.id);
+          
+          // Notify admins
+          const { data: admins } = await supabaseAdmin
+            .from('user_roles')
+            .select('user_id')
+            .eq('role', 'admin');
+          
+          if (admins) {
+            for (const admin of admins) {
+              await supabaseAdmin.rpc('create_notification_checked', {
+                p_user_id: admin.user_id,
+                p_title: '❌ Engineer Payout Failed',
+                p_message: `Payout of $${payout.net_amount.toFixed(2)} for engineer ${payout.engineer_id} failed after ${MAX_RETRIES} retries.`,
+                p_type: 'payment',
+              });
+            }
+          }
+          
+          results.failed++;
+          results.details.push({
+            id: payout.id,
+            status: 'failed',
+            message: `Failed after ${MAX_RETRIES} retries: ${transferError instanceof Error ? transferError.message : 'Unknown error'}`,
+          });
+        }
       }
     }
 

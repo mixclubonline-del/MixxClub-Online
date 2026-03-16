@@ -3129,11 +3129,13 @@ export type Database = {
           gross_amount: number
           id: string
           net_amount: number
+          next_retry_at: string | null
           payment_id: string | null
           payout_method: string | null
           platform_fee: number
           processed_at: string | null
           project_id: string | null
+          retry_count: number | null
           status: string | null
           stripe_transfer_id: string | null
         }
@@ -3144,11 +3146,13 @@ export type Database = {
           gross_amount: number
           id?: string
           net_amount: number
+          next_retry_at?: string | null
           payment_id?: string | null
           payout_method?: string | null
           platform_fee: number
           processed_at?: string | null
           project_id?: string | null
+          retry_count?: number | null
           status?: string | null
           stripe_transfer_id?: string | null
         }
@@ -3159,11 +3163,13 @@ export type Database = {
           gross_amount?: number
           id?: string
           net_amount?: number
+          next_retry_at?: string | null
           payment_id?: string | null
           payout_method?: string | null
           platform_fee?: number
           processed_at?: string | null
           project_id?: string | null
+          retry_count?: number | null
           status?: string | null
           stripe_transfer_id?: string | null
         }
