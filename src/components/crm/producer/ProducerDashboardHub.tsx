@@ -6,10 +6,13 @@ import { Disc3, TrendingUp, DollarSign, Users } from 'lucide-react';
 import { useProducerRevenueStreams } from '@/hooks/useProducerRevenueStreams';
 import { usePersonalUnlockables } from '@/hooks/useUnlockables';
 import { PersonalUnlocksWidget } from '@/components/unlock/PersonalUnlocksWidget';
+import { StripeConnectWizard } from '@/components/engineer/StripeConnectWizard';
+import { useStripeConnect } from '@/hooks/useStripeConnect';
 
 export const ProducerDashboardHub = () => {
   const { analytics, loading } = useProducerRevenueStreams();
   const { data: personalUnlockables, isLoading: unlockablesLoading } = usePersonalUnlockables('producer');
+  const { canReceivePayouts, isLoading: stripeLoading } = useStripeConnect();
 
   const hasData = !loading && analytics && (analytics.totalBeatsSold > 0 || analytics.totalRevenue > 0);
 
@@ -66,6 +69,9 @@ export const ProducerDashboardHub = () => {
 
   return (
     <div className="space-y-6">
+      {/* Stripe Connect Wizard for producers who haven't connected */}
+      {!stripeLoading && !canReceivePayouts && <StripeConnectWizard />}
+
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, idx) => (

@@ -8,6 +8,7 @@ import { PayoutRequestForm } from './PayoutRequestForm';
 import { PayoutHistory } from './PayoutHistory';
 import { RevenueAnalytics } from '@/hooks/useRevenueStreams';
 import { StripeConnectCard } from '@/components/engineer/StripeConnectCard';
+import { StripeConnectWizard } from '@/components/engineer/StripeConnectWizard';
 import { EngineerPayoutsTable } from '@/components/engineer/EngineerPayoutsTable';
 import { useStripeConnect } from '@/hooks/useStripeConnect';
 import { useEngineerPayouts } from '@/hooks/useEngineerPayouts';
@@ -85,8 +86,12 @@ export const PaymentIntegration = ({ analytics, loading, onPayoutRequest }: Paym
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
-            {/* Stripe Connect Status Card */}
-            <StripeConnectCard />
+            {/* Stripe Connect Wizard for unconnected users, card for connected */}
+            {!stripeLoading && !canReceivePayouts ? (
+              <StripeConnectWizard />
+            ) : (
+              <StripeConnectCard />
+            )}
 
             {/* Balance Overview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
