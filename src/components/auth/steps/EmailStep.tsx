@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { lovable } from '@/integrations/lovable/index';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { WizardMode, AppRole } from '@/hooks/useAuthWizard';
 import { Disc3, Mic2, Headphones, Heart } from 'lucide-react';
@@ -64,6 +65,7 @@ export function EmailStep({
   const [googleLoading, setGoogleLoading] = useState(false);
   const [authMethod, setAuthMethod] = useState<AuthMethod>('password');
   const [showPassword, setShowPassword] = useState(false);
+  const [forgotLoading, setForgotLoading] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,9 +77,34 @@ export function EmailStep({
     }
   };
 
+  const handleForgotPassword = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!email) {
+      toast.error('Enter your email first');
+      return;
+    }
+    setForgotLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      toast.success('Password reset link sent! Check your email.');
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to send reset email');
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
   const handleOAuthSignIn = async (e: React.MouseEvent, provider: 'google' | 'apple') => {
     e.preventDefault();
     e.stopPropagation();
+
+    // Persist selected role for OAuth callback
+    if (preselectedRole) {
+      sessionStorage.setItem('pending_oauth_role', preselectedRole);
+    }
 
     setGoogleLoading(true);
     try {
@@ -199,7 +226,21 @@ export function EmailStep({
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
-            </div>
+           </div>
+          </div>
+        )}
+
+        {/* Forgot password link — only in login + password mode */}
+        {isLogin && isPasswordMode && (
+          <div className="text-right -mt-2">
+            <button
+              type="button"
+              onClick={handleForgotPassword}
+              disabled={forgotLoading}
+              className="text-xs text-primary/70 hover:text-primary transition-colors"
+            >
+              {forgotLoading ? 'Sending...' : 'Forgot password?'}
+            </button>
           </div>
         )}
 

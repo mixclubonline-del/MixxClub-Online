@@ -51,29 +51,47 @@ const steps: WizardStep[] = [
   { id: 'rates', title: 'Rates', description: 'Set pricing', icon: DollarSign },
 ];
 
+const STORAGE_KEY = 'onboarding_progress_engineer';
+
+function loadSavedState() {
+  try {
+    const saved = sessionStorage.getItem(STORAGE_KEY);
+    return saved ? JSON.parse(saved) : null;
+  } catch { return null; }
+}
+
 export function EngineerOnboardingWizard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user, refreshRoles } = useAuth();
-  const [currentStep, setCurrentStep] = useState(0);
+  
+  const saved = loadSavedState();
+  const nameFromUrl = searchParams.get('name');
+  
+  const [currentStep, setCurrentStep] = useState(saved?.currentStep || 0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
   
-  // Pre-fill from URL params
-  const nameFromUrl = searchParams.get('name');
-  
-  // Form state
-  const [fullName, setFullName] = useState(nameFromUrl || '');
-  const [bio, setBio] = useState('');
-  const [portfolioUrl, setPortfolioUrl] = useState('');
-  const [yearsExperience, setYearsExperience] = useState(3);
-  const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>([]);
-  const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
-  const [hourlyRate, setHourlyRate] = useState(100);
-  const [avatarUrl, setAvatarUrl] = useState<string>('');
+  // Form state — restored from sessionStorage
+  const [fullName, setFullName] = useState(saved?.fullName || nameFromUrl || '');
+  const [bio, setBio] = useState(saved?.bio || '');
+  const [portfolioUrl, setPortfolioUrl] = useState(saved?.portfolioUrl || '');
+  const [yearsExperience, setYearsExperience] = useState(saved?.yearsExperience || 3);
+  const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>(saved?.selectedSpecialties || []);
+  const [selectedGenres, setSelectedGenres] = useState<string[]>(saved?.selectedGenres || []);
+  const [hourlyRate, setHourlyRate] = useState(saved?.hourlyRate || 100);
+  const [avatarUrl, setAvatarUrl] = useState<string>(saved?.avatarUrl || '');
 
   // Username validation
-  const { username, setUsername, isChecking, isAvailable, error: usernameError, isValid: isUsernameValid } = useUsernameValidation();
+  const { username, setUsername, isChecking, isAvailable, error: usernameError, isValid: isUsernameValid } = useUsernameValidation(saved?.username || '');
+
+  // Persist form state
+  useEffect(() => {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+      currentStep, fullName, bio, portfolioUrl, yearsExperience,
+      selectedSpecialties, selectedGenres, hourlyRate, avatarUrl, username,
+    }));
+  }, [currentStep, fullName, bio, portfolioUrl, yearsExperience, selectedSpecialties, selectedGenres, hourlyRate, avatarUrl, username]);
 
   // Check if user already completed onboarding
   useEffect(() => {
@@ -180,6 +198,7 @@ export function EngineerOnboardingWizard() {
 
       await refreshRoles();
 
+      sessionStorage.removeItem(STORAGE_KEY);
       toast.success('Welcome to the MIXXCLUB Engineer Network! 🎛️', {
         description: '+150 XP earned! Your profile is now live.'
       });

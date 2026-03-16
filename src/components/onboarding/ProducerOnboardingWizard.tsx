@@ -45,27 +45,44 @@ const steps: WizardStep[] = [
   { id: 'goals', title: 'Goals', description: 'What brings you here?', icon: CheckCircle },
 ];
 
+const STORAGE_KEY = 'onboarding_progress_producer';
+
+function loadSavedState() {
+  try {
+    const saved = sessionStorage.getItem(STORAGE_KEY);
+    return saved ? JSON.parse(saved) : null;
+  } catch { return null; }
+}
+
 export function ProducerOnboardingWizard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user, refreshRoles } = useAuth();
-  const [currentStep, setCurrentStep] = useState(0);
+  
+  const saved = loadSavedState();
+  const nameFromUrl = searchParams.get('name');
+
+  const [currentStep, setCurrentStep] = useState(saved?.currentStep || 0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
 
-  // Pre-fill from URL params
-  const nameFromUrl = searchParams.get('name');
-
-  // Form state
-  const [fullName, setFullName] = useState(nameFromUrl || '');
-  const [producerName, setProducerName] = useState('');
-  const [bio, setBio] = useState('');
-  const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
-  const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
-  const [avatarUrl, setAvatarUrl] = useState<string>('');
+  // Form state — restored from sessionStorage
+  const [fullName, setFullName] = useState(saved?.fullName || nameFromUrl || '');
+  const [producerName, setProducerName] = useState(saved?.producerName || '');
+  const [bio, setBio] = useState(saved?.bio || '');
+  const [selectedGenres, setSelectedGenres] = useState<string[]>(saved?.selectedGenres || []);
+  const [selectedGoals, setSelectedGoals] = useState<string[]>(saved?.selectedGoals || []);
+  const [avatarUrl, setAvatarUrl] = useState<string>(saved?.avatarUrl || '');
 
   // Username validation
-  const { username, setUsername, isChecking, isAvailable, error: usernameError, isValid: isUsernameValid } = useUsernameValidation();
+  const { username, setUsername, isChecking, isAvailable, error: usernameError, isValid: isUsernameValid } = useUsernameValidation(saved?.username || '');
+
+  // Persist form state
+  useEffect(() => {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+      currentStep, fullName, producerName, bio, selectedGenres, selectedGoals, avatarUrl, username,
+    }));
+  }, [currentStep, fullName, producerName, bio, selectedGenres, selectedGoals, avatarUrl, username]);
 
   // Check if user already completed onboarding
   useEffect(() => {
@@ -156,6 +173,7 @@ export function ProducerOnboardingWizard() {
 
       await refreshRoles();
 
+      sessionStorage.removeItem(STORAGE_KEY);
       toast.success('Welcome to MIXXCLUB! 🎹', {
         description: '+125 XP earned for completing your profile!'
       });

@@ -51,9 +51,12 @@ const AuthCallback = () => {
 
         const hasRole = existingRoles && existingRoles.length > 0;
 
-        // If new user with role metadata, assign the role
-        if (!hasRole && user.user_metadata?.role) {
-          const selectedRole = user.user_metadata.role as 'producer' | 'artist' | 'engineer' | 'fan';
+        // If new user with role metadata or sessionStorage role, assign the role
+        const pendingOAuthRole = sessionStorage.getItem('pending_oauth_role');
+        const roleSource = user.user_metadata?.role || pendingOAuthRole;
+        
+        if (!hasRole && roleSource) {
+          const selectedRole = roleSource as 'producer' | 'artist' | 'engineer' | 'fan';
           
           try {
             await supabase
@@ -61,8 +64,9 @@ const AuthCallback = () => {
               .insert([{ user_id: user.id, role: selectedRole }]);
           } catch (roleErr) {
             console.error('Failed to assign role:', roleErr);
-            // Continue anyway - role can be set later
           }
+          // Clear the pending role from sessionStorage
+          sessionStorage.removeItem('pending_oauth_role');
         }
 
         // Determine role from user_roles (authoritative), then fallback
@@ -70,9 +74,13 @@ const AuthCallback = () => {
         const priority = ['admin', 'producer', 'engineer', 'artist', 'fan'];
         let userRole: string | undefined = priority.find(r => roles.includes(r));
 
-        // Fallback to metadata if user_roles is empty
+        // Fallback to metadata, then sessionStorage
         if (!userRole && user.user_metadata?.role) {
           userRole = user.user_metadata.role;
+        }
+        if (!userRole && pendingOAuthRole) {
+          userRole = pendingOAuthRole;
+          sessionStorage.removeItem('pending_oauth_role');
         }
 
         // If no role set anywhere, redirect to role selection
