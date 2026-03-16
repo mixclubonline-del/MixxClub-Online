@@ -9539,41 +9539,74 @@ export type Database = {
       user_subscriptions: {
         Row: {
           auto_renew: boolean | null
+          cancel_at_period_end: boolean | null
           created_at: string | null
           currency: string | null
+          current_period_end: string | null
+          current_period_start: string | null
           end_date: string | null
+          features_available: string[] | null
           id: string
+          plan_id: string | null
+          price_monthly: number | null
           price_paid: number | null
           start_date: string | null
           status: string | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
           subscription_tier: string
+          tier: string | null
           updated_at: string | null
+          usage_current: number | null
+          usage_limit: number | null
           user_id: string
         }
         Insert: {
           auto_renew?: boolean | null
+          cancel_at_period_end?: boolean | null
           created_at?: string | null
           currency?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
           end_date?: string | null
+          features_available?: string[] | null
           id?: string
+          plan_id?: string | null
+          price_monthly?: number | null
           price_paid?: number | null
           start_date?: string | null
           status?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           subscription_tier: string
+          tier?: string | null
           updated_at?: string | null
+          usage_current?: number | null
+          usage_limit?: number | null
           user_id: string
         }
         Update: {
           auto_renew?: boolean | null
+          cancel_at_period_end?: boolean | null
           created_at?: string | null
           currency?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
           end_date?: string | null
+          features_available?: string[] | null
           id?: string
+          plan_id?: string | null
+          price_monthly?: number | null
           price_paid?: number | null
           start_date?: string | null
           status?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           subscription_tier?: string
+          tier?: string | null
           updated_at?: string | null
+          usage_current?: number | null
+          usage_limit?: number | null
           user_id?: string
         }
         Relationships: []
