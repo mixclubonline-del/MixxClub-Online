@@ -44,6 +44,7 @@ export function AuthWizard() {
           error={wizard.error}
           mode={wizard.mode}
           onSwitchMode={wizard.mode === 'login' ? handleSwitchToSignup : handleSwitchToLogin}
+          preselectedRole={wizard.preselectedRole}
         />
       )}
 

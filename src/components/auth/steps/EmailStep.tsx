@@ -101,6 +101,20 @@ export function EmailStep({
 
   return (
     <div className="space-y-6">
+      {/* Role badge — shown when pre-selected from hallway door */}
+      {preselectedRole && !isLogin && (() => {
+        const meta = ROLE_META[preselectedRole];
+        const Icon = meta.icon;
+        return (
+          <div className={`flex items-center justify-center gap-2 py-2 px-4 mx-auto w-fit rounded-full border backdrop-blur-sm ${meta.colorClass}`}>
+            <Icon className="w-4 h-4" />
+            <span className="text-xs font-semibold tracking-wide">
+              Joining as {meta.label}
+            </span>
+          </div>
+        );
+      })()}
+
       {/* Header */}
       <div className="text-center space-y-2">
         <h1 className="text-2xl font-bold text-white">

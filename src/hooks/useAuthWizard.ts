@@ -385,5 +385,6 @@ export function useAuthWizard() {
     canGoBack,
     nextStep,
     navigate,
+    preselectedRole,
   };
 }

@@ -305,8 +305,9 @@ export function StudioHallwayV2({ fullscreen = false, onEnter, trackConversion }
             onMouseEnter={() => { setHoveredDoor('right'); ensureAmbience(); }}
             onMouseLeave={() => setHoveredDoor(null)}
             onClick={() => handleDoorClick('right')}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            animate={openingDoor === 'right' ? { scale: 1.08, opacity: 0.6 } : {}}
+            whileHover={!openingDoor ? { scale: 1.02 } : {}}
+            whileTap={!openingDoor ? { scale: 0.98 } : {}}
             aria-label="Enter as an Engineer"
           >
             {/* Edge glow */}
