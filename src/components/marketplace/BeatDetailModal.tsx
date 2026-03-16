@@ -35,8 +35,9 @@ export function BeatDetailModal({ beat, open, onOpenChange }: BeatDetailModalPro
   if (!beat) return null;
 
   const handlePurchase = async () => {
-    const sessionId = await createBeatCheckout(beat.id, selectedLicense);
-    if (sessionId) {
+    // If coinz are applied, deduct them first via the checkout function
+    const sessionId = await createBeatCheckout(beat.id, selectedLicense, coinzToApply);
+    if (sessionId !== null) {
       onOpenChange(false);
     }
   };
