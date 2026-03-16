@@ -1,135 +1,107 @@
 
 
+# Business Pass: Services, Payments, MixxCoinz & Payouts Audit
 
-# CRM Phase 4 Complete — Remaining Roadmap
+## Summary of Findings
 
-## Completed ✅
-
-### Phase 1 — Design Tokens
-- GlassPanel, HubHeader, StaggeredList, HubSkeleton, EmptyState created
-- ActiveWorkHub, StoreHub, ClientsHub migrated
-
-### Phase 2 — Critical Features  
-- NotificationsHub upgraded to GlassPanel/HubHeader + mobile Select dropdown
-- ScheduleHub upgraded to GlassPanel/HubHeader/EmptyState + mobile responsive
-- RevenueHub upgraded to GlassPanel/HubHeader + mobile Select dropdown
-- CommunityHub already mobile responsive (useIsMobile + Select)
-- MatchesHub already mobile responsive (useIsMobile)
-- CommunityStats already responsive (grid-cols-2 md:3 lg:6)
-- All 3 CRM pages (Artist/Engineer/Producer) already have notifications + schedule wired
-
-### EcosystemFlow Character Avatars
-- Already implemented with foreignObject SVG alignment
-
-### Phase 3 — UX Polish ✅
-- HubSkeleton + EmptyState standardized across ~10 hubs
-- CommunityHub, SessionsHub, CollectiveAnalytics, ClientsHub, ScheduleHub migrated to design tokens
-- Match components (AIMatchRecommendations, MatchRequests, YourMatches) standardized
-- File version timeline verified functional
-
-### Phase 4 — Advanced ✅
-- `useUserProjects` and `useUserEarnings` shared hooks created and adopted by EnhancedDashboardHub + GrowthHub
-- Producer License Builder + Promo Codes + Featured Rotation built and wired into ProducerCatalogHub
-- React.lazy() implemented for all 3 CRM pages (non-dashboard hubs)
-
-### Phase 5 — Usage Enforcement ✅
-- `useUsageEnforcement` hook: centralized tier-aware limit checking (free/starter/pro/studio)
-- `UsageLimitBanner` component: 4 severity states (normal/warning/urgent/blocked), 2 variants (banner/inline), tier badges, upgrade CTAs
-- Dashboard integration: per-feature banners for projects, audio uploads, AI matching, storage, collaborations
-- Enforcement guards wired into: CreateProjectModal, AudioUpload, useEngineerMatchingAPI, usePartnershipEarnings, useProducerPartnerships
-- 20+ unit tests covering all thresholds, variants, visibility rules, CTAs, and edge cases
-- Integration-level tests for `useUsageEnforcement` hook (tier fallback, canUseFeature, getFeatureUsage)
-
-### Phase 6 — Stripe Revenue Backend ✅
-- Schema alignment: 10 columns added to `payments`, `stripe_customer_id` on `profiles`, `engineer_id`+`stripe_transfer_id` on `payout_requests`
-- `launch_metrics` table created with admin-only RLS for revenue prediction engine
-- `aggregate_payment_to_metrics` trigger auto-increments daily revenue/payment counts
-- Webhook handlers added: `charge.refunded` (auto-reverse earnings), `invoice.payment_failed` (flag subscription + notify), `charge.dispute.created` (critical alert to all admins)
-- Backfilled `payout_requests.engineer_id` from existing `user_id`
-
-### Phase 7 — Full Site Audit ✅
-- Auth-to-dashboard flow audited: magic link, email+password, OAuth all route correctly through AuthCallback → role check → onboarding → CRM
-- Engineer profile page (/engineer/:userId) verified fully functional with real data from profiles + engineer_profiles + engineer_reviews + projects
-- Battle Tournaments page verified fully functional with real data from battle_tournaments table
-- My Certifications page verified fully functional with milestone overlay at 250 community members
-- Mobile QA pass on revenue path (home → pricing → checkout): pricing cards stack cleanly, CTAs visible
-- Fixed: PathfinderBeacon mobile positioning (bottom-24 on phones to clear mobile nav, full-width card on small screens)
-- Fixed: AuthSocialProof ticker text truncation on narrow viewports (added truncate + shrink-0)
-- Fixed: Homepage floating nav pill overflow on 375px screens (added max-w constraint)
-
-### Mobile & PWA Hardening ✅
-- PWA update prompt (service worker refresh notification)
-- PWA install prompt with localStorage 7-day persistence + iOS guidance
-- Offline indicator with pending sync count + manual Sync Now button
-- CRM offline queue wired into useCRMClients + useCRMDeals
-
-### CRM Notification Preferences ✅
-- notification_preferences table extended with 17 category×channel columns
-- NotificationPrefsPanel with matrix toggle UI
-- Integrated into NotificationsHub settings
-
-### Daily Digest ✅
-- daily-digest edge function: batches unread notifications, sends branded HTML via Resend
-- trigger-daily-digest cron function scheduled at 8 AM UTC daily
-- Respects weekly_digest_email preference toggle
+After reviewing all checkout edge functions, the Stripe webhook handler, payout pipeline, MixxCoinz economy, and frontend payment flows, I found **13 issues** across 4 categories ranging from critical bugs to consistency improvements.
 
 ---
 
-## Phase 8 — Growth · Scale · Create · Connect
+## Critical Issues
 
-### 8A: Growth & Marketing (Ship First)
+### 1. `getClaims` does not exist — Coinz checkout is broken
+`create-coinz-checkout` calls `supabaseClient.auth.getClaims(token)` which is not a real Supabase JS method. Every MixxCoinz purchase attempt will throw an error. Should use `supabaseClient.auth.getUser()` like all other checkout functions.
 
-| # | Task | Files | Effort |
-|---|------|-------|--------|
-| 1 | **Referral Dashboard** — visualize referral tree, pending/completed commissions, share links with OG image preview | New: `src/components/crm/referrals/ReferralDashboard.tsx`, Edit: partner CRM pages | M |
-| 2 | **SEO Hardening** — dynamic `<SEOHead>` per route with JSON-LD (Organization, Product, FAQ schemas), canonical tags, Open Graph images for /pricing /go /economy | Edit: SEOHead, route components | S |
-| 3 | **Social Share Cards** — generate dynamic OG images for beat listings, engineer profiles, battle results using edge function + Satori | New: `supabase/functions/generate-og-image/index.ts` | M |
-| 4 | **Landing A/B Framework** — lightweight variant system using `funnel_events` to track conversion by variant, admin toggle | New: `src/hooks/useABVariant.ts`, `src/components/marketing/ABProvider.tsx` | S |
-| 5 | **Analytics Dashboard (Admin)** — funnel visualization, conversion rates, cohort retention chart, revenue per channel | New: `src/components/admin/AnalyticsDashboard.tsx` | L |
+### 2. 14 edge functions use outdated Stripe SDK + API version
+These functions import `stripe@14.21.0` with `apiVersion: '2023-10-16'` while the webhook and newer functions use `stripe@18.5.0` with `apiVersion: '2025-08-27.basil'`. Mismatched API versions between checkout creation and webhook processing can cause silent field mismatches or missing metadata.
 
-### 8B: Enterprise & Scaling
+**Affected functions:** `create-mixing-checkout`, `create-mastering-checkout`, `create-distribution-checkout`, `create-addon-payment`, `create-payment-intent`, `process-engineer-payout`, `process-refund`, `setup-stripe-connect`, `create-stripe-payout`, `get-stripe-connect-status`, `release-payment`, `scheduled-payout-processor`, `financial-reconciliation`, `admin-stripe-dashboard`
 
-| # | Task | Files | Effort |
-|---|------|-------|--------|
-| 1 | **API Rate Limiter v2** — sliding window per-user rate limiting with Redis-like pattern in Postgres, enforcement in edge functions | Edit: `_shared/rate-limiter.ts`, migration | M |
-| 2 | **Performance Optimization** — React.memo critical components, virtualized lists for large datasets (notifications, beat catalog), image lazy loading audit | Edit: multiple hub components | M |
-| 3 | **White-Label Config Table** — `platform_config` table for branding overrides (logo, colors, domain), resolved at app init | New: migration, `usePlatformConfig` hook | M |
-| 4 | **Bulk Operations** — batch approve/reject projects, bulk payout processing, CSV export for admin tables | Edit: admin components | M |
-| 5 | **CDN & Asset Pipeline** — storage bucket policies for public assets, signed URL generation for premium content, cache headers | Edit: storage config, edge functions | S |
+### 3. All checkout functions use `price_data` instead of pre-created Stripe prices
+Every checkout function (mixing, mastering, distribution, coinz, beats, courses) creates ad-hoc `price_data` objects. This means:
+- No trackable products in Stripe Dashboard
+- Revenue reporting in Stripe is fragmented across unnamed products
+- Harder to reconcile payments with services
+- Stripe best practice recommends pre-created Products and Prices
 
-### 8C: Creator Tools
+---
 
-| # | Task | Files | Effort |
-|---|------|-------|--------|
-| 1 | **AI Mastering Pipeline v2** — chain: upload → analyze → apply preset → preview → download, using Lovable AI for analysis + recommendations | Edit: `advanced-mastering` edge function, new UI components | L |
-| 2 | **Stem Separation UI** — upload track → separate vocals/drums/bass/other → download individual stems, powered by existing `stem-separation` edge function | New: `src/components/studio/StemSeparator.tsx` | M |
-| 3 | **Beat Marketplace Enhancements** — waveform previews on cards, instant purchase flow, license comparison modal, producer analytics | Edit: ProducerCatalogHub, beat components | M |
-| 4 | **Sample Pack Builder** — bundle beats + stems + loops into downloadable packs with pricing tiers | New: migration + UI + edge function | L |
-| 5 | **Collaboration Templates** — pre-configured session setups (vocal recording, mixing review, mastering approval) with auto-generated checklists | New: `src/components/sessions/SessionTemplates.tsx` | S |
+## Payment Flow Issues
 
-### 8D: Community & Social
+### 4. Coinz webhook handler is not atomic
+`handleCoinzPurchase` in the webhook does a read-then-update on `mixx_wallets` without row locking. Two concurrent webhook deliveries (Stripe retries) could double-credit the wallet. Should use the existing `earn_coinz` RPC or add `FOR UPDATE` locking.
 
-| # | Task | Files | Effort |
-|---|------|-------|--------|
-| 1 | **Live Stream Integration** — go-live button in sessions, viewer count, real-time chat sidebar, gift animations using existing `live_streams` + `stream_gifts` tables | New: `src/components/live/LiveStreamView.tsx` | L |
-| 2 | **Battle League Seasons** — seasonal brackets, leaderboard reset, trophy case on profiles, season pass with exclusive rewards | Edit: battle components, new migration for `battle_seasons` | L |
-| 3 | **Fan Engagement Hub** — Day 1 badge showcase, artist milestone timeline, fan leaderboard per artist, engagement streak rewards | New: `src/components/community/FanEngagementHub.tsx` | M |
-| 4 | **Enhanced Chat** — threaded replies, emoji reactions, file sharing in DMs, read receipts using existing `messages` table | Edit: messaging components | M |
-| 5 | **Community Challenges** — weekly/monthly creative challenges (remix contest, beat battle, mixing challenge) with voting + prizes | New: migration + `src/components/community/ChallengesHub.tsx` | L |
+### 5. No idempotency guard on webhook handlers
+`handleCheckoutCompleted` inserts into `payments` without checking if that `stripe_checkout_session_id` already exists. Stripe retries the webhook on timeout, which can create duplicate payment records. Only `handlePaymentIntentSucceeded` has a dedup check.
 
-### Execution Order (recommended)
+### 6. Missing `earn_coinz` / `spend_coinz` RPC functions
+The `walletStore.ts` calls `supabase.rpc('earn_coinz', ...)` and `supabase.rpc('spend_coinz', ...)`, but these RPCs are not listed in the database functions. If they don't exist, the entire wallet earn/spend flow silently fails.
 
-```
-Sprint 1 (8A.1-2 + 8B.1-2):  Referral Dashboard, SEO, Rate Limiter, Performance
-Sprint 2 (8A.3-4 + 8C.1-2):  OG Images, A/B Framework, AI Mastering v2, Stem Sep UI
-Sprint 3 (8C.3-4 + 8D.1-2):  Beat Marketplace, Sample Packs, Live Streams, Battle Seasons
-Sprint 4 (8D.3-5 + 8A.5 + 8B.3-5): Fan Hub, Chat, Challenges, Analytics, White-Label, Bulk Ops
-```
+---
 
-### Acceptance Criteria
-- Every feature uses GlassPanel/HubHeader design tokens — no raw colors
-- All new tables have RLS policies
-- Mobile-first responsive at 375px
-- Zero placeholder copy (Zero Placeholder Clause)
-- Edge functions use `_shared/cors.ts` + `_shared/auth.ts`
-- Performance: no new component >50KB unbundled
+## Payout Pipeline Issues
+
+### 7. Payout minimum is $50 but no balance verification
+`request-payout` validates `amount >= 50` but never checks if the user actually has that balance available in `engineer_earnings`. A user could request payouts exceeding their earnings.
+
+### 8. `process-engineer-payout` uses `profiles.stripe_connect_account_id` join
+The function joins `engineer_payouts` to `profiles` via `engineer_payouts_engineer_id_fkey`. If this FK doesn't exist or the column name differs, the query silently returns no results and skips all payouts.
+
+### 9. No scheduled trigger for payout processing
+`process-engineer-payout` and `scheduled-payout-processor` exist but there's no cron job or scheduled invocation configured. Payouts sit in "pending" indefinitely unless manually triggered by an admin.
+
+---
+
+## Consistency Issues
+
+### 10. Duplicate checkout functions for same service
+Both `create-mixing-checkout` AND `create-payment-checkout` can handle mixing package purchases. Same for mastering. The generic `create-payment-checkout` makes the specific ones redundant, but frontends may call different ones inconsistently.
+
+### 11. CORS headers inconsistency
+Some functions use `getCorsHeaders(req)` from `_shared/cors.ts`, others hardcode CORS headers inline. The hardcoded ones miss newer headers like `x-supabase-client-platform`.
+
+### 12. Revenue split constants duplicated
+`PLATFORM_FEE_PERCENTAGE = 0.30` and `ENGINEER_SHARE_PERCENTAGE = 0.70` are hardcoded in both `stripe-webhook` and `create-beat-checkout`. Should be centralized in `_shared/constants.ts`.
+
+### 13. PaymentSuccess page doesn't handle coinz purchases
+The `verify-stripe-session` function resolves package names from `mixing_packages`, `mastering_packages`, `distribution_packages`, and `subscription_plans` — but has no case for `coinz` or `beat` purchase types. Users see a generic "Purchase" label after buying coinz.
+
+---
+
+## Proposed Plan
+
+### Phase 1: Critical Fixes (must-do)
+
+| Fix | File | Change |
+|-----|------|--------|
+| Fix `getClaims` bug | `create-coinz-checkout/index.ts` | Replace with `supabaseClient.auth.getUser()` |
+| Add idempotency to webhook | `stripe-webhook/index.ts` | Check for existing `stripe_checkout_session_id` before insert |
+| Make coinz credit atomic | `stripe-webhook/index.ts` | Use row-level locking or RPC for wallet update |
+| Verify `earn_coinz`/`spend_coinz` RPCs exist | Database migration | Create if missing |
+
+### Phase 2: Stripe Standardization
+
+| Fix | Files | Change |
+|-----|-------|--------|
+| Upgrade 14 functions to `stripe@18.5.0` + `2025-08-27.basil` | All 14 listed above | Update imports and apiVersion |
+| Centralize platform fee constants | `_shared/constants.ts` | Export `PLATFORM_FEE_PERCENTAGE`, `ENGINEER_SHARE_PERCENTAGE` |
+| Standardize CORS | All checkout functions | Use `getCorsHeaders(req)` everywhere |
+
+### Phase 3: Payout & Verification Hardening
+
+| Fix | File | Change |
+|-----|------|--------|
+| Add balance check to `request-payout` | `request-payout/index.ts` | Query `engineer_earnings` sum before accepting |
+| Add coinz/beat labels to `verify-stripe-session` | `verify-stripe-session/index.ts` | Handle `coinz` and `beat` package types |
+| Consolidate duplicate checkout functions | Remove specific functions | Route all through `create-payment-checkout` or keep only the specific ones with clear separation |
+
+### Files to Modify
+- `supabase/functions/create-coinz-checkout/index.ts`
+- `supabase/functions/stripe-webhook/index.ts`
+- `supabase/functions/_shared/constants.ts` (new)
+- `supabase/functions/verify-stripe-session/index.ts`
+- `supabase/functions/request-payout/index.ts`
+- 14 functions for Stripe version upgrade
+- Database migration for `earn_coinz`/`spend_coinz` RPCs if missing
+
