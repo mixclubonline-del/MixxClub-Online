@@ -890,11 +890,11 @@ async function handleCoinzPurchase(
 
   // Create notification
   try {
-    await supabase.rpc('create_notification', {
+    await supabase.rpc('create_notification_checked', {
       p_user_id: userId,
       p_title: '💰 MixxCoinz Added!',
       p_message: `${coinzAmount} MixxCoinz have been added to your wallet.`,
-      p_type: 'coinz_purchase',
+      p_type: 'payment_received',
     });
   } catch (notifError) {
     console.warn('[STRIPE-WEBHOOK] Notification error:', notifError);
