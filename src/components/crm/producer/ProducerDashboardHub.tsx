@@ -6,6 +6,8 @@ import { Disc3, TrendingUp, DollarSign, Users } from 'lucide-react';
 import { useProducerRevenueStreams } from '@/hooks/useProducerRevenueStreams';
 import { usePersonalUnlockables } from '@/hooks/useUnlockables';
 import { PersonalUnlocksWidget } from '@/components/unlock/PersonalUnlocksWidget';
+import { StripeConnectWizard } from '@/components/engineer/StripeConnectWizard';
+import { useStripeConnect } from '@/hooks/useStripeConnect';
 
 export const ProducerDashboardHub = () => {
   const { analytics, loading } = useProducerRevenueStreams();
