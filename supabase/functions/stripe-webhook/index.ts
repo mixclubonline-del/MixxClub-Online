@@ -1015,11 +1015,11 @@ async function handleInvoicePaymentFailed(
   }
 
   // Notify user
-  await supabase.rpc('create_notification', {
+  await supabase.rpc('create_notification_checked', {
     p_user_id: profile.id,
     p_title: 'Payment Failed',
     p_message: 'Your subscription payment failed. Please update your payment method to avoid service interruption.',
-    p_type: 'payment_failed',
+    p_type: 'payment',
   });
 
   // Log security event for admin visibility
