@@ -1,15 +1,11 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@14.21.0";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import Stripe from "https://esm.sh/stripe@18.5.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import { getCorsHeaders } from '../_shared/cors.ts';
 
 serve(async (req) => {
-  // Handle CORS preflight
+  const corsHeaders = getCorsHeaders(req);
+
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -17,7 +13,6 @@ serve(async (req) => {
   try {
     const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeSecretKey) {
-      console.error("STRIPE_SECRET_KEY not configured");
       return new Response(
         JSON.stringify({ success: false, error: "Stripe not configured" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -25,7 +20,7 @@ serve(async (req) => {
     }
 
     const stripe = new Stripe(stripeSecretKey, {
-      apiVersion: "2023-10-16",
+      apiVersion: "2025-08-27.basil",
     });
 
     const supabaseClient = createClient(
@@ -34,7 +29,6 @@ serve(async (req) => {
       { auth: { autoRefreshToken: false, persistSession: false } }
     );
 
-    // Get the authenticated user
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       return new Response(
@@ -54,7 +48,6 @@ serve(async (req) => {
 
     console.log(`Processing payment release for payment_id: ${payment_id}`);
 
-    // Fetch the payment record
     const { data: payment, error: paymentError } = await supabaseClient
       .from("session_payments")
       .select("*")
@@ -63,7 +56,6 @@ serve(async (req) => {
       .single();
 
     if (paymentError || !payment) {
-      console.error("Payment not found:", paymentError);
       return new Response(
         JSON.stringify({ success: false, error: "Payment not found" }),
         { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -77,7 +69,6 @@ serve(async (req) => {
       );
     }
 
-    // Get the payee's Stripe account (if connected)
     const { data: payeeProfile } = await supabaseClient
       .from("profiles")
       .select("stripe_account_id")
@@ -86,63 +77,36 @@ serve(async (req) => {
 
     let transferId = null;
 
-    // If payee has a connected Stripe account, create a transfer
     if (payeeProfile?.stripe_account_id) {
       try {
         const transfer = await stripe.transfers.create({
-          amount: Math.round(payment.amount * 100), // Convert to cents
+          amount: Math.round(payment.amount * 100),
           currency: payment.currency.toLowerCase(),
           destination: payeeProfile.stripe_account_id,
-          metadata: {
-            payment_id: payment_id,
-            session_id: session_id,
-          },
+          metadata: { payment_id, session_id },
         });
         transferId = transfer.id;
         console.log(`Stripe transfer created: ${transfer.id}`);
-      } catch (stripeError: any) {
+      } catch (stripeError) {
         console.error("Stripe transfer error:", stripeError);
-        // Continue even if transfer fails - mark as released for manual processing
       }
-    } else {
-      console.log("Payee does not have connected Stripe account - marking for manual payout");
     }
 
-    // Update payment status to released
-    const { error: updateError } = await supabaseClient
-      .from("session_payments")
-      .update({
-        status: "released",
-        released_at: new Date().toISOString(),
-        stripe_transfer_id: transferId,
-      })
-      .eq("id", payment_id);
+    await supabaseClient.from("session_payments").update({
+      status: "released",
+      released_at: new Date().toISOString(),
+      stripe_transfer_id: transferId,
+    }).eq("id", payment_id);
 
-    if (updateError) {
-      console.error("Failed to update payment status:", updateError);
-      return new Response(
-        JSON.stringify({ success: false, error: "Failed to update payment" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // Create notification for payee
     await supabaseClient.from("notifications").insert({
       user_id: payment.payee_id,
       type: "payment_released",
       title: "Payment Received!",
       message: `You received a payment of ${payment.currency} ${payment.amount}`,
-      data: { session_id, payment_id, amount: payment.amount },
     });
 
-    console.log(`Payment ${payment_id} released successfully`);
-
     return new Response(
-      JSON.stringify({
-        success: true,
-        transfer_id: transferId,
-        message: "Payment released successfully",
-      }),
+      JSON.stringify({ success: true, transfer_id: transferId, message: "Payment released successfully" }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: any) {

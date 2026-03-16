@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@14.21.0";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
+import Stripe from "https://esm.sh/stripe@18.5.0";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.57.2';
 import { getCorsHeaders } from '../_shared/cors.ts';
 import { safeErrorResponse, AppError } from '../_shared/error-handler.ts';
 
@@ -31,7 +31,7 @@ serve(async (req) => {
     }
 
     // Check if user is admin
-    const { data: isAdmin } = await supabaseClient.rpc('is_admin', { user_uuid: user.id });
+    const { data: isAdmin } = await supabaseClient.rpc('has_role', { _user_id: user.id, _role: 'admin' });
     
     if (!isAdmin) {
       return new Response(
@@ -56,71 +56,40 @@ serve(async (req) => {
     }
 
     const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
-      apiVersion: '2023-10-16',
+      apiVersion: '2025-08-27.basil',
     });
 
-    // Process refund with Stripe
     const refund = await stripe.refunds.create({
       payment_intent: payment.transaction_id,
       amount: amount ? Math.round(amount * 100) : undefined,
       reason: reason || 'requested_by_customer',
-      metadata: {
-        paymentId: paymentId,
-        processedBy: user.id,
-      }
+      metadata: { paymentId: paymentId, processedBy: user.id },
     });
 
     console.log('Refund processed:', refund.id);
 
-    // Update payment status
-    const { error: updateError } = await supabaseClient
-      .from('payments')
-      .update({ 
-        status: 'refunded',
-        refund_amount: refund.amount / 100,
-        refund_reason: reason,
-        refunded_at: new Date().toISOString()
-      })
-      .eq('id', paymentId);
+    await supabaseClient.from('payments').update({ 
+      status: 'refunded',
+      refund_amount: refund.amount / 100,
+      refund_reason: reason,
+      refunded_at: new Date().toISOString()
+    }).eq('id', paymentId);
 
-    if (updateError) {
-      console.error('Error updating payment:', updateError);
-    }
-
-    // Update engineer earnings if applicable
     if (payment.project_id) {
-      const { error: earningsError } = await supabaseClient
-        .from('engineer_earnings')
-        .update({ status: 'refunded' })
-        .eq('project_id', payment.project_id);
-
-      if (earningsError) {
-        console.error('Error updating earnings:', earningsError);
-      }
+      await supabaseClient.from('engineer_earnings').update({ status: 'refunded' }).eq('project_id', payment.project_id);
     }
 
-    // Log audit event
-    await supabaseClient
-      .from('audit_logs')
-      .insert({
-        user_id: user.id,
-        action: 'refund_processed',
-        table_name: 'payments',
-        record_id: paymentId,
-        new_data: { refund_id: refund.id, amount: refund.amount / 100 }
-      });
+    await supabaseClient.from('audit_logs').insert({
+      user_id: user.id,
+      action: 'refund_processed',
+      table_name: 'payments',
+      record_id: paymentId,
+      new_data: { refund_id: refund.id, amount: refund.amount / 100 }
+    });
 
     return new Response(
-      JSON.stringify({ 
-        success: true,
-        refundId: refund.id,
-        amount: refund.amount / 100,
-        status: refund.status
-      }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      }
+      JSON.stringify({ success: true, refundId: refund.id, amount: refund.amount / 100, status: refund.status }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
     );
   } catch (error) {
     return safeErrorResponse(error, corsHeaders);
