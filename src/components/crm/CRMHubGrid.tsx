@@ -143,6 +143,8 @@ const ROLE_HUB_DEFINITIONS: Record<string, HubDefinition[]> = {
     { id: 'revenue', label: 'Revenue', icon: TrendingUp, description: 'Payments & payouts' },
     { id: 'partnerships', label: 'Partnerships', icon: Handshake, description: 'Health & splits' },
     { id: 'content', label: 'Content', icon: Briefcase, description: 'Files & beats' },
+    { id: 'moderation', label: 'Moderation', icon: Flag, description: 'Reports & queue' },
+    { id: 'features', label: 'Features', icon: ToggleLeft, description: 'Feature flags' },
     { id: 'community', label: 'Community', icon: Users, description: 'Activity & battles' },
     { id: 'broadcast', label: 'Broadcast', icon: Megaphone, description: 'Announcements' },
     { id: 'audit', label: 'Audit Log', icon: Shield, description: 'Security timeline' },
