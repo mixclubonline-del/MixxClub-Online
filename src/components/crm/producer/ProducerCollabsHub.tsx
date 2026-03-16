@@ -38,6 +38,7 @@ export const ProducerCollabsHub = () => {
   } = useProducerPartnerships();
 
   const { summary, loading: royaltiesLoading } = useBeatRoyalties();
+  const { analytics: salesAnalytics } = useProducerSales();
 
   const handleAccept = async (id: string) => {
     const success = await acceptPartnership(id);
