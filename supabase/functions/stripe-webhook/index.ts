@@ -88,6 +88,10 @@ serve(async (req) => {
         await handleDisputeCreated(supabase, event.data.object as Stripe.Dispute);
         break;
 
+      case 'account.updated':
+        await handleAccountUpdated(supabase, event.data.object as Stripe.Account);
+        break;
+
       default:
         console.log(`[STRIPE-WEBHOOK] Unhandled event type: ${event.type}`);
     }
