@@ -9,8 +9,7 @@ import { webhookHeaders } from '../_shared/cors.ts';
  * Records payments, triggers engineer payouts, updates user subscriptions
  */
 
-const PLATFORM_FEE_PERCENTAGE = 0.30; // 30% platform fee
-const ENGINEER_SHARE_PERCENTAGE = 0.70; // 70% to engineer
+import { PLATFORM_FEE_PERCENTAGE, ENGINEER_SHARE_PERCENTAGE } from '../_shared/constants.ts';
 
 // deno-lint-ignore no-explicit-any
 type SupabaseAdmin = any;
