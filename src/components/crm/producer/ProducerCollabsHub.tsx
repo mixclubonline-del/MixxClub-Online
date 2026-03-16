@@ -10,6 +10,7 @@ import { ActiveCollabCard } from '@/components/producer/ActiveCollabCard';
 import { RoyaltyTrackerPanel } from '@/components/producer/RoyaltyTrackerPanel';
 import { useProducerPartnerships } from '@/hooks/useProducerPartnerships';
 import { useBeatRoyalties } from '@/hooks/useBeatRoyalties';
+import { useProducerSales } from '@/hooks/useProducerSales';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import {
