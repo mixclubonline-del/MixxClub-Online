@@ -175,6 +175,7 @@ export function ArtistOnboardingWizard() {
       // Refresh auth context so CRM dashboard has correct role
       await refreshRoles();
 
+      sessionStorage.removeItem(STORAGE_KEY);
       toast.success('Welcome to MIXXCLUB! 🎉', {
         description: '+100 XP earned for completing your profile!'
       });

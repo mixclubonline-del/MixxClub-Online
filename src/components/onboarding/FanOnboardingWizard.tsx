@@ -152,6 +152,7 @@ export function FanOnboardingWizard() {
 
        await refreshRoles();
 
+       sessionStorage.removeItem(STORAGE_KEY);
        toast.success('Welcome to MIXXCLUB! 💜', {
          description: '+50 XP earned for joining the community!'
        });

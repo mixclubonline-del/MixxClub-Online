@@ -198,6 +198,7 @@ export function EngineerOnboardingWizard() {
 
       await refreshRoles();
 
+      sessionStorage.removeItem(STORAGE_KEY);
       toast.success('Welcome to the MIXXCLUB Engineer Network! 🎛️', {
         description: '+150 XP earned! Your profile is now live.'
       });

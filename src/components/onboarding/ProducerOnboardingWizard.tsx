@@ -173,6 +173,7 @@ export function ProducerOnboardingWizard() {
 
       await refreshRoles();
 
+      sessionStorage.removeItem(STORAGE_KEY);
       toast.success('Welcome to MIXXCLUB! 🎹', {
         description: '+125 XP earned for completing your profile!'
       });
