@@ -259,7 +259,7 @@ export const ProducerCollabsHub = () => {
         </TabsContent>
 
         <TabsContent value="royalties">
-          <RoyaltyTrackerPanel summary={summary} loading={royaltiesLoading} />
+          <RoyaltyTrackerPanel summary={summary} loading={royaltiesLoading} salesAnalytics={salesAnalytics} />
         </TabsContent>
       </Tabs>
     </div>
