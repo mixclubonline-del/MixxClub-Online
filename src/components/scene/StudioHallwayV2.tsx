@@ -122,8 +122,8 @@ export function StudioHallwayV2({ fullscreen = false, onEnter, trackConversion }
         // Authenticated → go straight to the experience
         navigate(`/home?path=${role}`);
       } else {
-        // Unauthenticated → auth wizard with role pre-selected
-        navigate(`/auth?mode=signup&role=${role}`);
+        // Unauthenticated → marketing page for the chosen role
+        navigate(`/for-${role}s`);
       }
     }, 500);
   };
