@@ -51,9 +51,12 @@ const AuthCallback = () => {
 
         const hasRole = existingRoles && existingRoles.length > 0;
 
-        // If new user with role metadata, assign the role
-        if (!hasRole && user.user_metadata?.role) {
-          const selectedRole = user.user_metadata.role as 'producer' | 'artist' | 'engineer' | 'fan';
+        // If new user with role metadata or sessionStorage role, assign the role
+        const pendingOAuthRole = sessionStorage.getItem('pending_oauth_role');
+        const roleSource = user.user_metadata?.role || pendingOAuthRole;
+        
+        if (!hasRole && roleSource) {
+          const selectedRole = roleSource as 'producer' | 'artist' | 'engineer' | 'fan';
           
           try {
             await supabase
