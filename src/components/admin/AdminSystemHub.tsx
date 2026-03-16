@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { AdminSeedingPanel } from './AdminSeedingPanel';
 import { PayoutProcessingControl } from './PayoutProcessingControl';
+import { AdminHealthDashboard } from './AdminHealthDashboard';
 import { format } from 'date-fns';
 import { useLaunchMode, useUpdateConfig } from '@/hooks/usePlatformConfig';
 import { useWaitlistStats, useWaitlistEntries, useSendInvite } from '@/hooks/useWaitlist';
