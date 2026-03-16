@@ -174,7 +174,7 @@ const RoleSelection = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 * (index + 1) }}
-                onClick={() => handleRoleSelect(role.id)}
+                onClick={() => selectRole(role.id)}
                 onMouseEnter={() => setHoveredRole(role.id)}
                 onMouseLeave={() => setHoveredRole(null)}
                 disabled={isSubmitting}
