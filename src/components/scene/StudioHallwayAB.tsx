@@ -1,12 +1,10 @@
 /**
- * Studio Hallway A/B Wrapper
+ * Studio Hallway — Double-Door Entrance (V2)
  * 
- * Splits traffic 50/50 between the original hallway (control)
- * and the double-door entrance (variant_a).
+ * Previously an A/B test; V2 (double-door with auth-gated role doors)
+ * is now the canonical hallway experience.
  */
 
-import { useABVariant } from '@/hooks/useABVariant';
-import { StudioHallway } from './StudioHallway';
 import { StudioHallwayV2 } from './StudioHallwayV2';
 
 interface StudioHallwayABProps {
@@ -15,20 +13,10 @@ interface StudioHallwayABProps {
 }
 
 export function StudioHallwayAB({ fullscreen, onEnter }: StudioHallwayABProps) {
-  const { variant, trackConversion } = useABVariant('hallway_entrance', [
-    { name: 'control', weight: 50 },
-    { name: 'variant_a', weight: 50 },
-  ]);
-
-  if (variant === 'variant_a') {
-    return (
-      <StudioHallwayV2
-        fullscreen={fullscreen}
-        onEnter={onEnter}
-        trackConversion={trackConversion}
-      />
-    );
-  }
-
-  return <StudioHallway fullscreen={fullscreen} onEnter={onEnter} />;
+  return (
+    <StudioHallwayV2
+      fullscreen={fullscreen}
+      onEnter={onEnter}
+    />
+  );
 }
