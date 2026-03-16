@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { lovable } from '@/integrations/lovable/index';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { WizardMode, AppRole } from '@/hooks/useAuthWizard';
 import { Disc3, Mic2, Headphones, Heart } from 'lucide-react';
