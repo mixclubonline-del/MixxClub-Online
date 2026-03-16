@@ -188,7 +188,14 @@ export function BeatDetailModal({ beat, open, onOpenChange }: BeatDetailModalPro
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Total</p>
-              <p className="text-2xl font-bold">{formatPrice(selectedPrice)}</p>
+              {coinzToApply > 0 ? (
+                <div>
+                  <p className="text-sm text-muted-foreground line-through">{formatPrice(selectedPrice)}</p>
+                  <p className="text-2xl font-bold">{formatPrice(Math.max(0, selectedPrice - coinzToApply))}</p>
+                </div>
+              ) : (
+                <p className="text-2xl font-bold">{formatPrice(selectedPrice)}</p>
+              )}
             </div>
             {isAuthenticated ? (
               <Button
