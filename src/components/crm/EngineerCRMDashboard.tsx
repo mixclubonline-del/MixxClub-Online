@@ -83,7 +83,7 @@ export const EngineerCRMDashboard = () => {
     <div className="space-y-6">
       {/* Stripe Connect Warning if not connected */}
       {!stripeLoading && !canReceivePayouts && (
-        <StripeConnectCard compact />
+        <StripeConnectWizard />
       )}
 
       {/* Pending Payouts Alert */}
