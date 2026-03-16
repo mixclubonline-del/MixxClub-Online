@@ -387,13 +387,15 @@ async function createUserSubscription(
       .from(tableName)
       .upsert({
         user_id: userId,
+        subscription_tier: resolvedTier,
+        tier: resolvedTier,
         plan_id: planId,
-        package_id: packageId,
         stripe_customer_id: session.customer,
         stripe_subscription_id: session.subscription,
         status: 'active',
-        tier: resolvedTier,
-        tracks_used: 0,
+        price_monthly: (session.amount_total || 0) / 100,
+        start_date: new Date().toISOString(),
+        current_period_start: new Date().toISOString(),
         created_at: new Date().toISOString(),
       }, {
         onConflict: 'user_id'
