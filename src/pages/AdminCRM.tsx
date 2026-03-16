@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { CRMPortal } from '@/components/crm/CRMPortal';
-import { Users, Headphones, DollarSign, Shield, Activity, Eye, Brain, Rocket, Flag, ToggleLeft } from 'lucide-react';
+import { Users, Headphones, DollarSign, Shield, Activity, Eye, Brain, Rocket, Flag, ToggleLeft, Mic2, Piano, Heart } from 'lucide-react';
 import { useAdminPreview } from '@/stores/useAdminPreview';
 import { toast } from 'sonner';
 
