@@ -163,24 +163,11 @@ export default function Checkout() {
           billingInterval,
           referralCode,
         };
-      } else if (isMixing) {
-        endpoint = 'create-mixing-checkout';
-        body = { 
-          packageId,
-          referralCode,
-        };
-      } else if (isMastering) {
-        endpoint = 'create-mastering-checkout';
-        body = { 
-          packageId,
-          referralCode,
-        };
       } else {
         endpoint = 'create-payment-checkout';
         body = { 
           packageType: type, 
-          packageId: packageId,
-          addonIds: selectedAddons,
+          packageId,
           referralCode,
         };
       }
