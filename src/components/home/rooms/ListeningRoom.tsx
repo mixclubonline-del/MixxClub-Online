@@ -2,15 +2,27 @@
  * The Listening Room
  * 
  * Room 1: Real sound, real results.
- * Features audio transformation demos with glassmorphic cards and cinematic hero.
+ * Features before/after audio toggle, waveform visualizers, and cinematic hero.
  */
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Volume2, Play, ChevronDown } from 'lucide-react';
+import { Volume2, ChevronDown } from 'lucide-react';
 import { ClubRoom } from '../ClubRoom';
+import { BeforeAfterMini } from './BeforeAfterMini';
+import { supabase } from '@/integrations/supabase/client';
 import listeningRoomVideo from '@/assets/videos/listening_room.webp';
 
-const FEATURED_TRACKS = [
+interface TrackData {
+  title: string;
+  artist: string;
+  result: string;
+  genre: string;
+  beforeUrl?: string | null;
+  afterUrl?: string | null;
+}
+
+const DEFAULT_TRACKS: TrackData[] = [
   { title: 'Neon Dreams', artist: 'Marcus', result: 'Pro Master', genre: 'Hip-Hop' },
   { title: 'Late Night', artist: 'Sarah', result: 'Streaming Ready', genre: 'R&B' },
   { title: 'Moonlight', artist: 'Jamal', result: 'Radio Play', genre: 'Trap' },
@@ -21,6 +33,47 @@ interface ListeningRoomProps {
 }
 
 export function ListeningRoom({ onScrollHint }: ListeningRoomProps) {
+  const [tracks, setTracks] = useState<TrackData[]>(DEFAULT_TRACKS);
+
+  // Attempt to load demo audio from brand_assets
+  useEffect(() => {
+    const loadDemoAudio = async () => {
+      const { data } = await supabase
+        .from('brand_assets')
+        .select('name, public_url, asset_context')
+        .like('asset_context', 'club_listening_demo_%')
+        .eq('is_active', true);
+
+      if (!data?.length) return;
+
+      const audioMap: Record<string, { before?: string; after?: string }> = {};
+      data.forEach((asset) => {
+        const ctx = asset.asset_context || '';
+        // Expect format: club_listening_demo_before_trackname or club_listening_demo_after_trackname
+        const parts = ctx.replace('club_listening_demo_', '').split('_');
+        const type = parts[0]; // 'before' or 'after'
+        const trackKey = parts.slice(1).join('_');
+        if (!audioMap[trackKey]) audioMap[trackKey] = {};
+        if (type === 'before') audioMap[trackKey].before = asset.public_url;
+        if (type === 'after') audioMap[trackKey].after = asset.public_url;
+      });
+
+      // Merge audio URLs into tracks
+      const updated = DEFAULT_TRACKS.map((track) => {
+        const key = track.title.toLowerCase().replace(/\s+/g, '_');
+        const audio = audioMap[key];
+        return {
+          ...track,
+          beforeUrl: audio?.before || null,
+          afterUrl: audio?.after || null,
+        };
+      });
+      setTracks(updated);
+    };
+
+    loadDemoAudio();
+  }, []);
+
   return (
     <ClubRoom id="listening" className="bg-background relative overflow-hidden">
       {/* Ambient glow orbs */}
@@ -65,7 +118,7 @@ export function ListeningRoom({ onScrollHint }: ListeningRoomProps) {
           </p>
         </motion.div>
 
-        {/* Hero Image — Enlarged & Cinematic */}
+        {/* Hero Image */}
         <motion.div
           className="w-full max-w-5xl mb-14 rounded-2xl overflow-hidden relative group"
           initial={{ opacity: 0, scale: 0.95 }}
@@ -84,13 +137,12 @@ export function ListeningRoom({ onScrollHint }: ListeningRoomProps) {
               background: 'linear-gradient(to bottom, transparent 30%, hsl(var(--background)) 100%)'
             }}
           />
-          {/* Subtle border glow */}
           <div className="absolute inset-0 rounded-2xl border border-white/[0.06] pointer-events-none" />
         </motion.div>
 
-        {/* Track Cards — Glassmorphic */}
+        {/* Track Cards with Before/After Audio */}
         <div className="grid md:grid-cols-3 gap-6 w-full max-w-5xl mb-16">
-          {FEATURED_TRACKS.map((track, index) => (
+          {tracks.map((track, index) => (
             <motion.div
               key={track.title}
               className="mg-panel group cursor-pointer overflow-hidden"
@@ -106,20 +158,12 @@ export function ListeningRoom({ onScrollHint }: ListeningRoomProps) {
                 style={{ background: 'radial-gradient(circle at 50% 80%, hsl(var(--primary) / 0.12) 0%, transparent 70%)' }}
               />
 
-              {/* Waveform area */}
-              <div className="relative h-20 mb-4 flex items-end justify-around gap-0.5 px-2">
-                {Array.from({ length: 24 }).map((_, i) => (
-                  <motion.div
-                    key={i}
-                    className="w-1 rounded-full"
-                    style={{ background: 'hsl(var(--primary) / 0.5)' }}
-                    initial={{ height: '20%' }}
-                    whileInView={{ height: `${30 + Math.sin(i * 0.5) * 30 + 20}%` }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.1 + i * 0.02 }}
-                  />
-                ))}
-              </div>
+              {/* Before/After Waveform */}
+              <BeforeAfterMini
+                beforeUrl={track.beforeUrl}
+                afterUrl={track.afterUrl}
+                trackTitle={track.title}
+              />
 
               {/* Track info */}
               <div className="relative flex items-center justify-between">
@@ -129,20 +173,10 @@ export function ListeningRoom({ onScrollHint }: ListeningRoomProps) {
                     {track.artist} → {track.result}
                   </p>
                 </div>
-
-                {/* Play button */}
-                <motion.button
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-primary opacity-0 group-hover:opacity-100 transition-opacity border border-primary/20"
-                  style={{ background: 'hsl(var(--primary) / 0.15)' }}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Play className="w-4 h-4 ml-0.5" />
-                </motion.button>
               </div>
 
               {/* Genre tag */}
-              <span className="mg-pill absolute top-4 right-4 text-xs">
+              <span className="mg-pill absolute top-4 right-14 text-xs">
                 {track.genre}
               </span>
             </motion.div>

@@ -11,6 +11,7 @@ import { ChevronLeft, Home } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ClubAmbience } from './ClubAmbience';
 import { ClubProgress } from './ClubProgress';
+import { RoomDivider } from './RoomDivider';
 import { ListeningRoom } from './rooms/ListeningRoom';
 import { GreenRoom } from './rooms/GreenRoom';
 import { ControlRoom } from './rooms/ControlRoom';
@@ -152,10 +153,15 @@ export function ClubScene({ onBack }: ClubSceneProps) {
         style={{ scrollbarWidth: 'none' }}
       >
         <ListeningRoom onScrollHint={scrollToNext} />
+        <RoomDivider />
         <VaultRoom />
+        <RoomDivider />
         <GreenRoom />
+        <RoomDivider />
         <ControlRoom />
+        <RoomDivider />
         <VIPBooth />
+        <RoomDivider />
         <StageDoor onJoin={handleJoin} />
       </main>
     </section>

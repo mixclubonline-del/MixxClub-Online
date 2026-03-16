@@ -2,13 +2,14 @@
  * The Green Room
  * 
  * Room 2: Your people are already here.
- * Community presence and role portals with glassmorphic cards.
+ * Community presence, role portals, and live testimonial carousel.
  */
 
 import { motion } from 'framer-motion';
 import { Users, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ClubRoom } from '../ClubRoom';
+import { TestimonialCarousel } from './TestimonialCarousel';
 import { useOnlineUsers } from '@/hooks/useOnlineUsers';
 import { getCharacter } from '@/config/characters';
 import portalArtistImg from '@/assets/videos/portal_artist.webp';
@@ -56,7 +57,7 @@ export function GreenRoom() {
       <div className="relative container px-6 py-20 flex flex-col items-center justify-center min-h-[100svh]">
         {/* Header */}
         <motion.div
-          className="text-center mb-16"
+          className="text-center mb-12"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -76,9 +77,9 @@ export function GreenRoom() {
           </h2>
         </motion.div>
 
-        {/* Live counter — Glassmorphic pill */}
+        {/* Live counter */}
         <motion.div
-          className="mb-16"
+          className="mb-12"
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
@@ -98,7 +99,7 @@ export function GreenRoom() {
           </div>
         </motion.div>
 
-        {/* Role Portals — Glassmorphic Cards */}
+        {/* Role Portals */}
         <div className="grid md:grid-cols-2 gap-8 w-full max-w-4xl mb-12">
           {roles.map((role, index) => (
             <Link to={role.href} key={role.title}>
@@ -169,6 +170,17 @@ export function GreenRoom() {
             </Link>
           ))}
         </div>
+
+        {/* Testimonial Carousel */}
+        <motion.div
+          className="w-full max-w-lg mb-10"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.3 }}
+        >
+          <TestimonialCarousel />
+        </motion.div>
 
         {/* Connection tagline */}
         <motion.p
