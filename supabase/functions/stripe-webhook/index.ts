@@ -9,8 +9,7 @@ import { webhookHeaders } from '../_shared/cors.ts';
  * Records payments, triggers engineer payouts, updates user subscriptions
  */
 
-const PLATFORM_FEE_PERCENTAGE = 0.30; // 30% platform fee
-const ENGINEER_SHARE_PERCENTAGE = 0.70; // 70% to engineer
+import { PLATFORM_FEE_PERCENTAGE, ENGINEER_SHARE_PERCENTAGE } from '../_shared/constants.ts';
 
 // deno-lint-ignore no-explicit-any
 type SupabaseAdmin = any;
@@ -131,6 +130,18 @@ async function handleCheckoutCompleted(
 
   // Calculate amounts
   const amountTotal = (session.amount_total || 0) / 100; // Convert from cents
+
+  // Idempotency: check if this session was already processed
+  const { data: existingPayment } = await supabase
+    .from('payments')
+    .select('id')
+    .eq('stripe_checkout_session_id', session.id)
+    .maybeSingle();
+
+  if (existingPayment) {
+    console.log('[STRIPE-WEBHOOK] Session already processed, skipping:', session.id);
+    return;
+  }
 
   // Record the payment
   const { data: payment, error: paymentError } = await supabase

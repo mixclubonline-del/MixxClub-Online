@@ -9874,6 +9874,17 @@ export type Database = {
         }
         Returns: string
       }
+      earn_coinz: {
+        Args: {
+          p_amount: number
+          p_description?: string
+          p_reference_id?: string
+          p_reference_type?: string
+          p_source?: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
       generate_affiliate_code: { Args: never; Returns: string }
       get_or_create_wallet: {
         Args: { p_user_id: string }
@@ -9920,6 +9931,17 @@ export type Database = {
           p_stream_id: string
         }
         Returns: string
+      }
+      spend_coinz: {
+        Args: {
+          p_amount: number
+          p_description?: string
+          p_reference_id?: string
+          p_reference_type?: string
+          p_source?: string
+          p_user_id: string
+        }
+        Returns: Json
       }
       update_engineer_leaderboard: { Args: never; Returns: undefined }
       update_engineer_streak: {

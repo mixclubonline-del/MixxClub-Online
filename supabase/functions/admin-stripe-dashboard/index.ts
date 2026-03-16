@@ -1,5 +1,5 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@14.21.0";
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import Stripe from "https://esm.sh/stripe@18.5.0";
 import { getCorsHeaders } from '../_shared/cors.ts';
 import { requireAdmin, authErrorResponse } from '../_shared/auth.ts';
 import { safeErrorResponse } from '../_shared/error-handler.ts';
@@ -23,9 +23,8 @@ serve(async (req) => {
       );
     }
 
-    const stripe = new Stripe(stripeKey, { apiVersion: '2023-10-16' });
+    const stripe = new Stripe(stripeKey, { apiVersion: '2025-08-27.basil' });
 
-    // Parse body safely (supabase.functions.invoke always sends POST)
     let body: Record<string, any> = {};
     try {
       const text = await req.text();
@@ -46,7 +45,6 @@ serve(async (req) => {
           reason: reason || 'requested_by_customer',
           metadata: { processed_by: auth.user.id },
         });
-        console.log('[admin-stripe-dashboard] Refund created:', refund.id);
         return new Response(JSON.stringify({ success: true, refund_id: refund.id, amount: refund.amount / 100, status: refund.status }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
@@ -56,7 +54,6 @@ serve(async (req) => {
         const { dispute_id } = params;
         if (!dispute_id) throw new Error('dispute_id required');
         const dispute = await stripe.disputes.close(dispute_id);
-        console.log('[admin-stripe-dashboard] Dispute closed:', dispute.id);
         return new Response(JSON.stringify({ success: true, dispute_id: dispute.id, status: dispute.status }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
@@ -66,7 +63,6 @@ serve(async (req) => {
         const { subscription_id } = params;
         if (!subscription_id) throw new Error('subscription_id required');
         const sub = await stripe.subscriptions.cancel(subscription_id);
-        console.log('[admin-stripe-dashboard] Subscription cancelled:', sub.id);
         return new Response(JSON.stringify({ success: true, subscription_id: sub.id, status: sub.status }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
@@ -77,9 +73,7 @@ serve(async (req) => {
       });
     }
 
-    // GET = dashboard data
-    console.log('[admin-stripe-dashboard] Fetching dashboard data for admin:', auth.user.id);
-
+    // Dashboard data
     const [balance, charges, disputes, subscriptions, payouts] = await Promise.all([
       stripe.balance.retrieve(),
       stripe.charges.list({ limit: 25, expand: ['data.customer'] }),
@@ -88,7 +82,6 @@ serve(async (req) => {
       stripe.payouts.list({ limit: 10 }),
     ]);
 
-    // Calculate subscription metrics — resolve product names separately
     let mrr = 0;
     const tierBreakdown: Record<string, { count: number; revenue: number }> = {};
     const productIds = new Set<string>();
@@ -100,97 +93,50 @@ serve(async (req) => {
       if (typeof prodRef === 'string') productIds.add(prodRef);
     }
 
-    // Batch-fetch product names (max ~100, well within limits)
     const productNames: Record<string, string> = {};
     await Promise.all(
       Array.from(productIds).map(async (pid) => {
-        try {
-          const prod = await stripe.products.retrieve(pid);
-          productNames[pid] = prod.name || 'Unknown';
-        } catch { productNames[pid] = 'Unknown'; }
+        try { const prod = await stripe.products.retrieve(pid); productNames[pid] = prod.name || 'Unknown'; }
+        catch { productNames[pid] = 'Unknown'; }
       })
     );
 
     for (const sub of subscriptions.data) {
       const item = sub.items.data[0];
       if (!item?.price) continue;
-      const monthlyAmount = item.price.recurring?.interval === 'year'
-        ? (item.price.unit_amount || 0) / 12
-        : (item.price.unit_amount || 0);
+      const monthlyAmount = item.price.recurring?.interval === 'year' ? (item.price.unit_amount || 0) / 12 : (item.price.unit_amount || 0);
       mrr += monthlyAmount;
-
       const prodRef = item.price.product;
-      const tierName = typeof prodRef === 'string'
-        ? (productNames[prodRef] || 'Unknown')
-        : (typeof prodRef === 'object' && prodRef !== null && 'name' in prodRef ? (prodRef as any).name : 'Unknown');
+      const tierName = typeof prodRef === 'string' ? (productNames[prodRef] || 'Unknown') : 'Unknown';
       if (!tierBreakdown[tierName]) tierBreakdown[tierName] = { count: 0, revenue: 0 };
       tierBreakdown[tierName].count += 1;
       tierBreakdown[tierName].revenue += monthlyAmount;
     }
 
-    // Format balance
-    const availableBalance = balance.available.reduce((s, b) => s + b.amount, 0) / 100;
-    const pendingBalance = balance.pending.reduce((s, b) => s + b.amount, 0) / 100;
-
-    // Format charges
-    const formattedCharges = charges.data.map(ch => ({
-      id: ch.id,
-      amount: (ch.amount || 0) / 100,
-      currency: ch.currency,
-      status: ch.status,
-      paid: ch.paid,
-      refunded: ch.refunded,
-      amount_refunded: (ch.amount_refunded || 0) / 100,
-      customer_email: typeof ch.customer === 'object' && ch.customer !== null ? (ch.customer as any).email : null,
-      description: ch.description,
-      payment_intent: ch.payment_intent,
-      created: new Date(ch.created * 1000).toISOString(),
-    }));
-
-    // Format disputes
-    const openDisputes = disputes.data.filter(d => d.status !== 'won' && d.status !== 'lost');
-    const formattedDisputes = disputes.data.map(d => ({
-      id: d.id,
-      amount: (d.amount || 0) / 100,
-      currency: d.currency,
-      status: d.status,
-      reason: d.reason,
-      charge_id: d.charge,
-      created: new Date(d.created * 1000).toISOString(),
-      evidence_due: d.evidence_details?.due_by ? new Date(d.evidence_details.due_by * 1000).toISOString() : null,
-    }));
-
-    // Format payouts
-    const formattedPayouts = payouts.data.map(p => ({
-      id: p.id,
-      amount: (p.amount || 0) / 100,
-      currency: p.currency,
-      status: p.status,
-      arrival_date: new Date(p.arrival_date * 1000).toISOString(),
-      created: new Date(p.created * 1000).toISOString(),
-    }));
-
     const dashboard = {
-      balance: { available: availableBalance, pending: pendingBalance },
-      charges: formattedCharges,
-      disputes: formattedDisputes,
-      open_disputes_count: openDisputes.length,
+      balance: { available: balance.available.reduce((s, b) => s + b.amount, 0) / 100, pending: balance.pending.reduce((s, b) => s + b.amount, 0) / 100 },
+      charges: charges.data.map(ch => ({
+        id: ch.id, amount: (ch.amount || 0) / 100, currency: ch.currency, status: ch.status, paid: ch.paid, refunded: ch.refunded,
+        amount_refunded: (ch.amount_refunded || 0) / 100, customer_email: typeof ch.customer === 'object' && ch.customer !== null ? (ch.customer as any).email : null,
+        description: ch.description, payment_intent: ch.payment_intent, created: new Date(ch.created * 1000).toISOString(),
+      })),
+      disputes: disputes.data.map(d => ({
+        id: d.id, amount: (d.amount || 0) / 100, currency: d.currency, status: d.status, reason: d.reason, charge_id: d.charge,
+        created: new Date(d.created * 1000).toISOString(), evidence_due: d.evidence_details?.due_by ? new Date(d.evidence_details.due_by * 1000).toISOString() : null,
+      })),
+      open_disputes_count: disputes.data.filter(d => d.status !== 'won' && d.status !== 'lost').length,
       subscriptions: {
-        active_count: subscriptions.data.length,
-        mrr: mrr / 100,
-        tier_breakdown: Object.entries(tierBreakdown).map(([name, data]) => ({
-          name,
-          count: data.count,
-          revenue: data.revenue / 100,
-        })),
+        active_count: subscriptions.data.length, mrr: mrr / 100,
+        tier_breakdown: Object.entries(tierBreakdown).map(([name, data]) => ({ name, count: data.count, revenue: data.revenue / 100 })),
       },
-      payouts: formattedPayouts,
+      payouts: payouts.data.map(p => ({
+        id: p.id, amount: (p.amount || 0) / 100, currency: p.currency, status: p.status,
+        arrival_date: new Date(p.arrival_date * 1000).toISOString(), created: new Date(p.created * 1000).toISOString(),
+      })),
       fetched_at: new Date().toISOString(),
     };
 
-    return new Response(JSON.stringify(dashboard), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return new Response(JSON.stringify(dashboard), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 
   } catch (error) {
     return safeErrorResponse(error, corsHeaders);

@@ -1,12 +1,11 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { getCorsHeaders } from '../_shared/cors.ts';
+import { MINIMUM_PAYOUT_AMOUNT } from '../_shared/constants.ts';
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
+
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -31,8 +30,49 @@ serve(async (req) => {
     const { amount, paymentMethod, notes } = await req.json();
 
     // Validate amount
-    if (!amount || amount < 50) {
-      return new Response(JSON.stringify({ error: "Minimum payout is $50" }), {
+    if (!amount || amount < MINIMUM_PAYOUT_AMOUNT) {
+      return new Response(JSON.stringify({ error: `Minimum payout is $${MINIMUM_PAYOUT_AMOUNT}` }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Verify user has sufficient earnings balance
+    const supabaseAdmin = createClient(
+      supabaseUrl,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+
+    const { data: earnings, error: earningsError } = await supabaseAdmin
+      .from("engineer_earnings")
+      .select("amount")
+      .eq("engineer_id", user.id)
+      .eq("status", "pending");
+
+    if (earningsError) {
+      console.error("Error fetching earnings:", earningsError);
+      return new Response(JSON.stringify({ error: "Failed to verify earnings balance" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const availableBalance = (earnings || []).reduce((sum, e) => sum + (e.amount || 0), 0);
+
+    // Also subtract any pending payout requests
+    const { data: pendingPayouts } = await supabaseAdmin
+      .from("payout_requests")
+      .select("amount")
+      .eq("user_id", user.id)
+      .in("status", ["pending", "processing"]);
+
+    const pendingAmount = (pendingPayouts || []).reduce((sum, p) => sum + (p.amount || 0), 0);
+    const effectiveBalance = availableBalance - pendingAmount;
+
+    if (effectiveBalance < amount) {
+      return new Response(JSON.stringify({ 
+        error: `Insufficient balance. Available: $${effectiveBalance.toFixed(2)}, Requested: $${amount.toFixed(2)}` 
+      }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -53,7 +93,7 @@ serve(async (req) => {
 
     if (payoutError) throw payoutError;
 
-    console.log(`Payout request created: ${payout.id} for $${amount}`);
+    console.log(`Payout request created: ${payout.id} for $${amount} (available: $${effectiveBalance.toFixed(2)})`);
 
     return new Response(JSON.stringify({ success: true, payout }), {
       status: 200,
