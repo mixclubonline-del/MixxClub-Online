@@ -43,7 +43,7 @@ export function ShowcaseFeature({
         <div className="relative overflow-hidden rounded-2xl border border-border/50 shadow-2xl">
           <img 
             src={image} 
-            alt={title}
+            alt={`${title} — ${subtitle}`}
             className="w-full aspect-video object-cover transition-transform duration-700 group-hover:scale-105"
             loading="lazy"
           />

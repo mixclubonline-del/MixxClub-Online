@@ -622,20 +622,7 @@ export function StudioHallwayV2({ fullscreen = false, onEnter, trackConversion }
         </motion.div>
       )}
 
-      {/* "Been here before?" sign-in shortcut */}
-      {fullscreen && showSkipHint && (
-        <motion.button
-          onClick={() => navigate('/auth?mode=login')}
-          aria-label="Sign in to your account"
-          className="mg-pill absolute bottom-6 left-1/2 -translate-x-1/2 z-20 text-muted-foreground/70 hover:text-foreground hover:bg-primary/10 transition-all text-xs flex items-center gap-1.5 px-4 py-2"
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Lock className="w-3 h-3" />
-          <span>Sign In</span>
-        </motion.button>
-      )}
+      {/* Duplicate sign-in removed — consolidated into main CTA stack above */}
     </section>
   );
 }
