@@ -10,6 +10,7 @@
  */
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, Mic, Headphones } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
