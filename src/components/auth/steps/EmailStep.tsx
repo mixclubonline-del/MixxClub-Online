@@ -77,9 +77,34 @@ export function EmailStep({
     }
   };
 
+  const handleForgotPassword = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!email) {
+      toast.error('Enter your email first');
+      return;
+    }
+    setForgotLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      toast.success('Password reset link sent! Check your email.');
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to send reset email');
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
   const handleOAuthSignIn = async (e: React.MouseEvent, provider: 'google' | 'apple') => {
     e.preventDefault();
     e.stopPropagation();
+
+    // Persist selected role for OAuth callback
+    if (preselectedRole) {
+      sessionStorage.setItem('pending_oauth_role', preselectedRole);
+    }
 
     setGoogleLoading(true);
     try {
