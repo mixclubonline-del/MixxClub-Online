@@ -71,6 +71,27 @@ const RoleSelection = () => {
     },
   });
 
+  // Keyboard navigation (1-4 keys)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (isSubmitting) return;
+
+      const keyMap: Record<string, AppRole> = {
+        '1': 'producer',
+        '2': 'artist',
+        '3': 'engineer',
+        '4': 'fan',
+      };
+
+      if (keyMap[e.key]) {
+        selectRole(keyMap[e.key]);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isSubmitting, selectRole]);
+
   // Get active accent for ambient effects
   const activeAccent = hoveredRole
     ? roleOptions.find(r => r.id === hoveredRole)?.accentHsl
