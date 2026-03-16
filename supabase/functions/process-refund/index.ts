@@ -43,7 +43,7 @@ serve(async (req) => {
     // Get payment details
     const { data: payment, error: paymentError } = await supabaseClient
       .from('payments')
-      .select('*, transaction_id')
+      .select('*, stripe_payment_intent_id')
       .eq('id', paymentId)
       .single();
 

@@ -1068,11 +1068,11 @@ async function handleDisputeCreated(
 
   if (admins) {
     for (const admin of admins) {
-      await supabase.rpc('create_notification', {
+      await supabase.rpc('create_notification_checked', {
         p_user_id: admin.user_id,
         p_title: '⚠️ Stripe Dispute Created',
         p_message: `A dispute for $${amount.toFixed(2)} has been filed. Reason: ${dispute.reason}. Immediate action required.`,
-        p_type: 'dispute_alert',
+        p_type: 'payment',
       });
     }
   }
