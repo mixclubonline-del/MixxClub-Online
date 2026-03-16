@@ -32,7 +32,6 @@ export const AdminHealthDashboard = () => {
         supabase.from('producer_beats').select('*', { count: 'exact', head: true }),
         supabase.from('payments').select('*', { count: 'exact', head: true }),
         supabase.from('admin_security_events').select('*', { count: 'exact', head: true }).eq('is_resolved', false),
-        supabase.from('system_metrics').select('*').order('recorded_at', { ascending: false }).limit(5),
       ]);
 
       // Estimate storage from audio file sizes
