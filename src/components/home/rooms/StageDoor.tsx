@@ -66,12 +66,8 @@ export function StageDoor({ onJoin }: StageDoorProps) {
     const fetchSignups = async () => {
       try {
         const today = new Date().toISOString().split('T')[0];
-        const result = await (supabase
-          .from('funnel_events')
-          .select('id')
-          .eq('event_type', 'signup')
-          .gte('created_at', today) as any);
-        
+        const query = supabase.from('funnel_events').select('id');
+        const result = await (query as any).eq('event_type', 'signup').gte('created_at', today);
         setSignupsToday(result?.error ? 47 : (result?.data?.length || 47));
       } catch {
         setSignupsToday(47);
