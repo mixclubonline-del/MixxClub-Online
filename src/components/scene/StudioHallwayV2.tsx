@@ -110,13 +110,22 @@ export function StudioHallwayV2({ fullscreen = false, onEnter, trackConversion }
 
   const handleDoorClick = (door: 'left' | 'right') => {
     ensureAmbience();
-    trackConversion?.(`door_click_${door === 'left' ? 'artist' : 'engineer'}`, { door });
+    const role = door === 'left' ? 'artist' : 'engineer';
+    trackConversion?.(`door_click_${role}`, { door });
 
-    if (door === 'left') {
-      navigate('/home?path=artist');
-    } else {
-      navigate('/home?path=engineer');
-    }
+    // Start door-opening animation
+    setOpeningDoor(door);
+
+    // Navigate after animation completes
+    setTimeout(() => {
+      if (user) {
+        // Authenticated → go straight to the experience
+        navigate(`/home?path=${role}`);
+      } else {
+        // Unauthenticated → auth wizard with role pre-selected
+        navigate(`/auth?mode=signup&role=${role}`);
+      }
+    }, 500);
   };
 
   const studioPositions = studios.slice(0, SIDE_DOOR_POSITIONS.length).map((studio, index) => ({
