@@ -50,7 +50,6 @@ export const AdminHealthDashboard = () => {
         beats: beatCount || 0,
         payments: paymentCount || 0,
         unresolvedAlerts: securityCount || 0,
-        recentMetrics: metricsData || [],
         estimatedStorageMB: Math.round(totalStorageBytes / (1024 * 1024)),
       };
     },
