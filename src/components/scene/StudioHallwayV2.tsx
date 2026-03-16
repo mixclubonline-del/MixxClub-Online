@@ -45,6 +45,7 @@ export function StudioHallwayV2({ fullscreen = false, onEnter, trackConversion }
   const [showSkipHint, setShowSkipHint] = useState(false);
   const [hoveredRoomId, setHoveredRoomId] = useState<string | null>(null);
   const [hoveredDoor, setHoveredDoor] = useState<'left' | 'right' | null>(null);
+  const [openingDoor, setOpeningDoor] = useState<'left' | 'right' | null>(null);
   const { user } = useAuth();
   const { isConnected } = useSceneSystemInit();
   const { studios, activeCount } = useStudios();
