@@ -24,7 +24,7 @@ import {
   Filter,
   PlayCircle,
 } from 'lucide-react';
-import { useDirectMessaging, Conversation } from '@/hooks/useDirectMessaging';
+import { useDirectMessaging, Conversation, DirectMessage } from '@/hooks/useDirectMessaging';
 import { useAuth } from '@/hooks/useAuth';
 import { formatDistanceToNow } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
@@ -56,6 +56,9 @@ export const MessagingHub = ({ userType }: MessagingHubProps) => {
     fetchConversationMessages,
     sendMessage,
     markAsRead,
+    appendMessage,
+    setMessages,
+    PAGE_SIZE,
   } = useDirectMessaging();
 
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
@@ -162,7 +165,7 @@ export const MessagingHub = ({ userType }: MessagingHubProps) => {
     };
   }, [selectedConversation, user]);
 
-  // Real-time message updates
+  // Real-time message updates — append instead of re-fetch
   useEffect(() => {
     if (!selectedConversation?.other_user?.id || !user) return;
 
@@ -175,13 +178,25 @@ export const MessagingHub = ({ userType }: MessagingHubProps) => {
           schema: 'public',
           table: 'direct_messages',
         },
-        (payload) => {
+        async (payload) => {
           const message = payload.new as any;
-          if (
+          const isRelevant =
             (message.sender_id === user.id && message.recipient_id === selectedConversation.other_user?.id) ||
-            (message.sender_id === selectedConversation.other_user?.id && message.recipient_id === user.id)
-          ) {
-            loadConversationMessages(selectedConversation.other_user.id);
+            (message.sender_id === selectedConversation.other_user?.id && message.recipient_id === user.id);
+          
+          if (isRelevant) {
+            // Append directly to local state instead of re-fetching
+            const profileMap = new Map<string, any>();
+            // Use cached profiles from the conversation
+            setConversationMessages(prev => {
+              // Avoid duplicates (sendMessage may have already added it)
+              if (prev.some(m => m.id === message.id)) return prev;
+              return [...prev, {
+                ...message,
+                sender: { id: message.sender_id, display_name: message.sender_id === user.id ? 'You' : selectedConversation.other_user?.display_name || 'Unknown' },
+                recipient: { id: message.recipient_id, display_name: message.recipient_id === user.id ? 'You' : selectedConversation.other_user?.display_name || 'Unknown' },
+              }];
+            });
           }
         }
       )

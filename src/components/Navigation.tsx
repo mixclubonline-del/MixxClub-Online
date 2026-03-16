@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import mixxclub3DLogo from "@/assets/mixxclub-3d-logo.png";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { NotificationCenter } from "./notifications/NotificationCenter";
+import NotificationCenter from "./NotificationCenter";
 import { isFeatureEnabled } from "@/config/featureFlags";
 import { UserLevelBadge } from "./gamification/UserLevelBadge";
 import { UnlockPulseIndicator } from "./unlock/UnlockPulseIndicator";
