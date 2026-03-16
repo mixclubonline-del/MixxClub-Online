@@ -6,7 +6,7 @@ import { requireAdmin, authErrorResponse } from '../_shared/auth.ts';
 
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
-  
+
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -20,35 +20,76 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    console.log('Starting financial reconciliation, requested by admin:', auth.user.id);
+    const body = await req.json().catch(() => ({}));
+    const startDate = body.start_date || null;
+    const endDate = body.end_date || null;
 
-    const { data: payments, error: paymentsError } = await supabaseClient
-      .from('payments').select('*').eq('status', 'completed').order('created_at', { ascending: false }).limit(100);
+    console.log('Starting financial reconciliation, requested by admin:', auth.user.id, { startDate, endDate });
+
+    // Build payments query with optional date range
+    let paymentsQuery = supabaseClient
+      .from('payments').select('*').eq('status', 'completed').order('created_at', { ascending: false });
+
+    if (startDate) paymentsQuery = paymentsQuery.gte('created_at', startDate);
+    if (endDate) paymentsQuery = paymentsQuery.lte('created_at', endDate);
+
+    const { data: payments, error: paymentsError } = await paymentsQuery.limit(1000);
     if (paymentsError) throw paymentsError;
 
-    const { data: subscriptions, error: subsError } = await supabaseClient
-      .from('user_mastering_subscriptions').select('*, mastering_packages(*)').eq('status', 'active');
-    if (subsError) throw subsError;
+    // Fetch mastering + general subscriptions
+    const [{ data: masteringSubs, error: masteringSubsErr }, { data: userSubs, error: userSubsErr }] = await Promise.all([
+      supabaseClient.from('user_mastering_subscriptions').select('*, mastering_packages(*)').eq('status', 'active'),
+      supabaseClient.from('user_subscriptions').select('*').eq('status', 'active'),
+    ]);
+    if (masteringSubsErr) throw masteringSubsErr;
+    if (userSubsErr) throw userSubsErr;
+
+    const totalActiveSubscriptions = (masteringSubs?.length || 0) + (userSubs?.length || 0);
 
     const discrepancies: any[] = [];
     const reconciled: any[] = [];
     let totalRevenue = 0;
     let totalPayouts = 0;
 
+    // Per-service-type breakdown
+    const revenueByType: Record<string, { count: number; total: number }> = {};
+
     for (const payment of (payments || [])) {
       totalRevenue += payment.amount || 0;
       reconciled.push({ id: payment.id, amount: payment.amount, status: 'reconciled' });
+
+      const serviceType = payment.package_type || payment.payment_type || 'other';
+      if (!revenueByType[serviceType]) revenueByType[serviceType] = { count: 0, total: 0 };
+      revenueByType[serviceType].count += 1;
+      revenueByType[serviceType].total += payment.amount || 0;
     }
 
-    const { data: payouts } = await supabaseClient.from('engineer_payouts').select('*').eq('status', 'completed');
-    for (const payout of (payouts || [])) { totalPayouts += payout.net_amount || 0; }
+    let payoutsQuery = supabaseClient.from('engineer_payouts').select('*').eq('status', 'completed');
+    if (startDate) payoutsQuery = payoutsQuery.gte('created_at', startDate);
+    if (endDate) payoutsQuery = payoutsQuery.lte('created_at', endDate);
+
+    const { data: payoutsData } = await payoutsQuery;
+    for (const payout of (payoutsData || [])) { totalPayouts += payout.net_amount || 0; }
 
     const platformEarnings = totalRevenue - totalPayouts;
     const commissionRate = totalRevenue > 0 ? (platformEarnings / totalRevenue * 100).toFixed(2) : '0';
 
+    // Tax-ready line items
+    const taxLineItems = (payments || []).map((p: any) => ({
+      date: p.created_at,
+      transaction_id: p.transaction_id || p.stripe_checkout_session_id || p.id,
+      service_type: p.package_type || p.payment_type || 'other',
+      gross_amount: p.amount || 0,
+      refund_amount: p.refund_amount || 0,
+      currency: p.currency || 'usd',
+      status: p.status,
+      user_id: p.user_id,
+      stripe_customer_id: p.stripe_customer_id || null,
+    }));
+
     let stripeReconciliation: any = null;
     const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
-    
+
     if (stripeKey) {
       try {
         const stripe = new Stripe(stripeKey, { apiVersion: '2025-08-27.basil' });
@@ -94,10 +135,23 @@ serve(async (req) => {
     const report = {
       generated_at: new Date().toISOString(),
       generated_by: auth.user.id,
-      summary: { total_revenue: totalRevenue, total_payouts: totalPayouts, platform_earnings: platformEarnings, effective_commission_rate: `${commissionRate}%`, total_payments_processed: payments?.length || 0, active_subscriptions: subscriptions?.length || 0, discrepancies_found: discrepancies.length },
+      date_range: { start_date: startDate, end_date: endDate },
+      summary: {
+        total_revenue: totalRevenue,
+        total_payouts: totalPayouts,
+        platform_earnings: platformEarnings,
+        effective_commission_rate: `${commissionRate}%`,
+        total_payments_processed: payments?.length || 0,
+        active_subscriptions: totalActiveSubscriptions,
+        mastering_subscriptions: masteringSubs?.length || 0,
+        user_subscriptions: userSubs?.length || 0,
+        discrepancies_found: discrepancies.length,
+        revenue_by_type: revenueByType,
+      },
       stripe_reconciliation: stripeReconciliation,
       discrepancies,
-      reconciled_count: reconciled.length
+      reconciled_count: reconciled.length,
+      tax_line_items: taxLineItems,
     };
 
     return new Response(JSON.stringify(report), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
