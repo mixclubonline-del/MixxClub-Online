@@ -66,9 +66,13 @@ serve(async (req) => {
       // Just create/update the subscription record
       await supabase.from('user_subscriptions').upsert({
         user_id: user.id,
-        plan_id: planId,
-        status: 'active',
+        subscription_tier: 'free',
         tier: 'free',
+        status: 'active',
+        price_paid: 0,
+        price_monthly: 0,
+        start_date: new Date().toISOString(),
+        current_period_start: new Date().toISOString(),
       }, { onConflict: 'user_id' });
 
       return new Response(
