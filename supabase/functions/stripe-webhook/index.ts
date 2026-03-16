@@ -88,6 +88,10 @@ serve(async (req) => {
         await handleDisputeCreated(supabase, event.data.object as Stripe.Dispute);
         break;
 
+      case 'account.updated':
+        await handleAccountUpdated(supabase, event.data.object as Stripe.Account);
+        break;
+
       default:
         console.log(`[STRIPE-WEBHOOK] Unhandled event type: ${event.type}`);
     }
@@ -1078,4 +1082,85 @@ async function handleDisputeCreated(
   }
 
   console.log('[STRIPE-WEBHOOK] Dispute alert sent to admins');
+}
+
+/**
+ * Handle account.updated event for Stripe Connect verification
+ * Detects when an engineer's Connect account becomes fully verified
+ * and sends an in-app notification
+ */
+async function handleAccountUpdated(
+  supabase: SupabaseAdmin,
+  account: Stripe.Account
+) {
+  const accountId = account.id;
+  const payoutsEnabled = account.payouts_enabled;
+  const chargesEnabled = account.charges_enabled;
+  const detailsSubmitted = account.details_submitted;
+
+  console.log(`[STRIPE-WEBHOOK] Account updated: ${accountId}, payouts=${payoutsEnabled}, charges=${chargesEnabled}, details=${detailsSubmitted}`);
+
+  // Only proceed if the account is fully verified
+  if (!payoutsEnabled || !chargesEnabled || !detailsSubmitted) {
+    console.log('[STRIPE-WEBHOOK] Account not fully verified yet, skipping notification');
+    return;
+  }
+
+  // Find the engineer by their stripe_connect_account_id
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('id, email, full_name')
+    .eq('stripe_connect_account_id', accountId)
+    .single();
+
+  if (profileError || !profile) {
+    console.log(`[STRIPE-WEBHOOK] No profile found for Connect account ${accountId}`);
+    return;
+  }
+
+  // Idempotency: check if we already sent a "payouts enabled" notification
+  const { data: existingNotification } = await supabase
+    .from('notifications')
+    .select('id')
+    .eq('user_id', profile.id)
+    .eq('type', 'payment')
+    .ilike('title', '%Payouts Enabled%')
+    .limit(1)
+    .maybeSingle();
+
+  if (existingNotification) {
+    console.log('[STRIPE-WEBHOOK] Already notified user about payouts enabled, skipping');
+    return;
+  }
+
+  // Create in-app notification
+  try {
+    await supabase.rpc('create_notification_checked', {
+      p_user_id: profile.id,
+      p_type: 'payment',
+      p_title: '🎉 Payouts Enabled — You\'re Ready to Earn!',
+      p_message: 'Your bank account has been verified and payouts are now active. You\'ll receive payments directly to your connected account when projects are completed.',
+      p_action_url: '/engineer-crm?tab=earnings',
+    });
+
+    console.log(`[STRIPE-WEBHOOK] Payouts-enabled notification sent to user ${profile.id}`);
+  } catch (notifError) {
+    console.error('[STRIPE-WEBHOOK] Error creating payouts-enabled notification:', notifError);
+  }
+
+  // Log the verification event
+  await supabase.from('audit_logs').insert({
+    action: 'stripe_connect_verified',
+    user_id: profile.id,
+    resource_type: 'stripe_connect',
+    resource_id: accountId,
+    details: {
+      payouts_enabled: payoutsEnabled,
+      charges_enabled: chargesEnabled,
+      details_submitted: detailsSubmitted,
+      email: account.email,
+    },
+  });
+
+  console.log(`[STRIPE-WEBHOOK] Connect verification logged for user ${profile.id}`);
 }
