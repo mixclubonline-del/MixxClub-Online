@@ -108,13 +108,7 @@ export const AdminHealthDashboard = () => {
         </div>
       )}
 
-      {/* Recent system metrics */}
-      {health?.recentMetrics && health.recentMetrics.length > 0 && (
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <AlertTriangle className="w-3 h-3" />
-          Last metric recorded: {new Date((health.recentMetrics[0] as any).recorded_at).toLocaleString()}
-        </div>
-      )}
+      
     </div>
   );
 };
