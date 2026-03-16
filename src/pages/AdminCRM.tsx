@@ -144,10 +144,34 @@ const AdminCRM = () => {
     },
     {
       label: 'View as Artist',
-      icon: <Eye className="w-4 h-4" />,
+      icon: <Mic2 className="w-4 h-4" />,
       onClick: () => {
         enterPreview('artist');
         navigate('/artist-crm');
+      },
+    },
+    {
+      label: 'View as Engineer',
+      icon: <Headphones className="w-4 h-4" />,
+      onClick: () => {
+        enterPreview('engineer');
+        navigate('/engineer-crm');
+      },
+    },
+    {
+      label: 'View as Producer',
+      icon: <Piano className="w-4 h-4" />,
+      onClick: () => {
+        enterPreview('producer');
+        navigate('/producer-crm');
+      },
+    },
+    {
+      label: 'View as Fan',
+      icon: <Heart className="w-4 h-4" />,
+      onClick: () => {
+        enterPreview('fan');
+        navigate('/fan-hub');
       },
     },
     {
