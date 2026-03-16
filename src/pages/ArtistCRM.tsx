@@ -399,6 +399,7 @@ const ArtistCRM = () => {
         return (
           <>
             <OnboardingReminder userType="artist" />
+            {!stripeLoading && !canReceivePayouts && <StripeConnectWizard />}
             <DashboardHub />
           </>
         );

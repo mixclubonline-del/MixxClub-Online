@@ -86,8 +86,12 @@ export const PaymentIntegration = ({ analytics, loading, onPayoutRequest }: Paym
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
-            {/* Stripe Connect Status Card */}
-            <StripeConnectCard />
+            {/* Stripe Connect Wizard for unconnected users, card for connected */}
+            {!stripeLoading && !canReceivePayouts ? (
+              <StripeConnectWizard />
+            ) : (
+              <StripeConnectCard />
+            )}
 
             {/* Balance Overview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

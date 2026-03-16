@@ -99,8 +99,9 @@ export const useStripeConnect = () => {
     setIsOnboarding(true);
 
     try {
-      const returnUrl = `${window.location.origin}/engineer-crm?setup=complete`;
-      const refreshUrl = `${window.location.origin}/engineer-crm?setup=refresh`;
+      const currentPath = window.location.pathname;
+      const returnUrl = `${window.location.origin}${currentPath}?setup=complete`;
+      const refreshUrl = `${window.location.origin}${currentPath}?setup=refresh`;
 
       const { data, error } = await supabase.functions.invoke('setup-stripe-connect', {
         body: {
