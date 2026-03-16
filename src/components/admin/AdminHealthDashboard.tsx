@@ -25,7 +25,6 @@ export const AdminHealthDashboard = () => {
         { count: beatCount },
         { count: paymentCount },
         { count: securityCount },
-        { data: metricsData },
       ] = await Promise.all([
         supabase.from('profiles').select('*', { count: 'exact', head: true }),
         supabase.from('projects').select('*', { count: 'exact', head: true }),
