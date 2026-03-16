@@ -3,15 +3,13 @@
  * Queries user_subscriptions and subscription_plans tables.
  */
 
-import { supabase as _supabase } from '@/integrations/supabase/client';
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const supabase: any = _supabase;
+import { supabase } from '@/integrations/supabase/client';
 
 export interface Subscription {
     id: string;
     user_id: string;
     tier: 'free' | 'starter' | 'pro' | 'studio';
-    status: 'active' | 'cancelled' | 'paused' | 'trialing' | 'past_due';
+    status: 'active' | 'cancelled' | 'canceled' | 'paused' | 'trialing' | 'past_due';
     price_monthly: number;
     stripe_subscription_id?: string;
     stripe_customer_id?: string;
@@ -33,7 +31,8 @@ const TIER_DEFAULTS: Record<string, { price: number; features: string[]; limit: 
 };
 
 function buildSubscription(row: Record<string, unknown>): Subscription {
-    const tier = (row.tier as string) || 'free';
+    // Support both `tier` and legacy `subscription_tier` columns
+    const tier = (row.tier as string) || (row.subscription_tier as string) || 'free';
     const defaults = TIER_DEFAULTS[tier] || TIER_DEFAULTS.free;
 
     return {
@@ -48,8 +47,8 @@ function buildSubscription(row: Record<string, unknown>): Subscription {
         usage_limit: (row.usage_limit as number) ?? defaults.limit,
         usage_current: (row.usage_current as number) ?? 0,
         created_at: row.created_at as string,
-        current_period_start: (row.current_period_start as string) || (row.created_at as string),
-        current_period_end: (row.current_period_end as string) || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        current_period_start: (row.current_period_start as string) || (row.start_date as string) || (row.created_at as string),
+        current_period_end: (row.current_period_end as string) || (row.end_date as string) || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
         cancel_at_period_end: row.cancel_at_period_end as boolean | undefined,
     };
 }
@@ -75,49 +74,14 @@ export const SubscriptionService = {
             }
 
             if (!data) {
-                // No active subscription → return free tier
                 return buildFreeDefault(userId);
             }
 
-            return buildSubscription(data);
+            return buildSubscription(data as unknown as Record<string, unknown>);
         } catch (err) {
             console.error('SubscriptionService.getSubscription unexpected error:', err);
             return buildFreeDefault(userId);
         }
-    },
-
-    /**
-     * Create or update subscription (called after Stripe webhook confirms payment)
-     */
-    async upsertSubscription(
-        userId: string,
-        tier: Subscription['tier'],
-        stripeSubscriptionId: string
-    ): Promise<Subscription> {
-        const defaults = TIER_DEFAULTS[tier] || TIER_DEFAULTS.free;
-
-        const { data, error } = await supabase
-            .from('user_subscriptions')
-            .upsert({
-                user_id: userId,
-                tier,
-                status: 'active',
-                stripe_subscription_id: stripeSubscriptionId,
-                price_monthly: defaults.price,
-                features_available: defaults.features,
-                usage_limit: defaults.limit,
-                usage_current: 0,
-                current_period_start: new Date().toISOString(),
-                current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-            }, { onConflict: 'user_id' })
-            .select()
-            .single();
-
-        if (error) {
-            throw new Error(`Failed to upsert subscription: ${error.message}`);
-        }
-
-        return buildSubscription(data);
     },
 
     /**
@@ -131,7 +95,7 @@ export const SubscriptionService = {
 
         await supabase
             .from('user_subscriptions')
-            .update({ usage_current: newUsage })
+            .update({ usage_current: newUsage } as any)
             .eq('user_id', userId)
             .eq('status', 'active');
 
@@ -148,14 +112,12 @@ export const SubscriptionService = {
     },
 
     /**
-     * Cancel subscription (soft cancel — sets cancel_at_period_end)
+     * Cancel subscription (calls customer-portal for Stripe-managed cancellation)
      */
     async cancelSubscription(userId: string): Promise<boolean> {
         const { error } = await supabase
             .from('user_subscriptions')
-            .update({
-                cancel_at_period_end: true,
-            })
+            .update({ cancel_at_period_end: true } as any)
             .eq('user_id', userId)
             .eq('status', 'active');
 
@@ -174,21 +136,21 @@ export const SubscriptionService = {
         try {
             const { data, error } = await supabase
                 .from('user_subscriptions')
-                .select('tier, status, price_monthly');
+                .select('subscription_tier, status, price_paid');
 
             if (error || !data) {
                 return { total_subscribers: 0, by_tier: {}, monthly_revenue: 0, churn_rate: 0 };
             }
 
             const active = data.filter(s => s.status === 'active');
-            const cancelled = data.filter(s => s.status === 'cancelled');
+            const cancelled = data.filter(s => s.status === 'cancelled' || s.status === 'canceled');
             const byTier: Record<string, number> = { free: 0, starter: 0, pro: 0, studio: 0 };
             let revenue = 0;
 
             active.forEach(sub => {
-                const tier = (sub.tier as string) || 'free';
+                const tier = sub.subscription_tier || 'free';
                 byTier[tier] = (byTier[tier] || 0) + 1;
-                revenue += (sub.price_monthly as number) || 0;
+                revenue += (sub.price_paid as number) || 0;
             });
 
             return {

@@ -387,13 +387,15 @@ async function createUserSubscription(
       .from(tableName)
       .upsert({
         user_id: userId,
+        subscription_tier: resolvedTier,
+        tier: resolvedTier,
         plan_id: planId,
-        package_id: packageId,
         stripe_customer_id: session.customer,
         stripe_subscription_id: session.subscription,
         status: 'active',
-        tier: resolvedTier,
-        tracks_used: 0,
+        price_monthly: (session.amount_total || 0) / 100,
+        start_date: new Date().toISOString(),
+        current_period_start: new Date().toISOString(),
         created_at: new Date().toISOString(),
       }, {
         onConflict: 'user_id'
@@ -541,16 +543,52 @@ async function handleSubscriptionChange(
     .eq('stripe_customer_id', subscription.customer)
     .single();
 
-  if (profile) {
-    // Update user subscription status
-    await supabase
-      .from('user_subscriptions')
-      .update({
-        status: subscription.status,
-        stripe_subscription_id: subscription.id,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('user_id', profile.id);
+  if (!profile) {
+    console.warn('[STRIPE-WEBHOOK] No profile found for customer:', subscription.customer);
+    return;
+  }
+
+  // Resolve tier from subscription metadata
+  const planName = subscription.metadata?.plan_name;
+  const periodEnd = new Date(subscription.current_period_end * 1000).toISOString();
+  const periodStart = new Date(subscription.current_period_start * 1000).toISOString();
+
+  // Map Stripe status to our status values
+  const statusMap: Record<string, string> = {
+    active: 'active',
+    past_due: 'past_due',
+    canceled: 'canceled',
+    unpaid: 'past_due',
+    trialing: 'active',
+    incomplete: 'pending',
+    incomplete_expired: 'canceled',
+    paused: 'paused',
+  };
+  const mappedStatus = statusMap[subscription.status] || subscription.status;
+
+  // Upsert subscription record with all relevant fields
+  const { error } = await supabase
+    .from('user_subscriptions')
+    .upsert({
+      user_id: profile.id,
+      subscription_tier: planName || 'pro',
+      tier: planName || 'pro',
+      status: mappedStatus,
+      stripe_subscription_id: subscription.id,
+      stripe_customer_id: subscription.customer as string,
+      current_period_start: periodStart,
+      current_period_end: periodEnd,
+      start_date: periodStart,
+      end_date: periodEnd,
+      cancel_at_period_end: subscription.cancel_at_period_end || false,
+      price_monthly: (subscription.items.data[0]?.price?.unit_amount || 0) / 100,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'user_id' });
+
+  if (error) {
+    console.error('[STRIPE-WEBHOOK] Error upserting subscription:', error);
+  } else {
+    console.log(`[STRIPE-WEBHOOK] Subscription synced: tier=${planName || 'pro'}, status=${mappedStatus}`);
   }
 }
 
@@ -574,9 +612,25 @@ async function handleSubscriptionCanceled(
       .from('user_subscriptions')
       .update({
         status: 'canceled',
+        end_date: new Date().toISOString(),
+        current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+        cancel_at_period_end: true,
         updated_at: new Date().toISOString(),
       })
       .eq('user_id', profile.id);
+
+    // Notify user
+    try {
+      await supabase.rpc('create_notification', {
+        p_user_id: profile.id,
+        p_type: 'subscription_canceled',
+        p_title: 'Subscription Canceled',
+        p_message: 'Your subscription has been canceled. You will retain access until the end of your billing period.',
+        p_action_url: '/pricing',
+      });
+    } catch (notifErr) {
+      console.warn('[STRIPE-WEBHOOK] Notification error:', notifErr);
+    }
   }
 }
 
