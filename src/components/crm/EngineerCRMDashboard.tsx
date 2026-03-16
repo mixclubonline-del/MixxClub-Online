@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { SessionInvitationsList } from '@/components/collaboration/SessionInvitationsList';
 import { PublicSessionBrowser } from '@/components/collaboration/PublicSessionBrowser';
-import { StripeConnectCard } from '@/components/engineer/StripeConnectCard';
+import { StripeConnectWizard } from '@/components/engineer/StripeConnectWizard';
 import { EngineerPayoutsTable } from '@/components/engineer/EngineerPayoutsTable';
 import { useStripeConnect } from '@/hooks/useStripeConnect';
 import { useEngineerPayouts } from '@/hooks/useEngineerPayouts';
@@ -83,7 +83,7 @@ export const EngineerCRMDashboard = () => {
     <div className="space-y-6">
       {/* Stripe Connect Warning if not connected */}
       {!stripeLoading && !canReceivePayouts && (
-        <StripeConnectCard compact />
+        <StripeConnectWizard />
       )}
 
       {/* Pending Payouts Alert */}
