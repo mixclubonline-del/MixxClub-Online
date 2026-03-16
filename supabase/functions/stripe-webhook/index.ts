@@ -305,17 +305,11 @@ async function processReferralCommission(
 
   // Create notification for referrer
   try {
-    await supabase.rpc('create_notification', {
+    await supabase.rpc('create_notification_checked', {
       p_user_id: referral.referrer_id,
       p_title: 'Referral Commission Earned!',
       p_message: `You earned $${commissionAmount.toFixed(2)} from a successful referral!`,
-      p_type: 'referral_commission',
-      p_metadata: {
-        referral_id: referral.id,
-        payment_id: params.paymentId,
-        commission_amount: commissionAmount,
-        commission_rate: commissionRate,
-      },
+      p_type: 'payment_received',
     });
   } catch (notifError) {
     console.error('[STRIPE-WEBHOOK] Error creating referral notification:', notifError);
