@@ -59,6 +59,7 @@ export function EmailStep({
   error,
   mode,
   onSwitchMode,
+  preselectedRole,
 }: EmailStepProps) {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [authMethod, setAuthMethod] = useState<AuthMethod>('password');
