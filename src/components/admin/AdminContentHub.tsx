@@ -66,22 +66,19 @@ export const AdminContentHub = () => {
     setActionLoading(id);
     try {
       if (type === 'audio') {
+        const newStatus = currentlyFlagged ? 'active' : 'flagged';
         const { error } = await supabase.from('audio_files')
-          .update({ waveform_data: currentlyFlagged ? null : { flagged: true, flagged_at: new Date().toISOString() } })
+          .update({ moderation_status: newStatus })
           .eq('id', id);
         if (error) throw error;
+        setAudioFiles(prev => prev.map(f =>
+          f.id === id ? { ...f, moderation_status: newStatus } : f
+        ));
       } else {
         const { error } = await supabase.from('producer_beats')
           .update({ status: currentlyFlagged ? 'active' : 'flagged' })
           .eq('id', id);
         if (error) throw error;
-      }
-
-      if (type === 'audio') {
-        setAudioFiles(prev => prev.map(f =>
-          f.id === id ? { ...f, waveform_data: currentlyFlagged ? null : { flagged: true } } : f
-        ));
-      } else {
         setBeats(prev => prev.map(b =>
           b.id === id ? { ...b, status: currentlyFlagged ? 'active' : 'flagged' } : b
         ));
@@ -109,13 +106,14 @@ export const AdminContentHub = () => {
           b.id === id ? { ...b, status: newStatus } : b
         ));
       } else {
+        const newStatus = makeHidden ? 'hidden' : 'active';
         const { error } = await supabase
           .from('audio_files')
-          .update({ waveform_data: makeHidden ? { hidden: true, hidden_at: new Date().toISOString() } : null })
+          .update({ moderation_status: newStatus })
           .eq('id', id);
         if (error) throw error;
         setAudioFiles(prev => prev.map(f =>
-          f.id === id ? { ...f, waveform_data: makeHidden ? { hidden: true } : null } : f
+          f.id === id ? { ...f, moderation_status: newStatus } : f
         ));
       }
       toast.success(makeHidden ? 'Content hidden' : 'Content visible');
@@ -150,8 +148,8 @@ export const AdminContentHub = () => {
     }
   };
 
-  const isAudioFlagged = (file: any) => file.waveform_data?.flagged === true;
-  const isAudioHidden = (file: any) => file.waveform_data?.hidden === true;
+  const isAudioFlagged = (file: any) => file.moderation_status === 'flagged';
+  const isAudioHidden = (file: any) => file.moderation_status === 'hidden';
   const isBeatHidden = (beat: any) => beat.status === 'hidden';
   const isBeatFlagged = (beat: any) => beat.status === 'flagged';
 
@@ -322,15 +320,18 @@ export const AdminContentHub = () => {
             ) : (
               beats.slice(0, 15).map((beat) => {
                 const hidden = isBeatHidden(beat);
+                const flagged = isBeatFlagged(beat);
                 const busy = actionLoading === beat.id;
 
                 return (
                   <div
                     key={beat.id}
                     className={`flex items-center justify-between py-2.5 px-3 rounded-lg border transition-colors ${
-                      hidden
-                        ? 'border-red-500/20 bg-red-500/5 opacity-60'
-                        : 'border-transparent hover:bg-muted/30'
+                      flagged
+                        ? 'border-orange-500/30 bg-orange-500/5'
+                        : hidden
+                          ? 'border-red-500/20 bg-red-500/5 opacity-60'
+                          : 'border-transparent hover:bg-muted/30'
                     }`}
                   >
                     <div className="min-w-0">
@@ -338,6 +339,11 @@ export const AdminContentHub = () => {
                         <p className="text-sm font-medium text-foreground truncate max-w-[200px]">
                           {beat.title || 'Untitled Beat'}
                         </p>
+                        {flagged && (
+                          <Badge variant="outline" className="text-[10px] border-orange-500/30 text-orange-400 px-1.5 py-0">
+                            <Flag className="w-2.5 h-2.5 mr-0.5" /> Flagged
+                          </Badge>
+                        )}
                         {hidden && (
                           <Badge variant="outline" className="text-[10px] border-red-500/30 text-red-400 px-1.5 py-0">
                             <EyeOff className="w-2.5 h-2.5 mr-0.5" /> Hidden
@@ -363,6 +369,10 @@ export const AdminContentHub = () => {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="bg-card border-border">
+                        <DropdownMenuItem onClick={() => handleFlag(beat.id, 'beat', flagged)}>
+                          <Flag className="w-3.5 h-3.5 mr-2" />
+                          {flagged ? 'Remove Flag' : 'Flag Content'}
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleVisibility(beat.id, 'beat', !hidden)}>
                           {hidden ? <Eye className="w-3.5 h-3.5 mr-2" /> : <EyeOff className="w-3.5 h-3.5 mr-2" />}
                           {hidden ? 'Restore Beat' : 'Hide Beat'}
@@ -394,7 +404,7 @@ export const AdminContentHub = () => {
               Delete {deleteTarget?.type === 'audio' ? 'Audio File' : 'Beat'}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete <span className="font-medium text-foreground">"{deleteTarget?.name}"</span>.
+              This will permanently delete <span className="font-medium text-foreground">&ldquo;{deleteTarget?.name}&rdquo;</span>.
               This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
