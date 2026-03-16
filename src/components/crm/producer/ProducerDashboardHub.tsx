@@ -18,13 +18,16 @@ export const ProducerDashboardHub = () => {
 
   if (!loading && !hasData) {
     return (
-      <CharacterEmptyState
-        type="beats"
-        characterId="rell"
-        title="Your Command Center Awaits"
-        actionLabel="Upload Your First Beat"
-        onAction={() => { }}
-      />
+      <div className="space-y-6">
+        {!stripeLoading && !canReceivePayouts && <StripeConnectWizard />}
+        <CharacterEmptyState
+          type="beats"
+          characterId="rell"
+          title="Your Command Center Awaits"
+          actionLabel="Upload Your First Beat"
+          onAction={() => { }}
+        />
+      </div>
     );
   }
 
