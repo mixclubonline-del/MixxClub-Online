@@ -69,8 +69,8 @@ export const MasteringPackages = ({ onAccessGranted }: MasteringPaywallProps) =>
       }
 
       // Call Stripe function to create checkout session
-      const { data, error } = await supabase.functions.invoke('create-mastering-checkout', {
-        body: { packageId }
+      const { data, error } = await supabase.functions.invoke('create-payment-checkout', {
+        body: { packageId, packageType: 'mastering' }
       });
 
       if (error) throw error;
