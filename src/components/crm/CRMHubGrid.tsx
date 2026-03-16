@@ -33,6 +33,8 @@ import {
   BarChart3,
   Flame,
   Camera,
+  Flag,
+  ToggleLeft,
   type LucideIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
