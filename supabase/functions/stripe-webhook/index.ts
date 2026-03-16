@@ -132,6 +132,18 @@ async function handleCheckoutCompleted(
   // Calculate amounts
   const amountTotal = (session.amount_total || 0) / 100; // Convert from cents
 
+  // Idempotency: check if this session was already processed
+  const { data: existingPayment } = await supabase
+    .from('payments')
+    .select('id')
+    .eq('stripe_checkout_session_id', session.id)
+    .maybeSingle();
+
+  if (existingPayment) {
+    console.log('[STRIPE-WEBHOOK] Session already processed, skipping:', session.id);
+    return;
+  }
+
   // Record the payment
   const { data: payment, error: paymentError } = await supabase
     .from('payments')
