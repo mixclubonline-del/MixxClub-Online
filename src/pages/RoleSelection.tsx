@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useUnlockContribution } from '@/hooks/useUnlockContribution';
 import { attributionToasts } from '@/components/unlock/UnlockAttributionToast';
 import { motion } from 'framer-motion';
 import { Mic2, Headphones, Disc3, Heart } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
+import { useRoleSelection } from '@/hooks/useRoleSelection';
 
 type AppRole = 'artist' | 'engineer' | 'producer' | 'fan';
 
