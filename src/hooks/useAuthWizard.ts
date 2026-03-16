@@ -355,6 +355,7 @@ export function useAuthWizard() {
   }, []);
 
   const canGoBack = state.step === 'confirmation' || (state.step === 'email' && state.mode === 'signup');
+  const preselectedRole = hasPreselectedRole ? roleParam : null;
 
   const nextStep = useCallback(() => {
     if (state.step === 'role') {
