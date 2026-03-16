@@ -24,7 +24,7 @@ import {
   Filter,
   PlayCircle,
 } from 'lucide-react';
-import { useDirectMessaging, Conversation } from '@/hooks/useDirectMessaging';
+import { useDirectMessaging, Conversation, DirectMessage } from '@/hooks/useDirectMessaging';
 import { useAuth } from '@/hooks/useAuth';
 import { formatDistanceToNow } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
