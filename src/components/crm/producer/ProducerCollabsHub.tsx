@@ -10,6 +10,7 @@ import { ActiveCollabCard } from '@/components/producer/ActiveCollabCard';
 import { RoyaltyTrackerPanel } from '@/components/producer/RoyaltyTrackerPanel';
 import { useProducerPartnerships } from '@/hooks/useProducerPartnerships';
 import { useBeatRoyalties } from '@/hooks/useBeatRoyalties';
+import { useProducerSales } from '@/hooks/useProducerSales';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -37,6 +38,7 @@ export const ProducerCollabsHub = () => {
   } = useProducerPartnerships();
 
   const { summary, loading: royaltiesLoading } = useBeatRoyalties();
+  const { analytics: salesAnalytics } = useProducerSales();
 
   const handleAccept = async (id: string) => {
     const success = await acceptPartnership(id);
@@ -257,7 +259,7 @@ export const ProducerCollabsHub = () => {
         </TabsContent>
 
         <TabsContent value="royalties">
-          <RoyaltyTrackerPanel summary={summary} loading={royaltiesLoading} />
+          <RoyaltyTrackerPanel summary={summary} loading={royaltiesLoading} salesAnalytics={salesAnalytics} />
         </TabsContent>
       </Tabs>
     </div>

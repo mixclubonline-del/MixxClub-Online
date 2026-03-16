@@ -1,12 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { TrendingUp, DollarSign, Music2, BarChart3 } from 'lucide-react';
+import { TrendingUp, DollarSign, Music2, BarChart3, ShoppingCart } from 'lucide-react';
 import type { RoyaltySummary } from '@/types/producer-partnership';
+import type { SalesAnalytics } from '@/hooks/useProducerSales';
 
 interface RoyaltyTrackerPanelProps {
   summary: RoyaltySummary | null;
   loading: boolean;
+  /** Fallback: marketplace sales analytics when no external royalty data exists */
+  salesAnalytics?: SalesAnalytics | null;
 }
 
 const formatCurrency = (amount: number) => {
@@ -22,7 +25,7 @@ const formatNumber = (num: number) => {
   return num.toString();
 };
 
-export const RoyaltyTrackerPanel = ({ summary, loading }: RoyaltyTrackerPanelProps) => {
+export const RoyaltyTrackerPanel = ({ summary, loading, salesAnalytics }: RoyaltyTrackerPanelProps) => {
   if (loading) {
     return (
       <Card className="bg-card/50 backdrop-blur-sm border-border/50">
@@ -40,6 +43,106 @@ export const RoyaltyTrackerPanel = ({ summary, loading }: RoyaltyTrackerPanelPro
     );
   }
 
+  // If no royalty data but we have sales, show marketplace earnings
+  if (!summary && salesAnalytics && salesAnalytics.totalSales > 0) {
+    const totalRevenueDollars = salesAnalytics.totalRevenue / 100;
+    const thisMonthDollars = salesAnalytics.thisMonthRevenue / 100;
+    const lastMonthDollars = salesAnalytics.lastMonthRevenue / 100;
+
+    return (
+      <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <ShoppingCart className="h-5 w-5 text-primary" />
+            Marketplace Earnings
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
+              <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
+                <DollarSign className="h-3 w-3" />
+                Total Earnings
+              </div>
+              <p className="text-xl font-bold text-primary">
+                {formatCurrency(totalRevenueDollars)}
+              </p>
+            </div>
+
+            <div className="p-3 rounded-lg bg-muted/50">
+              <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
+                <TrendingUp className="h-3 w-3" />
+                This Month
+              </div>
+              <p className="text-xl font-bold">
+                {formatCurrency(thisMonthDollars)}
+              </p>
+              {salesAnalytics.monthlyGrowth !== 0 && (
+                <Badge 
+                  variant="secondary" 
+                  className={`text-xs mt-1 ${salesAnalytics.monthlyGrowth > 0 ? 'text-green-500' : 'text-red-500'}`}
+                >
+                  {salesAnalytics.monthlyGrowth > 0 ? '+' : ''}{salesAnalytics.monthlyGrowth.toFixed(1)}%
+                </Badge>
+              )}
+            </div>
+
+            <div className="p-3 rounded-lg bg-muted/50">
+              <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
+                <Music2 className="h-3 w-3" />
+                Total Sales
+              </div>
+              <p className="text-xl font-bold">
+                {formatNumber(salesAnalytics.totalSales)}
+              </p>
+              <div className="flex gap-1 mt-1">
+                <Badge variant="outline" className="text-xs">
+                  {salesAnalytics.leaseSales} lease
+                </Badge>
+                <Badge variant="outline" className="text-xs">
+                  {salesAnalytics.exclusiveSales} excl
+                </Badge>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-lg bg-amber-500/5 border border-amber-500/20">
+              <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
+                <DollarSign className="h-3 w-3" />
+                Last Month
+              </div>
+              <p className="text-xl font-bold text-amber-500">
+                {formatCurrency(lastMonthDollars)}
+              </p>
+            </div>
+          </div>
+
+          {/* Monthly Trend */}
+          {salesAnalytics.revenueByMonth.length > 0 && (
+            <div>
+              <h4 className="text-sm font-medium mb-3">6-Month Trend</h4>
+              <div className="flex items-end gap-2 h-20">
+                {salesAnalytics.revenueByMonth.map((month, index) => {
+                  const maxRevenue = Math.max(...salesAnalytics.revenueByMonth.map(m => m.revenue));
+                  const height = maxRevenue > 0 ? (month.revenue / maxRevenue) * 100 : 0;
+                  
+                  return (
+                    <div key={index} className="flex-1 flex flex-col items-center gap-1">
+                      <div 
+                        className="w-full bg-primary/20 rounded-t transition-all hover:bg-primary/40"
+                        style={{ height: `${Math.max(height, 4)}%` }}
+                      />
+                      <span className="text-xs text-muted-foreground">{month.month}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    );
+  }
+
   if (!summary) {
     return (
       <Card className="bg-card/50 backdrop-blur-sm border-border/50">
@@ -47,7 +150,7 @@ export const RoyaltyTrackerPanel = ({ summary, loading }: RoyaltyTrackerPanelPro
           <Music2 className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
           <p className="text-muted-foreground">No royalty data yet</p>
           <p className="text-sm text-muted-foreground mt-1">
-            Royalties will appear here once tracks are released
+            Royalties will appear here once tracks are released and beats are sold
           </p>
         </CardContent>
       </Card>

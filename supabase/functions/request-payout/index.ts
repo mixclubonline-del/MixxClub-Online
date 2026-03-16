@@ -37,29 +37,39 @@ serve(async (req) => {
       });
     }
 
-    // Verify user has sufficient earnings balance
     const supabaseAdmin = createClient(
       supabaseUrl,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    const { data: earnings, error: earningsError } = await supabaseAdmin
+    // Determine available balance from BOTH engineer_earnings AND producer_earnings
+    const { data: engineerEarnings, error: engErr } = await supabaseAdmin
       .from("engineer_earnings")
       .select("amount")
       .eq("engineer_id", user.id)
       .eq("status", "pending");
 
-    if (earningsError) {
-      console.error("Error fetching earnings:", earningsError);
-      return new Response(JSON.stringify({ error: "Failed to verify earnings balance" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    if (engErr) {
+      console.error("Error fetching engineer earnings:", engErr);
     }
 
-    const availableBalance = (earnings || []).reduce((sum, e) => sum + (e.amount || 0), 0);
+    const { data: producerEarnings, error: prodErr } = await supabaseAdmin
+      .from("producer_earnings")
+      .select("amount_cents")
+      .eq("producer_id", user.id)
+      .eq("status", "pending");
 
-    // Also subtract any pending payout requests
+    if (prodErr) {
+      console.error("Error fetching producer earnings:", prodErr);
+    }
+
+    const engineerBalance = (engineerEarnings || []).reduce((sum, e) => sum + (e.amount || 0), 0);
+    const producerBalanceCents = (producerEarnings || []).reduce((sum, e) => sum + (e.amount_cents || 0), 0);
+    const producerBalance = producerBalanceCents / 100; // Convert cents to dollars
+
+    const availableBalance = engineerBalance + producerBalance;
+
+    // Subtract any pending payout requests
     const { data: pendingPayouts } = await supabaseAdmin
       .from("payout_requests")
       .select("amount")
@@ -93,7 +103,7 @@ serve(async (req) => {
 
     if (payoutError) throw payoutError;
 
-    console.log(`Payout request created: ${payout.id} for $${amount} (available: $${effectiveBalance.toFixed(2)})`);
+    console.log(`Payout request created: ${payout.id} for $${amount} (engineer: $${engineerBalance.toFixed(2)}, producer: $${producerBalance.toFixed(2)}, pending payouts: $${pendingAmount.toFixed(2)})`);
 
     return new Response(JSON.stringify({ success: true, payout }), {
       status: 200,

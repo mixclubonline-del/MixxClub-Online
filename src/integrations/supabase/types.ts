@@ -6646,6 +6646,54 @@ export type Database = {
         }
         Relationships: []
       }
+      producer_earnings: {
+        Row: {
+          amount_cents: number
+          beat_id: string | null
+          created_at: string
+          id: string
+          paid_at: string | null
+          producer_id: string
+          purchase_id: string | null
+          status: string
+        }
+        Insert: {
+          amount_cents?: number
+          beat_id?: string | null
+          created_at?: string
+          id?: string
+          paid_at?: string | null
+          producer_id: string
+          purchase_id?: string | null
+          status?: string
+        }
+        Update: {
+          amount_cents?: number
+          beat_id?: string | null
+          created_at?: string
+          id?: string
+          paid_at?: string | null
+          producer_id?: string
+          purchase_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "producer_earnings_beat_id_fkey"
+            columns: ["beat_id"]
+            isOneToOne: false
+            referencedRelation: "producer_beats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "producer_earnings_purchase_id_fkey"
+            columns: ["purchase_id"]
+            isOneToOne: false
+            referencedRelation: "beat_purchases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       producer_stats: {
         Row: {
           avg_rating: number | null
