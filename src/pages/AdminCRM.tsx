@@ -178,6 +178,10 @@ const AdminCRM = () => {
         return <AdminRevenueHub />;
       case 'content':
         return <AdminContentHub />;
+      case 'moderation':
+        return <AdminModerationQueue />;
+      case 'features':
+        return <AdminFeatureFlagsHub />;
       case 'community':
         return <AdminCommunityHub />;
       case 'assets':
