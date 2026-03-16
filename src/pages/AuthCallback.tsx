@@ -64,8 +64,10 @@ const AuthCallback = () => {
               .insert([{ user_id: user.id, role: selectedRole }]);
           } catch (roleErr) {
             console.error('Failed to assign role:', roleErr);
-            // Continue anyway - role can be set later
           }
+          // Clear the pending role from sessionStorage
+          sessionStorage.removeItem('pending_oauth_role');
+        }
         }
 
         // Determine role from user_roles (authoritative), then fallback
