@@ -6,7 +6,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
-import { User, Briefcase, DollarSign, Trophy, Activity, Shield, Star } from 'lucide-react';
+import { User, Briefcase, DollarSign, Trophy, Activity, Shield, Star, Ban } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
