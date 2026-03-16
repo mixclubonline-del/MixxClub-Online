@@ -610,9 +610,25 @@ async function handleSubscriptionCanceled(
       .from('user_subscriptions')
       .update({
         status: 'canceled',
+        end_date: new Date().toISOString(),
+        current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+        cancel_at_period_end: true,
         updated_at: new Date().toISOString(),
       })
       .eq('user_id', profile.id);
+
+    // Notify user
+    try {
+      await supabase.rpc('create_notification', {
+        p_user_id: profile.id,
+        p_type: 'subscription_canceled',
+        p_title: 'Subscription Canceled',
+        p_message: 'Your subscription has been canceled. You will retain access until the end of your billing period.',
+        p_action_url: '/pricing',
+      });
+    } catch (notifErr) {
+      console.warn('[STRIPE-WEBHOOK] Notification error:', notifErr);
+    }
   }
 }
 
