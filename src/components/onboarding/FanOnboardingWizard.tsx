@@ -36,24 +36,41 @@
    { id: 'interests', title: 'Interests', description: 'What music do you love?', icon: Music },
  ];
  
- export function FanOnboardingWizard() {
-   const navigate = useNavigate();
-   const [searchParams] = useSearchParams();
-   const { user, refreshRoles } = useAuth();
-   const [currentStep, setCurrentStep] = useState(0);
-   const [isSubmitting, setIsSubmitting] = useState(false);
-   const [isCompleting, setIsCompleting] = useState(false);
-   
-   // Pre-fill from URL params
-   const nameFromUrl = searchParams.get('name');
-   
-   // Form state
-   const [displayName, setDisplayName] = useState(nameFromUrl || '');
-   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
-   const [avatarUrl, setAvatarUrl] = useState<string>('');
-   
-   // Username validation
-   const { username, setUsername, isChecking, isAvailable, error: usernameError, isValid: isUsernameValid } = useUsernameValidation();
+const STORAGE_KEY = 'onboarding_progress_fan';
+
+function loadSavedState() {
+  try {
+    const saved = sessionStorage.getItem(STORAGE_KEY);
+    return saved ? JSON.parse(saved) : null;
+  } catch { return null; }
+}
+
+export function FanOnboardingWizard() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { user, refreshRoles } = useAuth();
+  
+  const saved = loadSavedState();
+  const nameFromUrl = searchParams.get('name');
+  
+  const [currentStep, setCurrentStep] = useState(saved?.currentStep || 0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCompleting, setIsCompleting] = useState(false);
+  
+  // Form state — restored from sessionStorage
+  const [displayName, setDisplayName] = useState(saved?.displayName || nameFromUrl || '');
+  const [selectedGenres, setSelectedGenres] = useState<string[]>(saved?.selectedGenres || []);
+  const [avatarUrl, setAvatarUrl] = useState<string>(saved?.avatarUrl || '');
+  
+  // Username validation
+  const { username, setUsername, isChecking, isAvailable, error: usernameError, isValid: isUsernameValid } = useUsernameValidation(saved?.username || '');
+
+  // Persist form state
+  useEffect(() => {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+      currentStep, displayName, selectedGenres, avatarUrl, username,
+    }));
+  }, [currentStep, displayName, selectedGenres, avatarUrl, username]);
  
    // Check if user already completed onboarding
    useEffect(() => {
