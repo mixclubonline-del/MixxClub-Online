@@ -60,80 +60,16 @@ const roleOptions: RoleOption[] = [
 
 const RoleSelection = () => {
   const navigate = useNavigate();
-  const { user, refreshRoles } = useAuth();
   const { getContributionMessage } = useUnlockContribution();
-  const [selectedRole, setSelectedRole] = useState<AppRole | null>(null);
   const [hoveredRole, setHoveredRole] = useState<AppRole | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Keyboard navigation (1-4 keys)
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (isSubmitting) return;
-
-      const keyMap: Record<string, AppRole> = {
-        '1': 'producer',
-        '2': 'artist',
-        '3': 'engineer',
-        '4': 'fan',
-      };
-
-      if (keyMap[e.key]) {
-        handleRoleSelect(keyMap[e.key]);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isSubmitting]);
-
-  const handleRoleSelect = async (role: AppRole) => {
-    if (isSubmitting || !user) return;
-
-    setSelectedRole(role);
-    setIsSubmitting(true);
-
-    try {
-      // Insert role into user_roles table
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .insert({ user_id: user.id, role });
-
-      if (roleError) {
-        // If role already exists, that's fine - just proceed
-        if (!roleError.message.includes('duplicate')) {
-          console.error('Failed to assign role:', roleError);
-          toast.error('Failed to save your role. Please try again.');
-          setIsSubmitting(false);
-          setSelectedRole(null);
-          return;
-        }
-      }
-
-      // Update profiles table with role for routing
-      await supabase
-        .from('profiles')
-        .update({ role })
-        .eq('id', user.id);
-
-      // Show attribution toast
+  const { selectedRole, isSubmitting, selectRole } = useRoleSelection({
+    onSuccess: (role) => {
       const contribution = getContributionMessage('user_count', 'Your signup');
       attributionToasts.userJoined(contribution);
-
-      // Refresh auth context so Dashboard/AppLayout has the correct role
-      await refreshRoles();
-
-      toast.success(`Welcome to Mixxclub as a ${role}!`);
-
-      // Navigate to role-specific onboarding
       navigate(`/onboarding/${role}`);
-    } catch (err) {
-      console.error('Role selection error:', err);
-      toast.error('Something went wrong. Please try again.');
-      setIsSubmitting(false);
-      setSelectedRole(null);
-    }
-  };
+    },
+  });
 
   // Get active accent for ambient effects
   const activeAccent = hoveredRole
