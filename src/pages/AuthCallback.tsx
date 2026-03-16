@@ -68,7 +68,6 @@ const AuthCallback = () => {
           // Clear the pending role from sessionStorage
           sessionStorage.removeItem('pending_oauth_role');
         }
-        }
 
         // Determine role from user_roles (authoritative), then fallback
         const roles: string[] = existingRoles?.map(r => r.role as string) || [];
