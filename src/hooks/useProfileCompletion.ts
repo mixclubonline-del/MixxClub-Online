@@ -47,9 +47,9 @@ export function useProfileCompletion(): ProfileCompletion {
           filled: !!profile.username && profile.username.length >= 3,
         },
         {
-          key: 'display_name',
+          key: 'full_name',
           label: 'Display Name',
-          filled: !!(profile.display_name || profile.full_name),
+          filled: !!profile.full_name,
         },
         {
           key: 'avatar_url',

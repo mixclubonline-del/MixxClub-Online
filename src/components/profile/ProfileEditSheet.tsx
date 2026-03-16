@@ -57,7 +57,9 @@ export function ProfileEditSheet({ open, onOpenChange }: ProfileEditSheetProps) 
         setBio(profile.bio || '');
         setAvatarUrl(profile.avatar_url || '');
         setSelectedGenres(
-          Array.isArray(profile.genre_specialties) ? profile.genre_specialties : []
+          Array.isArray(profile.genre_specialties)
+            ? (profile.genre_specialties as string[])
+            : []
         );
         if (profile.username) {
           setUsername(profile.username);
