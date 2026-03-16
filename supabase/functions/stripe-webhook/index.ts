@@ -960,11 +960,11 @@ async function handleChargeRefunded(
         .eq('id', payout.id);
 
       // Notify engineer
-      await supabase.rpc('create_notification', {
+      await supabase.rpc('create_notification_checked', {
         p_user_id: payout.engineer_id,
         p_title: 'Payment Refunded',
         p_message: `A payment of $${refundedAmount.toFixed(2)} was refunded. Your payout has been reversed.`,
-        p_type: 'payout_refunded',
+        p_type: 'payment',
       });
     }
   }
