@@ -192,6 +192,19 @@ export function StudioHallwayV2({ fullscreen = false, onEnter, trackConversion }
       {/* Absolute-positioned to align with background image doors */}
       {fullscreen && (
         <div className="absolute inset-0 z-10 pointer-events-none">
+          {/* Door-opening flash overlay */}
+          <AnimatePresence>
+            {openingDoor && (
+              <motion.div
+                className="absolute inset-0 z-50 bg-white pointer-events-none"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.9 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5, ease: 'easeIn' }}
+              />
+            )}
+          </AnimatePresence>
+
           {/* LEFT DOOR — Artists */}
           <motion.button
             className="pointer-events-auto absolute rounded-2xl border border-transparent cursor-pointer overflow-hidden group"
@@ -207,8 +220,9 @@ export function StudioHallwayV2({ fullscreen = false, onEnter, trackConversion }
             onMouseEnter={() => { setHoveredDoor('left'); ensureAmbience(); }}
             onMouseLeave={() => setHoveredDoor(null)}
             onClick={() => handleDoorClick('left')}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            animate={openingDoor === 'left' ? { scale: 1.08, opacity: 0.6 } : {}}
+            whileHover={!openingDoor ? { scale: 1.02 } : {}}
+            whileTap={!openingDoor ? { scale: 0.98 } : {}}
             aria-label="Enter as an Artist"
           >
             {/* Edge glow */}
