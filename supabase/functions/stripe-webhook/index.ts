@@ -735,16 +735,11 @@ async function handleCourseEnrollment(
 
   // 4. Create notification for user
   try {
-    await supabase.rpc('create_notification', {
+    await supabase.rpc('create_notification_checked', {
       p_user_id: params.userId,
       p_title: 'Course Access Granted!',
       p_message: `You now have full access to "${course?.title || 'your course'}". Start learning today!`,
-      p_type: 'course_enrollment',
-      p_metadata: { 
-        course_id: params.courseId, 
-        enrollment_id: enrollment.id,
-        payment_id: params.paymentId,
-      },
+      p_type: 'payment_received',
     });
   } catch (notifError) {
     console.warn('[STRIPE-WEBHOOK] Notification error:', notifError);
