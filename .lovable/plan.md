@@ -1,84 +1,135 @@
 
 
-# Navigation, Flow, Standards & Imagery Audit
 
-## Findings
+# CRM Phase 4 Complete — Remaining Roadmap
 
-### A. Navigation & Flow Issues
+## Completed ✅
 
-**1. Hallway CTA misalignment on mobile (390px)**
-The "Enter the Club" and "Sign In" buttons are pushed off-screen by the onboarding tour overlay. The `left-[calc(50%-35px)]` offset was tuned for the desktop background door handles but breaks on small screens where the doors are barely visible.
+### Phase 1 — Design Tokens
+- GlassPanel, HubHeader, StaggeredList, HubSkeleton, EmptyState created
+- ActiveWorkHub, StoreHub, ClientsHub migrated
 
-**2. Onboarding tour fires on public pages**
-The "Explore Mixxclub" product tour ("The Front Door" step) appears on the `/for-artists` and `/for-engineers` pages, overlapping the hero content and stats. It should only trigger on authenticated app screens, not public marketing pages.
+### Phase 2 — Critical Features  
+- NotificationsHub upgraded to GlassPanel/HubHeader + mobile Select dropdown
+- ScheduleHub upgraded to GlassPanel/HubHeader/EmptyState + mobile responsive
+- RevenueHub upgraded to GlassPanel/HubHeader + mobile Select dropdown
+- CommunityHub already mobile responsive (useIsMobile + Select)
+- MatchesHub already mobile responsive (useIsMobile)
+- CommunityStats already responsive (grid-cols-2 md:3 lg:6)
+- All 3 CRM pages (Artist/Engineer/Producer) already have notifications + schedule wired
 
-**3. Hallway doors not interactive on mobile**
-The door hitbox zones (`fullscreen && ...`) only render when `fullscreen` is true. On mobile (phone deviceType), the hallway is rendered inside the SceneFlow at full height, but the door zones use absolute percentage positioning that doesn't align with the smaller viewport. The "Choose your door" hint text appears but the doors themselves have hitboxes sized for 1200px+ widths.
+### EcosystemFlow Character Avatars
+- Already implemented with foreignObject SVG alignment
 
-**4. Duplicate Sign In CTAs**
-The hallway shows two Sign In buttons simultaneously: one in the main CTA stack (line 494-510) and another "Been here before?" pill at the bottom (line 558-569). These compete for attention and create visual clutter.
+### Phase 3 — UX Polish ✅
+- HubSkeleton + EmptyState standardized across ~10 hubs
+- CommunityHub, SessionsHub, CollectiveAnalytics, ClientsHub, ScheduleHub migrated to design tokens
+- Match components (AIMatchRecommendations, MatchRequests, YourMatches) standardized
+- File version timeline verified functional
 
-**5. SceneFlow nav pill overlaps hallway**
-The floating `mg-panel` pill ("Quick Start · Join Free") at the top center sits above the hallway but isn't styled to complement the club entrance aesthetic. On mobile it can overlap the neon signage.
+### Phase 4 — Advanced ✅
+- `useUserProjects` and `useUserEarnings` shared hooks created and adopted by EnhancedDashboardHub + GrowthHub
+- Producer License Builder + Promo Codes + Featured Rotation built and wired into ProducerCatalogHub
+- React.lazy() implemented for all 3 CRM pages (non-dashboard hubs)
 
-### B. Standards Compliance
+### Phase 5 — Usage Enforcement ✅
+- `useUsageEnforcement` hook: centralized tier-aware limit checking (free/starter/pro/studio)
+- `UsageLimitBanner` component: 4 severity states (normal/warning/urgent/blocked), 2 variants (banner/inline), tier badges, upgrade CTAs
+- Dashboard integration: per-feature banners for projects, audio uploads, AI matching, storage, collaborations
+- Enforcement guards wired into: CreateProjectModal, AudioUpload, useEngineerMatchingAPI, usePartnershipEarnings, useProducerPartnerships
+- 20+ unit tests covering all thresholds, variants, visibility rules, CTAs, and edge cases
+- Integration-level tests for `useUsageEnforcement` hook (tier fallback, canUseFeature, getFeatureUsage)
 
-**6. Missing `alt` text on marketing page images**
-Both `/for-artists` and `/for-engineers` use `ShowcaseFeature` and `ShowcaseJourney` components with image props but the `LandingPortal` background uses `alt=""`. While decorative backgrounds get empty alt, the journey step images and feature showcase images should have descriptive alt text for accessibility.
+### Phase 6 — Stripe Revenue Backend ✅
+- Schema alignment: 10 columns added to `payments`, `stripe_customer_id` on `profiles`, `engineer_id`+`stripe_transfer_id` on `payout_requests`
+- `launch_metrics` table created with admin-only RLS for revenue prediction engine
+- `aggregate_payment_to_metrics` trigger auto-increments daily revenue/payment counts
+- Webhook handlers added: `charge.refunded` (auto-reverse earnings), `invoice.payment_failed` (flag subscription + notify), `charge.dispute.created` (critical alert to all admins)
+- Backfilled `payout_requests.engineer_id` from existing `user_id`
 
-**7. `Skip to content` link exists** — confirmed in `App.tsx`. Good.
+### Phase 7 — Full Site Audit ✅
+- Auth-to-dashboard flow audited: magic link, email+password, OAuth all route correctly through AuthCallback → role check → onboarding → CRM
+- Engineer profile page (/engineer/:userId) verified fully functional with real data from profiles + engineer_profiles + engineer_reviews + projects
+- Battle Tournaments page verified fully functional with real data from battle_tournaments table
+- My Certifications page verified fully functional with milestone overlay at 250 community members
+- Mobile QA pass on revenue path (home → pricing → checkout): pricing cards stack cleanly, CTAs visible
+- Fixed: PathfinderBeacon mobile positioning (bottom-24 on phones to clear mobile nav, full-width card on small screens)
+- Fixed: AuthSocialProof ticker text truncation on narrow viewports (added truncate + shrink-0)
+- Fixed: Homepage floating nav pill overflow on 375px screens (added max-w constraint)
 
-**8. ARIA labels on doors** — confirmed. Both door buttons have proper `aria-label` attributes. Good.
+### Mobile & PWA Hardening ✅
+- PWA update prompt (service worker refresh notification)
+- PWA install prompt with localStorage 7-day persistence + iOS guidance
+- Offline indicator with pending sync count + manual Sync Now button
+- CRM offline queue wired into useCRMClients + useCRMDeals
 
-**9. BackButton parent routes** — `/for-artists` and `/for-engineers` map to `/home` as parent. This should map to `/` (the hallway) since that's where unauthenticated visitors came from.
+### CRM Notification Preferences ✅
+- notification_preferences table extended with 17 category×channel columns
+- NotificationPrefsPanel with matrix toggle UI
+- Integrated into NotificationsHub settings
 
-### C. Imagery & Hip-Hop Cultural Alignment
-
-**10. Artist page background** — Graffiti mural + neon waveform overlay. Strong urban aesthetic. Passes the culture test.
-
-**11. Engineer page background** — Professional mixing console/studio. Shows real studio environment. Culturally neutral but appropriate for the professional engineer audience.
-
-**12. Promo asset filenames** suggest AI-generated imagery (e.g., `artist-upload-cloud.jpg`, `artist-ai-analysis.jpg`). These should be verified to contain culturally authentic representation per the 50%+ African American, 25%+ Hispanic/Latino standard. Cannot verify image contents from code alone — requires visual review.
-
-**13. Hallway background** — The `hallway-double-door-base.jpg` shows a cinematic club entrance with "MIXX | CLUB" branding, neon infinity symbol, and brushed chrome doors. Strong immersive aesthetic that matches the club concept.
+### Daily Digest ✅
+- daily-digest edge function: batches unread notifications, sends branded HTML via Resend
+- trigger-daily-digest cron function scheduled at 8 AM UTC daily
+- Respects weekly_digest_email preference toggle
 
 ---
 
-## Plan
+## Phase 8 — Growth · Scale · Create · Connect
 
-### Fix 1: Mobile-responsive hallway CTAs
-- Remove the `left-[calc(50%-35px)]` offset from the CTA container
-- Center CTAs with `left-1/2 -translate-x-1/2` (standard centering)
-- Make door zones responsive: on mobile, convert to two side-by-side tap buttons below the image instead of overlay hitboxes
+### 8A: Growth & Marketing (Ship First)
 
-### Fix 2: Suppress onboarding tour on public pages
-- In `AppOnboarding.tsx` (or wherever the product tour mounts), add a route guard that skips rendering on public routes (`/`, `/for-artists`, `/for-engineers`, `/for-producers`, `/for-fans`, `/auth`, etc.)
+| # | Task | Files | Effort |
+|---|------|-------|--------|
+| 1 | **Referral Dashboard** — visualize referral tree, pending/completed commissions, share links with OG image preview | New: `src/components/crm/referrals/ReferralDashboard.tsx`, Edit: partner CRM pages | M |
+| 2 | **SEO Hardening** — dynamic `<SEOHead>` per route with JSON-LD (Organization, Product, FAQ schemas), canonical tags, Open Graph images for /pricing /go /economy | Edit: SEOHead, route components | S |
+| 3 | **Social Share Cards** — generate dynamic OG images for beat listings, engineer profiles, battle results using edge function + Satori | New: `supabase/functions/generate-og-image/index.ts` | M |
+| 4 | **Landing A/B Framework** — lightweight variant system using `funnel_events` to track conversion by variant, admin toggle | New: `src/hooks/useABVariant.ts`, `src/components/marketing/ABProvider.tsx` | S |
+| 5 | **Analytics Dashboard (Admin)** — funnel visualization, conversion rates, cohort retention chart, revenue per channel | New: `src/components/admin/AnalyticsDashboard.tsx` | L |
 
-### Fix 3: Mobile door interaction
-- For `deviceType === 'phone'`, render the Artist/Engineer doors as visible, tappable glassmorphic cards below the hallway image (similar to PlazaGateway's two-card layout) instead of invisible overlay hitboxes
+### 8B: Enterprise & Scaling
 
-### Fix 4: Consolidate duplicate Sign In
-- Remove the "Been here before?" duplicate pill at the bottom
-- Keep only the main Sign In button in the CTA stack
+| # | Task | Files | Effort |
+|---|------|-------|--------|
+| 1 | **API Rate Limiter v2** — sliding window per-user rate limiting with Redis-like pattern in Postgres, enforcement in edge functions | Edit: `_shared/rate-limiter.ts`, migration | M |
+| 2 | **Performance Optimization** — React.memo critical components, virtualized lists for large datasets (notifications, beat catalog), image lazy loading audit | Edit: multiple hub components | M |
+| 3 | **White-Label Config Table** — `platform_config` table for branding overrides (logo, colors, domain), resolved at app init | New: migration, `usePlatformConfig` hook | M |
+| 4 | **Bulk Operations** — batch approve/reject projects, bulk payout processing, CSV export for admin tables | Edit: admin components | M |
+| 5 | **CDN & Asset Pipeline** — storage bucket policies for public assets, signed URL generation for premium content, cache headers | Edit: storage config, edge functions | S |
 
-### Fix 5: BackButton parent route fix
-- Change `/for-artists` and `/for-engineers` parent routes from `/home` to `/` so the Back button returns to the hallway
+### 8C: Creator Tools
 
-### Fix 6: Add descriptive alt text
-- Update `ShowcaseJourney` and `ShowcaseFeature` components to pass meaningful `alt` props to their images based on the step/feature title
+| # | Task | Files | Effort |
+|---|------|-------|--------|
+| 1 | **AI Mastering Pipeline v2** — chain: upload → analyze → apply preset → preview → download, using Lovable AI for analysis + recommendations | Edit: `advanced-mastering` edge function, new UI components | L |
+| 2 | **Stem Separation UI** — upload track → separate vocals/drums/bass/other → download individual stems, powered by existing `stem-separation` edge function | New: `src/components/studio/StemSeparator.tsx` | M |
+| 3 | **Beat Marketplace Enhancements** — waveform previews on cards, instant purchase flow, license comparison modal, producer analytics | Edit: ProducerCatalogHub, beat components | M |
+| 4 | **Sample Pack Builder** — bundle beats + stems + loops into downloadable packs with pricing tiers | New: migration + UI + edge function | L |
+| 5 | **Collaboration Templates** — pre-configured session setups (vocal recording, mixing review, mastering approval) with auto-generated checklists | New: `src/components/sessions/SessionTemplates.tsx` | S |
 
-### Fix 7: SceneFlow nav pill styling
-- On mobile, collapse the nav pill to just the "Quick Start" link with smaller padding to avoid overlapping the neon signage
+### 8D: Community & Social
 
----
+| # | Task | Files | Effort |
+|---|------|-------|--------|
+| 1 | **Live Stream Integration** — go-live button in sessions, viewer count, real-time chat sidebar, gift animations using existing `live_streams` + `stream_gifts` tables | New: `src/components/live/LiveStreamView.tsx` | L |
+| 2 | **Battle League Seasons** — seasonal brackets, leaderboard reset, trophy case on profiles, season pass with exclusive rewards | Edit: battle components, new migration for `battle_seasons` | L |
+| 3 | **Fan Engagement Hub** — Day 1 badge showcase, artist milestone timeline, fan leaderboard per artist, engagement streak rewards | New: `src/components/community/FanEngagementHub.tsx` | M |
+| 4 | **Enhanced Chat** — threaded replies, emoji reactions, file sharing in DMs, read receipts using existing `messages` table | Edit: messaging components | M |
+| 5 | **Community Challenges** — weekly/monthly creative challenges (remix contest, beat battle, mixing challenge) with voting + prizes | New: migration + `src/components/community/ChallengesHub.tsx` | L |
 
-## Files to Modify
-- `src/components/scene/StudioHallwayV2.tsx` — Fixes 1, 3, 4
-- `src/components/mobile/AppOnboarding.tsx` — Fix 2
-- `src/components/navigation/BackButton.tsx` — Fix 5
-- `src/components/landing/ShowcaseJourney.tsx` — Fix 6
-- `src/components/services/ShowcaseFeature.tsx` — Fix 6
-- `src/components/home/SceneFlow.tsx` — Fix 7
+### Execution Order (recommended)
 
-## No database changes needed
+```
+Sprint 1 (8A.1-2 + 8B.1-2):  Referral Dashboard, SEO, Rate Limiter, Performance
+Sprint 2 (8A.3-4 + 8C.1-2):  OG Images, A/B Framework, AI Mastering v2, Stem Sep UI
+Sprint 3 (8C.3-4 + 8D.1-2):  Beat Marketplace, Sample Packs, Live Streams, Battle Seasons
+Sprint 4 (8D.3-5 + 8A.5 + 8B.3-5): Fan Hub, Chat, Challenges, Analytics, White-Label, Bulk Ops
+```
 
+### Acceptance Criteria
+- Every feature uses GlassPanel/HubHeader design tokens — no raw colors
+- All new tables have RLS policies
+- Mobile-first responsive at 375px
+- Zero placeholder copy (Zero Placeholder Clause)
+- Edge functions use `_shared/cors.ts` + `_shared/auth.ts`
+- Performance: no new component >50KB unbundled

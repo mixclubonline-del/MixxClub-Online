@@ -62,7 +62,7 @@ export function ShowcaseJourney({ badge, title, subtitle, steps, variant }: Show
                 <div className="relative overflow-hidden rounded-2xl border border-border/50 shadow-2xl">
                   <img
                     src={step.image}
-                    alt={step.title}
+                    alt={`Step ${step.stepNumber}: ${step.title}`}
                     className="w-full aspect-video object-cover transition-transform duration-700 group-hover:scale-105"
                     loading="lazy"
                   />

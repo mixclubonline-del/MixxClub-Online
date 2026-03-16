@@ -145,7 +145,7 @@ function VerticalSceneFlow() {
         </motion.button>
       ) : (
         <motion.div
-          className="mg-panel fixed top-4 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-2 px-3 py-1.5 max-w-[calc(100vw-2rem)]"
+          className="mg-panel fixed top-4 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-2 px-2 py-1 sm:px-3 sm:py-1.5 max-w-[calc(100vw-2rem)]"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: scene === 'HALLWAY' ? 2 : 0.3 }}
@@ -160,7 +160,7 @@ function VerticalSceneFlow() {
               >
                 Home
               </button>
-              <span className="text-muted-foreground/40">•</span>
+              <span className="text-muted-foreground/40 hidden sm:inline">•</span>
             </>
           )}
           <Link
@@ -170,10 +170,10 @@ function VerticalSceneFlow() {
           >
             Quick Start
           </Link>
-          <span className="text-muted-foreground/40">•</span>
+          <span className="text-muted-foreground/40 hidden sm:inline">•</span>
           <Link
             to="/home"
-            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors hidden sm:inline"
             aria-label="Go to sign up"
           >
             Join Free
