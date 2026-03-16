@@ -8,6 +8,7 @@ import { PayoutRequestForm } from './PayoutRequestForm';
 import { PayoutHistory } from './PayoutHistory';
 import { RevenueAnalytics } from '@/hooks/useRevenueStreams';
 import { StripeConnectCard } from '@/components/engineer/StripeConnectCard';
+import { StripeConnectWizard } from '@/components/engineer/StripeConnectWizard';
 import { EngineerPayoutsTable } from '@/components/engineer/EngineerPayoutsTable';
 import { useStripeConnect } from '@/hooks/useStripeConnect';
 import { useEngineerPayouts } from '@/hooks/useEngineerPayouts';
