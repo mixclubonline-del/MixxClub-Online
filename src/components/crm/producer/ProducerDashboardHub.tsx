@@ -12,6 +12,7 @@ import { useStripeConnect } from '@/hooks/useStripeConnect';
 export const ProducerDashboardHub = () => {
   const { analytics, loading } = useProducerRevenueStreams();
   const { data: personalUnlockables, isLoading: unlockablesLoading } = usePersonalUnlockables('producer');
+  const { canReceivePayouts, isLoading: stripeLoading } = useStripeConnect();
 
   const hasData = !loading && analytics && (analytics.totalBeatsSold > 0 || analytics.totalRevenue > 0);
 
