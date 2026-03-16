@@ -48,6 +48,8 @@ import { OnboardingReminder } from '@/components/crm/OnboardingReminder';
 import { isStarterHub } from '@/config/starterFeatures';
 import { FeatureGated } from '@/components/backend/FeatureGated';
 import { HubSkeleton } from '@/components/crm/design';
+import { StripeConnectWizard } from '@/components/engineer/StripeConnectWizard';
+import { useStripeConnect } from '@/hooks/useStripeConnect';
 
 // Lazy-loaded hub components for code splitting
 const MusicHub = lazy(() => import('@/components/crm/MusicHub').then(m => ({ default: m.MusicHub })));
