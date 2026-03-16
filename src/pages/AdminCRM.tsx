@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { CRMPortal } from '@/components/crm/CRMPortal';
-import { Users, Headphones, DollarSign, Shield, Activity, Eye, Brain, Rocket } from 'lucide-react';
+import { Users, Headphones, DollarSign, Shield, Activity, Eye, Brain, Rocket, Flag, ToggleLeft } from 'lucide-react';
 import { useAdminPreview } from '@/stores/useAdminPreview';
 import { toast } from 'sonner';
 
@@ -26,6 +26,8 @@ import { AdminPartnershipsHub } from '@/components/admin/AdminPartnershipsHub';
 import { AdminBroadcastHub } from '@/components/admin/AdminBroadcastHub';
 import { AdminLaunchHub } from '@/components/admin/AdminLaunchHub';
 import { AdminScreenshotTool } from '@/components/admin/AdminScreenshotTool';
+import { AdminModerationQueue } from '@/components/admin/AdminModerationQueue';
+import { AdminFeatureFlagsHub } from '@/components/admin/AdminFeatureFlagsHub';
 import { lazy, Suspense } from 'react';
 const PromoStudio = lazy(() => import('@/pages/PromoStudio'));
 
@@ -176,6 +178,10 @@ const AdminCRM = () => {
         return <AdminRevenueHub />;
       case 'content':
         return <AdminContentHub />;
+      case 'moderation':
+        return <AdminModerationQueue />;
+      case 'features':
+        return <AdminFeatureFlagsHub />;
       case 'community':
         return <AdminCommunityHub />;
       case 'assets':

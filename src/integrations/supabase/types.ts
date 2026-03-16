@@ -717,6 +717,7 @@ export type Database = {
           id: string
           job_id: string | null
           mime_type: string | null
+          moderation_status: string
           project_id: string | null
           uploaded_by: string | null
           user_id: string
@@ -732,6 +733,7 @@ export type Database = {
           id?: string
           job_id?: string | null
           mime_type?: string | null
+          moderation_status?: string
           project_id?: string | null
           uploaded_by?: string | null
           user_id: string
@@ -747,6 +749,7 @@ export type Database = {
           id?: string
           job_id?: string | null
           mime_type?: string | null
+          moderation_status?: string
           project_id?: string | null
           uploaded_by?: string | null
           user_id?: string
@@ -1761,6 +1764,45 @@ export type Database = {
           name?: string
           phone?: string | null
           status?: string | null
+        }
+        Relationships: []
+      }
+      content_reports: {
+        Row: {
+          content_id: string
+          content_type: string
+          created_at: string
+          details: string | null
+          id: string
+          reason: string
+          reporter_id: string
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string
+        }
+        Insert: {
+          content_id: string
+          content_type: string
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason: string
+          reporter_id: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+        }
+        Update: {
+          content_id?: string
+          content_type?: string
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason?: string
+          reporter_id?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
         }
         Relationships: []
       }
@@ -3463,6 +3505,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      feature_flags: {
+        Row: {
+          description: string | null
+          enabled: boolean
+          key: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          description?: string | null
+          enabled?: boolean
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          description?: string | null
+          enabled?: boolean
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
       }
       financial_actions_log: {
         Row: {
@@ -6789,6 +6855,7 @@ export type Database = {
           genre_specialties: Json | null
           id: string
           is_available_for_collab: boolean | null
+          is_suspended: boolean
           is_verified: boolean | null
           last_active_at: string | null
           level: number | null
@@ -6807,6 +6874,8 @@ export type Database = {
           status_text: string | null
           stripe_connect_account_id: string | null
           stripe_customer_id: string | null
+          suspended_at: string | null
+          suspension_reason: string | null
           tagline: string | null
           total_xp: number | null
           updated_at: string
@@ -6826,6 +6895,7 @@ export type Database = {
           genre_specialties?: Json | null
           id: string
           is_available_for_collab?: boolean | null
+          is_suspended?: boolean
           is_verified?: boolean | null
           last_active_at?: string | null
           level?: number | null
@@ -6844,6 +6914,8 @@ export type Database = {
           status_text?: string | null
           stripe_connect_account_id?: string | null
           stripe_customer_id?: string | null
+          suspended_at?: string | null
+          suspension_reason?: string | null
           tagline?: string | null
           total_xp?: number | null
           updated_at?: string
@@ -6863,6 +6935,7 @@ export type Database = {
           genre_specialties?: Json | null
           id?: string
           is_available_for_collab?: boolean | null
+          is_suspended?: boolean
           is_verified?: boolean | null
           last_active_at?: string | null
           level?: number | null
@@ -6881,6 +6954,8 @@ export type Database = {
           status_text?: string | null
           stripe_connect_account_id?: string | null
           stripe_customer_id?: string | null
+          suspended_at?: string | null
+          suspension_reason?: string | null
           tagline?: string | null
           total_xp?: number | null
           updated_at?: string

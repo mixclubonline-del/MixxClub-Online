@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { AdminSeedingPanel } from './AdminSeedingPanel';
 import { PayoutProcessingControl } from './PayoutProcessingControl';
+import { AdminHealthDashboard } from './AdminHealthDashboard';
 import { format } from 'date-fns';
 import { useLaunchMode, useUpdateConfig } from '@/hooks/usePlatformConfig';
 import { useWaitlistStats, useWaitlistEntries, useSendInvite } from '@/hooks/useWaitlist';
@@ -129,6 +130,13 @@ export const AdminSystemHub = () => {
 
   return (
     <div className="space-y-6">
+      {/* System Health Dashboard */}
+      <Card className="bg-background/50 backdrop-blur-sm border-border/50">
+        <CardContent className="p-4">
+          <AdminHealthDashboard />
+        </CardContent>
+      </Card>
+
       {/* ═══ Launch Mode + Waitlist Stats ═══ */}
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Launch Mode Control */}

@@ -6,7 +6,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
-import { User, Briefcase, DollarSign, Trophy, Activity, Shield, Star } from 'lucide-react';
+import { User, Briefcase, DollarSign, Trophy, Activity, Shield, Star, Ban } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -84,6 +84,24 @@ export const AdminUserDetail = ({ userId, onClose }: AdminUserDetailProps) => {
                 </div>
               </div>
             </div>
+
+            {/* Suspension Banner */}
+            {d.profile.is_suspended && (
+              <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 mb-6 flex items-start gap-2">
+                <Ban className="w-4 h-4 text-destructive mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-destructive">Account Suspended</p>
+                  {d.profile.suspension_reason && (
+                    <p className="text-xs text-muted-foreground mt-0.5">{d.profile.suspension_reason}</p>
+                  )}
+                  {d.profile.suspended_at && (
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Since {format(new Date(d.profile.suspended_at), 'MMM d, yyyy')}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Stats Row */}
             <div className="grid grid-cols-3 gap-3 mb-6">

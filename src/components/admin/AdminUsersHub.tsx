@@ -1,14 +1,25 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, ChevronLeft, ChevronRight, UserPlus, Shield, Eye } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, UserPlus, Shield, Eye, Ban, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { AdminUserDetail } from './AdminUserDetail';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const ROLES = ['artist', 'engineer', 'producer', 'fan', 'admin'] as const;
 const PAGE_SIZE = 20;
@@ -21,6 +32,8 @@ export const AdminUsersHub = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [suspendTarget, setSuspendTarget] = useState<{ id: string; name: string; isSuspended: boolean } | null>(null);
+  const [suspendReason, setSuspendReason] = useState('');
 
   useEffect(() => {
     fetchUsers();
@@ -45,7 +58,6 @@ export const AdminUsersHub = () => {
       setUsers(data || []);
       setTotalCount(count || 0);
 
-      // Fetch roles for all users on this page
       const userIds = data?.map((u) => u.id) || [];
       if (userIds.length > 0) {
         const { data: roles } = await supabase
@@ -113,6 +125,44 @@ export const AdminUsersHub = () => {
     }
   };
 
+  const handleSuspendToggle = async () => {
+    if (!suspendTarget) return;
+
+    try {
+      if (suspendTarget.isSuspended) {
+        // Unsuspend
+        const { error } = await supabase
+          .from('profiles')
+          .update({ is_suspended: false, suspended_at: null, suspension_reason: null })
+          .eq('id', suspendTarget.id);
+
+        if (error) throw error;
+        toast.success(`${suspendTarget.name} has been unsuspended`);
+      } else {
+        // Suspend
+        const { error } = await supabase
+          .from('profiles')
+          .update({
+            is_suspended: true,
+            suspended_at: new Date().toISOString(),
+            suspension_reason: suspendReason || 'Suspended by admin',
+          })
+          .eq('id', suspendTarget.id);
+
+        if (error) throw error;
+        toast.success(`${suspendTarget.name} has been suspended`);
+      }
+
+      fetchUsers();
+    } catch (error) {
+      console.error('Suspension action failed:', error);
+      toast.error('Failed to update suspension status');
+    } finally {
+      setSuspendTarget(null);
+      setSuspendReason('');
+    }
+  };
+
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
   const ROLE_COLORS: Record<string, string> = {
@@ -157,16 +207,24 @@ export const AdminUsersHub = () => {
         <div className="space-y-3">
           {users.map((user) => {
             const roles = userRolesMap[user.id] || [];
+            const isSuspended = user.is_suspended;
             return (
-              <Card key={user.id} className="bg-background/50 backdrop-blur-sm border-border/50">
+              <Card key={user.id} className={`bg-background/50 backdrop-blur-sm border-border/50 ${isSuspended ? 'opacity-60 border-destructive/30' : ''}`}>
                 <CardContent className="p-4">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="flex items-center gap-3 cursor-pointer" onClick={() => setSelectedUserId(user.id)}>
-                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-sm font-bold text-primary shrink-0">
-                        {user.full_name?.charAt(0) || '?'}
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${isSuspended ? 'bg-destructive/20 text-destructive' : 'bg-primary/20 text-primary'}`}>
+                        {isSuspended ? <Ban className="w-4 h-4" /> : user.full_name?.charAt(0) || '?'}
                       </div>
                       <div>
-                        <p className="font-medium text-foreground hover:text-primary transition-colors">{user.full_name || 'Unnamed User'}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium text-foreground hover:text-primary transition-colors">{user.full_name || 'Unnamed User'}</p>
+                          {isSuspended && (
+                            <Badge variant="outline" className="text-[10px] bg-destructive/10 text-destructive border-destructive/30">
+                              Suspended
+                            </Badge>
+                          )}
+                        </div>
                         <p className="text-xs text-muted-foreground">{user.email || user.id.slice(0, 8)}</p>
                         <p className="text-xs text-muted-foreground">
                           Joined {format(new Date(user.created_at), 'MMM d, yyyy')}
@@ -184,6 +242,18 @@ export const AdminUsersHub = () => {
                       >
                         <Eye className="w-3.5 h-3.5" />
                       </Button>
+
+                      {/* Suspend/Unsuspend Button */}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className={`h-7 w-7 ${isSuspended ? 'text-green-500 hover:text-green-400' : 'text-destructive hover:text-destructive/80'}`}
+                        onClick={() => setSuspendTarget({ id: user.id, name: user.full_name || 'User', isSuspended })}
+                        title={isSuspended ? 'Unsuspend user' : 'Suspend user'}
+                      >
+                        {isSuspended ? <CheckCircle className="w-3.5 h-3.5" /> : <Ban className="w-3.5 h-3.5" />}
+                      </Button>
+
                       {roles.map((role) => (
                         <Badge
                           key={role}
@@ -202,7 +272,7 @@ export const AdminUsersHub = () => {
                           <UserPlus className="w-3 h-3 mr-1" />
                           <SelectValue placeholder="Add role" />
                         </SelectTrigger>
-        <SelectContent>
+                        <SelectContent>
                           {ROLES.filter((r) => !roles.includes(r as string)).map((r) => (
                             <SelectItem key={r} value={r} className="capitalize">{r}</SelectItem>
                           ))}
@@ -219,6 +289,50 @@ export const AdminUsersHub = () => {
 
       {/* User Detail Slide-Over */}
       <AdminUserDetail userId={selectedUserId} onClose={() => setSelectedUserId(null)} />
+
+      {/* Suspend/Unsuspend Confirmation Dialog */}
+      <AlertDialog open={!!suspendTarget} onOpenChange={(open) => { if (!open) { setSuspendTarget(null); setSuspendReason(''); } }}>
+        <AlertDialogContent className="bg-card border-border">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              {suspendTarget?.isSuspended ? (
+                <><CheckCircle className="w-5 h-5 text-green-500" /> Unsuspend {suspendTarget?.name}</>
+              ) : (
+                <><Ban className="w-5 h-5 text-destructive" /> Suspend {suspendTarget?.name}</>
+              )}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {suspendTarget?.isSuspended
+                ? 'This will restore the user\'s access to the platform.'
+                : 'This will immediately block the user from accessing the platform. They will be signed out and shown a suspension notice.'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          {!suspendTarget?.isSuspended && (
+            <div className="py-2">
+              <Textarea
+                placeholder="Reason for suspension (shown to the user)..."
+                value={suspendReason}
+                onChange={(e) => setSuspendReason(e.target.value)}
+                className="bg-background/50 resize-none"
+                rows={3}
+              />
+            </div>
+          )}
+
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-border/50">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleSuspendToggle}
+              className={suspendTarget?.isSuspended
+                ? 'bg-green-600 hover:bg-green-700 text-white'
+                : 'bg-destructive text-destructive-foreground hover:bg-destructive/90'}
+            >
+              {suspendTarget?.isSuspended ? 'Unsuspend' : 'Suspend User'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
