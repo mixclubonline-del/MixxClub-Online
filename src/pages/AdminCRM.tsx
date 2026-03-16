@@ -26,6 +26,8 @@ import { AdminPartnershipsHub } from '@/components/admin/AdminPartnershipsHub';
 import { AdminBroadcastHub } from '@/components/admin/AdminBroadcastHub';
 import { AdminLaunchHub } from '@/components/admin/AdminLaunchHub';
 import { AdminScreenshotTool } from '@/components/admin/AdminScreenshotTool';
+import { AdminModerationQueue } from '@/components/admin/AdminModerationQueue';
+import { AdminFeatureFlagsHub } from '@/components/admin/AdminFeatureFlagsHub';
 import { lazy, Suspense } from 'react';
 const PromoStudio = lazy(() => import('@/pages/PromoStudio'));
 
