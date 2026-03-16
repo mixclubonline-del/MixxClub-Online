@@ -30,6 +30,7 @@ import OrderSuccess from "@/pages/OrderSuccess";
 import Checkout from "@/pages/Checkout";
 import PaymentCanceled from "@/pages/PaymentCanceled";
 import PaymentSuccess from "@/pages/PaymentSuccess";
+const Billing = React.lazy(() => import("@/pages/Billing"));
 import MyCertifications from "@/pages/MyCertifications";
 import Tutorials from "@/pages/Tutorials";
 import MessagingTest from "@/pages/MessagingTest";
