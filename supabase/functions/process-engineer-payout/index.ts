@@ -48,7 +48,7 @@ serve(async (req) => {
       apiVersion: '2025-08-27.basil',
     });
 
-    // Get all pending payouts
+    // Get all pending or retryable payouts
     const { data: pendingPayouts, error: payoutsError } = await supabaseAdmin
       .from('engineer_payouts')
       .select(`
@@ -60,7 +60,7 @@ serve(async (req) => {
           email
         )
       `)
-      .eq('status', 'pending');
+      .or('status.eq.pending,and(status.eq.retry_pending,next_retry_at.lte.' + new Date().toISOString() + ')');
 
     if (payoutsError) {
       throw new Error(`Failed to fetch pending payouts: ${payoutsError.message}`);
