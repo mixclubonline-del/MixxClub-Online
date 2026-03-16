@@ -1,17 +1,21 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   DollarSign, TrendingUp, CreditCard, ArrowUpRight, AlertTriangle,
-  RefreshCw, Shield, BarChart3, Users, Loader2, ArrowDownRight, Receipt, Zap
+  RefreshCw, Shield, BarChart3, Users, Loader2, ArrowDownRight, Receipt, Zap, LineChart as LineChartIcon
 } from 'lucide-react';
 import { AdminStripeCommandCenter } from './AdminStripeCommandCenter';
+import { RevenueFilters, type DateRange } from './RevenueFilters';
+import { ReconciliationDetails } from './ReconciliationDetails';
+import { ForecastVsActuals } from './ForecastVsActuals';
+import { exportToCSV, exportToJSON, prepareTaxExport } from '@/utils/csvExport';
 import { format, subDays, startOfDay } from 'date-fns';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, Legend
+  ResponsiveContainer, PieChart, Pie, Cell, Legend
 } from 'recharts';
 import { toast } from 'sonner';
 
@@ -65,6 +69,7 @@ export const AdminRevenueHub = () => {
   const [loading, setLoading] = useState(true);
   const [reconciling, setReconciling] = useState(false);
   const [reconciliationReport, setReconciliationReport] = useState<any>(null);
+  const [dateRange, setDateRange] = useState<DateRange>({ from: undefined, to: undefined });
 
   useEffect(() => {
     fetchAllData();
@@ -82,12 +87,12 @@ export const AdminRevenueHub = () => {
           .from('payments')
           .select('*')
           .order('created_at', { ascending: false })
-          .limit(500),
+          .limit(1000),
         supabase
           .from('engineer_payouts')
           .select('*')
           .order('created_at', { ascending: false })
-          .limit(200),
+          .limit(500),
         supabase
           .from('admin_security_events')
           .select('*')
@@ -107,10 +112,35 @@ export const AdminRevenueHub = () => {
     }
   };
 
+  // Filter data by date range
+  const filteredPayments = useMemo(() => {
+    if (!dateRange.from && !dateRange.to) return payments;
+    return payments.filter(p => {
+      const d = new Date(p.created_at);
+      if (dateRange.from && d < dateRange.from) return false;
+      if (dateRange.to && d > dateRange.to) return false;
+      return true;
+    });
+  }, [payments, dateRange]);
+
+  const filteredPayouts = useMemo(() => {
+    if (!dateRange.from && !dateRange.to) return payouts;
+    return payouts.filter(p => {
+      const d = new Date(p.created_at);
+      if (dateRange.from && d < dateRange.from) return false;
+      if (dateRange.to && d > dateRange.to) return false;
+      return true;
+    });
+  }, [payouts, dateRange]);
+
   const runReconciliation = async () => {
     setReconciling(true);
     try {
-      const { data, error } = await supabase.functions.invoke('financial-reconciliation');
+      const body: any = {};
+      if (dateRange.from) body.start_date = dateRange.from.toISOString();
+      if (dateRange.to) body.end_date = dateRange.to.toISOString();
+
+      const { data, error } = await supabase.functions.invoke('financial-reconciliation', { body });
       if (error) throw error;
       setReconciliationReport(data);
       toast.success('Reconciliation complete');
@@ -122,24 +152,51 @@ export const AdminRevenueHub = () => {
     }
   };
 
+  // Export handlers
+  const handleExportCSV = useCallback(() => {
+    const data = filteredPayments.map(p => ({
+      Date: format(new Date(p.created_at), 'yyyy-MM-dd'),
+      Amount: p.amount,
+      Type: p.package_type || p.payment_type || 'payment',
+      Status: p.status,
+      Currency: p.currency || 'usd',
+      Refund: p.refund_amount || 0,
+    }));
+    exportToCSV(data, 'mixxclub-transactions');
+    toast.success('CSV exported');
+  }, [filteredPayments]);
+
+  const handleExportJSON = useCallback(() => {
+    exportToJSON(filteredPayments, 'mixxclub-transactions');
+    toast.success('JSON exported');
+  }, [filteredPayments]);
+
+  const handleTaxExport = useCallback(() => {
+    if (reconciliationReport?.tax_line_items) {
+      const rows = prepareTaxExport(reconciliationReport.tax_line_items);
+      exportToCSV(rows, 'mixxclub-tax-report');
+      toast.success('Tax-ready CSV exported');
+    } else {
+      toast.error('Run reconciliation first to generate tax data');
+    }
+  }, [reconciliationReport]);
+
   // --- Derived metrics ---
   const metrics = useMemo(() => {
-    const completed = payments.filter(p => p.status === 'completed');
+    const completed = filteredPayments.filter(p => p.status === 'completed');
     const totalRevenue = completed.reduce((s, p) => s + (p.amount || 0), 0);
-    const pendingPayments = payments.filter(p => p.status === 'pending');
-    const refunded = payments.filter(p => p.status === 'refunded');
+    const pendingPayments = filteredPayments.filter(p => p.status === 'pending');
+    const refunded = filteredPayments.filter(p => p.status === 'refunded');
     const totalRefunds = refunded.reduce((s, p) => s + (p.refund_amount || p.amount || 0), 0);
-    const totalPayouts = payouts.filter(p => p.status === 'completed').reduce((s, p) => s + (p.net_amount || 0), 0);
-    const platformFees = payouts.filter(p => p.status === 'completed').reduce((s, p) => s + (p.platform_fee || 0), 0);
+    const totalPayouts = filteredPayouts.filter(p => p.status === 'completed').reduce((s, p) => s + (p.net_amount || 0), 0);
+    const platformFees = filteredPayouts.filter(p => p.status === 'completed').reduce((s, p) => s + (p.platform_fee || 0), 0);
     const netPlatformRevenue = totalRevenue - totalPayouts - totalRefunds;
     const openDisputes = disputes.filter(d => d.event_type === 'stripe_dispute' && !d.is_resolved).length;
     const failedPayments = disputes.filter(d => d.event_type === 'payment_failed').length;
 
-    // Subscriptions vs one-time
     const subscriptionRevenue = completed.filter(p => p.payment_type === 'subscription').reduce((s, p) => s + (p.amount || 0), 0);
     const oneTimeRevenue = totalRevenue - subscriptionRevenue;
 
-    // Last 7 days vs previous 7 days
     const now = new Date();
     const sevenDaysAgo = subDays(now, 7);
     const fourteenDaysAgo = subDays(now, 14);
@@ -154,9 +211,9 @@ export const AdminRevenueHub = () => {
       totalRevenue, totalPayouts, totalRefunds, netPlatformRevenue, platformFees,
       pendingCount: pendingPayments.length, refundedCount: refunded.length,
       openDisputes, failedPayments, subscriptionRevenue, oneTimeRevenue,
-      thisWeek, lastWeek, weeklyTrend, totalTransactions: payments.length,
+      thisWeek, lastWeek, weeklyTrend, totalTransactions: filteredPayments.length,
     };
-  }, [payments, payouts, disputes]);
+  }, [filteredPayments, filteredPayouts, disputes]);
 
   // --- Chart data ---
   const revenueChartData = useMemo(() => {
@@ -165,38 +222,38 @@ export const AdminRevenueHub = () => {
       return { date, dateStr: format(date, 'MMM d'), revenue: 0, payouts: 0, refunds: 0 };
     });
 
-    const completed = payments.filter(p => p.status === 'completed');
+    const completed = filteredPayments.filter(p => p.status === 'completed');
     completed.forEach(p => {
       const day = startOfDay(new Date(p.created_at));
       const entry = last30.find(d => d.date.getTime() === day.getTime());
       if (entry) entry.revenue += p.amount || 0;
     });
 
-    payouts.filter(p => p.status === 'completed').forEach(p => {
+    filteredPayouts.filter(p => p.status === 'completed').forEach(p => {
       const day = startOfDay(new Date(p.created_at));
       const entry = last30.find(d => d.date.getTime() === day.getTime());
       if (entry) entry.payouts += p.net_amount || 0;
     });
 
-    payments.filter(p => p.status === 'refunded').forEach(p => {
+    filteredPayments.filter(p => p.status === 'refunded').forEach(p => {
       const day = startOfDay(new Date(p.created_at));
       const entry = last30.find(d => d.date.getTime() === day.getTime());
       if (entry) entry.refunds += (p.refund_amount || p.amount || 0);
     });
 
     return last30;
-  }, [payments, payouts]);
+  }, [filteredPayments, filteredPayouts]);
 
   const revenueByType = useMemo(() => {
     const typeMap: Record<string, number> = {};
-    payments.filter(p => p.status === 'completed').forEach(p => {
+    filteredPayments.filter(p => p.status === 'completed').forEach(p => {
       const type = p.package_type || p.payment_type || 'other';
       typeMap[type] = (typeMap[type] || 0) + (p.amount || 0);
     });
     return Object.entries(typeMap)
       .map(([name, value]) => ({ name, value: Math.round(value * 100) / 100 }))
       .sort((a, b) => b.value - a.value);
-  }, [payments]);
+  }, [filteredPayments]);
 
   if (loading) {
     return (
@@ -208,6 +265,16 @@ export const AdminRevenueHub = () => {
 
   return (
     <div className="space-y-6">
+      {/* Filter Bar */}
+      <RevenueFilters
+        dateRange={dateRange}
+        onDateRangeChange={setDateRange}
+        onExportCSV={handleExportCSV}
+        onExportJSON={handleExportJSON}
+        onExportTax={handleTaxExport}
+        showTaxExport={!!reconciliationReport}
+      />
+
       {/* Top Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
@@ -280,13 +347,13 @@ export const AdminRevenueHub = () => {
           <TabsTrigger value="transactions" className="gap-1.5"><CreditCard className="w-4 h-4" /> Transactions</TabsTrigger>
           <TabsTrigger value="payouts" className="gap-1.5"><Users className="w-4 h-4" /> Payouts</TabsTrigger>
           <TabsTrigger value="reconciliation" className="gap-1.5"><Shield className="w-4 h-4" /> Reconciliation</TabsTrigger>
+          <TabsTrigger value="forecast" className="gap-1.5"><LineChartIcon className="w-4 h-4" /> Forecast</TabsTrigger>
           <TabsTrigger value="stripe" className="gap-1.5"><Zap className="w-4 h-4" /> Stripe</TabsTrigger>
         </TabsList>
 
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Revenue Chart */}
             <Card className="lg:col-span-2 bg-background/50 backdrop-blur-sm border-border/50">
               <CardHeader className="pb-2">
                 <CardTitle className="text-base">Revenue & Payouts (30 Days)</CardTitle>
@@ -321,7 +388,6 @@ export const AdminRevenueHub = () => {
               </CardContent>
             </Card>
 
-            {/* Revenue by Type */}
             <Card className="bg-background/50 backdrop-blur-sm border-border/50">
               <CardHeader className="pb-2">
                 <CardTitle className="text-base">Revenue by Type</CardTitle>
@@ -358,7 +424,6 @@ export const AdminRevenueHub = () => {
             </Card>
           </div>
 
-          {/* Subscription vs One-time */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Card className="bg-background/50 backdrop-blur-sm border-border/50">
               <CardContent className="p-4 flex items-center gap-3">
@@ -389,7 +454,7 @@ export const AdminRevenueHub = () => {
         <TabsContent value="transactions" className="space-y-4">
           <Card className="bg-background/50 backdrop-blur-sm border-border/50">
             <CardHeader className="pb-3 flex flex-row items-center justify-between">
-              <CardTitle className="text-base">Recent Payments</CardTitle>
+              <CardTitle className="text-base">Payments ({filteredPayments.length})</CardTitle>
               <Button variant="ghost" size="sm" onClick={fetchAllData}>
                 <RefreshCw className="w-4 h-4 mr-1" /> Refresh
               </Button>
@@ -406,10 +471,10 @@ export const AdminRevenueHub = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {payments.length === 0 ? (
+                    {filteredPayments.length === 0 ? (
                       <tr><td colSpan={4} className="text-center py-8 text-muted-foreground">No payments recorded</td></tr>
                     ) : (
-                      payments.slice(0, 30).map(payment => (
+                      filteredPayments.slice(0, 100).map(payment => (
                         <tr key={payment.id} className="border-b border-border/20">
                           <td className="py-2.5 font-medium">
                             ${(payment.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
@@ -443,7 +508,7 @@ export const AdminRevenueHub = () => {
               icon={<DollarSign className="w-5 h-5" />}
               iconBg="bg-green-500/10"
               iconColor="text-green-500"
-              value={`$${payouts.filter(p => p.status === 'completed').reduce((s, p) => s + (p.gross_amount || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+              value={`$${filteredPayouts.filter(p => p.status === 'completed').reduce((s, p) => s + (p.gross_amount || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
               label="Gross Payouts"
             />
             <StatCard
@@ -457,14 +522,14 @@ export const AdminRevenueHub = () => {
               icon={<CreditCard className="w-5 h-5" />}
               iconBg="bg-yellow-500/10"
               iconColor="text-yellow-500"
-              value={payouts.filter(p => p.status === 'pending').length.toString()}
+              value={filteredPayouts.filter(p => p.status === 'pending').length.toString()}
               label="Pending Payouts"
             />
           </div>
 
           <Card className="bg-background/50 backdrop-blur-sm border-border/50">
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">Engineer Payouts</CardTitle>
+              <CardTitle className="text-base">Engineer Payouts ({filteredPayouts.length})</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
@@ -479,10 +544,10 @@ export const AdminRevenueHub = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {payouts.length === 0 ? (
+                    {filteredPayouts.length === 0 ? (
                       <tr><td colSpan={5} className="text-center py-8 text-muted-foreground">No payouts recorded</td></tr>
                     ) : (
-                      payouts.slice(0, 25).map(payout => (
+                      filteredPayouts.slice(0, 100).map(payout => (
                         <tr key={payout.id} className="border-b border-border/20">
                           <td className="py-2.5">${(payout.gross_amount || 0).toFixed(2)}</td>
                           <td className="py-2.5 text-muted-foreground">${(payout.platform_fee || 0).toFixed(2)}</td>
@@ -523,11 +588,18 @@ export const AdminRevenueHub = () => {
                     <MiniStat label="Platform Earnings" value={`$${reconciliationReport.summary.platform_earnings.toLocaleString()}`} />
                     <MiniStat label="Commission Rate" value={reconciliationReport.summary.effective_commission_rate} />
                   </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <MiniStat label="Payments Processed" value={reconciliationReport.summary.total_payments_processed} />
-                    <MiniStat label="Active Subscriptions" value={reconciliationReport.summary.active_subscriptions} />
+                    <MiniStat label="Mastering Subs" value={reconciliationReport.summary.mastering_subscriptions ?? reconciliationReport.summary.active_subscriptions} />
+                    <MiniStat label="User Subs" value={reconciliationReport.summary.user_subscriptions ?? 0} />
                     <MiniStat label="Discrepancies" value={reconciliationReport.summary.discrepancies_found} highlight={reconciliationReport.summary.discrepancies_found > 0} />
                   </div>
+                  {reconciliationReport.date_range?.start_date && (
+                    <p className="text-xs text-muted-foreground">
+                      Date range: {format(new Date(reconciliationReport.date_range.start_date), 'MMM d, yyyy')}
+                      {reconciliationReport.date_range.end_date && ` – ${format(new Date(reconciliationReport.date_range.end_date), 'MMM d, yyyy')}`}
+                    </p>
+                  )}
                   <p className="text-xs text-muted-foreground">
                     Generated at {format(new Date(reconciliationReport.generated_at), 'PPpp')}
                   </p>
@@ -539,6 +611,9 @@ export const AdminRevenueHub = () => {
               )}
             </CardContent>
           </Card>
+
+          {/* Reconciliation Details */}
+          {reconciliationReport && <ReconciliationDetails report={reconciliationReport} />}
 
           {/* Disputes & Alerts */}
           {disputes.length > 0 && (
@@ -578,6 +653,11 @@ export const AdminRevenueHub = () => {
               </CardContent>
             </Card>
           )}
+        </TabsContent>
+
+        {/* Forecast Tab */}
+        <TabsContent value="forecast" className="space-y-6">
+          <ForecastVsActuals payments={payments} />
         </TabsContent>
 
         {/* Stripe Command Center Tab */}
