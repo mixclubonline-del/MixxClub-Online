@@ -31,7 +31,6 @@ export const useSubscriptionTiers = () => {
         .order("sort_order", { ascending: true });
 
       if (error || !data || data.length === 0) {
-        // Fallback tiers if DB is unavailable
         return FALLBACK_TIERS;
       }
 
@@ -53,7 +52,7 @@ export const useSubscriptionTiers = () => {
           : { storage_gb: 5, projects: 1, collaborators: 2, ai_credits: 10 },
       })) as SubscriptionTier[];
     },
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 };
 
@@ -86,7 +85,7 @@ export const useUserSubscription = (userId?: string) => {
 
       const { data, error } = await supabase
         .from("user_subscriptions")
-        .select("*, subscription_plans(*)")
+        .select("*")
         .eq("user_id", userId)
         .eq("status", "active")
         .order("created_at", { ascending: false })
@@ -97,15 +96,17 @@ export const useUserSubscription = (userId?: string) => {
         console.error("useUserSubscription error:", error.message);
       }
 
-      // Fallback to free tier when no active subscription found
-      return data || {
-        id: "default-free",
-        user_id: userId,
-        tier_id: "free",
-        tier: "free",
-        status: "active",
-        created_at: new Date().toISOString(),
-      };
+      if (!data) {
+        return {
+          id: "default-free",
+          user_id: userId,
+          subscription_tier: "free",
+          status: "active",
+          created_at: new Date().toISOString(),
+        };
+      }
+
+      return data;
     },
     enabled: !!userId,
   });
@@ -117,13 +118,11 @@ export const useSubscriptionUsage = (userId?: string) => {
     queryFn: async () => {
       if (!userId) return null;
 
-      // Get project count
       const { count: projectCount } = await supabase
         .from("projects")
         .select("*", { count: "exact", head: true })
         .eq("user_id", userId);
 
-      // Get storage usage (sum of audio file sizes)
       const { data: audioFiles } = await supabase
         .from("audio_files")
         .select("file_size")
@@ -142,22 +141,25 @@ export const useSubscriptionUsage = (userId?: string) => {
   });
 };
 
+/**
+ * Create subscription checkout session via the real edge function
+ */
 export const useCreateCheckoutSession = () => {
   const { toast } = useToast();
 
   return useMutation({
     mutationFn: async ({
       tierId,
-      userId,
+      billingInterval = 'monthly',
     }: {
       tierId: string;
       userId: string;
+      billingInterval?: 'monthly' | 'yearly';
     }) => {
-      // Call Stripe edge function to create checkout session
-      const { data, error } = await supabase.functions.invoke("create-checkout", {
+      const { data, error } = await supabase.functions.invoke("create-subscription-checkout", {
         body: {
-          tier_id: tierId,
-          user_id: userId,
+          planId: tierId,
+          billingInterval,
         },
       });
 
@@ -165,9 +167,10 @@ export const useCreateCheckoutSession = () => {
       return data;
     },
     onSuccess: (data) => {
-      // Redirect to Stripe checkout
       if (data?.url) {
-        window.location.href = data.url;
+        window.open(data.url, '_blank');
+      } else if (data?.redirect) {
+        window.location.href = data.redirect;
       }
     },
     onError: (error) => {
@@ -180,28 +183,30 @@ export const useCreateCheckoutSession = () => {
   });
 };
 
+/**
+ * Cancel subscription via customer portal (Stripe-managed)
+ */
 export const useCancelSubscription = () => {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (subscriptionId: string) => {
-      // Call edge function to cancel via Stripe
-      const { data, error } = await supabase.functions.invoke("cancel-subscription", {
-        body: { subscription_id: subscriptionId },
-      });
-
+    mutationFn: async (_subscriptionId: string) => {
+      const { data, error } = await supabase.functions.invoke("customer-portal");
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
-      toast({
-        title: "Subscription cancelled",
-        description: "Your subscription will remain active until the end of the billing period.",
-      });
+    onSuccess: (data) => {
+      if (data?.url) {
+        window.open(data.url, '_blank');
+        toast({
+          title: "Manage Subscription",
+          description: "You can cancel or modify your subscription in the Stripe portal.",
+        });
+      }
     },
     onError: (error) => {
       toast({
-        title: "Cancellation failed",
+        title: "Error",
         description: error.message,
         variant: "destructive",
       });
@@ -209,33 +214,29 @@ export const useCancelSubscription = () => {
   });
 };
 
+/**
+ * Upgrade subscription via customer portal (Stripe-managed)
+ */
 export const useUpgradeSubscription = () => {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async ({
-      subscriptionId,
-      newTierId,
-    }: {
+    mutationFn: async (_params: {
       subscriptionId: string;
       newTierId: string;
     }) => {
-      // Call edge function to handle Stripe upgrade
-      const { data, error } = await supabase.functions.invoke("upgrade-subscription", {
-        body: {
-          subscription_id: subscriptionId,
-          new_tier_id: newTierId,
-        },
-      });
-
+      const { data, error } = await supabase.functions.invoke("customer-portal");
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
-      toast({
-        title: "Subscription upgraded",
-        description: "Your subscription has been upgraded successfully!",
-      });
+    onSuccess: (data) => {
+      if (data?.url) {
+        window.open(data.url, '_blank');
+        toast({
+          title: "Upgrade Subscription",
+          description: "Complete your upgrade in the Stripe portal.",
+        });
+      }
     },
     onError: (error) => {
       toast({
