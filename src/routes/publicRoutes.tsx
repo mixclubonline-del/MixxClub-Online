@@ -15,6 +15,7 @@ const Suspend = ({ children }: { children: React.ReactNode }) => (
 // All other public pages — lazy loaded
 const Auth = React.lazy(() => import("@/pages/Auth"));
 const AuthCallback = React.lazy(() => import("@/pages/AuthCallback"));
+const ResetPassword = React.lazy(() => import("@/pages/ResetPassword"));
 const DemoLogin = React.lazy(() => import("@/pages/DemoLogin"));
 const InsiderDemo = React.lazy(() => import("@/pages/InsiderDemo"));
 const Install = React.lazy(() => import("@/pages/Install"));
