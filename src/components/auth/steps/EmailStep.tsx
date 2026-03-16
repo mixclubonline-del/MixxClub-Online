@@ -226,7 +226,21 @@ export function EmailStep({
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
-            </div>
+           </div>
+          </div>
+        )}
+
+        {/* Forgot password link — only in login + password mode */}
+        {isLogin && isPasswordMode && (
+          <div className="text-right -mt-2">
+            <button
+              type="button"
+              onClick={handleForgotPassword}
+              disabled={forgotLoading}
+              className="text-xs text-primary/70 hover:text-primary transition-colors"
+            >
+              {forgotLoading ? 'Sending...' : 'Forgot password?'}
+            </button>
           </div>
         )}
 

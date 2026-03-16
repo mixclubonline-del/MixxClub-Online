@@ -57,6 +57,7 @@ export const publicRoutes = (
     <Route path={ROUTES.PROMO_FUNNEL} element={<Suspend><PromoFunnel /></Suspend>} />
     <Route path={ROUTES.AUTH} element={<Suspend><Auth /></Suspend>} />
     <Route path={ROUTES.AUTH_CALLBACK} element={<Suspend><AuthCallback /></Suspend>} />
+    <Route path="/reset-password" element={<Suspend><ResetPassword /></Suspend>} />
     <Route path="/demo-login" element={<Suspend><DemoLogin /></Suspend>} />
     <Route path="/insider-demo" element={<Suspend><InsiderDemo /></Suspend>} />
     <Route path="/start" element={<Suspend><QuickStart /></Suspend>} />

@@ -75,9 +75,13 @@ const AuthCallback = () => {
         const priority = ['admin', 'producer', 'engineer', 'artist', 'fan'];
         let userRole: string | undefined = priority.find(r => roles.includes(r));
 
-        // Fallback to metadata if user_roles is empty
+        // Fallback to metadata, then sessionStorage
         if (!userRole && user.user_metadata?.role) {
           userRole = user.user_metadata.role;
+        }
+        if (!userRole && pendingOAuthRole) {
+          userRole = pendingOAuthRole;
+          sessionStorage.removeItem('pending_oauth_role');
         }
 
         // If no role set anywhere, redirect to role selection

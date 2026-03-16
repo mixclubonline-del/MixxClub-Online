@@ -115,6 +115,12 @@ export function AppSidebar() {
           </SidebarGroup>
         ))}
       </SidebarContent>
+
+      {!isCollapsed && (
+        <SidebarFooter className="border-t border-sidebar-border p-2">
+          <ProfileCompletionRing />
+        </SidebarFooter>
+      )}
     </Sidebar>
   );
 }
