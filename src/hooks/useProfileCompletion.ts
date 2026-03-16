@@ -30,7 +30,7 @@ export function useProfileCompletion(): ProfileCompletion {
     const fetchProfile = async () => {
       const { data: profile } = await supabase
         .from('profiles')
-        .select('username, display_name, full_name, avatar_url, bio, genre_specialties')
+        .select('username, full_name, avatar_url, bio, genre_specialties')
         .eq('id', user.id)
         .maybeSingle();
 
