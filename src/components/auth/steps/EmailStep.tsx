@@ -27,6 +27,13 @@ const AppleIcon = () => (
 
 type AuthMethod = 'password' | 'magic-link';
 
+const ROLE_META: Record<AppRole, { label: string; icon: typeof Disc3; colorClass: string }> = {
+  producer: { label: 'Producer', icon: Disc3, colorClass: 'bg-amber-500/20 text-amber-400 border-amber-500/30' },
+  artist: { label: 'Artist', icon: Mic2, colorClass: 'bg-primary/20 text-primary border-primary/30' },
+  engineer: { label: 'Engineer', icon: Headphones, colorClass: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30' },
+  fan: { label: 'Fan', icon: Heart, colorClass: 'bg-pink-500/20 text-pink-400 border-pink-500/30' },
+};
+
 interface EmailStepProps {
   email: string;
   onEmailChange: (email: string) => void;
@@ -38,6 +45,7 @@ interface EmailStepProps {
   error: string | null;
   mode: WizardMode;
   onSwitchMode: () => void;
+  preselectedRole?: AppRole | null;
 }
 
 export function EmailStep({
