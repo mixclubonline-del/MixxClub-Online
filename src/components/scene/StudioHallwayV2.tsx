@@ -45,6 +45,7 @@ export function StudioHallwayV2({ fullscreen = false, onEnter, trackConversion }
   const [showSkipHint, setShowSkipHint] = useState(false);
   const [hoveredRoomId, setHoveredRoomId] = useState<string | null>(null);
   const [hoveredDoor, setHoveredDoor] = useState<'left' | 'right' | null>(null);
+  const [openingDoor, setOpeningDoor] = useState<'left' | 'right' | null>(null);
   const { user } = useAuth();
   const { isConnected } = useSceneSystemInit();
   const { studios, activeCount } = useStudios();
@@ -109,13 +110,22 @@ export function StudioHallwayV2({ fullscreen = false, onEnter, trackConversion }
 
   const handleDoorClick = (door: 'left' | 'right') => {
     ensureAmbience();
-    trackConversion?.(`door_click_${door === 'left' ? 'artist' : 'engineer'}`, { door });
+    const role = door === 'left' ? 'artist' : 'engineer';
+    trackConversion?.(`door_click_${role}`, { door });
 
-    if (door === 'left') {
-      navigate('/home?path=artist');
-    } else {
-      navigate('/home?path=engineer');
-    }
+    // Start door-opening animation
+    setOpeningDoor(door);
+
+    // Navigate after animation completes
+    setTimeout(() => {
+      if (user) {
+        // Authenticated → go straight to the experience
+        navigate(`/home?path=${role}`);
+      } else {
+        // Unauthenticated → auth wizard with role pre-selected
+        navigate(`/auth?mode=signup&role=${role}`);
+      }
+    }, 500);
   };
 
   const studioPositions = studios.slice(0, SIDE_DOOR_POSITIONS.length).map((studio, index) => ({
@@ -182,6 +192,19 @@ export function StudioHallwayV2({ fullscreen = false, onEnter, trackConversion }
       {/* Absolute-positioned to align with background image doors */}
       {fullscreen && (
         <div className="absolute inset-0 z-10 pointer-events-none">
+          {/* Door-opening flash overlay */}
+          <AnimatePresence>
+            {openingDoor && (
+              <motion.div
+                className="absolute inset-0 z-50 bg-white pointer-events-none"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.9 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5, ease: 'easeIn' }}
+              />
+            )}
+          </AnimatePresence>
+
           {/* LEFT DOOR — Artists */}
           <motion.button
             className="pointer-events-auto absolute rounded-2xl border border-transparent cursor-pointer overflow-hidden group"
@@ -197,8 +220,9 @@ export function StudioHallwayV2({ fullscreen = false, onEnter, trackConversion }
             onMouseEnter={() => { setHoveredDoor('left'); ensureAmbience(); }}
             onMouseLeave={() => setHoveredDoor(null)}
             onClick={() => handleDoorClick('left')}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            animate={openingDoor === 'left' ? { scale: 1.08, opacity: 0.6 } : {}}
+            whileHover={!openingDoor ? { scale: 1.02 } : {}}
+            whileTap={!openingDoor ? { scale: 0.98 } : {}}
             aria-label="Enter as an Artist"
           >
             {/* Edge glow */}
@@ -281,8 +305,9 @@ export function StudioHallwayV2({ fullscreen = false, onEnter, trackConversion }
             onMouseEnter={() => { setHoveredDoor('right'); ensureAmbience(); }}
             onMouseLeave={() => setHoveredDoor(null)}
             onClick={() => handleDoorClick('right')}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            animate={openingDoor === 'right' ? { scale: 1.08, opacity: 0.6 } : {}}
+            whileHover={!openingDoor ? { scale: 1.02 } : {}}
+            whileTap={!openingDoor ? { scale: 0.98 } : {}}
             aria-label="Enter as an Engineer"
           >
             {/* Edge glow */}

@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { lovable } from '@/integrations/lovable/index';
 import { toast } from 'sonner';
-import { WizardMode } from '@/hooks/useAuthWizard';
+import { WizardMode, AppRole } from '@/hooks/useAuthWizard';
+import { Disc3, Mic2, Headphones, Heart } from 'lucide-react';
 
 // Google icon SVG component
 const GoogleIcon = () => (
@@ -26,6 +27,13 @@ const AppleIcon = () => (
 
 type AuthMethod = 'password' | 'magic-link';
 
+const ROLE_META: Record<AppRole, { label: string; icon: typeof Disc3; colorClass: string }> = {
+  producer: { label: 'Producer', icon: Disc3, colorClass: 'bg-amber-500/20 text-amber-400 border-amber-500/30' },
+  artist: { label: 'Artist', icon: Mic2, colorClass: 'bg-primary/20 text-primary border-primary/30' },
+  engineer: { label: 'Engineer', icon: Headphones, colorClass: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30' },
+  fan: { label: 'Fan', icon: Heart, colorClass: 'bg-pink-500/20 text-pink-400 border-pink-500/30' },
+};
+
 interface EmailStepProps {
   email: string;
   onEmailChange: (email: string) => void;
@@ -37,6 +45,7 @@ interface EmailStepProps {
   error: string | null;
   mode: WizardMode;
   onSwitchMode: () => void;
+  preselectedRole?: AppRole | null;
 }
 
 export function EmailStep({
@@ -50,6 +59,7 @@ export function EmailStep({
   error,
   mode,
   onSwitchMode,
+  preselectedRole,
 }: EmailStepProps) {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [authMethod, setAuthMethod] = useState<AuthMethod>('password');
@@ -91,6 +101,20 @@ export function EmailStep({
 
   return (
     <div className="space-y-6">
+      {/* Role badge — shown when pre-selected from hallway door */}
+      {preselectedRole && !isLogin && (() => {
+        const meta = ROLE_META[preselectedRole];
+        const Icon = meta.icon;
+        return (
+          <div className={`flex items-center justify-center gap-2 py-2 px-4 mx-auto w-fit rounded-full border backdrop-blur-sm ${meta.colorClass}`}>
+            <Icon className="w-4 h-4" />
+            <span className="text-xs font-semibold tracking-wide">
+              Joining as {meta.label}
+            </span>
+          </div>
+        );
+      })()}
+
       {/* Header */}
       <div className="text-center space-y-2">
         <h1 className="text-2xl font-bold text-white">

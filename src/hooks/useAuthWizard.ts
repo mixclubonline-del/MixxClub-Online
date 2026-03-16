@@ -31,7 +31,9 @@ export function useAuthWizard() {
   const modeParam = searchParams.get('mode') as WizardMode | null;
   const roleParam = searchParams.get('role') as AppRole | null;
   const initMode: WizardMode = modeParam === 'login' ? 'login' : 'signup';
-  const initStep: WizardStep = initMode === 'login' ? 'email' : 'role';
+  const validRoles: AppRole[] = ['producer', 'artist', 'engineer', 'fan'];
+  const hasPreselectedRole = initMode === 'signup' && roleParam && validRoles.includes(roleParam);
+  const initStep: WizardStep = initMode === 'login' ? 'email' : hasPreselectedRole ? 'email' : 'role';
 
   const [state, setState] = useState<AuthWizardState>({
     step: initStep,
@@ -353,6 +355,7 @@ export function useAuthWizard() {
   }, []);
 
   const canGoBack = state.step === 'confirmation' || (state.step === 'email' && state.mode === 'signup');
+  const preselectedRole = hasPreselectedRole ? roleParam : null;
 
   const nextStep = useCallback(() => {
     if (state.step === 'role') {
@@ -382,5 +385,6 @@ export function useAuthWizard() {
     canGoBack,
     nextStep,
     navigate,
+    preselectedRole,
   };
 }
