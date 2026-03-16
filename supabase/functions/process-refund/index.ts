@@ -60,7 +60,7 @@ serve(async (req) => {
     });
 
     const refund = await stripe.refunds.create({
-      payment_intent: payment.transaction_id,
+      payment_intent: payment.stripe_payment_intent_id,
       amount: amount ? Math.round(amount * 100) : undefined,
       reason: reason || 'requested_by_customer',
       metadata: { paymentId: paymentId, processedBy: user.id },
