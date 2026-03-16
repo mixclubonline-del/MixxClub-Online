@@ -615,9 +615,9 @@ async function handleSubscriptionCanceled(
 
     // Notify user
     try {
-      await supabase.rpc('create_notification', {
+      await supabase.rpc('create_notification_checked', {
         p_user_id: profile.id,
-        p_type: 'subscription_canceled',
+        p_type: 'payment',
         p_title: 'Subscription Canceled',
         p_message: 'Your subscription has been canceled. You will retain access until the end of your billing period.',
         p_action_url: '/pricing',
