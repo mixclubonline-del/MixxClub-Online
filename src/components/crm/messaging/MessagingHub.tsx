@@ -56,6 +56,9 @@ export const MessagingHub = ({ userType }: MessagingHubProps) => {
     fetchConversationMessages,
     sendMessage,
     markAsRead,
+    appendMessage,
+    setMessages,
+    PAGE_SIZE,
   } = useDirectMessaging();
 
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
