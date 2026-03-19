@@ -25,6 +25,7 @@ import { RevenuePreview } from "@/components/home/RevenuePreview";
 import { StudioPreview } from "@/components/home/StudioPreview";
 import portalEngineerImage from "@/assets/portal-engineer.jpg";
 import { BackButton } from "@/components/navigation/BackButton";
+import { usePageContent } from '@/hooks/usePageContent';
 
 // Engineer Images
 import engineerRevenueStreams from "@/assets/promo/engineer-revenue-streams.jpg";
