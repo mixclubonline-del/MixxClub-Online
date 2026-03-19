@@ -36,6 +36,9 @@ import engineerGrowthCoaching from "@/assets/promo/engineer-growth-coaching.jpg"
 import engineerWorkspaceHero from "@/assets/promo/engineer-workspace-hero.jpg";
 
 export default function ForEngineers() {
+  const { content: heroTitle } = usePageContent('for-engineers', 'hero_title');
+  const { content: heroSubtitle } = usePageContent('for-engineers', 'hero_subtitle');
+  const { content: heroBadge } = usePageContent('for-engineers', 'hero_badge');
   const stats = [
     { value: "$4,200", label: "Avg Monthly Earnings" },
     { value: "10", label: "Revenue Streams" },
