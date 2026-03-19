@@ -5778,6 +5778,42 @@ export type Database = {
         }
         Relationships: []
       }
+      page_content: {
+        Row: {
+          content: string
+          content_type: string
+          created_at: string
+          id: string
+          metadata: Json | null
+          page_slug: string
+          section_key: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          content?: string
+          content_type?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          page_slug: string
+          section_key: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          content?: string
+          content_type?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          page_slug?: string
+          section_key?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       partners: {
         Row: {
           affiliate_code: string
