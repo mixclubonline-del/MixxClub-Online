@@ -70,6 +70,13 @@ const values = [
 ];
 
 export default function About() {
+  const { content: heroTitle } = usePageContent('about', 'hero_title');
+  const { content: heroSubtitle } = usePageContent('about', 'hero_subtitle');
+  const { content: heroBadge } = usePageContent('about', 'hero_badge');
+  const { content: missionTitle } = usePageContent('about', 'mission_title');
+  const { content: missionBody } = usePageContent('about', 'mission_body');
+  const { content: visionTitle } = usePageContent('about', 'vision_title');
+  const { content: visionBody } = usePageContent('about', 'vision_body');
   return (
     <>
       <SEOHead
