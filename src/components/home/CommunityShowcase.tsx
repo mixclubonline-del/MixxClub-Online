@@ -3,8 +3,11 @@ import { Card } from "@/components/ui/card";
 import { Trophy, Users, TrendingUp, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { FEATURE_FLAGS } from "@/config/featureFlags";
+import { usePageContent } from '@/hooks/usePageContent';
 
 export const CommunityShowcase = () => {
+  const { content: sectionTitle } = usePageContent('home', 'community_title');
+  const { content: sectionSubtitle } = usePageContent('home', 'community_subtitle');
   const navigate = useNavigate();
 
   if (!FEATURE_FLAGS.MIX_BATTLES_ARENA_ENABLED) {
