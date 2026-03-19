@@ -233,6 +233,8 @@ const AdminCRM = () => {
         return <AdminLaunchHub />;
       case 'screenshots':
         return <AdminScreenshotTool />;
+      case 'page-editor':
+        return <AdminPageEditor />;
       default:
         return <AdminDashboardHub />;
     }
