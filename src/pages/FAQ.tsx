@@ -65,6 +65,8 @@ const faqs = [
 ];
 
 export default function FAQ() {
+  const { content: faqTitle } = usePageContent('faq', 'hero_title');
+  const { content: faqSubtitle } = usePageContent('faq', 'hero_subtitle');
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredFaqs = faqs
