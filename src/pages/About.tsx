@@ -108,13 +108,13 @@ export default function About() {
           >
             <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-4 py-1.5 mb-6 text-sm font-medium text-primary">
               <Star className="w-3.5 h-3.5" />
-              Artist · Engineer · Producer · Fan
+              {heroBadge}
             </div>
-            <h1 className="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-foreground via-primary to-secondary bg-clip-text text-transparent">
-              One Platform. Four Roles.<br />Infinite Possibility.
+            <h1 className="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-foreground via-primary to-secondary bg-clip-text text-transparent whitespace-pre-line">
+              {heroTitle}
             </h1>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Mixxclub is the complete music ecosystem — where artists create, engineers craft, producers supply, and fans invest in the culture they love.
+              {heroSubtitle}
             </p>
           </motion.div>
         </section>
