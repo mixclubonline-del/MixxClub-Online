@@ -13,6 +13,7 @@ import Navigation from '@/components/Navigation';
 import { PublicFooter } from '@/components/layouts/PublicFooter';
 import { GlassPanel } from '@/components/crm/design/GlassPanel';
 import heroContact from '@/assets/hero-contact.jpg';
+import { usePageContent } from '@/hooks/usePageContent';
 
 const contactSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
