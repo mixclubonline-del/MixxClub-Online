@@ -28,6 +28,7 @@ import { ScrollRevealSection } from "@/components/landing/ScrollRevealSection";
 import { Badge } from "@/components/ui/badge";
 import { BackButton } from "@/components/navigation/BackButton";
 import portalProducerImage from "@/assets/portal-producer.png";
+import { usePageContent } from '@/hooks/usePageContent';
 
 // Reuse some promo images until producer-specific ones are created
 import artistUploadCloud from "@/assets/promo/artist-upload-cloud.jpg";
