@@ -3,8 +3,11 @@ import { useChapterStore } from '@/stores/chapterStore';
 import { PricingTierCards } from '@/components/home/PricingTierCards';
 import { BulkPricingSection } from '@/components/home/BulkPricingSection';
 import { Button } from '@/components/ui/button';
+import { usePageContent } from '@/hooks/usePageContent';
 
 export default function PricingChapter() {
+  const { content: pricingTitle } = usePageContent('pricing', 'hero_title');
+  const { content: pricingSubtitle } = usePageContent('pricing', 'hero_subtitle');
   const next = useChapterStore((s) => s.next);
 
   return (
