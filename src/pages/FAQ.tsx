@@ -9,6 +9,7 @@ import { Search, MessageCircle, Mail, Phone } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { GlassPanel } from '@/components/crm/design/GlassPanel';
+import { usePageContent } from '@/hooks/usePageContent';
 
 const faqs = [
   {
