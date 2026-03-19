@@ -1,7 +1,10 @@
 import { motion } from 'framer-motion';
 import { Mic, SlidersHorizontal, ArrowRight } from 'lucide-react';
+import { usePageContent } from '@/hooks/usePageContent';
 
 export const NetworkExplainer = () => {
+  const { content: sectionTitle } = usePageContent('home', 'network_title');
+  const { content: sectionSubtitle } = usePageContent('home', 'network_subtitle');
   return (
     <section className="relative py-24 px-6 overflow-hidden">
       {/* Background */}
@@ -15,10 +18,10 @@ export const NetworkExplainer = () => {
           className="text-center mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            One Network. Infinite Connections.
+            {sectionTitle}
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            This isn't a platform. This is a network of creators. Find your people.
+            {sectionSubtitle}
           </p>
         </motion.div>
 

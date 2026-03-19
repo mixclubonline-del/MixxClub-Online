@@ -3,8 +3,11 @@ import { Card } from "@/components/ui/card";
 import { Trophy, Users, TrendingUp, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { FEATURE_FLAGS } from "@/config/featureFlags";
+import { usePageContent } from '@/hooks/usePageContent';
 
 export const CommunityShowcase = () => {
+  const { content: sectionTitle } = usePageContent('home', 'community_title');
+  const { content: sectionSubtitle } = usePageContent('home', 'community_subtitle');
   const navigate = useNavigate();
 
   if (!FEATURE_FLAGS.MIX_BATTLES_ARENA_ENABLED) {
@@ -24,10 +27,10 @@ export const CommunityShowcase = () => {
             <span className="text-sm font-semibold">Join the Community</span>
           </div>
           <h2 className="text-4xl md:text-5xl font-black mb-4">
-            Compete. Collaborate. Grow.
+            {sectionTitle}
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Join mix battles, climb the leaderboards, and connect with engineers worldwide
+            {sectionSubtitle}
           </p>
         </div>
 

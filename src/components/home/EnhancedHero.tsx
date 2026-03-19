@@ -4,9 +4,12 @@ import { ArrowRight, Play, Star, Users, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
+import { usePageContent } from '@/hooks/usePageContent';
 
 export const EnhancedHero = () => {
   const navigate = useNavigate();
+  const { content: badgeText } = usePageContent('home', 'enhanced_hero_badge');
+  const { content: heroTitle } = usePageContent('home', 'enhanced_hero_title');
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden">
@@ -35,19 +38,20 @@ export const EnhancedHero = () => {
             >
               <Badge className="glass-morphic backdrop-blur-xl text-primary border-primary/30 px-4 py-2">
                 <Zap className="w-4 h-4 mr-2" />
-                AI-Powered Matching
+                {badgeText}
               </Badge>
             </motion.div>
 
             <div className="space-y-6">
-              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-[1.1] tracking-tight">
-                Your Music.
-                <br />
-                <span className="bg-gradient-to-r from-primary via-primary-glow to-accent bg-clip-text text-transparent">
-                  World-Class
-                </span>
-                <br />
-                Engineers.
+              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-[1.1] tracking-tight whitespace-pre-line">
+                {heroTitle.split('\n').map((line, i) => (
+                  <span key={i}>
+                    {i === 1 ? (
+                      <span className="bg-gradient-to-r from-primary via-primary-glow to-accent bg-clip-text text-transparent">{line}</span>
+                    ) : line}
+                    {i < heroTitle.split('\n').length - 1 && <br />}
+                  </span>
+                ))}
               </h1>
               
               <p className="text-lg md:text-2xl text-foreground/80 max-w-2xl leading-relaxed">

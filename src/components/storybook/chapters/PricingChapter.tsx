@@ -3,8 +3,11 @@ import { useChapterStore } from '@/stores/chapterStore';
 import { PricingTierCards } from '@/components/home/PricingTierCards';
 import { BulkPricingSection } from '@/components/home/BulkPricingSection';
 import { Button } from '@/components/ui/button';
+import { usePageContent } from '@/hooks/usePageContent';
 
 export default function PricingChapter() {
+  const { content: pricingTitle } = usePageContent('pricing', 'hero_title');
+  const { content: pricingSubtitle } = usePageContent('pricing', 'hero_subtitle');
   const next = useChapterStore((s) => s.next);
 
   return (
@@ -17,9 +20,9 @@ export default function PricingChapter() {
         viewport={{ once: true }}
         transition={{ duration: 0.5 }}
       >
-        <h2 className="text-4xl md:text-5xl font-bold mb-4">Simple, Transparent Pricing</h2>
+        <h2 className="text-4xl md:text-5xl font-bold mb-4">{pricingTitle}</h2>
         <p className="text-lg text-muted-foreground">
-          Pick a tier that matches your vision. Scale up anytime.
+          {pricingSubtitle}
         </p>
       </motion.div>
 
