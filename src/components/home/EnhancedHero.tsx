@@ -43,14 +43,15 @@ export const EnhancedHero = () => {
             </motion.div>
 
             <div className="space-y-6">
-              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-[1.1] tracking-tight">
-                Your Music.
-                <br />
-                <span className="bg-gradient-to-r from-primary via-primary-glow to-accent bg-clip-text text-transparent">
-                  World-Class
-                </span>
-                <br />
-                Engineers.
+              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-[1.1] tracking-tight whitespace-pre-line">
+                {heroTitle.split('\n').map((line, i) => (
+                  <span key={i}>
+                    {i === 1 ? (
+                      <span className="bg-gradient-to-r from-primary via-primary-glow to-accent bg-clip-text text-transparent">{line}</span>
+                    ) : line}
+                    {i < heroTitle.split('\n').length - 1 && <br />}
+                  </span>
+                ))}
               </h1>
               
               <p className="text-lg md:text-2xl text-foreground/80 max-w-2xl leading-relaxed">

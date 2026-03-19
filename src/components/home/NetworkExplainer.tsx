@@ -18,10 +18,10 @@ export const NetworkExplainer = () => {
           className="text-center mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            One Network. Infinite Connections.
+            {sectionTitle}
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            This isn't a platform. This is a network of creators. Find your people.
+            {sectionSubtitle}
           </p>
         </motion.div>
 

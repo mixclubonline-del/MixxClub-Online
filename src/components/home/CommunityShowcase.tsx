@@ -27,10 +27,10 @@ export const CommunityShowcase = () => {
             <span className="text-sm font-semibold">Join the Community</span>
           </div>
           <h2 className="text-4xl md:text-5xl font-black mb-4">
-            Compete. Collaborate. Grow.
+            {sectionTitle}
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Join mix battles, climb the leaderboards, and connect with engineers worldwide
+            {sectionSubtitle}
           </p>
         </div>
 
