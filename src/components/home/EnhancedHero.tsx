@@ -38,7 +38,7 @@ export const EnhancedHero = () => {
             >
               <Badge className="glass-morphic backdrop-blur-xl text-primary border-primary/30 px-4 py-2">
                 <Zap className="w-4 h-4 mr-2" />
-                AI-Powered Matching
+                {badgeText}
               </Badge>
             </motion.div>
 
