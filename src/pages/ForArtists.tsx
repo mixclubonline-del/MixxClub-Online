@@ -46,6 +46,9 @@ import artistCrmProjects from "@/assets/promo/artist-crm-projects.jpg";
 import artistCrmCommunity from "@/assets/promo/artist-crm-community.jpg";
 
 const ForArtists = () => {
+  const { content: heroTitle } = usePageContent('for-artists', 'hero_title');
+  const { content: heroSubtitle } = usePageContent('for-artists', 'hero_subtitle');
+  const { content: heroBadge } = usePageContent('for-artists', 'hero_badge');
   const journeySteps: ShowcaseStep[] = [
     {
       image: artistUploadCloud,
