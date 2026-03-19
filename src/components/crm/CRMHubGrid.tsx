@@ -33,6 +33,7 @@ import {
   BarChart3,
   Flame,
   Camera,
+  FileText,
   Flag,
   ToggleLeft,
   type LucideIcon
