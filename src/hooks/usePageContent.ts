@@ -111,14 +111,14 @@ const DEFAULTS: Record<string, Record<string, { content: string; content_type: s
 
   /* ─── CONTACT ─── */
   contact: {
-    hero_title: { content: 'Get in Touch', content_type: 'text' },
-    hero_subtitle: { content: 'Have a question, partnership proposal, or just want to say hello? We would love to hear from you.', content_type: 'text' },
+    hero_title: { content: 'Get In Touch', content_type: 'text' },
+    hero_subtitle: { content: "Have a question? We'd love to hear from you. Send us a message and we'll respond as soon as possible.", content_type: 'text' },
   },
 
   /* ─── FAQ ─── */
   faq: {
     hero_title: { content: 'Frequently Asked Questions', content_type: 'text' },
-    hero_subtitle: { content: 'Everything you need to know about Mixxclub — from pricing to platform features.', content_type: 'text' },
+    hero_subtitle: { content: "Everything you need to know about Mixxclub. Can't find what you're looking for? Contact our support team.", content_type: 'text' },
   },
 };
 
