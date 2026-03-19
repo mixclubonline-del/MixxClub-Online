@@ -29,6 +29,7 @@ import { ScrollRevealSection } from "@/components/landing/ScrollRevealSection";
 import { Badge } from "@/components/ui/badge";
 import { BackButton } from "@/components/navigation/BackButton";
 import portalArtistImage from "@/assets/portal-artist.jpg";
+import { usePageContent } from '@/hooks/usePageContent';
 
 // Journey Images
 import artistUploadCloud from "@/assets/promo/artist-upload-cloud.jpg";
