@@ -4,9 +4,12 @@ import { ArrowRight, Play, Star, Users, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
+import { usePageContent } from '@/hooks/usePageContent';
 
 export const EnhancedHero = () => {
   const navigate = useNavigate();
+  const { content: badgeText } = usePageContent('home', 'enhanced_hero_badge');
+  const { content: heroTitle } = usePageContent('home', 'enhanced_hero_title');
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden">
