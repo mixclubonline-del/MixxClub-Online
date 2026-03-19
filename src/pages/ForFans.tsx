@@ -30,6 +30,7 @@ import { ScrollRevealSection } from "@/components/landing/ScrollRevealSection";
 import { Badge } from "@/components/ui/badge";
 import { BackButton } from "@/components/navigation/BackButton";
 import portalFanImage from "@/assets/portal-fan.png";
+import { usePageContent } from '@/hooks/usePageContent';
 
 // Reuse promo images temporarily
 import artistUploadCloud from "@/assets/promo/artist-upload-cloud.jpg";
