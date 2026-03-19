@@ -1,7 +1,12 @@
 import { motion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
+import { usePageContent } from '@/hooks/usePageContent';
 
 export const HeroSection = () => {
+  const { content: badge } = usePageContent('mixclub', 'hero_badge');
+  const { content: title } = usePageContent('mixclub', 'hero_title');
+  const { content: subtitle } = usePageContent('mixclub', 'hero_subtitle');
+
   return (
     <section className="relative min-h-[60vh] flex items-center justify-center px-4 py-20 overflow-hidden">
       {/* Animated background gradient */}
@@ -25,12 +30,12 @@ export const HeroSection = () => {
             key={i}
             className="absolute w-2 h-2 bg-primary/30 rounded-full"
             initial={{
-              x: Math.random() * window.innerWidth,
-              y: Math.random() * window.innerHeight,
+              x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1200),
+              y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 800),
             }}
             animate={{
-              x: Math.random() * window.innerWidth,
-              y: Math.random() * window.innerHeight,
+              x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1200),
+              y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 800),
             }}
             transition={{
               duration: 10 + Math.random() * 20,
@@ -56,7 +61,7 @@ export const HeroSection = () => {
           className="inline-flex items-center gap-3 mb-8 px-6 py-3 rounded-full glass border border-primary/40 shadow-glow-sm"
         >
           <Sparkles className="w-5 h-5 text-primary animate-pulse" />
-          <span className="text-sm font-semibold">AI-Powered Audio Engineering</span>
+          <span className="text-sm font-semibold">{badge}</span>
         </motion.div>
 
         {/* Main headline */}
@@ -64,11 +69,9 @@ export const HeroSection = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 bg-gradient-to-r from-foreground via-primary to-accent-cyan bg-clip-text text-transparent leading-tight"
+          className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 bg-gradient-to-r from-foreground via-primary to-accent-cyan bg-clip-text text-transparent leading-tight whitespace-pre-line"
         >
-          Ready to Transform
-          <br />
-          Your Sound?
+          {title}
         </motion.h1>
 
         {/* Subtitle */}
@@ -78,7 +81,7 @@ export const HeroSection = () => {
           transition={{ delay: 0.7 }}
           className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed"
         >
-          From bedroom to billboard. AI meets human creativity in the ultimate music collaboration network.
+          {subtitle}
         </motion.p>
 
         {/* Animated divider */}
