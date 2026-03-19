@@ -1,7 +1,10 @@
 import { motion } from 'framer-motion';
 import { Mic, SlidersHorizontal, ArrowRight } from 'lucide-react';
+import { usePageContent } from '@/hooks/usePageContent';
 
 export const NetworkExplainer = () => {
+  const { content: sectionTitle } = usePageContent('home', 'network_title');
+  const { content: sectionSubtitle } = usePageContent('home', 'network_subtitle');
   return (
     <section className="relative py-24 px-6 overflow-hidden">
       {/* Background */}
