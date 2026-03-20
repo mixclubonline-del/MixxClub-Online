@@ -172,8 +172,9 @@ export function usePageContent(pageSlug: string, sectionKey: string) {
  */
 export function usePageImage(pageSlug: string, sectionKey: string, fallbackUrl = '') {
   const { content, isLoading } = usePageContent(pageSlug, sectionKey);
+  const resolvedUrl = content && content.length > 0 ? getPageImageUrl(content) : '';
   return {
-    imageUrl: content ? getPageImageUrl(content) : fallbackUrl,
+    imageUrl: resolvedUrl || fallbackUrl,
     isLoading,
   };
 }
