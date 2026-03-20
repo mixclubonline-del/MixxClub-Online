@@ -35,6 +35,8 @@ const contactInfo = [
 ];
 
 export default function Contact() {
+  const { content: contactTitle } = usePageContent('contact', 'hero_title');
+  const { content: contactSubtitle } = usePageContent('contact', 'hero_subtitle');
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
