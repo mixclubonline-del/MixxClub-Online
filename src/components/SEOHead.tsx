@@ -142,8 +142,37 @@ export const SEOHead = ({
       }
     }
 
+    // FAQ schema
+    if (faq && faq.length > 0) {
+      list.push({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faq.map((item) => ({
+          "@type": "Question",
+          name: item.question,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: item.answer,
+          },
+        })),
+      });
+    }
+
+    // Speakable schema
+    if (speakableSelectors && speakableSelectors.length > 0) {
+      list.push({
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        url: currentUrl,
+        speakable: {
+          "@type": "SpeakableSpecification",
+          cssSelector: speakableSelectors,
+        },
+      });
+    }
+
     return list;
-  }, [schema, product, title, description, resolvedImage, currentUrl]);
+  }, [schema, product, faq, speakableSelectors, title, description, resolvedImage, currentUrl]);
 
   return (
     <Helmet>

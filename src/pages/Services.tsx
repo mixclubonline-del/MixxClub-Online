@@ -6,6 +6,7 @@ import { ServicesDistrict } from '@/components/services/ServicesDistrict';
 import { ServicePortal } from '@/components/services/ServicePortal';
 import { DistrictWelcome } from '@/components/services/DistrictWelcome';
 import { useServicesAssets } from '@/hooks/useServicesAssets';
+import { FAQSection } from '@/components/seo/FAQSection';
 import servicesLobbyStatic from '@/assets/services-lobby.jpg';
 
 export default function Services() {
