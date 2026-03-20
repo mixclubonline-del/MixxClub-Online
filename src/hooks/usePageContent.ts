@@ -2,6 +2,15 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
 const fromAny = (table: string) => (supabase.from as any)(table);
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
+const IMAGE_BUCKET = 'page-content-images';
+
+/** Resolve a storage path to a full public URL */
+export function getPageImageUrl(storagePath: string): string {
+  if (!storagePath) return '';
+  if (storagePath.startsWith('http')) return storagePath;
+  return `${SUPABASE_URL}/storage/v1/object/public/${IMAGE_BUCKET}/${storagePath}`;
+}
 
 export interface PageContentEntry {
   id: string;
