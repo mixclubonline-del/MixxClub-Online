@@ -9,6 +9,7 @@ import Navigation from '@/components/Navigation';
 import { MixxCoin3D } from '@/components/economy/MixxCoin3D';
 import { MixxCoin } from '@/components/economy/MixxCoin';
 import { ScrollRevealSection } from '@/components/landing/ScrollRevealSection';
+import { FAQSection } from '@/components/seo/FAQSection';
 import { PulsingCTA } from '@/components/landing/PulsingCTA';
 import { Badge } from '@/components/ui/badge';
 import { PublicFooter } from '@/components/layouts/PublicFooter';
