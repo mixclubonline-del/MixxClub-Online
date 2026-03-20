@@ -59,6 +59,13 @@ export default function Services() {
         title="Services District"
         description="Professional audio services: mixing, mastering, AI mastering, and distribution. Transform your sound from bedroom to billboard."
         keywords="mixing services, mastering services, AI mastering, music distribution, audio engineering"
+        schema={services.map(s => generateServiceSchema({
+          name: s.label,
+          description: s.description,
+          price: s.price,
+          category: 'Audio Engineering',
+        }))}
+        speakableSelectors={['h1', 'h2', '.service-description']}
       />
 
       <ServicesDistrict backgroundAsset={servicesLobby}>
