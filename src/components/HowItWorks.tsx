@@ -4,6 +4,7 @@ import { Upload, UserCheck, Radio, Download, Users, TrendingUp } from "lucide-re
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { FAQSection } from './seo/FAQSection';
 
 const HowItWorks = () => {
   const navigate = useNavigate();
