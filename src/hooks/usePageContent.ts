@@ -84,6 +84,7 @@ const DEFAULTS: Record<string, Record<string, { content: string; content_type: s
     hero_title: { content: 'Turn Bedroom Beats Into Billboard Bangers', content_type: 'text' },
     hero_subtitle: { content: 'Professional mixing, AI-powered mastering, real-time collaboration, and MixxCoinz rewards with world-class engineers.', content_type: 'text' },
     hero_badge: { content: 'For Artists', content_type: 'text' },
+    hero_image: { content: '', content_type: 'image' },
   },
 
   /* ─── FOR ENGINEERS PORTAL ─── */
