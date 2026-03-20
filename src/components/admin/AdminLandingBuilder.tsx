@@ -395,18 +395,43 @@ function PageEditor({
                     </div>
 
                     {/* Block fields */}
-                    {isEditing && def && (
-                      <div className="mt-4 space-y-3 pl-6 border-l-2 border-primary/20">
-                        {def.fields.map(field => (
-                          <BlockFieldEditor
-                            key={field.key}
-                            field={field}
-                            value={block.props[field.key]}
-                            onChange={(val) => updateBlockProps(idx, field.key, val)}
-                          />
-                        ))}
-                      </div>
-                    )}
+                    {isEditing && def && (() => {
+                      const contentFields = def.fields.filter(f => !f.group);
+                      const styleFields = def.fields.filter(f => f.group === 'Style');
+                      return (
+                        <div className="mt-4 space-y-4 pl-6 border-l-2 border-primary/20">
+                          {/* Content fields */}
+                          <div className="space-y-3">
+                            {contentFields.map(field => (
+                              <BlockFieldEditor
+                                key={field.key}
+                                field={field}
+                                value={block.props[field.key]}
+                                onChange={(val) => updateBlockProps(idx, field.key, val)}
+                              />
+                            ))}
+                          </div>
+                          {/* Style fields */}
+                          {styleFields.length > 0 && (
+                            <details className="group">
+                              <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors select-none py-2">
+                                ▸ Style Overrides
+                              </summary>
+                              <div className="mt-2 space-y-3 p-3 rounded-lg bg-muted/30 border border-border/30">
+                                {styleFields.map(field => (
+                                  <BlockFieldEditor
+                                    key={field.key}
+                                    field={field}
+                                    value={block.props[field.key]}
+                                    onChange={(val) => updateBlockProps(idx, field.key, val)}
+                                  />
+                                ))}
+                              </div>
+                            </details>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </CardContent>
                 </Card>
               );
