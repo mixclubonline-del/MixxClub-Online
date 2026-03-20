@@ -8,8 +8,8 @@ import {
 import { SEOHead } from '@/components/SEOHead';
 import { organizationSchema } from '@/lib/seo-schema';
 import { GlassPanel } from '@/components/crm/design/GlassPanel';
-import heroAbout from '@/assets/hero-about.jpg';
-import { usePageContent } from '@/hooks/usePageContent';
+import heroAboutFallback from '@/assets/hero-about.jpg';
+import { usePageContent, usePageImage } from '@/hooks/usePageContent';
 
 const sectionAnim = {
   hidden: { opacity: 0, y: 40 },
