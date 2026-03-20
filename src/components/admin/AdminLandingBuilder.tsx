@@ -261,6 +261,52 @@ function PageEditor({
   const [editingBlockIdx, setEditingBlockIdx] = useState<number | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [showBlockPicker, setShowBlockPicker] = useState(false);
+  const dragIdx = useRef<number | null>(null);
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
+
+  const handleDragStart = (idx: number) => {
+    dragIdx.current = idx;
+  };
+
+  const handleDragOver = (e: React.DragEvent, idx: number) => {
+    e.preventDefault();
+    if (dragIdx.current !== null && dragIdx.current !== idx) {
+      setDragOverIdx(idx);
+    }
+  };
+
+  const handleDrop = (idx: number) => {
+    if (dragIdx.current === null || dragIdx.current === idx) {
+      setDragOverIdx(null);
+      dragIdx.current = null;
+      return;
+    }
+    setBlocks(prev => {
+      const copy = [...prev];
+      const [moved] = copy.splice(dragIdx.current!, 1);
+      copy.splice(idx, 0, moved);
+      return copy;
+    });
+    if (editingBlockIdx === dragIdx.current) {
+      setEditingBlockIdx(idx);
+    } else if (editingBlockIdx !== null) {
+      // Adjust editing index if it shifted
+      const from = dragIdx.current!;
+      const to = idx;
+      if (editingBlockIdx > from && editingBlockIdx <= to) {
+        setEditingBlockIdx(editingBlockIdx - 1);
+      } else if (editingBlockIdx < from && editingBlockIdx >= to) {
+        setEditingBlockIdx(editingBlockIdx + 1);
+      }
+    }
+    dragIdx.current = null;
+    setDragOverIdx(null);
+  };
+
+  const handleDragEnd = () => {
+    dragIdx.current = null;
+    setDragOverIdx(null);
+  };
 
   const addBlock = (type: string) => {
     const newBlock: LandingBlock = {
