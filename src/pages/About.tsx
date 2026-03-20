@@ -6,7 +6,8 @@ import {
   Coins, Globe, Sparkles, Shield, TrendingUp, Star
 } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
-import { organizationSchema } from '@/lib/seo-schema';
+import { organizationSchema, softwareApplicationSchema } from '@/lib/seo-schema';
+import { FAQSection } from '@/components/seo/FAQSection';
 import { GlassPanel } from '@/components/crm/design/GlassPanel';
 import heroAboutFallback from '@/assets/hero-about.jpg';
 import { usePageContent, usePageImage } from '@/hooks/usePageContent';
