@@ -49,6 +49,7 @@ const AIMastering = React.lazy(() => import("@/pages/AIMastering"));
 const DistributionHub = React.lazy(() => import("@/pages/DistributionHub"));
 const Showcase = React.lazy(() => import("@/pages/Showcase"));
 const BeatMarketplace = React.lazy(() => import("@/pages/BeatMarketplace"));
+const LandingPageView = React.lazy(() => import("@/pages/LandingPageView"));
 
 export const publicRoutes = (
   <>

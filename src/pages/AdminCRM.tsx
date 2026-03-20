@@ -239,6 +239,8 @@ const AdminCRM = () => {
         return <AdminPageEditor />;
       case 'nav-editor':
         return <AdminNavigationEditor />;
+      case 'landing-builder':
+        return <AdminLandingBuilder />;
       default:
         return <AdminDashboardHub />;
     }
