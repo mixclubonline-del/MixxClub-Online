@@ -1,13 +1,17 @@
 /**
  * PublicFooter — Shared footer for all public/marketing pages.
- * Cross-links, legal pages, social media links.
+ * Reads link sections from the 'footer_*' nav groups in the database,
+ * falling back to hardcoded defaults if no DB entries exist.
  */
 
 import { Link } from 'react-router-dom';
 import mixclub3DLogo from '@/assets/mixxclub-3d-logo.png';
+import { usePublicNavItems, type NavItem } from '@/hooks/useNavItems';
 
-const FOOTER_SECTIONS = [
+/* ── Fallback sections (used if the nav_group has zero DB rows) ── */
+const FALLBACK_SECTIONS: { group: string; title: string; links: { label: string; path: string }[] }[] = [
   {
+    group: 'footer_platform',
     title: 'Platform',
     links: [
       { label: 'Home', path: '/home' },
@@ -20,6 +24,7 @@ const FOOTER_SECTIONS = [
     ],
   },
   {
+    group: 'footer_creatives',
     title: 'For Creatives',
     links: [
       { label: 'The Ecosystem', path: '/for-creatives' },
@@ -30,6 +35,7 @@ const FOOTER_SECTIONS = [
     ],
   },
   {
+    group: 'footer_company',
     title: 'Company',
     links: [
       { label: 'About', path: '/about' },
@@ -39,6 +45,7 @@ const FOOTER_SECTIONS = [
     ],
   },
   {
+    group: 'footer_legal',
     title: 'Legal',
     links: [
       { label: 'Terms of Service', path: '/terms' },
@@ -97,6 +104,59 @@ const SOCIAL_LINKS = [
   },
 ];
 
+/** Converts NavItem[] into a renderable link list */
+function navItemsToLinks(items: NavItem[]) {
+  return items.map(item => ({
+    label: item.label,
+    path: item.href,
+    external: item.open_in_new_tab,
+  }));
+}
+
+function FooterSection({ group, fallback }: { group: string; fallback: typeof FALLBACK_SECTIONS[number] }) {
+  const { data: items = [] } = usePublicNavItems(group);
+
+  const links = items.length > 0
+    ? navItemsToLinks(items)
+    : fallback.links.map(l => ({ ...l, external: false }));
+
+  // Derive title from first DB item metadata or fallback
+  const title = (items.length > 0 && items[0].metadata && typeof items[0].metadata === 'object' && 'section_title' in (items[0].metadata as Record<string, unknown>))
+    ? String((items[0].metadata as Record<string, unknown>).section_title)
+    : fallback.title;
+
+  return (
+    <div>
+      <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+        {title}
+      </h4>
+      <ul className="space-y-2">
+        {links.map((link) => (
+          <li key={link.path}>
+            {link.external ? (
+              <a
+                href={link.path}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {link.label}
+              </a>
+            ) : (
+              <Link
+                to={link.path}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {link.label}
+              </Link>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 export function PublicFooter() {
   return (
     <footer className="relative z-20 border-t border-border/30 bg-card/50 backdrop-blur-sm">
@@ -111,7 +171,6 @@ export function PublicFooter() {
             <p className="text-xs text-muted-foreground leading-relaxed mb-4">
               From bedroom to billboard. AI-powered music production, collaboration, and distribution.
             </p>
-            {/* Social icons */}
             <div className="flex items-center gap-3">
               {SOCIAL_LINKS.map((social) => (
                 <a
@@ -128,25 +187,9 @@ export function PublicFooter() {
             </div>
           </div>
 
-          {/* Link columns */}
-          {FOOTER_SECTIONS.map((section) => (
-            <div key={section.title}>
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-                {section.title}
-              </h4>
-              <ul className="space-y-2">
-                {section.links.map((link) => (
-                  <li key={link.path}>
-                    <Link
-                      to={link.path}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
+          {/* Dynamic link columns */}
+          {FALLBACK_SECTIONS.map((section) => (
+            <FooterSection key={section.group} group={section.group} fallback={section} />
           ))}
         </div>
 
