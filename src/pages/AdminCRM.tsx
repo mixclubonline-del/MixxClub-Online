@@ -30,6 +30,7 @@ import { AdminModerationQueue } from '@/components/admin/AdminModerationQueue';
 import { AdminFeatureFlagsHub } from '@/components/admin/AdminFeatureFlagsHub';
 import { AdminPageEditor } from '@/components/admin/AdminPageEditor';
 import { AdminNavigationEditor } from '@/components/admin/AdminNavigationEditor';
+import { AdminLandingBuilder } from '@/components/admin/AdminLandingBuilder';
 import { lazy, Suspense } from 'react';
 const PromoStudio = lazy(() => import('@/pages/PromoStudio'));
 
@@ -238,6 +239,8 @@ const AdminCRM = () => {
         return <AdminPageEditor />;
       case 'nav-editor':
         return <AdminNavigationEditor />;
+      case 'landing-builder':
+        return <AdminLandingBuilder />;
       default:
         return <AdminDashboardHub />;
     }

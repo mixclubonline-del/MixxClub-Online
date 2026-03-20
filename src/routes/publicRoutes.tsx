@@ -49,6 +49,7 @@ const AIMastering = React.lazy(() => import("@/pages/AIMastering"));
 const DistributionHub = React.lazy(() => import("@/pages/DistributionHub"));
 const Showcase = React.lazy(() => import("@/pages/Showcase"));
 const BeatMarketplace = React.lazy(() => import("@/pages/BeatMarketplace"));
+const LandingPageView = React.lazy(() => import("@/pages/LandingPageView"));
 
 export const publicRoutes = (
   <>
@@ -99,5 +100,8 @@ export const publicRoutes = (
     <Route path="/beat-forge" element={<Suspend><PrimeBeatForge /></Suspend>} />
     <Route path={ROUTES.ECONOMY} element={<Suspend><EconomyPublic /></Suspend>} />
     <Route path="/u/:username" element={<Suspend><PublicProfile /></Suspend>} />
+
+    {/* Dynamic landing pages from block builder */}
+    <Route path="/p/:slug" element={<Suspend><LandingPageView /></Suspend>} />
   </>
 );
