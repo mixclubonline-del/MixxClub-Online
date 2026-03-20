@@ -85,7 +85,8 @@ export default function About() {
         title="About Mixxclub — The Four-Role Music Ecosystem"
         description="Mixxclub is the complete ecosystem for Artists, Engineers, Producers, and Fans. AI tools, MixxCoinz economy, global beat marketplace, certifications, and live premieres — all in one platform."
         keywords="about mixxclub, music production platform, four role ecosystem, mixxcoinz, beat marketplace, audio engineering"
-        schema={organizationSchema}
+        schema={[organizationSchema, softwareApplicationSchema]}
+        speakableSelectors={['h1', 'h2', '[data-speakable]']}
       />
 
       <div className="min-h-screen bg-background">
