@@ -305,6 +305,20 @@ const ForArtists = () => {
         </div>
       </section>
 
+      {/* FAQ */}
+      <section className="py-16 px-6 bg-background/80">
+        <FAQSection
+          faqs={[
+            { question: 'How do I get matched with the right engineer for my sound?', answer: 'When you upload a track, our AI analyzes its genre, tempo, key, and spectral characteristics. We then match you with verified engineers who specialize in your style. You can review their portfolios, ratings, and past work before accepting a match.' },
+            { question: 'What audio formats can I upload?', answer: 'Mixxclub accepts WAV, MP3, FLAC, AIFF, and OGG files. For the best results, upload uncompressed WAV files at 24-bit/44.1kHz or higher. You can also upload reference tracks to help your engineer understand your vision.' },
+            { question: 'How long does a mixing project take?', answer: 'Turnaround depends on your package. Standard mixing is delivered in 3 business days, while rush options deliver in 24 hours. Complex multi-track projects may take up to 5 days. You will receive progress updates throughout the process.' },
+            { question: 'Can I distribute my finished tracks through Mixxclub?', answer: 'Yes. Mixxclub integrates with distribution partners to get your music on 150+ streaming platforms including Spotify, Apple Music, Tidal, and Amazon Music. Distribution plans start at $19.99/year.' },
+            { question: 'What are MixxCoinz and how do I earn them as an artist?', answer: 'MixxCoinz are Mixxclub\'s platform currency. Artists earn them by uploading tracks, completing collaborations, engaging with the community, and reaching milestones. You can spend MixxCoinz on services or save them to unlock permanent platform perks.' },
+          ]}
+          title="Questions for Artists"
+        />
+      </section>
+
       {/* Final CTA - Portal Invitation */}
       <PortalInvitation
         icon={<Crown className="w-10 h-10" />}

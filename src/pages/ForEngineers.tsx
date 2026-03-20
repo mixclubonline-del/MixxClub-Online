@@ -231,6 +231,20 @@ export default function ForEngineers() {
         </div>
       </section>
 
+      {/* FAQ */}
+      <section className="py-16 px-6 bg-background/80">
+        <FAQSection
+          faqs={[
+            { question: 'How much do engineers earn on Mixxclub?', answer: 'Engineers keep 70–85% of every project fee depending on their tier and reputation level. Top-tier engineers with verified certifications and high ratings earn the highest splits. Payouts are processed same-day via Stripe Connect.' },
+            { question: 'What tools and integrations does Mixxclub provide for engineers?', answer: 'Mixxclub includes a full CRM pipeline for managing clients, a real-time collaboration studio with chat and audio streaming, AI-powered mixing suggestions, a public portfolio with verified reviews, and integrations for delivering files in any format.' },
+            { question: 'How does the verification process work?', answer: 'Engineers submit their portfolio, credentials, and complete a test project review. Our team evaluates audio quality, communication, and turnaround reliability. Verified engineers receive a badge and priority in matching algorithms. Re-verification happens annually.' },
+            { question: 'Can I use my own DAW and plugins?', answer: 'Absolutely. Most engineers work in their preferred DAW (Pro Tools, Logic, Ableton, FL Studio, etc.) and upload the finished files to Mixxclub. The platform handles client communication, payments, revisions, and delivery — you focus on the audio.' },
+            { question: 'How do I get my first clients on Mixxclub?', answer: 'New engineers are featured in the "Rising Engineers" section. Complete your profile with portfolio samples, set competitive rates, and accept your first few matches quickly to build momentum. High ratings on early projects significantly boost your visibility in the matching algorithm.' },
+          ]}
+          title="Questions for Engineers"
+        />
+      </section>
+
       {/* Final CTA - Portal Invitation */}
       <PortalInvitation
         icon={<Award className="w-10 h-10" />}

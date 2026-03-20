@@ -308,6 +308,20 @@ export default function EconomyPublic() {
           </ScrollRevealSection>
         </section>
 
+        {/* FAQ */}
+        <section className="py-16 px-6">
+          <FAQSection
+            faqs={[
+              { question: 'What are MixxCoinz?', answer: 'MixxCoinz are Mixxclub\'s platform currency. They represent your engagement and contributions to the ecosystem. You earn them through uploads, collaborations, community participation, and milestone achievements. They can be spent on services, used to unlock features, or accumulated for cash redemption at the top tier.' },
+              { question: 'How is the MixxCoinz-to-USD exchange rate determined?', answer: 'Top-tier members (Legend status, 25,000+ MixxCoinz) can redeem at a rate of 200 MixxCoinz to $1 USD. This rate is fixed and guaranteed by the platform. Lower tiers benefit from service discounts and feature unlocks rather than direct cash conversion.' },
+              { question: 'Do MixxCoinz expire?', answer: 'No. MixxCoinz are permanently tied to your account and never expire. Your balance grows over time as you continue participating in the platform. Tier status is based on your total lifetime earnings.' },
+              { question: 'What can I unlock with MixxCoinz?', answer: 'MixxCoinz unlock service discounts (up to 15%), priority matching with engineers, premium AI tools, exclusive profile customizations, VIP event access, and advanced analytics. Some features are permanently unlocked — no recurring cost once you hit the threshold.' },
+              { question: 'How do community unlockables work?', answer: 'As the total Mixxclub community accumulates MixxCoinz collectively, platform-wide features unlock for everyone. These milestones include new tools, expanded services, and community perks that benefit all members — creating shared ownership of the platform\'s growth.' },
+            ]}
+            title="MixxCoinz Economy — Common Questions"
+          />
+        </section>
+
         <PublicFooter />
       </div>
     </>
