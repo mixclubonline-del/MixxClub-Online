@@ -1,4 +1,5 @@
 import { SEOHead } from '@/components/SEOHead';
+import { generateServiceSchema } from '@/lib/seo-schema';
 import { motion } from 'framer-motion';
 import { Music, Sparkles, Radio, Brain, Sliders } from 'lucide-react';
 import { ServicesDistrict } from '@/components/services/ServicesDistrict';
