@@ -25,6 +25,7 @@ import { ShowcaseFeature } from "@/components/services/ShowcaseFeature";
 import { PortalInvitation } from "@/components/landing/PortalInvitation";
 import { FoundingBanner } from "@/components/landing/FoundingBanner";
 import { ScrollRevealSection } from "@/components/landing/ScrollRevealSection";
+import { FAQSection } from "@/components/seo/FAQSection";
 import { Badge } from "@/components/ui/badge";
 import { BackButton } from "@/components/navigation/BackButton";
 import portalProducerFallback from "@/assets/portal-producer.png";
