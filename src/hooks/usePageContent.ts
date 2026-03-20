@@ -162,6 +162,18 @@ export function usePageContent(pageSlug: string, sectionKey: string) {
 }
 
 /**
+ * Fetch an image content block and return the resolved public URL.
+ * Falls back to the provided fallback URL when no DB entry exists.
+ */
+export function usePageImage(pageSlug: string, sectionKey: string, fallbackUrl = '') {
+  const { content, isLoading } = usePageContent(pageSlug, sectionKey);
+  return {
+    imageUrl: content ? getPageImageUrl(content) : fallbackUrl,
+    isLoading,
+  };
+}
+
+/**
  * Fetch ALL content for a given page slug (admin editor uses this).
  */
 export function usePageContentBySlug(pageSlug: string) {
