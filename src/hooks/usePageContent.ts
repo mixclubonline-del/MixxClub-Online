@@ -2,6 +2,15 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
 const fromAny = (table: string) => (supabase.from as any)(table);
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
+const IMAGE_BUCKET = 'page-content-images';
+
+/** Resolve a storage path to a full public URL */
+export function getPageImageUrl(storagePath: string): string {
+  if (!storagePath) return '';
+  if (storagePath.startsWith('http')) return storagePath;
+  return `${SUPABASE_URL}/storage/v1/object/public/${IMAGE_BUCKET}/${storagePath}`;
+}
 
 export interface PageContentEntry {
   id: string;
@@ -149,6 +158,18 @@ export function usePageContent(pageSlug: string, sectionKey: string) {
   return {
     content: query.data ?? getDefault(pageSlug, sectionKey),
     isLoading: query.isLoading,
+  };
+}
+
+/**
+ * Fetch an image content block and return the resolved public URL.
+ * Falls back to the provided fallback URL when no DB entry exists.
+ */
+export function usePageImage(pageSlug: string, sectionKey: string, fallbackUrl = '') {
+  const { content, isLoading } = usePageContent(pageSlug, sectionKey);
+  return {
+    imageUrl: content ? getPageImageUrl(content) : fallbackUrl,
+    isLoading,
   };
 }
 
