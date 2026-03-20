@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import {
   useAllPageContent,
@@ -7,6 +7,7 @@ import {
   PAGE_CONTENT_DEFAULTS,
   type PageContentEntry,
 } from '@/hooks/usePageContent';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,6 +15,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import {
   FileText, Plus, Save, Trash2, RefreshCw, Globe, Loader2,
+  Upload, Image as ImageIcon, X,
 } from 'lucide-react';
 
 type ContentType = 'text' | 'rich_text' | 'image' | 'json';
@@ -21,7 +23,7 @@ type ContentType = 'text' | 'rich_text' | 'image' | 'json';
 const CONTENT_TYPE_OPTIONS: { value: ContentType; label: string }[] = [
   { value: 'text', label: 'Text' },
   { value: 'rich_text', label: 'Rich Text' },
-  { value: 'image', label: 'Image URL' },
+  { value: 'image', label: 'Image' },
   { value: 'json', label: 'JSON' },
 ];
 
@@ -34,6 +36,103 @@ interface EditableEntry {
   isNew?: boolean;
 }
 
+const BUCKET = 'page-content-images';
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
+
+function getPublicUrl(path: string) {
+  return `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${path}`;
+}
+
+/**
+ * Upload image to page-content-images bucket and return the storage path.
+ */
+async function uploadImage(file: File, pageSlug: string, sectionKey: string): Promise<string> {
+  const ext = file.name.split('.').pop() ?? 'jpg';
+  const storagePath = `${pageSlug}/${sectionKey}_${Date.now()}.${ext}`;
+
+  const { error } = await supabase.storage
+    .from(BUCKET)
+    .upload(storagePath, file, {
+      cacheControl: '31536000',
+      upsert: true,
+    });
+
+  if (error) throw error;
+  return storagePath;
+}
+
+function ImageUploader({
+  currentPath,
+  onUpload,
+  uploading,
+}: {
+  currentPath: string;
+  onUpload: (file: File) => void;
+  uploading: boolean;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const publicUrl = currentPath ? getPublicUrl(currentPath) : '';
+
+  return (
+    <div className="space-y-3">
+      {currentPath && (
+        <div className="relative rounded-lg overflow-hidden border border-border/40 bg-muted/30">
+          <img
+            src={publicUrl}
+            alt="Content preview"
+            className="w-full max-h-48 object-cover"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = 'none';
+            }}
+          />
+          <div className="absolute bottom-2 left-2 right-2 text-xs font-mono text-muted-foreground bg-background/80 backdrop-blur-sm rounded px-2 py-1 truncate">
+            {currentPath}
+          </div>
+        </div>
+      )}
+
+      <div className="flex items-center gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => inputRef.current?.click()}
+          disabled={uploading}
+        >
+          {uploading ? (
+            <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+          ) : (
+            <Upload className="w-4 h-4 mr-1" />
+          )}
+          {currentPath ? 'Replace Image' : 'Upload Image'}
+        </Button>
+        {currentPath && (
+          <span className="text-xs text-muted-foreground truncate max-w-[200px]">
+            {currentPath.split('/').pop()}
+          </span>
+        )}
+      </div>
+
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) {
+            if (file.size > 10 * 1024 * 1024) {
+              toast.error('Image must be under 10MB');
+              return;
+            }
+            onUpload(file);
+          }
+          e.target.value = '';
+        }}
+      />
+    </div>
+  );
+}
+
 export function AdminPageEditor() {
   const { user } = useAuth();
   const { data: entries = [], isLoading, refetch } = useAllPageContent();
@@ -43,6 +142,7 @@ export function AdminPageEditor() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<EditableEntry | null>(null);
   const [showNew, setShowNew] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [newEntry, setNewEntry] = useState<EditableEntry>({
     page_slug: '',
     section_key: '',
@@ -87,9 +187,30 @@ export function AdminPageEditor() {
     }
   };
 
+  const handleImageUpload = async (file: File, entry: EditableEntry, isNewEntry: boolean) => {
+    setUploading(true);
+    try {
+      const storagePath = await uploadImage(file, entry.page_slug, entry.section_key);
+      if (isNewEntry) {
+        setNewEntry(p => ({ ...p, content: storagePath }));
+      } else {
+        setDraft(p => p ? { ...p, content: storagePath } : p);
+      }
+      toast.success('Image uploaded');
+    } catch (err: any) {
+      toast.error(`Upload failed: ${err.message ?? 'Unknown error'}`);
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleDelete = async (entry: PageContentEntry) => {
     if (!confirm(`Delete "${entry.page_slug}/${entry.section_key}"?`)) return;
     try {
+      // If it's an image, also delete from storage
+      if (entry.content_type === 'image' && entry.content) {
+        await supabase.storage.from(BUCKET).remove([entry.content]);
+      }
       await deleteMut.mutateAsync(entry.id);
       toast.success('Content deleted');
     } catch {
@@ -127,6 +248,60 @@ export function AdminPageEditor() {
     return acc;
   }, {});
 
+  const renderContentEditor = (entry: EditableEntry, isNewEntry: boolean) => {
+    if (entry.content_type === 'image') {
+      return (
+        <ImageUploader
+          currentPath={entry.content}
+          uploading={uploading}
+          onUpload={(file) => handleImageUpload(file, entry, isNewEntry)}
+        />
+      );
+    }
+    return (
+      <Textarea
+        placeholder="Content..."
+        rows={4}
+        value={isNewEntry ? newEntry.content : (draft?.content ?? '')}
+        onChange={e => {
+          if (isNewEntry) {
+            setNewEntry(p => ({ ...p, content: e.target.value }));
+          } else {
+            setDraft(p => p ? { ...p, content: e.target.value } : p);
+          }
+        }}
+        className="font-mono text-sm"
+      />
+    );
+  };
+
+  const renderContentPreview = (entry: PageContentEntry) => {
+    if (entry.content_type === 'image' && entry.content) {
+      const url = getPublicUrl(entry.content);
+      return (
+        <div className="flex items-center gap-3">
+          <div className="w-16 h-16 rounded-md overflow-hidden border border-border/40 bg-muted/30 shrink-0">
+            <img
+              src={url}
+              alt={entry.section_key}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = '';
+                (e.target as HTMLImageElement).style.display = 'none';
+              }}
+            />
+          </div>
+          <span className="text-xs text-muted-foreground font-mono truncate">{entry.content}</span>
+        </div>
+      );
+    }
+    return (
+      <p className="text-sm text-muted-foreground whitespace-pre-wrap line-clamp-3">
+        {entry.content || '(empty)'}
+      </p>
+    );
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -137,7 +312,7 @@ export function AdminPageEditor() {
             Page Content Editor
           </h2>
           <p className="text-muted-foreground text-sm mt-1">
-            Edit site content directly — changes go live immediately.
+            Edit site content and images directly — changes go live immediately.
           </p>
         </div>
         <div className="flex gap-2">
@@ -174,21 +349,18 @@ export function AdminPageEditor() {
             <select
               className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
               value={newEntry.content_type}
-              onChange={e => setNewEntry(p => ({ ...p, content_type: e.target.value as ContentType }))}
+              onChange={e => setNewEntry(p => ({ ...p, content_type: e.target.value as ContentType, content: '' }))}
             >
               {CONTENT_TYPE_OPTIONS.map(o => (
                 <option key={o.value} value={o.value}>{o.label}</option>
               ))}
             </select>
-            <Textarea
-              placeholder="Content..."
-              rows={4}
-              value={newEntry.content}
-              onChange={e => setNewEntry(p => ({ ...p, content: e.target.value }))}
-            />
+
+            {renderContentEditor(newEntry, true)}
+
             <div className="flex gap-2 justify-end">
               <Button variant="ghost" size="sm" onClick={() => setShowNew(false)}>Cancel</Button>
-              <Button size="sm" onClick={() => handleSave(newEntry)} disabled={upsert.isPending}>
+              <Button size="sm" onClick={() => handleSave(newEntry)} disabled={upsert.isPending || uploading}>
                 <Save className="w-4 h-4 mr-1" />
                 Save
               </Button>
@@ -221,7 +393,15 @@ export function AdminPageEditor() {
               <Globe className="w-4 h-4 text-primary" />
               /{slug}
             </CardTitle>
-            <CardDescription>{items.length} section{items.length !== 1 ? 's' : ''}</CardDescription>
+            <CardDescription>
+              {items.length} section{items.length !== 1 ? 's' : ''}
+              {items.some(i => i.content_type === 'image') && (
+                <span className="ml-2 inline-flex items-center gap-1 text-xs">
+                  <ImageIcon className="w-3 h-3" />
+                  {items.filter(i => i.content_type === 'image').length} image{items.filter(i => i.content_type === 'image').length !== 1 ? 's' : ''}
+                </span>
+              )}
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {items.map(entry => {
@@ -229,11 +409,16 @@ export function AdminPageEditor() {
               return (
                 <div key={entry.id} className="border border-border/40 rounded-lg p-4 space-y-2">
                   <div className="flex items-center justify-between">
-                    <div>
+                    <div className="flex items-center gap-2">
                       <span className="font-mono text-sm font-semibold text-primary">
                         {entry.section_key}
                       </span>
-                      <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${
+                        entry.content_type === 'image'
+                          ? 'bg-accent/20 text-accent-foreground'
+                          : 'bg-muted text-muted-foreground'
+                      }`}>
+                        {entry.content_type === 'image' && <ImageIcon className="w-2.5 h-2.5 inline mr-1" />}
                         {entry.content_type}
                       </span>
                     </div>
@@ -252,7 +437,7 @@ export function AdminPageEditor() {
                           <Button variant="ghost" size="sm" onClick={() => { setEditingId(null); setDraft(null); }}>
                             Cancel
                           </Button>
-                          <Button size="sm" onClick={() => draft && handleSave(draft)} disabled={upsert.isPending}>
+                          <Button size="sm" onClick={() => draft && handleSave(draft)} disabled={upsert.isPending || uploading}>
                             <Save className="w-3 h-3 mr-1" />
                             Save
                           </Button>
@@ -262,16 +447,9 @@ export function AdminPageEditor() {
                   </div>
 
                   {isEditing && draft ? (
-                    <Textarea
-                      rows={4}
-                      value={draft.content}
-                      onChange={e => setDraft(p => p ? { ...p, content: e.target.value } : p)}
-                      className="font-mono text-sm"
-                    />
+                    renderContentEditor(draft, false)
                   ) : (
-                    <p className="text-sm text-muted-foreground whitespace-pre-wrap line-clamp-3">
-                      {entry.content || '(empty)'}
-                    </p>
+                    renderContentPreview(entry)
                   )}
 
                   <p className="text-xs text-muted-foreground/60">
