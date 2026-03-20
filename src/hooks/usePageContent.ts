@@ -108,6 +108,7 @@ const DEFAULTS: Record<string, Record<string, { content: string; content_type: s
     hero_title: { content: 'Be Day 1. Get Rewarded Forever.', content_type: 'text' },
     hero_subtitle: { content: 'Discover artists before they blow up, earn blockchain-verified OG status, and unlock exclusive rewards as they rise.', content_type: 'text' },
     hero_badge: { content: 'For Fans', content_type: 'text' },
+    hero_image: { content: '', content_type: 'image' },
   },
 
   /* ─── HOW IT WORKS ─── */
