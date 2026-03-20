@@ -99,5 +99,8 @@ export const publicRoutes = (
     <Route path="/beat-forge" element={<Suspend><PrimeBeatForge /></Suspend>} />
     <Route path={ROUTES.ECONOMY} element={<Suspend><EconomyPublic /></Suspend>} />
     <Route path="/u/:username" element={<Suspend><PublicProfile /></Suspend>} />
+
+    {/* Dynamic landing pages from block builder */}
+    <Route path="/p/:slug" element={<Suspend><LandingPageView /></Suspend>} />
   </>
 );
