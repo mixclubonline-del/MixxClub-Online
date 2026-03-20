@@ -85,6 +85,8 @@ export const SEOHead = ({
   publishedTime,
   modifiedTime,
   product,
+  faq,
+  speakableSelectors,
 }: SEOHeadProps) => {
   const fullTitle =
     title.length > 55
