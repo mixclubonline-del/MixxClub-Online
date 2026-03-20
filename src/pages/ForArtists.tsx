@@ -28,8 +28,8 @@ import { TransformationDemo } from "@/components/home/TransformationDemo";
 import { ScrollRevealSection } from "@/components/landing/ScrollRevealSection";
 import { Badge } from "@/components/ui/badge";
 import { BackButton } from "@/components/navigation/BackButton";
-import portalArtistImage from "@/assets/portal-artist.jpg";
-import { usePageContent } from '@/hooks/usePageContent';
+import portalArtistFallback from "@/assets/portal-artist.jpg";
+import { usePageContent, usePageImage } from '@/hooks/usePageContent';
 
 // Journey Images
 import artistUploadCloud from "@/assets/promo/artist-upload-cloud.jpg";
@@ -49,6 +49,7 @@ const ForArtists = () => {
   const { content: heroTitle } = usePageContent('for-artists', 'hero_title');
   const { content: heroSubtitle } = usePageContent('for-artists', 'hero_subtitle');
   const { content: heroBadge } = usePageContent('for-artists', 'hero_badge');
+  const { imageUrl: portalArtistImage } = usePageImage('for-artists', 'hero_image', portalArtistFallback);
   const journeySteps: ShowcaseStep[] = [
     {
       image: artistUploadCloud,

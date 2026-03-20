@@ -23,9 +23,9 @@ import { FoundingBanner } from "@/components/landing/FoundingBanner";
 import { ScrollRevealSection } from "@/components/landing/ScrollRevealSection";
 import { RevenuePreview } from "@/components/home/RevenuePreview";
 import { StudioPreview } from "@/components/home/StudioPreview";
-import portalEngineerImage from "@/assets/portal-engineer.jpg";
+import portalEngineerFallback from "@/assets/portal-engineer.jpg";
 import { BackButton } from "@/components/navigation/BackButton";
-import { usePageContent } from '@/hooks/usePageContent';
+import { usePageContent, usePageImage } from '@/hooks/usePageContent';
 
 // Engineer Images
 import engineerRevenueStreams from "@/assets/promo/engineer-revenue-streams.jpg";
@@ -39,6 +39,7 @@ export default function ForEngineers() {
   const { content: heroTitle } = usePageContent('for-engineers', 'hero_title');
   const { content: heroSubtitle } = usePageContent('for-engineers', 'hero_subtitle');
   const { content: heroBadge } = usePageContent('for-engineers', 'hero_badge');
+  const { imageUrl: portalEngineerImage } = usePageImage('for-engineers', 'hero_image', portalEngineerFallback);
   const stats = [
     { value: "$4,200", label: "Avg Monthly Earnings" },
     { value: "10", label: "Revenue Streams" },

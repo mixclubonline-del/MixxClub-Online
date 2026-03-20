@@ -8,8 +8,8 @@ import {
 import { SEOHead } from '@/components/SEOHead';
 import { organizationSchema } from '@/lib/seo-schema';
 import { GlassPanel } from '@/components/crm/design/GlassPanel';
-import heroAbout from '@/assets/hero-about.jpg';
-import { usePageContent } from '@/hooks/usePageContent';
+import heroAboutFallback from '@/assets/hero-about.jpg';
+import { usePageContent, usePageImage } from '@/hooks/usePageContent';
 
 const sectionAnim = {
   hidden: { opacity: 0, y: 40 },
@@ -77,6 +77,7 @@ export default function About() {
   const { content: missionBody } = usePageContent('about', 'mission_body');
   const { content: visionTitle } = usePageContent('about', 'vision_title');
   const { content: visionBody } = usePageContent('about', 'vision_body');
+  const { imageUrl: heroImage } = usePageImage('about', 'hero_image', heroAboutFallback);
   return (
     <>
       <SEOHead
@@ -92,7 +93,7 @@ export default function About() {
         {/* Hero */}
         <section className="relative h-[60vh] min-h-[420px] flex items-center justify-center overflow-hidden">
           <img
-            src={heroAbout}
+            src={heroImage}
             alt="The Mixxclub four-role ecosystem in action"
             className="absolute inset-0 w-full h-full object-cover"
           />

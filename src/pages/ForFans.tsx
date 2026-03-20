@@ -29,8 +29,8 @@ import { FoundingBanner } from "@/components/landing/FoundingBanner";
 import { ScrollRevealSection } from "@/components/landing/ScrollRevealSection";
 import { Badge } from "@/components/ui/badge";
 import { BackButton } from "@/components/navigation/BackButton";
-import portalFanImage from "@/assets/portal-fan.png";
-import { usePageContent } from '@/hooks/usePageContent';
+import portalFanFallback from "@/assets/portal-fan.png";
+import { usePageContent, usePageImage } from '@/hooks/usePageContent';
 
 // Reuse promo images temporarily
 import artistUploadCloud from "@/assets/promo/artist-upload-cloud.jpg";
@@ -50,6 +50,7 @@ const ForFans = () => {
     const { content: heroTitle } = usePageContent('for-fans', 'hero_title');
     const { content: heroSubtitle } = usePageContent('for-fans', 'hero_subtitle');
     const { content: heroBadge } = usePageContent('for-fans', 'hero_badge');
+    const { imageUrl: portalFanImage } = usePageImage('for-fans', 'hero_image', portalFanFallback);
     const journeySteps: ShowcaseStep[] = [
         {
             image: artistUploadCloud,

@@ -64,6 +64,7 @@ const DEFAULTS: Record<string, Record<string, { content: string; content_type: s
     hero_title: { content: 'One Platform. Four Roles.\nInfinite Possibility.', content_type: 'text' },
     hero_subtitle: { content: 'Mixxclub is the complete music ecosystem — where artists create, engineers craft, producers supply, and fans invest in the culture they love.', content_type: 'text' },
     hero_badge: { content: 'Artist · Engineer · Producer · Fan', content_type: 'text' },
+    hero_image: { content: '', content_type: 'image' },
     mission_title: { content: 'Our Mission', content_type: 'text' },
     mission_body: { content: 'To build the world\'s most complete music ecosystem — one that serves every person in the creative chain. Not just artists. Not just engineers. Everyone. From the bedroom producer to the Day 1 fan, every role matters and every contribution is rewarded.', content_type: 'text' },
     vision_title: { content: 'Our Vision', content_type: 'text' },
@@ -83,6 +84,7 @@ const DEFAULTS: Record<string, Record<string, { content: string; content_type: s
     hero_title: { content: 'Turn Bedroom Beats Into Billboard Bangers', content_type: 'text' },
     hero_subtitle: { content: 'Professional mixing, AI-powered mastering, real-time collaboration, and MixxCoinz rewards with world-class engineers.', content_type: 'text' },
     hero_badge: { content: 'For Artists', content_type: 'text' },
+    hero_image: { content: '', content_type: 'image' },
   },
 
   /* ─── FOR ENGINEERS PORTAL ─── */
@@ -90,6 +92,7 @@ const DEFAULTS: Record<string, Record<string, { content: string; content_type: s
     hero_title: { content: 'Your Skills Deserve to Be Paid', content_type: 'text' },
     hero_subtitle: { content: 'Transform your audio expertise into a thriving business with 10 revenue streams, verified certifications, and automatic client matching.', content_type: 'text' },
     hero_badge: { content: 'For Engineers', content_type: 'text' },
+    hero_image: { content: '', content_type: 'image' },
   },
 
   /* ─── FOR PRODUCERS PORTAL ─── */
@@ -97,6 +100,7 @@ const DEFAULTS: Record<string, Record<string, { content: string; content_type: s
     hero_title: { content: 'Your Beats Deserve a Global Stage', content_type: 'text' },
     hero_subtitle: { content: 'Build your catalog, license your sound, and earn from every beat — with AI-powered tools and a marketplace of 10,000+ artists.', content_type: 'text' },
     hero_badge: { content: 'For Producers', content_type: 'text' },
+    hero_image: { content: '', content_type: 'image' },
   },
 
   /* ─── FOR FANS PORTAL ─── */
@@ -104,6 +108,7 @@ const DEFAULTS: Record<string, Record<string, { content: string; content_type: s
     hero_title: { content: 'Be Day 1. Get Rewarded Forever.', content_type: 'text' },
     hero_subtitle: { content: 'Discover artists before they blow up, earn blockchain-verified OG status, and unlock exclusive rewards as they rise.', content_type: 'text' },
     hero_badge: { content: 'For Fans', content_type: 'text' },
+    hero_image: { content: '', content_type: 'image' },
   },
 
   /* ─── HOW IT WORKS ─── */
@@ -167,8 +172,9 @@ export function usePageContent(pageSlug: string, sectionKey: string) {
  */
 export function usePageImage(pageSlug: string, sectionKey: string, fallbackUrl = '') {
   const { content, isLoading } = usePageContent(pageSlug, sectionKey);
+  const resolvedUrl = content && content.length > 0 ? getPageImageUrl(content) : '';
   return {
-    imageUrl: content ? getPageImageUrl(content) : fallbackUrl,
+    imageUrl: resolvedUrl || fallbackUrl,
     isLoading,
   };
 }
