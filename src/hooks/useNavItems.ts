@@ -12,7 +12,7 @@ export interface NavItem {
   open_in_new_tab: boolean;
   requires_auth: boolean;
   nav_group: string;
-  metadata: Record<string, unknown>;
+  metadata: Record<string, string | number | boolean | null> | null;
   created_at: string;
   updated_at: string;
 }
