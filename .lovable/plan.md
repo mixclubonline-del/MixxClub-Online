@@ -1,66 +1,60 @@
 
 
-## Admin Site Editor — Feasibility & Plan
+## AEO (Answer Engine Optimization) for Mixxclub
 
-### What You Already Have
-Your admin panel can already manage **branding** (colors, logo, name), **feature flags**, **content moderation** (audio/beats), **brand assets** (images for districts/sections), and **platform config** (launch mode, settings). These are effectively CMS-lite capabilities.
+### Goal
+Make Mixxclub's pages machine-readable and authoritative for AI search engines (ChatGPT, Perplexity, Google AI Overviews) so the platform surfaces as a direct answer when users ask about audio mixing services, beat marketplaces, or music engineering platforms.
 
-### What "Edit the Actual Site" Could Mean
+### Current State
+- `SEOHead` component injects Organization + WebSite JSON-LD on every page
+- `seo-schema.ts` has generators for Product, Review, Breadcrumb, Service — but most are **unused** on actual pages
+- `robots.txt` allows all major crawlers but doesn't address AI bots (GPTBot, PerplexityBot, ClaudeBot)
+- No FAQ schema on any page
+- No `speakable` markup
+- Services pages have no Service schema despite the generator existing
+- Beat/marketplace pages have no Product schema
 
-There are several levels of site editing from the admin panel, ranging from practical to ambitious:
+### Plan
 
-#### Level 1: Page Content CMS (Recommended Starting Point)
-Allow admins to edit text, images, and layout of key pages (homepage hero, about section, district descriptions, community plaza copy) without touching code.
+**1. Update `robots.txt` — Allow AI crawlers explicitly**
+- Add `User-agent` rules for GPTBot, PerplexityBot, ClaudeBot, Google-Extended
+- Keep existing disallow rules for private routes
 
-- Create a `page_content` table storing editable blocks (key, title, body, image_url, section, page)
-- Build a WYSIWYG or structured-form editor in the admin panel
-- Frontend components read from this table instead of hardcoded strings
-- **Effort**: Medium — requires migrating static text to database-driven content
+**2. Enhance `SEOHead.tsx` — Add FAQ and Speakable schema support**
+- Add optional `faq` prop: `Array<{question: string, answer: string}>`
+- Auto-generates FAQPage JSON-LD when provided
+- Add optional `speakable` prop for voice-search optimization
 
-#### Level 2: Navigation & Menu Editor
-Admin control over nav items, menu ordering, and link visibility.
+**3. Add FAQ sections with schema to key pages**
+- **Services** (`/services`): "What is professional mixing?", "How much does mastering cost?", pricing questions
+- **About** (`/about`): "What is Mixxclub?", "How does AI mixing work?"
+- **How It Works** (`/how-it-works`): Process-oriented FAQs
+- **Pricing** (`/pricing`): Plan comparison questions
+- Create a reusable `FAQSection` component that renders visible FAQ accordion + passes data to SEOHead
 
-- Store nav structure in `platform_config` or a dedicated `nav_items` table
-- Admin UI to reorder, add, hide menu items
-- **Effort**: Low-medium
+**4. Wire existing schema generators to pages**
+- Services page: inject `serviceSchema` for each service (Mixing, Mastering, AI Mastering, Distribution)
+- Beat marketplace: inject `generateProductSchema` for beat listings
+- About page: already uses `organizationSchema` — add `SoftwareApplication` schema for the platform itself
 
-#### Level 3: Landing Page Builder
-Drag-and-drop block-based page builder (hero, features grid, testimonials, CTA sections).
+**5. Add `llms.txt` to `public/`**
+- A plain-text file (emerging standard) that tells AI crawlers what Mixxclub is, key pages, and how to cite it
+- Includes: platform description, service list, key URLs, contact info
 
-- Predefined block types with configurable props stored as JSON
-- Admin assembles pages from blocks
-- **Effort**: High — essentially building a mini website builder
+**6. Create a `SpeakableSnippet` component**
+- Wraps key text blocks (hero headlines, service descriptions) with `data-speakable` attributes
+- Adds `speakable` schema pointing to CSS selectors for voice-assistant extraction
 
-#### Level 4: Full Visual Editor
-Live preview editing similar to Webflow/Squarespace — this would be extremely complex and is not recommended for an in-app solution.
+### Files Changed
+- `public/robots.txt` — add AI bot rules
+- `public/llms.txt` — new file
+- `src/components/SEOHead.tsx` — add `faq` and `speakable` props
+- `src/components/seo/FAQSection.tsx` — new reusable FAQ accordion with schema
+- `src/pages/Services.tsx` — add FAQ + Service schemas
+- `src/pages/About.tsx` — add FAQ + SoftwareApplication schema
+- `src/pages/HowItWorks.tsx` — add FAQ
+- `src/pages/Pricing.tsx` — add FAQ
+- `src/lib/seo-schema.ts` — add FAQ, SoftwareApplication, and Speakable generators
 
-### Recommended Plan: Level 1 + Level 2
-
-**Step 1 — Database: `page_content` table**
-- Columns: `id`, `page_slug`, `section_key`, `content_type` (text/image/rich_text), `content`, `metadata` (JSON), `updated_by`, `updated_at`
-- RLS: public read, admin-only write
-
-**Step 2 — Admin Content Editor page**
-- List all editable sections grouped by page
-- Inline editing with rich text (bold/italic/links) for text blocks
-- Image upload via storage for image blocks
-- Live preview link to see changes
-
-**Step 3 — Frontend `usePageContent` hook**
-- Fetches content by page slug + section key
-- Falls back to hardcoded defaults if no DB entry exists
-- Cached with react-query (stale time ~5 min)
-
-**Step 4 — Migrate key sections**
-- Homepage hero title, subtitle, CTA text
-- District descriptions and images
-- Community Plaza copy
-- Footer links and text
-
-### Technical Details
-- New migration: `page_content` table with RLS policies using existing `has_role` function
-- New hook: `src/hooks/usePageContent.ts`
-- New admin component: `src/components/admin/AdminPageEditor.tsx`
-- Integrate into existing admin CRM panel navigation
-- ~4-5 files modified, ~3 new files
+No database changes needed.
 
