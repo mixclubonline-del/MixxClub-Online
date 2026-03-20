@@ -100,6 +100,7 @@ const DEFAULTS: Record<string, Record<string, { content: string; content_type: s
     hero_title: { content: 'Your Beats Deserve a Global Stage', content_type: 'text' },
     hero_subtitle: { content: 'Build your catalog, license your sound, and earn from every beat — with AI-powered tools and a marketplace of 10,000+ artists.', content_type: 'text' },
     hero_badge: { content: 'For Producers', content_type: 'text' },
+    hero_image: { content: '', content_type: 'image' },
   },
 
   /* ─── FOR FANS PORTAL ─── */
