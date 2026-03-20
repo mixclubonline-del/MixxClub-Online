@@ -238,9 +238,9 @@ const ForArtists = () => {
 
       {/* Hero Section */}
       <PortalHero
-        badge={{ icon: <Music className="w-4 h-4" />, text: "For Artists" }}
-        title="Turn Bedroom Beats Into Billboard Bangers"
-        subtitle="Professional mixing, AI-powered mastering, real-time collaboration, and MixxCoinz rewards with world-class engineers."
+        badge={{ icon: <Music className="w-4 h-4" />, text: heroBadge }}
+        title={heroTitle}
+        subtitle={heroSubtitle}
         stats={stats}
         primaryAction={{
           text: "Start Your Journey Free",

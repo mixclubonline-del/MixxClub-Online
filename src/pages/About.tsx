@@ -130,15 +130,15 @@ export default function About() {
             viewport={{ once: true, margin: '-80px' }}
           >
             <GlassPanel glow accent="rgba(168,85,247,0.35)">
-              <h2 className="text-3xl font-bold mb-4">Our Mission</h2>
+              <h2 className="text-3xl font-bold mb-4">{missionTitle}</h2>
               <p className="text-muted-foreground leading-relaxed">
-                To build the world's most complete music ecosystem — one that serves every person in the creative chain. Not just artists. Not just engineers. Everyone. From the bedroom producer to the Day 1 fan, every role matters and every contribution is rewarded.
+                {missionBody}
               </p>
             </GlassPanel>
             <GlassPanel glow accent="rgba(6,182,212,0.35)">
-              <h2 className="text-3xl font-bold mb-4">Our Vision</h2>
+              <h2 className="text-3xl font-bold mb-4">{visionTitle}</h2>
               <p className="text-muted-foreground leading-relaxed">
-                A music industry where ownership is distributed, collaboration is seamless, and every creative can build real wealth from their craft. Powered by AI tools, an in-platform economy, and a community that unlocks new possibilities together.
+                {visionBody}
               </p>
             </GlassPanel>
           </motion.div>

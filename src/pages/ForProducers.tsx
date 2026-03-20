@@ -224,9 +224,9 @@ const ForProducers = () => {
 
             {/* Hero Section */}
             <PortalHero
-                badge={{ icon: <Disc3 className="w-4 h-4" />, text: "For Producers" }}
-                title="Your Beats Deserve a Global Stage"
-                subtitle="Build your catalog, license your sound, and earn from every beat — with AI-powered tools and a marketplace of 10,000+ artists."
+                badge={{ icon: <Disc3 className="w-4 h-4" />, text: heroBadge }}
+                title={heroTitle}
+                subtitle={heroSubtitle}
                 stats={stats}
                 primaryAction={{
                     text: "Start Selling Beats",

@@ -120,10 +120,10 @@ export default function Contact() {
             transition={{ duration: 0.8 }}
           >
             <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-foreground via-primary to-secondary bg-clip-text text-transparent">
-              Get In Touch
+              {contactTitle}
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Have a question? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+              {contactSubtitle}
             </p>
           </motion.div>
 

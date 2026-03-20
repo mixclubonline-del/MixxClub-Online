@@ -226,9 +226,9 @@ const ForFans = () => {
 
             {/* Hero Section */}
             <PortalHero
-                badge={{ icon: <Heart className="w-4 h-4" />, text: "For Fans" }}
-                title="Be Day 1. Get Rewarded Forever."
-                subtitle="Discover artists before they blow up, earn blockchain-verified OG status, and unlock exclusive rewards as they rise."
+                badge={{ icon: <Heart className="w-4 h-4" />, text: heroBadge }}
+                title={heroTitle}
+                subtitle={heroSubtitle}
                 stats={stats}
                 primaryAction={{
                     text: "Start Discovering Free",

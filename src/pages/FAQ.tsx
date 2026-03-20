@@ -104,10 +104,10 @@ export default function FAQ() {
             transition={{ duration: 0.8 }}
           >
             <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-foreground via-primary to-secondary bg-clip-text text-transparent">
-              Frequently Asked Questions
+              {faqTitle}
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Everything you need to know about Mixxclub. Can't find what you're looking for? Contact our support team.
+              {faqSubtitle}
             </p>
           </motion.div>
 
