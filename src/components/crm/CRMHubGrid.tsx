@@ -159,6 +159,7 @@ const ROLE_HUB_DEFINITIONS: Record<string, HubDefinition[]> = {
     { id: 'screenshots', label: 'Screenshots', icon: Camera, description: 'Route capture tool' },
     { id: 'page-editor', label: 'Page Editor', icon: FileText, description: 'Edit site content' },
     { id: 'nav-editor', label: 'Navigation', icon: Navigation, description: 'Menu & link editor' },
+    { id: 'landing-builder', label: 'Page Builder', icon: LayoutTemplate, description: 'Block-based pages' },
   ],
 };
 
