@@ -1,6 +1,8 @@
 /**
  * BlockRenderer — renders a single landing page block by type.
  * Each block type maps to a pure presentational component.
+ * Shared style props (_paddingY, _bgColor, _bgGradient, _bgImage, etc.)
+ * are applied via a wrapper so individual blocks stay clean.
  */
 
 import { motion } from 'framer-motion';
@@ -30,6 +32,76 @@ function resolveImage(src: string): string {
   return getPageImageUrl(src);
 }
 
+/* ── Style utilities ── */
+const PADDING_MAP: Record<string, string> = {
+  none: 'py-0',
+  sm: 'py-8',
+  default: '',  // let each block keep its own default
+  lg: 'py-28',
+  xl: 'py-36',
+};
+
+const GRADIENT_MAP: Record<string, string> = {
+  'none': '',
+  'primary-secondary': 'bg-gradient-to-br from-primary/15 via-background to-secondary/15',
+  'dark': 'bg-gradient-to-b from-background via-black/40 to-background',
+  'mist': 'bg-gradient-to-br from-muted/30 via-background to-muted/30',
+  'sunset': 'bg-gradient-to-br from-orange-500/10 via-rose-500/10 to-purple-500/10',
+  'ocean': 'bg-gradient-to-br from-cyan-500/10 via-blue-500/10 to-indigo-500/10',
+};
+
+const MAX_WIDTH_MAP: Record<string, string> = {
+  narrow: 'max-w-4xl',
+  default: 'max-w-6xl',
+  wide: 'max-w-7xl',
+  full: 'max-w-full',
+};
+
+function StyleWrapper({ props, children }: { props: Record<string, any>; children: React.ReactNode }) {
+  const paddingClass = props._paddingY && props._paddingY !== 'default' ? PADDING_MAP[props._paddingY] ?? '' : '';
+  const gradientClass = props._bgGradient ? GRADIENT_MAP[props._bgGradient] ?? '' : '';
+  const bgImage = props._bgImage ? resolveImage(props._bgImage) : '';
+  const overlayOpacity = parseInt(props._bgOverlay || '60', 10);
+  const bgColor = props._bgColor || '';
+  const textColor = props._textColor || '';
+
+  const hasCustomStyle = paddingClass || gradientClass || bgImage || bgColor || textColor;
+  if (!hasCustomStyle) return <>{children}</>;
+
+  return (
+    <div
+      className={`relative ${paddingClass}`}
+      style={{
+        ...(bgColor ? { backgroundColor: bgColor } : {}),
+        ...(textColor ? { color: textColor } : {}),
+      }}
+    >
+      {bgImage && (
+        <>
+          <img
+            src={bgImage}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="lazy"
+          />
+          {overlayOpacity > 0 && (
+            <div
+              className="absolute inset-0 bg-background"
+              style={{ opacity: overlayOpacity / 100 }}
+            />
+          )}
+        </>
+      )}
+      {gradientClass && !bgImage && (
+        <div className={`absolute inset-0 ${gradientClass}`} />
+      )}
+      <div className="relative z-10">
+        {children}
+      </div>
+    </div>
+  );
+}
+
 const sectionAnim = {
   hidden: { opacity: 0, y: 40 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] as const } },
@@ -45,12 +117,7 @@ function HeroBlock({ props }: { props: Record<string, any> }) {
       className={`relative ${props.fullHeight ? 'min-h-screen' : 'min-h-[60vh]'} flex ${align} justify-center px-6 py-24 overflow-hidden`}
     >
       {bgImage && (
-        <img
-          src={bgImage}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover"
-          loading="lazy"
-        />
+        <img src={bgImage} alt="" className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
       )}
       {!bgImage && (
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-secondary/20" />
@@ -80,9 +147,7 @@ function HeroBlock({ props }: { props: Record<string, any> }) {
         <div className="flex flex-col sm:flex-row gap-4">
           {props.ctaText && (
             <Link to={props.ctaHref || '#'}>
-              <Button size="lg" className="text-lg px-8 py-6">
-                {props.ctaText}
-              </Button>
+              <Button size="lg" className="text-lg px-8 py-6">{props.ctaText}</Button>
             </Link>
           )}
           {props.secondaryCtaText && (
@@ -105,13 +170,7 @@ function FeaturesGridBlock({ props }: { props: Record<string, any> }) {
   const cols = props.columns === '4' ? 'md:grid-cols-4' : props.columns === '2' ? 'md:grid-cols-2' : 'md:grid-cols-3';
 
   return (
-    <motion.section
-      className="py-20 px-6"
-      variants={sectionAnim}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, margin: '-80px' }}
-    >
+    <motion.section className="py-20 px-6" variants={sectionAnim} initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-80px' }}>
       <div className="container max-w-6xl mx-auto">
         {props.title && (
           <div className="text-center mb-12">
@@ -123,13 +182,7 @@ function FeaturesGridBlock({ props }: { props: Record<string, any> }) {
           {features.map((f: any, i: number) => {
             const Icon = resolveIcon(f.icon);
             return (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1, duration: 0.5 }}
-              >
+              <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1, duration: 0.5 }}>
                 <GlassPanel hoverable className="h-full">
                   <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
                     <Icon className="w-6 h-6 text-primary" />
@@ -152,13 +205,7 @@ function StatsBarBlock({ props }: { props: Record<string, any> }) {
   try { stats = typeof props.stats === 'string' ? JSON.parse(props.stats) : props.stats; } catch { /* empty */ }
 
   return (
-    <motion.section
-      className="py-12 px-6"
-      variants={sectionAnim}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true }}
-    >
+    <motion.section className="py-12 px-6" variants={sectionAnim} initial="hidden" whileInView="visible" viewport={{ once: true }}>
       <div className="container max-w-5xl mx-auto">
         <div className={`grid grid-cols-2 md:grid-cols-${stats.length} gap-6 ${props.glassEffect ? 'p-6 rounded-2xl bg-background/30 backdrop-blur-md border border-border/20' : ''}`}>
           {stats.map((s: any, i: number) => (
@@ -179,13 +226,7 @@ function TestimonialsBlock({ props }: { props: Record<string, any> }) {
   try { testimonials = typeof props.testimonials === 'string' ? JSON.parse(props.testimonials) : props.testimonials; } catch { /* empty */ }
 
   return (
-    <motion.section
-      className="py-20 px-6"
-      variants={sectionAnim}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, margin: '-80px' }}
-    >
+    <motion.section className="py-20 px-6" variants={sectionAnim} initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-80px' }}>
       <div className="container max-w-6xl mx-auto">
         {props.title && (
           <div className="text-center mb-12">
@@ -195,13 +236,7 @@ function TestimonialsBlock({ props }: { props: Record<string, any> }) {
         )}
         <div className="grid md:grid-cols-3 gap-6">
           {testimonials.map((t: any, i: number) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1, duration: 0.5 }}
-            >
+            <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1, duration: 0.5 }}>
               <GlassPanel glow className="h-full">
                 <p className="text-muted-foreground mb-4 italic leading-relaxed">"{t.quote}"</p>
                 <div className="flex items-center gap-3">
@@ -236,26 +271,16 @@ function CtaBannerBlock({ props }: { props: Record<string, any> }) {
       : 'bg-primary/5';
 
   return (
-    <motion.section
-      className="py-20 px-6"
-      variants={sectionAnim}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true }}
-    >
+    <motion.section className="py-20 px-6" variants={sectionAnim} initial="hidden" whileInView="visible" viewport={{ once: true }}>
       <div className={`container max-w-4xl mx-auto rounded-3xl p-12 md:p-16 text-center ${bgClass}`}>
         <h2 className="text-3xl md:text-5xl font-bold mb-4">{props.title}</h2>
         {props.subtitle && <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">{props.subtitle}</p>}
         {props.ctaText && (
           <Link to={props.ctaHref || '#'}>
-            <Button size="lg" className="text-lg px-10 py-6">
-              {props.ctaText}
-            </Button>
+            <Button size="lg" className="text-lg px-10 py-6">{props.ctaText}</Button>
           </Link>
         )}
-        {props.disclaimer && (
-          <p className="text-xs text-muted-foreground mt-4">{props.disclaimer}</p>
-        )}
+        {props.disclaimer && <p className="text-xs text-muted-foreground mt-4">{props.disclaimer}</p>}
       </div>
     </motion.section>
   );
@@ -267,14 +292,8 @@ function ImageTextBlock({ props }: { props: Record<string, any> }) {
   const reversed = props.imagePosition === 'left';
 
   return (
-    <motion.section
-      className="py-20 px-6"
-      variants={sectionAnim}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, margin: '-80px' }}
-    >
-      <div className={`container max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center ${reversed ? '' : ''}`}>
+    <motion.section className="py-20 px-6" variants={sectionAnim} initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-80px' }}>
+      <div className="container max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
         <div className={reversed ? 'md:order-2' : ''}>
           <h2 className="text-3xl md:text-4xl font-bold mb-4">{props.title}</h2>
           <p className="text-lg text-muted-foreground leading-relaxed mb-6 whitespace-pre-line">{props.body}</p>
@@ -306,18 +325,10 @@ function TextSectionBlock({ props }: { props: Record<string, any> }) {
   const maxW = `max-w-${props.maxWidth || '3xl'}`;
 
   return (
-    <motion.section
-      className={`py-16 px-6 ${align}`}
-      variants={sectionAnim}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true }}
-    >
+    <motion.section className={`py-16 px-6 ${align}`} variants={sectionAnim} initial="hidden" whileInView="visible" viewport={{ once: true }}>
       <div className={`container ${maxW} mx-auto`}>
         {props.title && <h2 className="text-3xl md:text-4xl font-bold mb-6">{props.title}</h2>}
-        <div className="text-lg text-muted-foreground leading-relaxed whitespace-pre-line">
-          {props.body}
-        </div>
+        <div className="text-lg text-muted-foreground leading-relaxed whitespace-pre-line">{props.body}</div>
       </div>
     </motion.section>
   );
@@ -349,5 +360,9 @@ const RENDERERS: Record<string, React.FC<{ props: Record<string, any> }>> = {
 export function BlockRenderer({ block }: { block: LandingBlock }) {
   const Comp = RENDERERS[block.type];
   if (!Comp) return null;
-  return <Comp props={block.props} />;
+  return (
+    <StyleWrapper props={block.props}>
+      <Comp props={block.props} />
+    </StyleWrapper>
+  );
 }

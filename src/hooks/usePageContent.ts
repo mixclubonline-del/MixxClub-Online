@@ -50,6 +50,18 @@ const DEFAULTS: Record<string, Record<string, { content: string; content_type: s
     // Footer
     footer_tagline: { content: 'Where Music Meets Technology', content_type: 'text' },
     footer_description: { content: 'The all-in-one ecosystem for Artists, Engineers, Producers, and Fans.', content_type: 'text' },
+    // City Districts
+    city_title: { content: 'Welcome to Mixxclub City', content_type: 'text' },
+    city_subtitle: { content: "This is where you'll live. A city for creators.", content_type: 'text' },
+    city_badge: { content: 'Enter the Experience', content_type: 'text' },
+    district_tower_name: { content: 'MixxTech Tower', content_type: 'text' },
+    district_tower_desc: { content: 'Your Command Center', content_type: 'text' },
+    district_rsd_name: { content: 'RSD Chamber', content_type: 'text' },
+    district_rsd_desc: { content: 'Where Music is Made', content_type: 'text' },
+    district_arena_name: { content: 'The Arena', content_type: 'text' },
+    district_arena_desc: { content: 'Battles & Community', content_type: 'text' },
+    district_commerce_name: { content: 'Commerce District', content_type: 'text' },
+    district_commerce_desc: { content: '10 Revenue Streams', content_type: 'text' },
   },
 
   /* ─── MIXCLUB (MIXXCLUB BRANDED LANDING) ─── */
