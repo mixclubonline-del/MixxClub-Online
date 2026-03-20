@@ -36,6 +36,7 @@ import {
   FileText,
   Flag,
   ToggleLeft,
+  Navigation,
   type LucideIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -157,6 +158,7 @@ const ROLE_HUB_DEFINITIONS: Record<string, HubDefinition[]> = {
     { id: 'launch', label: 'Launch', icon: Flame, description: 'First 100 war room' },
     { id: 'screenshots', label: 'Screenshots', icon: Camera, description: 'Route capture tool' },
     { id: 'page-editor', label: 'Page Editor', icon: FileText, description: 'Edit site content' },
+    { id: 'nav-editor', label: 'Navigation', icon: Navigation, description: 'Menu & link editor' },
   ],
 };
 

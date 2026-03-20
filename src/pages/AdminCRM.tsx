@@ -29,6 +29,7 @@ import { AdminScreenshotTool } from '@/components/admin/AdminScreenshotTool';
 import { AdminModerationQueue } from '@/components/admin/AdminModerationQueue';
 import { AdminFeatureFlagsHub } from '@/components/admin/AdminFeatureFlagsHub';
 import { AdminPageEditor } from '@/components/admin/AdminPageEditor';
+import { AdminNavigationEditor } from '@/components/admin/AdminNavigationEditor';
 import { lazy, Suspense } from 'react';
 const PromoStudio = lazy(() => import('@/pages/PromoStudio'));
 
@@ -235,6 +236,8 @@ const AdminCRM = () => {
         return <AdminScreenshotTool />;
       case 'page-editor':
         return <AdminPageEditor />;
+      case 'nav-editor':
+        return <AdminNavigationEditor />;
       default:
         return <AdminDashboardHub />;
     }
