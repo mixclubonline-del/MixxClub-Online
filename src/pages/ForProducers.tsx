@@ -28,6 +28,7 @@ import { ScrollRevealSection } from "@/components/landing/ScrollRevealSection";
 import { Badge } from "@/components/ui/badge";
 import { BackButton } from "@/components/navigation/BackButton";
 import portalProducerImage from "@/assets/portal-producer.png";
+import { usePageContent } from '@/hooks/usePageContent';
 
 // Reuse some promo images until producer-specific ones are created
 import artistUploadCloud from "@/assets/promo/artist-upload-cloud.jpg";
@@ -44,6 +45,9 @@ import artistCrmProjects from "@/assets/promo/artist-crm-projects.jpg";
 import artistCrmCommunity from "@/assets/promo/artist-crm-community.jpg";
 
 const ForProducers = () => {
+    const { content: heroTitle } = usePageContent('for-producers', 'hero_title');
+    const { content: heroSubtitle } = usePageContent('for-producers', 'hero_subtitle');
+    const { content: heroBadge } = usePageContent('for-producers', 'hero_badge');
     const journeySteps: ShowcaseStep[] = [
         {
             image: artistUploadCloud,
@@ -220,9 +224,9 @@ const ForProducers = () => {
 
             {/* Hero Section */}
             <PortalHero
-                badge={{ icon: <Disc3 className="w-4 h-4" />, text: "For Producers" }}
-                title="Your Beats Deserve a Global Stage"
-                subtitle="Build your catalog, license your sound, and earn from every beat — with AI-powered tools and a marketplace of 10,000+ artists."
+                badge={{ icon: <Disc3 className="w-4 h-4" />, text: heroBadge }}
+                title={heroTitle}
+                subtitle={heroSubtitle}
                 stats={stats}
                 primaryAction={{
                     text: "Start Selling Beats",

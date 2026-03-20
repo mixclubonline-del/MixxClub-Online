@@ -30,6 +30,7 @@ import { ScrollRevealSection } from "@/components/landing/ScrollRevealSection";
 import { Badge } from "@/components/ui/badge";
 import { BackButton } from "@/components/navigation/BackButton";
 import portalFanImage from "@/assets/portal-fan.png";
+import { usePageContent } from '@/hooks/usePageContent';
 
 // Reuse promo images temporarily
 import artistUploadCloud from "@/assets/promo/artist-upload-cloud.jpg";
@@ -46,6 +47,9 @@ import artistCrmProjects from "@/assets/promo/artist-crm-projects.jpg";
 import artistCrmCommunity from "@/assets/promo/artist-crm-community.jpg";
 
 const ForFans = () => {
+    const { content: heroTitle } = usePageContent('for-fans', 'hero_title');
+    const { content: heroSubtitle } = usePageContent('for-fans', 'hero_subtitle');
+    const { content: heroBadge } = usePageContent('for-fans', 'hero_badge');
     const journeySteps: ShowcaseStep[] = [
         {
             image: artistUploadCloud,
@@ -222,9 +226,9 @@ const ForFans = () => {
 
             {/* Hero Section */}
             <PortalHero
-                badge={{ icon: <Heart className="w-4 h-4" />, text: "For Fans" }}
-                title="Be Day 1. Get Rewarded Forever."
-                subtitle="Discover artists before they blow up, earn blockchain-verified OG status, and unlock exclusive rewards as they rise."
+                badge={{ icon: <Heart className="w-4 h-4" />, text: heroBadge }}
+                title={heroTitle}
+                subtitle={heroSubtitle}
                 stats={stats}
                 primaryAction={{
                     text: "Start Discovering Free",

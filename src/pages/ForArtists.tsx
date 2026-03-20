@@ -29,6 +29,7 @@ import { ScrollRevealSection } from "@/components/landing/ScrollRevealSection";
 import { Badge } from "@/components/ui/badge";
 import { BackButton } from "@/components/navigation/BackButton";
 import portalArtistImage from "@/assets/portal-artist.jpg";
+import { usePageContent } from '@/hooks/usePageContent';
 
 // Journey Images
 import artistUploadCloud from "@/assets/promo/artist-upload-cloud.jpg";
@@ -45,6 +46,9 @@ import artistCrmProjects from "@/assets/promo/artist-crm-projects.jpg";
 import artistCrmCommunity from "@/assets/promo/artist-crm-community.jpg";
 
 const ForArtists = () => {
+  const { content: heroTitle } = usePageContent('for-artists', 'hero_title');
+  const { content: heroSubtitle } = usePageContent('for-artists', 'hero_subtitle');
+  const { content: heroBadge } = usePageContent('for-artists', 'hero_badge');
   const journeySteps: ShowcaseStep[] = [
     {
       image: artistUploadCloud,
@@ -234,9 +238,9 @@ const ForArtists = () => {
 
       {/* Hero Section */}
       <PortalHero
-        badge={{ icon: <Music className="w-4 h-4" />, text: "For Artists" }}
-        title="Turn Bedroom Beats Into Billboard Bangers"
-        subtitle="Professional mixing, AI-powered mastering, real-time collaboration, and MixxCoinz rewards with world-class engineers."
+        badge={{ icon: <Music className="w-4 h-4" />, text: heroBadge }}
+        title={heroTitle}
+        subtitle={heroSubtitle}
         stats={stats}
         primaryAction={{
           text: "Start Your Journey Free",

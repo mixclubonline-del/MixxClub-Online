@@ -13,6 +13,7 @@ import Navigation from '@/components/Navigation';
 import { PublicFooter } from '@/components/layouts/PublicFooter';
 import { GlassPanel } from '@/components/crm/design/GlassPanel';
 import heroContact from '@/assets/hero-contact.jpg';
+import { usePageContent } from '@/hooks/usePageContent';
 
 const contactSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
@@ -34,6 +35,8 @@ const contactInfo = [
 ];
 
 export default function Contact() {
+  const { content: contactTitle } = usePageContent('contact', 'hero_title');
+  const { content: contactSubtitle } = usePageContent('contact', 'hero_subtitle');
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -117,10 +120,10 @@ export default function Contact() {
             transition={{ duration: 0.8 }}
           >
             <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-foreground via-primary to-secondary bg-clip-text text-transparent">
-              Get In Touch
+              {contactTitle}
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Have a question? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+              {contactSubtitle}
             </p>
           </motion.div>
 

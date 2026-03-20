@@ -25,6 +25,7 @@ import { RevenuePreview } from "@/components/home/RevenuePreview";
 import { StudioPreview } from "@/components/home/StudioPreview";
 import portalEngineerImage from "@/assets/portal-engineer.jpg";
 import { BackButton } from "@/components/navigation/BackButton";
+import { usePageContent } from '@/hooks/usePageContent';
 
 // Engineer Images
 import engineerRevenueStreams from "@/assets/promo/engineer-revenue-streams.jpg";
@@ -35,6 +36,9 @@ import engineerGrowthCoaching from "@/assets/promo/engineer-growth-coaching.jpg"
 import engineerWorkspaceHero from "@/assets/promo/engineer-workspace-hero.jpg";
 
 export default function ForEngineers() {
+  const { content: heroTitle } = usePageContent('for-engineers', 'hero_title');
+  const { content: heroSubtitle } = usePageContent('for-engineers', 'hero_subtitle');
+  const { content: heroBadge } = usePageContent('for-engineers', 'hero_badge');
   const stats = [
     { value: "$4,200", label: "Avg Monthly Earnings" },
     { value: "10", label: "Revenue Streams" },
@@ -169,9 +173,9 @@ export default function ForEngineers() {
 
       {/* Hero Section */}
       <PortalHero
-        badge={{ icon: <Sliders className="w-4 h-4" />, text: "For Engineers" }}
-        title="Your Skills Deserve to Be Paid"
-        subtitle="Transform your audio expertise into a thriving business with 10 revenue streams, verified certifications, and automatic client matching."
+        badge={{ icon: <Sliders className="w-4 h-4" />, text: heroBadge }}
+        title={heroTitle}
+        subtitle={heroSubtitle}
         stats={stats}
         primaryAction={{
           text: "Start Earning Today",

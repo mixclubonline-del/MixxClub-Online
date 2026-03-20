@@ -52,10 +52,13 @@ const DEFAULTS: Record<string, Record<string, { content: string; content_type: s
 
   /* ─── ABOUT PAGE ─── */
   about: {
-    hero_title: { content: 'The Platform Built\nfor Music People', content_type: 'text' },
-    hero_subtitle: { content: 'Four roles. One ecosystem. Every feature designed to elevate the way music is made, mixed, and experienced.', content_type: 'text' },
+    hero_title: { content: 'One Platform. Four Roles.\nInfinite Possibility.', content_type: 'text' },
+    hero_subtitle: { content: 'Mixxclub is the complete music ecosystem — where artists create, engineers craft, producers supply, and fans invest in the culture they love.', content_type: 'text' },
+    hero_badge: { content: 'Artist · Engineer · Producer · Fan', content_type: 'text' },
     mission_title: { content: 'Our Mission', content_type: 'text' },
-    mission_body: { content: 'Mixxclub exists to give every creator — artist, engineer, producer, and fan — the tools, community, and economy to thrive. No gatekeepers. No middlemen. Just music.', content_type: 'text' },
+    mission_body: { content: 'To build the world\'s most complete music ecosystem — one that serves every person in the creative chain. Not just artists. Not just engineers. Everyone. From the bedroom producer to the Day 1 fan, every role matters and every contribution is rewarded.', content_type: 'text' },
+    vision_title: { content: 'Our Vision', content_type: 'text' },
+    vision_body: { content: 'A music industry where ownership is distributed, collaboration is seamless, and every creative can build real wealth from their craft. Powered by AI tools, an in-platform economy, and a community that unlocks new possibilities together.', content_type: 'text' },
     roles_title: { content: 'The Four Pillars', content_type: 'text' },
     values_title: { content: 'What We Stand For', content_type: 'text' },
   },
@@ -68,30 +71,30 @@ const DEFAULTS: Record<string, Record<string, { content: string; content_type: s
 
   /* ─── FOR ARTISTS PORTAL ─── */
   'for-artists': {
-    hero_title: { content: 'Your Music Deserves\nWorld-Class Sound', content_type: 'text' },
-    hero_subtitle: { content: 'Get matched with vetted engineers, collaborate in real-time, and release distribution-ready tracks — all from one dashboard.', content_type: 'text' },
-    hero_badge: { content: 'Artist Portal', content_type: 'text' },
+    hero_title: { content: 'Turn Bedroom Beats Into Billboard Bangers', content_type: 'text' },
+    hero_subtitle: { content: 'Professional mixing, AI-powered mastering, real-time collaboration, and MixxCoinz rewards with world-class engineers.', content_type: 'text' },
+    hero_badge: { content: 'For Artists', content_type: 'text' },
   },
 
   /* ─── FOR ENGINEERS PORTAL ─── */
   'for-engineers': {
-    hero_title: { content: 'Turn Your Audio Skills\nInto a Business', content_type: 'text' },
-    hero_subtitle: { content: 'Access 10 revenue streams, build your verified reputation, and work with artists from every genre — on your schedule.', content_type: 'text' },
-    hero_badge: { content: 'Engineer Portal', content_type: 'text' },
+    hero_title: { content: 'Your Skills Deserve to Be Paid', content_type: 'text' },
+    hero_subtitle: { content: 'Transform your audio expertise into a thriving business with 10 revenue streams, verified certifications, and automatic client matching.', content_type: 'text' },
+    hero_badge: { content: 'For Engineers', content_type: 'text' },
   },
 
   /* ─── FOR PRODUCERS PORTAL ─── */
   'for-producers': {
-    hero_title: { content: 'Your Beats.\nGlobal Reach.', content_type: 'text' },
-    hero_subtitle: { content: 'List beats, set custom licenses, collaborate via Beat Forge, and track royalties — from catalog to chart.', content_type: 'text' },
-    hero_badge: { content: 'Producer Portal', content_type: 'text' },
+    hero_title: { content: 'Your Beats Deserve a Global Stage', content_type: 'text' },
+    hero_subtitle: { content: 'Build your catalog, license your sound, and earn from every beat — with AI-powered tools and a marketplace of 10,000+ artists.', content_type: 'text' },
+    hero_badge: { content: 'For Producers', content_type: 'text' },
   },
 
   /* ─── FOR FANS PORTAL ─── */
   'for-fans': {
-    hero_title: { content: 'Discover. Support.\nOwn the Moment.', content_type: 'text' },
-    hero_subtitle: { content: 'Find underground talent, earn Day 1 OG status, attend live premieres, and grow your rewards as your favorite artists rise.', content_type: 'text' },
-    hero_badge: { content: 'Fan Portal', content_type: 'text' },
+    hero_title: { content: 'Be Day 1. Get Rewarded Forever.', content_type: 'text' },
+    hero_subtitle: { content: 'Discover artists before they blow up, earn blockchain-verified OG status, and unlock exclusive rewards as they rise.', content_type: 'text' },
+    hero_badge: { content: 'For Fans', content_type: 'text' },
   },
 
   /* ─── HOW IT WORKS ─── */
@@ -108,14 +111,14 @@ const DEFAULTS: Record<string, Record<string, { content: string; content_type: s
 
   /* ─── CONTACT ─── */
   contact: {
-    hero_title: { content: 'Get in Touch', content_type: 'text' },
-    hero_subtitle: { content: 'Have a question, partnership proposal, or just want to say hello? We would love to hear from you.', content_type: 'text' },
+    hero_title: { content: 'Get In Touch', content_type: 'text' },
+    hero_subtitle: { content: "Have a question? We'd love to hear from you. Send us a message and we'll respond as soon as possible.", content_type: 'text' },
   },
 
   /* ─── FAQ ─── */
   faq: {
     hero_title: { content: 'Frequently Asked Questions', content_type: 'text' },
-    hero_subtitle: { content: 'Everything you need to know about Mixxclub — from pricing to platform features.', content_type: 'text' },
+    hero_subtitle: { content: "Everything you need to know about Mixxclub. Can't find what you're looking for? Contact our support team.", content_type: 'text' },
   },
 };
 

@@ -9,6 +9,7 @@ import { Search, MessageCircle, Mail, Phone } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { GlassPanel } from '@/components/crm/design/GlassPanel';
+import { usePageContent } from '@/hooks/usePageContent';
 
 const faqs = [
   {
@@ -64,6 +65,8 @@ const faqs = [
 ];
 
 export default function FAQ() {
+  const { content: faqTitle } = usePageContent('faq', 'hero_title');
+  const { content: faqSubtitle } = usePageContent('faq', 'hero_subtitle');
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredFaqs = faqs
@@ -101,10 +104,10 @@ export default function FAQ() {
             transition={{ duration: 0.8 }}
           >
             <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-foreground via-primary to-secondary bg-clip-text text-transparent">
-              Frequently Asked Questions
+              {faqTitle}
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Everything you need to know about Mixxclub. Can't find what you're looking for? Contact our support team.
+              {faqSubtitle}
             </p>
           </motion.div>
 

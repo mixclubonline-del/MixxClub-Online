@@ -9,6 +9,7 @@ import { SEOHead } from '@/components/SEOHead';
 import { organizationSchema } from '@/lib/seo-schema';
 import { GlassPanel } from '@/components/crm/design/GlassPanel';
 import heroAbout from '@/assets/hero-about.jpg';
+import { usePageContent } from '@/hooks/usePageContent';
 
 const sectionAnim = {
   hidden: { opacity: 0, y: 40 },
@@ -69,6 +70,13 @@ const values = [
 ];
 
 export default function About() {
+  const { content: heroTitle } = usePageContent('about', 'hero_title');
+  const { content: heroSubtitle } = usePageContent('about', 'hero_subtitle');
+  const { content: heroBadge } = usePageContent('about', 'hero_badge');
+  const { content: missionTitle } = usePageContent('about', 'mission_title');
+  const { content: missionBody } = usePageContent('about', 'mission_body');
+  const { content: visionTitle } = usePageContent('about', 'vision_title');
+  const { content: visionBody } = usePageContent('about', 'vision_body');
   return (
     <>
       <SEOHead
@@ -100,13 +108,13 @@ export default function About() {
           >
             <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-4 py-1.5 mb-6 text-sm font-medium text-primary">
               <Star className="w-3.5 h-3.5" />
-              Artist · Engineer · Producer · Fan
+              {heroBadge}
             </div>
-            <h1 className="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-foreground via-primary to-secondary bg-clip-text text-transparent">
-              One Platform. Four Roles.<br />Infinite Possibility.
+            <h1 className="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-foreground via-primary to-secondary bg-clip-text text-transparent whitespace-pre-line">
+              {heroTitle}
             </h1>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Mixxclub is the complete music ecosystem — where artists create, engineers craft, producers supply, and fans invest in the culture they love.
+              {heroSubtitle}
             </p>
           </motion.div>
         </section>
@@ -122,15 +130,15 @@ export default function About() {
             viewport={{ once: true, margin: '-80px' }}
           >
             <GlassPanel glow accent="rgba(168,85,247,0.35)">
-              <h2 className="text-3xl font-bold mb-4">Our Mission</h2>
+              <h2 className="text-3xl font-bold mb-4">{missionTitle}</h2>
               <p className="text-muted-foreground leading-relaxed">
-                To build the world's most complete music ecosystem — one that serves every person in the creative chain. Not just artists. Not just engineers. Everyone. From the bedroom producer to the Day 1 fan, every role matters and every contribution is rewarded.
+                {missionBody}
               </p>
             </GlassPanel>
             <GlassPanel glow accent="rgba(6,182,212,0.35)">
-              <h2 className="text-3xl font-bold mb-4">Our Vision</h2>
+              <h2 className="text-3xl font-bold mb-4">{visionTitle}</h2>
               <p className="text-muted-foreground leading-relaxed">
-                A music industry where ownership is distributed, collaboration is seamless, and every creative can build real wealth from their craft. Powered by AI tools, an in-platform economy, and a community that unlocks new possibilities together.
+                {visionBody}
               </p>
             </GlassPanel>
           </motion.div>
