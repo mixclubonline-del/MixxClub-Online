@@ -11,6 +11,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { TrustBadges } from '@/components/TrustBadges';
 import { SEOHead } from '@/components/SEOHead';
 import { generateProductSchema } from '@/lib/seo-schema';
+import { FAQSection } from '@/components/seo/FAQSection';
 import { ScarcityIndicator } from '@/components/pricing/ScarcityIndicator';
 import { PricingCalculator } from '@/components/pricing/PricingCalculator';
 import { useSubscriptionPlans, getYearlyDiscountPercent } from '@/hooks/useSubscriptionPlans';
