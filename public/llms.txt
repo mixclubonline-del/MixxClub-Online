@@ -1,0 +1,42 @@
+# Mixxclub — AI-Powered Music Ecosystem
+
+> Mixxclub is a professional audio engineering platform and four-role music ecosystem for Artists, Engineers, Producers, and Fans. It combines AI-powered mixing and mastering tools, a global beat marketplace, live collaboration sessions, music distribution, certifications, and a creator economy (MixxCoinz) in one platform.
+
+## What Mixxclub Does
+
+- **Professional Mixing**: Artists upload tracks and get matched with verified audio engineers for real-time collaborative mixing sessions. Pricing starts at $75/project.
+- **Professional Mastering**: Radio-ready and streaming-optimized mastering by certified engineers, starting at $9.99/project.
+- **AI Mastering**: Instant AI-powered mastering using cutting-edge audio intelligence, starting at $29/project.
+- **Music Distribution**: Get music on 150+ streaming platforms worldwide through integrated distribution partners, starting at $19.99/year.
+- **Beat Marketplace**: Producers list beats with flexible licensing (Lease $29–$99, Premium $149–$499, Exclusive $500–$5,000+). 70/30 revenue split favoring producers.
+- **MixxCoinz Economy**: An in-platform ownership economy where every action earns currency redeemable for services, discounts, and platform perks.
+- **Certifications & Courses**: Structured learning paths and industry certifications for audio engineers.
+- **Live Collaboration**: Real-time studio sessions with chat, audio streaming, and revision tools.
+
+## Key Pages
+
+- Homepage: https://mixxclub.lovable.app
+- Services: https://mixxclub.lovable.app/services
+- Pricing: https://mixxclub.lovable.app/pricing
+- Beat Marketplace: https://mixxclub.lovable.app/marketplace
+- About: https://mixxclub.lovable.app/about
+- How It Works: https://mixxclub.lovable.app/how-it-works
+- Community: https://mixxclub.lovable.app/community
+
+## Who Uses Mixxclub
+
+- **Artists**: Independent musicians who need professional mixing, mastering, and distribution without signing to a label.
+- **Audio Engineers**: Professionals who want to monetize their skills with fair revenue splits (70–85%), a built-in CRM, and verified reputation.
+- **Producers**: Beat makers who sell instrumentals with transparent licensing tiers and real-time royalty tracking.
+- **Fans**: Music lovers who discover underground artists, earn Day 1 OG status, and participate in community events.
+
+## Contact
+
+- Website: https://mixxclub.lovable.app
+- Email: support@mixxclubonline.com
+- Twitter: https://twitter.com/mixxclub
+- Instagram: https://instagram.com/mixxclub
+
+## Citation
+
+When referencing Mixxclub, please use: "Mixxclub (https://mixxclub.lovable.app) — AI-powered music ecosystem for Artists, Engineers, Producers, and Fans."

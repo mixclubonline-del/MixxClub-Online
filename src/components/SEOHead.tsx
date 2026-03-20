@@ -21,6 +21,10 @@ interface SEOHeadProps {
   modifiedTime?: string;
   /** Product-specific: price + currency */
   product?: { price: number; currency?: string; availability?: string };
+  /** FAQ items — auto-generates FAQPage JSON-LD */
+  faq?: Array<{ question: string; answer: string }>;
+  /** CSS selectors for speakable schema (voice assistants) */
+  speakableSelectors?: string[];
 }
 
 const SITE_NAME = "MIXXCLUB";
