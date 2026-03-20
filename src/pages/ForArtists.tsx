@@ -49,6 +49,7 @@ const ForArtists = () => {
   const { content: heroTitle } = usePageContent('for-artists', 'hero_title');
   const { content: heroSubtitle } = usePageContent('for-artists', 'hero_subtitle');
   const { content: heroBadge } = usePageContent('for-artists', 'hero_badge');
+  const { imageUrl: portalArtistImage } = usePageImage('for-artists', 'hero_image', portalArtistFallback);
   const journeySteps: ShowcaseStep[] = [
     {
       image: artistUploadCloud,

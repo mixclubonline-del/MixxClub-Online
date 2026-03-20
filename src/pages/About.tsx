@@ -93,7 +93,7 @@ export default function About() {
         {/* Hero */}
         <section className="relative h-[60vh] min-h-[420px] flex items-center justify-center overflow-hidden">
           <img
-            src={heroAbout}
+            src={heroImage}
             alt="The Mixxclub four-role ecosystem in action"
             className="absolute inset-0 w-full h-full object-cover"
           />

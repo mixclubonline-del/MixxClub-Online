@@ -39,6 +39,7 @@ export default function ForEngineers() {
   const { content: heroTitle } = usePageContent('for-engineers', 'hero_title');
   const { content: heroSubtitle } = usePageContent('for-engineers', 'hero_subtitle');
   const { content: heroBadge } = usePageContent('for-engineers', 'hero_badge');
+  const { imageUrl: portalEngineerImage } = usePageImage('for-engineers', 'hero_image', portalEngineerFallback);
   const stats = [
     { value: "$4,200", label: "Avg Monthly Earnings" },
     { value: "10", label: "Revenue Streams" },

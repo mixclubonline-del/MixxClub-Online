@@ -50,6 +50,7 @@ const ForFans = () => {
     const { content: heroTitle } = usePageContent('for-fans', 'hero_title');
     const { content: heroSubtitle } = usePageContent('for-fans', 'hero_subtitle');
     const { content: heroBadge } = usePageContent('for-fans', 'hero_badge');
+    const { imageUrl: portalFanImage } = usePageImage('for-fans', 'hero_image', portalFanFallback);
     const journeySteps: ShowcaseStep[] = [
         {
             image: artistUploadCloud,

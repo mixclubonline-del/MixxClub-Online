@@ -48,6 +48,7 @@ const ForProducers = () => {
     const { content: heroTitle } = usePageContent('for-producers', 'hero_title');
     const { content: heroSubtitle } = usePageContent('for-producers', 'hero_subtitle');
     const { content: heroBadge } = usePageContent('for-producers', 'hero_badge');
+    const { imageUrl: portalProducerImage } = usePageImage('for-producers', 'hero_image', portalProducerFallback);
     const journeySteps: ShowcaseStep[] = [
         {
             image: artistUploadCloud,
