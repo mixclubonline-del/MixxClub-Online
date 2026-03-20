@@ -77,6 +77,7 @@ export default function About() {
   const { content: missionBody } = usePageContent('about', 'mission_body');
   const { content: visionTitle } = usePageContent('about', 'vision_title');
   const { content: visionBody } = usePageContent('about', 'vision_body');
+  const { imageUrl: heroImage } = usePageImage('about', 'hero_image', heroAboutFallback);
   return (
     <>
       <SEOHead
