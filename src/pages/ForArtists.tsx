@@ -26,6 +26,7 @@ import { FoundingBanner } from "@/components/landing/FoundingBanner";
 import { SessionPreview } from "@/components/home/SessionPreview";
 import { TransformationDemo } from "@/components/home/TransformationDemo";
 import { ScrollRevealSection } from "@/components/landing/ScrollRevealSection";
+import { FAQSection } from "@/components/seo/FAQSection";
 import { Badge } from "@/components/ui/badge";
 import { BackButton } from "@/components/navigation/BackButton";
 import portalArtistFallback from "@/assets/portal-artist.jpg";
