@@ -6,7 +6,8 @@ import {
   Coins, Globe, Sparkles, Shield, TrendingUp, Star
 } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
-import { organizationSchema } from '@/lib/seo-schema';
+import { organizationSchema, softwareApplicationSchema } from '@/lib/seo-schema';
+import { FAQSection } from '@/components/seo/FAQSection';
 import { GlassPanel } from '@/components/crm/design/GlassPanel';
 import heroAboutFallback from '@/assets/hero-about.jpg';
 import { usePageContent, usePageImage } from '@/hooks/usePageContent';
@@ -84,7 +85,8 @@ export default function About() {
         title="About Mixxclub — The Four-Role Music Ecosystem"
         description="Mixxclub is the complete ecosystem for Artists, Engineers, Producers, and Fans. AI tools, MixxCoinz economy, global beat marketplace, certifications, and live premieres — all in one platform."
         keywords="about mixxclub, music production platform, four role ecosystem, mixxcoinz, beat marketplace, audio engineering"
-        schema={organizationSchema}
+        schema={[organizationSchema, softwareApplicationSchema]}
+        speakableSelectors={['h1', 'h2', '[data-speakable]']}
       />
 
       <div className="min-h-screen bg-background">
@@ -288,6 +290,17 @@ export default function About() {
               ))}
             </div>
           </motion.div>
+
+          {/* FAQ */}
+          <FAQSection
+            faqs={[
+              { question: 'What is Mixxclub?', answer: 'Mixxclub is an AI-powered music ecosystem that connects Artists, Engineers, Producers, and Fans in one platform. It provides professional mixing and mastering services, a global beat marketplace, music distribution, live collaboration tools, certifications, and a creator economy powered by MixxCoinz.' },
+              { question: 'How does AI mixing work on Mixxclub?', answer: 'Mixxclub uses AI audio intelligence to analyze uploaded tracks for genre, key, tempo, dynamic range, and spectral characteristics. This analysis powers smart engineer matching, automated mixing suggestions, and instant AI mastering. Human engineers remain central to the creative process — AI enhances their workflow rather than replacing them.' },
+              { question: 'Who founded Mixxclub?', answer: 'Mixxclub was founded by Ravenis Prime, a creator-engineer who built the platform to solve the disconnect between artists needing professional audio services and engineers looking for fair, sustainable income. The platform operates under Mixxed AI Technology Company (MXAI).' },
+              { question: 'Is Mixxclub free to use?', answer: 'Mixxclub offers a free tier with access to the community, limited uploads, and basic features. Paid creator plans start at $14.99/month and unlock unlimited mixing, mastering, priority matching, and advanced AI tools. All paid plans include a 7-day free trial.' },
+            ]}
+            title="About Mixxclub — Common Questions"
+          />
 
         </div>
         <PublicFooter />

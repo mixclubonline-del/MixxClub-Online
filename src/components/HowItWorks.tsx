@@ -4,6 +4,7 @@ import { Upload, UserCheck, Radio, Download, Users, TrendingUp } from "lucide-re
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { FAQSection } from './seo/FAQSection';
 
 const HowItWorks = () => {
   const navigate = useNavigate();
@@ -126,6 +127,19 @@ const HowItWorks = () => {
                 {activeView === "artist" ? "Start Your First Project" : "Join as Engineer"}
               </Button>
             </div>
+          </div>
+
+          {/* FAQ Section */}
+          <div className="mt-16">
+            <FAQSection
+              faqs={[
+                { question: 'How long does a typical mixing project take?', answer: 'Most mixing projects are completed within 1–3 business days after your engineer accepts the project. Turnaround depends on the package tier — standard packages include 3-day delivery, while rush options deliver in 24 hours.' },
+                { question: 'What do I need to upload to get started?', answer: 'Upload your audio file (WAV, MP3, FLAC, or AIFF) along with any reference tracks and a brief description of the sound you want. Our AI analyzes your track instantly to match you with the best engineers for your genre and style.' },
+                { question: 'How are engineers verified on Mixxclub?', answer: 'Engineers go through a multi-step verification process including portfolio review, credential verification, and test project completion. They maintain public reputation scores based on verified client reviews. Only engineers who consistently meet quality standards remain active.' },
+                { question: 'What if I am not satisfied with the result?', answer: 'All packages include revision rounds. If you are still unsatisfied after using your revisions, our support team mediates to ensure a fair resolution. Your satisfaction is protected by our quality guarantee.' },
+              ]}
+              title="How It Works — Common Questions"
+            />
           </div>
         </div>
       </div>

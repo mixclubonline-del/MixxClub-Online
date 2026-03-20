@@ -11,6 +11,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { TrustBadges } from '@/components/TrustBadges';
 import { SEOHead } from '@/components/SEOHead';
 import { generateProductSchema } from '@/lib/seo-schema';
+import { FAQSection } from '@/components/seo/FAQSection';
 import { ScarcityIndicator } from '@/components/pricing/ScarcityIndicator';
 import { PricingCalculator } from '@/components/pricing/PricingCalculator';
 import { useSubscriptionPlans, getYearlyDiscountPercent } from '@/hooks/useSubscriptionPlans';
@@ -588,28 +589,18 @@ export default function Pricing() {
           </div>
 
           {/* FAQ Section */}
-          <div className="mt-16 max-w-3xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-8">Frequently Asked Questions</h2>
-            <div className="space-y-4">
-              {[
-                { q: "What's included in revisions?", a: "Revisions include adjustments to EQ, compression, effects, and overall balance based on your feedback." },
-                { q: "Can I upgrade my package later?", a: "Yes! You can upgrade at any time and only pay the difference." },
-                { q: "What formats do you deliver?", a: "We deliver WAV (24-bit/44.1kHz or higher), MP3 (320kbps), and any other format you need." },
-              ].map((faq, i) => (
-                <motion.div
-                  key={faq.q}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.08, duration: 0.5 }}
-                >
-                  <GlassPanel hoverable>
-                    <h3 className="font-semibold mb-2">{faq.q}</h3>
-                    <p className="text-muted-foreground">{faq.a}</p>
-                  </GlassPanel>
-                </motion.div>
-              ))}
-            </div>
+          <div className="mt-16">
+            <FAQSection
+              faqs={[
+                { question: "What's included in revisions?", answer: 'Revisions include adjustments to EQ, compression, effects, and overall balance based on your feedback. The number of revision rounds depends on your package tier — Basic includes 1 round, Professional includes 3, and Premium includes unlimited revisions.' },
+                { question: 'Can I upgrade my package later?', answer: 'Yes. You can upgrade your mixing or mastering package at any time and only pay the price difference. Subscription plans can be upgraded mid-cycle with prorated billing.' },
+                { question: 'What audio formats do you deliver?', answer: 'Standard delivery includes WAV (24-bit/44.1kHz or higher) and MP3 (320kbps). Stem mastering packages deliver individual processed stems. We can accommodate custom format requests including DDP for CD manufacturing.' },
+                { question: 'How does the MixxCoinz discount work?', answer: 'Every dollar spent on Mixxclub earns MixxCoinz. As you accumulate Coinz, you unlock engagement tiers that provide up to 15% off future purchases. Coinz never expire and are permanently tied to your account.' },
+                { question: 'Do you offer refunds?', answer: 'We offer a satisfaction guarantee on all services. If the delivered work does not meet the agreed-upon specifications after all included revisions, we will either assign a new engineer at no cost or issue a full refund.' },
+                { question: 'What is the difference between Lease and Exclusive beat licenses?', answer: 'A Lease license ($29–$99) gives you non-exclusive rights to use the beat with a stream cap. The beat stays in the producer catalog for others to license. An Exclusive license ($500–$5,000+) transfers full ownership — the beat is permanently removed from the marketplace and you receive all stems and project files.' },
+              ]}
+              title="Pricing & Billing Questions"
+            />
           </div>
         </div>
 

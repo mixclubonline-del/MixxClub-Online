@@ -1,10 +1,12 @@
 import { SEOHead } from '@/components/SEOHead';
+import { generateServiceSchema } from '@/lib/seo-schema';
 import { motion } from 'framer-motion';
 import { Music, Sparkles, Radio, Brain, Sliders } from 'lucide-react';
 import { ServicesDistrict } from '@/components/services/ServicesDistrict';
 import { ServicePortal } from '@/components/services/ServicePortal';
 import { DistrictWelcome } from '@/components/services/DistrictWelcome';
 import { useServicesAssets } from '@/hooks/useServicesAssets';
+import { FAQSection } from '@/components/seo/FAQSection';
 import servicesLobbyStatic from '@/assets/services-lobby.jpg';
 
 export default function Services() {
@@ -57,6 +59,13 @@ export default function Services() {
         title="Services District"
         description="Professional audio services: mixing, mastering, AI mastering, and distribution. Transform your sound from bedroom to billboard."
         keywords="mixing services, mastering services, AI mastering, music distribution, audio engineering"
+        schema={services.map(s => generateServiceSchema({
+          name: s.label,
+          description: s.description,
+          price: s.price,
+          category: 'Audio Engineering',
+        }))}
+        speakableSelectors={['h1', 'h2', '.service-description']}
       />
 
       <ServicesDistrict backgroundAsset={servicesLobby}>
@@ -130,6 +139,20 @@ export default function Services() {
               </p>
             </div>
           </motion.div>
+        </div>
+
+        {/* FAQ Section */}
+        <div className="py-16 px-6">
+          <FAQSection
+            faqs={[
+              { question: 'What is professional mixing and why do I need it?', answer: 'Professional mixing is the process of balancing, EQing, compressing, and spatially placing individual tracks in a song to create a polished, radio-ready sound. Raw recordings almost always benefit from a trained engineer who can bring clarity, punch, and emotion to your music.' },
+              { question: 'How much does mastering cost on Mixxclub?', answer: 'Mastering on Mixxclub starts at $9.99 per track for standard mastering. Premium mastering packages with stem mastering and advanced processing are available from $49. AI-powered instant mastering starts at $29.' },
+              { question: 'What is AI mastering and how does it compare to human mastering?', answer: 'AI mastering uses machine learning models trained on thousands of professionally mastered tracks to analyze and process your audio instantly. It delivers excellent results for demos, singles, and quick turnarounds. For albums and critical releases, human engineers provide nuanced artistic decisions that AI cannot replicate.' },
+              { question: 'How does music distribution work on Mixxclub?', answer: 'Mixxclub partners with leading distribution services to get your music on 150+ streaming platforms including Spotify, Apple Music, Tidal, and Amazon Music. Pricing starts at $19.99/year with no per-release fees on most plans.' },
+              { question: 'Can I work with the same engineer on multiple projects?', answer: 'Yes. Once you find an engineer you work well with, you can book them directly for future projects, save them as a favorite, and build an ongoing creative relationship through the platform.' },
+            ]}
+            title="Questions About Our Services"
+          />
         </div>
       </ServicesDistrict>
     </>
