@@ -5649,6 +5649,62 @@ export type Database = {
           },
         ]
       }
+      nav_items: {
+        Row: {
+          created_at: string
+          href: string
+          icon: string | null
+          id: string
+          is_visible: boolean
+          label: string
+          metadata: Json | null
+          nav_group: string
+          open_in_new_tab: boolean
+          parent_id: string | null
+          requires_auth: boolean
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          href: string
+          icon?: string | null
+          id?: string
+          is_visible?: boolean
+          label: string
+          metadata?: Json | null
+          nav_group?: string
+          open_in_new_tab?: boolean
+          parent_id?: string | null
+          requires_auth?: boolean
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          href?: string
+          icon?: string | null
+          id?: string
+          is_visible?: boolean
+          label?: string
+          metadata?: Json | null
+          nav_group?: string
+          open_in_new_tab?: boolean
+          parent_id?: string | null
+          requires_auth?: boolean
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nav_items_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "nav_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notification_preferences: {
         Row: {
           collaboration_updates: boolean | null
