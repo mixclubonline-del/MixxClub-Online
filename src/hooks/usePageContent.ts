@@ -64,6 +64,7 @@ const DEFAULTS: Record<string, Record<string, { content: string; content_type: s
     hero_title: { content: 'One Platform. Four Roles.\nInfinite Possibility.', content_type: 'text' },
     hero_subtitle: { content: 'Mixxclub is the complete music ecosystem — where artists create, engineers craft, producers supply, and fans invest in the culture they love.', content_type: 'text' },
     hero_badge: { content: 'Artist · Engineer · Producer · Fan', content_type: 'text' },
+    hero_image: { content: '', content_type: 'image' },
     mission_title: { content: 'Our Mission', content_type: 'text' },
     mission_body: { content: 'To build the world\'s most complete music ecosystem — one that serves every person in the creative chain. Not just artists. Not just engineers. Everyone. From the bedroom producer to the Day 1 fan, every role matters and every contribution is rewarded.', content_type: 'text' },
     vision_title: { content: 'Our Vision', content_type: 'text' },
