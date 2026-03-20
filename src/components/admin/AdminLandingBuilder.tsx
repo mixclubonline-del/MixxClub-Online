@@ -411,12 +411,21 @@ function PageEditor({
               const isEditing = editingBlockIdx === idx;
 
               return (
-                <Card key={block.id} variant="glass" className={isEditing ? 'border-primary/40' : ''}>
+                <Card
+                  key={block.id}
+                  variant="glass"
+                  className={`${isEditing ? 'border-primary/40' : ''} ${dragOverIdx === idx ? 'border-primary border-dashed bg-primary/5' : ''} transition-all`}
+                  draggable
+                  onDragStart={() => handleDragStart(idx)}
+                  onDragOver={(e) => handleDragOver(e, idx)}
+                  onDrop={() => handleDrop(idx)}
+                  onDragEnd={handleDragEnd}
+                >
                   <CardContent className="pt-4">
                     {/* Block header */}
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <GripVertical className="w-4 h-4 text-muted-foreground" />
+                        <GripVertical className="w-4 h-4 text-muted-foreground cursor-grab active:cursor-grabbing" />
                         <span className="text-xs text-muted-foreground font-mono">#{idx + 1}</span>
                         {ICON_MAP[def?.icon || ''] || <LayoutTemplate className="w-4 h-4" />}
                         <span className="font-medium text-sm">{def?.label || block.type}</span>
