@@ -92,6 +92,7 @@ const DEFAULTS: Record<string, Record<string, { content: string; content_type: s
     hero_title: { content: 'Your Skills Deserve to Be Paid', content_type: 'text' },
     hero_subtitle: { content: 'Transform your audio expertise into a thriving business with 10 revenue streams, verified certifications, and automatic client matching.', content_type: 'text' },
     hero_badge: { content: 'For Engineers', content_type: 'text' },
+    hero_image: { content: '', content_type: 'image' },
   },
 
   /* ─── FOR PRODUCERS PORTAL ─── */
