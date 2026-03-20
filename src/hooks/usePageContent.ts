@@ -56,12 +56,16 @@ const DEFAULTS: Record<string, Record<string, { content: string; content_type: s
     city_badge: { content: 'Enter the Experience', content_type: 'text' },
     district_tower_name: { content: 'MixxTech Tower', content_type: 'text' },
     district_tower_desc: { content: 'Your Command Center', content_type: 'text' },
+    district_tower_image: { content: '', content_type: 'image' },
     district_rsd_name: { content: 'RSD Chamber', content_type: 'text' },
     district_rsd_desc: { content: 'Where Music is Made', content_type: 'text' },
+    district_rsd_image: { content: '', content_type: 'image' },
     district_arena_name: { content: 'The Arena', content_type: 'text' },
     district_arena_desc: { content: 'Battles & Community', content_type: 'text' },
+    district_arena_image: { content: '', content_type: 'image' },
     district_commerce_name: { content: 'Commerce District', content_type: 'text' },
     district_commerce_desc: { content: '10 Revenue Streams', content_type: 'text' },
+    district_commerce_image: { content: '', content_type: 'image' },
   },
 
   /* ─── MIXCLUB (MIXXCLUB BRANDED LANDING) ─── */
