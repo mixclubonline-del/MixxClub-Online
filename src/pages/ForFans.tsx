@@ -27,6 +27,7 @@ import { ShowcaseFeature } from "@/components/services/ShowcaseFeature";
 import { PortalInvitation } from "@/components/landing/PortalInvitation";
 import { FoundingBanner } from "@/components/landing/FoundingBanner";
 import { ScrollRevealSection } from "@/components/landing/ScrollRevealSection";
+import { FAQSection } from "@/components/seo/FAQSection";
 import { Badge } from "@/components/ui/badge";
 import { BackButton } from "@/components/navigation/BackButton";
 import portalFanFallback from "@/assets/portal-fan.png";
@@ -280,6 +281,20 @@ const ForFans = () => {
                         ))}
                     </div>
                 </div>
+            </section>
+
+            {/* FAQ */}
+            <section className="py-16 px-6 bg-background/80">
+              <FAQSection
+                faqs={[
+                  { question: 'What is Day 1 OG status and how do I earn it?', answer: 'Day 1 OG status is a blockchain-verified badge proving you followed an artist before they reached milestones (1K, 10K followers, or verified status). Follow artists early, and as they grow, your OG status is permanently recorded and rewarded with MixxCoinz.' },
+                  { question: 'Is Mixxclub free for fans?', answer: 'Yes. Fan accounts are always free. You can discover music, follow artists, earn Day 1 status, participate in community events, collect achievements, and earn MixxCoinz — all without paying. Premium fan perks are available through the MixxCoinz economy.' },
+                  { question: 'How do fans earn MixxCoinz?', answer: 'Fans earn MixxCoinz by following artists early (Day 1 rewards), attending live premieres, voting in beat battles, completing community missions, and engaging with content. The more active you are, the more you earn.' },
+                  { question: 'What can I do with MixxCoinz as a fan?', answer: 'MixxCoinz unlock exclusive content, VIP access to premieres, custom profile badges, and community perks. Top-tier fans can also redeem MixxCoinz for merchandise, beat discounts, and platform credits.' },
+                  { question: 'What are live premieres?', answer: 'Live premieres are real-time events where artists debut new tracks to the community. Fans can react live, chat with the artist, and earn exclusive premiere badges. Early attendees get bonus MixxCoinz and commemorative achievements.' },
+                ]}
+                title="Questions for Fans"
+              />
             </section>
 
             {/* Final CTA */}

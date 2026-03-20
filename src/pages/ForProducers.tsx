@@ -25,6 +25,7 @@ import { ShowcaseFeature } from "@/components/services/ShowcaseFeature";
 import { PortalInvitation } from "@/components/landing/PortalInvitation";
 import { FoundingBanner } from "@/components/landing/FoundingBanner";
 import { ScrollRevealSection } from "@/components/landing/ScrollRevealSection";
+import { FAQSection } from "@/components/seo/FAQSection";
 import { Badge } from "@/components/ui/badge";
 import { BackButton } from "@/components/navigation/BackButton";
 import portalProducerFallback from "@/assets/portal-producer.png";
@@ -278,6 +279,20 @@ const ForProducers = () => {
                         ))}
                     </div>
                 </div>
+            </section>
+
+            {/* FAQ */}
+            <section className="py-16 px-6 bg-background/80">
+              <FAQSection
+                faqs={[
+                  { question: 'What licensing tiers are available for my beats?', answer: 'Mixxclub supports three tiers: Lease ($29–$99, non-exclusive with stream caps), Premium ($149–$499, non-exclusive with stems), and Exclusive ($500–$5,000+, full ownership transfer where the beat is permanently removed from the marketplace).' },
+                  { question: 'What percentage do producers keep on beat sales?', answer: 'Producers keep 70% of every sale. The platform takes a 30% commission that covers payment processing, hosting, discovery algorithms, and buyer protection. Exclusive sales over $1,000 qualify for an 80% producer split.' },
+                  { question: 'How does royalty tracking work?', answer: 'When an artist releases a track using your beat, Mixxclub tracks streaming royalties across platforms. Revenue is split according to the partnership agreement and deposited directly to your account. You can monitor earnings per beat, per platform, in real time.' },
+                  { question: 'Can I collaborate with artists directly on the platform?', answer: 'Yes. Beat Forge is Mixxclub\'s collaboration tool for producers and artists. You can share works-in-progress, receive feedback, negotiate custom terms, and co-create tracks — all within the platform with version history and chat.' },
+                  { question: 'How do I get my beats discovered by more artists?', answer: 'Optimize your beat listings with accurate genre tags, BPM, key, and mood descriptors. Our AI auto-tags uploaded beats for search optimization. Featured beats are selected based on quality, engagement metrics, and recency. Verified producers get priority placement.' },
+                ]}
+                title="Questions for Producers"
+              />
             </section>
 
             {/* Final CTA */}

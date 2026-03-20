@@ -1,6 +1,7 @@
 import { Swords, Music2, Trophy, Network } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
 import { PublicFooter } from '@/components/layouts/PublicFooter';
+import { FAQSection } from '@/components/seo/FAQSection';
 
 // Plaza components
 import CommunityPlaza from '@/components/community/CommunityPlaza';
@@ -86,6 +87,19 @@ export default function Community() {
         {/* Gateway */}
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
           <PlazaGateway />
+        </div>
+
+        {/* FAQ */}
+        <div className="py-16 px-6">
+          <FAQSection
+            faqs={[
+              { question: 'What are beat battles and how do I participate?', answer: 'Beat battles are community competitions where producers submit instrumentals and the community votes for the winner. Battles run on a seasonal schedule with prize pools in MixxCoinz and cash. Anyone with an account can vote; producers need a verified account to submit entries.' },
+              { question: 'How do leaderboards work?', answer: 'Mixxclub maintains dual leaderboards: one for overall engagement (combining uploads, collaborations, and community activity) and one for battle performance. Rankings reset each season, with top performers earning trophies and permanent profile badges.' },
+              { question: 'Can I connect and collaborate with other users?', answer: 'Yes. The Network zone lets you discover and connect with artists, engineers, producers, and fans. You can send collaboration requests, share tracks for feedback, and build a professional network within the platform.' },
+              { question: 'What are community missions?', answer: 'Missions are structured activities that reward MixxCoinz — things like "Upload your first track," "Complete 3 collaborations," or "Vote in 5 beat battles." Missions rotate weekly and scale in difficulty and reward value as you progress.' },
+            ]}
+            title="Community Questions"
+          />
         </div>
         
         <PublicFooter />
