@@ -291,6 +291,17 @@ export default function About() {
             </div>
           </motion.div>
 
+          {/* FAQ */}
+          <FAQSection
+            faqs={[
+              { question: 'What is Mixxclub?', answer: 'Mixxclub is an AI-powered music ecosystem that connects Artists, Engineers, Producers, and Fans in one platform. It provides professional mixing and mastering services, a global beat marketplace, music distribution, live collaboration tools, certifications, and a creator economy powered by MixxCoinz.' },
+              { question: 'How does AI mixing work on Mixxclub?', answer: 'Mixxclub uses AI audio intelligence to analyze uploaded tracks for genre, key, tempo, dynamic range, and spectral characteristics. This analysis powers smart engineer matching, automated mixing suggestions, and instant AI mastering. Human engineers remain central to the creative process — AI enhances their workflow rather than replacing them.' },
+              { question: 'Who founded Mixxclub?', answer: 'Mixxclub was founded by Ravenis Prime, a creator-engineer who built the platform to solve the disconnect between artists needing professional audio services and engineers looking for fair, sustainable income. The platform operates under Mixxed AI Technology Company (MXAI).' },
+              { question: 'Is Mixxclub free to use?', answer: 'Mixxclub offers a free tier with access to the community, limited uploads, and basic features. Paid creator plans start at $14.99/month and unlock unlimited mixing, mastering, priority matching, and advanced AI tools. All paid plans include a 7-day free trial.' },
+            ]}
+            title="About Mixxclub — Common Questions"
+          />
+
         </div>
         <PublicFooter />
       </div>
