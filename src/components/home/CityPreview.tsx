@@ -1,25 +1,58 @@
-// ============= Full file contents =============
-
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Building2, Radio, Trophy, DollarSign, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { usePageContent } from '@/hooks/usePageContent';
 
-const districts = [
-  { icon: Building2, name: 'MixxTech Tower', description: 'Your Command Center' },
-  { icon: Radio, name: 'RSD Chamber', description: 'Where Music is Made' },
-  { icon: Trophy, name: 'The Arena', description: 'Battles & Community' },
-  { icon: DollarSign, name: 'Commerce District', description: '10 Revenue Streams' },
+const DISTRICT_KEYS = [
+  { icon: Building2, key: 'district_tower', fallbackName: 'MixxTech Tower', fallbackDesc: 'Your Command Center' },
+  { icon: Radio, key: 'district_rsd', fallbackName: 'RSD Chamber', fallbackDesc: 'Where Music is Made' },
+  { icon: Trophy, key: 'district_arena', fallbackName: 'The Arena', fallbackDesc: 'Battles & Community' },
+  { icon: DollarSign, key: 'district_commerce', fallbackName: 'Commerce District', fallbackDesc: '10 Revenue Streams' },
 ];
 
+function DistrictCard({ icon: Icon, sectionKey, fallbackName, fallbackDesc, index }: {
+  icon: typeof Building2;
+  sectionKey: string;
+  fallbackName: string;
+  fallbackDesc: string;
+  index: number;
+}) {
+  const { content: name } = usePageContent('home', `${sectionKey}_name`);
+  const { content: desc } = usePageContent('home', `${sectionKey}_desc`);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: index * 0.1 }}
+      whileHover={{ scale: 1.05, y: -5 }}
+      className="group relative"
+    >
+      <div className="p-6 rounded-2xl bg-card/50 border border-border/50 backdrop-blur-sm transition-all duration-300 group-hover:border-primary/50 group-hover:shadow-[0_0_30px_hsl(var(--primary)/0.2)]">
+        <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+          <Icon className="w-6 h-6 text-primary" />
+        </div>
+        <h3 className="font-bold mb-1">{name || fallbackName}</h3>
+        <p className="text-sm text-muted-foreground">{desc || fallbackDesc}</p>
+      </div>
+      <div className="absolute inset-0 rounded-2xl bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity -z-10 blur-xl" />
+    </motion.div>
+  );
+}
+
 export const CityPreview = () => {
+  const { content: sectionTitle } = usePageContent('home', 'city_title');
+  const { content: sectionSubtitle } = usePageContent('home', 'city_subtitle');
+  const { content: sectionBadge } = usePageContent('home', 'city_badge');
+
   return (
     <section className="relative py-24 px-6 overflow-hidden">
       {/* Stylized city background */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent z-10" />
         <div className="absolute bottom-0 left-0 right-0 h-64">
-          {/* City skyline silhouette */}
           <svg 
             viewBox="0 0 1200 200" 
             className="w-full h-full opacity-20"
@@ -53,44 +86,29 @@ export const CityPreview = () => {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 mb-6"
           >
             <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium">Enter the Experience</span>
+            <span className="text-sm font-medium">{sectionBadge || 'Enter the Experience'}</span>
           </motion.div>
 
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            Welcome to Mixxclub City
+            {sectionTitle || 'Welcome to Mixxclub City'}
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            This is where you'll live. A city for creators.
+            {sectionSubtitle || 'This is where you\'ll live. A city for creators.'}
           </p>
         </motion.div>
 
         {/* Districts grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
-          {districts.map((district, index) => {
-            const Icon = district.icon;
-            return (
-              <motion.div
-                key={district.name}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ scale: 1.05, y: -5 }}
-                className="group relative"
-              >
-                <div className="p-6 rounded-2xl bg-card/50 border border-border/50 backdrop-blur-sm transition-all duration-300 group-hover:border-primary/50 group-hover:shadow-[0_0_30px_hsl(var(--primary)/0.2)]">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                    <Icon className="w-6 h-6 text-primary" />
-                  </div>
-                  <h3 className="font-bold mb-1">{district.name}</h3>
-                  <p className="text-sm text-muted-foreground">{district.description}</p>
-                </div>
-
-                {/* Glow effect on hover */}
-                <div className="absolute inset-0 rounded-2xl bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity -z-10 blur-xl" />
-              </motion.div>
-            );
-          })}
+          {DISTRICT_KEYS.map((district, index) => (
+            <DistrictCard
+              key={district.key}
+              icon={district.icon}
+              sectionKey={district.key}
+              fallbackName={district.fallbackName}
+              fallbackDesc={district.fallbackDesc}
+              index={index}
+            />
+          ))}
         </div>
 
         {/* CTA */}
