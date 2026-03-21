@@ -226,9 +226,31 @@ export const ActiveWorkHub = () => {
                         {deliverable.projects?.title}
                       </p>
                     </div>
-                    <Badge className={getStatusColor(deliverable.status)} variant="outline">
-                      {deliverable.status.replace('_', ' ')}
-                    </Badge>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-7 w-7"
+                        disabled={loadingUrls[`preview-${deliverable.file_path}`]}
+                        onClick={() => handlePreview(deliverable.file_path)}
+                        title="Preview file"
+                      >
+                        {loadingUrls[`preview-${deliverable.file_path}`] ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Eye className="h-3.5 w-3.5" />}
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-7 w-7"
+                        disabled={loadingUrls[`download-${deliverable.file_path}`]}
+                        onClick={() => handleDownload(deliverable.file_path, deliverable.file_name)}
+                        title="Download file"
+                      >
+                        {loadingUrls[`download-${deliverable.file_path}`] ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+                      </Button>
+                      <Badge className={getStatusColor(deliverable.status)} variant="outline">
+                        {deliverable.status.replace('_', ' ')}
+                      </Badge>
+                    </div>
                   </div>
                 </GlassPanel>
               ))}
