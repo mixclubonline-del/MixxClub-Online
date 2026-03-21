@@ -1,105 +1,152 @@
 import React, { useState } from 'react';
-import { Radio, Filter, TrendingUp } from 'lucide-react';
+import { Radio, Headphones, AudioWaveform, Mic, MessageSquare, GraduationCap, Disc3 } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
 import Navigation from '@/components/Navigation';
 import { PublicFooter } from '@/components/layouts/PublicFooter';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { LiveFeed } from '@/components/live/LiveFeed';
 import { GoLiveButton } from '@/components/live/GoLiveButton';
+import { LiveHero } from '@/components/live/LiveHero';
+import { LiveStatsBar } from '@/components/live/LiveStatsBar';
+import { LiveFeed } from '@/components/live/LiveFeed';
+import { RecentStreams } from '@/components/live/RecentStreams';
+import { LiveActivitySidebar } from '@/components/live/LiveActivitySidebar';
 import { useLiveStreams } from '@/hooks/useLiveStream';
-import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 const CATEGORIES = [
-  { value: 'all', label: 'All' },
-  { value: 'mixing', label: 'Mixing' },
-  { value: 'mastering', label: 'Mastering' },
-  { value: 'production', label: 'Production' },
-  { value: 'performance', label: 'Performance' },
-  { value: 'q&a', label: 'Q&A' },
-  { value: 'tutorial', label: 'Tutorial' },
+  { value: 'all', label: 'All', icon: Disc3 },
+  { value: 'mixing', label: 'Mixing', icon: Headphones },
+  { value: 'mastering', label: 'Mastering', icon: AudioWaveform },
+  { value: 'production', label: 'Production', icon: Disc3 },
+  { value: 'performance', label: 'Performance', icon: Mic },
+  { value: 'q&a', label: 'Q&A', icon: MessageSquare },
+  { value: 'tutorial', label: 'Tutorial', icon: GraduationCap },
 ];
 
 export const LivePage: React.FC = () => {
-  const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const { data: allLiveStreams } = useLiveStreams({ isLive: true });
 
   const liveCount = allLiveStreams?.length || 0;
 
+  // Featured stream = highest viewer count
+  const featuredStream = allLiveStreams && allLiveStreams.length > 0
+    ? [...allLiveStreams].sort((a, b) => (b.viewer_count || 0) - (a.viewer_count || 0))[0]
+    : null;
+
+  // Count per category for badges
+  const categoryCounts = (allLiveStreams || []).reduce<Record<string, number>>((acc, s) => {
+    acc[s.category] = (acc[s.category] || 0) + 1;
+    return acc;
+  }, {});
+
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Live Streams"
-        description="Watch creators mix, perform, and collaborate in real-time on Mixxclub Live."
-        keywords="live streaming, music production live, mixing sessions, live collaboration"
+        title="Mixxclub Live — Watch Creators Mix, Perform & Collaborate"
+        description="Watch creators mix, master, and perform live on Mixxclub. Join real-time sessions, send gifts, and connect with the community."
+        keywords="live streaming, music production live, mixing sessions, live collaboration, beat making live"
       />
       <Navigation />
+
       {/* Header */}
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-16 z-30">
-        <div className="container mx-auto px-4 py-6">
+        <div className="container mx-auto px-4 py-5">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-full bg-destructive/20 flex items-center justify-center">
-                <Radio className="h-6 w-6 text-destructive animate-pulse" />
+              <div className="h-11 w-11 rounded-full bg-destructive/20 flex items-center justify-center">
+                <Radio className="h-5 w-5 text-destructive animate-pulse" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold flex items-center gap-2">
+                <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
                   Mixxclub Live
                   {liveCount > 0 && (
-                    <Badge variant="destructive">{liveCount} Live</Badge>
+                    <Badge variant="destructive" className="text-xs">{liveCount} Live</Badge>
                   )}
                 </h1>
-                <p className="text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   Watch creators mix, perform, and collaborate in real-time
                 </p>
               </div>
             </div>
-
             <GoLiveButton />
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
-        {/* Category Filter */}
-        <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="mb-8">
-          <TabsList className="flex-wrap h-auto gap-2 bg-transparent p-0">
-            {CATEGORIES.map((cat) => (
-              <TabsTrigger
-                key={cat.value}
-                value={cat.value}
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-full px-4"
-              >
-                {cat.label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
+      <div className="container mx-auto px-4 py-6">
+        {/* Stats Bar */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mb-6"
+        >
+          <LiveStatsBar />
+        </motion.div>
 
-        {/* Live Now Section */}
-        <div className="space-y-8">
-          <LiveFeed
-            category={selectedCategory === 'all' ? undefined : selectedCategory}
-            limit={12}
-            showHeader={true}
-          />
+        {/* Two-column layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Main content */}
+          <div className="lg:col-span-8 space-y-8">
+            {/* Hero Stage */}
+            <LiveHero featuredStream={featuredStream} />
 
-          {/* Past Streams Section - Future enhancement */}
-          <div className="pt-8 border-t">
-            <div className="flex items-center gap-2 mb-6">
-              <TrendingUp className="h-5 w-5 text-muted-foreground" />
-              <h2 className="text-xl font-bold">Recent Streams</h2>
+            {/* Category chips */}
+            <div className="flex flex-wrap gap-2">
+              {CATEGORIES.map((cat) => {
+                const Icon = cat.icon;
+                const count = cat.value === 'all' ? liveCount : (categoryCounts[cat.value] || 0);
+                const isActive = selectedCategory === cat.value;
+
+                return (
+                  <button
+                    key={cat.value}
+                    onClick={() => setSelectedCategory(cat.value)}
+                    className={`
+                      inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-medium transition-all
+                      ${isActive
+                        ? 'bg-primary text-primary-foreground shadow-sm'
+                        : 'bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground'
+                      }
+                    `}
+                  >
+                    <Icon className="h-3.5 w-3.5" />
+                    {cat.label}
+                    {count > 0 && (
+                      <Badge
+                        variant={isActive ? 'secondary' : 'outline'}
+                        className="ml-0.5 h-4 px-1.5 text-[10px] leading-none"
+                      >
+                        {count}
+                      </Badge>
+                    )}
+                  </button>
+                );
+              })}
             </div>
-            <div className="text-center py-12 text-muted-foreground">
-              <p>Past stream recordings will appear here</p>
+
+            {/* Live streams grid */}
+            <LiveFeed
+              category={selectedCategory === 'all' ? undefined : selectedCategory}
+              limit={12}
+              showHeader={true}
+            />
+
+            {/* Recent streams / replays */}
+            <div className="pt-6 border-t border-border/40">
+              <RecentStreams />
             </div>
           </div>
+
+          {/* Sidebar */}
+          <aside className="lg:col-span-4 space-y-6">
+            <LiveActivitySidebar />
+          </aside>
         </div>
       </div>
 
-      {/* Floating Go Live Button */}
+      {/* Floating Go Live */}
       <GoLiveButton variant="floating" />
 
       <PublicFooter />
