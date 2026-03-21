@@ -5,18 +5,21 @@
  * staggered entrance animations, and standardized section headers.
  */
 
+import { useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, FileText, Clock, CheckCircle, Upload } from 'lucide-react';
+import { Loader2, FileText, Clock, CheckCircle, Upload, Download, Eye } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useAuth } from '@/hooks/useAuth';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { GlassPanel, HubHeader, StaggeredList, HubSkeleton, EmptyState } from './design';
 import { useSearchParams } from 'react-router-dom';
+import { createSignedUrl } from '@/lib/storage/signedUrls';
+import { useToast } from '@/hooks/use-toast';
 
 export const ActiveWorkHub = () => {
   const { user } = useAuth();
