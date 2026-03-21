@@ -16,6 +16,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
+import { useUserProjects } from '@/hooks/useUserProjects';
 
 interface CommunityChallengesProps {
   compact?: boolean;
