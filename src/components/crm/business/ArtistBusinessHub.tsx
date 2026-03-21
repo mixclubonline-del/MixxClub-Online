@@ -11,14 +11,14 @@ import { useUserProjects } from '@/hooks/useUserProjects';
 export const ArtistBusinessHub = () => {
   const { user } = useAuth();
   const [payments, setPayments] = useState<any[]>([]);
-  const [projectBudgets, setProjectBudgets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const { data: projectBudgets = [] } = useUserProjects(user?.id, 'artist');
 
   useEffect(() => {
-    if (user) loadData();
+    if (user) loadPayments();
   }, [user]);
 
-  const loadData = async () => {
+  const loadPayments = async () => {
     try {
       const paymentsRes = await (supabase as any)
         .from('payments')
@@ -26,16 +26,9 @@ export const ArtistBusinessHub = () => {
         .eq('user_id', user!.id)
         .limit(10);
       
-      const projectsRes = await (supabase as any)
-        .from('projects')
-        .select('id, title, budget, status')
-        .eq('client_id', user!.id)
-        .limit(5);
-      
       setPayments(paymentsRes.data || []);
-      setProjectBudgets(projectsRes.data || []);
     } catch (error) {
-      toast.error('Failed to load data');
+      toast.error('Failed to load payment data');
     } finally {
       setLoading(false);
     }

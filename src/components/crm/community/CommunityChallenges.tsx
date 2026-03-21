@@ -39,15 +39,14 @@ interface Challenge {
 export const CommunityChallenges: React.FC<CommunityChallengesProps> = ({ compact = false }) => {
   const { user } = useAuth();
 
-  // Fetch real data for challenges
+  // Shared cached project data
+  const { data: userProjectsRaw } = useUserProjects(user?.id, 'artist');
+
+  // Fetch real data for challenges (non-project queries)
   const { data: challengeData, isLoading } = useQuery({
-    queryKey: ['community-challenges', user?.id],
+    queryKey: ['community-challenges', user?.id, userProjectsRaw?.length],
     queryFn: async () => {
-      // 1. User's projects
-      const { data: userProjects } = await supabase
-        .from('projects')
-        .select('id, status, created_at')
-        .or(`client_id.eq.${user?.id},engineer_id.eq.${user?.id}`);
+      const userProjects = userProjectsRaw || [];
 
       // 2. User's achievements
       const { data: achievements } = await supabase

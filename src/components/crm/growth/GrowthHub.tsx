@@ -1,3 +1,4 @@
+import React from 'react';
 import { Target, Lightbulb, Rocket, Users, ArrowRight, Sparkles, Loader2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
