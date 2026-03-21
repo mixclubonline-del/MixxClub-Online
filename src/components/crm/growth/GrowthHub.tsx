@@ -113,10 +113,10 @@ function useGrowthHub(partnerId?: string) {
         sharedGoals,
         partnerInfluence: { yourBoostToPartner: partnerBoost, partnerBoostToYou: yourBoost, mutualProjects: partnerProjects.length },
       };
-    },
-    enabled: !!user,
-    staleTime: 5 * 60 * 1000,
-  });
+  }, [user, allProjectsRaw, partnerId]);
+
+  const isLoading = !allProjectsRaw && !!user;
+  return { data: growthData, isLoading };
 }
 
 const IMPACT_STYLES: Record<string, string> = {
