@@ -1,60 +1,60 @@
 
 
-## AEO (Answer Engine Optimization) for Mixxclub
+## Evolve the Live Page — From Basic Grid to Immersive Live Scene
 
-### Goal
-Make Mixxclub's pages machine-readable and authoritative for AI search engines (ChatGPT, Perplexity, Google AI Overviews) so the platform surfaces as a direct answer when users ask about audio mixing services, beat marketplaces, or music engineering platforms.
+### What Exists Now
+- **LivePage** (`/live`): Basic header + category tabs + grid of LiveCards + empty "Recent Streams" placeholder
+- **LiveFeed**: Grid of stream cards with thumbnail, avatar, viewer count
+- **LiveStreamView**: Watch page at `/watch/:streamId` with video, chat, gifts
+- **WhosLiveWidget**: Compact sidebar widget for CRM panels
+- **LiveActivityFeed** (home): Fake demo activity ticker (random generated, not real data)
+- **useLiveStream hook**: Full DB integration — streams, chat, gifts, follows, coins
+- **useLiveActivity hook**: Real activity feed from `activity_feed` table with fallback demos
 
-### Current State
-- `SEOHead` component injects Organization + WebSite JSON-LD on every page
-- `seo-schema.ts` has generators for Product, Review, Breadcrumb, Service — but most are **unused** on actual pages
-- `robots.txt` allows all major crawlers but doesn't address AI bots (GPTBot, PerplexityBot, ClaudeBot)
-- No FAQ schema on any page
-- No `speakable` markup
-- Services pages have no Service schema despite the generator existing
-- Beat/marketplace pages have no Product schema
+### The Evolution Vision
+
+Transform `/live` from a utilitarian stream directory into an immersive "Live Stage" scene — a living, breathing hub that feels like walking into the club.
 
 ### Plan
 
-**1. Update `robots.txt` — Allow AI crawlers explicitly**
-- Add `User-agent` rules for GPTBot, PerplexityBot, ClaudeBot, Google-Extended
-- Keep existing disallow rules for private routes
+**1. Hero "Stage" Section**
+- Featured/pinned stream as a large hero card with animated gradient border and live pulse
+- Auto-selects the stream with highest viewer count
+- Shows host avatar, title, viewer count, and a prominent "Watch Now" CTA
+- If no one is live: atmospheric empty state with animated waveform visual and "The stage is quiet... be the first to go live"
 
-**2. Enhance `SEOHead.tsx` — Add FAQ and Speakable schema support**
-- Add optional `faq` prop: `Array<{question: string, answer: string}>`
-- Auto-generates FAQPage JSON-LD when provided
-- Add optional `speakable` prop for voice-search optimization
+**2. Real-Time Activity Sidebar**
+- Replace the fake `LiveActivityFeed` pattern with the real `useLiveActivity` hook data
+- Scrolling ticker of actual platform activity (uploads, signups, achievements)
+- Realtime subscription for new events appearing with slide-in animations
 
-**3. Add FAQ sections with schema to key pages**
-- **Services** (`/services`): "What is professional mixing?", "How much does mastering cost?", pricing questions
-- **About** (`/about`): "What is Mixxclub?", "How does AI mixing work?"
-- **How It Works** (`/how-it-works`): Process-oriented FAQs
-- **Pricing** (`/pricing`): Plan comparison questions
-- Create a reusable `FAQSection` component that renders visible FAQ accordion + passes data to SEOHead
+**3. Stream Grid Upgrade**
+- Two-column layout: main content (streams) + sidebar (activity + who's live)
+- Stream cards get a subtle animated ring when live, category color coding
+- "Starting Soon" section for scheduled streams (future-dated `started_at`)
 
-**4. Wire existing schema generators to pages**
-- Services page: inject `serviceSchema` for each service (Mixing, Mastering, AI Mastering, Distribution)
-- Beat marketplace: inject `generateProductSchema` for beat listings
-- About page: already uses `organizationSchema` — add `SoftwareApplication` schema for the platform itself
+**4. Recent Streams / Replays**
+- Wire the "Recent Streams" placeholder to query `live_streams` where `is_live = false` and `recording_url IS NOT NULL`
+- Card with replay badge, duration, and view count
 
-**5. Add `llms.txt` to `public/`**
-- A plain-text file (emerging standard) that tells AI crawlers what Mixxclub is, key pages, and how to cite it
-- Includes: platform description, service list, key URLs, contact info
+**5. Live Stats Bar**
+- Horizontal stats strip: total viewers across all streams, active streams count, gifts sent today
+- Animated counters with realtime updates
 
-**6. Create a `SpeakableSnippet` component**
-- Wraps key text blocks (hero headlines, service descriptions) with `data-speakable` attributes
-- Adds `speakable` schema pointing to CSS selectors for voice-assistant extraction
+**6. Category Chips Upgrade**
+- Visual category pills with icons (headphones for mixing, waveform for mastering, mic for performance)
+- Active count badge per category
 
 ### Files Changed
-- `public/robots.txt` — add AI bot rules
-- `public/llms.txt` — new file
-- `src/components/SEOHead.tsx` — add `faq` and `speakable` props
-- `src/components/seo/FAQSection.tsx` — new reusable FAQ accordion with schema
-- `src/pages/Services.tsx` — add FAQ + Service schemas
-- `src/pages/About.tsx` — add FAQ + SoftwareApplication schema
-- `src/pages/HowItWorks.tsx` — add FAQ
-- `src/pages/Pricing.tsx` — add FAQ
-- `src/lib/seo-schema.ts` — add FAQ, SoftwareApplication, and Speakable generators
+- `src/pages/LivePage.tsx` — full redesign with hero, stats bar, two-column layout
+- `src/components/live/LiveHero.tsx` — new featured stream hero component
+- `src/components/live/LiveStatsBar.tsx` — new real-time stats strip
+- `src/components/live/RecentStreams.tsx` — new replays section
+- `src/components/live/LiveFeed.tsx` — minor grid density tweaks
 
-No database changes needed.
+### Technical Details
+- No DB changes needed — all data comes from existing `live_streams`, `activity_feed`, `stream_gifts` tables
+- Uses existing `useLiveStreams`, `useLiveActivity` hooks
+- Framer Motion for entrance animations and live pulse effects
+- Responsive: single column on mobile, two-column on desktop
 
