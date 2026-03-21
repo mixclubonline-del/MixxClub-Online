@@ -217,6 +217,11 @@ export default {
           "90%": { opacity: "1" },
           "100%": { transform: "translateY(100vh) scale(1) rotate(720deg)", opacity: "0" },
         },
+        "gradient-shift": {
+          "0%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+          "100%": { backgroundPosition: "0% 50%" },
+        },
         
         // Notifications - Attention Grabbing
         "pulse-ring": {
