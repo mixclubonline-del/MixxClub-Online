@@ -6,6 +6,7 @@ import { DollarSign, Package, Receipt, Music, Clock, CheckCircle } from 'lucide-
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useUserProjects } from '@/hooks/useUserProjects';
 
 export const ArtistBusinessHub = () => {
   const { user } = useAuth();
