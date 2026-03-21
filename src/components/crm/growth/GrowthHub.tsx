@@ -36,19 +36,12 @@ interface GrowthHubData {
 
 function useGrowthHub(partnerId?: string) {
   const { user } = useAuth();
+  const { data: allProjectsRaw } = useUserProjects(user?.id, 'artist');
 
-  return useQuery({
-    queryKey: ['growth-hub', user?.id, partnerId],
-    queryFn: async (): Promise<GrowthHubData> => {
-      if (!user) throw new Error('Not authenticated');
+  const growthData: GrowthHubData | undefined = React.useMemo(() => {
+    if (!user || !allProjectsRaw) return undefined;
 
-      const { data: projects } = await supabase
-        .from('projects')
-        .select('id, status, user_id, engineer_id, created_at')
-        .or(`user_id.eq.${user.id},engineer_id.eq.${user.id}`)
-        .eq('status', 'completed');
-
-      const allProjects = projects || [];
+      const allProjects = allProjectsRaw.filter((p: any) => p.status === 'completed');
       const partnerProjects = partnerId
         ? allProjects.filter((p) => p.user_id === partnerId || p.engineer_id === partnerId)
         : allProjects.filter((p) => p.user_id && p.engineer_id);
