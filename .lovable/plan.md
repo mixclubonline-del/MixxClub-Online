@@ -1,60 +1,35 @@
 
 
-## Evolve the Live Page — From Basic Grid to Immersive Live Scene
+## Phase 2-4 Completion Sweep
 
-### What Exists Now
-- **LivePage** (`/live`): Basic header + category tabs + grid of LiveCards + empty "Recent Streams" placeholder
-- **LiveFeed**: Grid of stream cards with thumbnail, avatar, viewer count
-- **LiveStreamView**: Watch page at `/watch/:streamId` with video, chat, gifts
-- **WhosLiveWidget**: Compact sidebar widget for CRM panels
-- **LiveActivityFeed** (home): Fake demo activity ticker (random generated, not real data)
-- **useLiveStream hook**: Full DB integration — streams, chat, gifts, follows, coins
-- **useLiveActivity hook**: Real activity feed from `activity_feed` table with fallback demos
+### Status Assessment
 
-### The Evolution Vision
+| Item | Status |
+|------|--------|
+| **Lazy loading** (all 3 CRM pages) | ✅ Already done — all hubs use `React.lazy()` + `Suspense` with `HubSkeleton` fallbacks |
+| **Version timeline** (ActiveWorkHub) | ✅ Already done — deliverables grouped by project with timeline dots, version badges, status colors |
+| **Shared hook adoption** (EnhancedDashboardHub, main GrowthHub) | ✅ Already using `useUserProjects` + `useUserEarnings` |
 
-Transform `/live` from a utilitarian stream directory into an immersive "Live Stage" scene — a living, breathing hub that feels like walking into the club.
+### Remaining Work: Hook Migration for 3 Files
 
-### Plan
+Only 3 components still have inline `projects` queries that should use the shared `useUserProjects` hook:
 
-**1. Hero "Stage" Section**
-- Featured/pinned stream as a large hero card with animated gradient border and live pulse
-- Auto-selects the stream with highest viewer count
-- Shows host avatar, title, viewer count, and a prominent "Watch Now" CTA
-- If no one is live: atmospheric empty state with animated waveform visual and "The stage is quiet... be the first to go live"
+**1. `src/components/crm/growth/GrowthHub.tsx`** (the partnership-focused sub-component, not the main GrowthHub)
+- Lines 46-50: inline query `supabase.from('projects').select(...)` filtered by user
+- Replace with `useUserProjects(user?.id, 'artist')` and filter completed projects in-memory
 
-**2. Real-Time Activity Sidebar**
-- Replace the fake `LiveActivityFeed` pattern with the real `useLiveActivity` hook data
-- Scrolling ticker of actual platform activity (uploads, signups, achievements)
-- Realtime subscription for new events appearing with slide-in animations
+**2. `src/components/crm/community/CommunityChallenges.tsx`**
+- Lines 46-49: inline query for user projects via `client_id` or `engineer_id`
+- Replace with `useUserProjects(user?.id)` — note: this component queries both roles, so use the `user_id` field variant
+- Keep the platform-wide count query (line 58) since that's a different aggregate not covered by the hook
 
-**3. Stream Grid Upgrade**
-- Two-column layout: main content (streams) + sidebar (activity + who's live)
-- Stream cards get a subtle animated ring when live, category color coding
-- "Starting Soon" section for scheduled streams (future-dated `started_at`)
-
-**4. Recent Streams / Replays**
-- Wire the "Recent Streams" placeholder to query `live_streams` where `is_live = false` and `recording_url IS NOT NULL`
-- Card with replay badge, duration, and view count
-
-**5. Live Stats Bar**
-- Horizontal stats strip: total viewers across all streams, active streams count, gifts sent today
-- Animated counters with realtime updates
-
-**6. Category Chips Upgrade**
-- Visual category pills with icons (headphones for mixing, waveform for mastering, mic for performance)
-- Active count badge per category
-
-### Files Changed
-- `src/pages/LivePage.tsx` — full redesign with hero, stats bar, two-column layout
-- `src/components/live/LiveHero.tsx` — new featured stream hero component
-- `src/components/live/LiveStatsBar.tsx` — new real-time stats strip
-- `src/components/live/RecentStreams.tsx` — new replays section
-- `src/components/live/LiveFeed.tsx` — minor grid density tweaks
+**3. `src/components/crm/business/ArtistBusinessHub.tsx`**
+- Lines 28-31: inline query for artist projects
+- Replace with `useUserProjects(user?.id, 'artist')` and derive budget/status in-memory
 
 ### Technical Details
-- No DB changes needed — all data comes from existing `live_streams`, `activity_feed`, `stream_gifts` tables
-- Uses existing `useLiveStreams`, `useLiveActivity` hooks
-- Framer Motion for entrance animations and live pulse effects
-- Responsive: single column on mobile, two-column on desktop
+- Each file: remove `supabase` import for projects query, import `useUserProjects` instead
+- Ensure `queryKey` matches `['user-projects', userId, role]` so React Query shares the cache
+- No database changes needed
+- ~3 files modified, ~15 lines changed per file
 
