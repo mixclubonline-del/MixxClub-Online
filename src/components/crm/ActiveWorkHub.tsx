@@ -24,6 +24,40 @@ import { useToast } from '@/hooks/use-toast';
 export const ActiveWorkHub = () => {
   const { user } = useAuth();
   const isMobile = useIsMobile();
+  const { toast } = useToast();
+  const [loadingUrls, setLoadingUrls] = useState<Record<string, boolean>>({});
+
+  const handlePreview = useCallback(async (filePath: string) => {
+    setLoadingUrls(prev => ({ ...prev, [`preview-${filePath}`]: true }));
+    try {
+      const { url, error } = await createSignedUrl('engineer-deliverables', filePath, 3600);
+      if (error || !url) throw error || new Error('Failed to generate URL');
+      window.open(url, '_blank', 'noopener,noreferrer');
+    } catch {
+      toast({ title: 'Preview Failed', description: 'Could not generate preview link', variant: 'destructive' });
+    } finally {
+      setLoadingUrls(prev => ({ ...prev, [`preview-${filePath}`]: false }));
+    }
+  }, [toast]);
+
+  const handleDownload = useCallback(async (filePath: string, fileName: string) => {
+    setLoadingUrls(prev => ({ ...prev, [`download-${filePath}`]: true }));
+    try {
+      const { url, error } = await createSignedUrl('engineer-deliverables', filePath, 3600);
+      if (error || !url) throw error || new Error('Failed to generate URL');
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      link.rel = 'noopener noreferrer';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch {
+      toast({ title: 'Download Failed', description: 'Could not generate download link', variant: 'destructive' });
+    } finally {
+      setLoadingUrls(prev => ({ ...prev, [`download-${filePath}`]: false }));
+    }
+  }, [toast]);
 
   const { data: activeProjects, isLoading: projectsLoading } = useQuery({
     queryKey: ['active-projects', user?.id],
