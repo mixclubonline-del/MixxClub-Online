@@ -5,22 +5,59 @@
  * staggered entrance animations, and standardized section headers.
  */
 
+import { useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, FileText, Clock, CheckCircle, Upload } from 'lucide-react';
+import { Loader2, FileText, Clock, CheckCircle, Upload, Download, Eye } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useAuth } from '@/hooks/useAuth';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { GlassPanel, HubHeader, StaggeredList, HubSkeleton, EmptyState } from './design';
 import { useSearchParams } from 'react-router-dom';
+import { createSignedUrl } from '@/lib/storage/signedUrls';
+import { useToast } from '@/hooks/use-toast';
 
 export const ActiveWorkHub = () => {
   const { user } = useAuth();
   const isMobile = useIsMobile();
+  const { toast } = useToast();
+  const [loadingUrls, setLoadingUrls] = useState<Record<string, boolean>>({});
+
+  const handlePreview = useCallback(async (filePath: string) => {
+    setLoadingUrls(prev => ({ ...prev, [`preview-${filePath}`]: true }));
+    try {
+      const { url, error } = await createSignedUrl('engineer-deliverables', filePath, 3600);
+      if (error || !url) throw error || new Error('Failed to generate URL');
+      window.open(url, '_blank', 'noopener,noreferrer');
+    } catch {
+      toast({ title: 'Preview Failed', description: 'Could not generate preview link', variant: 'destructive' });
+    } finally {
+      setLoadingUrls(prev => ({ ...prev, [`preview-${filePath}`]: false }));
+    }
+  }, [toast]);
+
+  const handleDownload = useCallback(async (filePath: string, fileName: string) => {
+    setLoadingUrls(prev => ({ ...prev, [`download-${filePath}`]: true }));
+    try {
+      const { url, error } = await createSignedUrl('engineer-deliverables', filePath, 3600);
+      if (error || !url) throw error || new Error('Failed to generate URL');
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      link.rel = 'noopener noreferrer';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch {
+      toast({ title: 'Download Failed', description: 'Could not generate download link', variant: 'destructive' });
+    } finally {
+      setLoadingUrls(prev => ({ ...prev, [`download-${filePath}`]: false }));
+    }
+  }, [toast]);
 
   const { data: activeProjects, isLoading: projectsLoading } = useQuery({
     queryKey: ['active-projects', user?.id],
@@ -189,9 +226,31 @@ export const ActiveWorkHub = () => {
                         {deliverable.projects?.title}
                       </p>
                     </div>
-                    <Badge className={getStatusColor(deliverable.status)} variant="outline">
-                      {deliverable.status.replace('_', ' ')}
-                    </Badge>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-7 w-7"
+                        disabled={loadingUrls[`preview-${deliverable.file_path}`]}
+                        onClick={() => handlePreview(deliverable.file_path)}
+                        title="Preview file"
+                      >
+                        {loadingUrls[`preview-${deliverable.file_path}`] ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Eye className="h-3.5 w-3.5" />}
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-7 w-7"
+                        disabled={loadingUrls[`download-${deliverable.file_path}`]}
+                        onClick={() => handleDownload(deliverable.file_path, deliverable.file_name)}
+                        title="Download file"
+                      >
+                        {loadingUrls[`download-${deliverable.file_path}`] ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+                      </Button>
+                      <Badge className={getStatusColor(deliverable.status)} variant="outline">
+                        {deliverable.status.replace('_', ' ')}
+                      </Badge>
+                    </div>
                   </div>
                 </GlassPanel>
               ))}
@@ -234,9 +293,31 @@ export const ActiveWorkHub = () => {
                               {formatDistanceToNow(new Date(v.created_at), { addSuffix: true })}
                             </span>
                           </div>
-                          <Badge className={getStatusColor(v.status)} variant="outline">
-                            {v.status.replace('_', ' ')}
-                          </Badge>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-7 w-7"
+                              disabled={loadingUrls[`preview-${v.file_path}`]}
+                              onClick={() => handlePreview(v.file_path)}
+                              title="Preview file"
+                            >
+                              {loadingUrls[`preview-${v.file_path}`] ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Eye className="h-3.5 w-3.5" />}
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-7 w-7"
+                              disabled={loadingUrls[`download-${v.file_path}`]}
+                              onClick={() => handleDownload(v.file_path, v.file_name)}
+                              title="Download file"
+                            >
+                              {loadingUrls[`download-${v.file_path}`] ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+                            </Button>
+                            <Badge className={getStatusColor(v.status)} variant="outline">
+                              {v.status.replace('_', ' ')}
+                            </Badge>
+                          </div>
                         </div>
                       </GlassPanel>
                     </div>
