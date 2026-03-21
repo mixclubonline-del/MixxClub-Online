@@ -1,35 +1,29 @@
 
 
-## Phase 2-4 Completion Sweep
+## Add Download/Preview to Version Timeline
 
-### Status Assessment
+### What Changes
+Add download and preview buttons to each deliverable entry in the Version Timeline section of `ActiveWorkHub`. Uses signed URLs from the `engineer-deliverables` storage bucket (same pattern as `MixReviewInterface`).
 
-| Item | Status |
-|------|--------|
-| **Lazy loading** (all 3 CRM pages) | ✅ Already done — all hubs use `React.lazy()` + `Suspense` with `HubSkeleton` fallbacks |
-| **Version timeline** (ActiveWorkHub) | ✅ Already done — deliverables grouped by project with timeline dots, version badges, status colors |
-| **Shared hook adoption** (EnhancedDashboardHub, main GrowthHub) | ✅ Already using `useUserProjects` + `useUserEarnings` |
+### Plan
 
-### Remaining Work: Hook Migration for 3 Files
-
-Only 3 components still have inline `projects` queries that should use the shared `useUserProjects` hook:
-
-**1. `src/components/crm/growth/GrowthHub.tsx`** (the partnership-focused sub-component, not the main GrowthHub)
-- Lines 46-50: inline query `supabase.from('projects').select(...)` filtered by user
-- Replace with `useUserProjects(user?.id, 'artist')` and filter completed projects in-memory
-
-**2. `src/components/crm/community/CommunityChallenges.tsx`**
-- Lines 46-49: inline query for user projects via `client_id` or `engineer_id`
-- Replace with `useUserProjects(user?.id)` — note: this component queries both roles, so use the `user_id` field variant
-- Keep the platform-wide count query (line 58) since that's a different aggregate not covered by the hook
-
-**3. `src/components/crm/business/ArtistBusinessHub.tsx`**
-- Lines 28-31: inline query for artist projects
-- Replace with `useUserProjects(user?.id, 'artist')` and derive budget/status in-memory
+**1. `src/components/crm/ActiveWorkHub.tsx`**
+- Import `Download`, `Eye` icons from lucide-react
+- Import `createSignedUrl` from `@/lib/storage/signedUrls`
+- Add a `handleDownload(filePath, fileName)` function that generates a signed URL and triggers browser download via a temporary `<a>` element
+- Add a `handlePreview(filePath)` function that generates a signed URL and opens it in a new tab
+- In the Version Timeline section (lines 222-241), add two icon buttons next to the status badge:
+  - **Preview** (Eye icon) — opens signed URL in new tab (useful for audio files the browser can play)
+  - **Download** (Download icon) — triggers file download
+- Also add the same buttons to the Recent Deliverables section (lines 185-195)
 
 ### Technical Details
-- Each file: remove `supabase` import for projects query, import `useUserProjects` instead
-- Ensure `queryKey` matches `['user-projects', userId, role]` so React Query shares the cache
-- No database changes needed
-- ~3 files modified, ~15 lines changed per file
+- Signed URL generation: `createSignedUrl('engineer-deliverables', filePath, 3600)` — 1 hour expiry
+- Download trigger: create temporary `<a>` with `download` attribute and click it
+- Both buttons are small icon buttons (`size="icon"`, `variant="ghost"`) to keep the timeline compact
+- Loading state on individual buttons while URL generates using local state map
+- `file_path` is already in the query results — no additional DB queries needed
+
+### Files Changed
+- `src/components/crm/ActiveWorkHub.tsx` — add download/preview handlers and buttons
 
