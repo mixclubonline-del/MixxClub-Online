@@ -1,9 +1,8 @@
 import { Target, Lightbulb, Rocket, Users, ArrowRight, Sparkles, Loader2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useUserProjects } from '@/hooks/useUserProjects';
 import { cn } from '@/lib/utils';
 
 interface GrowthRecommendation {
